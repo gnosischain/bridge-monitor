@@ -5,20 +5,20 @@ import { ChainConfig, Chains, ChainsValues, RPCProviders } from '@/src/constants
 
 // Default chain id from env var
 export const INITIAL_APP_CHAIN_ID = Number(
-  process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID || '42',
+  process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID || '1',
 ) as ChainsValues
 
 export const chainsConfig: Record<ChainsValues, ChainConfig> = {
-  // [Chains.mainnet]: {
-  //   id: Chains.mainnet,
-  //   name: 'Mainnet',
-  //   shortName: 'Mainnet',
-  //   chainId: Chains.mainnet,
-  //   chainIdHex: '0x1',
-  //   rpcUrl: getProviderUrl(Chains.mainnet),
-  //   blockExplorerUrls: ['https://etherscan.io/'],
-  //   token: 'ETH',
-  // },
+  [Chains.mainnet]: {
+    id: Chains.mainnet,
+    name: 'Mainnet',
+    shortName: 'Mainnet',
+    chainId: Chains.mainnet,
+    chainIdHex: '0x1',
+    rpcUrl: getProviderUrl(Chains.mainnet),
+    blockExplorerUrls: ['https://etherscan.io/'],
+    token: 'ETH',
+  },
   [Chains.goerli]: {
     id: Chains.goerli,
     name: 'Görli Testnet',
@@ -29,16 +29,6 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     blockExplorerUrls: ['https://goerli.etherscan.io/'],
     token: 'ETH',
   },
-  // [Chains.kovan]: {
-  //   id: Chains.kovan,
-  //   name: 'Kovan',
-  //   shortName: 'Kovan',
-  //   chainId: 42,
-  //   chainIdHex: '0x2a',
-  //   rpcUrl: getProviderUrl(Chains.kovan),
-  //   blockExplorerUrls: ['https://kovan.etherscan.io/'],
-  //   token: 'ETH',
-  // },
 }
 
 export function getNetworkConfig(chainId: ChainsValues): ChainConfig {

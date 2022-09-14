@@ -1,9 +1,8 @@
 import { ObjectValues } from '@/types/utils'
 
 export const Chains = {
-  // mainnet: 1,
+  mainnet: 1,
   goerli: 5,
-  // kovan: 42,
 } as const
 
 export type ChainConfig = {

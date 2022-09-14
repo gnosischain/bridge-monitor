@@ -9,14 +9,12 @@ import { ObjectValues } from '@/types/utils'
 
 export const providerChains: ProviderChains = {
   [RPCProviders.infura]: {
-    //[Chains.mainnet]: 'mainnet',
+    [Chains.mainnet]: 'mainnet',
     [Chains.goerli]: 'goerli',
-    // [Chains.kovan]: 'kovan',
   },
   [RPCProviders.alchemy]: {
-    //[Chains.mainnet]: 'eth-mainnet',
+    [Chains.mainnet]: 'eth-mainnet',
     [Chains.goerli]: 'eth-goerli',
-    // [Chains.kovan]: 'eth-kovan',
   },
 }
 
