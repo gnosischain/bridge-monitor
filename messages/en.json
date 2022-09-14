@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Bootnode - Frontend Starter Kit",
-    "description": "Bootnode - Frontend Starter Kit"
+    "title": "Gnosis - Bridge Monitor",
+    "description": "Gnosis - Bridge Monitor"
   },
   "mainMenu": {
     "home": "Home",
@@ -18,7 +18,7 @@
     "yourBalance": "Balance"
   },
   "home": {
-    "title": "Welcome to Bootnode-web3-Next.js!",
+    "title": "Welcome to Gnosis Bridge Monitor",
     "mainMessage": "Get started by editing",
     "walletAddress": "Your wallet address"
   },
