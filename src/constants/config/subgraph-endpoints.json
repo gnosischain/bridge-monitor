@@ -1,0 +1,8 @@
+{
+    "1": {
+        "sandbox": "https://api.thegraph.com/subgraphs/name/sandboxthegraph/sandbox-assets-attributes-goerli" 
+    },
+    "5": {
+        "sandbox": "https://api.thegraph.com/subgraphs/name/sandboxthegraph/sandbox-assets-attributes-goerli" 
+    }
+}
