@@ -1,8 +1,12 @@
 {
     "1": {
-        "sandbox": "https://api.thegraph.com/subgraphs/name/sandboxthegraph/sandbox-assets-attributes-goerli" 
+        "sandbox": "https://api.thegraph.com/subgraphs/name/sandboxthegraph/sandbox-assets-attributes-goerli",
+        "bridge-monitor-native": "https://api.thegraph.com/subgraphs/id/QmcHikFo6sArthKEzRtM17XZD2aQtr447pPTQWDwQu4Szs",
+        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/laimejesus/bridge-monitor-foreign"
     },
     "5": {
-        "sandbox": "https://api.thegraph.com/subgraphs/name/sandboxthegraph/sandbox-assets-attributes-goerli" 
+        "sandbox": "https://api.thegraph.com/subgraphs/name/sandboxthegraph/sandbox-assets-attributes-goerli",
+        "bridge-monitor-native": "https://api.thegraph.com/subgraphs/id/QmcHikFo6sArthKEzRtM17XZD2aQtr447pPTQWDwQu4Szs",
+        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/laimejesus/bridge-monitor-foreign"
     }
 }
