@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "address": "0x4d1c96b9a49c4469a0b720a22b74b034eddfe051",
+    "name": "Protofire",
+    "bridgeType": "XDAI",
+    "shortName": "PF",
+    "status": "default"
+  },
+  {
+    "id": 2,
+    "address": "0xc073c8e5ed9aa11cf6776c69b3e13b259ba9f506",
+    "name": "Giveth",
+    "bridgeType": "XDAI",
+    "shortName": "G",
+    "status": "default"
+  },
+  {
+    "id": 3,
+    "address": "0xfe24cfb2f8872e9ed097c451de065a9f6048915b",
+    "name": "Syncnode",
+    "bridgeType": "XDAI",
+    "shortName": "SN",
+    "status": "default"
+  },
+  {
+    "id": 4,
+    "address": "0x97630e2ae609d4104abda91f3066c556403182dd",
+    "name": "Gnosis Dao",
+    "bridgeType": "XDAI",
+    "shortName": "GD",
+    "status": "default"
+  },
+  {
+    "id": 5,
+    "address": "0x587c0d02b40822f15f05301d87c16f6a08aaddde",
+    "name": "Cow Protocol",
+    "bridgeType": "XDAI",
+    "shortName": "CP",
+    "status": "default"
+  },
+  {
+    "id": 6,
+    "address": "0x1312e98995bbcc30fc63db3cef807e20cdd33dca",
+    "name": "Gnosis Safe",
+    "bridgeType": "XDAI",
+    "shortName": "GS",
+    "status": "default"
+  },
+  {
+    "id": 7,
+    "address": "0xfa98b60e02a61b6590f073cad56e68326652d094",
+    "name": "Kartpatkey",
+    "bridgeType": "XDAI",
+    "shortName": "K",
+    "status": "default"
+  }
+]

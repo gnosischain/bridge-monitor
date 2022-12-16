@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "title": "Gnosis - Bridge Monitor",
+    "description": "Gnosis - Bridge Monitor"
+  },
+  "mainMenu": {
+    "home": "Home",
+    "examples": "Examples",
+    "about": "About"
+  },
+  "wallet": {
+    "address": "Address",
+    "appChainId": "Chain Id",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "switchTo": "Switch to",
+    "wallet": "Wallet",
+    "yourBalance": "Balance"
+  },
+  "home": {
+    "title": "Welcome to Gnosis Bridge Monitor",
+    "mainMessage": "Get started by editing",
+    "walletAddress": "Your wallet address"
+  },
+  "about": {
+    "title": "About",
+    "mainMessage": "Get started by editing"
+  },
+  "cookiePolicy": {
+    "title": "Cookie Policy",
+    "mainMessage": "Get started by editing"
+  },
+  "components": {
+    "title": "Components",
+    "mainMessage": "Get started by editing"
+  },
+  "rightSidebarLayout": {
+    "title": "Alternative Layout v2",
+    "mainMessage": "Nothing should change in the sidebar / menu.",
+    "link": "Go back!"
+  }
+}

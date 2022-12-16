@@ -1,0 +1,14 @@
+{
+    "1": {
+        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/laimejesus/bridge-monitor-home-example",
+        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/laimejesus/bridge-monitor-foreign-example"
+    },
+    "5": {
+        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/laimejesus/bridge-monitor-home-example",
+        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/laimejesus/bridge-monitor-foreign-example"
+    },
+    "100": {
+        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/laimejesus/bridge-monitor-home-example",
+        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/laimejesus/bridge-monitor-foreign-example"
+    }
+}
