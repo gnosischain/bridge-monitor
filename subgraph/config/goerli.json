@@ -1,0 +1,6 @@
+{
+  "description": "Subgraph for the Bridge Monitoring System (Goerli)",
+  "network": "goerli",
+  "startBlock": 0,
+  "ForeignBridgeErcToNative": ""
+}

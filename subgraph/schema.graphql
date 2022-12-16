@@ -1,0 +1,111 @@
+enum BridgeType {
+  XDAI,
+  AMB,
+  OMNIBRIDGE
+}
+
+type Validator @entity {
+  id: ID! # Validator Address
+  name: String # See Config folder
+  bridgeType: BridgeType # xDai, AMB, Omnibridge
+  address: Bytes
+  lastActivity: BigInt # Last time Validator Signed|Executed a Tx
+  signed: [TransactionValidation!]! @derivedFrom(field: "validator") # tx signed (24hs)
+  executed: [TransactionExecution!]! @derivedFrom(field: "executor") # tx executed (24hs)
+}
+
+enum TransactionStatus {
+  INITIATED,
+  PENDING,
+  COMPLETED,
+  ERROR,
+}
+
+type TransactionValidation @entity {
+  id: ID! # tx.id + '-' + validator.id
+  transaction: Transaction!
+  transactionHash: Bytes
+  validator: Validator!
+  validatorAddress: Bytes
+  timestamp: BigInt
+}
+type TransactionExecution @entity {
+  id: ID! # tx.id + '-' + validator.id
+  transaction: Transaction!
+  transactionHash: Bytes
+  executor: Validator # the execution could be run by the user so this field may be none
+  executorAddress: Bytes
+  timestamp: BigInt
+}
+
+interface Transaction {
+  id: ID!
+  transactionHash: Bytes # Tx hash where the bridge operation started
+  bridgeName: String # Bridge Name (xDai, OmniBridge, AMB)
+  initiator: Bytes # Sender Address
+  initiatorNetwork: String # Origin Network Name (mainnet, xdai, chiado, goerli)
+  receiver: Bytes # Receiver Address
+  receiverNetwork: String # Dest Network Name (mainnet, xdai, chiado, goerli)
+  transactionStatus: TransactionStatus
+  timestamp: BigInt
+  validations: [TransactionValidation!] @derivedFrom(field: "transaction")
+  execution: TransactionExecution
+}
+
+type XDAITransaction implements Transaction @entity {
+  id: ID! # Transaction Hash
+  transactionHash: Bytes
+  bridgeName: String # Bridge Name (xDai, OmniBridge, AMB)
+  initiator: Bytes # Sender Address
+  initiatorNetwork: String # Origin Network Name (mainnet, xdai, chiado, goerli)
+  initiatorAmount: BigInt # Amount sent number|string
+  initiatorToken: Bytes # ERC20 token address (if mainnet DAI if xdai XDAI)
+  receiver: Bytes # Receiver Address
+  receiverNetwork: String # Dest Network Name (mainnet, xdai, chiado, goerli)
+  receiverAmount: BigInt # Amount sent
+  receiverToken: Bytes # ERC20 token address (if mainnet DAI if xdai XDAI)
+  transactionStatus: TransactionStatus
+  timestamp: BigInt
+  validations: [TransactionValidation!] @derivedFrom(field: "transaction")
+  execution: TransactionExecution
+}
+
+# An AMB Transaction uses the messageID as ID
+type AMBTransaction implements Transaction @entity {
+  id: ID! # Message ID
+  transactionHash: Bytes
+  bridgeName: String # Bridge Name (xDai, OmniBridge, AMB)
+  initiator: Bytes # Sender Address
+  initiatorNetwork: String # Origin Network Name (mainnet, xdai, chiado, goerli)
+  receiver: Bytes # Receiver Address
+  receiverNetwork: String # Dest Network Name (mainnet, xdai, chiado, goerli)
+  transactionStatus: TransactionStatus
+  timestamp: BigInt
+  validations: [TransactionValidation!] @derivedFrom(field: "transaction")
+  execution: TransactionExecution
+
+  messageId: Bytes # AMB id
+}
+
+# An Omni Transaction includes token and amount information.
+# It's ment to give support to AMBTransactions with information we cannot source from AMB Events
+type OmniTransaction implements Transaction @entity {
+  id: ID! # Message ID
+  transactionHash: Bytes
+  bridgeName: String # Bridge Name (xDai, OmniBridge, AMB)
+  initiator: Bytes # Sender Address
+  initiatorNetwork: String # Origin Network Name (mainnet, xdai, chiado, goerli)
+  initiatorAmount: BigInt # Amount sent number|string
+  initiatorToken: Bytes # ERC20 token address (if mainnet DAI if xdai XDAI)
+  receiver: Bytes # Receiver Address
+  receiverNetwork: String # Dest Network Name (mainnet, xdai, chiado, goerli)
+  receiverAmount: BigInt # Amount sent
+  receiverToken: Bytes # ERC20 token address (if mainnet DAI if xdai XDAI)
+  transactionStatus: TransactionStatus
+  timestamp: BigInt
+  # @todo this information is not used here (can not be loaded!)
+  validations: [TransactionValidation!] @derivedFrom(field: "transaction")
+  execution: TransactionExecution
+
+  messageId: Bytes # AMB id
+}

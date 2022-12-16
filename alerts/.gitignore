@@ -1,0 +1,14 @@
+# npm libraries
+/node_modules
+
+# environment variables
+.env
+
+# typescript
+/dist
+
+# custom logs
+/logs
+
+#types
+src/types/

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es5", /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "module": "commonjs", /* Specify what module code is generated. */
+    "sourceMap": true, /* Create source map files for emitted JavaScript files. */
+    "declaration": true, /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
+    "outDir": "./dist", /* Specify an output folder for all emitted files. */
+    "noImplicitAny": true, /* Enable error reporting for expressions and declarations with an implied 'any' type. */
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src/**/*",
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

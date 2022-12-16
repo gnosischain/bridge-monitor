@@ -1,0 +1,1 @@
+export const FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS = '{{ForeignBridgeErcToNative}}';

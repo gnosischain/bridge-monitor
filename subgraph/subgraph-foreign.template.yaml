@@ -1,0 +1,147 @@
+specVersion: 0.0.4
+description: Subgraph for the Bridge Monitoring System
+repository: https://github.com/gnosischain/bridge-monitor-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - name: ForeignBridgeErcToNative
+    kind: ethereum/contract
+    network: {{network}} # mainnet | goerli
+    source:
+      address: '{{ForeignBridgeErcToNative}}'
+      abi: ForeignBridgeErcToNative
+      startBlock: {{startBlockForeignBridgeErcToNative}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - XDAITransaction
+        - TransactionValidation
+        - TransactionExecution
+        - Validator
+      abis:
+        - name: ForeignBridgeErcToNative
+          file: ./abis/ForeignBridgeErcToNative.json
+      eventHandlers:
+        - event: RelayedMessage(address,uint256,bytes32)
+          handler: handleRelayedMessage
+        - event: UserRequestForAffirmation(address,uint256)
+          handler: handleUserRequestForAffirmation
+      file: ./src/foreign-xdai.ts
+  - name: XDAIBridgeValidators
+    kind: ethereum/contract
+    network: {{network}} # mainnet | goerli
+    source:
+      address: '{{XDAIBridgeValidators}}'
+      abi: BridgeValidators
+      startBlock: {{startBlockXDAIBridgeValidators}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Validator
+      abis:
+        - name: BridgeValidators
+          file: ./abis/BridgeValidators.json
+      eventHandlers:
+        - event: ValidatorAdded(indexed address)
+          handler: handlerValidatorAdded
+        - event: ValidatorRemoved(indexed address)
+          handler: handlerValidatorRemoved
+      file: ./src/bridge-validators/xdai-validators.ts
+  - name: AMBBridgeValidators
+    kind: ethereum/contract
+    network: {{network}} # mainnet | goerli
+    source:
+      address: '{{AMBBridgeValidators}}'
+      abi: BridgeValidators
+      startBlock: {{startBlockAMBBridgeValidators}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Validator
+      abis:
+        - name: BridgeValidators
+          file: ./abis/BridgeValidators.json
+      eventHandlers:
+        - event: ValidatorAdded(indexed address)
+          handler: handlerValidatorAdded
+        - event: ValidatorRemoved(indexed address)
+          handler: handlerValidatorRemoved
+      file: ./src/bridge-validators/amb-validators.ts
+  - name: DAI
+    kind: ethereum/contract
+    network: {{network}} # mainnet | goerli
+    source:
+      address: '{{DAI}}'
+      abi: DAI
+      startBlock: {{startDAI}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Transaction
+        - XDAITransaction
+        - TransactionValidation
+        - TransactionExecution
+        - Validator
+      abis:
+        - name: DAI
+          file: ./abis/DAI.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handlerTransfer
+      file: ./src/foreign-xdai.ts
+  - name: OmniBridgeMediator
+    kind: ethereum/contract
+    network: {{network}} # mainnet or goerli
+    source:
+      address: '{{OmniBridgeForeignMediator}}'
+      abi: OmniBridgeMediators
+      startBlock: {{startBlockOmniBridgeForeignMediator}} # Should we use a specific start block?
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Transaction
+        - OmniTransaction
+      abis:
+        - name: OmniBridgeMediators
+          file: ./abis/OmniBridgeMediators.json
+      eventHandlers:
+        - event: TokensBridgingInitiated(indexed address,indexed address,uint256,indexed bytes32)
+          handler: handlerTokensBridgingInitiated
+        - event: TokensBridged(indexed address,indexed address,uint256,indexed bytes32)
+          handler: handlerTokensBridged
+      file: ./src/omnibridge-mediators.ts
+  - name: ForeignAMB
+    kind: ethereum/contract
+    network: {{network}} # mainnet or goerli
+    source:
+      address: '{{ForeignAMB}}'
+      abi: ForeignAMB
+      startBlock: {{startBlockForeignAMB}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - AMBTransaction
+        - TransactionValidation
+        - TransactionExecution
+        - Validator
+      abis:
+        - name: ForeignAMB
+          file: ./abis/ForeignAMB.json
+      eventHandlers:
+        - event: UserRequestForAffirmation(indexed bytes32,bytes)
+          handler: handleUserRequestForAffirmation
+        - event: RelayedMessage(indexed address,indexed address,indexed bytes32,bool)
+          handler: handlerRelayedMessage
+      file: ./src/foreign-amb.ts
