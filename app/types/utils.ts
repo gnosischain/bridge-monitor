@@ -1,3 +1,5 @@
+import { DetailedHTMLProps, HTMLAttributes } from 'react'
+
 import { Contract } from '@ethersproject/contracts'
 import { ContractTransaction } from 'ethers'
 import { KeyedMutator } from 'swr'
@@ -34,3 +36,12 @@ export type TupleParametersType<
 > = Tuple extends [infer Head, ...infer Tail]
   ? [UnwrapParametersType<Head>, ...TupleParametersType<MyContract, Tail>]
   : []
+
+export type IntrinsicElements<H extends HTMLElement = HTMLElement> = DetailedHTMLProps<
+  HTMLAttributes<H>,
+  H
+>
+
+export const isFulfilled = <T>(
+  input: PromiseSettledResult<T>,
+): input is PromiseFulfilledResult<T> => input.status === 'fulfilled'

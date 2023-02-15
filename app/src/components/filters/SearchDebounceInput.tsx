@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { SetStateAction, useEffect, useState } from 'react'
+import { SetStateAction, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
 import { DebounceInput } from 'react-debounce-input'
@@ -20,14 +20,28 @@ const Textfield: any = styled(DebounceInput)`
 interface Props {
   placeholder?: string
   onChange: (e: string) => void
+  onEnterValue: () => void
+  reset: boolean
 }
 
-export const SearchDebounceInput: React.FC<Props> = ({ onChange, placeholder = 'Search' }) => {
+export const SearchDebounceInput: React.FC<Props> = ({
+  onChange,
+  onEnterValue,
+  placeholder = 'Search',
+  reset,
+}) => {
   const [value, setValue] = useState('')
 
   useEffect(() => {
     onChange(value)
-  }, [value, onChange])
+    onEnterValue()
+  }, [value, onChange, onEnterValue])
+
+  useMemo(() => {
+    if (reset) {
+      setValue('')
+    }
+  }, [reset])
 
   return (
     <Search>

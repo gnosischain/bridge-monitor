@@ -12,7 +12,7 @@ export function useContractCall<
   params: TupleParametersType<MyContract, Writeable<Calls>>,
   options?: SWRConfiguration,
 ): MySWRResponse<TupleReturnType<MyContract, Writeable<Calls>>> {
-  // TODO add to key: data related to functions called
+  // @todo add to key: data related to functions called
   const {
     data = [],
     error,

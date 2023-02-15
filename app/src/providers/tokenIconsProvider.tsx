@@ -1,24 +1,43 @@
-import { createContext, useContext } from 'react'
+import { FC, PropsWithChildren, createContext, useContext } from 'react'
 
 import useSWR from 'swr'
 
-import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
-import { Token, TokenListResponse } from '@/src/constants/token'
+import { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { TokensLists } from '@/src/constants/config/types'
+import {
+  Token,
+  TokenListResponse,
+  TokensByAddress,
+  TokensByNetwork,
+  TokensBySymbol,
+} from '@/types/token'
+import { isFulfilled } from '@/types/utils'
 
 type TokenListQueryReturn = {
   tokens: Token[]
-  tokensByAddress: { [address: string]: Token | undefined }
-  tokensBySymbol: { [symbol: string]: Token | undefined }
+  tokensByAddress: TokensByAddress
+  tokensBySymbol: TokensBySymbol
+  tokensByNetwork: TokensByNetwork
 }
-
-const ICONS_SOURCE = 'https://gateway.ipfs.io/ipns/tokens.1inch.eth'
 
 const useTokenListQuery = () => {
   return useSWR(['token-list'], async () => {
-    const response: TokenListResponse = await fetch(ICONS_SOURCE).then((x) => x.json())
-    const allTokens: Token[] = response.tokens
+    const tokenListPromises = Object.values(TokensLists).map(async (url) => fetch(url))
 
-    const { tokens, tokensByAddress, tokensBySymbol } = allTokens.reduce(
+    const fulfilledResults = await Promise.allSettled(tokenListPromises).then((results) =>
+      results.filter(isFulfilled),
+    )
+    const tokenLists: TokenListResponse[] = await Promise.all(
+      fulfilledResults.map((fulfilledResult) => {
+        if (!fulfilledResult.value.ok) {
+          return Promise.resolve({ tokens: [] })
+        }
+        return fulfilledResult.value.json()
+      }),
+    )
+    const tokenList = tokenLists.flatMap((tokenList) => tokenList.tokens)
+
+    const { tokens, tokensByAddress, tokensByNetwork, tokensBySymbol } = tokenList.reduce(
       (acc: TokenListQueryReturn, token) => {
         const address = token.address.toLowerCase()
 
@@ -30,18 +49,26 @@ const useTokenListQuery = () => {
         acc.tokensByAddress[address] = token
         acc.tokensBySymbol[token.symbol.toLowerCase()] = token
 
+        if (!acc.tokensByNetwork[token.chainId]) {
+          acc.tokensByNetwork[token.chainId] = [token]
+        } else {
+          acc.tokensByNetwork[token.chainId].push(token)
+        }
+
         return acc
       },
       {
         tokens: [],
         tokensByAddress: {},
         tokensBySymbol: {},
+        tokensByNetwork: {},
       },
     )
     return {
       tokens: tokens.sort((a, b) => a.symbol.localeCompare(b.symbol)),
       tokensByAddress,
       tokensBySymbol,
+      tokensByNetwork,
     }
   })
 }
@@ -49,15 +76,17 @@ const useTokenListQuery = () => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const TokenIconsContext = createContext<TokenListQueryReturn>({} as any)
 
-const TokenIconsContextProvider: React.FC = ({ children }) => {
+export const TokenIconsContextProvider: FC<PropsWithChildren<any>> = ({ children }) => {
   const { data } = useTokenListQuery()
 
-  if (!data) return null
+  if (!data) {
+    return null
+  }
 
   return <TokenIconsContext.Provider value={data}>{children}</TokenIconsContext.Provider>
 }
 
-export default genericSuspense(TokenIconsContextProvider)
+export default withGenericSuspense(TokenIconsContextProvider)
 
 export function useTokenIcons(): TokenListQueryReturn {
   return useContext<TokenListQueryReturn>(TokenIconsContext)

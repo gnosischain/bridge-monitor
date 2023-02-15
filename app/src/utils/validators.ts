@@ -7,7 +7,7 @@ import { chainsConfig } from '../constants/config/chains'
 import { gnosis, mainnet } from '../constants/config/rpc-providers'
 import { getHomeGraphqlClient } from '../constants/config/subgraph'
 import { Chains } from '../constants/config/types'
-import { BalanceType, StatusTypes } from '../constants/types'
+import { BalanceType, ValidatorStatusTypes } from '../constants/types'
 import { VALIDATORS_QUERY } from '../queries/validators'
 import { fromBNtoNumber } from './bigNumber'
 import { fromSubgraphTimestamp } from './date'
@@ -76,11 +76,14 @@ export const VALIDATORS_BY_NAME = {
   [Bridges.omni]: _validatorsByName(VALIDATORS_BY_BRIDGE[Bridges.amb]),
 }
 
-export const VALIDATOR_STATUS: Record<TransactionStatus, ValidatorStatusType> = {
-  [TransactionStatus.Initiated]: StatusTypes.pending,
-  [TransactionStatus.Pending]: StatusTypes.submitted,
-  [TransactionStatus.Completed]: StatusTypes.submittedExecuted,
-  [TransactionStatus.Error]: StatusTypes.default,
+export const VALIDATOR_STATUS: Record<TransactionStatus, ValidatorStatusTypes> = {
+  [TransactionStatus.Initiated]: ValidatorStatusTypes.pending,
+  [TransactionStatus.Requested]: ValidatorStatusTypes.pending,
+  [TransactionStatus.Collecting]: ValidatorStatusTypes.submitted,
+  [TransactionStatus.Unclaimed]: ValidatorStatusTypes.submittedExecuted,
+  [TransactionStatus.Claimed]: ValidatorStatusTypes.submittedExecuted,
+  [TransactionStatus.Completed]: ValidatorStatusTypes.submittedExecuted,
+  [TransactionStatus.Error]: ValidatorStatusTypes.default,
 }
 
 export const getValidationsStatus = (transaction: Transaction, _validators: Validator[]) => {
@@ -88,14 +91,14 @@ export const getValidationsStatus = (transaction: Transaction, _validators: Vali
   const validators = cloneDeep(listByAddress) // @todo analyze if is required to create full clone
   const txStatus = transaction.transactionStatus
 
-  transaction.validations.forEach(({ scanUrl, validatorAddress }) => {
+  transaction.validations?.forEach(({ scanUrl, validatorAddress }) => {
     if (validators[validatorAddress]) {
       validators[validatorAddress].status = VALIDATOR_STATUS[txStatus]
       validators[validatorAddress].scanUrl = scanUrl
     }
   })
   if (transaction.execution && validators[transaction.execution.executorAddress]) {
-    validators[transaction.execution.executorAddress].status = StatusTypes.executed
+    validators[transaction.execution.executorAddress].status = ValidatorStatusTypes.executed
     validators[transaction.execution.executorAddress].scanUrl = transaction.execution.scanUrl
   }
   return Object.values(validators)

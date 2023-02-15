@@ -1,8 +1,13 @@
 import { useRouter } from 'next/router'
+import styled from 'styled-components'
 
 import { AnimatePresence, motion } from 'framer-motion'
 
 import { InnerContainer } from '@/src/components/helpers/InnerContainer'
+
+const Container = styled(InnerContainer)`
+  padding-bottom: ${({ theme: { common } }) => common.space * 8}px;
+`
 
 export const Layout: React.FC = ({ children }) => {
   const router = useRouter()
@@ -35,9 +40,9 @@ export const Layout: React.FC = ({ children }) => {
 
   return (
     <AnimatePresence>
-      <InnerContainer
+      <Container
         animate="enter"
-        as={motion.main}
+        as={motion.div}
         initial="hidden"
         key={router.pathname}
         variants={variantsBox}
@@ -47,7 +52,7 @@ export const Layout: React.FC = ({ children }) => {
             {children}
           </motion.div>
         </AnimatePresence>
-      </InnerContainer>
+      </Container>
     </AnimatePresence>
   )
 }

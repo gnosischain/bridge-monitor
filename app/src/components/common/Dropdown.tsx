@@ -86,7 +86,7 @@ interface ItemProps {
 }
 
 const Items = styled.div<ItemProps>`
-  background-color: ${({ theme }) => theme.dropdown.background};
+  background: ${({ theme }) => theme.dropdown.background};
   border-radius: ${({ theme }) => theme.dropdown.borderRadius};
   border: 1px solid ${({ theme }) => theme.dropdown.borderColor};
   box-shadow: 0px 63px 80px rgba(0, 0, 0, 0.07), 0px 31.8937px 34.875px rgba(0, 0, 0, 0.04725),

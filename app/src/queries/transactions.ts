@@ -6,8 +6,10 @@ const TRANSACTION_FRAGMENT = gql`
     bridgeName
     transactionHash
     initiator
+    initiatorAmount
     initiatorNetwork
     receiver
+    receiverAmount
     receiverNetwork
     transactionStatus
     timestamp

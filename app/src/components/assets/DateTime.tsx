@@ -1,6 +1,8 @@
 import styled from 'styled-components'
 
 import { useDate } from '@/src/hooks/useDate'
+import { useGeneral } from '@/src/providers/generalProvider'
+import { DateFormated } from '@/src/utils/date'
 
 const Wrapper = styled.div`
   font-size: 1.2rem;
@@ -14,12 +16,19 @@ interface Props {
 }
 
 export const DateTime: React.FC<Props> = ({ transactiondate }) => {
-  const dateUtils = useDate(new Date(transactiondate))
-
+  const sinceDateFormat = useDate(new Date(transactiondate))
+  const DateFormat = DateFormated(new Date(transactiondate))
+  const { isTimeAgo } = useGeneral()
   return (
     <Wrapper>
-      {dateUtils.duration?.interval} {dateUtils.duration?.epoch}
-      {dateUtils.getSuffix} ago
+      {isTimeAgo ? (
+        <>
+          {sinceDateFormat.duration?.interval} {sinceDateFormat.duration?.epoch}
+          {sinceDateFormat.getSuffix} ago
+        </>
+      ) : (
+        <>{DateFormat}</>
+      )}
     </Wrapper>
   )
 }

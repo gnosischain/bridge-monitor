@@ -16,11 +16,16 @@ import Toast from '@/src/components/toast/Toast'
 import { Head } from '@/src/page_partials/index/Head'
 import { TransactionNotificationProvider } from '@/src/providers/TransactionNotificationProvider'
 import CookiesWarningProvider from '@/src/providers/cookiesWarningProvider'
+import GeneralContextProvider from '@/src/providers/generalProvider'
 import ThemeProvider from '@/src/providers/themeProvider'
 import { intlErrorHandler } from '@/src/utils/intlErrorHandler'
 import 'sanitize.css'
 
 const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3ConnectionProvider'), {
+  ssr: false,
+})
+
+const TokenIconsContextProvider = dynamic(() => import('@/src/providers/tokenIconsProvider'), {
   ssr: false,
 })
 
@@ -53,8 +58,12 @@ export default function App({ Component, messages, pageProps }: AppPropsWithLayo
               <SafeSuspense>
                 <TransactionNotificationProvider>
                   <CookiesWarningProvider>
-                    <Header />
-                    <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
+                    <GeneralContextProvider>
+                      <TokenIconsContextProvider>
+                        <Header />
+                        <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
+                      </TokenIconsContextProvider>
+                    </GeneralContextProvider>
                   </CookiesWarningProvider>
                 </TransactionNotificationProvider>
               </SafeSuspense>

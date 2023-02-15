@@ -11,6 +11,6 @@ export const DEFAULT_DECIMALS = 2
 
 export const POLLING_INTERVAL = parseInt(process.env.NEXT_PUBLIC_POLLING_INTERVAL || '10000')
 
-export const ITEMS_PER_PAGE = 5
+export const ITEMS_PER_PAGE = 50
 
 export const DEBOUNCE_TIME = 1000

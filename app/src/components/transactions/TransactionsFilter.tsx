@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import styled from 'styled-components'
 
 import { SearchDebounceInput } from '../filters/SearchDebounceInput'
@@ -6,86 +7,185 @@ import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
 import { TransactionStatus } from '@/types/generated/subgraph'
 
 const Wrapper = styled.div`
-  padding: ${({ theme: { common } }) => common.space * 4}px
-    ${({ theme: { common } }) => common.space * 2}px;
   background: ${({ theme: { gradients } }) => gradients.gray};
   border-radius: ${({ theme: { common } }) => common.borderRadius};
+  column-gap: ${({ theme: { common } }) => common.space * 2}px;
   display: grid;
   grid-template-columns: 1fr;
-  gap: ${({ theme: { common } }) => common.space * 2}px;
+  padding: ${({ theme: { common } }) => common.space * 4}px
+    ${({ theme: { common } }) => common.space * 2}px;
+  row-gap: ${({ theme: { common } }) => common.space}px;
+
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
     grid-template-columns: 1fr 1fr 1fr;
+
     .searchBox {
-      grid-column: auto / span 3;
+      grid-column: auto / span 2;
     }
   }
+
   @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
-    gap: ${({ theme: { common } }) => common.space * 4}px;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
+    column-gap: ${({ theme: { common } }) => common.space * 4}px;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 100px;
+    row-gap: ${({ theme: { common } }) => common.space * 2}px;
+
     .searchBox {
       grid-column: auto;
     }
   }
 `
+
 const FilterWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme: { common } }) => common.space}px;
 `
+
 const Label = styled.label`
   font-size: 1.4rem;
+`
+
+const ResetButton = styled.button`
+  align-self: end;
+  background-color: transparent;
+  border: none;
+  color: ${({ theme: { colors } }) => colors.cream};
+  cursor: pointer;
+  font-family: ${({ theme: { fonts } }) => fonts.family};
+  font-size: 1.3rem;
+  font-weight: 300;
+  height: 36px;
+  letter-spacing: 0.5px;
+  opacity: 0.5;
+  text-align: right;
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+    grid-column: auto / span 3;
+  }
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
+    grid-column: auto;
+  }
+
+  &:hover {
+    color: ${({ theme: { colors } }) => colors.warning};
+    opacity: 1;
+  }
 `
 
 type Props = {
   bridge: string
   onHashChange: (value: string) => void
   onStatusChange: (value: string) => void
-  onSignatureByChange: (value: string) => void
+  onSignedByChange: (value: string) => void
   onExecutedByChange: (value: string) => void
+  onBridgeDirectionChange: (value: string) => void
 }
 
-type StatusOption = TransactionStatus | 'All Status'
+export enum BridgeDirection {
+  gnosis2mainnet = 'Gnosis > Mainnet',
+  mainnet2gnosis = 'Mainnet > Gnosis',
+}
+
+type BridgeDirectionOption = BridgeDirection | 'All Directions'
+
+type StatusOption = string
+const txStatus = [
+  TransactionStatus.Initiated,
+  TransactionStatus.Requested,
+  TransactionStatus.Collecting,
+  TransactionStatus.Claimed,
+  TransactionStatus.Unclaimed,
+  TransactionStatus.Completed,
+]
 type ValidatorOption = string
 
 export const TransactionsFilter: React.FC<Props> = ({
   bridge,
+  onBridgeDirectionChange,
   onExecutedByChange,
   onHashChange,
-  onSignatureByChange,
+  onSignedByChange,
   onStatusChange,
 }) => {
   const { validators } = useFetchValidators(bridge)
   const validatorNames = validators.map((val) => val.name)
-
-  const statusOptions: StatusOption[] = [
-    'All Status',
-    TransactionStatus.Completed,
-    TransactionStatus.Pending,
-  ]
   const validatorsOptions: ValidatorOption[] = ['All Validators'].concat(validatorNames)
+
+  const bridgeDirectionOptions: BridgeDirectionOption[] = [
+    'All Directions',
+    BridgeDirection.gnosis2mainnet,
+    BridgeDirection.mainnet2gnosis,
+  ]
+
+  const statusNames = txStatus.map(
+    (status) => status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(),
+  )
+  const statusOptions: StatusOption[] = ['All Status'].concat(statusNames)
+
+  const [resetFields, setResetFields] = useState<boolean>(false)
+
+  const resetFilters = () => {
+    onStatusChange(statusOptions[0])
+    onSignedByChange(validatorsOptions[0])
+    onExecutedByChange(validatorsOptions[0])
+    onBridgeDirectionChange(bridgeDirectionOptions[0])
+    setResetFields(true)
+  }
 
   return (
     <Wrapper>
       {/* Transactions search */}
       <FilterWrapper className="searchBox">
         <Label htmlFor="Search">Search transactions</Label>
-        <SearchDebounceInput onChange={onHashChange} placeholder="Search by Address / Txn Hash" />
+        <SearchDebounceInput
+          onChange={onHashChange}
+          onEnterValue={() => setResetFields(false)}
+          placeholder="Search by Address / Txn Hash"
+          reset={resetFields}
+        />
       </FilterWrapper>
       {/* Status filter */}
       <FilterWrapper>
         <Label>Status</Label>
-        <FilterDropdown onChange={onStatusChange} options={statusOptions} />
+        <FilterDropdown
+          onChange={onStatusChange}
+          onEnterValue={() => setResetFields(false)}
+          options={statusOptions}
+          reset={resetFields}
+        />
+      </FilterWrapper>
+      {/* Bridge Direction filter */}
+      <FilterWrapper>
+        <Label>Direction</Label>
+        <FilterDropdown
+          onChange={onBridgeDirectionChange}
+          onEnterValue={() => setResetFields(false)}
+          options={bridgeDirectionOptions}
+          reset={resetFields}
+        />
       </FilterWrapper>
       {/* Signature filter */}
       <FilterWrapper>
-        <Label>Signature by</Label>
-        <FilterDropdown onChange={onSignatureByChange} options={validatorsOptions} />
+        <Label>Signed by</Label>
+        <FilterDropdown
+          onChange={onSignedByChange}
+          onEnterValue={() => setResetFields(false)}
+          options={validatorsOptions}
+          reset={resetFields}
+        />
       </FilterWrapper>
       {/* Executed filter */}
       <FilterWrapper>
         <Label>Executed by</Label>
-        <FilterDropdown onChange={onExecutedByChange} options={validatorsOptions} />
+        <FilterDropdown
+          onChange={onExecutedByChange}
+          onEnterValue={() => setResetFields(false)}
+          options={validatorsOptions}
+          reset={resetFields}
+        />
       </FilterWrapper>
+      <ResetButton onClick={resetFilters}>Reset filters</ResetButton>
     </Wrapper>
   )
 }

@@ -1,14 +1,14 @@
 {
     "1": {
-        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/laimejesus/bridge-monitor-home-example",
-        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/laimejesus/bridge-monitor-foreign-example"
+        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/marcelorubini/bridge-home-events",
+        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/marcelorubini/bridge-foreign-events"
     },
     "5": {
-        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/laimejesus/bridge-monitor-home-example",
-        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/laimejesus/bridge-monitor-foreign-example"
+        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/marcelorubini/bridge-home-events",
+        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/marcelorubini/bridge-foreign-events"
     },
     "100": {
-        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/laimejesus/bridge-monitor-home-example",
-        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/laimejesus/bridge-monitor-foreign-example"
+        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/marcelorubini/bridge-home-events",
+        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/marcelorubini/bridge-foreign-events"
     }
 }

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
@@ -14,11 +15,14 @@ const Wrapper = styled.header`
   align-items: center;
   display: flex;
   flex-grow: 0;
-  margin-bottom: 20vh;
+  margin-bottom: 5vh;
   position: relative;
   max-width: 100%;
-  @media (max-width: ${({ theme }) => theme.breakPoints.desktopWideStart}) {
-    margin-bottom: 15vh;
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    margin-bottom: 8vh;
+  }
+  @media (min-width: ${({ theme }) => theme.breakPoints.desktopWideStart}) {
+    margin-bottom: 12vh;
   }
   &:after {
     content: '';
@@ -43,15 +47,17 @@ const InnerContainer = styled(BaseInnerContainer)`
 const Start = styled.div`
   align-items: center;
   display: flex;
-  max-width: 25%;
   min-width: 100px;
-  svg {
-    max-width: 100%;
-  }
 `
 
 const Logo = styled(GnosisChainLogo)`
+  cursor: pointer;
   max-height: calc(${({ theme }) => theme.header.height} - 20px);
+  max-width: 100%;
+
+  &:active {
+    opacity: 0.7;
+  }
 `
 
 const End = styled.div`
@@ -90,6 +96,7 @@ const ShowPhone = styled.div`
 
 export const Header: React.FC = (props) => {
   const [isOpen, toggleOpen] = useState(false)
+
   useEffect(() => {
     //Fix me later
     if (isOpen) window.document.body.style.overflow = 'hidden'
@@ -97,13 +104,18 @@ export const Header: React.FC = (props) => {
       window.document.body.style.overflow = 'auto'
     }
   }, [isOpen])
+
   return (
     <>
       <PhotoBackground />
       <Wrapper {...props}>
         <InnerContainer>
           <Start>
-            <Logo />
+            <Link href="/" passHref>
+              <span>
+                <Logo />
+              </span>
+            </Link>
           </Start>
           <End>
             <HidePhone>

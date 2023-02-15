@@ -7,16 +7,22 @@ import { formatNumber } from './formatNumber'
 import { getForeignGraphqlClient, getHomeGraphqlClient } from '@/src/constants/config/subgraph'
 import { TRANSACTION_QUERY } from '@/src/queries/transactions'
 import {
+  OrderDirection,
   TransactionExecution as TransactionExecutionSG,
   Transaction as TransactionSG,
   TransactionStatus,
   TransactionValidation as TransactionValidationSG,
+  Transaction_OrderBy,
   TransactionsQuery,
   TransactionsQueryVariables,
 } from '@/types/generated/subgraph'
 
-const GNOSIS = 'xdai'
+const GNOSIS = 'gnosis'
 const MAINNET = 'mainnet'
+
+const MAX_RESULTS = 800
+const RESULTS_ORDER = OrderDirection.Desc
+const ORDER_BY = Transaction_OrderBy.Timestamp
 
 export type TransactionExecution = {
   id: string
@@ -55,7 +61,7 @@ export type Transaction = {
   receiverTokenData?: Token
   receiverScanUrl: string
   transactionStatus: TransactionStatus
-  validations: TransactionValidation[]
+  validations?: TransactionValidation[] | null
   execution?: TransactionExecution
 }
 
@@ -64,6 +70,7 @@ const getNetworkIcon = (network: string) => {
 }
 
 const getTokenData = (network: string) => {
+  // @todo: refactor in order to render required OMNIBridge tokens
   if (network === MAINNET) return tokens['DAI']
   return tokens['XDAI']
 }
@@ -115,15 +122,13 @@ const transformTx = (tx: TransactionSG): Transaction => {
     transactionHash: tx.transactionHash ?? tx.id,
     bridgeName: tx.bridgeName ?? '',
     initiator: tx.initiator ?? '',
-    // initiatorAmount: formatNumber(fromBNtoNumber(tx.initiatorAmount) ?? 0),
-    initiatorAmount: '',
+    initiatorAmount: formatNumber(fromBNtoNumber(tx.initiatorAmount) ?? 0),
     initiatorNetwork: tx.initiatorNetwork ?? '',
     initiatorNetworkIcon: getNetworkIcon(tx.initiatorNetwork ?? ''),
     // initiatorToken: tx.initiatorToken,
     initiatorToken: '',
     receiver: tx.receiver,
-    // receiverAmount: formatNumber(fromBNtoNumber(tx.receiverAmount) ?? 0),
-    receiverAmount: '',
+    receiverAmount: formatNumber(fromBNtoNumber(tx.receiverAmount) ?? 0),
     // @todo complete this data in SG, DAI address
     initiatorTokenData: getTokenData(tx.initiatorNetwork ?? ''),
     receiverNetwork: tx.receiverNetwork ?? '',
@@ -134,7 +139,7 @@ const transformTx = (tx: TransactionSG): Transaction => {
     receiverTokenData: getTokenData(tx.receiverNetwork ?? ''),
     timestamp: fromSubgraphTimestamp(tx.timestamp),
     transactionStatus: tx.transactionStatus ?? TransactionStatus.Initiated,
-    validations: tx.validations.map(transformValidation),
+    validations: tx.validations?.map(transformValidation),
     execution: transformExecution(tx.execution ?? undefined),
     // @todo tx from subgraph should return their transactionHash
     scanUrl: getTxScanUrl(tx.transactionHash ?? tx.id, tx.initiatorNetwork ?? ''),
@@ -143,34 +148,84 @@ const transformTx = (tx: TransactionSG): Transaction => {
   }
 }
 
+const isCompleted = (tx: TransactionSG): boolean => {
+  return tx.transactionStatus === TransactionStatus.Completed
+}
+
+const isClaimed = (tx: TransactionSG): boolean => {
+  return tx.transactionStatus === TransactionStatus.Claimed
+}
+
+const isUnclaimed = (tx: TransactionSG): boolean => {
+  return tx.transactionStatus === TransactionStatus.Unclaimed
+}
+
+const isCollecting = (tx: TransactionSG): boolean => {
+  return tx.transactionStatus === TransactionStatus.Collecting
+}
+
+const isRequested = (tx: TransactionSG): boolean => {
+  return tx.transactionStatus === TransactionStatus.Requested
+}
+
+const isInitiated = (tx: TransactionSG): boolean => {
+  return tx.transactionStatus === TransactionStatus.Initiated
+}
+
 export const unifyTransactions = (txs: TransactionSG[]) => {
   const transactions: Record<string, TransactionSG> = {}
   txs.forEach((tx) => {
     if (!transactions[tx.id]) {
       transactions[tx.id] = tx // id, bridgeName, ..
     } else {
-      // @todo order of statuses initiated -> pending -> completed
-      // if it was already completed do not update the status
-      if (transactions[tx.id].transactionStatus !== TransactionStatus.Completed) {
+      if (isCompleted(tx)) {
+        // adds missing data when Tx is GC-ETH direction
+        transactions[tx.id].receiver = tx.receiver
+        transactions[tx.id].receiverAmount = tx.receiverAmount
+        transactions[tx.id].receiverNetwork = tx.receiverNetwork
+        // updates Tx status (previos state: UNCLAIMED)
         transactions[tx.id].transactionStatus = tx.transactionStatus
+      } else if (
+        isClaimed(tx) &&
+        transactions[tx.id].transactionStatus !== TransactionStatus.Completed
+      ) {
+        transactions[tx.id].transactionStatus = tx.transactionStatus
+      } else if (
+        isUnclaimed(tx) &&
+        (transactions[tx.id].transactionStatus !== TransactionStatus.Claimed ||
+          transactions[tx.id].transactionStatus !== TransactionStatus.Completed)
+      ) {
+        transactions[tx.id].initiator = tx.initiator
+        transactions[tx.id].transactionStatus = tx.transactionStatus
+      } else if (
+        isCollecting(tx) &&
+        transactions[tx.id].transactionStatus !== TransactionStatus.Unclaimed
+      ) {
+        transactions[tx.id].transactionStatus = tx.transactionStatus
+      } else if (
+        isRequested(tx) &&
+        transactions[tx.id].transactionStatus !== TransactionStatus.Collecting
+      ) {
+        transactions[tx.id].transactionStatus = tx.transactionStatus
+      } else if (isInitiated(tx)) {
+        // adds initiator data when Tx is ETH-GC direction
+        transactions[tx.id].initiator = tx.initiator
+        transactions[tx.id].initiatorAmount = tx.initiatorAmount
+        transactions[tx.id].initiatorNetwork = tx.initiatorNetwork
+        transactions[tx.id].timestamp = tx.timestamp
+        // fixes originTx hash shown when TX is ETH-GC
+        transactions[tx.id].transactionHash = tx.transactionHash
       }
     }
 
     // @todo each flow is similar (gnosis -> eth, eth -> gnosis), the only difference is
     // that we set execution when the property exists, otherwise we set validators
     if (!tx.execution) {
-      transactions[tx.id].initiator = tx.initiator
-      transactions[tx.id].initiatorNetwork = tx.initiatorNetwork
-      // transactions[tx.id].initiatorAmount = tx.initiatorAmount
       // @todo quickfix to handle case of overwriting validations when not necessary
-      if (tx.validations.length > 0) {
+      if (tx.validations && tx.validations.length > 0) {
         transactions[tx.id].validations = tx.validations
       }
-      transactions[tx.id].timestamp = tx.timestamp // @todo we use the timestamp of the beginning of the tx
     } else {
-      transactions[tx.id].receiver = tx.receiver
-      transactions[tx.id].receiverNetwork = tx.receiverNetwork
-      // transactions[tx.id].receiverAmount = tx.receiverAmount
       transactions[tx.id].execution = tx.execution
     }
   })
@@ -193,6 +248,7 @@ const fetchForeignTransaction = async (query?: TransactionsQueryVariables) => {
   return transactions
 }
 
+// OUTDATED: aimed to refetch transaction information when filtering Txs by status others than COMPLETED
 const fetchUncompletedTransactions = async (transactions: TransactionSG[]) => {
   // search foreigns when tx is completed but has no execution
   const uncompletedForeigns = transactions.filter((tx) => {
@@ -210,7 +266,7 @@ const fetchUncompletedTransactions = async (transactions: TransactionSG[]) => {
   // search natives txs when tx is completed but has no validations
   const uncompletedNatives = transactions.filter((tx) => {
     const isCompleted = tx.transactionStatus === TransactionStatus.Completed
-    return isCompleted && tx.validations.length === 0
+    return isCompleted && tx.validations?.length === 0
   })
   const nativesIds = uncompletedNatives.map((tx) => tx.id)
   let completedNatives: TransactionSG[] = []
@@ -234,7 +290,7 @@ const fixMissingData = (tx: Transaction): Transaction => {
     const network = tx.receiverNetwork === MAINNET ? GNOSIS : MAINNET
     return {
       ...tx,
-      initiator: tx.receiver,
+      // initiator: tx.receiver,
       initiatorNetwork: network,
       initiatorAmount: tx.receiverAmount,
       initiatorScanUrl: getAddressScanUrl(tx.receiver, network),
@@ -243,7 +299,7 @@ const fixMissingData = (tx: Transaction): Transaction => {
     const network = tx.initiatorNetwork === MAINNET ? GNOSIS : MAINNET
     return {
       ...tx,
-      receiver: tx.initiator,
+      // receiver: tx.initiator,
       receiverNetwork: network,
       receiverAmount: tx.initiatorAmount,
       initiatorScanUrl: getAddressScanUrl(tx.initiator, network),
@@ -251,15 +307,104 @@ const fixMissingData = (tx: Transaction): Transaction => {
   }
 }
 
-export const fetchTransactions = async (query?: TransactionsQueryVariables) => {
+export const fetchTransactions = async (query: TransactionsQueryVariables) => {
+  // first fetch round applying all filters
   const [nativeTxs, foreignTxs] = await Promise.all([
     fetchHomeTransaction(query),
     fetchForeignTransaction(query),
   ])
   // @todo hardcoding the Transaction type from SG because TypeScript can not infer
   const allTxs = nativeTxs.concat(foreignTxs) as TransactionSG[]
-  const transactions = unifyTransactions(allTxs)
 
-  const txs = await fetchUncompletedTransactions(transactions)
-  return txs.map(transformTx).map(fixMissingData)
+  let transactions = unifyTransactions(allTxs)
+
+  // transactions = await fetchUncompletedTransactions(transactions)
+  // console.log('FETCHED UNCOMPLETED TXS ', transactions.length)
+
+  const addsFilterByStatus = (query: TransactionsQueryVariables): boolean => {
+    return query?.where?.transactionStatus !== undefined
+  }
+
+  const confirmHomeTxs = async (nativeIds: string[]) => {
+    // checks for TXs with update on foreignSG
+    const homesWithUpdate = (await fetchForeignTransaction({
+      first: MAX_RESULTS,
+      orderBy: ORDER_BY,
+      orderDirection: RESULTS_ORDER,
+      where: { id_in: nativeIds },
+    })) as TransactionSG[]
+    const txsToBeRemovedIds = homesWithUpdate.map((tx) => tx.id)
+    // removes TX ids with update
+    const confirmedTxsIds = nativeIds.filter((id) => {
+      return !txsToBeRemovedIds.includes(id)
+    })
+    // fetches TXs with no update on foreignSG
+    const confirmedTxs = (await fetchHomeTransaction({
+      first: MAX_RESULTS,
+      orderBy: ORDER_BY,
+      orderDirection: RESULTS_ORDER,
+      where: { id_in: confirmedTxsIds },
+    })) as TransactionSG[]
+    return confirmedTxs
+  }
+
+  const confirmForeignTxs = async (foreignIds: string[]) => {
+    // checks for TXs with update on homeSG
+    const foreignsWithUpdate = (await fetchHomeTransaction({
+      first: MAX_RESULTS,
+      orderBy: ORDER_BY,
+      orderDirection: RESULTS_ORDER,
+      where: { id_in: foreignIds },
+    })) as TransactionSG[]
+    const txsToBeRemovedIds = foreignsWithUpdate.map((tx) => tx.id)
+    const confirmedTxsIds = foreignIds.filter((id) => {
+      return !txsToBeRemovedIds.includes(id)
+    })
+    // fetches TXs with no update on foreignSG
+    const confirmedTxs = (await fetchHomeTransaction({
+      first: MAX_RESULTS,
+      orderBy: ORDER_BY,
+      orderDirection: RESULTS_ORDER,
+      where: { id_in: confirmedTxsIds },
+    })) as TransactionSG[]
+    return confirmedTxs
+  }
+
+  if (addsFilterByStatus(query)) {
+    // when STATUS filter is set, fetched txs status must be confirmed
+    const nativeIds = nativeTxs.map((tx) => tx.id)
+    const foreignIds = foreignTxs.map((tx) => tx.id)
+    const statusFilterValue = query?.where?.transactionStatus
+
+    const isFilteredByStatus = (txStatus: string): boolean => {
+      return statusFilterValue === txStatus
+    }
+    if (isFilteredByStatus(TransactionStatus.Initiated)) {
+      // all nativeTxs with INITIATED status are confirmed txs
+      // for foreignTxs, they will have an update over homeSG
+      const confirmedTxs = await confirmForeignTxs(foreignIds)
+      transactions = nativeTxs.concat(confirmedTxs) as TransactionSG[]
+    } else if (isFilteredByStatus(TransactionStatus.Requested)) {
+      // all nativeTxs with REQUESTED status are confirmed txs
+      // for foreignTxs, they might have an update over homeSG
+      const confirmedTxs = await confirmForeignTxs(foreignIds)
+      transactions = nativeTxs.concat(confirmedTxs) as TransactionSG[]
+    } else if (isFilteredByStatus(TransactionStatus.Claimed)) {
+      // only check from nativeTxs if they transitioned over foreignSG
+      // ETH-GC flow dont have a CLAIMED status, since RelayedMessage event its not triggered
+      const confirmedTxs = await confirmHomeTxs(nativeIds)
+      transactions = confirmedTxs as TransactionSG[]
+    } else if (isFilteredByStatus(TransactionStatus.Unclaimed)) {
+      // search for counterpart on the otherside (home and foreign)
+      // ETH-GC flow dont have a UNCLAIMED status, since all validations happen on HomeSG
+      const confirmedHomeTxs = await confirmHomeTxs(nativeIds)
+      transactions = confirmedHomeTxs as TransactionSG[]
+      // return only those with no update from otherside
+    } else if (isFilteredByStatus(TransactionStatus.Completed)) {
+      transactions = await fetchUncompletedTransactions(transactions)
+    }
+    // @todo: before returning transactions, sorted arrays must be merged by timestamp
+    // transactions = filteredByStatusTxs.sort({timestamp})
+  }
+  return transactions.map(transformTx)
 }

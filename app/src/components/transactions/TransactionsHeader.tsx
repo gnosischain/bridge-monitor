@@ -1,11 +1,28 @@
-import { Tooltip } from '@/src/components/assets/Tooltip'
+import styled from 'styled-components'
+
+import { Tooltip } from '@/src/components/common/Tooltip'
+import { useGeneral } from '@/src/providers/generalProvider'
 import { Validator } from '@/src/utils/validators'
+
+const SwitchDate = styled.button`
+  background-color: ${({ theme: { colors } }) => colors.darkerGrey};
+  color: inherit;
+  padding: 0 ${({ theme: { common } }) => common.space}px;
+  line-height: 1.6;
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
+  border: none;
+  cursor: pointer;
+`
 
 interface Props {
   validators: Validator[]
 }
 
 export const TransactionHeader: React.FC<Props> = ({ validators }) => {
+  const { isTimeAgo, setIsTimeAgo } = useGeneral()
+  const changeFormatDate = () => {
+    setIsTimeAgo((current) => !current)
+  }
   return (
     <thead>
       <tr>
@@ -21,7 +38,9 @@ export const TransactionHeader: React.FC<Props> = ({ validators }) => {
             </Tooltip>
           ))}
         </th>
-        <th>Time</th>
+        <th>
+          <SwitchDate onClick={changeFormatDate}>{isTimeAgo ? 'Age' : 'Date Time'}</SwitchDate>
+        </th>
       </tr>
     </thead>
   )

@@ -10,7 +10,7 @@ export enum ToastStates {
   waiting = 'WAITING',
 }
 
-export enum StatusTypes {
+export enum ValidatorStatusTypes {
   default = 'default',
   pending = 'pending',
   submitted = 'submitted',
@@ -29,4 +29,17 @@ export enum HealthStatusTypes {
   error = 'error',
   warning = 'warning',
   success = 'ok',
+}
+
+export enum TransactionStatusTypes {
+  bridgeCompleted = 'completed',
+  bridgeInitiated = 'initiated',
+  collectingSignatures = 'collecting',
+  completed = 'Completed',
+  error = 'error',
+  signatureRequest = 'request',
+  unclaimed = 'unclaimed',
+  waiting = 'Waiting',
+  waitingExecution = 'Execution waiting',
+  warning = 'Warning',
 }
