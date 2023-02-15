@@ -16,7 +16,10 @@ type Validator @entity {
 
 enum TransactionStatus {
   INITIATED,
-  PENDING,
+  REQUESTED,
+  COLLECTING,
+  CLAIMED,
+  UNCLAIMED,
   COMPLETED,
   ERROR,
 }
@@ -44,8 +47,12 @@ interface Transaction {
   bridgeName: String # Bridge Name (xDai, OmniBridge, AMB)
   initiator: Bytes # Sender Address
   initiatorNetwork: String # Origin Network Name (mainnet, xdai, chiado, goerli)
+  initiatorAmount: BigInt # Amount sent number|string
+  initiatorToken: Bytes # ERC20 token address (if mainnet DAI if xdai XDAI)
   receiver: Bytes # Receiver Address
   receiverNetwork: String # Dest Network Name (mainnet, xdai, chiado, goerli)
+  receiverAmount: BigInt # Amount sent
+  receiverToken: Bytes # ERC20 token address (if mainnet DAI if xdai XDAI)
   transactionStatus: TransactionStatus
   timestamp: BigInt
   validations: [TransactionValidation!] @derivedFrom(field: "transaction")
@@ -77,8 +84,12 @@ type AMBTransaction implements Transaction @entity {
   bridgeName: String # Bridge Name (xDai, OmniBridge, AMB)
   initiator: Bytes # Sender Address
   initiatorNetwork: String # Origin Network Name (mainnet, xdai, chiado, goerli)
+  initiatorAmount: BigInt # Amount sent number|string
+  initiatorToken: Bytes # ERC20 token address (if mainnet DAI if xdai XDAI)
   receiver: Bytes # Receiver Address
   receiverNetwork: String # Dest Network Name (mainnet, xdai, chiado, goerli)
+  receiverAmount: BigInt # Amount sent
+  receiverToken: Bytes # ERC20 token address (if mainnet DAI if xdai XDAI)
   transactionStatus: TransactionStatus
   timestamp: BigInt
   validations: [TransactionValidation!] @derivedFrom(field: "transaction")
@@ -89,7 +100,7 @@ type AMBTransaction implements Transaction @entity {
 
 # An Omni Transaction includes token and amount information.
 # It's ment to give support to AMBTransactions with information we cannot source from AMB Events
-type OmniTransaction implements Transaction @entity {
+type OmniTransaction @entity {
   id: ID! # Message ID
   transactionHash: Bytes
   bridgeName: String # Bridge Name (xDai, OmniBridge, AMB)
@@ -103,9 +114,6 @@ type OmniTransaction implements Transaction @entity {
   receiverToken: Bytes # ERC20 token address (if mainnet DAI if xdai XDAI)
   transactionStatus: TransactionStatus
   timestamp: BigInt
-  # @todo this information is not used here (can not be loaded!)
-  validations: [TransactionValidation!] @derivedFrom(field: "transaction")
-  execution: TransactionExecution
 
   messageId: Bytes # AMB id
 }

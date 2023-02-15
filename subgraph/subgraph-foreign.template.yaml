@@ -1,6 +1,6 @@
 specVersion: 0.0.4
 description: Subgraph for the Bridge Monitoring System
-repository: https://github.com/gnosischain/bridge-monitor-subgraph
+repository: https://github.com/BootNodeDev/bridge-monitor-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
@@ -16,6 +16,7 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
+        - Transaction
         - XDAITransaction
         - TransactionValidation
         - TransactionExecution
@@ -25,9 +26,9 @@ dataSources:
           file: ./abis/ForeignBridgeErcToNative.json
       eventHandlers:
         - event: RelayedMessage(address,uint256,bytes32)
-          handler: handleRelayedMessage
+          handler: handlerRelayedMessage
         - event: UserRequestForAffirmation(address,uint256)
-          handler: handleUserRequestForAffirmation
+          handler: handlerUserRequestForAffirmation
       file: ./src/foreign-xdai.ts
   - name: XDAIBridgeValidators
     kind: ethereum/contract
@@ -132,6 +133,7 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
+        - Transaction
         - AMBTransaction
         - TransactionValidation
         - TransactionExecution
@@ -141,7 +143,7 @@ dataSources:
           file: ./abis/ForeignAMB.json
       eventHandlers:
         - event: UserRequestForAffirmation(indexed bytes32,bytes)
-          handler: handleUserRequestForAffirmation
+          handler: handlerUserRequestForAffirmation
         - event: RelayedMessage(indexed address,indexed address,indexed bytes32,bool)
           handler: handlerRelayedMessage
       file: ./src/foreign-amb.ts

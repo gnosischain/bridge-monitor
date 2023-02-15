@@ -1,10 +1,42 @@
-import { dataSource } from "@graphprotocol/graph-ts"
+import { dataSource, log } from "@graphprotocol/graph-ts"
 import { RelayedMessage, UserRequestForAffirmation } from "../generated/ForeignBridgeErcToNative/ForeignBridgeErcToNative"
 import { XDAITransaction, TransactionExecution, Validator } from "../generated/schema"
 import { Transfer } from "../generated/DAI/DAI"
 import { FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS } from "./config/addresses"
 
-export function handleRelayedMessage(
+// @todo filter txs where event.params.dst === foreign.address
+export function handlerTransfer(
+  event: Transfer
+): void {
+  if (FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS.toLowerCase() == event.params.dst.toHexString()) {
+    const id = event.transaction.hash.toHexString()
+    let transaction = new XDAITransaction(id)
+    transaction.transactionHash = event.transaction.hash
+    transaction.bridgeName = 'XDAI'
+    transaction.transactionStatus = 'INITIATED'
+    transaction.initiator = event.params.src
+    transaction.initiatorAmount = event.params.wad
+    transaction.initiatorNetwork = dataSource.network()
+    transaction.timestamp = event.block.timestamp
+    transaction.save()
+  }
+}
+
+export function handlerUserRequestForAffirmation(
+  event: UserRequestForAffirmation
+): void {
+  const id = event.transaction.hash.toHexString()
+  let transaction = new XDAITransaction(id)
+  transaction.bridgeName = 'XDAI'
+  transaction.transactionStatus = 'REQUESTED'
+  transaction.initiator = event.transaction.from // event.params.recipient
+  transaction.initiatorAmount = event.params.value
+  transaction.initiatorNetwork = dataSource.network()
+  transaction.timestamp = event.block.timestamp
+  transaction.save()
+}
+
+export function handlerRelayedMessage(
   event: RelayedMessage
 ): void {
   const id = event.params.transactionHash.toHexString()
@@ -14,7 +46,9 @@ export function handleRelayedMessage(
   let execution = new TransactionExecution(executionId)
 
   let validator = Validator.load(executorId.toHexString())
-  if (validator) {
+  if (!validator) {
+    log.error(`Validator ${executorId.toHexString()} not found @handlerRelayedMessage-foreignXDAI`, [])
+  } else {
     execution.executor = validator.id
     validator.lastActivity = event.block.timestamp
     validator.save()
@@ -34,36 +68,4 @@ export function handleRelayedMessage(
   transaction.timestamp = event.block.timestamp
   transaction.execution = execution.id
   transaction.save()
-}
-
-export function handleUserRequestForAffirmation(
-  event: UserRequestForAffirmation
-): void {
-  const id = event.transaction.hash.toHex()
-  let transaction = new XDAITransaction(id)
-  transaction.bridgeName = 'XDAI'
-  transaction.transactionStatus = 'INITIATED'
-  transaction.initiator = event.transaction.from // event.params.recipient
-  transaction.initiatorAmount = event.params.value
-  transaction.initiatorNetwork = dataSource.network()
-  transaction.timestamp = event.block.timestamp
-  transaction.save()
-}
-
-// @todo filter txs where event.params.dst === foreign.address
-export function handlerTransfer(
-  event: Transfer
-): void {
-  if (FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS.toLowerCase() == event.params.dst.toHexString()) {
-    const id = event.transaction.hash.toHex()
-    let transaction = new XDAITransaction(id)
-    transaction.transactionHash = event.transaction.hash
-    transaction.bridgeName = 'XDAI'
-    transaction.transactionStatus = 'INITIATED'
-    transaction.initiator = event.params.src
-    transaction.initiatorAmount = event.params.wad
-    transaction.initiatorNetwork = dataSource.network()
-    transaction.timestamp = event.block.timestamp
-    transaction.save()
-  }
 }
