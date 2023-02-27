@@ -11,10 +11,14 @@ export function handlerAddedReceiver(event: AddedReceiver): void {
   const sender = event.transaction.from // validator !!
   const receiver = event.params.receiver
   const txValue = event.params.amount
-  
-  log.error(`ADDEDRECEIVER INPUT ${txInputContent} for ${event.transaction.hash.toHexString()}`, [] )
 
-  let transaction = new XDAITransaction(transactionHash)
+  let transaction = XDAITransaction.load(transactionHash)
+  if (!transaction) {
+    log.error(`Transaction NOT FOUND ${transactionHash} @handlerAddedReceiver`, [])
+    transaction = new XDAITransaction(transactionHash)
+  }
+  log.error(`Transaction FOUND ${transactionHash} @handlerAddedReceiver`, [])
+  
   transaction.transactionHash = Address.fromHexString(transactionHash)
   transaction.bridgeName = 'XDAI'
   // transaction.initiator = sender

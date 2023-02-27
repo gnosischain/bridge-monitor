@@ -32,8 +32,8 @@ export function handlerRelayedMessage(event: RelayedMessage): void {
   const timestamp = event.block.timestamp
   const messageId = event.params.messageId
   const messageIdString = messageId.toHexString()
-  const sender = event.params.sender
-  const executor = event.params.executor
+  const sender = event.params.sender // home mediator address
+  const executor = event.params.executor // foreign mediator address
   const senderString = sender.toHexString()
   const status = event.params.status
   const network = dataSource.network()
@@ -50,7 +50,7 @@ export function handlerRelayedMessage(event: RelayedMessage): void {
       validator.lastActivity = event.block.timestamp
       validator.save()
     }
-    execution.executorAddress = sender
+    execution.responsableAddress = sender
     execution.transaction = transaction.id
     execution.transactionHash = transactionHash
     execution.timestamp = timestamp

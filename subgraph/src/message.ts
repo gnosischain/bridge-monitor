@@ -17,7 +17,8 @@ export function parseMessage(message: string): Array<string> {
 
   const amountStart = recipientStart + recipientLength
   const amountLength = 32 * 2
-  const amount = `0x${message.slice(amountStart, amountStart + amountLength)}`
+  const parsedAmount = message.slice(amountStart, amountStart + amountLength)
+  const intStringAmount = hexaToIntString(parsedAmount)
 
   const txHashStart = amountStart + amountLength
   const txHashLength = 32 * 2
@@ -27,7 +28,11 @@ export function parseMessage(message: string): Array<string> {
   const contractAddressLength = 40
   const contractAddress = `0x${message.slice(contractAddressStart, contractAddressStart + contractAddressLength)}`
 
-  return [recipient, amount, txHash, contractAddress]
+  return [recipient, intStringAmount, txHash, contractAddress]
+}
+
+function hexaToIntString(amount: string): string {
+  return parseInt(amount, 16).toString()
 }
 
 export function parseTXInput(_input: string): string {
