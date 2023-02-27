@@ -28,7 +28,7 @@ export type TransactionExecution = {
   id: string
   timestamp: number
   transactionHash: string
-  executorAddress: string
+  responsableAddress: string
   scanUrl?: string
 }
 
@@ -36,7 +36,7 @@ export type TransactionValidation = {
   id: string
   timestamp: number
   transactionHash: string
-  validatorAddress: string
+  responsableAddress: string
   scanUrl?: string
 }
 
@@ -76,16 +76,16 @@ const getTokenData = (network: string) => {
 }
 
 const scanURL = (network: string) => {
-  const chain = network === MAINNET ? Chains.mainnet : Chains.xdai
+  const chain = network === MAINNET ? Chains.mainnet : Chains.gnosis
   return chainsConfig[chain].blockExplorerUrls[0]
 }
 
-const getTxScanUrl = (transactionHash: string, network: string) => {
+export const getTxScanUrl = (transactionHash: string, network: string) => {
   const baseURL = scanURL(network ?? MAINNET)
   return `${baseURL}tx/${transactionHash}`
 }
 
-const getAddressScanUrl = (userAddress: string, network: string) => {
+export const getAddressScanUrl = (userAddress: string, network: string) => {
   const baseURL = scanURL(network ?? MAINNET)
   return userAddress ? `${baseURL}address/${userAddress}` : baseURL
 }
@@ -98,7 +98,7 @@ const transformExecution = (
     id: txExecution.id,
     timestamp: fromSubgraphTimestamp(txExecution.timestamp),
     transactionHash: txExecution.transactionHash,
-    executorAddress: txExecution.executorAddress,
+    responsableAddress: txExecution.responsableAddress,
     // @todo validators tx are only created in the GNOSIS network
     scanUrl: getTxScanUrl(txExecution.transactionHash, GNOSIS),
   }
@@ -109,7 +109,7 @@ const transformValidation = (txValidation: TransactionValidationSG): Transaction
     id: txValidation.id,
     timestamp: fromSubgraphTimestamp(txValidation.timestamp),
     transactionHash: txValidation.transactionHash,
-    validatorAddress: txValidation.validatorAddress,
+    responsableAddress: txValidation.responsableAddress,
     // @todo validators tx are only created in the GNOSIS network
     scanUrl: getTxScanUrl(txValidation.transactionHash, GNOSIS),
   }
@@ -183,6 +183,9 @@ export const unifyTransactions = (txs: TransactionSG[]) => {
         transactions[tx.id].receiver = tx.receiver
         transactions[tx.id].receiverAmount = tx.receiverAmount
         transactions[tx.id].receiverNetwork = tx.receiverNetwork
+        if (tx.execution) {
+          transactions[tx.id].execution = tx.execution
+        }
         // updates Tx status (previos state: UNCLAIMED)
         transactions[tx.id].transactionStatus = tx.transactionStatus
       } else if (
@@ -318,9 +321,6 @@ export const fetchTransactions = async (query: TransactionsQueryVariables) => {
 
   let transactions = unifyTransactions(allTxs)
 
-  // transactions = await fetchUncompletedTransactions(transactions)
-  // console.log('FETCHED UNCOMPLETED TXS ', transactions.length)
-
   const addsFilterByStatus = (query: TransactionsQueryVariables): boolean => {
     return query?.where?.transactionStatus !== undefined
   }
@@ -404,7 +404,6 @@ export const fetchTransactions = async (query: TransactionsQueryVariables) => {
       transactions = await fetchUncompletedTransactions(transactions)
     }
     // @todo: before returning transactions, sorted arrays must be merged by timestamp
-    // transactions = filteredByStatusTxs.sort({timestamp})
   }
   return transactions.map(transformTx)
 }

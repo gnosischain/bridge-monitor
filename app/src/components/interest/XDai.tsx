@@ -1,5 +1,7 @@
 import styled from 'styled-components'
 
+import { Tooltip as TooltipIcon } from '@/src/components/assets/Tooltip'
+import { Tooltip } from '@/src/components/common/Tooltip'
 import { Address } from '@/src/components/interest/Address'
 import { Chart } from '@/src/components/interest/Chart'
 import { InterestEarning } from '@/src/components/interest/InterestEarning'
@@ -40,10 +42,21 @@ export const XDai: React.FC = ({ ...restProps }) => (
         <Address
           address="0x32dea44d5C243990B0133f5D103C2A784aA6a29F"
           title="Interest receiver address"
+          tooltip="Configured address of the interest receiver"
         />
       </Grid>
-      <Token title="Min. tokens not invested" tokenSymbol="dai" value="1,000,000" />
-      <Token title="Min. paid interest in a single call" tokenSymbol="dai" value="1,000" />
+      <Token
+        title="Min. tokens not invested"
+        tokenSymbol="dai"
+        tooltip="The minimum amount of tokens that are not being invested."
+        value="1,000,000"
+      />
+      <Token
+        title="Min. paid interest in a single call"
+        tokenSymbol="dai"
+        tooltip="The minimum amount of interest generated necessary to release a claim."
+        value="1,000"
+      />
     </Rows>
     <Chart
       currentEarnedInterest={2593.921}

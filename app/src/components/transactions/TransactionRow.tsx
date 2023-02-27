@@ -153,7 +153,13 @@ export const TransactionRow: React.FC<Props> = ({ transaction }) => {
         </td>
         <td className="status">
           {/* States available: pending, completed */}
-          <Link href={`/${transaction.id}`} passHref>
+          <Link
+            href={{
+              pathname: `/${transaction.transactionHash}`,
+              query: { id: transaction.id },
+            }}
+            passHref
+          >
             <TransactionLink>
               <Status status={transaction.transactionStatus} />
             </TransactionLink>

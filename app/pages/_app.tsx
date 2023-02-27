@@ -10,6 +10,7 @@ import { SWRConfig } from 'swr'
 
 import SafeSuspense from '@/src/components/helpers/SafeSuspense'
 import { Layout } from '@/src/components/layout'
+import { Footer } from '@/src/components/layout/Footer'
 import { Header } from '@/src/components/layout/Header'
 import { Main } from '@/src/components/layout/Main'
 import Toast from '@/src/components/toast/Toast'
@@ -62,6 +63,7 @@ export default function App({ Component, messages, pageProps }: AppPropsWithLayo
                       <TokenIconsContextProvider>
                         <Header />
                         <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
+                        <Footer />
                       </TokenIconsContextProvider>
                     </GeneralContextProvider>
                   </CookiesWarningProvider>

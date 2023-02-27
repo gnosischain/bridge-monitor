@@ -6,8 +6,9 @@ import { InnerCard } from '@/src/components/common/InnerCard'
 import { ContractLimit } from '@/src/components/limits/ContractLimit'
 import { TimeLeft } from '@/src/components/limits/TimeLeft'
 import { TokenAddress } from '@/src/components/limits/TokenAddress'
-import { Transaction } from '@/src/components/limits/Transaction'
+import { TransactionLimit } from '@/src/components/limits/TransactionLimit'
 import { TokenDropdown as BaseDropdown } from '@/src/components/token/TokenDropdown'
+import { ChainsValues } from '@/src/constants/config/types'
 import { percentageNumber } from '@/src/utils/formatNumber'
 import { Token } from '@/types/token'
 
@@ -65,34 +66,47 @@ const Grid = styled.div`
 
 interface Props {
   bridgeReset: number
+  chainId: ChainsValues
   contractForeignFunds: number
   contractForeignUsed: number
   contractNativeFunds: number
   contractNativeUsed: number
-  defaultToken?: Token
+  executionMaxPerTx: number
+  minPerTransaction: number
+  maxPerTransaction: number
+  defaultToken: Token
   disableTokenDropdown?: boolean
+  onTokenChange?: (token: Token) => void
   title: string
+  tokenIsRegistered?: boolean
   fromTo: string
   url: string
 }
 
 export const BridgeLimit: React.FC<Props> = ({
   bridgeReset,
-  contractForeignFunds = 10000000,
-  contractForeignUsed = 8000000,
-  contractNativeFunds = 10000000,
-  contractNativeUsed = 5000000,
+  chainId,
+  contractForeignFunds,
+  contractForeignUsed,
+  contractNativeFunds,
+  contractNativeUsed,
   defaultToken,
   disableTokenDropdown,
+  executionMaxPerTx,
   fromTo,
+  maxPerTransaction,
+  minPerTransaction,
+  onTokenChange,
   title,
+  tokenIsRegistered = true,
   url,
   ...restProps
 }) => {
-  const [tokenDropdown, setTokenDropdown] = useState<Token | null>(defaultToken || null)
-
-  console.log(`Selected token: ${tokenDropdown}`)
-
+  const [tokenDropdown, setTokenDropdown] = useState<Token>(defaultToken)
+  const refreshTokenDropdown = (token: Token) => {
+    setTokenDropdown(token)
+    if (typeof onTokenChange !== 'undefined') onTokenChange(token)
+  }
   return (
     <Wrapper {...restProps}>
       <Header>
@@ -101,49 +115,56 @@ export const BridgeLimit: React.FC<Props> = ({
           <IconLink height={12} width={12} />
         </ExternalURL>
         <TokenDropdown
+          chainId={chainId}
           defaultToken={defaultToken}
           disabled={disableTokenDropdown}
-          onChange={setTokenDropdown}
+          onChange={refreshTokenDropdown}
         />
       </Header>
-      <ContractLimit
-        funds={contractNativeFunds}
-        percentage={percentageNumber(contractNativeUsed, contractNativeFunds)}
-        title="Daily limit"
-        token={tokenDropdown?.symbol.toUpperCase() || 'DAI'}
-        tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that users can bridge from ${fromTo} in a day`}
-        used={contractNativeUsed}
-      />
-      <ContractLimit
-        funds={contractForeignFunds}
-        percentage={percentageNumber(contractForeignUsed, contractForeignFunds)}
-        title="Execution daily limit"
-        token={tokenDropdown?.symbol.toUpperCase() || 'DAI'}
-        tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that bridge validators can execute and bridge from ${fromTo} in a day`}
-        used={contractForeignUsed}
-      />
-      <Grid>
-        <Transaction
-          title="Min. per transaction"
-          tooltip={`Minimum amount of ${tokenDropdown?.symbol.toUpperCase()} that users can bridge in a single transaction`}
-          trend="down"
-          value="0.00500000"
-        />
-        <Transaction
-          title="Max. per transaction"
-          tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that users can bridge in a single transaction`}
-          trend="up"
-          value="9,999,999"
-        />
-      </Grid>
-      <Transaction
-        title="Execution max. per transaction"
-        tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that validators can execute in a single transaction`}
-        trend="up"
-        value="10,000,000"
-      />
-      <TimeLeft time={bridgeReset} />
-      {defaultToken && <TokenAddress address={defaultToken?.address} />}
+      {tokenIsRegistered ? (
+        <>
+          <ContractLimit
+            funds={contractNativeFunds}
+            percentage={percentageNumber(contractNativeUsed, contractNativeFunds)}
+            title="Daily limit"
+            token={tokenDropdown?.symbol.toUpperCase() || 'DAI'}
+            tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that users can bridge from ${fromTo} in a day`}
+            used={contractNativeUsed}
+          />
+          <ContractLimit
+            funds={contractForeignFunds}
+            percentage={percentageNumber(contractForeignUsed, contractForeignFunds)}
+            title="Execution daily limit"
+            token={tokenDropdown?.symbol.toUpperCase() || 'DAI'}
+            tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that bridge validators can execute and bridge from ${fromTo} in a day`}
+            used={contractForeignUsed}
+          />
+          <Grid>
+            <TransactionLimit
+              title="Min. per transaction"
+              tooltip={`Minimum amount of ${tokenDropdown?.symbol.toUpperCase()} that users can bridge in a single transaction`}
+              trend="down"
+              value={minPerTransaction}
+            />
+            <TransactionLimit
+              title="Max. per transaction"
+              tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that users can bridge in a single transaction`}
+              trend="up"
+              value={maxPerTransaction}
+            />
+          </Grid>
+          <TransactionLimit
+            title="Execution max. per transaction"
+            tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that validators can execute in a single transaction`}
+            trend="up"
+            value={executionMaxPerTx}
+          />
+          <TimeLeft time={bridgeReset} />
+        </>
+      ) : (
+        <p>Token not registered yet.</p>
+      )}
+      {tokenDropdown && <TokenAddress address={tokenDropdown?.address} />}
     </Wrapper>
   )
 }

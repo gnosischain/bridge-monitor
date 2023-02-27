@@ -49,12 +49,18 @@ Status.defaultProps = {
   enabled: false,
 }
 
-export const InterestEarning: React.FC<{ enabled?: boolean }> = ({ enabled, ...restProps }) => (
+export const InterestEarning: React.FC<{
+  enabled?: boolean
+  tooltip?: string
+}> = ({ enabled, tooltip, ...restProps }) => (
   <Wrapper {...restProps}>
     <Status enabled={enabled}>
       {enabled && <Check />}
       {!enabled && <Minus />}
     </Status>
-    <MiniCardTitle title="Interest earning is enabled" />
+    <MiniCardTitle
+      title={enabled ? 'Interest earning is enabled' : 'Interest earning is disabled'}
+      tooltip={tooltip}
+    />
   </Wrapper>
 )

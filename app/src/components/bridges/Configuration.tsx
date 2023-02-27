@@ -84,8 +84,8 @@ export const Configuration: React.FC = ({ ...restProps }) => (
             title="Bridge Proxy Contract"
           />
           <Row address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'} title="DAI Token" />
-          <Row address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'} title="Compound protocol" />
-          <Row address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'} title="COMP Token" />
+          <Row address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'} title="Protocol" />
+          <Row address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'} title="Protocol Token" />
         </Rows>
       </Card>
     </Column>
@@ -101,7 +101,7 @@ export const Configuration: React.FC = ({ ...restProps }) => (
           <Row address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'} title="Governor Multisig" />
           <Row
             address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'}
-            title="Aave Interest Module"
+            title="Protocol Interest Module"
           />
           <Row address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'} title="USDC Token" />
           <Row address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'} title="USDT Token" />

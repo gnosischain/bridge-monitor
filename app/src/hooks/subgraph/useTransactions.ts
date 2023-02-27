@@ -122,7 +122,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
       const validator = getValidatorByName(filters.signedBy, bridgeValue)
       if (validator) {
         _where['validations_'] = {
-          validatorAddress: validator.address.toLowerCase(),
+          responsableAddress: validator.address.toLowerCase(),
         }
         updated = true
       }
@@ -135,7 +135,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
       const validator = getValidatorByName(filters.executedBy, bridgeValue)
       if (validator) {
         _where['execution_'] = {
-          executorAddress: validator.address.toLowerCase(),
+          responsableAddress: validator.address.toLowerCase(),
         }
         updated = true
       }

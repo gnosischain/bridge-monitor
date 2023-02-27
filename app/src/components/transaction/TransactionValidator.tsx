@@ -4,6 +4,7 @@ import { Address } from '@/src/components/token/Address'
 import { IconStatus } from '@/src/components/transaction/IconStatus'
 import { TransactionDate } from '@/src/components/transaction/TransactionDate'
 import { transformDate } from '@/src/utils/date'
+import { Transaction, TransactionExecution, TransactionValidation } from '@/src/utils/transactions'
 
 const Wrapper = styled.li<{ status?: string }>`
   list-style: none;
@@ -85,52 +86,60 @@ const Info = styled.div<{ status?: string }>`
 interface Props {
   status: string
   validator: string
-  transaction: { timestamp: string; transactionHash: string }[]
+  transaction: TransactionValidation | TransactionExecution
 }
 
 export const TransactionValidator: React.FC<Props> = ({ status, transaction, validator }) => {
   //the satus is 'not-required' when there are 4 validators that signed
-  // @todo:
-  let statusMessage = ''
-  if (status === 'not-required' && !transaction[0].transactionHash) {
-    statusMessage = 'Not required'
-    status = 'not-required'
-  } else if (!transaction[0].transactionHash) {
-    statusMessage = 'Waiting'
-    status = 'waiting'
-  } else {
-    status = 'success'
+  // @todo: recheck condition for calculated status
+  // const hasValidations = () => {
+  //   return transaction.validations?.length !== 0
+  // }
+  // let statusMessage = ''
+  // if (status === 'not-required' && hasValidations()) {
+  //   statusMessage = 'Not required'
+  //   status = 'not-required'
+  // } else if (!hasValidations()) {
+  //   statusMessage = 'Waiting'
+  //   status = 'waiting'
+  // } else {
+  //   status = 'success'
+  // }
+  const statusMessage = 'VALIDATOR STATUS MESSAGE'
+
+  // const countValidatorSigns = transaction.validations?.length ?? 0
+
+  // if (countValidatorSigns > 1) {
+  //   status = 'warning'
+  // }
+
+  function getValidationURL(transactionHash: string): string | undefined {
+    const baseURL = 'https://gnosisscan.io/'
+    return `${baseURL}tx/${transactionHash}`
   }
-
-  const countValidatorSigns = transaction.filter(
-    (obj: { transactionHash: string }) => obj.transactionHash,
-  ).length
-
-  if (countValidatorSigns > 1) {
-    status = 'warning'
-  }
-
   return (
     <Wrapper status={status}>
       <Name>
         <IconStatus status={status} /> {validator}
       </Name>
       <TransactionInfoWrapper>
-        {transaction.map(({ timestamp, transactionHash }, index) => (
-          <TransactionInfo key={`links_${index}`}>
-            <Address address={transactionHash} />
-            {transactionHash ? (
-              <Info status={status}>
-                <TransactionDate completed={transformDate(timestamp)} />
-                <a href="/" rel="noopener noreferrer" target="_blank">
-                  Transaction details
-                </a>
-              </Info>
-            ) : (
-              <>{statusMessage}</>
-            )}
-          </TransactionInfo>
-        ))}
+        <TransactionInfo>
+          <Address address={transaction.transactionHash} />
+          {transaction ? (
+            <Info status={status}>
+              <TransactionDate completed={transaction.timestamp} />
+              <a
+                href={getValidationURL(transaction.transactionHash)}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Transaction details
+              </a>
+            </Info>
+          ) : (
+            <>{statusMessage}</>
+          )}
+        </TransactionInfo>
       </TransactionInfoWrapper>
     </Wrapper>
   )

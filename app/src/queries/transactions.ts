@@ -17,13 +17,13 @@ const TRANSACTION_FRAGMENT = gql`
       id
       timestamp
       transactionHash
-      executorAddress
+      responsableAddress
     }
     validations {
       id
       timestamp
       transactionHash
-      validatorAddress
+      responsableAddress
     }
   }
 `

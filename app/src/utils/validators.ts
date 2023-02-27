@@ -34,7 +34,6 @@ export type Validator = {
   lastSeen?: number
   signed?: number
   executed?: number
-  balanceForeign?: BalanceType
   balanceHome?: BalanceType
 }
 
@@ -91,15 +90,15 @@ export const getValidationsStatus = (transaction: Transaction, _validators: Vali
   const validators = cloneDeep(listByAddress) // @todo analyze if is required to create full clone
   const txStatus = transaction.transactionStatus
 
-  transaction.validations?.forEach(({ scanUrl, validatorAddress }) => {
-    if (validators[validatorAddress]) {
-      validators[validatorAddress].status = VALIDATOR_STATUS[txStatus]
-      validators[validatorAddress].scanUrl = scanUrl
+  transaction.validations?.forEach(({ responsableAddress, scanUrl }) => {
+    if (validators[responsableAddress]) {
+      validators[responsableAddress].status = VALIDATOR_STATUS[txStatus]
+      validators[responsableAddress].scanUrl = scanUrl
     }
   })
-  if (transaction.execution && validators[transaction.execution.executorAddress]) {
-    validators[transaction.execution.executorAddress].status = ValidatorStatusTypes.executed
-    validators[transaction.execution.executorAddress].scanUrl = transaction.execution.scanUrl
+  if (transaction.execution && validators[transaction.execution.responsableAddress]) {
+    validators[transaction.execution.responsableAddress].status = ValidatorStatusTypes.executed
+    validators[transaction.execution.responsableAddress].scanUrl = transaction.execution.scanUrl
   }
   return Object.values(validators)
 }
@@ -147,21 +146,15 @@ export const fetchValidators = async (bridge: string) => {
     const val = getValidatorByAddress(v.address, bridgeValue)
     if (val) {
       const balanceHomeValue = await getBalance(v.address, homeProvider)
-      const balanceForeignValue = await getBalance(v.address, foreignProvider)
       return {
         ...val,
         lastSeen: fromSubgraphTimestamp(v.lastActivity),
         signed: v.signed.length,
         executed: v.executed.length,
         balanceHome: {
-          token: chainsConfig[Chains.xdai].token,
-          chain: chainsConfig[Chains.xdai].name,
+          token: chainsConfig[Chains.gnosis].token,
+          chain: chainsConfig[Chains.gnosis].name,
           value: balanceHomeValue,
-        },
-        balanceForeign: {
-          token: chainsConfig[Chains.mainnet].token,
-          chain: chainsConfig[Chains.mainnet].name,
-          value: balanceForeignValue,
         },
       }
     }

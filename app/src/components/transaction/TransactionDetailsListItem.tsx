@@ -96,7 +96,7 @@ const Text = styled.p`
 `
 
 interface Props {
-  dateCompleted?: string
+  dateCompleted?: number
   description: string
   title: string
   transactionStatus: string
@@ -121,7 +121,7 @@ export const TransactionDetailsListItem: React.FC<Props> = ({
       <Content>
         <Title>{title}</Title>
         <Text>{description}</Text>
-        {dateCompleted && <TransactionDate completed={transformDate(dateCompleted)} />}
+        {dateCompleted && <TransactionDate completed={dateCompleted} />}
         {children}
       </Content>
     </Wrapper>

@@ -4,9 +4,7 @@ import { ChainsInitiatorReceiver } from '@/src/components/common/ChainsInitiator
 import { InitiatorReceiver } from '@/src/components/common/InitiatorReceiver'
 import { Pod } from '@/src/components/common/Pod'
 import { TransactionDate } from '@/src/components/transaction/TransactionDate'
-import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { transformDate } from '@/src/utils/date'
-import { formatNumber } from '@/src/utils/formatNumber'
+import { getAddressScanUrl } from '@/src/utils/transactions'
 
 const Wrapper = styled.div`
   display: grid;
@@ -46,42 +44,42 @@ const Wrapper = styled.div`
 interface Props {
   bridgeName: string
   initiator: string
-  initiatorAmount: number
+  initiatorAmount: string
   initiatorName: string
   initiatorNetwork: string
   initiatorNetworkIcon: string
   initiatorTokenIcon: string
+  initiatorTokenName: string
   receiver: string
-  receiverAmount: number
+  receiverAmount: string
   receiverName: string
   receiverNetwork: string
   receiverNetworkIcon: string
   receiverTokenIcon: string
+  receiverTokenName: string
   transactionStatus: string
-  timestampExecution: string
-  timestampStarted: string
+  timestampExecution: number
+  timestampStarted: number
 }
 
 export const TransactionResume: React.FC<Props> = ({
   bridgeName,
   initiator,
   initiatorAmount,
-  initiatorName,
   initiatorNetwork,
   initiatorNetworkIcon,
   initiatorTokenIcon,
+  initiatorTokenName,
   receiver,
   receiverAmount,
-  receiverName,
   receiverNetwork,
   receiverNetworkIcon,
   receiverTokenIcon,
+  receiverTokenName,
   timestampExecution,
   timestampStarted,
   transactionStatus,
 }) => {
-  const { getExplorerUrl } = useWeb3Connection()
-
   return (
     <Wrapper>
       <Pod badgeSubTitleText={bridgeName} badgeTitleText="Bridge">
@@ -89,8 +87,8 @@ export const TransactionResume: React.FC<Props> = ({
         <ChainsInitiatorReceiver
           chainIconInitiator={initiatorNetworkIcon ?? ''}
           chainIconReceiver={receiverNetworkIcon ?? ''}
-          chainInitiator={initiatorName}
-          chainReceiver={receiverName}
+          chainInitiator={initiatorNetwork}
+          chainReceiver={receiverNetwork}
           showName
         />
       </Pod>
@@ -99,10 +97,10 @@ export const TransactionResume: React.FC<Props> = ({
           address={initiator}
           bigNumber
           inline
-          scanLink={getExplorerUrl(initiator)}
-          token={initiatorNetwork}
+          scanLink={getAddressScanUrl(initiator, initiatorNetwork)}
+          token={initiatorTokenName}
           tokenIcon={initiatorTokenIcon}
-          tokenValue={formatNumber(initiatorAmount ?? 0)}
+          tokenValue={initiatorAmount}
         />
       </Pod>
       <Pod badgeTitleText="Receiver">
@@ -110,10 +108,10 @@ export const TransactionResume: React.FC<Props> = ({
           address={receiver}
           bigNumber
           inline
-          scanLink={getExplorerUrl(receiver)}
-          token={receiverNetwork}
+          scanLink={getAddressScanUrl(receiver, receiverNetwork)}
+          token={receiverTokenName}
           tokenIcon={receiverTokenIcon}
-          tokenValue={formatNumber(receiverAmount ?? 0)}
+          tokenValue={receiverAmount}
         />
       </Pod>
       {/* @todo - If a signature fails it has to change state */}
@@ -121,10 +119,7 @@ export const TransactionResume: React.FC<Props> = ({
         {/* @todo:
          - if transactionStatus is not completed, completed value must be empty
         */}
-        <TransactionDate
-          completed={transformDate(timestampExecution)}
-          started={transformDate(timestampStarted)}
-        />
+        <TransactionDate completed={timestampExecution} started={timestampStarted} />
       </Pod>
     </Wrapper>
   )

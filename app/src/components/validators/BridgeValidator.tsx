@@ -9,7 +9,7 @@ import { useDate } from '@/src/hooks/useDate'
 import { Validator } from '@/src/utils/validators'
 
 const Wrapper = styled(InnerCard)`
-  padding: ${({ theme: { common } }) => common.space * 2}px
+  padding: ${({ theme: { common } }) => common.space * 3}px
     ${({ theme: { common } }) => common.space + common.space / 2}px;
   row-gap: ${({ theme: { common } }) => common.space * 3}px;
 `
@@ -20,6 +20,9 @@ const Rows = styled.ul`
   margin: 0;
   padding: 0;
   row-gap: ${({ theme: { common } }) => common.space}px;
+  &.last {
+    margin: ${({ theme: { common } }) => common.space * 3}px 0 0;
+  }
 `
 
 const Row = styled.li<{ status?: string }>`
@@ -62,9 +65,7 @@ export const BridgeValidator: React.FC<Props> = ({ bridgeValidator, ...restProps
   const signedStatus = HealthStatusTypes.success
   const executedStatus = HealthStatusTypes.success
   const balanceGnosis = bridgeValidator.balanceHome
-  const balanceMainnet = bridgeValidator.balanceForeign
   const balanceGnosisStatus = HealthStatusTypes.success
-  const balanceMainnetStatus = HealthStatusTypes.success
   const lastSeenTime = `${dateLastSeen.duration?.interval} ${dateLastSeen.duration?.epoch}${dateLastSeen.getSuffix}`
 
   // @todo adds validator label
@@ -97,14 +98,13 @@ export const BridgeValidator: React.FC<Props> = ({ bridgeValidator, ...restProps
         <Row status={balanceGnosisStatus}>
           <BridgeBalance balanceType={balanceGnosis} />
         </Row>
-        <Row status={balanceMainnetStatus}>
-          <BridgeBalance balanceType={balanceMainnet} />
+      </Rows>
+      <Rows className="last">
+        <Row>
+          <Text>Send tokens</Text>
+          <Address address={bridgeValidator.address} characters={6} copy />
         </Row>
       </Rows>
-      <Row>
-        <Text>Send tokens</Text>
-        <Address address={bridgeValidator.address} characters={6} copy />
-      </Row>
     </Wrapper>
   )
 }

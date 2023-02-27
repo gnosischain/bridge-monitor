@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
+import { isAddress } from '@ethersproject/address'
 import { DebounceInput } from 'react-debounce-input'
 
 import { ChevronDown as BaseChevronDown } from '@/src/components/assets/ChevronDown'
@@ -8,6 +9,7 @@ import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown, DropdownPosition } from '@/src/components/common/Dropdown'
 import { TextfieldCSS } from '@/src/components/form/Textfield'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
+import { ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/src/constants/token'
 import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
 
@@ -147,30 +149,38 @@ const ChevronDown = styled(BaseChevronDown)`
 `
 
 export const TokenDropdown: React.FC<{
-  onChange?: (token: Token | null) => void
-  defaultToken?: Token
+  onChange?: (token: Token) => void
+  defaultToken: Token
   disabled?: boolean
-}> = ({ defaultToken, disabled = false, onChange, ...restProps }) => {
-  const [token, setToken] = useState<Token | null>(defaultToken ? defaultToken : null)
-  const { tokens } = useTokenIcons()
+  chainId: ChainsValues
+}> = ({ chainId, defaultToken, disabled = false, onChange, ...restProps }) => {
+  const [token, setToken] = useState<Token>(defaultToken)
+  const { gnosisTokensByNetwork, tokensByNetwork } = useTokenIcons()
+  const tokens = useMemo(() => {
+    if (chainId === 1) return tokensByNetwork[chainId] || []
+    if (chainId === 100) return gnosisTokensByNetwork[chainId] || []
+  }, [chainId, gnosisTokensByNetwork, tokensByNetwork])
   const [tokensList, setTokensList] = useState(tokens)
   const [value, setValue] = useState('')
 
-  const onSelectToken = (token: Token | null) => {
+  const onSelectToken = (token: Token) => {
     setToken(token)
-
-    if (typeof onChange !== 'undefined') {
-      onChange(token)
-    }
+    if (typeof onChange !== 'undefined') onChange(token)
   }
 
   useEffect(() => {
     if (value.length === 0) {
       setTokensList(tokens)
     } else {
-      setTokensList(
-        tokens.filter((item) => item.symbol.toLowerCase().indexOf(value.toLowerCase()) !== -1),
-      )
+      if (isAddress(value)) {
+        setTokensList(
+          tokens?.filter((item) => item.address.toLowerCase().indexOf(value.toLowerCase()) !== -1),
+        )
+      } else {
+        setTokensList(
+          tokens?.filter((item) => item.symbol.toLowerCase().indexOf(value.toLowerCase()) !== -1),
+        )
+      }
     }
   }, [tokens, value])
 
@@ -200,7 +210,7 @@ export const TokenDropdown: React.FC<{
           <Info>Search among hundreds of available tokens</Info>
         </TextfieldContainer>,
         <Items closeOnClick key="items">
-          {tokensList.map((item, index) => (
+          {tokensList?.map((item, index) => (
             <DropdownItem
               key={index}
               onClick={() => {
@@ -212,7 +222,7 @@ export const TokenDropdown: React.FC<{
             </DropdownItem>
           ))}
         </Items>,
-        tokensList.length === 0 ? <NoResults closeOnClick={false}>Not found.</NoResults> : <></>,
+        tokensList?.length === 0 ? <NoResults closeOnClick={false}>Not found.</NoResults> : <></>,
       ]}
       {...restProps}
     />

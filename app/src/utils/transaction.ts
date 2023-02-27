@@ -1,3 +1,4 @@
+import { TransactionExecution, TransactionValidation } from './transactions'
 import { transaction } from '@/src/constants/transaction'
 import { fromBNtoNumber } from '@/src/utils/bigNumber'
 
@@ -8,9 +9,7 @@ import { fromBNtoNumber } from '@/src/utils/bigNumber'
 export type Transaction = {
   bridgeName: string
   confirmedTimestamp: string
-  executorAddress: string
-  executorId: string
-  executorTransaction: { timestamp: string; transactionHash: string }[]
+  execution: TransactionExecution
   initiator: string
   receiver: string
   initiatorAmount: number
@@ -27,14 +26,7 @@ export type Transaction = {
   timestampStarted: string
   signaturesCheckedTimestamp: string
   messageId: string
-  validations: {
-    id: string
-    validatorAddress: string
-    transaction: {
-      timestamp: string
-      transactionHash: string
-    }[]
-  }[]
+  validations: TransactionValidation[]
 }
 
 const getNetworkIcon = (network: string) => {
@@ -50,9 +42,7 @@ const getTokenIcon = (network: string) => {
 export const dataTx: Transaction = {
   bridgeName: transaction.bridgeName,
   confirmedTimestamp: transaction.confirmedTimestamp,
-  executorAddress: transaction.execution.executorAddress,
-  executorId: transaction.execution.id,
-  executorTransaction: transaction.execution.transaction,
+  execution: transaction.execution,
   initiator: transaction.initiator,
   receiver: transaction.receiver,
   initiatorAmount: fromBNtoNumber(transaction.initiatorAmount) ?? 0,
@@ -65,7 +55,7 @@ export const dataTx: Transaction = {
   receiverTokenIcon: getTokenIcon(transaction.receiverNetwork ?? ''),
   initiatorName: getNetworkName(transaction.initiatorNetwork ?? ''),
   receiverName: getNetworkName(transaction.receiverNetwork ?? ''),
-  timestampExecution: transaction.execution.transaction[0].timestamp,
+  timestampExecution: transaction.execution.timestamp.toString(),
   timestampStarted: transaction.timestamp,
   validations: transaction.validations,
   signaturesCheckedTimestamp: transaction.signaturesCheckedTimestamp,

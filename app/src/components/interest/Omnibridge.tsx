@@ -55,24 +55,35 @@ export const Omnibridge: React.FC<{
     <Title>{tokenSymbol}</Title>
     <Columns>
       <InterestEarning enabled={interestEarning} />
-      <Address address={interestReceiverAddress} title="Interest receiver address" />
+      <Address
+        address={interestReceiverAddress}
+        title="Interest receiver address"
+        tooltip="Configured address of the interest receiver."
+      />
     </Columns>
     <Columns>
       <Address
         address={interestEarningImplementationAddress}
         title="Interest earning implementation address"
+        tooltip="Address of the interest earning implementation for the specific token contract. If interest earning is disabled, will return 0x00..00"
       />
-      <Address address={aaveTokenAddress} title="Aave Token address" />
+      <Address
+        address={aaveTokenAddress}
+        title="Protocol Token address"
+        tooltip="Address configured for the protocol interest contract module."
+      />
     </Columns>
     <Columns>
       <Token
         title="Min. tokens not invested"
         tokenSymbol={tokenSymbol}
+        tooltip="The minimum amount of tokens that are not being invested."
         value={minTokensNotInvested}
       />
       <Token
         title="Min. paid interest in a single call"
         tokenSymbol={tokenSymbol}
+        tooltip="The minimum amount of interest generated necessary to release a claim."
         value={minPaidInterestInASingleCall}
       />
     </Columns>

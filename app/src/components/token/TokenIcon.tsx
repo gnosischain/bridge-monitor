@@ -4,6 +4,13 @@ import styled from 'styled-components'
 
 import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
 
+const IconWrapper = styled.span`
+  display: flex;
+  img {
+    border-radius: 50%;
+  }
+`
+
 const Placeholder = styled.div<{ dimensions: string }>`
   align-items: center;
   background-color: #cacaca;
@@ -30,16 +37,18 @@ export const TokenIcon: React.FC<Props> = ({ dimensions = 18, symbol, ...restPro
   const tokenImage = tokensBySymbol[symbol.toLowerCase()]?.logoURI
 
   return tokenImage && !error ? (
-    <Image
-      alt={symbol}
-      className="tokenIcon"
-      height={dimensions}
-      onError={() => setError(true)}
-      src={tokenImage}
-      title={symbol}
-      width={dimensions}
-      {...restProps}
-    />
+    <IconWrapper>
+      <Image
+        alt={symbol}
+        className="tokenIcon"
+        height={dimensions}
+        onError={() => setError(true)}
+        src={tokenImage}
+        title={symbol}
+        width={dimensions}
+        {...restProps}
+      />
+    </IconWrapper>
   ) : (
     <Placeholder dimensions={`${dimensions}`}>{symbol[0]}</Placeholder>
   )

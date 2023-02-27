@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import styled from 'styled-components'
 
 import { Address as BaseAddress } from '@/src/components/token/Address'
@@ -9,11 +9,11 @@ import { TransactionFooter } from '@/src/components/transaction/TransactionFoote
 import { TransactionResume } from '@/src/components/transaction/TransactionResume'
 import { TransactionValidations } from '@/src/components/transaction/TransactionValidations'
 import { TransactionValidator } from '@/src/components/transaction/TransactionValidator'
-import { TransactionStatusTypes } from '@/src/constants/types'
-// @todo Bring Transaction information from SG
+import { AMB_SIGNATURE_THRESHOLD, XDAI_SIGNATURE_THRESHOLD } from '@/src/constants/misc'
+import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
 import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
-import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { dataTx } from '@/src/utils/transaction'
+import { Transaction, TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
+import { TransactionStatus } from '@/types/generated/subgraph'
 
 const Wrapper = styled.div`
   display: flex;
@@ -66,19 +66,37 @@ const TransactionDetailsList = styled.ul`
   margin: 0;
   padding: 0;
 `
+const GNOSIS = 'gnosis'
+const MAINNET = 'mainnet'
 
 const Bridges: NextPage = () => {
   const router = useRouter()
-  const transactionId = String(router.query?.transaction)
+  const transactionId = String(router.query?.id)
   // @todo fetch transaction by Id from SG
+  const { transactions } = useFetchTransactions({
+    where: { id: transactionId },
+  })
+  const currentTx = transactions?.[0]
 
-  const messageIDText = `UserRequestForAffirmation method was called (messageId ${dataTx.messageId})`
+  const txValidations = currentTx.validations ?? []
+  const hasValidations = (): boolean => {
+    return txValidations !== null && txValidations.length >= 1
+  }
+  const signatureThresholdNotReached = (): boolean => {
+    const signatureThreshold =
+      currentTx.bridgeName === 'AMB' ? AMB_SIGNATURE_THRESHOLD : XDAI_SIGNATURE_THRESHOLD
+    return currentTx.validations?.length !== signatureThreshold
+  }
+  const txExecution = currentTx.execution ?? ({} as TransactionExecution)
+  const hasBeenExecuted = (): boolean => {
+    return txExecution !== null && txExecution.id !== undefined
+  }
+  const hasBeenCompleted = (): boolean => {
+    return currentTx.transactionStatus === TransactionStatus.Completed
+  }
 
-  // check if a validator signs more than one time.
-  // @todo what parameters define a transaction warning state?
-  const checkValidatorsSignOneTime = dataTx.validations.filter(
-    (item) => item.transaction.length === 2,
-  ).length
+  const messageIDText = '' // @todo remove it after sg deploys and Transaction entity contains messageId
+  // const messageIDText = currentTx.messageId ? `ID for tx ${currentTx.messageId})` : ''
 
   /*
     @todo:
@@ -88,7 +106,7 @@ const Bridges: NextPage = () => {
     - "waiting" if it didn't finish.
     - "warning" if there is an error in the process or if it is spending more than expected.
     */
-  const { validators: bridgeValidators } = useFetchValidators(dataTx.bridgeName)
+  const { validators: bridgeValidators } = useFetchValidators(currentTx.bridgeName)
   const getValidatorName = (validatorAddress: string) => {
     return (
       bridgeValidators.find((bridgeValidator) => {
@@ -97,101 +115,116 @@ const Bridges: NextPage = () => {
     )
   }
 
-  const [transactionStatus, setTransactionStatus] = useState(TransactionStatusTypes.waiting)
-  useEffect(() => {
-    if (checkValidatorsSignOneTime) setTransactionStatus(TransactionStatusTypes.warning)
-    else if (!dataTx.executorAddress) setTransactionStatus(TransactionStatusTypes.waiting)
-    else if (dataTx.signaturesCheckedTimestamp && checkValidatorsSignOneTime === 0)
-      setTransactionStatus(TransactionStatusTypes.completed)
-  }, [checkValidatorsSignOneTime])
+  // @todo define TransactionStatusType using dropdown options style
+  const [transactionStatus, setTransactionStatus] = useState(currentTx.transactionStatus)
+  // useEffect(() => {
+  //   if (checkValidatorsSignOneTime) setTransactionStatus(TransactionStatusTypes.warning)
+  //   else if (!currentTx.executorAddress) setTransactionStatus(TransactionStatusTypes.waiting)
+  //   else if (currentTx.signaturesCheckedTimestamp && checkValidatorsSignOneTime === 0)
+  //     setTransactionStatus(TransactionStatusTypes.completed)
+  // }, [checkValidatorsSignOneTime])
 
-  const { getExplorerUrl } = useWeb3Connection()
+  const getNetworkIcon = (network: string): string => {
+    return network === MAINNET ? '/images/icons/eth.png' : '/images/icons/gnosis.png'
+  }
 
   return (
     <Wrapper>
       <Head>
         <Title>Transaction</Title>
         <Address
-          address={transactionId}
+          address={currentTx.transactionHash}
           bigIcons
           characters={6}
           copy
-          link={getExplorerUrl(transactionId)}
+          link={getTxScanUrl(currentTx.transactionHash, currentTx.initiatorNetwork)}
         />
       </Head>
       <TransactionInformation>
         <TransactionResume
-          bridgeName={dataTx.bridgeName}
-          initiator={dataTx.initiator}
-          initiatorAmount={dataTx.initiatorAmount}
-          initiatorName={dataTx.initiatorName}
-          initiatorNetwork={dataTx.initiatorNetwork}
-          initiatorNetworkIcon={dataTx.initiatorNetworkIcon}
-          initiatorTokenIcon={dataTx.initiatorTokenIcon}
-          receiver={dataTx.receiver}
-          receiverAmount={dataTx.receiverAmount}
-          receiverName={dataTx.receiverName}
-          receiverNetwork={dataTx.receiverNetwork}
-          receiverNetworkIcon={dataTx.receiverNetworkIcon}
-          receiverTokenIcon={dataTx.receiverTokenIcon}
-          timestampExecution={dataTx.timestampExecution}
-          timestampStarted={dataTx.timestampStarted}
+          bridgeName={currentTx.bridgeName}
+          initiator={currentTx.initiator}
+          initiatorAmount={currentTx.initiatorAmount}
+          initiatorName={currentTx.initiator}
+          initiatorNetwork={currentTx.initiatorNetwork}
+          initiatorNetworkIcon={getNetworkIcon(currentTx.initiatorNetwork)}
+          initiatorTokenIcon={currentTx.initiatorTokenData?.logoURI ?? ''}
+          initiatorTokenName={currentTx.initiatorTokenData?.name ?? ''}
+          receiver={currentTx.receiver}
+          receiverAmount={currentTx.receiverAmount}
+          receiverName={currentTx.receiver}
+          receiverNetwork={currentTx.receiverNetwork}
+          receiverNetworkIcon={getNetworkIcon(currentTx.receiverNetwork)}
+          receiverTokenIcon={currentTx.receiverTokenData?.logoURI ?? ''}
+          receiverTokenName={currentTx.receiverTokenData?.name ?? ''}
+          timestampExecution={currentTx.execution?.timestamp ?? 0}
+          timestampStarted={currentTx.timestamp ?? 0}
           transactionStatus={transactionStatus}
         />
         <TransactionDetails>
           <TransactionDetailsList>
             <TransactionDetailsListItem
-              dateCompleted={dataTx.timestampStarted}
-              description="User locked an amount of DAI - requireToPassMessage method was called"
-              title="Transaction created"
-              transactionStatus={transactionStatus}
-              waiting={dataTx.timestampStarted ? false : true}
+              dateCompleted={currentTx.timestamp} // tokens bridging initiated / user transfer timestamp
+              description={`User locked/minted ${currentTx.initiatorTokenData?.name} tokens.`}
+              title="Transaction Created"
+              transactionStatus={TransactionStatus.Initiated}
+              waiting={currentTx.timestamp ? false : true}
             />
             <TransactionDetailsListItem
-              dateCompleted={dataTx.confirmedTimestamp}
-              description={messageIDText}
-              title="Transaction confirmed"
-              transactionStatus={transactionStatus}
-              waiting={dataTx.confirmedTimestamp ? false : true}
-            />
-            <TransactionDetailsListItem
-              dateCompleted=""
-              description="executeAffirmation method was called"
-              title="Bridge validators signatures"
-              transactionStatus={transactionStatus}
-              waiting={dataTx.validations.length ? false : true}
-            >
-              {/*@todo if 4 validators didn't sign a transaction can't be completed.*/}
-              <TransactionValidations
-                fetchValidatorName={getValidatorName}
-                validations={dataTx.validations}
-              />
-            </TransactionDetailsListItem>
-            <TransactionDetailsListItem
-              dateCompleted=""
-              description="executeAffirmation method was called"
-              title="Bridge validator execution"
-              transactionStatus={transactionStatus}
-              waiting={dataTx.timestampExecution ? false : true}
-            >
-              {dataTx.executorAddress && (
-                <ul>
-                  <TransactionValidator
-                    key={dataTx.executorId}
-                    status=""
-                    transaction={dataTx.executorTransaction}
-                    validator={getValidatorName(dataTx.executorAddress)}
+              dateCompleted={currentTx.timestamp} // user request event timestamp
+              description={`User requested for Signature/Affirmation.
+              ${messageIDText}`}
+              title="Transaction Confirmed"
+              transactionStatus={TransactionStatus.Requested}
+              waiting={currentTx.validations?.length === 0}
+            ></TransactionDetailsListItem>
+            {hasValidations() && (
+              <>
+                <TransactionDetailsListItem
+                  dateCompleted={currentTx.timestamp} // first signature timestamp (COLLECTING initiated)
+                  description="Collecting signatures for Transaction validation"
+                  title="Bridge Validators Signatures"
+                  transactionStatus={TransactionStatus.Collecting}
+                  waiting={signatureThresholdNotReached()}
+                >
+                  <TransactionValidations
+                    fetchValidatorName={getValidatorName}
+                    validations={txValidations}
                   />
-                </ul>
-              )}
-            </TransactionDetailsListItem>
-            <TransactionDetailsListItem
-              dateCompleted={dataTx.signaturesCheckedTimestamp}
-              description="The block reward contract is called by the consensus engine to update user's xDAI balance."
-              title="Signatures were checked"
-              transactionStatus={transactionStatus}
-              waiting={dataTx.signaturesCheckedTimestamp ? false : true}
-            />
+                </TransactionDetailsListItem>
+              </>
+            )}
+            {hasBeenExecuted() && (
+              <>
+                <TransactionDetailsListItem
+                  dateCompleted={currentTx.timestamp} // last signature timestamp (UNCLAIMED)
+                  description="Signatures treshold has been reached. Last Validator signing"
+                  title="Bridge Validator Execution"
+                  transactionStatus={TransactionStatus.Unclaimed}
+                  waiting={currentTx.timestamp ? false : true}
+                >
+                  <ul>
+                    <TransactionValidator
+                      key={txExecution.id}
+                      status="not-required"
+                      transaction={txExecution}
+                      validator={getValidatorName(txExecution.responsableAddress)}
+                    />
+                  </ul>
+                </TransactionDetailsListItem>
+              </>
+            )}
+            {hasBeenCompleted() && (
+              <>
+                <TransactionDetailsListItem
+                  dateCompleted={currentTx.timestamp} // tokens bridged event timestamp (COMPLETED)
+                  description="Funds should be available on receiver address"
+                  title="Tokens Bridged"
+                  transactionStatus={transactionStatus}
+                  waiting={currentTx.timestamp ? false : true}
+                ></TransactionDetailsListItem>
+              </>
+            )}
           </TransactionDetailsList>
         </TransactionDetails>
       </TransactionInformation>

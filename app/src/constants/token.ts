@@ -35,7 +35,7 @@ export const tokens: Record<'DAI' | 'XDAI', Token> = {
   },
   XDAI: {
     address: '', // @todo as it is a native token, it does not have an address associated
-    chainId: Chains.xdai,
+    chainId: Chains.gnosis,
     decimals: 18,
     logoURI: '/images/icons/xdai.png',
     name: 'xDAI',

@@ -3,7 +3,7 @@ import { ObjectValues } from '@/types/utils'
 export const Chains = {
   mainnet: 1,
   goerli: 5,
-  xdai: 100,
+  gnosis: 100,
 } as const
 
 export type ChainConfig = {
@@ -53,7 +53,8 @@ export type AppContractInfo = BaseAppContractInfo & {
  * The list follow the standard from: https://tokenlists.org/
  */
 export const TokensLists = {
-  '1INCH': 'https://gateway.ipfs.io/ipns/tokens.1inch.eth',
+  // '1INCH': 'https://gateway.ipfs.io/ipns/tokens.1inch.eth',
   COINGECKO: 'https://tokens.coingecko.com/uniswap/all.json',
-  OPTIMISM: 'https://static.optimism.io/optimism.tokenlist.json',
+  // OPTIMISM: 'https://static.optimism.io/optimism.tokenlist.json',
+  // BLOCKSCOUT: 'https://blockscout.com/xdai/mainnet/api?module=token&action=bridgedTokenList',
 } as const

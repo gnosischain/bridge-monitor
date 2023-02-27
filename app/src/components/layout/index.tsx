@@ -5,9 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 
 import { InnerContainer } from '@/src/components/helpers/InnerContainer'
 
-const Container = styled(InnerContainer)`
-  padding-bottom: ${({ theme: { common } }) => common.space * 8}px;
-`
+const Container = styled(InnerContainer)``
 
 export const Layout: React.FC = ({ children }) => {
   const router = useRouter()

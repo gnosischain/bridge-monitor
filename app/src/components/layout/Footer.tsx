@@ -1,22 +1,23 @@
+import Image from 'next/image'
+import Link from 'next/link'
 import styled from 'styled-components'
 
+import { GnosisChainLogo } from '@/src/components/common/Logo'
 import { InnerContainer as BaseInnerContainer } from '@/src/components/helpers/InnerContainer'
+import { Section } from '@/src/components/layout/Section'
 import { BaseParagraph } from '@/src/components/text/BaseParagraph'
-import { useCookiesWarningContext } from '@/src/providers/cookiesWarningProvider'
 
 const Wrapper = styled.footer`
   color: ${({ theme: { colors } }) => colors.textColor};
-  flex-shrink: 0;
-  margin-top: auto;
-  padding-bottom: 20px;
-  padding-top: 40px;
+  margin-top: ${({ theme: { common } }) => common.space}px;
   width: 100%;
 `
 
 const InnerContainer = styled(BaseInnerContainer)`
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
   align-items: center;
-  display: grid;
-  grid-template-columns: 1fr;
 `
 
 const Paragraph = styled(BaseParagraph)`
@@ -24,35 +25,34 @@ const Paragraph = styled(BaseParagraph)`
   font-size: 1.2rem;
   line-height: 1.5;
   margin: 0;
-  order: 2;
-  text-align: center;
-`
-
-const Item = styled.span`
-  color: ${({ theme: { colors } }) => colors.textColor};
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: ${({ theme: { common } }) => common.space}px;
+  svg {
+    max-width: 24px;
+  }
+  a {
+    display: flex;
   }
 `
 
 export const Footer: React.FC = (props) => {
-  const year = new Date().getFullYear()
-  const { cookiesWarningEnabled, showCookiesWarning } = useCookiesWarningContext()
-
   return (
     <Wrapper {...props}>
-      <InnerContainer>
-        <Paragraph>
-          Copyright © {year} • BootNode.dev • All Rights Reserved
-          {cookiesWarningEnabled && (
-            <>
-              &nbsp;- <Item onClick={showCookiesWarning}>Cookies</Item>
-            </>
-          )}
-        </Paragraph>
-      </InnerContainer>
+      <Section>
+        <InnerContainer>
+          <Paragraph>
+            Developed by{' '}
+            <a href="https://www.bootnode.dev/" rel="noreferrer" target="_blank">
+              <Image alt="Bootnode" height={24} src="/images/bn.svg" width={24} />
+            </a>
+          </Paragraph>
+          <Paragraph>
+            Powered by <GnosisChainLogo />
+          </Paragraph>
+        </InnerContainer>
+      </Section>
     </Wrapper>
   )
 }

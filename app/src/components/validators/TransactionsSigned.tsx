@@ -62,7 +62,7 @@ const DropdownButton = styled.button`
 
 const ChartWrapper = styled.div`
   flex-grow: 1;
-  min-height: 210px;
+  min-height: 196px;
 `
 
 export const TransactionsSigned: React.FC<{
@@ -73,7 +73,6 @@ export const TransactionsSigned: React.FC<{
 
   const onDropdownItemSelect = (index: number) => {
     setSelectedItem(index)
-    console.log('Also update the chart or whatever...')
   }
 
   const colors = [

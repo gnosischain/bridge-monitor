@@ -61,9 +61,10 @@ const FilterDropdown: React.FC<Props> = ({
             onSelectOption(el)
           }}
         >
-          {index !== 0 && (
-            <LittleCircleOfExtraClarification status={el.toUpperCase() as TransactionStatus} />
-          )}
+          {index !== 0 &&
+            Object.values(TransactionStatus)?.includes(el.toUpperCase() as TransactionStatus) && (
+              <LittleCircleOfExtraClarification status={el.toUpperCase() as TransactionStatus} />
+            )}
           {el}
         </DropdownItem>
       ))}

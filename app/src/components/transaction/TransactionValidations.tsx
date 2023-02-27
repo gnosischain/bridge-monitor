@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 
 import { TransactionValidator } from './TransactionValidator'
+import { TransactionValidation } from '@/src/utils/transactions'
 
 const Wrapper = styled.ul`
   padding: 0;
@@ -18,43 +19,23 @@ const MessageRequired = styled.small`
 `
 
 interface Props {
-  validations: {
-    id: string
-    validatorAddress: string
-    transaction: { timestamp: string; transactionHash: string }[]
-  }[]
+  validations: TransactionValidation[]
   fetchValidatorName: (validatorAddress: string) => string
 }
 
 export const TransactionValidations: React.FC<Props> = ({ fetchValidatorName, validations }) => {
-  // @todo:
-  const countSignatures = validations.filter(
-    (obj: { transaction: { timestamp: string; transactionHash: string }[] }) =>
-      obj.transaction[0].transactionHash,
-  ).length
-  let signaturesStatus = ''
-  if (countSignatures === 4) {
-    signaturesStatus = 'not-required'
-  }
+  const signaturesCount = validations.length
+  const signaturesStatus = signaturesCount === 4 ? 'not-required' : 'waiting'
   return (
     <Wrapper>
-      {validations.map(
-        (
-          validation: {
-            id: string
-            transaction: { timestamp: string; transactionHash: string }[]
-            validatorAddress: string
-          },
-          index,
-        ) => (
-          <TransactionValidator
-            key={index}
-            status={signaturesStatus}
-            transaction={validation.transaction}
-            validator={fetchValidatorName(validation.validatorAddress)}
-          />
-        ),
-      )}
+      {validations.map((validation: TransactionValidation, index) => (
+        <TransactionValidator
+          key={index}
+          status={signaturesStatus}
+          transaction={validation}
+          validator={fetchValidatorName(validation.responsableAddress)}
+        />
+      ))}
 
       <MessageRequired>4 of 6 confirmations required</MessageRequired>
     </Wrapper>
