@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { InnerCard } from '@/src/components/common/InnerCard'
 import { BaseSubTitle as Title } from '@/src/components/text/BaseSubTitle'
 import { Address } from '@/src/components/token/Address'
+import { bridgeConfig } from '@/src/constants/bridges'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 
 const RowWrapper = styled.div`
@@ -29,7 +30,7 @@ const Row: React.FC<{ address: string; title: string }> = ({ address, title, ...
   return (
     <RowWrapper {...restProps}>
       <RowTitle>{title}</RowTitle>
-      <Address address={address} characters={8} copy link={getExplorerUrl(address)} />
+      <Address address={address} characters={6} copy link={getExplorerUrl(address)} />
     </RowWrapper>
   )
 }
@@ -74,18 +75,11 @@ export const Configuration: React.FC = ({ ...restProps }) => (
       <Card>
         <SubTitle>Ethereum Addresses</SubTitle>
         <Rows>
-          <Row
-            address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'}
-            title="Bridge Proxy Contract"
-          />
-          <Row address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'} title="Governor Multisig" />
-          <Row
-            address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'}
-            title="Bridge Proxy Contract"
-          />
-          <Row address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'} title="DAI Token" />
-          <Row address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'} title="Protocol" />
-          <Row address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'} title="Protocol Token" />
+          <Row address={bridgeConfig.XDAI.bridgeProxy} title="Bridge Proxy Contract" />
+          <Row address={bridgeConfig.XDAI.governorMultisig} title="Governor Multisig" />
+          <Row address={bridgeConfig.XDAI.tokens.dai} title="DAI Token" />
+          <Row address={bridgeConfig.XDAI.protocol.address} title="Protocol" />
+          <Row address={bridgeConfig.XDAI.protocol.token} title="Protocol Token" />
         </Rows>
       </Card>
     </Column>
@@ -94,17 +88,11 @@ export const Configuration: React.FC = ({ ...restProps }) => (
       <Card>
         <SubTitle>Ethereum Addresses</SubTitle>
         <Rows>
-          <Row
-            address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'}
-            title="Omnibridge Mediator Proxy"
-          />
-          <Row address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'} title="Governor Multisig" />
-          <Row
-            address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'}
-            title="Protocol Interest Module"
-          />
-          <Row address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'} title="USDC Token" />
-          <Row address={'0x32dea44d5C243990B0133f5D103C2A784aA6a29F'} title="USDT Token" />
+          <Row address={bridgeConfig.OMNI.bridgeProxy} title="Omnibridge Mediator Proxy" />
+          <Row address={bridgeConfig.OMNI.governorMultisig} title="Governor Multisig" />
+          <Row address={bridgeConfig.OMNI.protocol.address} title="Protocol Interest Module" />
+          <Row address={bridgeConfig.OMNI.tokens.usdc} title="USDC Token" />
+          <Row address={bridgeConfig.OMNI.tokens.usdt} title="USDT Token" />
         </Rows>
       </Card>
     </Column>
