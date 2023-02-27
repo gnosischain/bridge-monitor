@@ -6,7 +6,7 @@ import { TabContentInner } from '@/src/components/tabs/TabContentInner'
 import { BaseSubTitle } from '@/src/components/text/BaseSubTitle'
 import { Chains, chainsConfig } from '@/src/constants/config/chains'
 import { contracts } from '@/src/constants/config/contracts'
-import { Token } from '@/src/constants/token'
+import { Token, tokens } from '@/src/constants/token'
 import {
   useForeignOMNIBridgeLimits,
   useHomeOMNIBridgeLimits,
@@ -81,7 +81,7 @@ export const DailyBridgeLimits: React.FC = ({ ...restProps }) => {
             contractForeignUsed={homeXDAIinformation.totalSpentPerDay}
             contractNativeFunds={homeXDAIinformation.executionDailyLimit}
             contractNativeUsed={homeXDAIinformation.totalExecutedPerDay}
-            defaultToken={tokensBySymbol['weth']}
+            defaultToken={tokens['XDAI']}
             disableTokenDropdown
             executionMaxPerTx={homeXDAIinformation.executionMaxPerTx}
             fromTo={'Ethereum to Gnosis'}

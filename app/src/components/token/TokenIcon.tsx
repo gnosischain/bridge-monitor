@@ -29,12 +29,19 @@ const Placeholder = styled.div<{ dimensions: string }>`
 interface Props {
   dimensions?: number
   symbol: string
+  iconSource?: string
 }
 
-export const TokenIcon: React.FC<Props> = ({ dimensions = 18, symbol, ...restProps }) => {
+export const TokenIcon: React.FC<Props> = ({
+  dimensions = 18,
+  iconSource,
+  symbol,
+  ...restProps
+}) => {
   const { tokensBySymbol } = useTokenIcons()
   const [error, setError] = useState(false)
-  const tokenImage = tokensBySymbol[symbol.toLowerCase()]?.logoURI
+  console.log(iconSource)
+  const tokenImage = iconSource ?? tokensBySymbol[symbol.toLowerCase()]?.logoURI
 
   return tokenImage && !error ? (
     <IconWrapper>

@@ -189,7 +189,7 @@ export const TokenDropdown: React.FC<{
       disabled={disabled}
       dropdownButton={
         <Button>
-          {token && <TokenIcon dimensions={18} symbol={token.symbol} />}
+          {token && <TokenIcon dimensions={18} iconSource={token.logoURI} symbol={token.symbol} />}
           <ButtonText>{token ? token.symbol : 'Select token...'}</ButtonText>
           {!disabled && <ChevronDown />}
         </Button>
