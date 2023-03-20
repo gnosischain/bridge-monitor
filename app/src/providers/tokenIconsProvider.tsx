@@ -15,8 +15,10 @@ const ICONS_SOURCE = 'https://gateway.ipfs.io/ipns/tokens.1inch.eth'
 
 const useTokenListQuery = () => {
   return useSWR(['token-list'], async () => {
-    const response: TokenListResponse = await fetch(ICONS_SOURCE).then((x) => x.json())
-    const allTokens: Token[] = response.tokens
+    // const response: TokenListResponse = await fetch(ICONS_SOURCE).then((x) => x.json())
+    // const allTokens: Token[] = response.tokens
+    const allTokens: Token[] = require('./token-list.json')
+    debugger;
 
     const { tokens, tokensByAddress, tokensBySymbol } = allTokens.reduce(
       (acc: TokenListQueryReturn, token) => {
