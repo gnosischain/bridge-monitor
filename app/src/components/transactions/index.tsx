@@ -32,7 +32,11 @@ const Title = styled.div`
   }
 `
 
-export const Transactions: React.FC = () => {
+interface Props {
+  bridge?: string
+}
+
+export const Transactions: React.FC<Props> = ({ bridge }) => {
   const {
     filters,
     setBridge,

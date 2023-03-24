@@ -49,12 +49,14 @@ type GnosisTokenListQueryReturn = {
 }
 
 const fetchGnosisChainTokens = async () => {
-  const gnosischainTokensURL =
-    'https://blockscout.com/xdai/mainnet/api?module=token&action=bridgedTokenList&chainid=1&offset=600'
+  // const gnosischainTokensURL =
+  //   'https://blockscout.com/xdai/mainnet/api?module=token&action=bridgedTokenList&chainid=1&offset=600'
   // const xdaiTokenListCall = await fetch(GNOSISCHAIN_TOKENLIST_URL)
-  const tokenListResponse = await fetch(gnosischainTokensURL)
-  const tokenList = await tokenListResponse.json()
-  return tokenList.result
+  // const tokenListResponse = await fetch(gnosischainTokensURL)
+  // const tokenList = await tokenListResponse.json()
+  // return tokenList.result
+  const gnosischainTokensURL = require('./token-list.json')
+  return gnosischainTokensURL
 }
 
 const useTokenListQuery = () => {

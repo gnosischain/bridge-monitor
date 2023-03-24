@@ -40,7 +40,7 @@ function Tooltip({ children, text }: TooltipProps) {
 export const ChainToken: React.FC<Props> = ({ children, name }) => {
   return (
     <Wrapper>
-      <Tooltip text={name}>{children}</Tooltip>
+      <Tooltip>{children}</Tooltip>
     </Wrapper>
   )
 }
