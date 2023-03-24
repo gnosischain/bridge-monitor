@@ -1,14 +1,14 @@
 {
     "1": {
-        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/marcelorubini/bridge-home-events-fixbuild",
-        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/marcelorubini/bridge-foreign-events-fixbuild"
+        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/giacomolicari/gnosis-bridge-test",
+        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/gmonty030/gnosis-foreign-bridge"
     },
     "5": {
-        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/marcelorubini/bridge-home-events-fixbuild",
-        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/marcelorubini/bridge-foreign-events-fixbuild"
+        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/giacomolicari/gnosis-bridge-test",
+        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/gmonty030/gnosis-foreign-bridge"
     },
     "100": {
-        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/marcelorubini/bridge-home-events-fixbuild",
-        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/marcelorubini/bridge-foreign-events-fixbuild"
+        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/giacomolicari/gnosis-bridge-test",
+        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/gmonty030/gnosis-foreign-bridge"
     }
 }
