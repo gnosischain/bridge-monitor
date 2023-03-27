@@ -1,9 +1,9 @@
-import { chainsConfig } from '../constants/config/chains'
-import { Chains } from '../constants/config/types'
-import { Token, tokens } from '../constants/token'
 import { fromBNtoNumber } from './bigNumber'
 import { fromSubgraphTimestamp } from './date'
 import { formatNumber } from './formatNumber'
+import { chainsConfig } from '../constants/config/chains'
+import { Chains } from '../constants/config/types'
+import { Token, tokens } from '../constants/token'
 import { getForeignGraphqlClient, getHomeGraphqlClient } from '@/src/constants/config/subgraph'
 import { TRANSACTION_QUERY } from '@/src/queries/transactions'
 import {

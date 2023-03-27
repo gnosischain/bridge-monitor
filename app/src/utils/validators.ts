@@ -1,6 +1,12 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { cloneDeep } from 'lodash'
 
+import { fromBNtoNumber } from './bigNumber'
+import { fromSubgraphTimestamp } from './date'
+import { formatNumber } from './formatNumber'
+import { Transaction } from './transactions'
+import ambValidators from './validators/amb.json'
+import xdaiValidators from './validators/xdai.json'
 import { ValidatorStatusType } from '../components/assets/ValidatorStatus'
 import { Bridges, BridgesValues } from '../constants/config/bridges'
 import { chainsConfig } from '../constants/config/chains'
@@ -9,12 +15,6 @@ import { getHomeGraphqlClient } from '../constants/config/subgraph'
 import { Chains } from '../constants/config/types'
 import { BalanceType, ValidatorStatusTypes } from '../constants/types'
 import { VALIDATORS_QUERY } from '../queries/validators'
-import { fromBNtoNumber } from './bigNumber'
-import { fromSubgraphTimestamp } from './date'
-import { formatNumber } from './formatNumber'
-import { Transaction } from './transactions'
-import ambValidators from './validators/amb.json'
-import xdaiValidators from './validators/xdai.json'
 import {
   TransactionStatus,
   ValidatorsQuery,

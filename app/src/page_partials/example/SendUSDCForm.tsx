@@ -63,7 +63,6 @@ const SendUSDCForm = () => {
   //   [address || ZERO_ADDRESS],
   // ])
 
-
   const [usdcBalance, usdcDecimals] = [ZERO_BN, 18]
 
   const sendUSDC = useTransaction()

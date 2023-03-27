@@ -40,9 +40,9 @@ type RequiredConnectionProps = {
 
 const RequiredConnection: React.FC<RequiredConnectionProps> = ({
   children,
-  minHeight,
   isNotConnectedText = 'You must be logged in.',
   isWrongNetworkText = `Please switch to app network`,
+  minHeight,
   ...restProps
 }) => {
   const { address, appChainId, connectWallet, isWalletConnected, pushNetwork, walletChainId } =

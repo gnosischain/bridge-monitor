@@ -3,6 +3,7 @@ import { FC, PropsWithChildren, createContext, useContext } from 'react'
 import { TokenInfo } from '@uniswap/token-lists'
 import useSWR from 'swr'
 
+import * as gnosischainTokensURL from './token-list.json'
 import { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { TokensLists } from '@/src/constants/config/types'
 import {
@@ -55,7 +56,6 @@ const fetchGnosisChainTokens = async () => {
   // const tokenListResponse = await fetch(gnosischainTokensURL)
   // const tokenList = await tokenListResponse.json()
   // return tokenList.result
-  const gnosischainTokensURL = require('./token-list.json')
   return gnosischainTokensURL
 }
 
