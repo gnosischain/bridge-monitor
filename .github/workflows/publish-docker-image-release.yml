@@ -44,7 +44,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ./app
-          file: ./Dockerfile
+          file: ./app/Dockerfile
           push: true
           cache-from: type=registry,ref=gnosischain/bridge-monitor:buildcache
           cache-to: type=registry,ref=gnosischain/bridge-monitor:buildcache,mode=max
