@@ -32,7 +32,7 @@ const getGraphqlFetcher =
   <Response, Variables = void>(query: DocumentNode, variables?: Variables) => {
     if (!graphqlClients[apiURL]) throw new Error('graphql endpoint not initialized')
     const fetcher = graphqlClients[apiURL]
-    return fetcher.request<Response>(query, variables)
+    return fetcher.request<Response>(query, variables ?? {})
   }
 
 export const getHomeGraphqlClient = () =>

@@ -7,6 +7,7 @@ const error = '#db3333'
 const success = '#33dd33'
 const primary = '#320E3B'
 const secondary = '#E56399'
+const darkSecondary = '#8799C7'
 const tertiary = '#A6CFD5'
 const textColor = '#333'
 const borderColor = '#ccc'
@@ -57,6 +58,7 @@ export const light = {
     error: error,
     primary: primary,
     secondary: secondary,
+    darkSecondary: darkSecondary,
     success: success,
     tertiary: tertiary,
     textColor: textColor,

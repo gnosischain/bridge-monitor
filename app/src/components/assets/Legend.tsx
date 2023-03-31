@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 import { ValidatorStatus } from '@/src/components/assets/ValidatorStatus'
-import { StatusTypes } from '@/src/constants/types'
+import { ValidatorStatusTypes } from '@/src/constants/types'
 
 const Wrapper = styled.div`
   display: flex;
@@ -30,23 +30,23 @@ export const Legend: React.FC = () => {
   return (
     <Wrapper>
       <Label>
-        <ValidatorStatus status={StatusTypes.pending} />
+        <ValidatorStatus status={ValidatorStatusTypes.pending} />
         Pending
       </Label>
       <Label>
-        <ValidatorStatus status={StatusTypes.submitted} />
+        <ValidatorStatus status={ValidatorStatusTypes.submitted} />
         Signature submitted
       </Label>
       <Label>
-        <ValidatorStatus status={StatusTypes.submittedExecuted} />
+        <ValidatorStatus status={ValidatorStatusTypes.submittedExecuted} />
         Signature submitted + executed
       </Label>
       <Label>
-        <ValidatorStatus status={StatusTypes.executed} />
+        <ValidatorStatus status={ValidatorStatusTypes.executed} />
         Executed
       </Label>
       <Label>
-        <ValidatorStatus status={StatusTypes.notRequired} />
+        <ValidatorStatus status={ValidatorStatusTypes.notRequired} />
         Not Required
       </Label>
     </Wrapper>

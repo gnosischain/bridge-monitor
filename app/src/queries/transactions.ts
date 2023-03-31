@@ -6,8 +6,10 @@ const TRANSACTION_FRAGMENT = gql`
     bridgeName
     transactionHash
     initiator
+    initiatorAmount
     initiatorNetwork
     receiver
+    receiverAmount
     receiverNetwork
     transactionStatus
     timestamp
@@ -15,13 +17,13 @@ const TRANSACTION_FRAGMENT = gql`
       id
       timestamp
       transactionHash
-      executorAddress
+      responsableAddress
     }
     validations {
       id
       timestamp
       transactionHash
-      validatorAddress
+      responsableAddress
     }
   }
 `

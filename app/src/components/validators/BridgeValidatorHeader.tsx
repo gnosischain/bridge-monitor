@@ -2,36 +2,39 @@ import styled from 'styled-components'
 
 import { LimitDot } from '@/src/components/limits/LimitDot'
 
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
+const Wrapper = styled.div`
   align-items: center;
-  h3 {
-    font-family: ${({ theme: { fonts } }) => fonts.family};
-    margin: 0;
-    font-weight: 500;
-    font-size: 1.6rem;
-    line-height: 1;
-  }
+  display: flex;
+  justify-content: flex-start;
+  column-gap: ${({ theme: { common } }) => common.space}px;
 `
+
+const Title = styled.h3`
+  font-family: ${({ theme: { fonts } }) => fonts.family};
+  font-size: 1.6rem;
+  font-weight: 500;
+  line-height: 1;
+  margin: 0;
+`
+
 const Circle = styled.div`
+  --size: 40px;
+
+  align-items: center;
   background-color: ${({ theme: { colors } }) => colors.primary};
+  border-radius: 50%;
   color: ${({ theme: { colors } }) => colors.cream};
-  width: 36px;
-  height: 36px;
   display: flex;
   flex-shrink: 0;
-  justify-content: center;
-  align-items: center;
+  font-size: 1.4rem;
   font-weight: 700;
-  font-size: 14px;
-  gap: ${({ theme: { common } }) => common.space}px;
-  border-radius: 50%;
+  height: var(--size);
+  justify-content: center;
+  width: var(--size);
 `
-const ValidatorName = styled.div`
-  align-items: center;
-  display: flex;
-  gap: ${({ theme: { common } }) => common.space}px;
+
+const Dot = styled(LimitDot)`
+  margin-left: auto;
 `
 
 interface Props {
@@ -39,15 +42,18 @@ interface Props {
   validatorHealth: string
 }
 
-export const BridgeValidatorHeader: React.FC<Props> = ({ title, validatorHealth }) => {
+export const BridgeValidatorHeader: React.FC<Props> = ({
+  title,
+  validatorHealth,
+  ...restProps
+}) => {
   const Capitals = title.replace(/[a-z+\s]/g, '')
+
   return (
-    <Header>
-      <ValidatorName>
-        <Circle>{Capitals}</Circle>
-        <h3>{title}</h3>
-      </ValidatorName>
-      <LimitDot status={validatorHealth} />
-    </Header>
+    <Wrapper {...restProps}>
+      <Circle>{Capitals}</Circle>
+      <Title>{title}</Title>
+      <Dot status={validatorHealth} />
+    </Wrapper>
   )
 }

@@ -6,6 +6,14 @@ import { motion } from 'framer-motion'
 import { NavLink as BaseNavLink } from '@/src/components/navigation/NavLink'
 import { sections } from '@/src/constants/sections'
 
+const Wrapper = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+`
 const MenuBackground = styled.div`
   background-color: ${({ theme: { colors } }) => colors.black};
   position: absolute;
@@ -99,7 +107,7 @@ interface Props {
 }
 export const PhoneMainMenu: React.FC<Props> = ({ closeMenu }) => {
   return (
-    <>
+    <Wrapper>
       <MenuBackground
         animate={{ opacity: 0.6 }}
         as={motion.div}
@@ -135,6 +143,6 @@ export const PhoneMainMenu: React.FC<Props> = ({ closeMenu }) => {
           </Nav>
         </Menu>
       </MenuWrapper>
-    </>
+    </Wrapper>
   )
 }

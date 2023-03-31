@@ -1,15 +1,7 @@
 export const sections = [
   {
-    section: 'xDAI Transactions',
+    section: 'Transactions',
     href: '/',
-  },
-  {
-    section: 'AMB Transactions',
-    href: '/amb-transactions',
-  },
-  {
-    section: 'Omnibridge Transactions',
-    href: '/omnibridge-transactions',
   },
   {
     section: 'Bridges',

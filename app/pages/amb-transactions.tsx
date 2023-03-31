@@ -12,7 +12,7 @@ const Wrapper = styled.div`
 const AMBTransactions: NextPage = () => {
   return (
     <Wrapper>
-      <Transactions bridge="AMB" />
+      <Transactions />
     </Wrapper>
   )
 }

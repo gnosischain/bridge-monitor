@@ -1,0 +1,40 @@
+import React from 'react'
+import styled from 'styled-components'
+
+const Wrapper = styled.svg``
+
+interface Props {
+  height?: number
+  width?: number
+}
+
+export const IconClock: React.FC<Props> = ({ height = 16, width = 16 }) => (
+  <Wrapper
+    className="copyAddress"
+    fill="none"
+    height={height}
+    viewBox="0 0 16 16"
+    width={width}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <g clipPath="url(#clip0_1343_23605)">
+      <path
+        clipRule="evenodd"
+        d="M8.00033 2.00008C4.68662 2.00008 2.00033 4.68637 2.00033 8.00008C2.00033 11.3138 4.68662 14.0001 8.00033 14.0001C11.314 14.0001 14.0003 11.3138 14.0003 8.00008C14.0003 4.68637 11.314 2.00008 8.00033 2.00008ZM0.666992 8.00008C0.666992 3.94999 3.95024 0.666748 8.00033 0.666748C12.0504 0.666748 15.3337 3.94999 15.3337 8.00008C15.3337 12.0502 12.0504 15.3334 8.00033 15.3334C3.95024 15.3334 0.666992 12.0502 0.666992 8.00008Z"
+        fill="currentColor"
+        fillRule="evenodd"
+      />
+      <path
+        clipRule="evenodd"
+        d="M7.99967 3.33325C8.36786 3.33325 8.66634 3.63173 8.66634 3.99992V7.5879L10.9645 8.73697C11.2938 8.90163 11.4273 9.30208 11.2626 9.63139C11.098 9.96071 10.6975 10.0942 10.3682 9.92954L7.70153 8.5962C7.47568 8.48328 7.33301 8.25243 7.33301 7.99992V3.99992C7.33301 3.63173 7.63148 3.33325 7.99967 3.33325Z"
+        fill="currentColor"
+        fillRule="evenodd"
+      />
+    </g>
+    <defs>
+      <clipPath id="clip0_1343_23605">
+        <rect fill="currentColor" height={height} width={width} />
+      </clipPath>
+    </defs>
+  </Wrapper>
+)

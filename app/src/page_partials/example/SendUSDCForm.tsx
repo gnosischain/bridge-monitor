@@ -58,13 +58,12 @@ const SendUSDCForm = () => {
 
   const erc20 = useContractInstance(ERC20__factory, 'USDC')
 
-  const calls = [erc20.balanceOf, erc20.decimals] as const
-  const [{ data }, refetch] = useContractCall<ERC20, typeof calls>(calls, [
-    [address || ZERO_ADDRESS],
-    [],
-  ])
+  // const calls = [erc20.balanceOf, erc20.decimals] as const
+  // const [{ data }, refetch] = useContractCall<ERC20, typeof calls>(calls, [
+  //   [address || ZERO_ADDRESS],
+  // ])
 
-  const [usdcBalance, usdcDecimals] = data || [ZERO_BN, 18]
+  const [usdcBalance, usdcDecimals] = [ZERO_BN, 18]
 
   const sendUSDC = useTransaction()
 
@@ -78,7 +77,7 @@ const SendUSDCForm = () => {
     if (receipt) {
       clearForm()
       await receipt.wait()
-      refetch()
+      // refetch()
     }
   }
 

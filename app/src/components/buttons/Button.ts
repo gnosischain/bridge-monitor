@@ -45,6 +45,10 @@ const BaseButton = styled.button`
   ${ButtonCSS}
 `
 
+const BaseLink = styled.a`
+  ${ButtonCSS}
+`
+
 export const Button = styled(BaseButton)`
   ${DisabledButtonCSS}
 `
@@ -71,6 +75,28 @@ export const ButtonPrimaryCSS = css`
   }
 `
 
+export const ButtonSecondaryCSS = css`
+  background-color: ${({ theme: { buttonSecondary } }) => buttonSecondary.backgroundColor};
+  border-color: ${({ theme: { buttonSecondary } }) => buttonSecondary.borderColor};
+  color: ${({ theme: { buttonSecondary } }) => buttonSecondary.color};
+
+  &:hover,
+  &:focus {
+    background-color: ${({ theme: { buttonSecondary } }) => buttonSecondary.backgroundColorHover};
+    border-color: ${({ theme: { buttonSecondary } }) => buttonSecondary.borderColorHover};
+    color: ${({ theme: { buttonSecondary } }) => buttonSecondary.colorHover};
+  }
+
+  ${DisabledButtonCSS}
+
+  &[disabled],
+  &[disabled]:hover {
+    background-color: ${({ theme: { buttonSecondary } }) => buttonSecondary.backgroundColor};
+    border-color: ${({ theme: { buttonSecondary } }) => buttonSecondary.borderColor};
+    color: ${({ theme: { buttonSecondary } }) => buttonSecondary.color};
+  }
+`
+
 export const ButtonPrimary = styled(BaseButton)`
   ${ButtonPrimaryCSS}
 `
@@ -86,12 +112,15 @@ export const ButtonDropdownCSS = css<{ currentThemeName?: ThemeType }>`
   border-color: ${({ theme: { buttonDropdown } }) => buttonDropdown.borderColor};
   color: ${({ theme: { buttonDropdown } }) => buttonDropdown.color};
   border-radius: ${({ theme: { common } }) => common.borderRadius};
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 400;
   height: 36px;
   padding: 0 15px;
   width: 100%;
   justify-content: space-between;
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    font-size: 1.4rem;
+  }
   &:hover {
     background-color: ${({ theme: { buttonDropdown } }) => buttonDropdown.backgroundColorHover};
     border-color: ${({ theme: { buttonDropdown } }) => buttonDropdown.borderColorHover};
@@ -100,15 +129,12 @@ export const ButtonDropdownCSS = css<{ currentThemeName?: ThemeType }>`
 
   &::after {
     --dimensions: 8px;
-
     content: '';
-
     background-position: 50% 50%;
     background-repeat: no-repeat;
     gap: 10px;
     height: var(--dimensions);
     width: var(--dimensions);
-
     ${({ currentThemeName }) =>
       currentThemeName === 'dark'
         ? css`
@@ -139,4 +165,11 @@ export const ButtonDropdownCSS = css<{ currentThemeName?: ThemeType }>`
 
 export const ButtonDropdown = styled(Button)<{ currentThemeName?: ThemeType }>`
   ${ButtonDropdownCSS}
+`
+
+export const LinkButton = styled(BaseLink)`
+  ${ButtonPrimaryCSS}
+`
+export const LinkSecondaryButton = styled(BaseLink)`
+  ${ButtonSecondaryCSS}
 `

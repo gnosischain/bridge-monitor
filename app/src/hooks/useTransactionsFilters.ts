@@ -1,31 +1,34 @@
 import { useState } from 'react'
 
-import { yesterday } from '../utils/date'
+import { today, yesterday } from '../utils/date'
 
 export type TransactionFilter = {
   hash: string
   bridge: string
   status: string
-  signatureBy: string
+  signedBy: string
   executedBy: string
   startTimestamp: Date
   endTimestamp: Date
+  bridgeDirection: string
 }
 
 export const useTransactionsFilters = () => {
   const [hash, setHash] = useState('')
-  const [bridge, setBridge] = useState<string>('')
+  const [bridge, setBridge] = useState<string>('XDAI')
   const [status, setStatus] = useState<string>('')
-  const [signatureBy, setSignatureBy] = useState<string>('')
+  const [signedBy, setSignedBy] = useState<string>('')
   const [executedBy, setExecutedBy] = useState<string>('')
   const [startTimestamp, setStartTimestamp] = useState<Date>(yesterday())
   const [endTimestamp, setEndTimestamp] = useState<Date>(new Date())
+  const [bridgeDirection, setBridgeDirection] = useState<string>('')
 
   const filters: TransactionFilter = {
     hash,
     bridge,
+    bridgeDirection,
     status,
-    signatureBy,
+    signedBy,
     executedBy,
     startTimestamp,
     endTimestamp,
@@ -34,8 +37,9 @@ export const useTransactionsFilters = () => {
   return {
     setHash,
     setBridge,
+    setBridgeDirection,
     setStatus,
-    setSignatureBy,
+    setSignedBy,
     setExecutedBy,
     setStartTimestamp,
     setEndTimestamp,

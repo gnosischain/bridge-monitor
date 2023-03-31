@@ -4,6 +4,7 @@ import { isAddress } from '@ethersproject/address'
 import useSWR from 'swr'
 
 import { TransactionFilter } from '../useTransactionsFilters'
+import { BridgeDirection } from '@/src/components/transactions/TransactionsFilter'
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { POLLING_INTERVAL } from '@/src/constants/misc'
 import { milliToSeconds, toSeconds } from '@/src/utils/date'
@@ -18,7 +19,7 @@ import {
 } from '@/types/generated/subgraph'
 
 // @todo hardcoded value (need to think about useSWRPage or useSWRInfinite)
-const PAGE_SIZE = 100
+const PAGE_SIZE = 500
 
 export const useFetchTransactions = (query?: TransactionsQueryVariables) => {
   const {
@@ -53,7 +54,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
       const isHash = filters.hash.length > 42
       const text = filters.hash.toLowerCase()
       if (isHash) {
-        _where['id'] = text
+        _where['transactionHash'] = text
       } else {
         if (isAddress(text)) {
           _where['initiator'] = text
@@ -69,6 +70,18 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
       }
       updated = true
     }
+    if (filters.bridgeDirection) {
+      if (!filters.bridgeDirection.includes('All')) {
+        updated = true
+      }
+      if (BridgeDirection.gnosis2mainnet === filters.bridgeDirection) {
+        _where['initiatorNetwork'] = 'gnosis'
+      }
+      if (BridgeDirection.mainnet2gnosis === filters.bridgeDirection) {
+        _where['initiatorNetwork'] = 'mainnet'
+      }
+      updated = true
+    }
     if (filters.status) {
       if (filters.status.includes('All')) {
         updated = true
@@ -78,8 +91,20 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
         _where['transactionStatus'] = TransactionStatus.Initiated
         updated = true
       }
-      if (TransactionStatus.Pending === filters.status.toUpperCase()) {
-        _where['transactionStatus'] = TransactionStatus.Pending
+      if (TransactionStatus.Requested === filters.status.toUpperCase()) {
+        _where['transactionStatus'] = TransactionStatus.Requested
+        updated = true
+      }
+      if (TransactionStatus.Collecting === filters.status.toUpperCase()) {
+        _where['transactionStatus'] = TransactionStatus.Collecting
+        updated = true
+      }
+      if (TransactionStatus.Claimed === filters.status.toUpperCase()) {
+        _where['transactionStatus'] = TransactionStatus.Claimed
+        updated = true
+      }
+      if (TransactionStatus.Unclaimed === filters.status.toUpperCase()) {
+        _where['transactionStatus'] = TransactionStatus.Unclaimed
         updated = true
       }
       if (TransactionStatus.Completed === filters.status.toUpperCase()) {
@@ -87,17 +112,17 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
         updated = true
       }
     }
-    if (filters.signatureBy) {
-      if (filters.signatureBy.includes('All')) {
+    if (filters.signedBy) {
+      if (filters.signedBy.includes('All')) {
         updated = true
       }
       // @todo we might need to convert the validator name -> address in a diff place
       // @todo as we can not differentiate the network we will check in both validators objects
       const bridgeValue = filters.bridge.toUpperCase() as BridgesValues
-      const validator = getValidatorByName(filters.signatureBy, bridgeValue)
+      const validator = getValidatorByName(filters.signedBy, bridgeValue)
       if (validator) {
         _where['validations_'] = {
-          validatorAddress: validator.address.toLowerCase(),
+          responsableAddress: validator.address.toLowerCase(),
         }
         updated = true
       }
@@ -110,18 +135,16 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
       const validator = getValidatorByName(filters.executedBy, bridgeValue)
       if (validator) {
         _where['execution_'] = {
-          executorAddress: validator.address.toLowerCase(),
+          responsableAddress: validator.address.toLowerCase(),
         }
         updated = true
       }
     }
     if (filters.startTimestamp) {
-      // @todo we need to transform from milli to seconds
       _where['timestamp_gte'] = milliToSeconds(toSeconds(filters.startTimestamp))
       updated = true
     }
     if (filters.endTimestamp) {
-      // @todo we need to transform from milli to seconds
       _where['timestamp_lte'] = milliToSeconds(toSeconds(filters.endTimestamp))
       updated = true
     }
@@ -139,8 +162,9 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   }, [
     filters.hash,
     filters.bridge,
+    filters.bridgeDirection,
     filters.status,
-    filters.signatureBy,
+    filters.signedBy,
     filters.executedBy,
     filters.startTimestamp,
     filters.endTimestamp,

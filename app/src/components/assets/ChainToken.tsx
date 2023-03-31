@@ -1,6 +1,7 @@
+import { ReactNode } from 'react'
 import styled from 'styled-components'
 
-import { Tooltip } from '@/src/components/assets/Tooltip'
+// import { Tooltip } from '@/src/components/assets/Tooltip'
 
 const Wrapper = styled.div`
   display: flex;
@@ -20,6 +21,20 @@ const Wrapper = styled.div`
 `
 interface Props {
   name: string
+}
+
+interface TooltipProps {
+  text: string
+  children: ReactNode
+}
+
+function Tooltip({ children, text }: TooltipProps) {
+  return (
+    <div className="tooltip">
+      <span className="tooltip-text">{text}</span>
+      {children}
+    </div>
+  )
 }
 
 export const ChainToken: React.FC<Props> = ({ children, name }) => {

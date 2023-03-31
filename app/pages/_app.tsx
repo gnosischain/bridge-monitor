@@ -10,17 +10,23 @@ import { SWRConfig } from 'swr'
 
 import SafeSuspense from '@/src/components/helpers/SafeSuspense'
 import { Layout } from '@/src/components/layout'
+import { Footer } from '@/src/components/layout/Footer'
 import { Header } from '@/src/components/layout/Header'
 import { Main } from '@/src/components/layout/Main'
 import Toast from '@/src/components/toast/Toast'
 import { Head } from '@/src/page_partials/index/Head'
 import { TransactionNotificationProvider } from '@/src/providers/TransactionNotificationProvider'
 import CookiesWarningProvider from '@/src/providers/cookiesWarningProvider'
+import GeneralContextProvider from '@/src/providers/generalProvider'
 import ThemeProvider from '@/src/providers/themeProvider'
 import { intlErrorHandler } from '@/src/utils/intlErrorHandler'
 import 'sanitize.css'
 
 const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3ConnectionProvider'), {
+  ssr: false,
+})
+
+const TokenIconsContextProvider = dynamic(() => import('@/src/providers/tokenIconsProvider'), {
   ssr: false,
 })
 
@@ -53,8 +59,13 @@ export default function App({ Component, messages, pageProps }: AppPropsWithLayo
               <SafeSuspense>
                 <TransactionNotificationProvider>
                   <CookiesWarningProvider>
-                    <Header />
-                    <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
+                    <GeneralContextProvider>
+                      <TokenIconsContextProvider>
+                        <Header />
+                        <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
+                        <Footer />
+                      </TokenIconsContextProvider>
+                    </GeneralContextProvider>
                   </CookiesWarningProvider>
                 </TransactionNotificationProvider>
               </SafeSuspense>

@@ -1,22 +1,27 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
+import FilterDropdown from '../filters/FilterDropdown'
 import { TextfieldCSS } from '../form/Textfield'
+import { composeDateTimeFilterValue, dayHoursOptions } from '@/src/utils/date'
 
 const Wrapper = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: end;
-  align-items: center;
+  align-items: start;
   gap: ${({ theme: { common } }) => common.space}px;
   font-size: 1.2rem;
+  width: 100%;
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
     flex-direction: row;
     gap: ${({ theme: { common } }) => common.space * 2}px;
     font-size: 1.4rem;
+    align-items: center;
+    width: auto;
   }
   @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
     flex-direction: row;
@@ -28,11 +33,17 @@ const Column = styled.div`
   justify-content: end;
   align-items: center;
   gap: ${({ theme: { common } }) => common.space / 2}px;
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+  @media (min-width: ${({ theme }) => theme.breakPoints.desktopWideStart}) {
     flex-direction: row;
     gap: ${({ theme: { common } }) => common.space}px;
   }
   @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
+  }
+`
+const Label = styled.span`
+  @media (max-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+    min-width: 40px;
+    display: inline-block;
   }
 `
 const DatePickerWrapper = styled.div`
@@ -135,58 +146,26 @@ export const DateTimePicker: React.FC<Props> = ({
   onStartDateChange,
   startDate,
 }) => {
-  /**
-   * @todo we wont use the hour-filter at the moment
-   * - we need to investigate how to convert the hour -> milliseconds, so we
-   * can add to the amount used in the date filters
-   */
-  // const [startTime, setStartTime] = useState<string | null>(null)
-  // const [endTime, setEndTime] = useState<string | null>(null)
-  // const timeOptions = [
-  //   '00:00 AM',
-  //   '01:00 AM',
-  //   '02:00 AM',
-  //   '03:00 AM',
-  //   '04:00 AM',
-  //   '05:00 AM',
-  //   '06:00 AM',
-  //   '07:00 AM',
-  //   '08:00 AM',
-  //   '09:00 AM',
-  //   '10:00 AM',
-  //   '11:00 AM',
-  //   '12:00 PM',
-  //   '01:00 PM',
-  //   '02:00 PM',
-  //   '03:00 PM',
-  //   '04:00 PM',
-  //   '05:00 PM',
-  //   '06:00 PM',
-  //   '07:00 PM',
-  //   '08:00 PM',
-  //   '09:00 PM',
-  //   '10:00 pm',
-  //   '11:00 pm',
-  // ]
+  const timeOptions = dayHoursOptions
+  const [, setStartTime] = useState<string>(timeOptions[0])
+  const [, setEndTime] = useState<string>(timeOptions[0])
 
-  // @todo need to investigate how to transform time to seconds
-  // useEffect(() => {
-  //   // @todo we can handle this in a diff place
-  //   // if (endDate < startDate) {
-  //   //   setEndDate(startDate)
-  //   // }
-  //   if (!!startDate) {
-  //     onStartDateChange(startDate.getTime())
-  //   }
-  //   if (!!endDate) {
-  //     onEndDateChange(endDate.getTime())
-  //   }
-  // }, [startDate, endDate])
+  const onSetStartTime = (newStartTime: string) => {
+    setStartTime(newStartTime)
+    const newStartingDateTime = composeDateTimeFilterValue(startDate, newStartTime)
+    onStartDateChange(newStartingDateTime)
+  }
+
+  const onSetEndTime = (newEndTime: string) => {
+    setEndTime(newEndTime)
+    const newEndingDateTime = composeDateTimeFilterValue(endDate, newEndTime)
+    onEndDateChange(newEndingDateTime)
+  }
 
   return (
     <Wrapper>
       <Column>
-        From{' '}
+        <Label>From </Label>
         <DatePickerWrapper>
           <DatePickerStyle
             endDate={endDate}
@@ -196,10 +175,10 @@ export const DateTimePicker: React.FC<Props> = ({
             selectsStart
           />
         </DatePickerWrapper>
-        {/* <FilterDropdown onChange={setStartTime} options={timeOptions} /> */}
+        <FilterDropdown onChange={onSetStartTime} options={timeOptions} />
       </Column>
       <Column>
-        to{' '}
+        <Label>To </Label>
         <DatePickerWrapper>
           <DatePickerStyle
             minDate={startDate}
@@ -209,7 +188,7 @@ export const DateTimePicker: React.FC<Props> = ({
             startDate={startDate}
           />
         </DatePickerWrapper>
-        {/* <FilterDropdown onChange={setEndTime} options={timeOptions} /> */}
+        <FilterDropdown onChange={onSetEndTime} options={timeOptions} />
       </Column>
     </Wrapper>
   )

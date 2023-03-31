@@ -1,15 +1,15 @@
 import { useMemo } from 'react'
 import styled from 'styled-components'
 
-import { Tooltip } from '@/src/components/assets/Tooltip'
 import { ValidatorStatus } from '@/src/components/assets/ValidatorStatus'
+import { Tooltip } from '@/src/components/common/Tooltip'
 import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
 import { Transaction } from '@/src/utils/transactions'
 import { getValidationsStatus } from '@/src/utils/validators'
 
 const Wrapper = styled.div`
   display: flex;
-  height: 22px;
+  height: 2.2rem;
   align-items: center;
   justify-content: center;
   gap: ${({ theme: { common } }) => common.space}px;

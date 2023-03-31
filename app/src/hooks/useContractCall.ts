@@ -10,15 +10,16 @@ export function useContractCall<
 >(
   calls: Readonly<Calls>,
   params: TupleParametersType<MyContract, Writeable<Calls>>,
+  key: string | null,
   options?: SWRConfiguration,
 ): MySWRResponse<TupleReturnType<MyContract, Writeable<Calls>>> {
-  // TODO add to key: data related to functions called
+  // @todo add to key: data related to functions called
   const {
     data = [],
     error,
     mutate: refetch,
   } = useSWR(
-    getCacheKey(params),
+    key ? [getCacheKey([...params, key])] : null,
     async () => {
       try {
         // eslint-disable-next-line prefer-spread

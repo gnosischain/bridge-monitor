@@ -29,13 +29,13 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     blockExplorerUrls: ['https://goerli.etherscan.io/'],
     token: 'ETH',
   },
-  [Chains.xdai]: {
-    id: Chains.xdai,
+  [Chains.gnosis]: {
+    id: Chains.gnosis,
     name: 'Gnosis Chain',
     shortName: 'Gnosis',
-    chainId: Chains.xdai,
+    chainId: Chains.gnosis,
     chainIdHex: '0x64',
-    rpcUrl: getProviderUrl(Chains.xdai), // @todo we might need to use the xdai rpc
+    rpcUrl: getProviderUrl(Chains.gnosis), // @todo we might need to use the gnosis rpc
     blockExplorerUrls: ['https://gnosisscan.io/'],
     token: 'xDAI',
   },
@@ -45,3 +45,5 @@ export function getNetworkConfig(chainId: ChainsValues): ChainConfig {
   const networkConfig = chainsConfig[chainId]
   return nullthrows(networkConfig, `No config for chain id: ${chainId}`)
 }
+
+export { Chains }

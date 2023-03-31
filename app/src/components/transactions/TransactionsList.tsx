@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'framer-motion'
 
-import { NoResultsMessage } from '@/src/components/assets/NoResultsMessage'
+import { NoResultsMessage } from '@/src/components/common/NoResultsMessage'
 import { TransactionRow } from '@/src/components/transactions/TransactionRow'
 import { ITEMS_PER_PAGE } from '@/src/constants/misc'
 import { Transaction } from '@/src/utils/transactions'
@@ -13,7 +13,7 @@ interface Props {
 export const TransactionsList: React.FC<Props> = ({ page, transactions }) => {
   return (
     <tbody>
-      <AnimatePresence exitBeforeEnter>
+      <AnimatePresence>
         {transactions.length > 0 ? (
           transactions
             .slice(0, page * ITEMS_PER_PAGE)

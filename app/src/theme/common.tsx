@@ -15,7 +15,7 @@ export const common = {
     defaultSize: '1.6rem',
     family: `'Karla', 'Helvetica Neue', 'Arial', 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'`,
     familyTitles: `'Spectral', 'Helvetica Neue', 'Arial', 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'`,
-    familyCode: `'sJetBrains Mono', 'Menlo', 'Monaco', 'Consolas', 'Courier New', 'monospace'`,
+    familyCode: `'JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', 'Courier New', 'monospace'`,
   },
   checkBox: {
     dimensions: radioAndCheckDimensions,
@@ -24,18 +24,18 @@ export const common = {
     dimensions: radioAndCheckDimensions,
   },
   dropdown: {
-    borderRadius: borderRadius,
+    borderRadius: '8px',
   },
   header: {
     height: '100px',
   },
   layout: {
-    horizontalPaddingDesktopStart: space * 2 + 'px',
-    horizontalPaddingDesktopWideStart: space * 2 + 'px',
+    horizontalPaddingDesktopStart: space * 3 + 'px',
+    horizontalPaddingDesktopWideStart: space * 5 + 'px',
     horizontalPaddingMobile: space + 'px',
-    horizontalPaddingTabletLandscapeStart: space + 'px',
-    horizontalPaddingTabletPortraitStart: space + 'px',
-    maxWidth: '1360px',
+    horizontalPaddingTabletLandscapeStart: space * 2 + 'px',
+    horizontalPaddingTabletPortraitStart: space * 2 + 'px',
+    maxWidth: '1504px',
   },
   breakPoints: {
     desktopStart: '1025px',

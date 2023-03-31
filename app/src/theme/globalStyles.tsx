@@ -35,56 +35,53 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
     color: ${({ theme: { colors } }) => colors.white} !important;
     background: ${({ theme: { colors } }) => colors.primary} !important;
   }
+
   ::-moz-selection {
     color: ${({ theme: { colors } }) => colors.white} !important;
     background: ${({ theme: { colors } }) => colors.primary} !important;
   }
-  a, button{
+
+  a,
+  button{
     transition: all 0.3s ease-in-out;
   }
-  h1, h2, h3, h4{
+
+  h1, h2, h3, h4 {
     font-family: ${({ theme: { fonts } }) => fonts.familyTitles};
+    line-height: 1.2;
   }
-  h1{
-    font-weight: 500;
-    font-size: 2.8rem;
-    margin: ${({ theme: { common } }) => common.space * 2}px 0;
-    @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
-      font-size: 3.2rem;
-      margin: ${({ theme: { common } }) => common.space * 3}px 0;
-    }
-    @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-      font-size: 3.6rem;
-    }
-    @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
-      font-size: 4rem;
-      margin: ${({ theme: { common } }) => common.space * 4}px 0;
-    }
-  }
-  h2{
+
+  h2 {
     font-weight: 500;
     font-size: 2.4rem;
     margin: ${({ theme: { common } }) => common.space}px 0;
+
     @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
       font-size: 2.8rem;
       margin: ${({ theme: { common } }) => common.space * 2}px 0;
     }
+
     @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
       margin: ${({ theme: { common } }) => common.space * 3}px 0;
     }
   }
-  h3{
+
+  h3 {
     font-weight: 500;
     font-size: 1.8rem;
     margin: ${({ theme: { common } }) => common.space * 2}px 0;
+
     @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
       font-size: 2.1rem;
     }
-    strong{
+
+    strong {
       font-family: ${({ theme: { fonts } }) => fonts.family};
     }
   }
-  .number{
+
+  .number
+  {
     font-family: ${({ theme: { fonts } }) => fonts.familyCode};
   }
 

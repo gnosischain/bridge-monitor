@@ -1,23 +1,18 @@
 import Image from 'next/image'
 import styled from 'styled-components'
 
-import { ChainToken } from '@/src/components/assets/ChainToken'
+import { ChainToken } from '@/src/components/common/ChainToken'
 import { BalanceType } from '@/src/constants/types'
 
 const Chain = styled.div`
-  display: flex;
   align-items: center;
-  gap: ${({ theme: { common } }) => common.space}px;
+  column-gap: 6px;
+  display: flex;
 `
-const Name = styled.span`
-  font-size: 1.2rem;
-  font-weight: 300;
-  @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
-    display: inline;
-  }
-  @media (min-width: ${({ theme }) => theme.breakPoints.desktopWideStart}) {
-    display: none;
-  }
+const Text = styled.span``
+
+const Value = styled.span`
+  font-family: ${({ theme: { fonts } }) => fonts.familyCode};
 `
 
 interface Props {
@@ -40,11 +35,11 @@ export const BridgeBalance: React.FC<Props> = ({ balanceType }) => {
             width={16}
           />
         </ChainToken>
-        <Name>{balanceType?.chain}</Name>
+        <Text>{balanceType?.chain}</Text>
       </Chain>
-      <span className="number">
+      <Value>
         {balanceType?.value} {balanceType?.token}
-      </span>
+      </Value>
     </>
   )
 }

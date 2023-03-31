@@ -1,41 +1,33 @@
+import { HTMLAttributes } from 'react'
 import styled from 'styled-components'
 
-const Wrapper = styled.div<{ completed?: boolean }>`
-  padding: ${({ theme: { common } }) => common.space / 4}px
-    ${({ theme: { common } }) => common.space / 2}px;
-  border-radius: 4px;
-  display: inline-block;
-  background-color: ${({ theme }) => theme.colors.warning};
-  background-color: ${(props) =>
-    props.completed ? ({ theme }) => theme.colors.success : ({ theme }) => theme.colors.warning};
-  strong {
-    font-size: 1.2rem;
-    line-height: 1.8rem;
-    font-weight: 700;
-    color: ${({ theme }) => theme.colors.darkestGrey};
-    display: flex;
-    align-items: center;
-    gap: ${({ theme: { common } }) => common.space / 2}px;
-    letter-spacing: -0.2px;
-    &:before {
-      content: '';
-      display: block;
-      height: 7px;
-      width: 7px;
-      border-radius: 50%;
-      background-color: ${({ theme }) => theme.colors.darkestGrey};
-    }
-  }
+const Wrapper = styled.svg`
+  display: block;
+  flex-shrink: 0;
 `
 
-interface Props {
-  completed?: boolean
-}
-
-export const Status: React.FC<Props> = ({ completed }) => {
-  return (
-    <Wrapper completed={completed}>
-      <strong>{completed ? 'Completed' : 'Pending'}</strong>
-    </Wrapper>
-  )
-}
+export const Status: React.FC<HTMLAttributes<SVGElement>> = ({ className, ...restProps }) => (
+  <Wrapper
+    className={`status ${className}`}
+    fill="none"
+    height="32"
+    viewBox="0 0 32 32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+    {...restProps}
+  >
+    <rect fill="#0A0C0B" height="32" rx="16" width="32" />
+    <path
+      clipRule="evenodd"
+      d="M13.7576 9.04185C13.9183 9.40998 13.7501 9.83864 13.382 9.99928C12.4021 10.4269 11.5418 11.088 10.8764 11.9249C10.2111 12.7618 9.76086 13.7489 9.56513 14.8C9.3694 15.8511 9.43413 16.9341 9.75366 17.9544C10.0732 18.9747 10.6378 19.9012 11.3981 20.6529C12.1584 21.4045 13.0913 21.9585 14.1151 22.2664C15.139 22.5742 16.2227 22.6266 17.2715 22.4189C18.3202 22.2111 19.3022 21.7497 20.1314 21.0748C20.9606 20.3999 21.6119 19.5322 22.0283 18.5475C22.1847 18.1775 22.6115 18.0044 22.9814 18.1609C23.3513 18.3173 23.5244 18.744 23.368 19.1139C22.8591 20.3175 22.063 21.3781 21.0495 22.2029C20.036 23.0278 18.8359 23.5918 17.5541 23.8457C16.2722 24.0995 14.9477 24.0355 13.6963 23.6593C12.4449 23.283 11.3047 22.6059 10.3755 21.6872C9.44622 20.7685 8.75616 19.6361 8.36562 18.3891C7.97509 17.1421 7.89597 15.8184 8.1352 14.5337C8.37442 13.2491 8.9247 12.0426 9.73792 11.0197C10.5511 9.99689 11.6025 9.18881 12.8002 8.66617C13.1683 8.50553 13.597 8.67373 13.7576 9.04185Z"
+      fill="#F0EBDE"
+      fillRule="evenodd"
+    />
+    <path
+      clipRule="evenodd"
+      d="M15.4855 8.21484C15.6219 8.07845 15.8068 8.00183 15.9997 8.00183C17.0503 8.00183 18.0905 8.20875 19.0611 8.61078C20.0317 9.01281 20.9136 9.60207 21.6564 10.3449C22.3993 11.0878 22.9886 11.9697 23.3906 12.9403C23.7926 13.9108 23.9995 14.9511 23.9995 16.0017C23.9995 16.4033 23.6739 16.7289 23.2723 16.7289H15.9997C15.5981 16.7289 15.2725 16.4033 15.2725 16.0017V8.72909C15.2725 8.53621 15.3491 8.35123 15.4855 8.21484ZM16.727 9.49687V15.2744H22.5045C22.4363 14.6645 22.2826 14.0661 22.0468 13.4969C21.7179 12.7028 21.2357 11.9812 20.628 11.3734C20.0202 10.7656 19.2986 10.2835 18.5045 9.95458C17.9353 9.71881 17.3368 9.56506 16.727 9.49687Z"
+      fill="#F0EBDE"
+      fillRule="evenodd"
+    />
+  </Wrapper>
+)

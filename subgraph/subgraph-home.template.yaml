@@ -1,6 +1,6 @@
 specVersion: 0.0.4
 description: Subgraph for the Bridge Monitoring System
-repository: https://github.com/gnosischain/bridge-monitor-subgraph
+repository: https://github.com/BootNodeDev/bridge-monitor-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
@@ -16,6 +16,7 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
+        - Transaction
         - XDAITransaction
         - TransactionValidation
         - TransactionExecution
@@ -25,16 +26,37 @@ dataSources:
           file: ./abis/HomeBridgeErcToNative.json
       eventHandlers:
         - event: UserRequestForSignature(address,uint256)
-          handler: handleUserRequestForSignature
+          handler: handlerUserRequestForSignature
         - event: SignedForUserRequest(indexed address,bytes32)
-          handler: handleSignedForUserRequest
+          handler: handlerSignedForUserRequest
         - event: CollectedSignatures(address,bytes32,uint256)
-          handler: handleCollectedSignatures
+          handler: handlerCollectedSignatures
         - event: SignedForAffirmation(indexed address,bytes32)
           handler: handlerSignedForAffirmation
         - event: AffirmationCompleted(address,uint256,bytes32)
           handler: handlerAffirmationCompleted
       file: ./src/home-xdai.ts
+  - name: BlockReward
+    kind: ethereum/contract
+    network: {{network}} # gnosis | chiado
+    source:
+      address: '{{BlockReward}}'
+      abi: BlockReward
+      startBlock: {{startBlockBlockReward}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Transaction
+        - XDAITransaction
+      abis:
+        - name: BlockReward
+          file: ./abis/BlockReward.json
+      eventHandlers:
+        - event: AddedReceiver(uint256,indexed address,indexed address)
+          handler: handlerAddedReceiver
+      file: ./src/xdai-blockreward.ts
   - name: XDAIBridgeValidators
     kind: ethereum/contract
     network: {{network}} # gnosis | chiado
@@ -92,7 +114,7 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Transaction
-        - OmniTransaction
+        - AMBTransaction
       abis:
         - name: OmniBridgeMediators
           file: ./abis/OmniBridgeMediators.json

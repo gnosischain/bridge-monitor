@@ -12,7 +12,7 @@ const Wrapper = styled.div`
 const OmnibridgeTransactions: NextPage = () => {
   return (
     <Wrapper>
-      <Transactions bridge="Omnibridge" />
+      <Transactions />
     </Wrapper>
   )
 }

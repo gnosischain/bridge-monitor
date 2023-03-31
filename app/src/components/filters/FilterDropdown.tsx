@@ -1,24 +1,59 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import styled from 'styled-components'
 
 import { ButtonDropdown } from '@/src/components/buttons/Button'
 import { Dropdown, DropdownItem } from '@/src/components/common/Dropdown'
+import { StatusColors } from '@/src/components/helpers/StatusColors'
+import { TransactionStatus } from '@/types/generated/subgraph'
 
-const BridgeDropdown: React.FC<{ onChange?: (bridge: string) => void; options: string[] }> = ({
+const LittleCircleOfExtraClarification = styled.div<{ status: TransactionStatus }>`
+  --size: 8px;
+
+  ${(props) => {
+    return StatusColors[props.status] ?? StatusColors.DEFAULT
+  }}
+
+  align-items: center;
+  border-radius: 50%;
+  height: var(--size);
+  width: var(--size);
+`
+
+interface Props {
+  onChange?: (bridge: string) => void
+  onEnterValue?: () => void
+  options: string[]
+  reset?: boolean
+}
+
+const FilterDropdown: React.FC<Props> = ({
   onChange,
+  onEnterValue,
   options,
+  reset,
   ...restProps
 }) => {
-  const [bridge, setBridge] = useState<string>()
+  const [selectedOption, setSelectedOption] = useState<string>()
 
   const onSelectOption = (bridgeFilter: string) => {
-    setBridge(bridgeFilter)
+    setSelectedOption(bridgeFilter)
     if (typeof onChange !== 'undefined') {
       onChange(bridgeFilter)
+      if (onEnterValue) onEnterValue()
     }
   }
+
+  useMemo(() => {
+    if (reset) {
+      setSelectedOption(options[0])
+    }
+  }, [options, reset])
+
   return (
     <Dropdown
-      dropdownButton={<ButtonDropdown>{bridge ? bridge : options[0]}</ButtonDropdown>}
+      dropdownButton={
+        <ButtonDropdown>{selectedOption ? selectedOption : options[0]}</ButtonDropdown>
+      }
       items={options.map((el, index) => (
         <DropdownItem
           key={index}
@@ -26,6 +61,10 @@ const BridgeDropdown: React.FC<{ onChange?: (bridge: string) => void; options: s
             onSelectOption(el)
           }}
         >
+          {index !== 0 &&
+            Object.values(TransactionStatus)?.includes(el.toUpperCase() as TransactionStatus) && (
+              <LittleCircleOfExtraClarification status={el.toUpperCase() as TransactionStatus} />
+            )}
           {el}
         </DropdownItem>
       ))}
@@ -34,4 +73,4 @@ const BridgeDropdown: React.FC<{ onChange?: (bridge: string) => void; options: s
   )
 }
 
-export default BridgeDropdown
+export default FilterDropdown

@@ -15,12 +15,12 @@ export const providerChains: ProviderChains = {
   [RPCProviders.infura]: {
     [Chains.mainnet]: 'mainnet',
     [Chains.goerli]: 'goerli',
-    [Chains.xdai]: 'xdai',
+    [Chains.gnosis]: 'gnosis',
   },
   [RPCProviders.alchemy]: {
     [Chains.mainnet]: 'eth-mainnet',
     [Chains.goerli]: 'eth-goerli',
-    [Chains.xdai]: 'xdai',
+    [Chains.gnosis]: 'gnosis',
   },
 }
 
@@ -57,7 +57,7 @@ export const getProviderUrl = (
 
   if (chainId === Chains.mainnet) return RPC_MAINNET
   if (chainId === Chains.goerli) return RPC_GOERLI
-  if (chainId === Chains.xdai) return RPC_GNOSIS
+  if (chainId === Chains.gnosis) return RPC_GNOSIS
 
   throw Error('Token provider could not be found')
 }
@@ -69,5 +69,5 @@ export const goerli = () => {
   return new JsonRpcProvider(chainsConfig[Chains.goerli].rpcUrl, Chains.goerli)
 }
 export const gnosis = () => {
-  return new JsonRpcProvider(chainsConfig[Chains.xdai].rpcUrl, Chains.xdai)
+  return new JsonRpcProvider(chainsConfig[Chains.gnosis].rpcUrl, Chains.gnosis)
 }

@@ -1,32 +1,36 @@
 /* Dark Theme            */
 /* Add only colors here. */
 
-import { darken } from 'polished'
-
 const borderColor = 'rgba(250,250,250,0.2)'
 const darkGray = 'rgb(10, 25, 50)'
-const darkGrayDarkened = darken(0.1, 'rgb(10, 25, 50)')
 const componentBackgroundColor = 'rgba(13, 2, 2, 0.85)'
 
 const primary = '#3E6957'
 const primaryDark = '#133629'
 const secondary = '#A6BCF5'
+const darkSecondary = '#8799C7'
 const tertiary = '#A6CFD5'
 const textColor = '#F0EBDE'
 const black = '#0A0C0B'
 const white = '#FBF9F3'
 const darkestGrey = '#161D1A'
+const darkestGrey2 = '#101513'
 const darkerGrey = '#1E2723'
 const darkGrey = '#252F2B'
+const lightGrey = '#323D38'
 const cream = '#F0EBDE'
 const creamLight = '#F8F5ED'
 const creamDark = '#DDD4BE'
 const error = '#FF5935'
 const warning = '#FAB754'
+const warningDark = '#D39435'
 const success = '#40D194'
+const successDark = '#32AF7B'
+const darkGreen = '#3E6957'
+const lightYellow = '#EEFB9E'
 
-const primaryGradient = 'linear-gradient(180deg, #3E6655 0%, #3E6957 100%);'
-const grayGradient = 'linear-gradient(180deg, #323D38 0%, #252F2B 100%)'
+const primaryGradient = `linear-gradient(180deg, #3E6655 0%, ${primary} 100%)`
+const grayGradient = `linear-gradient(180deg, ${lightGrey} 0%, ${darkGrey} 100%)`
 
 export const dark = {
   body: {
@@ -48,6 +52,14 @@ export const dark = {
     color: white,
     colorHover: white,
   },
+  buttonSecondary: {
+    backgroundColor: darkGrey,
+    backgroundColorHover: darkerGrey,
+    borderColor: darkGrey,
+    borderColorHover: darkerGrey,
+    color: cream,
+    colorHover: cream,
+  },
   card: {
     backgroundColor: 'rgba(13, 2, 2, 0.65)',
     borderColor: borderColor,
@@ -58,30 +70,38 @@ export const dark = {
     borderColor: borderColor,
   },
   colors: {
+    black: black,
     borderColor: borderColor,
     componentBackgroundColor: componentBackgroundColor,
+    cream: cream,
+    creamDark: creamDark,
+    creamLight: creamLight,
+    darkGrey: darkGrey,
+    darkSecondary: darkSecondary,
+    darkerGrey: darkerGrey,
+    darkestGrey2: darkestGrey2,
+    darkestGrey: darkestGrey,
     error: error,
-    warning: warning,
-    success: success,
+    lightGrey: lightGrey,
     mainBodyBackground: darkestGrey,
     primary: primary,
     primaryDark: primaryDark,
     secondary: secondary,
+    success: success,
+    successDark: successDark,
     tertiary: tertiary,
     textColor: textColor,
-    black: black,
+    warning: warning,
+    warningDark: warningDark,
     white: white,
-    darkestGrey: darkestGrey,
-    darkerGrey: darkerGrey,
-    darkGrey: darkGrey,
-    cream: cream,
-    creamLight: creamLight,
-    creamDark: creamDark,
+    darkGreen: darkGreen,
+    lightYellow: lightYellow,
   },
   dropdown: {
-    background: darkerGrey,
-    borderColor: darkerGrey,
-    boxShadow: 'none',
+    background: lightGrey,
+    borderColor: 'transparent',
+    boxShadow:
+      '0 27px 80px rgba(0, 0, 0, 0.07), 0 10.4px 25.4815px rgba(0, 0, 0, 0.0425185), 0 2.2px 6.51852px rgba(0, 0, 0, 0.0274815);',
     item: {
       backgroundColor: 'transparent',
       backgroundColorHover: primary,

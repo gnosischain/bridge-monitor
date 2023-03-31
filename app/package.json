@@ -1,21 +1,23 @@
 {
-  "name": "gnosis-bridge-monitor",
+  "name": "gnosis-bridge-explorer",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "analyze": "ANALYZE=true yarn build",
     "build": "next build",
+    "export": "next build && next export",
     "dev": "next dev",
     "lint": "next lint",
     "lint:fix": "eslint --fix \"./**/*.{js,jsx,ts,tsx}\"",
-    "prepare": "husky install",
+    "prepare": "cd .. && husky install",
     "prettier:fix": "prettier --write \"./**/*.{js,jsx,ts,tsx}\"",
     "start": "next start",
     "typechain": "typechain --target=ethers-v5 ./src/abis/**/*.json --out-dir ./types/typechain/",
-    "subgraph-codegen": "graphql-codegen --config subgraph-config.js",
+    "subgraph-codegen": "graphql-codegen --config ./subgraph-config.js",
     "postinstall": "yarn typechain && yarn subgraph-codegen"
   },
   "dependencies": {
+    "@uniswap/token-lists": "^1.0.0-beta.31",
     "@web3-onboard/common": "^2.1.0",
     "@web3-onboard/core": "^2.2.10",
     "@web3-onboard/injected-wallets": "^2.0.7",
@@ -39,12 +41,12 @@
     "react-dom": "17.0.2",
     "react-error-boundary": "^3.1.4",
     "react-hot-toast": "^2.2.0",
+    "recharts": "^2.3.2",
     "sanitize.css": "^13.0.0",
     "styled-components": "^5.3.5",
     "swr": "^1.2.2"
   },
   "devDependencies": {
-    "@types/react-datepicker": "^4.4.2",
     "@commitlint/cli": "^17.0.2",
     "@commitlint/config-conventional": "^17.0.2",
     "@graphql-codegen/cli": "2.6.2",
@@ -57,6 +59,7 @@
     "@typechain/ethers-v5": "^10.1.0",
     "@types/lodash": "^4.14.182",
     "@types/react": "17.0.39",
+    "@types/react-datepicker": "^4.4.2",
     "@types/react-dom": "^18.0.6",
     "@types/styled-components": "^5.1.25",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
