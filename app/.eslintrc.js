@@ -39,27 +39,6 @@ module.exports = {
     'import/extensions': 0,
     'import/no-cycle': [0, { ignoreExternal: true }],
     'import/no-unresolved': 0,
-    'import/order': [
-      'error',
-      {
-        alphabetize: { order: 'asc' },
-        groups: [
-          ['builtin', 'external'],
-          ['internal', 'parent', 'sibling', 'index'],
-        ],
-        'newlines-between': 'always',
-        pathGroups: [
-          { group: 'builtin', pattern: 'react', position: 'before' },
-          {
-            group: 'external',
-            pattern:
-              '{styled-components,polished,next,next/*,react-dom,sanitize.css}',
-            position: 'before',
-          },
-        ],
-        pathGroupsExcludedImportTypes: ['builtin'],
-      },
-    ],
     'no-use-before-define': 'off',
     'prettier/prettier': 'error',
     'react/jsx-filename-extension': [

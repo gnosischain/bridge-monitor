@@ -4,7 +4,7 @@ name: Publish Docker image
 on:
   push:
     branches:
-      - develop
+      - default
 
 env:
   NODE_ENV: "production"
@@ -44,10 +44,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ./app
-          file: ./Dockerfile
+          file: ./app/Dockerfile
           push: true
-          cache-from: type=registry,ref=gnosischain/bridge-monitor:buildcache
-          cache-to: type=registry,ref=gnosischain/bridge-monitor:buildcache,mode=max
           tags: gnosischain/bridge-monitor:latest, gnosischain/bridge-monitor:${{ steps.commit.outputs.short }}
           platforms: |
             linux/amd64
