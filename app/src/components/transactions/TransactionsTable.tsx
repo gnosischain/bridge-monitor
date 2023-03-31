@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import styled from 'styled-components'
 
+import { ButtonPrimary } from '../buttons/Button'
+import { genericSuspense } from '../helpers/SafeSuspense'
 import { ListBottomInformation } from './ListBottomInformation'
 import { TransactionHeader } from './TransactionsHeader'
 import { TransactionsList } from './TransactionsList'
-import { ButtonPrimary } from '../buttons/Button'
-import { genericSuspense } from '../helpers/SafeSuspense'
 import { ITEMS_PER_PAGE } from '@/src/constants/misc'
 import { useTransactionsWithFilters } from '@/src/hooks/subgraph/useTransactions'
 import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'

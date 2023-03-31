@@ -9,7 +9,7 @@
     "dev": "next dev",
     "lint": "next lint",
     "lint:fix": "eslint --fix \"./**/*.{js,jsx,ts,tsx}\"",
-    "prepare": "cd .. && husky install",
+    "prepare2": "cd .. && husky install",
     "prettier:fix": "prettier --write \"./**/*.{js,jsx,ts,tsx}\"",
     "start": "next start",
     "typechain": "typechain --target=ethers-v5 ./src/abis/**/*.json --out-dir ./types/typechain/",
