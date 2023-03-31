@@ -5,6 +5,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock subgraph-config.js ./
 COPY /src ./src
+COPY /types ./types
 RUN  yarn install
 
 FROM node:18-alpine AS builder
