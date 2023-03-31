@@ -46,8 +46,6 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          cache-from: type=registry,ref=gnosischain/bridge-monitor:buildcache
-          cache-to: type=registry,ref=gnosischain/bridge-monitor:buildcache,mode=max
           tags: gnosischain/bridge-monitor:latest, gnosischain/bridge-monitor:${{ steps.commit.outputs.short }}
           platforms: |
             linux/amd64
