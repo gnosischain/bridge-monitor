@@ -5,12 +5,12 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 /** @type {import("next").NextConfig} */
 module.exports = withBundleAnalyzer({
   reactStrictMode: true,
-  // i18n: {
-  //   // ie
-  //   // locales: ['en', 'es'],
-  //   locales: ['en'],
-  //   defaultLocale: 'en'
-  // },
+  i18n: {
+    // ie
+    // locales: ['en', 'es'],
+    locales: ['en'],
+    defaultLocale: 'en'
+  },
   images: {
     unoptimized: true,
     domains: [

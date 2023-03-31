@@ -13,7 +13,7 @@
     "prettier:fix": "prettier --write \"./**/*.{js,jsx,ts,tsx}\"",
     "start": "next start",
     "typechain": "typechain --target=ethers-v5 ./src/abis/**/*.json --out-dir ./types/typechain/",
-    "subgraph-codegen": "graphql-codegen --config subgraph-config.js",
+    "subgraph-codegen": "graphql-codegen --config ./subgraph-config.js",
     "postinstall": "yarn typechain && yarn subgraph-codegen"
   },
   "dependencies": {
