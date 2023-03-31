@@ -8,4 +8,5 @@ from within this folder run
 
 - docker-compose up
 
-go to http://localhost:3000
+http://localhost:3000
+
