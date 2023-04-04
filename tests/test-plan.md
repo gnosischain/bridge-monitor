@@ -1,11 +1,5 @@
 # Bridge Monitor Test Plan
 
-**Table of Contents**
-
-[TOCM]
-
-[TOC]
-
 ## Introduction
 
 ### Purpose of the test plan
@@ -78,7 +72,7 @@ The success of the tests is considered when all the TX's info and traceability a
 
 It also refers with the status of failed TXs and the info associated with it (Pending, Replaced, Failed, Mined, etc). The info should be streamed updated and reliable to be considered a source of truth.
 
-## Current erros
+## Current errors
 
 Loading TXs table returns:
 ```bash
