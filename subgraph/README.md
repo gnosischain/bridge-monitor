@@ -39,19 +39,19 @@ Deploy (Remember to edit ACCESS_TOKEN and SUBGRAPH_NAME env vars)
 ### GNOSIS
 
 - Use .env file to configure enviroment
-'''
+```
 TYPE=home
 NETOWRK=gnosis
-'''
+```
 - run yarn codegen and subgraph.yml should be generated including all ABIs json files
 
 ### MAINNET
 
 - Use .env file to configure enviroment
-'''
+```
 TYPE=foreign
 NETOWRK=mainnet
-'''
+```
 - run yarn codegen and subgraph.yml should be generated including all ABIs json files (previos generated subgraph.yaml will be overwritten)
 
 ## Authenticate and Deploy
