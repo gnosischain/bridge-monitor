@@ -36,6 +36,9 @@ To run a functional deployment the following workflow has to be followed:
 1. Subgraph dir: Create subgraph definitions of manifests trhough the templates (subgraph-foreign.template.yaml, subgraph-home.template.yaml).
 Define .env file with the network configurations.
 Install project dependecies and run the build commands (package.json).
+  Generate subgraph Manifests (subgraph.yaml) 
+  Authenticate to product (HostedService/Studio)  
+  Deploy Subgraph 
 Save the subgraph's addresses to set in the next step
 2.  App dir: The app consists in a node.js react app that was developed using [next.js](http://https://nextjs.org/learn/basics/create-nextjs-app) as framework.
 Set the subgraph's adresses on `app/src/constants/config/subgraph-endpoints.json`
