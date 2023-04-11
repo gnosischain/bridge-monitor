@@ -4,17 +4,15 @@ name: Publish Docker image
 on:
   push:
     branches:
-      - main
+      - develop
 
 env:
-  NODE_ENV: "production"
+  NODE_ENV: "develop"
 
 jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
-    env:
-      RELEASE_VERSION: 4.1.8
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
@@ -36,6 +34,9 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: gnosischain/bridge-monitor
+        
+      - id: commit
+        uses: pr-mpt/actions-commit-hash@v2
 
       - name: Build & Push Docker image
         uses: docker/build-push-action@v3
@@ -43,7 +44,7 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          tags: gnosischain/bridge-monitor:latest
+          tags: gnosischain/bridge-monitor:${{ steps.commit.outputs.short }}
           platforms: |
             linux/amd64
 
