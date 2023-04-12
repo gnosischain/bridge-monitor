@@ -41,17 +41,17 @@ jobs:
         id: get_tag
         uses: actions-ecosystem/action-get-latest-tag@v1
         
-      - name: Create release
-        if: ${{ success() }}
-        uses: actions/create-release@v1.0.0
-        with:
-          tag_name: ${{ steps.get_tag.outputs.tag }}
-          release_name: ${{ steps.get_tag.outputs.tag }}
-          draft: false
-          prerelease: false
+      # - name: Create release
+      #   if: ${{ success() }}
+      #   uses: actions/create-release@v1.0.0
+      #   with:
+      #     tag_name: ${{ steps.get_tag.outputs.tag }}
+      #     release_name: ${{ steps.get_tag.outputs.tag }}
+      #     draft: false
+      #     prerelease: false
       
       - name: Release - Build & Push Docker image
-        if: ( github.ref == 'refs/heads/release' )
+        if: ( github.ref == 'refs/tags/*' )
         uses: docker/build-push-action@v3
         with:
           context: ./app
