@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
 
 env:
   NODE_ENV: "production"
@@ -13,8 +15,6 @@ jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
-    env:
-      RELEASE_VERSION: 4.1.8
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
@@ -36,8 +36,32 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: gnosischain/bridge-monitor
+      
+      - name: Get Latest Tag
+        id: get_tag
+        run: echo ::set-output name=tag::$(git describe --abbrev=0 --tags)
+        
+      - name: Create release
+        if: ( success() && github.ref == 'refs/heads/master' )
+        uses: actions/create-release@v1.0.0
+        with:
+          tag_name: ${{ steps.get_tag.outputs.tag }}
+          draft: false
+          prerelease: false
+      
+      - name: Release - Build & Push Docker image
+        if: ( github.ref == 'refs/heads/release' )
+        uses: docker/build-push-action@v3
+        with:
+          context: ./app
+          file: ./app/Dockerfile
+          push: true
+          tags: gnosischain/bridge-monitor:${{ steps.get_tag.outputs.tag }}
+          platforms: |
+            linux/amd64
 
-      - name: Build & Push Docker image
+      - name: PROD - Build & Push Docker image
+        if: ( github.ref == 'refs/heads/master' )
         uses: docker/build-push-action@v3
         with:
           context: ./app
@@ -46,5 +70,3 @@ jobs:
           tags: gnosischain/bridge-monitor:latest
           platforms: |
             linux/amd64
-
-  
