@@ -22,10 +22,10 @@ export const tabs: tabsType = {
       title: 'Daily bridge limits',
       href: '/daily-bridge-limits',
     },
-    {
-      title: 'Interest funds',
-      href: '/interest-funds',
-    },
+    // {
+    //   title: 'Interest funds',
+    //   href: '/interest-funds',
+    // },
     {
       title: 'Configuration',
       href: '/configuration',
