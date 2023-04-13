@@ -92,6 +92,18 @@
       "address": "0xfA98B60E02A61B6590f073cAD56e68326652d094",
       "name": "Kartpatkey",
       "bridgeType": "AMB"
+    },
+    {
+      "id": 14,
+      "address": "0x3e0A20099626F3d4d4Ea7B0cE0330e88d1Fe65D6",
+      "name": "Gateway",
+      "bridgeType": "AMB"
+    },
+    {
+      "id": 15,
+      "address": "0x90776017057b84bc47D7e7383b65C463C80a6cdd",
+      "name": "Gateway",
+      "bridgeType": "XDAI"
     }
   ]
 }

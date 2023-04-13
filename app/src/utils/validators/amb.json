@@ -54,5 +54,13 @@
     "bridgeType": "AMB",
     "shortName": "K",
     "status": "default"
+  },
+  {
+    "id": 8,
+    "address": "0x3e0A20099626F3d4d4Ea7B0cE0330e88d1Fe65D6",
+    "name": "Gateway",
+    "bridgeType": "AMB",
+    "shortName": "GW",
+    "status": "default"
   }
 ]
