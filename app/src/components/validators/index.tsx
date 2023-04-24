@@ -48,7 +48,6 @@ const Chart = styled(TransactionsSigned)`
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
     grid-column: 1 / 3;
   }
-  display: none;
 `
 
 const dayAgoTimestamp = () => {
