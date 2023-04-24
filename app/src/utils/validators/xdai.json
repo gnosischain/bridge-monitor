@@ -16,14 +16,6 @@
     "status": "default"
   },
   {
-    "id": 3,
-    "address": "0xfe24cfb2f8872e9ed097c451de065a9f6048915b",
-    "name": "Syncnode",
-    "bridgeType": "XDAI",
-    "shortName": "SN",
-    "status": "default"
-  },
-  {
     "id": 4,
     "address": "0x97630e2ae609d4104abda91f3066c556403182dd",
     "name": "Gnosis Dao",
