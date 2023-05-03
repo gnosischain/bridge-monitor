@@ -83,7 +83,7 @@ const allTimeTimestamp = () => {
   return new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()).getTime() / 1000
 }
 
-type SignedTXsData = {
+export type SignedTXsData = {
   validatorName: string
   signedTxsCount: number
 }[]
