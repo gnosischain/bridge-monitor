@@ -62,7 +62,7 @@ jobs:
             linux/amd64
 
       - name: PROD - Build & Push Docker image
-        if: ( github.ref == 'refs/heads/master' )
+        if: ( github.ref == 'refs/heads/main' )
         uses: docker/build-push-action@v3
         with:
           context: ./app

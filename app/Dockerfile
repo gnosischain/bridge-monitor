@@ -8,7 +8,6 @@ WORKDIR /app
 
 COPY package.json yarn.lock subgraph-config.js ./
 COPY /src ./src
-COPY /.env ./.env
 RUN  yarn install --frozen-lockfile
 
 FROM base AS builder
