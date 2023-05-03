@@ -101,7 +101,8 @@ export const BridgeValidators: React.FC = () => {
         xDai Bridge Validators <TitleNote>(Ethereum-Gnosis Chain)</TitleNote>
       </Title>
       <Columns>
-        <Chart data={xdaiChartData} onTimePeriodChange={setXDAITimePeriod} />
+        {/* <Chart data={xdaiChartData} onTimePeriodChange={setAMBTimePeriod} /> */}
+        <Chart data={xdaiSignedTXs.data ?? []} onTimePeriodChange={setXDAITimePeriod} />
         {xdaiValidators.map((validator, index) => {
           const todaysSignatures = xdaiTodaysSignedTXs.data?.find((signaturesCount: SigsCount) => {
             return signaturesCount.name === validator.name
@@ -124,7 +125,8 @@ export const BridgeValidators: React.FC = () => {
         AMB Bridge Validators <TitleNote>(Ethereum-Gnosis Chain)</TitleNote>
       </Title>
       <Columns>
-        <Chart data={ambChartData} onTimePeriodChange={setAMBTimePeriod} />
+        {/* <Chart data={ambChartData} onTimePeriodChange={setAMBTimePeriod} /> */}
+        <Chart data={ambSignedTXs.data ?? []} onTimePeriodChange={setAMBTimePeriod} />
         {ambValidators.map((validator, index) => {
           const todaysSignatures = ambTodaysSignedTXs.data?.find((signaturesCount: SigsCount) => {
             return signaturesCount.name === validator.name
