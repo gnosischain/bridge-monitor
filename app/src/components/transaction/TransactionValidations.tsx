@@ -37,7 +37,7 @@ export const TransactionValidations: React.FC<Props> = ({ fetchValidatorName, va
         />
       ))}
 
-      <MessageRequired>4 of 6 confirmations required</MessageRequired>
+      <MessageRequired>4 of 7 confirmations required</MessageRequired>
     </Wrapper>
   )
 }

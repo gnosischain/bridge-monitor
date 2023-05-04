@@ -65,13 +65,42 @@ const ChartWrapper = styled.div`
   min-height: 196px;
 `
 
+export const weekAgoTimestamp = () => {
+  const now = new Date()
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).getTime() / 1000
+}
+
+const monthAgoTimestamp = () => {
+  const now = new Date()
+  return new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).getTime() / 1000
+}
+const yearAgoTimestamp = () => {
+  const now = new Date()
+  return new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()).getTime() / 1000
+}
+const allTimeTimestamp = () => {
+  const now = new Date()
+  return new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()).getTime() / 1000
+}
+
+export type SignedTXsData = {
+  validatorName: string
+  signedTxsCount: number
+}[]
 export const TransactionsSigned: React.FC<{
-  data: Array<Array<{ name: string; value: number }>>
-}> = ({ data, ...restProps }) => {
-  const dropdownItems = ['Last week', 'Last month', 'Last year', 'All time']
+  data: SignedTXsData
+  onTimePeriodChange: (timePeriod: number) => void
+}> = ({ data, onTimePeriodChange, ...restProps }) => {
+  const dropdownItems = [
+    { title: 'Last week', timestampVal: weekAgoTimestamp() },
+    { title: 'Last month', timestampVal: monthAgoTimestamp() },
+    { title: 'Last year', timestampVal: yearAgoTimestamp() },
+    { title: 'All time', timestampVal: allTimeTimestamp() },
+  ]
   const [selectedItem, setSelectedItem] = useState(0)
 
   const onDropdownItemSelect = (index: number) => {
+    onTimePeriodChange(dropdownItems[index].timestampVal)
     setSelectedItem(index)
   }
 
@@ -102,13 +131,13 @@ export const TransactionsSigned: React.FC<{
         <Dropdown
           dropdownButton={
             <DropdownButton>
-              <span>{dropdownItems[selectedItem]}</span> <ChevronDown />
+              <span>{dropdownItems[selectedItem].title}</span> <ChevronDown />
             </DropdownButton>
           }
           dropdownPosition={DropdownPosition.right}
           items={dropdownItems.map((item, index) => (
             <DropdownItem key={index} onClick={() => onDropdownItemSelect(index)}>
-              {item}
+              {item.title}
             </DropdownItem>
           ))}
         />
@@ -116,7 +145,7 @@ export const TransactionsSigned: React.FC<{
       <ChartWrapper>
         <ResponsiveContainer height="100%" width="100%">
           <BarChart
-            data={data[selectedItem]}
+            data={data}
             layout="vertical"
             margin={{
               top: 0,
@@ -129,7 +158,7 @@ export const TransactionsSigned: React.FC<{
             <YAxis dataKey="name" dx={-20} type="category" width={130} {...commonAxesStyles} />
             <CartesianGrid horizontal={false} stroke={'rgba(240, 235, 222, 0.08)'} />
             <Bar barSize={12} dataKey="value" fill="#fff" radius={[6, 6, 6, 6]}>
-              {data[selectedItem].map((entry, index) => (
+              {data?.map((entry, index) => (
                 <Cell fill={colors[index % 20]} key={`cell-${index}`} />
               ))}
             </Bar>

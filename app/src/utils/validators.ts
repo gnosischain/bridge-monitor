@@ -14,9 +14,14 @@ import { gnosis, mainnet } from '../constants/config/rpc-providers'
 import { getHomeGraphqlClient } from '../constants/config/subgraph'
 import { Chains } from '../constants/config/types'
 import { BalanceType, ValidatorStatusTypes } from '../constants/types'
+import { TRANSACTION_QUERY } from '../queries/transactions'
 import { VALIDATORS_QUERY } from '../queries/validators'
 import {
+  OrderDirection,
   TransactionStatus,
+  Transaction_OrderBy,
+  TransactionsQuery,
+  TransactionsQueryVariables,
   ValidatorsQuery,
   ValidatorsQueryVariables,
 } from '@/types/generated/subgraph'
@@ -163,4 +168,64 @@ export const fetchValidators = async (bridge: string) => {
   return validators
     .filter(Boolean)
     .filter((v) => v && v.bridgeType.toUpperCase() === bridgeValue) as Validator[]
+}
+
+const MAX_RESULTS = 1000
+const RESULTS_ORDER = OrderDirection.Desc
+const ORDER_BY = Transaction_OrderBy.Timestamp
+
+export const fetchSignedTransactions = async (bridge: BridgesValues, timePeriod: number) => {
+  const bridgeValue = bridge.toUpperCase() as BridgesValues
+  // fetches TXs validated within a period of time
+  const validators = VALIDATORS_BY_BRIDGE[bridgeValue]
+  const signedTXsPromises = validators.map(async (validator) => {
+    const query = {
+      first: MAX_RESULTS,
+      orderBy: ORDER_BY,
+      orderDirection: RESULTS_ORDER,
+      where: {
+        bridgeName: bridgeValue,
+        validations_: {
+          timestamp_gte: timePeriod.toString(),
+          responsableAddress: validator.address,
+        },
+      },
+    }
+    const { transactions: signedTxs } = await getHomeGraphqlClient()<
+      TransactionsQuery,
+      TransactionsQueryVariables
+    >(TRANSACTION_QUERY, query)
+    const signedTxsCount = signedTxs.length
+    return { name: validator.name, value: signedTxsCount }
+  })
+  const eachValidatorSignedTXs = await Promise.all(signedTXsPromises)
+  return eachValidatorSignedTXs
+}
+
+export const fetchExecutedTransactions = async (bridge: BridgesValues, timePeriod: number) => {
+  const bridgeValue = bridge.toUpperCase() as BridgesValues
+  // fetches TXs validated within a period of time
+  const validators = VALIDATORS_BY_BRIDGE[bridgeValue]
+  const executedTXsPromises = validators.map(async (validator) => {
+    const query = {
+      first: MAX_RESULTS,
+      orderBy: ORDER_BY,
+      orderDirection: RESULTS_ORDER,
+      where: {
+        bridgeName: bridgeValue,
+        execution_: {
+          timestamp_gte: timePeriod.toString(),
+          responsableAddress: validator.address,
+        },
+      },
+    }
+    const { transactions: signedTxs } = await getHomeGraphqlClient()<
+      TransactionsQuery,
+      TransactionsQueryVariables
+    >(TRANSACTION_QUERY, query)
+    const signedTxsCount = signedTxs.length
+    return { name: validator.name, value: signedTxsCount }
+  })
+  const eachValidatorSignedTXs = await Promise.all(executedTXsPromises)
+  return eachValidatorSignedTXs
 }
