@@ -145,7 +145,10 @@ export const TransactionsSigned: React.FC<{
       <ChartWrapper>
         <ResponsiveContainer height="100%" width="100%">
           <BarChart
-            data={data}
+            data={data.map(({ signedTxsCount, validatorName }) => ({
+              name: validatorName,
+              value: signedTxsCount,
+            }))}
             layout="vertical"
             margin={{
               top: 0,
