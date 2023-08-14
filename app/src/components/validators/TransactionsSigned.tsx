@@ -80,7 +80,9 @@ const yearAgoTimestamp = () => {
 }
 const allTimeTimestamp = () => {
   const now = new Date()
-  return new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()).getTime() / 1000
+  const allTimeStartDate = new Date(2018, 10, 8)
+  const timeDiff = now.getTime() - allTimeStartDate.getTime()
+  return Math.floor(timeDiff / 1000)
 }
 
 export type SignedTXsData = {

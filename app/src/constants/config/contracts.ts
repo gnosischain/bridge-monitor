@@ -1,6 +1,8 @@
 import ERC_20_abi from '@/src/abis/ERC20.json'
 import HomeXDAI_abi from '@/src/abis/HomeBridgeErcToNative.json'
 import HomeOMNI_abi from '@/src/abis/HomeOmniMediator.json'
+import GNO_abi from '@/src/abis/GNO.json'
+import INCH_abi from '@/src/abis/1INCH.json'
 import { Chains } from '@/src/constants/config/types'
 
 export const contracts = Object.freeze({
@@ -27,6 +29,22 @@ export const contracts = Object.freeze({
       [Chains.gnosis]: '0x7301CFA0e1756B71869E93d4e4Dca5c7d0eb0AA6',
     },
     abi: HomeXDAI_abi,
+  },
+  GNO: {
+    address: {
+      [Chains.mainnet]: '0x6810e776880c02933d47db1b9fc05908e5386b96',
+      [Chains.goerli]: '',
+      [Chains.gnosis]: '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb',
+    },
+    abi: GNO_abi,
+  },
+  INCH: {
+    address: {
+      [Chains.mainnet]: '0x111111111117dc0aa78b770fa6a738034120c302',
+      [Chains.goerli]: '',
+      [Chains.gnosis]: '',
+    },
+    abi: INCH_abi,
   },
   OMNI: {
     address: {

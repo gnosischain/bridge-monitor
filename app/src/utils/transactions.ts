@@ -69,10 +69,11 @@ const getNetworkIcon = (network: string) => {
   return network === MAINNET ? '/images/icons/eth.png' : '/images/icons/gnosis.png'
 }
 
-const getTokenData = (network: string) => {
+const getTokenData = (tokenAddress: string) => {
   // @todo: refactor in order to render required OMNIBridge tokens
-  if (network === MAINNET) return tokens['DAI']
-  return tokens['XDAI']
+  // const token = tokens[tokenName as keyof typeof tokens]
+  const token = Object.values(tokens).find(token => token.address.toLowerCase() === tokenAddress.toLowerCase());
+  return token
 }
 
 const scanURL = (network: string) => {
@@ -126,17 +127,18 @@ const transformTx = (tx: TransactionSG): Transaction => {
     initiatorNetwork: tx.initiatorNetwork ?? '',
     initiatorNetworkIcon: getNetworkIcon(tx.initiatorNetwork ?? ''),
     // initiatorToken: tx.initiatorToken,
+    // initiatorToken: getTokenData(tx.initiatorToken ?? '')?.name,
     initiatorToken: '',
     receiver: tx.receiver,
     receiverAmount: formatNumber(fromBNtoNumber(tx.receiverAmount) ?? 0),
     // @todo complete this data in SG, DAI address
-    initiatorTokenData: getTokenData(tx.initiatorNetwork ?? ''),
+    initiatorTokenData: getTokenData(tx.initiatorToken ?? ''),
     receiverNetwork: tx.receiverNetwork ?? '',
     receiverNetworkIcon: getNetworkIcon(tx.receiverNetwork ?? ''),
     // receiverToken: tx.receiverToken,
     receiverToken: '',
     // @todo complete this data in SG, DAI address
-    receiverTokenData: getTokenData(tx.receiverNetwork ?? ''),
+    receiverTokenData: getTokenData(tx.receiverToken ?? ''),
     timestamp: fromSubgraphTimestamp(tx.timestamp),
     transactionStatus: tx.transactionStatus ?? TransactionStatus.Initiated,
     validations: tx.validations?.map(transformValidation),

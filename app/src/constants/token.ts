@@ -23,7 +23,7 @@ export type TokenListResponse = {
 }
 
 // @todo think a better way to handle {token => info} (missing network...)
-export const tokens: Record<'DAI' | 'XDAI', Token> = {
+export const tokens: Record<'DAI' | 'XDAI' | 'GNO' | 'INCH', Token> = {
   DAI: {
     address: contracts['DAI'].address[Chains.mainnet],
     chainId: Chains.mainnet,
@@ -41,5 +41,23 @@ export const tokens: Record<'DAI' | 'XDAI', Token> = {
     name: 'xDAI',
     symbol: 'xDAI',
     native: true,
+  },
+  GNO: {
+    address: contracts['GNO'].address[Chains.mainnet],
+    chainId: Chains.mainnet,
+    decimals: 18,
+    logoURI: '/images/icons/gnosis.png',
+    name: 'Gnosis',
+    symbol: 'GNO',
+    native: false,
+  },
+  INCH: {
+    address: contracts['INCH'].address[Chains.mainnet],
+    chainId: Chains.mainnet,
+    decimals: 18,
+    logoURI: '/images/icons/1inch.png',
+    name: 'OneInch',
+    symbol: '1INCH',
+    native: false,
   },
 } as const
