@@ -2,7 +2,7 @@ import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 
 import { MenuIcon } from '@/src/components/assets/MenuIcon'
 import { GnosisChainLogo } from '@/src/components/common/Logo'
@@ -133,11 +133,9 @@ export const Header: React.FC = (props) => {
           </End>
         </InnerContainer>
       </Wrapper>
-      <motion.nav animate={isOpen ? 'open' : 'closed'} initial={false}>
-        <AnimatePresence>
-          {isOpen && <PhoneMainMenu closeMenu={() => toggleOpen(false)} />}
-        </AnimatePresence>
-      </motion.nav>
+      <AnimatePresence>
+        {isOpen && <PhoneMainMenu closeMenu={() => toggleOpen(false)} />}
+      </AnimatePresence>
     </>
   )
 }
