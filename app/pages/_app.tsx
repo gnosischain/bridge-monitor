@@ -12,11 +12,9 @@ import SafeSuspense from '@/src/components/helpers/SafeSuspense'
 import { Layout } from '@/src/components/layout'
 import { Footer } from '@/src/components/layout/Footer'
 import { Header } from '@/src/components/layout/Header'
-import { Main } from '@/src/components/layout/Main'
 import Toast from '@/src/components/toast/Toast'
 import { Head } from '@/src/page_partials/index/Head'
 import { TransactionNotificationProvider } from '@/src/providers/TransactionNotificationProvider'
-import CookiesWarningProvider from '@/src/providers/cookiesWarningProvider'
 import GeneralContextProvider from '@/src/providers/generalProvider'
 import ThemeProvider from '@/src/providers/themeProvider'
 import { intlErrorHandler } from '@/src/utils/intlErrorHandler'
@@ -41,7 +39,7 @@ type AppPropsWithLayout = AppProps & {
 
 export default function App({ Component, messages, pageProps }: AppPropsWithLayout) {
   // Black magic explained here https://nextjs.org/docs/basic-features/layouts
-  const getLayout = Component.getLayout ?? ((page) => <Main>{page}</Main>)
+  const getLayout = Component.getLayout ?? ((page) => <Layout>{page}</Layout>)
 
   return (
     <>
@@ -58,15 +56,13 @@ export default function App({ Component, messages, pageProps }: AppPropsWithLayo
             <ThemeProvider>
               <SafeSuspense>
                 <TransactionNotificationProvider>
-                  <CookiesWarningProvider>
-                    <GeneralContextProvider>
-                      <TokenIconsContextProvider>
-                        <Header />
-                        <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
-                        <Footer />
-                      </TokenIconsContextProvider>
-                    </GeneralContextProvider>
-                  </CookiesWarningProvider>
+                  <GeneralContextProvider>
+                    <TokenIconsContextProvider>
+                      <Header />
+                      {getLayout(<Component {...pageProps} />)}
+                      <Footer />
+                    </TokenIconsContextProvider>
+                  </GeneralContextProvider>
                 </TransactionNotificationProvider>
               </SafeSuspense>
               <Toast />

@@ -5,7 +5,17 @@ import { AnimatePresence, motion } from 'framer-motion'
 
 import { InnerContainer } from '@/src/components/helpers/InnerContainer'
 
-const Container = styled(InnerContainer)``
+const Container = styled(InnerContainer)`
+  flex-grow: 1;
+`
+
+export const Main = styled.main`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 0;
+  width: 100%;
+`
 
 export const Layout: React.FC = ({ children }) => {
   const router = useRouter()
@@ -46,9 +56,15 @@ export const Layout: React.FC = ({ children }) => {
         variants={variantsBox}
       >
         <AnimatePresence exitBeforeEnter>
-          <motion.div animate="enter" initial="hidden" key={router.pathname} variants={variants}>
+          <Main
+            animate="enter"
+            as={motion.main}
+            initial="hidden"
+            key={router.pathname}
+            variants={variants}
+          >
             {children}
-          </motion.div>
+          </Main>
         </AnimatePresence>
       </Container>
     </AnimatePresence>
