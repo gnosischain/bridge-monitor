@@ -8,11 +8,11 @@ import { Transaction } from '@/src/utils/transactions'
 import { getValidationsStatus } from '@/src/utils/validators'
 
 const Wrapper = styled.div`
-  display: flex;
-  height: 2.2rem;
   align-items: center;
-  justify-content: center;
+  display: flex;
   gap: ${({ theme: { common } }) => common.space}px;
+  height: 2.2rem;
+  justify-content: center;
 `
 
 interface Props {
