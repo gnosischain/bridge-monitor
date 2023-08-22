@@ -26,12 +26,6 @@ const Wrapper = styled.div<{ status: TransactionStatus }>`
     width: 7px;
   }
 
-  &:hover {
-    &:before {
-      background-color: ${({ theme }) => theme.colors.white};
-    }
-  }
-
   strong {
     color: ${({ theme }) => theme.colors.darkestGrey};
     font-size: 1.2rem;

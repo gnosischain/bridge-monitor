@@ -1,9 +1,10 @@
-import Link from 'next/link'
 import styled from 'styled-components'
 
 import { motion } from 'framer-motion'
+import { useRouter } from 'next/router'
 
 import { DateTime } from '@/src/components/assets/DateTime'
+import { ChevronDown } from '@/src/components/assets/ChevronDown'
 import { ChainsInitiatorReceiver } from '@/src/components/common/ChainsInitiatorReceiver'
 import { InitiatorReceiver } from '@/src/components/common/InitiatorReceiver'
 import { Status } from '@/src/components/common/Status'
@@ -33,24 +34,15 @@ const TD = styled.td`
   --td-padding-horizontal: ${({ theme: { common } }) => common.space * 2}px;
 
   border-bottom: 1px solid ${({ theme }) => theme.colors.black};
+  flex-grow: 1;
   padding: var(--td-padding-vertical) var(--td-padding-horizontal);
-  transition: background-color 0.25s linear;
+  transition: background-color 0.15s linear;
   vertical-align: middle;
-
-  &:last-child {
-    text-align: center;
-  }
 
   @media (max-width: ${({ theme }) => theme.breakPoints.desktopWideStart}) {
     border-bottom: none;
     padding: ${({ theme: { common } }) => common.space}px
       ${({ theme: { common } }) => common.space * 2}px !important;
-
-    &:last-child {
-      flex: 1 1 150px;
-      padding: ${({ theme: { common } }) => common.space}px
-        ${({ theme: { common } }) => common.space * 2}px !important;
-    }
   }
 `
 
@@ -102,7 +94,7 @@ const TR = styled.tr`
 
   &:hover {
     ${TD} {
-      background-color: ${({ theme }) => theme.colors.primaryDark};
+      background-color: rgba(255, 255, 255, 0.03);
     }
 
     &:active {
@@ -113,15 +105,44 @@ const TR = styled.tr`
   }
 `
 
-const TransactionLink = styled.a`
-  display: inline-block;
-  text-decoration: none;
-`
-
 const ActionButton = styled(ButtonPrimary)`
   margin: auto;
   font-size: 1.4rem;
   padding: 6px 12px;
+  width: 100%;
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+    width: auto;
+  }
+`
+
+const ViewMore = styled.button`
+  background-color: transparent;
+  border: none;
+  color: ${({ theme }) => theme.colors.tertiary};
+  cursor: pointer;
+  font-size: 1.3rem;
+  margin: 10px auto auto auto;
+  padding: 6px 12px;
+  width: 100%;
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+    display: none;
+  }
+`
+
+const TDChevron = styled(TD)`
+  display: none;
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+    display: table-cell;
+    padding-left: 0;
+    vertical-align: middle;
+  }
+`
+
+const ChevronRight = styled(ChevronDown)`
+  transform: rotate(-90deg);
 `
 
 interface Props {
@@ -129,6 +150,23 @@ interface Props {
 }
 
 export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) => {
+  const router = useRouter()
+
+  const handleRowClick = (e: any) => {
+    e.stopPropagation()
+
+    router.push({
+      pathname: `/${transaction.transactionHash}`,
+      query: { id: transaction.id },
+    })
+  }
+
+  const handleClaim = (e: any) => {
+    e.stopPropagation()
+
+    console.log('claiming')
+  }
+
   return (
     <TR
       animate={{ y: 0, opacity: 1 }}
@@ -136,11 +174,17 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
       exit={{ y: 10, opacity: 0 }}
       initial={{ y: -5, opacity: 0 }}
       key={transaction.id}
+      onClick={handleRowClick}
       transition={{ duration: 0.4 }}
       {...restProps}
     >
       <TD>
-        <Address address={transaction.transactionHash} copy link={transaction.scanUrl} />
+        <Address
+          address={transaction.transactionHash}
+          characters={6}
+          copy
+          link={transaction.scanUrl}
+        />
         <DateTime transactiondate={transaction.timestamp} />
       </TD>
       <TD>
@@ -173,26 +217,24 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
         />
       </TDReceiver>
       <TDStatus>
-        {/* States available: pending, completed */}
-        <Link
-          href={{
-            pathname: `/${transaction.transactionHash}`,
-            query: { id: transaction.id },
-          }}
-          passHref
-        >
-          <TransactionLink>
-            <Status status={transaction.transactionStatus} />
-          </TransactionLink>
-        </Link>
+        <Status status={transaction.transactionStatus} />
       </TDStatus>
       <TDValidators>
         {/* States available: pending, submitted, submittedExecuted, executed, notRequired */}
         <Validators transaction={transaction} />
       </TDValidators>
       <TD>
-        <ActionButton disabled={transaction.transactionStatus !== 'UNCLAIMED'}>Claim</ActionButton>
+        <ActionButton
+          disabled={transaction.transactionStatus !== 'UNCLAIMED'}
+          onClick={(e) => handleClaim(e)}
+        >
+          Claim
+        </ActionButton>
+        <ViewMore>View More</ViewMore>
       </TD>
+      <TDChevron>
+        <ChevronRight />
+      </TDChevron>
     </TR>
   )
 }

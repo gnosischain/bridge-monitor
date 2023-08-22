@@ -10,21 +10,14 @@ const THead = styled.thead`
 `
 
 const TH = styled.th`
+  --th-padding-vertical: ${({ theme: { common } }) => common.space * 3}px;
+  --th-padding-horizontal: ${({ theme: { common } }) => common.space * 2}px;
+
   font-size: 1.4rem;
   font-weight: 300;
-  padding: ${({ theme: { common } }) => common.space * 2}px 0 0 0;
+  padding: var(--th-padding-vertical) var(--th-padding-horizontal);
   text-align: left;
   vertical-align: top;
-
-  &:not(:last-child) {
-    padding: ${({ theme: { common } }) => common.space * 2}px
-      ${({ theme: { common } }) => common.space * 3}px
-      ${({ theme: { common } }) => common.space * 5}px 0;
-  }
-
-  &:last-child {
-    text-align: center;
-  }
 
   @media (max-width: ${({ theme }) => theme.breakPoints.desktopWideStart}) {
     display: none;
@@ -48,6 +41,12 @@ const ValidatorName = styled.span`
   width: 24px;
 `
 
+const THActions = styled(TH)`
+  text-align: center;
+`
+
+const THLast = styled(TH)``
+
 interface Props {
   validators: Validator[]
 }
@@ -56,7 +55,7 @@ export const TransactionHeader: React.FC<Props> = ({ validators }) => {
   return (
     <THead>
       <tr>
-        <TH>Txn Hash</TH>
+        <TH>Tx Hash</TH>
         <TH>Bridge</TH>
         <TH>Initiator</TH>
         <TH>Receiver</TH>
@@ -68,7 +67,8 @@ export const TransactionHeader: React.FC<Props> = ({ validators }) => {
             </Tooltip>
           ))}
         </THValidators>
-        <TH>Actions</TH>
+        <THActions>Actions</THActions>
+        <THLast>&nbsp;</THLast>
       </tr>
     </THead>
   )
