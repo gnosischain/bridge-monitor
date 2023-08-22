@@ -3,8 +3,7 @@ import styled from 'styled-components'
 import { Address } from '@/src/components/token/Address'
 import { IconStatus } from '@/src/components/transaction/IconStatus'
 import { TransactionDate } from '@/src/components/transaction/TransactionDate'
-import { transformDate } from '@/src/utils/date'
-import { Transaction, TransactionExecution, TransactionValidation } from '@/src/utils/transactions'
+import { TransactionExecution, TransactionValidation } from '@/src/utils/transactions'
 
 const Wrapper = styled.li<{ status?: string }>`
   list-style: none;

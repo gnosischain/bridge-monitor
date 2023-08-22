@@ -152,6 +152,7 @@ interface Props {
 export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) => {
   const router = useRouter()
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleRowClick = (e: any) => {
     e.stopPropagation()
 
@@ -161,6 +162,7 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
     })
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleClaim = (e: any) => {
     e.stopPropagation()
 

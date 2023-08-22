@@ -12,8 +12,7 @@ import { TransactionValidator } from '@/src/components/transaction/TransactionVa
 import { AMB_SIGNATURE_THRESHOLD, XDAI_SIGNATURE_THRESHOLD } from '@/src/constants/misc'
 import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
 import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
-import { tokens } from '@/src/constants/token'
-import { Transaction, TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
+import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'
 
 const Wrapper = styled.div`
@@ -67,7 +66,6 @@ const TransactionDetailsList = styled.ul`
   margin: 0;
   padding: 0;
 `
-const GNOSIS = 'gnosis'
 const MAINNET = 'mainnet'
 
 const Bridges: NextPage = () => {
@@ -118,13 +116,6 @@ const Bridges: NextPage = () => {
 
   // @todo define TransactionStatusType using dropdown options style
   const [transactionStatus, setTransactionStatus] = useState(currentTx.transactionStatus)
-  // useEffect(() => {
-  //   if (checkValidatorsSignOneTime) setTransactionStatus(TransactionStatusTypes.warning)
-  //   else if (!currentTx.executorAddress) setTransactionStatus(TransactionStatusTypes.waiting)
-  //   else if (currentTx.signaturesCheckedTimestamp && checkValidatorsSignOneTime === 0)
-  //     setTransactionStatus(TransactionStatusTypes.completed)
-  // }, [checkValidatorsSignOneTime])
-
   const getNetworkIcon = (network: string): string => {
     return network === MAINNET ? '/images/icons/eth.png' : '/images/icons/gnosis.png'
   }

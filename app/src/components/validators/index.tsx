@@ -3,7 +3,6 @@ import styled from 'styled-components'
 
 import { BridgeValidator } from '@/src/components/validators/BridgeValidator'
 import {
-  SignedTXsData,
   TransactionsSigned,
   weekAgoTimestamp,
 } from '@/src/components/validators/TransactionsSigned'

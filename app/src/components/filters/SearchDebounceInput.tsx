@@ -8,6 +8,7 @@ import { Search } from './Search'
 import { TextfieldCSS } from '@/src/components/form/Textfield'
 import { DEBOUNCE_TIME } from '@/src/constants/misc'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Textfield: any = styled(DebounceInput)`
   ${TextfieldCSS}
 

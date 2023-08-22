@@ -2,7 +2,6 @@ import styled from 'styled-components'
 
 import { IconStatus as BaseIconStatus } from '@/src/components/transaction/IconStatus'
 import { TransactionDate } from '@/src/components/transaction/TransactionDate'
-import { transformDate } from '@/src/utils/date'
 
 const Wrapper = styled.li`
   --line-gap: 24px;

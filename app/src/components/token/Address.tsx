@@ -70,12 +70,14 @@ export const Address: React.FC<Props> = ({
 }) => {
   const [isCopied, toggleCopied] = useState(false)
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const copyWalletAddress = (e: any, address: string) => {
     e.stopPropagation()
     navigator.clipboard.writeText(address)
     toggleCopied(true)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const openLink = (e: any, link: string) => {
     e.stopPropagation()
     window.open(link, '_blank', 'noopener noreferrer')
