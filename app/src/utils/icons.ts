@@ -2,8 +2,9 @@ const ETHIcon = '/images/icons/eth.png'
 const GnosisIcon = '/images/icons/gnosis.png'
 const DAIIcon = '/images/icons/dai.png'
 const XDAIIcon = '/images/icons/xdai.png'
+const InchIcon = '/images/icons/1inch.png'
 
-export const getIcon = (name: string) => {
+export const getIcon = (name?: string) => {
   return name === 'eth'
     ? ETHIcon
     : name === 'gnosis'
@@ -12,5 +13,7 @@ export const getIcon = (name: string) => {
     ? XDAIIcon
     : name === 'dai'
     ? DAIIcon
-    : DAIIcon
+    : name === '1inch'
+    ? InchIcon
+    : ''
 }
