@@ -72,11 +72,6 @@ export const BridgeValidators: React.FC = () => {
   const xdaiSignedTXs = useFetchValidatorsSignatures('XDAI', xdaiTimePeriod)
   const ambSignedTXs = useFetchValidatorsSignatures('AMB', ambTimePeriod)
 
-  console.log(
-    'Mapped xDai data:',
-    xdaiSignedTXs.data?.map((item) => ({ validatorName: item.name, signedTxsCount: item.value })),
-  )
-
   const xdaiTodaysSignedTXs = useFetchValidatorsSignatures('XDAI', dayAgoTimestamp())
   const ambTodaysSignedTXs = useFetchValidatorsSignatures('AMB', dayAgoTimestamp())
   const xdaiTodaysExecutedTXs = useFetchValidatorsExecutions('XDAI', dayAgoTimestamp())

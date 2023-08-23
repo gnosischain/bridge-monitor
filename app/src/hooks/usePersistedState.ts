@@ -83,7 +83,7 @@ export const useLocalStorage = <T>(name: string, initialState: T): [T, SetValue<
     try {
       return recoverLocalStorageKey(key, initialState)
     } catch (error) {
-      console.log(error)
+      console.error(error)
       return initialState
     }
   })

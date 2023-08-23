@@ -22,7 +22,6 @@ export const useHomeOMNIBridgeLimits = (token: Token) => {
     [[], [], [tokenAddress]],
     'homeOMNIContext',
   )
-  console.log('homeOMNIContext ', { homeOMNIContext })
 
   const registeredToken: boolean = homeOMNIContext?.[2] ?? false
 
@@ -38,10 +37,8 @@ export const useHomeOMNIBridgeLimits = (token: Token) => {
     [[tokenAddress], [tokenAddress], [tokenAddress], [tokenAddress], [tokenAddress]],
     'homeOMNILimits',
   )
-  console.log('homeOMNILimits ', { homeOMNILimits })
 
   const currentDay = homeOMNIContext?.[1] ?? 0
-  console.log('currentDay ', currentDay)
   const totalsCalls = [homeOMNI.totalSpentPerDay, homeOMNI.totalExecutedPerDay] as const
   const [{ data: homeOMNITotals }] = useContractCall<HomeOmniMediator, typeof totalsCalls>(
     totalsCalls,
@@ -108,12 +105,6 @@ export const useForeignOMNIBridgeLimits = (token: Token) => {
     ],
     'foreignOMNITotals',
   )
-  console.log('registeredToken ', registeredToken)
-  console.log('minPerTx (no decimals):', fromBNtoNumber(foreignOMNILimits?.[2]))
-  console.log('minPerTx (withDecimals):', fromBNtoNumber(foreignOMNILimits?.[2], decimals))
-  console.log('maxPerTx (no decimals):', fromBNtoNumber(foreignOMNILimits?.[3]))
-  console.log('maxPerTx (withDecimals):', fromBNtoNumber(foreignOMNILimits?.[3], decimals))
-  console.log('executionMaxPerTx:', fromBNtoNumber(foreignOMNILimits?.[4], decimals))
 
   return {
     foreignOMNIinformation: {

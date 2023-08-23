@@ -40,7 +40,6 @@ export const TokenIcon: React.FC<Props> = ({
 }) => {
   const { tokensBySymbol } = useTokenIcons()
   const [error, setError] = useState(false)
-  console.log(iconSource)
   const tokenImage = iconSource ?? tokensBySymbol[symbol.toLowerCase()]?.logoURI
 
   return tokenImage && !error ? (
