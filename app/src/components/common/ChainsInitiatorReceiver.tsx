@@ -1,6 +1,5 @@
 import Image from 'next/image'
 import styled from 'styled-components'
-import { getIcon } from '@/src/utils/icons'
 import { useIcon } from '@/src/hooks/useIcon'
 
 const Wrapper = styled.div`
@@ -64,11 +63,26 @@ const BridgeWrapper = styled.div<{ chain?: string }>`
   }
 `
 
+const Bridge: React.FC<{ chain: string; iconName?: string }> = ({
+  chain,
+  iconName,
+  ...restProps
+}) => {
+  const { iconPath } = useIcon(iconName)
+
+  return iconPath ? (
+    <BridgeWrapper chain={chain.toLowerCase()} {...restProps}>
+      <Image alt={chain} height={16} objectFit="cover" src={iconPath} width={16} />
+      {chain}
+    </BridgeWrapper>
+  ) : null
+}
+
 interface Props {
   chainInitiator: string
   chainReceiver: string
-  chainIconInitiator: string
-  chainIconReceiver: string
+  chainIconInitiator?: string
+  chainIconReceiver?: string
   showName?: boolean
 }
 
@@ -79,30 +93,10 @@ export const ChainsInitiatorReceiver: React.FC<Props> = ({
   chainReceiver,
   ...restProps
 }) => {
-  const { getIconPath } = useIcon()
-
   return (
     <Wrapper {...restProps}>
-      <BridgeWrapper chain={chainInitiator.toLowerCase()}>
-        <Image
-          alt={chainInitiator}
-          height={16}
-          objectFit="cover"
-          src={getIconPath(chainIconInitiator)}
-          width={16}
-        />
-        {chainInitiator}
-      </BridgeWrapper>
-      <BridgeWrapper chain={chainReceiver.toLowerCase()}>
-        <Image
-          alt={chainReceiver}
-          height={16}
-          objectFit="cover"
-          src={getIconPath(chainIconReceiver)}
-          width={16}
-        />
-        {chainReceiver}
-      </BridgeWrapper>
+      <Bridge chain={chainInitiator} iconName={chainIconInitiator} />
+      <Bridge chain={chainReceiver} iconName={chainIconReceiver} />
     </Wrapper>
   )
 }

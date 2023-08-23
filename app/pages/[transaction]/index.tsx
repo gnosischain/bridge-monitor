@@ -14,6 +14,7 @@ import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
 import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
 import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'
+import { getChainIconName } from '@/src/utils/icons'
 
 const Wrapper = styled.div`
   display: flex;
@@ -66,7 +67,6 @@ const TransactionDetailsList = styled.ul`
   margin: 0;
   padding: 0;
 `
-const MAINNET = 'mainnet'
 
 const Bridges: NextPage = () => {
   const router = useRouter()
@@ -116,9 +116,6 @@ const Bridges: NextPage = () => {
 
   // @todo define TransactionStatusType using dropdown options style
   const [transactionStatus, setTransactionStatus] = useState(currentTx.transactionStatus)
-  const getNetworkIcon = (network: string): string => {
-    return network === MAINNET ? '/images/icons/eth.png' : '/images/icons/gnosis.png'
-  }
 
   return (
     <Wrapper>
@@ -133,21 +130,22 @@ const Bridges: NextPage = () => {
         />
       </Head>
       <TransactionInformation>
+        {currentTx.receiverTokenData?.name}
         <TransactionResume
           bridgeName={currentTx.bridgeName}
           initiator={currentTx.initiator}
           initiatorAmount={currentTx.initiatorAmount}
           initiatorName={currentTx.initiator}
           initiatorNetwork={currentTx.initiatorNetwork}
-          initiatorNetworkIcon={getNetworkIcon(currentTx.initiatorNetwork)}
-          initiatorTokenIcon={currentTx.initiatorTokenData?.logoURI ?? ''}
+          initiatorNetworkIcon={getChainIconName(currentTx.initiatorNetwork)}
+          initiatorTokenIcon={currentTx.initiatorTokenData?.name}
           initiatorTokenName={currentTx.initiatorTokenData?.name ?? ''}
           receiver={currentTx.receiver}
           receiverAmount={currentTx.receiverAmount}
           receiverName={currentTx.receiver}
           receiverNetwork={currentTx.receiverNetwork}
-          receiverNetworkIcon={getNetworkIcon(currentTx.receiverNetwork)}
-          receiverTokenIcon={currentTx.receiverTokenData?.logoURI ?? ''}
+          receiverNetworkIcon={getChainIconName(currentTx.receiverNetwork)}
+          receiverTokenIcon={currentTx.receiverTokenData?.name}
           receiverTokenName={currentTx.receiverTokenData?.name ?? ''}
           timestampExecution={currentTx.execution?.timestamp ?? 0}
           timestampStarted={currentTx.timestamp ?? 0}

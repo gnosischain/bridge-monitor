@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import { getIcon } from '@/src/utils/icons'
 
-export const useIcon = () => {
-  const getIconPath = useCallback((name?: string) => getIcon(name), [])
+export const useIcon = (name?: string) => {
+  const iconPath = useMemo(() => getIcon(name), [name])
 
-  return { getIconPath }
+  return { iconPath }
 }

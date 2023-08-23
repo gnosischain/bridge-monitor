@@ -1,7 +1,7 @@
-import { Address } from '@web3-onboard/core/dist/types'
-
 import { contracts } from './config/contracts'
 import { Chains } from './config/types'
+
+import { getIcon } from '@/src/utils/icons'
 
 export type Token = {
   address: string

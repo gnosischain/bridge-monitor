@@ -10,4 +10,8 @@ module.exports = withBundleAnalyzer({
     locales: ['en'],
     defaultLocale: 'en',
   },
+  images: {
+    unoptimized: true,
+    domains: ['/', 'tokens.1inch.io', 'assets.coingecko.com', 'ethereum-optimism.github.io'],
+  },
 })

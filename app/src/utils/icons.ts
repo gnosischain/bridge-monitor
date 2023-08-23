@@ -5,15 +5,23 @@ const XDAIIcon = '/images/icons/xdai.png'
 const InchIcon = '/images/icons/1inch.png'
 
 export const getIcon = (name?: string) => {
-  return name === 'eth'
+  const iconName = name?.toLowerCase()
+
+  return iconName === 'eth'
     ? ETHIcon
-    : name === 'gnosis'
+    : iconName === 'gnosis'
     ? GnosisIcon
-    : name === 'xdai'
+    : iconName === 'xdai'
     ? XDAIIcon
-    : name === 'dai'
+    : iconName === 'dai'
     ? DAIIcon
-    : name === '1inch'
+    : iconName === '1inch'
     ? InchIcon
     : ''
+}
+
+export const getChainIconName = (chain?: string) => {
+  const network = chain?.toLowerCase()
+
+  return network === 'mainnet' || network === 'xdai' ? 'eth' : 'gnosis'
 }

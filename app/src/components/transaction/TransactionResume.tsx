@@ -47,15 +47,15 @@ interface Props {
   initiatorAmount: string
   initiatorName: string
   initiatorNetwork: string
-  initiatorNetworkIcon: string
-  initiatorTokenIcon: string
+  initiatorNetworkIcon?: string
+  initiatorTokenIcon?: string
   initiatorTokenName: string
   receiver: string
   receiverAmount: string
   receiverName: string
   receiverNetwork: string
-  receiverNetworkIcon: string
-  receiverTokenIcon: string
+  receiverNetworkIcon?: string
+  receiverTokenIcon?: string
   receiverTokenName: string
   transactionStatus: string
   timestampExecution: number
@@ -85,8 +85,8 @@ export const TransactionResume: React.FC<Props> = ({
       <Pod badgeSubTitleText={bridgeName} badgeTitleText="Bridge">
         {/* @todo */}
         <ChainsInitiatorReceiver
-          chainIconInitiator={initiatorNetworkIcon ?? ''}
-          chainIconReceiver={receiverNetworkIcon ?? ''}
+          chainIconInitiator={initiatorNetworkIcon}
+          chainIconReceiver={receiverNetworkIcon}
           chainInitiator={initiatorNetwork}
           chainReceiver={receiverNetwork}
           showName

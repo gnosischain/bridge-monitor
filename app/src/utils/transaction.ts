@@ -1,11 +1,11 @@
 import { TransactionExecution, TransactionValidation } from './transactions'
 import { transaction } from '@/src/constants/transaction'
 import { fromBNtoNumber } from '@/src/utils/bigNumber'
+import { getChainIconName, getIcon } from '@/src/utils/icons'
 
 /*
     @todo: Get info from SG
 */
-
 export type Transaction = {
   bridgeName: string
   confirmedTimestamp: string
@@ -29,16 +29,8 @@ export type Transaction = {
   validations: TransactionValidation[]
 }
 
-const getNetworkIcon = (network: string) => {
-  return network === 'xdai' ? 'eth' : 'gnosis'
-}
-
 const getNetworkName = (network: string) => {
   return network === 'xdai' ? 'Gnosis' : 'Mainnet'
-}
-
-const getTokenIcon = (network: string) => {
-  return network === 'xdai' ? 'xdai' : 'dai'
 }
 
 export const dataTx: Transaction = {
@@ -51,10 +43,10 @@ export const dataTx: Transaction = {
   initiatorNetwork: transaction.initiatorNetwork,
   receiverAmount: fromBNtoNumber(transaction.receiverAmount) ?? 0,
   receiverNetwork: transaction.receiverNetwork,
-  initiatorNetworkIcon: getNetworkIcon(transaction.initiatorNetwork ?? ''),
-  receiverNetworkIcon: getNetworkIcon(transaction.receiverNetwork ?? ''),
-  initiatorTokenIcon: getTokenIcon(transaction.initiatorNetwork ?? ''),
-  receiverTokenIcon: getTokenIcon(transaction.receiverNetwork ?? ''),
+  initiatorNetworkIcon: getChainIconName(transaction.initiatorNetwork),
+  receiverNetworkIcon: getChainIconName(transaction.receiverNetwork),
+  initiatorTokenIcon: getIcon(transaction.initiatorNetwork),
+  receiverTokenIcon: getIcon(transaction.receiverNetwork),
   initiatorName: getNetworkName(transaction.initiatorNetwork ?? ''),
   receiverName: getNetworkName(transaction.receiverNetwork ?? ''),
   timestampExecution: transaction.execution.timestamp.toString(),

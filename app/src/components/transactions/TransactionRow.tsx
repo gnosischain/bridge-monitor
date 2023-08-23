@@ -193,8 +193,8 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
         <BridgeWrapper>
           <Bridge>{transaction.bridgeName}</Bridge>
           <ChainsInitiatorReceiver
-            chainIconInitiator={transaction.initiatorNetworkIcon ?? ''}
-            chainIconReceiver={transaction.receiverNetworkIcon ?? ''}
+            chainIconInitiator={transaction.initiatorNetworkIcon}
+            chainIconReceiver={transaction.receiverNetworkIcon}
             chainInitiator={transaction.initiatorNetwork}
             chainReceiver={transaction.receiverNetwork}
           />
@@ -205,7 +205,7 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
           address={transaction.initiator}
           scanLink={transaction.initiatorScanUrl}
           token={transaction.initiatorTokenData?.name ?? ''}
-          tokenIcon={transaction.initiatorTokenData?.logoURI ?? ''}
+          tokenIcon={transaction.initiatorTokenData?.name}
           tokenValue={transaction.initiatorAmount}
         />
       </TD>
@@ -214,7 +214,7 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
           address={transaction.receiver}
           scanLink={transaction.receiverScanUrl}
           token={transaction.receiverTokenData?.name ?? ''}
-          tokenIcon={transaction.receiverTokenData?.logoURI ?? ''}
+          tokenIcon={transaction.receiverTokenData?.name}
           tokenValue={transaction.receiverAmount}
         />
       </TDReceiver>
