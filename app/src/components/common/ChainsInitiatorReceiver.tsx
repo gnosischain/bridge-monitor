@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import styled from 'styled-components'
 import { getIcon } from '@/src/utils/icons'
+import { useIcon } from '@/src/hooks/useIcon'
 
 const Wrapper = styled.div`
   --height: 22px;
@@ -78,6 +79,8 @@ export const ChainsInitiatorReceiver: React.FC<Props> = ({
   chainReceiver,
   ...restProps
 }) => {
+  const { getIconPath } = useIcon()
+
   return (
     <Wrapper {...restProps}>
       <BridgeWrapper chain={chainInitiator.toLowerCase()}>
@@ -85,7 +88,7 @@ export const ChainsInitiatorReceiver: React.FC<Props> = ({
           alt={chainInitiator}
           height={16}
           objectFit="cover"
-          src={getIcon(chainIconInitiator)}
+          src={getIconPath(chainIconInitiator)}
           width={16}
         />
         {chainInitiator}
@@ -95,7 +98,7 @@ export const ChainsInitiatorReceiver: React.FC<Props> = ({
           alt={chainReceiver}
           height={16}
           objectFit="cover"
-          src={getIcon(chainIconReceiver)}
+          src={getIconPath(chainIconReceiver)}
           width={16}
         />
         {chainReceiver}
