@@ -16,6 +16,18 @@ module.exports = withBundleAnalyzer({
       remotePatterns: [
         {
           protocol: 'https',
+          hostname: 'tokens.1inch.io',
+        },
+        {
+          protocol: 'https',
+          hostname: 'assets.coingecko.com',
+        },
+        {
+          protocol: 'https',
+          hostname: 'ethereum-optimism.github.io',
+        },
+        {
+          protocol: 'https',
           hostname: '**',
         },
       ],
