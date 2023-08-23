@@ -2,7 +2,7 @@ import { TransactionExecution, TransactionValidation } from './transactions'
 import { transaction } from '@/src/constants/transaction'
 import { fromBNtoNumber } from '@/src/utils/bigNumber'
 
-/* 
+/*
     @todo: Get info from SG
 */
 
@@ -30,13 +30,15 @@ export type Transaction = {
 }
 
 const getNetworkIcon = (network: string) => {
-  return network === 'xdai' ? '/images/icons/eth.png' : '/images/icons/gnosis.png'
+  return network === 'xdai' ? 'eth' : 'gnosis'
 }
+
 const getNetworkName = (network: string) => {
   return network === 'xdai' ? 'Gnosis' : 'Mainnet'
 }
+
 const getTokenIcon = (network: string) => {
-  return network === 'xdai' ? '/images/icons/xdai.png' : '/images/icons/dai.png'
+  return network === 'xdai' ? 'xdai' : 'dai'
 }
 
 export const dataTx: Transaction = {

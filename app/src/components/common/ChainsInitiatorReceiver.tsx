@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import styled from 'styled-components'
+import { getIcon } from '@/src/utils/icons'
 
 const Wrapper = styled.div`
   --height: 22px;
@@ -84,7 +85,7 @@ export const ChainsInitiatorReceiver: React.FC<Props> = ({
           alt={chainInitiator}
           height={16}
           objectFit="cover"
-          src={chainIconInitiator}
+          src={getIcon(chainIconInitiator)}
           width={16}
         />
         {chainInitiator}
@@ -94,7 +95,7 @@ export const ChainsInitiatorReceiver: React.FC<Props> = ({
           alt={chainReceiver}
           height={16}
           objectFit="cover"
-          src={chainIconReceiver}
+          src={getIcon(chainIconReceiver)}
           width={16}
         />
         {chainReceiver}
