@@ -10,8 +10,26 @@ module.exports = withBundleAnalyzer({
     locales: ['en'],
     defaultLocale: 'en',
   },
+  experimental: {
+    images: {
+      remotePatterns: [
+        {
+          // The `src` property hostname must end with `.example.com`,
+          // otherwise this will respond with 400 Bad Request.
+          protocol: 'https',
+          hostname: '**',
+        },
+      ],
+    },
+  },
   images: {
     unoptimized: true,
-    domains: ['/', 'tokens.1inch.io', 'assets.coingecko.com', 'ethereum-optimism.github.io'],
+    domains: ['tokens.1inch.io', 'assets.coingecko.com', 'ethereum-optimism.github.io'],
+    // remotePatterns: [
+    //   {
+    //     protocol: 'https',
+    //     hostname: '**',
+    //   },
+    // ],
   },
 })
