@@ -5,7 +5,6 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 /** @type {import("next").NextConfig} */
 module.exports = withBundleAnalyzer({
   reactStrictMode: false,
-  basePath: '/app',
   i18n: {
     locales: ['en'],
     defaultLocale: 'en',
