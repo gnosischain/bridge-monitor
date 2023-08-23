@@ -12,5 +12,5 @@ export const getIcon = (name: string) => {
     ? XDAIIcon
     : name === 'dai'
     ? DAIIcon
-    : ''
+    : DAIIcon
 }
