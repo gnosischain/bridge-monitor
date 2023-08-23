@@ -12,6 +12,7 @@ module.exports = withBundleAnalyzer({
   },
   experimental: {
     images: {
+      unoptimized: true,
       remotePatterns: [
         {
           // The `src` property hostname must end with `.example.com`,
@@ -22,14 +23,14 @@ module.exports = withBundleAnalyzer({
       ],
     },
   },
-  images: {
-    unoptimized: true,
-    domains: ['tokens.1inch.io', 'assets.coingecko.com', 'ethereum-optimism.github.io'],
-    // remotePatterns: [
-    //   {
-    //     protocol: 'https',
-    //     hostname: '**',
-    //   },
-    // ],
-  },
+  // images: {
+  // unoptimized: true,
+  // domains: ['tokens.1inch.io', 'assets.coingecko.com', 'ethereum-optimism.github.io'],
+  // remotePatterns: [
+  //   {
+  //     protocol: 'https',
+  //     hostname: '**',
+  //   },
+  // ],
+  // },
 })
