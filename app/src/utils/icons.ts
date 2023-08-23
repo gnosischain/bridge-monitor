@@ -1,7 +1,7 @@
-import ETHIcon from '@/public/images/icons/eth.png'
-import GnosisIcon from '@/public/images/icons/gnosis.png'
-import DAIIcon from '@/public/images/icons/dai.png'
-import XDAIIcon from '@/public/images/icons/xdai.png'
+const ETHIcon = '/images/icons/eth.png'
+const GnosisIcon = '/images/icons/gnosis.png'
+const DAIIcon = '/images/icons/dai.png'
+const XDAIIcon = '/images/icons/xdai.png'
 
 export const getIcon = (name: string) => {
   return name === 'eth'
