@@ -22,7 +22,7 @@ export type TokenListResponse = {
   version: { major: number; minor: number; patch: number }
 }
 
-// @todo think a better way to handle {token => info} (missing network...)
+// @todo think a better way to handle {token => info} (missing network)
 export const tokens: Record<'DAI' | 'XDAI' | 'GNO' | 'INCH', Token> = {
   DAI: {
     address: contracts['DAI'].address[Chains.mainnet],
