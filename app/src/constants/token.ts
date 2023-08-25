@@ -1,7 +1,7 @@
-import { Address } from '@web3-onboard/core/dist/types'
-
 import { contracts } from './config/contracts'
 import { Chains } from './config/types'
+
+import { getIcon } from '@/src/utils/icons'
 
 export type Token = {
   address: string
@@ -28,7 +28,7 @@ export const tokens: Record<'DAI' | 'XDAI' | 'GNO' | 'INCH', Token> = {
     address: contracts['DAI'].address[Chains.mainnet],
     chainId: Chains.mainnet,
     decimals: 18,
-    logoURI: '/images/icons/dai.png',
+    logoURI: getIcon('dai'),
     name: 'DAI',
     symbol: 'DAI',
     native: false,
@@ -37,7 +37,7 @@ export const tokens: Record<'DAI' | 'XDAI' | 'GNO' | 'INCH', Token> = {
     address: '', // @todo as it is a native token, it does not have an address associated
     chainId: Chains.gnosis,
     decimals: 18,
-    logoURI: '/images/icons/xdai.png',
+    logoURI: getIcon('xdai'),
     name: 'xDAI',
     symbol: 'xDAI',
     native: true,
@@ -46,7 +46,7 @@ export const tokens: Record<'DAI' | 'XDAI' | 'GNO' | 'INCH', Token> = {
     address: contracts['GNO'].address[Chains.mainnet],
     chainId: Chains.mainnet,
     decimals: 18,
-    logoURI: '/images/icons/gnosis.png',
+    logoURI: getIcon('gnosis'),
     name: 'Gnosis',
     symbol: 'GNO',
     native: false,
@@ -55,7 +55,7 @@ export const tokens: Record<'DAI' | 'XDAI' | 'GNO' | 'INCH', Token> = {
     address: contracts['INCH'].address[Chains.mainnet],
     chainId: Chains.mainnet,
     decimals: 18,
-    logoURI: '/images/icons/1inch.png',
+    logoURI: getIcon('1inch'),
     name: 'OneInch',
     symbol: '1INCH',
     native: false,

@@ -13,7 +13,7 @@ import TransactionsTable from '@/src/components/transactions/TransactionsTable'
 import { tabs } from '@/src/constants/tabs'
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
 
-const Title = styled.div`
+const Head = styled.div`
   align-items: flex-start;
   display: flex;
   flex-direction: column;
@@ -26,17 +26,13 @@ const Title = styled.div`
     flex-direction: row;
     padding-bottom: ${({ theme: { common } }) => common.space * 4}px;
   }
-
-  h1 {
-    margin: 0;
-  }
 `
 
-interface Props {
-  bridge?: string
-}
+const Title = styled(MainTitle)`
+  margin: 0;
+`
 
-export const Transactions: React.FC<Props> = ({ bridge }) => {
+export const Transactions: React.FC = () => {
   const {
     filters,
     setBridge,
@@ -53,15 +49,15 @@ export const Transactions: React.FC<Props> = ({ bridge }) => {
 
   return (
     <>
-      <Title>
-        <MainTitle>Transactions</MainTitle>
+      <Head>
+        <Title>Transactions</Title>
         <DateTimePicker
           endDate={filters.endTimestamp}
           onEndDateChange={setEndTimestamp}
           onStartDateChange={setStartTimestamp}
           startDate={filters.startTimestamp}
         />
-      </Title>
+      </Head>
       <Section>
         <TabsWrapper>
           <Tabs>

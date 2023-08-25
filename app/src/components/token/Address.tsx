@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { IconCopy } from '@/src/components/assets/IconCopy'
 import { IconLink } from '@/src/components/assets/IconLink'
@@ -7,22 +7,23 @@ import { shortenAddress } from '@/src/utils/tools'
 
 const Wrapper = styled.div`
   align-items: center;
-  display: flex;
   column-gap: ${({ theme: { common } }) => common.space / 4}px;
-
-  a {
-    color: ${({ theme: { colors } }) => colors.cream};
-    opacity: 0.4;
-
-    &:hover {
-      opacity: 1;
-    }
-  }
+  display: flex;
 `
 
-const AddressText = styled.span`
+const AddressText = styled.span<{ link?: boolean }>`
   display: block;
   overflow: hidden;
+
+  ${({ link }) =>
+    link &&
+    css`
+      cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    `}
 `
 
 const CopyButton = styled.button`
@@ -30,15 +31,24 @@ const CopyButton = styled.button`
   border: none;
   color: ${({ theme: { colors } }) => colors.cream};
   cursor: pointer;
-  opacity: 0.4;
 
-  &:hover {
-    opacity: 1;
+  &:active {
+    opacity: 0.6;
   }
 
   &.copied {
     opacity: 1;
     color: ${({ theme: { colors } }) => colors.success};
+  }
+`
+
+const Link = styled(IconLink)`
+  color: ${({ theme: { colors } }) => colors.cream};
+  cursor: pointer;
+
+  &:active {
+    color: ${({ theme: { colors } }) => colors.success};
+    opacity: 0.6;
   }
 `
 
@@ -60,9 +70,17 @@ export const Address: React.FC<Props> = ({
 }) => {
   const [isCopied, toggleCopied] = useState(false)
 
-  const copyWalletAddress = (address: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const copyWalletAddress = (e: any, address: string) => {
+    e.stopPropagation()
     navigator.clipboard.writeText(address)
     toggleCopied(true)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const openLink = (e: any, link: string) => {
+    e.stopPropagation()
+    window.open(link, '_blank', 'noopener noreferrer')
   }
 
   useEffect(() => {
@@ -74,19 +92,23 @@ export const Address: React.FC<Props> = ({
 
   return (
     <Wrapper {...restProps}>
-      <AddressText>{shortenAddress(address, characters + 2, characters)}</AddressText>
+      <AddressText link={link ? true : false} onClick={link ? (e) => openLink(e, link) : undefined}>
+        {shortenAddress(address, characters + 2, characters)}
+      </AddressText>
       {copy && (
         <CopyButton
           className={isCopied ? 'copied' : 'uncopied'}
-          onClick={() => copyWalletAddress(address)}
+          onClick={(e) => copyWalletAddress(e, address)}
         >
           <IconCopy height={bigIcons ? 21 : 14} width={bigIcons ? 21 : 14} />
         </CopyButton>
       )}
       {link && (
-        <a href={link} rel="noopener noreferrer" target="_blank">
-          <IconLink height={bigIcons ? 21 : 14} width={bigIcons ? 21 : 14} />
-        </a>
+        <Link
+          height={bigIcons ? 21 : 14}
+          onClick={(e) => openLink(e, link)}
+          width={bigIcons ? 21 : 14}
+        />
       )}
     </Wrapper>
   )

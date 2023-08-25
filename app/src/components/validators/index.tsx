@@ -3,7 +3,6 @@ import styled from 'styled-components'
 
 import { BridgeValidator } from '@/src/components/validators/BridgeValidator'
 import {
-  SignedTXsData,
   TransactionsSigned,
   weekAgoTimestamp,
 } from '@/src/components/validators/TransactionsSigned'
@@ -72,11 +71,6 @@ export const BridgeValidators: React.FC = () => {
   const [ambTimePeriod, setAMBTimePeriod] = useState(weekAgoTimestamp())
   const xdaiSignedTXs = useFetchValidatorsSignatures('XDAI', xdaiTimePeriod)
   const ambSignedTXs = useFetchValidatorsSignatures('AMB', ambTimePeriod)
-
-  console.log(
-    'Mapped xDai data:',
-    xdaiSignedTXs.data?.map((item) => ({ validatorName: item.name, signedTxsCount: item.value })),
-  )
 
   const xdaiTodaysSignedTXs = useFetchValidatorsSignatures('XDAI', dayAgoTimestamp())
   const ambTodaysSignedTXs = useFetchValidatorsSignatures('AMB', dayAgoTimestamp())

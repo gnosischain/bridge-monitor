@@ -3,6 +3,8 @@ import styled from 'styled-components'
 import { Badge } from '@/src/components/common/Badge'
 import { InnerCard } from '@/src/components/common/InnerCard'
 import { TransactionStatusTypes } from '@/src/constants/types'
+import { Status } from '@/src/components/common/Status'
+import { TransactionStatus } from '@/types/generated/subgraph'
 
 const Wrapper = styled(InnerCard)<{ status?: string }>`
   background: ${(props) =>
@@ -26,17 +28,21 @@ const Header = styled.div`
 `
 
 interface Props {
-  badgeSubTitleText?: string
-  badgeTitleText: string
+  subTitle?: string
+  title: string
   status?: string
 }
 
-export const Pod: React.FC<Props> = ({ badgeSubTitleText, badgeTitleText, children, status }) => {
+export const Pod: React.FC<Props> = ({ children, status, subTitle, title }) => {
   return (
     <Wrapper status={status}>
       <Header>
-        <Badge text={badgeTitleText} />
-        {badgeSubTitleText && <Badge status={status} text={badgeSubTitleText} />}
+        <Badge text={title} />
+        {status ? (
+          <Status status={status as TransactionStatus} />
+        ) : subTitle ? (
+          <Badge status={status} text={subTitle} />
+        ) : null}
       </Header>
       <>{children}</>
     </Wrapper>

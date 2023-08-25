@@ -3,8 +3,7 @@ import styled from 'styled-components'
 import { Address } from '@/src/components/token/Address'
 import { IconStatus } from '@/src/components/transaction/IconStatus'
 import { TransactionDate } from '@/src/components/transaction/TransactionDate'
-import { transformDate } from '@/src/utils/date'
-import { Transaction, TransactionExecution, TransactionValidation } from '@/src/utils/transactions'
+import { TransactionExecution, TransactionValidation } from '@/src/utils/transactions'
 
 const Wrapper = styled.li<{ status?: string }>`
   list-style: none;
@@ -90,33 +89,12 @@ interface Props {
 }
 
 export const TransactionValidator: React.FC<Props> = ({ status, transaction, validator }) => {
-  //the satus is 'not-required' when there are 4 validators that signed
-  // @todo: recheck condition for calculated status
-  // const hasValidations = () => {
-  //   return transaction.validations?.length !== 0
-  // }
-  // let statusMessage = ''
-  // if (status === 'not-required' && hasValidations()) {
-  //   statusMessage = 'Not required'
-  //   status = 'not-required'
-  // } else if (!hasValidations()) {
-  //   statusMessage = 'Waiting'
-  //   status = 'waiting'
-  // } else {
-  //   status = 'success'
-  // }
   const statusMessage = 'VALIDATOR STATUS MESSAGE'
-
-  // const countValidatorSigns = transaction.validations?.length ?? 0
-
-  // if (countValidatorSigns > 1) {
-  //   status = 'warning'
-  // }
-
   function getValidationURL(transactionHash: string): string | undefined {
     const baseURL = 'https://gnosisscan.io/'
     return `${baseURL}tx/${transactionHash}`
   }
+
   return (
     <Wrapper status={status}>
       <Name>

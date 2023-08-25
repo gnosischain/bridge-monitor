@@ -1,7 +1,5 @@
 import styled from 'styled-components'
 
-import { Tooltip as TooltipIcon } from '@/src/components/assets/Tooltip'
-import { Tooltip } from '@/src/components/common/Tooltip'
 import { Address } from '@/src/components/interest/Address'
 import { Chart } from '@/src/components/interest/Chart'
 import { InterestEarning } from '@/src/components/interest/InterestEarning'

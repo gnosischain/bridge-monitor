@@ -18,18 +18,14 @@ const Wrapper = styled.div<{ status: TransactionStatus }>`
   text-transform: lowercase;
 
   &:before {
+    --before-size: 7px;
+
     background-color: ${({ theme }) => theme.colors.darkestGrey};
     border-radius: 50%;
     content: '';
     display: block;
-    height: 7px;
-    width: 7px;
-  }
-
-  &:hover {
-    &:before {
-      background-color: ${({ theme }) => theme.colors.white};
-    }
+    height: var(--before-size);
+    width: var(--before-size);
   }
 
   strong {

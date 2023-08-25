@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { Search } from './Search'
 import { Textfield as BaseTextField } from '@/src/components/form/Textfield'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Textfield: any = styled(BaseTextField)`
   padding-left: 40px;
   position: relative;

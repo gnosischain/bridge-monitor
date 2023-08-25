@@ -5,6 +5,7 @@ import { InitiatorReceiver } from '@/src/components/common/InitiatorReceiver'
 import { Pod } from '@/src/components/common/Pod'
 import { TransactionDate } from '@/src/components/transaction/TransactionDate'
 import { getAddressScanUrl } from '@/src/utils/transactions'
+import { transaction } from '@/src/constants/transaction'
 
 const Wrapper = styled.div`
   display: grid;
@@ -47,15 +48,15 @@ interface Props {
   initiatorAmount: string
   initiatorName: string
   initiatorNetwork: string
-  initiatorNetworkIcon: string
-  initiatorTokenIcon: string
+  initiatorNetworkIcon?: string
+  initiatorTokenIcon?: string
   initiatorTokenName: string
   receiver: string
   receiverAmount: string
   receiverName: string
   receiverNetwork: string
-  receiverNetworkIcon: string
-  receiverTokenIcon: string
+  receiverNetworkIcon?: string
+  receiverTokenIcon?: string
   receiverTokenName: string
   transactionStatus: string
   timestampExecution: number
@@ -82,17 +83,17 @@ export const TransactionResume: React.FC<Props> = ({
 }) => {
   return (
     <Wrapper>
-      <Pod badgeSubTitleText={bridgeName} badgeTitleText="Bridge">
+      <Pod subTitle={bridgeName} title="Bridge">
         {/* @todo */}
         <ChainsInitiatorReceiver
-          chainIconInitiator={initiatorNetworkIcon ?? ''}
-          chainIconReceiver={receiverNetworkIcon ?? ''}
+          chainIconInitiator={initiatorNetworkIcon}
+          chainIconReceiver={receiverNetworkIcon}
           chainInitiator={initiatorNetwork}
           chainReceiver={receiverNetwork}
           showName
         />
       </Pod>
-      <Pod badgeTitleText="Initiator">
+      <Pod title="Initiator">
         <InitiatorReceiver
           address={initiator}
           bigNumber
@@ -103,7 +104,7 @@ export const TransactionResume: React.FC<Props> = ({
           tokenValue={initiatorAmount}
         />
       </Pod>
-      <Pod badgeTitleText="Receiver">
+      <Pod title="Receiver">
         <InitiatorReceiver
           address={receiver}
           bigNumber
@@ -115,7 +116,7 @@ export const TransactionResume: React.FC<Props> = ({
         />
       </Pod>
       {/* @todo - If a signature fails it has to change state */}
-      <Pod badgeSubTitleText={transactionStatus} badgeTitleText="Status" status={transactionStatus}>
+      <Pod status={transactionStatus} subTitle={transactionStatus} title="Status">
         {/* @todo:
          - if transactionStatus is not completed, completed value must be empty
         */}

@@ -22,7 +22,7 @@ export const TransactionsList: React.FC<Props> = ({ page, transactions }) => {
             ))
         ) : (
           <tr>
-            <td colSpan={7}>
+            <td colSpan={8}>
               <NoResultsMessage
                 description="No results match your search criteria."
                 text="No transactions were found."

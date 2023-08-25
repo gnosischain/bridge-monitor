@@ -1,21 +1,22 @@
-import React from 'react'
 import styled from 'styled-components'
+import { HTMLAttributes } from 'react'
 
 const Wrapper = styled.svg``
 
-interface Props {
+interface Props extends HTMLAttributes<SVGElement> {
   height?: number
   width?: number
 }
 
-export const IconLink: React.FC<Props> = ({ height = 14, width = 15 }) => (
+export const IconLink: React.FC<Props> = ({ className, height = 14, width = 15, ...restProps }) => (
   <Wrapper
-    className="addressLink"
+    className={`${className} addressLink`}
     fill="none"
     height={height}
     viewBox="0 0 15 14"
     width={width}
     xmlns="http://www.w3.org/2000/svg"
+    {...restProps}
   >
     <path
       clipRule="evenodd"

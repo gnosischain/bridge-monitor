@@ -12,9 +12,10 @@ import { TransactionValidator } from '@/src/components/transaction/TransactionVa
 import { AMB_SIGNATURE_THRESHOLD, XDAI_SIGNATURE_THRESHOLD } from '@/src/constants/misc'
 import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
 import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
-import { tokens } from '@/src/constants/token'
-import { Transaction, TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
+import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'
+import { getChainIconName } from '@/src/utils/icons'
+import { ButtonPrimary } from '@/src/components/buttons/Button'
 
 const Wrapper = styled.div`
   display: flex;
@@ -22,7 +23,28 @@ const Wrapper = styled.div`
   row-gap: ${({ theme: { common } }) => common.space * 6}px;
 `
 
-const Head = styled.div``
+const Head = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  row-gap: 15px;
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+    align-items: center;
+    flex-direction: row;
+  }
+`
+
+const Button = styled(ButtonPrimary)`
+  height: fit-content;
+  padding: 10px 20px;
+  font-size: 1.6rem;
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+    margin-left: auto;
+    margin-top: auto;
+  }
+`
 
 const Title = styled.h1`
   color: ${({ theme: { colors } }) => colors.cream};
@@ -38,10 +60,14 @@ const Title = styled.h1`
 const Address = styled(BaseAddress)`
   color: ${({ theme: { colors } }) => colors.cream};
   font-family: ${({ theme: { fonts } }) => fonts.familyCode};
-  font-size: 4rem;
+  font-size: 2.4rem;
   font-weight: 500;
   line-height: 1;
   margin: 0;
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+    font-size: 4rem;
+  }
 `
 
 const TransactionInformation = styled.article`
@@ -67,8 +93,6 @@ const TransactionDetailsList = styled.ul`
   margin: 0;
   padding: 0;
 `
-const GNOSIS = 'gnosis'
-const MAINNET = 'mainnet'
 
 const Bridges: NextPage = () => {
   const router = useRouter()
@@ -78,7 +102,6 @@ const Bridges: NextPage = () => {
     where: { id: transactionId },
   })
   const currentTx = transactions?.[0]
-
   const txValidations = currentTx.validations ?? []
   const hasValidations = (): boolean => {
     return txValidations !== null && txValidations.length >= 1
@@ -95,9 +118,11 @@ const Bridges: NextPage = () => {
   const hasBeenCompleted = (): boolean => {
     return currentTx.transactionStatus === TransactionStatus.Completed
   }
+  const isUnclaimed = (): boolean => {
+    return currentTx.transactionStatus === TransactionStatus.Unclaimed
+  }
 
   const messageIDText = '' // @todo remove it after sg deploys and Transaction entity contains messageId
-  // const messageIDText = currentTx.messageId ? `ID for tx ${currentTx.messageId})` : ''
 
   /*
     @todo:
@@ -118,45 +143,43 @@ const Bridges: NextPage = () => {
 
   // @todo define TransactionStatusType using dropdown options style
   const [transactionStatus, setTransactionStatus] = useState(currentTx.transactionStatus)
-  // useEffect(() => {
-  //   if (checkValidatorsSignOneTime) setTransactionStatus(TransactionStatusTypes.warning)
-  //   else if (!currentTx.executorAddress) setTransactionStatus(TransactionStatusTypes.waiting)
-  //   else if (currentTx.signaturesCheckedTimestamp && checkValidatorsSignOneTime === 0)
-  //     setTransactionStatus(TransactionStatusTypes.completed)
-  // }, [checkValidatorsSignOneTime])
-
-  const getNetworkIcon = (network: string): string => {
-    return network === MAINNET ? '/images/icons/eth.png' : '/images/icons/gnosis.png'
-  }
 
   return (
     <Wrapper>
       <Head>
-        <Title>Transaction</Title>
-        <Address
-          address={currentTx.transactionHash}
-          bigIcons
-          characters={6}
-          copy
-          link={getTxScanUrl(currentTx.transactionHash, currentTx.initiatorNetwork)}
-        />
+        <div>
+          <Title>Transaction</Title>
+          <Address
+            address={currentTx.transactionHash}
+            bigIcons
+            characters={6}
+            copy
+            link={getTxScanUrl(currentTx.transactionHash, currentTx.initiatorNetwork)}
+          />
+        </div>
+        {isUnclaimed() && (
+          <Button>
+            <span>Claim</span>
+          </Button>
+        )}
       </Head>
       <TransactionInformation>
+        {currentTx.receiverTokenData?.name}
         <TransactionResume
           bridgeName={currentTx.bridgeName}
           initiator={currentTx.initiator}
           initiatorAmount={currentTx.initiatorAmount}
           initiatorName={currentTx.initiator}
           initiatorNetwork={currentTx.initiatorNetwork}
-          initiatorNetworkIcon={getNetworkIcon(currentTx.initiatorNetwork)}
-          initiatorTokenIcon={currentTx.initiatorTokenData?.logoURI ?? ''}
+          initiatorNetworkIcon={getChainIconName(currentTx.initiatorNetwork)}
+          initiatorTokenIcon={currentTx.initiatorTokenData?.name}
           initiatorTokenName={currentTx.initiatorTokenData?.name ?? ''}
           receiver={currentTx.receiver}
           receiverAmount={currentTx.receiverAmount}
           receiverName={currentTx.receiver}
           receiverNetwork={currentTx.receiverNetwork}
-          receiverNetworkIcon={getNetworkIcon(currentTx.receiverNetwork)}
-          receiverTokenIcon={currentTx.receiverTokenData?.logoURI ?? ''}
+          receiverNetworkIcon={getChainIconName(currentTx.receiverNetwork)}
+          receiverTokenIcon={currentTx.receiverTokenData?.name}
           receiverTokenName={currentTx.receiverTokenData?.name ?? ''}
           timestampExecution={currentTx.execution?.timestamp ?? 0}
           timestampStarted={currentTx.timestamp ?? 0}

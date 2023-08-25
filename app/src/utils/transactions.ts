@@ -66,13 +66,15 @@ export type Transaction = {
 }
 
 const getNetworkIcon = (network: string) => {
-  return network === MAINNET ? '/images/icons/eth.png' : '/images/icons/gnosis.png'
+  return network === MAINNET ? 'eth' : 'gnosis'
 }
 
 const getTokenData = (tokenAddress: string) => {
   // @todo: refactor in order to render required OMNIBridge tokens
   // const token = tokens[tokenName as keyof typeof tokens]
-  const token = Object.values(tokens).find(token => token.address.toLowerCase() === tokenAddress.toLowerCase());
+  const token = Object.values(tokens).find(
+    (token) => token.address.toLowerCase() === tokenAddress.toLowerCase(),
+  )
   return token
 }
 
@@ -126,8 +128,6 @@ const transformTx = (tx: TransactionSG): Transaction => {
     initiatorAmount: formatNumber(fromBNtoNumber(tx.initiatorAmount) ?? 0),
     initiatorNetwork: tx.initiatorNetwork ?? '',
     initiatorNetworkIcon: getNetworkIcon(tx.initiatorNetwork ?? ''),
-    // initiatorToken: tx.initiatorToken,
-    // initiatorToken: getTokenData(tx.initiatorToken ?? '')?.name,
     initiatorToken: '',
     receiver: tx.receiver,
     receiverAmount: formatNumber(fromBNtoNumber(tx.receiverAmount) ?? 0),
@@ -135,7 +135,6 @@ const transformTx = (tx: TransactionSG): Transaction => {
     initiatorTokenData: getTokenData(tx.initiatorToken ?? ''),
     receiverNetwork: tx.receiverNetwork ?? '',
     receiverNetworkIcon: getNetworkIcon(tx.receiverNetwork ?? ''),
-    // receiverToken: tx.receiverToken,
     receiverToken: '',
     // @todo complete this data in SG, DAI address
     receiverTokenData: getTokenData(tx.receiverToken ?? ''),
@@ -284,32 +283,6 @@ const fetchUncompletedTransactions = async (transactions: TransactionSG[]) => {
   // @todo hardcoding the Transaction type from SG because TypeScript can not infer
   const completedTxs = transactions.concat(completedNatives).concat(completedForeigns)
   return unifyTransactions(completedTxs)
-}
-
-// @todo we use existing tx data to fill the missing gaps (initiator or receiver)
-const fixMissingData = (tx: Transaction): Transaction => {
-  if (!!tx.initiatorNetwork && !!tx.receiverNetwork) {
-    return tx
-  }
-  if (!tx.initiatorNetwork) {
-    const network = tx.receiverNetwork === MAINNET ? GNOSIS : MAINNET
-    return {
-      ...tx,
-      // initiator: tx.receiver,
-      initiatorNetwork: network,
-      initiatorAmount: tx.receiverAmount,
-      initiatorScanUrl: getAddressScanUrl(tx.receiver, network),
-    }
-  } else {
-    const network = tx.initiatorNetwork === MAINNET ? GNOSIS : MAINNET
-    return {
-      ...tx,
-      // receiver: tx.initiator,
-      receiverNetwork: network,
-      receiverAmount: tx.initiatorAmount,
-      initiatorScanUrl: getAddressScanUrl(tx.initiator, network),
-    }
-  }
 }
 
 export const fetchTransactions = async (query: TransactionsQueryVariables) => {

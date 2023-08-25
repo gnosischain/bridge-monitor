@@ -4,15 +4,17 @@ import styled from 'styled-components'
 import { LinkButton, LinkSecondaryButton } from '@/src/components/buttons/Button'
 
 const Footer = styled.footer`
+  align-items: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
   gap: ${({ theme: { common } }) => common.space * 2}px;
+  justify-content: space-between;
+  padding-bottom: 40px;
+
   @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
+    align-items: center;
     display: flex;
     flex-direction: row;
-    align-items: center;
     justify-content: space-between;
   }
 `

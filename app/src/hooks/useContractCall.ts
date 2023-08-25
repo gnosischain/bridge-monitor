@@ -25,7 +25,7 @@ export function useContractCall<
         // eslint-disable-next-line prefer-spread
         return Promise.all(calls.map((c, i) => c.apply(null, params[i])))
       } catch (e) {
-        console.log({ error: e })
+        console.error({ error: e })
       }
     },
     options,
