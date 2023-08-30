@@ -164,7 +164,6 @@ const Bridges: NextPage = () => {
         )}
       </Head>
       <TransactionInformation>
-        {currentTx.receiverTokenData?.name}
         <TransactionResume
           bridgeName={currentTx.bridgeName}
           initiator={currentTx.initiator}
