@@ -221,7 +221,7 @@ const Bridges: NextPage = () => {
               <>
                 <TransactionDetailsListItem
                   dateCompleted={currentTx.timestamp} // last signature timestamp (UNCLAIMED)
-                  description="Signatures treshold has been reached. Last Validator signing"
+                  description="Signatures threshold has been reached. Last validator signing."
                   title="Bridge Validator Execution"
                   transactionStatus={TransactionStatus.Unclaimed}
                   waiting={currentTx.timestamp ? false : true}
