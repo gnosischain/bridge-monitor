@@ -12,7 +12,6 @@ import { fetchTransactions } from '@/src/utils/transactions'
 import { getValidatorByName } from '@/src/utils/validators'
 import {
   OrderDirection,
-  TransactionStatus,
   Transaction_Filter,
   Transaction_OrderBy,
   TransactionsQueryVariables,
@@ -45,28 +44,31 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
 
   useEffect(() => {
     const _where: Transaction_Filter = {
-      // @todo there are some bridges without name
-      bridgeName_not: null,
+      and: [
+        // @todo there are some bridges without name
+        { bridgeName_not: null },
+      ],
     }
     let updated = false
     if (filters.hash) {
       // is hash ()
-      const isHash = filters.hash.length > 42
+      const isTxHash = filters.hash.length > 42
       const text = filters.hash.toLowerCase()
-      if (isHash) {
-        _where['transactionHash'] = text
+      if (isTxHash) {
+        _where.and?.push({ transactionHash: text })
       } else {
         if (isAddress(text)) {
-          _where['initiator'] = text
-        } else {
-          _where['initiator'] = '0x00' // @todo awful way to fetch no results by using an invalid address, a better approach would be adding a valid/invalid status in query object
+          _where.and?.push({ or: [{ initiator: text }, { receiver: text }] })
         }
+        // else {
+        //   _where['initiator'] = '0x'
+        // }
       }
       updated = true
     }
     if (filters.bridge) {
       if (!filters.bridge.includes('All')) {
-        _where['bridgeName_contains_nocase'] = filters.bridge.toUpperCase()
+        _where.and?.push({ bridgeName_contains_nocase: filters.bridge.toUpperCase() })
       }
       updated = true
     }
@@ -75,42 +77,12 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
         updated = true
       }
       if (BridgeDirection.gnosis2mainnet === filters.bridgeDirection) {
-        _where['initiatorNetwork'] = 'gnosis'
+        _where.and?.push({ initiatorNetwork: 'gnosis' })
       }
       if (BridgeDirection.mainnet2gnosis === filters.bridgeDirection) {
-        _where['initiatorNetwork'] = 'mainnet'
+        _where.and?.push({ initiatorNetwork: 'mainnet' })
       }
       updated = true
-    }
-    if (filters.status) {
-      if (filters.status.includes('All')) {
-        updated = true
-      }
-      // @todo not added into the selector options yet
-      if (TransactionStatus.Initiated === filters.status.toUpperCase()) {
-        _where['transactionStatus'] = TransactionStatus.Initiated
-        updated = true
-      }
-      if (TransactionStatus.Requested === filters.status.toUpperCase()) {
-        _where['transactionStatus'] = TransactionStatus.Requested
-        updated = true
-      }
-      if (TransactionStatus.Collecting === filters.status.toUpperCase()) {
-        _where['transactionStatus'] = TransactionStatus.Collecting
-        updated = true
-      }
-      if (TransactionStatus.Claimed === filters.status.toUpperCase()) {
-        _where['transactionStatus'] = TransactionStatus.Claimed
-        updated = true
-      }
-      if (TransactionStatus.Unclaimed === filters.status.toUpperCase()) {
-        _where['transactionStatus'] = TransactionStatus.Unclaimed
-        updated = true
-      }
-      if (TransactionStatus.Completed === filters.status.toUpperCase()) {
-        _where['transactionStatus'] = TransactionStatus.Completed
-        updated = true
-      }
     }
     if (filters.signedBy) {
       if (filters.signedBy.includes('All')) {
@@ -121,9 +93,11 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
       const bridgeValue = filters.bridge.toUpperCase() as BridgesValues
       const validator = getValidatorByName(filters.signedBy, bridgeValue)
       if (validator) {
-        _where['validations_'] = {
-          responsableAddress: validator.address.toLowerCase(),
-        }
+        _where.and?.push({
+          validations_: {
+            responsableAddress: validator.address.toLowerCase(),
+          },
+        })
         updated = true
       }
     }
@@ -134,18 +108,20 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
       const bridgeValue = filters.bridge.toUpperCase() as BridgesValues
       const validator = getValidatorByName(filters.executedBy, bridgeValue)
       if (validator) {
-        _where['execution_'] = {
-          responsableAddress: validator.address.toLowerCase(),
-        }
+        _where.and?.push({
+          execution_: {
+            responsableAddress: validator.address.toLowerCase(),
+          },
+        })
         updated = true
       }
     }
     if (filters.startTimestamp) {
-      _where['timestamp_gte'] = milliToSeconds(toSeconds(filters.startTimestamp))
+      _where.and?.push({ timestamp_gte: milliToSeconds(toSeconds(filters.startTimestamp)) })
       updated = true
     }
     if (filters.endTimestamp) {
-      _where['timestamp_lte'] = milliToSeconds(toSeconds(filters.endTimestamp))
+      _where.and?.push({ timestamp_lte: milliToSeconds(toSeconds(filters.endTimestamp)) })
       updated = true
     }
     if (updated) {
@@ -188,7 +164,9 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   return {
     page,
     setPage,
-    transactions,
+    transactions: filters.status
+      ? transactions.filter((tx) => tx.transactionStatus == filters.status.toUpperCase())
+      : transactions,
     loadMore,
   }
 }

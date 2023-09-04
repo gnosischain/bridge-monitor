@@ -51,12 +51,6 @@
       "bridgeType": "XDAI"
     },
     {
-      "id": 14,
-      "address": "0x90776017057b84bc47D7e7383b65C463C80a6cdd",
-      "name": "Gateway",
-      "bridgeType": "XDAI"
-    },
-    {
       "id": 7,
       "address": "0x459a3bd49f1ff109bc90b76125533699aaaaf9a6",
       "name": "Protofire",

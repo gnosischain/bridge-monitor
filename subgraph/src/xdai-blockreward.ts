@@ -17,7 +17,6 @@ export function handlerAddedReceiver(event: AddedReceiver): void {
     log.error(`Transaction NOT FOUND ${transactionHash} @handlerAddedReceiver`, [])
     transaction = new XDAITransaction(transactionHash)
   }
-  log.error(`Transaction FOUND ${transactionHash} @handlerAddedReceiver`, [])
   
   transaction.transactionHash = Address.fromHexString(transactionHash)
   transaction.bridgeName = 'XDAI'

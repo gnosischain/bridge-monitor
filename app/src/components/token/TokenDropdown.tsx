@@ -155,11 +155,11 @@ export const TokenDropdown: React.FC<{
   chainId: ChainsValues
 }> = ({ chainId, defaultToken, disabled = false, onChange, ...restProps }) => {
   const [token, setToken] = useState<Token>(defaultToken)
-  const { gnosisTokensByNetwork, tokensByNetwork } = useTokenIcons()
+  const { tokensByNetwork } = useTokenIcons()
   const tokens = useMemo(() => {
     if (chainId === 1) return tokensByNetwork[chainId] || []
-    if (chainId === 100) return gnosisTokensByNetwork[chainId] || []
-  }, [chainId, gnosisTokensByNetwork, tokensByNetwork])
+    if (chainId === 100) return tokensByNetwork[chainId] || []
+  }, [chainId, tokensByNetwork])
   const [tokensList, setTokensList] = useState(tokens)
   const [value, setValue] = useState('')
 

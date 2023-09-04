@@ -3,7 +3,6 @@ import styled from 'styled-components'
 
 import { ChainToken } from '@/src/components/common/ChainToken'
 import { Address } from '@/src/components/token/Address'
-import { useIcon } from '@/src/hooks/useIcon'
 
 const Wrapper = styled.div<{ inline?: boolean }>`
   display: ${(props) => (props.inline ? 'flex' : 'block')};
@@ -47,16 +46,18 @@ export const InitiatorReceiver: React.FC<Props> = ({
   tokenIcon,
   tokenValue,
 }) => {
-  const { iconPath } = useIcon(tokenIcon)
-
   return (
     <Wrapper inline={inline}>
       <Address address={address} characters={6} copy link={scanLink} />
       <Tokens>
         <ChainToken name={token}>
-          {iconPath && (
-            <Image alt={token} height={16} objectFit="cover" src={iconPath} width={16} />
-          )}
+          <Image
+            alt={token}
+            height={16}
+            objectFit="cover"
+            src={tokenIcon || '/images/icons/empty-token.png'}
+            width={16}
+          />
         </ChainToken>
         <Value bigNumber={bigNumber} className="number">
           {tokenValue}

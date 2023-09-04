@@ -8,7 +8,9 @@ const TRANSACTION_FRAGMENT = gql`
     initiator
     initiatorAmount
     initiatorNetwork
+    initiatorToken
     receiver
+    receiverToken
     receiverAmount
     receiverNetwork
     transactionStatus

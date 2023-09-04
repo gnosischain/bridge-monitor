@@ -5,7 +5,7 @@ let VALIDATORS_CONFIG = new TypedMap<string, TypedMap<string, string>>();
 const val_{{id}} = new TypedMap<string, string>();
 
 val_{{id}}.set("id", "{{id}}");
-val_{{id}}.set("address", "{{address}}");
+val_{{id}}.set("address", "{{address}}".toLowerCase());
 val_{{id}}.set("name", "{{name}}");
 val_{{id}}.set("bridgeType", "{{bridgeType}}");
 

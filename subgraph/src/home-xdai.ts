@@ -42,7 +42,6 @@ export function handlerSignedForUserRequest(
     log.error(`Transaction NOT FOUND ${transactionId} @handlerSignedForUserRequest`, [])
     transaction = new XDAITransaction(transactionId)
   }
-  log.error(`Transaction FOUND ${transactionId} @handlerSignedForUserRequest`, [])
 
   const signer = event.params.signer // validator address
   let validator = Validator.load(signer.toHexString())
@@ -81,7 +80,6 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
     log.error(`Transaction NOT FOUND ${transactionId} @handlerSignedForAffirmation`, [])
     transaction = new XDAITransaction(transactionId)
   }
-  log.error(`Transaction FOUND ${transactionId} @handlerSignedForAffirmation`, [])
   
   const signer = event.params.signer // validator address
   let validator = Validator.load(signer.toHexString())
@@ -145,7 +143,6 @@ export function handlerCollectedSignatures(
     log.error(`Transaction NOT FOUND ${transactionId} @handlerCollectedSignatures`, [])
     transaction = new XDAITransaction(transactionId)
   }
-  log.error(`Transaction FOUND ${transactionId} handlerCollectedSignatures`, [])
 
   transaction.bridgeName = 'XDAI'
   transaction.transactionStatus = 'UNCLAIMED'
@@ -190,7 +187,6 @@ export function handlerAffirmationCompleted(
     log.error(`Transaction NOT FOUND ${transactionId} @handlerAffirmationCompleted`, [])
     transaction = new XDAITransaction(transactionId)
   }
-  log.error(`Transaction FOUND ${transactionId} handlerAffirmationCompleted`, [])
 
   transaction.bridgeName = 'XDAI'
   transaction.transactionStatus = 'UNCLAIMED'

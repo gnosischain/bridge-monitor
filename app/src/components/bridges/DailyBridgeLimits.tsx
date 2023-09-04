@@ -36,13 +36,14 @@ const getContractAddressUrl = (network: string, address: string) => {
 }
 
 export const DailyBridgeLimits: React.FC = ({ ...restProps }) => {
-  const { gnosisTokensBySymbol, tokensBySymbol } = useTokenIcons()
+  const { tokensByNetwork, tokensBySymbol } = useTokenIcons()
   const { foreignXDAIinformation } = useForeignXDAIBridgeLimits()
   const { homeXDAIinformation } = useHomeXDAIBridgeLimits()
   const defaultMainnetToken = tokensBySymbol['gno']
   const [mainnetToken, setMainnetToken] = useState<Token>(defaultMainnetToken)
   const { foreignOMNIinformation } = useForeignOMNIBridgeLimits(mainnetToken)
-  const defaultGnosisToken = gnosisTokensBySymbol['gno']
+  const defaultGnosisToken = tokensByNetwork[100].find((t) => t.symbol === 'gno')
+  if (!defaultGnosisToken) throw new Error('Gnosis token not found')
   const [gnosisToken, setGnosisToken] = useState<Token>(defaultGnosisToken)
   const { homeOMNIinformation } = useHomeOMNIBridgeLimits(gnosisToken)
 

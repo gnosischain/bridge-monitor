@@ -16,6 +16,7 @@ import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'
 import { getChainIconName } from '@/src/utils/icons'
 import { ButtonPrimary } from '@/src/components/buttons/Button'
+import { isSameString } from '@/src/utils/tools'
 
 const Wrapper = styled.div`
   display: flex;
@@ -133,16 +134,17 @@ const Bridges: NextPage = () => {
     - "warning" if there is an error in the process or if it is spending more than expected.
     */
   const { validators: bridgeValidators } = useFetchValidators(currentTx.bridgeName)
+  console.log({ bridgeValidators })
   const getValidatorName = (validatorAddress: string) => {
-    return (
-      bridgeValidators.find((bridgeValidator) => {
-        return bridgeValidator.address === validatorAddress
-      })?.name ?? ''
+    const v = bridgeValidators.find((bridgeValidator) =>
+      isSameString(bridgeValidator.address, validatorAddress),
     )
+
+    return v?.name ?? 'unknown'
   }
 
   // @todo define TransactionStatusType using dropdown options style
-  const [transactionStatus, setTransactionStatus] = useState(currentTx.transactionStatus)
+  const [transactionStatus] = useState(currentTx.transactionStatus)
 
   return (
     <Wrapper>
@@ -200,7 +202,7 @@ const Bridges: NextPage = () => {
               title="Transaction Confirmed"
               transactionStatus={TransactionStatus.Requested}
               waiting={currentTx.validations?.length === 0}
-            ></TransactionDetailsListItem>
+            />
             {hasValidations() && (
               <>
                 <TransactionDetailsListItem

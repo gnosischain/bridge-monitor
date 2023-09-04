@@ -13,7 +13,7 @@ dataSources:
       startBlock: {{startBlockHomeBridgeErcToNative}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Transaction
@@ -45,7 +45,7 @@ dataSources:
       startBlock: {{startBlockBlockReward}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Transaction
@@ -66,7 +66,7 @@ dataSources:
       startBlock: {{startBlockXDAIBridgeValidators}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Validator
@@ -88,7 +88,7 @@ dataSources:
       startBlock: {{startBlockAMBBridgeValidators}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Validator
@@ -110,7 +110,7 @@ dataSources:
       startBlock: {{startBlockOmniBridgeHomeMediator}} # Should we use a specific start block?
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Transaction
@@ -121,6 +121,7 @@ dataSources:
       eventHandlers:
         - event: TokensBridgingInitiated(indexed address,indexed address,uint256,indexed bytes32)
           handler: handlerTokensBridgingInitiated
+          receipt: true
         - event: TokensBridged(indexed address,indexed address,uint256,indexed bytes32)
           handler: handlerTokensBridged
       file: ./src/omnibridge-mediators.ts
@@ -133,7 +134,7 @@ dataSources:
       startBlock: {{startBlockHomeAMB}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Transaction
@@ -145,8 +146,6 @@ dataSources:
         - name: HomeAMB
           file: ./abis/HomeAMB.json
       eventHandlers:
-        - event: UserRequestForSignature(indexed bytes32,bytes)
-          handler: handlerUserRequestForSignatureEvent
         - event: SignedForUserRequest(indexed address,bytes32)
           handler: handlerSignedForUserRequest
         - event: SignedForAffirmation(indexed address,bytes32)

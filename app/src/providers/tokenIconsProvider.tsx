@@ -3,7 +3,7 @@ import { FC, PropsWithChildren, createContext, useContext } from 'react'
 import { TokenInfo } from '@uniswap/token-lists'
 import useSWR from 'swr'
 
-import gnosischainTokensURL from './token-list.json'
+import gnosisChainTokensURL from './token-list.json'
 import { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { TokensLists } from '@/src/constants/config/types'
 import {
@@ -26,38 +26,9 @@ type TokenListQueryReturn = {
   tokensByAddress: TokensByAddress
   tokensBySymbol: TokensBySymbol
   tokensByNetwork: TokensByNetwork
-  gnosisTokens: Token[]
-  gnosisTokensByAddress: TokensByAddress
-  gnosisTokensBySymbol: TokensBySymbol
-  gnosisTokensByNetwork: TokensByNetwork
-}
-type GnosisTokenInfo = {
-  foreignChainId: string
-  foreignTokenContractAddressHash: string
-  homeContractAddressHash: string
-  homeDecimals: string
-  homeHolderCount: string
-  homeName: string
-  homeSymbol: string
-  homeTotalSupply: string
-  homeUsdValue: string
-}
-type GnosisTokenListQueryReturn = {
-  gnosisTokens: Token[]
-  gnosisTokensByAddress: TokensByAddress
-  gnosisTokensBySymbol: TokensBySymbol
-  gnosisTokensByNetwork: TokensByNetwork
 }
 
-const fetchGnosisChainTokens = async () => {
-  // const gnosischainTokensURL =
-  //   'https://blockscout.com/xdai/mainnet/api?module=token&action=bridgedTokenList&chainid=1&offset=600'
-  // const xdaiTokenListCall = await fetch(GNOSISCHAIN_TOKENLIST_URL)
-  // const tokenListResponse = await fetch(gnosischainTokensURL)
-  // const tokenList = await tokenListResponse.json()
-  // return tokenList.result
-  return gnosischainTokensURL
-}
+const fetchGnosisChainTokens = async () => gnosisChainTokensURL
 
 const useTokenListQuery = () => {
   return useSWR(['token-list'], async () => {
@@ -78,7 +49,11 @@ const useTokenListQuery = () => {
 
     const gnosisTokenList = await fetchGnosisChainTokens()
 
-    const { tokens, tokensByAddress, tokensByNetwork, tokensBySymbol } = tokenList.reduce(
+    /**
+     * Custom hook that fetches and returns a list of tokens from various sources.
+     * @returns An object containing the list of tokens, indexed by address, symbol, and network.
+     */
+    const remoteTokensInfo = tokenList.reduce(
       (acc: ForeignTokenListQueryReturn, token: TokenInfo) => {
         const address = token.address.toLowerCase()
 
@@ -88,7 +63,7 @@ const useTokenListQuery = () => {
 
         acc.tokens.push(token)
         acc.tokensByAddress[address] = token
-        acc.tokensBySymbol[token.symbol.toLowerCase()] = token
+        acc.tokensBySymbol[token.symbol.toUpperCase()] = token
 
         if (!acc.tokensByNetwork[token.chainId]) {
           acc.tokensByNetwork[token.chainId] = [token]
@@ -106,58 +81,50 @@ const useTokenListQuery = () => {
       },
     )
 
-    const { gnosisTokens, gnosisTokensByAddress, gnosisTokensByNetwork, gnosisTokensBySymbol } =
-      gnosisTokenList.reduce(
-        (acc: GnosisTokenListQueryReturn, gnosisToken: GnosisTokenInfo) => {
-          const address = gnosisToken.foreignTokenContractAddressHash.toLowerCase()
-
-          if (acc.gnosisTokensByAddress[address] || gnosisToken.foreignChainId !== '1') {
-            return acc
-          }
-          // fetch gnosisToken from tokenByAddress dic
-          const cherryPickToken = tokensByAddress[address]
-          if (!cherryPickToken) return acc
-          // use same values, just override
-          // * address
-          // * chaindId
-          const token: TokenInfo = {
-            ...cherryPickToken,
-            chainId: 100,
-            address: gnosisToken.homeContractAddressHash,
-          }
-          // store normalized gnosisToken
-          acc.gnosisTokens.push(token)
-          acc.gnosisTokensByAddress[address] = token
-          acc.gnosisTokensBySymbol[token.symbol.toLowerCase()] = token
-
-          if (!acc.gnosisTokensByNetwork[token.chainId]) {
-            acc.gnosisTokensByNetwork[token.chainId] = [token]
-          } else {
-            acc.gnosisTokensByNetwork[token.chainId].push(token)
-          }
-
+    /**
+     * Extend the previous list with the tokens from the Gnosis chain.
+     * We try to find the corresponding token in the previous list, if we find it , we add it to the lists
+     * using the gnosis token address and the previous token info.
+     * @returns An object containing the list of tokens, indexed by address, symbol, and network.
+     */
+    const finalTokens = gnosisTokenList
+      .filter((gt) => gt.foreignChainId == '1')
+      .reduce((acc, gnosisToken) => {
+        if (!acc) {
           return acc
-        },
-        {
-          gnosisTokens: [],
-          gnosisTokensByAddress: {},
-          gnosisTokensByNetwork: {},
-          gnosisTokensBySymbol: {},
-        },
-      )
-    // include GNOSIS TOKENS
-    return {
-      tokens: tokens.sort((a, b) => a.symbol.localeCompare(b.symbol)),
-      gnosisTokens: gnosisTokens.sort((a: TokenInfo, b: TokenInfo) =>
-        a.symbol.localeCompare(b.symbol),
-      ),
-      tokensByAddress,
-      gnosisTokensByAddress,
-      tokensBySymbol,
-      gnosisTokensBySymbol,
-      tokensByNetwork,
-      gnosisTokensByNetwork,
-    }
+        }
+        if (!acc) {
+          return acc
+        }
+        const currentToken = acc.tokensBySymbol[gnosisToken.homeSymbol.toUpperCase()]
+        // if no token found, skip
+        if (!currentToken) {
+          return acc
+        }
+
+        const gnosisTokenAddress = gnosisToken.homeContractAddressHash.toLowerCase()
+        // if we already have this token, skip
+        if (acc.tokensByAddress[gnosisTokenAddress]) {
+          return acc
+        }
+
+        // add gnosis token to the list
+        const token: TokenInfo = {
+          ...currentToken,
+          chainId: 100,
+          address: gnosisTokenAddress,
+        }
+        acc.tokens.push(token)
+        acc.tokensByAddress[token.address] = token
+        acc.tokensBySymbol[token.symbol.toLowerCase()] = token
+        acc.tokensByNetwork[token.chainId] = acc.tokensByNetwork[token.chainId]
+          ? [...acc.tokensByNetwork[token.chainId], token]
+          : [token]
+
+        return acc
+      }, remoteTokensInfo)
+
+    return finalTokens
   })
 }
 

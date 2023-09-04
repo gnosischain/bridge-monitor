@@ -11,6 +11,9 @@ type Validator @entity {
   lastActivity: BigInt # Last time Validator Signed|Executed a Tx
   signed: [TransactionValidation!]! @derivedFrom(field: "validator") # tx signed (24hs)
   executed: [TransactionExecution!]! @derivedFrom(field: "executor") # tx executed (24hs)
+  hashAdded: String!
+  hashRemoved: String
+  removed: Boolean
 }
 
 enum TransactionStatus {
@@ -33,27 +36,27 @@ type TransactionValidation @entity {
 }
 type TransactionExecution @entity {
   id: ID! # tx.id + '-' + validator.id
-  transaction: Transaction!
-  transactionHash: Bytes
-  executor: Validator # the execution could be run by the user so this field may be none
-  responsableAddress: Bytes
+  transaction: Transaction! # Tx hash where the bridge operation ended
+  transactionHash: Bytes # timestamp when the bridge operation ended
   timestamp: BigInt
+  executor: Validator # the execution could be run by the user so this field may be null
+  responsableAddress: Bytes
 }
 
 interface Transaction {
-  id: ID!
-  transactionHash: Bytes # Tx hash where the bridge operation started
+  id: ID! # messageId
+  transactionHash: Bytes # Tx hash where the bridge operation started (it will be set/undefined depending on the bridge side)
+  timestamp: BigInt # timestamp when the bridge operation started (it will be set/undefined depending on the bridge side)
   bridgeName: String # Bridge Name (xDai, OmniBridge, AMB)
   initiator: Bytes # Sender Address
   initiatorNetwork: String # Origin Network Name (mainnet, xdai, chiado, goerli)
-  initiatorAmount: BigInt # Amount sent number|string
-  initiatorToken: Bytes # ERC20 token address (if mainnet DAI if xdai XDAI)
+  initiatorAmount: BigInt # Amount sent
+  initiatorToken: Bytes # ERC20 token address
   receiver: Bytes # Receiver Address
   receiverNetwork: String # Dest Network Name (mainnet, xdai, chiado, goerli)
   receiverAmount: BigInt # Amount sent
-  receiverToken: Bytes # ERC20 token address (if mainnet DAI if xdai XDAI)
+  receiverToken: Bytes # ERC20 token address
   transactionStatus: TransactionStatus
-  timestamp: BigInt
   validations: [TransactionValidation!] @derivedFrom(field: "transaction")
   execution: TransactionExecution
   messageId: Bytes # AMB id
@@ -62,39 +65,37 @@ interface Transaction {
 type XDAITransaction implements Transaction @entity {
   id: ID! # Transaction Hash
   transactionHash: Bytes
-  bridgeName: String # Bridge Name (xDai, OmniBridge, AMB)
-  initiator: Bytes # Sender Address
-  initiatorNetwork: String # Origin Network Name (mainnet, xdai, chiado, goerli)
-  initiatorAmount: BigInt # Amount sent number|string
-  initiatorToken: Bytes # ERC20 token address (if mainnet DAI if xdai XDAI)
-  receiver: Bytes # Receiver Address
-  receiverNetwork: String # Dest Network Name (mainnet, xdai, chiado, goerli)
-  receiverAmount: BigInt # Amount sent
-  receiverToken: Bytes # ERC20 token address (if mainnet DAI if xdai XDAI)
+  bridgeName: String
+  initiator: Bytes
+  initiatorNetwork: String
+  initiatorAmount: BigInt
+  initiatorToken: Bytes
+  receiver: Bytes 
+  receiverNetwork: String
+  receiverAmount: BigInt
+  receiverToken: Bytes 
   transactionStatus: TransactionStatus
   timestamp: BigInt
   validations: [TransactionValidation!] @derivedFrom(field: "transaction")
   execution: TransactionExecution
-  messageId: Bytes # AMB id
+  messageId: Bytes 
 }
 
-# An AMB Transaction uses the messageID as ID
 type AMBTransaction implements Transaction @entity {
   id: ID! # Message ID
   transactionHash: Bytes
-  bridgeName: String # Bridge Name (xDai, OmniBridge, AMB)
-  initiator: Bytes # Sender Address
-  initiatorNetwork: String # Origin Network Name (mainnet, xdai, chiado, goerli)
-  initiatorAmount: BigInt # Amount sent number|string
-  initiatorToken: Bytes # ERC20 token address (if mainnet DAI if xdai XDAI)
-  receiver: Bytes # Receiver Address
-  receiverNetwork: String # Dest Network Name (mainnet, xdai, chiado, goerli)
-  receiverAmount: BigInt # Amount sent
-  receiverToken: Bytes # ERC20 token address (if mainnet DAI if xdai XDAI)
+  bridgeName: String 
+  initiator: Bytes 
+  initiatorNetwork: String
+  initiatorAmount: BigInt
+  initiatorToken: Bytes 
+  receiver: Bytes 
+  receiverNetwork: String
+  receiverAmount: BigInt
+  receiverToken: Bytes
   transactionStatus: TransactionStatus
   timestamp: BigInt
   validations: [TransactionValidation!] @derivedFrom(field: "transaction")
   execution: TransactionExecution
-
-  messageId: Bytes # AMB id
+  messageId: Bytes 
 }
