@@ -111,22 +111,17 @@ const transformValidation = (txValidation: TransactionValidationSG): Transaction
 const transformTx = (tx: TransactionSG): Transaction => {
   const res = {
     id: tx.id,
-    // @todo tx from subgraph should return their transactionHash
     transactionHash: tx.transactionHash ?? tx.id,
     bridgeName: tx.bridgeName ?? '',
 
     initiator: tx.initiator ?? '',
-    initiatorAmount: FixedNumber.fromValue(tx.initiatorAmount || constants.Zero, 18)
-      .round(12)
-      .toString(),
+    initiatorAmount: tx.initiatorAmount || constants.Zero,
     initiatorNetwork: tx.initiatorNetwork ?? '',
     initiatorNetworkIcon: getNetworkIcon(tx.initiatorNetwork ?? ''),
     initiatorToken: tx.initiatorToken,
 
     receiver: tx.receiver,
-    receiverAmount: FixedNumber.fromValue(tx.receiverAmount || constants.Zero, 18)
-      .round(12)
-      .toString(),
+    receiverAmount: tx.receiverAmount || constants.Zero,
     receiverNetwork: tx.receiverNetwork ?? '',
     receiverNetworkIcon: getNetworkIcon(tx.receiverNetwork ?? ''),
     receiverToken: tx.receiverToken,
@@ -136,7 +131,6 @@ const transformTx = (tx: TransactionSG): Transaction => {
     validations: tx.validations?.map(transformValidation),
     execution: transformExecution(tx.execution ?? undefined),
 
-    // @todo tx from subgraph should return their transactionHash
     scanUrl: getTxScanUrl(tx.transactionHash ?? tx.id, tx.initiatorNetwork ?? ''),
     initiatorScanUrl: getAddressScanUrl(tx.initiator, tx.initiatorNetwork ?? ''),
     receiverScanUrl: getAddressScanUrl(tx.receiver, tx.receiverNetwork ?? ''),

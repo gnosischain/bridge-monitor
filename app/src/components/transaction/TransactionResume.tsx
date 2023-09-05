@@ -44,23 +44,23 @@ const Wrapper = styled.div`
 
 interface Props {
   bridgeName: string
+  transactionStatus: string
+  timestampExecution: number
+  timestampStarted: number
+
   initiator: string
   initiatorAmount: string
   initiatorName: string
   initiatorNetwork: string
   initiatorNetworkIcon?: string
-  initiatorTokenIcon?: string
-  initiatorTokenName: string
+  initiatorToken: string
+
   receiver: string
   receiverAmount: string
   receiverName: string
   receiverNetwork: string
   receiverNetworkIcon?: string
-  receiverTokenIcon?: string
-  receiverTokenName: string
-  transactionStatus: string
-  timestampExecution: number
-  timestampStarted: number
+  receiverToken: string
 }
 
 export const TransactionResume: React.FC<Props> = ({
@@ -69,14 +69,14 @@ export const TransactionResume: React.FC<Props> = ({
   initiatorAmount,
   initiatorNetwork,
   initiatorNetworkIcon,
-  initiatorTokenIcon,
-  initiatorTokenName,
+
+  initiatorToken,
   receiver,
   receiverAmount,
   receiverNetwork,
   receiverNetworkIcon,
-  receiverTokenIcon,
-  receiverTokenName,
+
+  receiverToken,
   timestampExecution,
   timestampStarted,
   transactionStatus,
@@ -99,8 +99,7 @@ export const TransactionResume: React.FC<Props> = ({
           bigNumber
           inline
           scanLink={getAddressScanUrl(initiator, initiatorNetwork)}
-          token={initiatorTokenName}
-          tokenIcon={initiatorTokenIcon}
+          token={initiatorToken}
           tokenValue={initiatorAmount}
         />
       </Pod>
@@ -110,8 +109,7 @@ export const TransactionResume: React.FC<Props> = ({
           bigNumber
           inline
           scanLink={getAddressScanUrl(receiver, receiverNetwork)}
-          token={receiverTokenName}
-          tokenIcon={receiverTokenIcon}
+          token={receiverToken}
           tokenValue={receiverAmount}
         />
       </Pod>

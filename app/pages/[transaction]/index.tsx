@@ -173,15 +173,13 @@ const Bridges: NextPage = () => {
           initiatorName={currentTx.initiator}
           initiatorNetwork={currentTx.initiatorNetwork}
           initiatorNetworkIcon={getChainIconName(currentTx.initiatorNetwork)}
-          initiatorTokenIcon={currentTx.initiatorTokenData?.name}
-          initiatorTokenName={currentTx.initiatorTokenData?.name ?? ''}
+          initiatorToken={currentTx.initiatorToken}
           receiver={currentTx.receiver}
           receiverAmount={currentTx.receiverAmount}
           receiverName={currentTx.receiver}
           receiverNetwork={currentTx.receiverNetwork}
           receiverNetworkIcon={getChainIconName(currentTx.receiverNetwork)}
-          receiverTokenIcon={currentTx.receiverTokenData?.name}
-          receiverTokenName={currentTx.receiverTokenData?.name ?? ''}
+          receiverToken={currentTx.receiverToken}
           timestampExecution={currentTx.execution?.timestamp ?? 0}
           timestampStarted={currentTx.timestamp ?? 0}
           transactionStatus={transactionStatus}

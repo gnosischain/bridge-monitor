@@ -153,7 +153,6 @@ interface Props {
 
 export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) => {
   const router = useRouter()
-  const { tokensByAddress } = useTokenIcons()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleRowClick = (e: any) => {
@@ -170,11 +169,6 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
     e.stopPropagation()
 
     console.log('claiming')
-  }
-
-  const getTokenIcon = (tokenAddress: string) => {
-    const uri = tokensByAddress[tokenAddress?.toLowerCase()]?.logoURI
-    return uri ?? '/images/icons/empty-token.png'
   }
 
   return (
@@ -212,8 +206,7 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
         <InitiatorReceiver
           address={transaction.initiator}
           scanLink={transaction.initiatorScanUrl}
-          token={transaction.initiatorTokenData?.name ?? ''}
-          tokenIcon={getTokenIcon(transaction.initiatorToken)}
+          token={transaction.initiatorToken}
           tokenValue={transaction.initiatorAmount}
         />
       </TD>
@@ -221,8 +214,7 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
         <InitiatorReceiver
           address={transaction.receiver}
           scanLink={transaction.receiverScanUrl}
-          token={transaction.receiverTokenData?.name ?? ''}
-          tokenIcon={getTokenIcon(transaction.receiverToken)}
+          token={transaction.receiverToken}
           tokenValue={transaction.receiverAmount}
         />
       </TDReceiver>

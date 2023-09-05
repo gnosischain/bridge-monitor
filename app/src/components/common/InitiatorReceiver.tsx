@@ -3,6 +3,8 @@ import styled from 'styled-components'
 
 import { ChainToken } from '@/src/components/common/ChainToken'
 import { Address } from '@/src/components/token/Address'
+import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
+import { BigNumber, BigNumberish, FixedNumber } from 'ethers'
 
 const Wrapper = styled.div<{ inline?: boolean }>`
   display: ${(props) => (props.inline ? 'flex' : 'block')};
@@ -33,8 +35,7 @@ interface Props {
   inline?: boolean
   scanLink?: string
   token: string
-  tokenIcon?: string
-  tokenValue: string
+  tokenValue: BigNumberish
 }
 
 export const InitiatorReceiver: React.FC<Props> = ({
@@ -43,9 +44,11 @@ export const InitiatorReceiver: React.FC<Props> = ({
   inline,
   scanLink,
   token,
-  tokenIcon,
   tokenValue,
 }) => {
+  const { tokensByAddress } = useTokenIcons()
+  const _token = tokensByAddress[token?.toLowerCase()]
+
   return (
     <Wrapper inline={inline}>
       <Address address={address} characters={6} copy link={scanLink} />
@@ -55,12 +58,14 @@ export const InitiatorReceiver: React.FC<Props> = ({
             alt={token}
             height={16}
             objectFit="cover"
-            src={tokenIcon || '/images/icons/empty-token.png'}
+            src={_token?.logoURI || '/images/icons/empty-token.png'}
             width={16}
           />
         </ChainToken>
         <Value bigNumber={bigNumber} className="number">
-          {tokenValue}
+          {_token
+            ? FixedNumber.fromValue(BigNumber.from(tokenValue), _token.decimals).round(4).toString()
+            : tokenValue.toString()}
         </Value>
       </Tokens>
     </Wrapper>
