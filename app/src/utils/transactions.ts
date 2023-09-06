@@ -14,7 +14,8 @@ import {
   TransactionsQuery,
   TransactionsQueryVariables,
 } from '@/types/generated/subgraph'
-import { FixedNumber, constants } from 'ethers'
+import findKey from 'lodash/findKey'
+import { constants } from 'ethers'
 
 const GNOSIS = 'gnosis'
 const MAINNET = 'mainnet'
@@ -220,6 +221,25 @@ export const fetchTransactions = async (query: TransactionsQueryVariables) => {
     fetchHomeTransaction(query),
     fetchForeignTransaction(query),
   ])
+
+  // If the query is filtering by transactionHash, it will only bring the tx from the network that has the tx.
+  // So we need to fetch the tx in the other network.
+  if (findKey(query.where?.and, 'transactionHash') !== undefined) {
+    // if the tx is not in home, we fetch it in home using the tx id from foreign
+    if (!homeTxs.length && foreignTxs[0]) {
+      const [homeTx] = await fetchHomeTransaction({
+        where: { id: foreignTxs[0].id },
+      })
+      homeTx !== undefined && homeTxs.push(homeTx)
+    }
+    // if the tx is not in foreign, we fetch it in foreign using the tx id from home
+    else if (!foreignTxs.length && homeTxs[0]) {
+      const [foreignTx] = await fetchForeignTransaction({
+        where: { id: homeTxs[0].id },
+      })
+      foreignTx !== undefined && foreignTxs.push(foreignTx)
+    }
+  }
 
   const transactions = await unifyTransactions(
     homeTxs as TransactionSG[],

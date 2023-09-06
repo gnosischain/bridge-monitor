@@ -1,4 +1,4 @@
-import { dataSource, log } from "@graphprotocol/graph-ts";
+import { Bytes, dataSource, log } from "@graphprotocol/graph-ts";
 import {
   AffirmationCompleted,
   CollectedSignatures,
@@ -224,7 +224,7 @@ export function handlerAffirmationCompleted(event: AffirmationCompleted): void {
     event.transaction.hash.toHexString()
   );
   if (validation) {
-    execution.executor = validation.validator;
+    execution.responsableAddress = Bytes.fromHexString(validation.validator);
   }
   execution.save();
 
