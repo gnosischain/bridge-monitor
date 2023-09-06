@@ -26,11 +26,12 @@ export const useFetchTransactions = (query?: TransactionsQueryVariables) => {
     error,
     mutate: refetch,
   } = useSWR(
-    query ? ['useFetchTransactions', JSON.stringify(query)] : null,
-    () => {
-      if (!query) return []
-      return fetchTransactions(query)
-    },
+    query ? ['useFetchTransactions', JSON.stringify(query), query] : null,
+    (a, b, _query) => fetchTransactions(_query),
+    // {
+    //   if (!_query) return []
+    //   return fetchTransactions(_query)
+    // },
     { refreshInterval: POLLING_INTERVAL },
   )
 

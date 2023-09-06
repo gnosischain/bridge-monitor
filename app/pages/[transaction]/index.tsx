@@ -1,6 +1,5 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
 import styled from 'styled-components'
 
 import { Address as BaseAddress } from '@/src/components/token/Address'
@@ -98,12 +97,18 @@ const TransactionDetailsList = styled.ul`
 const Bridges: NextPage = () => {
   const router = useRouter()
   const transactionId = String(router.query?.id)
-  // @todo fetch transaction by Id from SG
   const { transactions } = useFetchTransactions({
     where: { id: transactionId },
   })
-  const currentTx = transactions?.[0]
-  const txValidations = currentTx.validations ?? []
+  // hack, for some reason TS is not recognizing that transactions[0] can be null
+  const currentTx = transactions.length > 0 ? transactions[0] : null
+  const txValidations = currentTx?.validations ?? []
+  const txExecution = currentTx?.execution ?? ({} as TransactionExecution)
+  const messageIDText = '' // @todo remove it after sg deploys and Transaction entity contains messageId
+  const { validators: bridgeValidators } = useFetchValidators(currentTx?.bridgeName)
+
+  if (!currentTx) return null
+
   const hasValidations = (): boolean => {
     return txValidations !== null && txValidations.length >= 1
   }
@@ -112,7 +117,6 @@ const Bridges: NextPage = () => {
       currentTx.bridgeName === 'AMB' ? AMB_SIGNATURE_THRESHOLD : XDAI_SIGNATURE_THRESHOLD
     return currentTx.validations?.length !== signatureThreshold
   }
-  const txExecution = currentTx.execution ?? ({} as TransactionExecution)
   const hasBeenExecuted = (): boolean => {
     return txExecution !== null && txExecution.id !== undefined
   }
@@ -123,18 +127,6 @@ const Bridges: NextPage = () => {
     return currentTx.transactionStatus === TransactionStatus.Unclaimed
   }
 
-  const messageIDText = '' // @todo remove it after sg deploys and Transaction entity contains messageId
-
-  /*
-    @todo:
-    Set parameters to define status
-    transactionStatus:
-    - "completed" when transaction is completed.
-    - "waiting" if it didn't finish.
-    - "warning" if there is an error in the process or if it is spending more than expected.
-    */
-  const { validators: bridgeValidators } = useFetchValidators(currentTx.bridgeName)
-  console.log({ bridgeValidators })
   const getValidatorName = (validatorAddress: string) => {
     const v = bridgeValidators.find((bridgeValidator) =>
       isSameString(bridgeValidator.address, validatorAddress),
@@ -142,9 +134,6 @@ const Bridges: NextPage = () => {
 
     return v?.name ?? 'unknown'
   }
-
-  // @todo define TransactionStatusType using dropdown options style
-  const [transactionStatus] = useState(currentTx.transactionStatus)
 
   return (
     <Wrapper>
@@ -182,7 +171,7 @@ const Bridges: NextPage = () => {
           receiverToken={currentTx.receiverToken}
           timestampExecution={currentTx.execution?.timestamp ?? 0}
           timestampStarted={currentTx.timestamp ?? 0}
-          transactionStatus={transactionStatus}
+          transactionStatus={currentTx.transactionStatus}
         />
         <TransactionDetails>
           <TransactionDetailsList>
@@ -243,7 +232,7 @@ const Bridges: NextPage = () => {
                   dateCompleted={currentTx.timestamp} // tokens bridged event timestamp (COMPLETED)
                   description="Funds should be available on receiver address"
                   title="Tokens Bridged"
-                  transactionStatus={transactionStatus}
+                  transactionStatus={currentTx.transactionStatus}
                   waiting={currentTx.timestamp ? false : true}
                 ></TransactionDetailsListItem>
               </>
