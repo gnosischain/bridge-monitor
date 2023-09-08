@@ -28,17 +28,29 @@ const THValidators = styled(TH)`
   background-color: ${({ theme }) => theme.colors.darkerGrey};
   border-top-left-radius: ${({ theme: { common } }) => common.borderRadius};
   border-top-right-radius: ${({ theme: { common } }) => common.borderRadius};
-  display: flex;
-  justify-content: center;
+  padding-left: 0;
   padding-right: 0;
 `
 
+const ValidatorNameWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  column-gap: 8px;
+  padding-left: 10px;
+  padding-right: 10px;
+`
+
 const ValidatorName = styled.span`
+  --validator-name-size: 16px;
+
   display: inline-block;
+  flex-shrink: 0;
   font-size: 1.2rem;
+  height: var(--validator-name-size);
   line-height: 2.2rem;
   text-align: center;
-  width: 24px;
+  white-space: nowrap;
+  width: var(--validator-name-size);
 `
 
 const THActions = styled(TH)`
@@ -56,18 +68,18 @@ export const TransactionHeader: React.FC<Props> = ({ validators }) => {
     <THead>
       <tr>
         <TH>Tx Hash</TH>
-        <TH>Bridge</TH>
-        <TH>Initiator</TH>
-        <TH>Receiver</TH>
-        <TH>Status</TH>
+        <TH>Bridge Direction</TH>
+        <TH>Initiator / Receiver</TH>
         <THValidators className="validators">
-          {validators.map((validator, index) => (
-            <Tooltip key={`validator_column_${index}`} text={validator.name}>
-              <ValidatorName>{validator.shortName}</ValidatorName>
-            </Tooltip>
-          ))}
+          <ValidatorNameWrapper>
+            {validators.map((validator, index) => (
+              <Tooltip key={`validator_column_${index}`} text={validator.name}>
+                <ValidatorName>{validator.shortName}</ValidatorName>
+              </Tooltip>
+            ))}
+          </ValidatorNameWrapper>
         </THValidators>
-        <THActions>Actions</THActions>
+        <THActions>Status</THActions>
         <THLast>&nbsp;</THLast>
       </tr>
     </THead>

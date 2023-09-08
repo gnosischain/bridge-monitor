@@ -9,24 +9,23 @@ import { getValidationsStatus } from '@/src/utils/validators'
 
 const Wrapper = styled.div`
   align-items: center;
+  column-gap: ${({ theme: { common } }) => common.space}px;
   display: flex;
-  gap: ${({ theme: { common } }) => common.space}px;
-  height: 2.2rem;
-  justify-content: center;
+  height: 16px;
 `
 
 interface Props {
   transaction: Transaction
 }
 
-export const Validators: React.FC<Props> = ({ transaction }) => {
+export const Validators: React.FC<Props> = ({ transaction, ...restProps }) => {
   const { validators } = useFetchValidators(transaction.bridgeName)
   const validationsStatus = useMemo(
     () => getValidationsStatus(transaction, validators),
     [transaction, validators],
   )
   return (
-    <Wrapper>
+    <Wrapper {...restProps}>
       {validationsStatus.map((validator, index) => (
         <Tooltip key={`validator_status_${transaction.id}_${index}`} text={validator.name}>
           <a href={validator.scanUrl} rel="noopener noreferrer" target="_blank">

@@ -1,53 +1,76 @@
-import styled from 'styled-components'
-
+import styled, { css } from 'styled-components'
+import { MouseEventHandler } from 'react'
 import { StatusColors } from '@/src/components/helpers/StatusColors'
 import { TransactionStatus } from '@/types/generated/subgraph'
 
-const Wrapper = styled.div<{ status: TransactionStatus }>`
-  ${(props) => {
-    return StatusColors[props.status] ?? StatusColors.DEFAULT
-  }}
-
+const Text = styled.span`
   align-items: center;
-  border-radius: 4px;
+  column-gap: 6px;
   display: flex;
-  gap: ${({ theme: { common } }) => common.space / 2}px;
-  letter-spacing: -0.2px;
-  padding: ${({ theme: { common } }) => common.space / 4}px
-    ${({ theme: { common } }) => common.space / 2}px;
-  text-transform: lowercase;
+  font-size: 1.2rem;
+  font-weight: 700;
+  height: 22px;
+  justify-content: center;
+  line-height: 1.2rem;
+  padding: 0 ${({ theme: { common } }) => common.space}px;
+  text-transform: capitalize;
+`
 
-  &:before {
-    --before-size: 7px;
+const Wrapper = styled.div<{ status: TransactionStatus }>`
+  border-radius: 4px;
+  border: none;
+  display: block;
+  min-width: 80px;
+  padding: 0;
 
-    background-color: ${({ theme }) => theme.colors.darkestGrey};
-    border-radius: 50%;
-    content: '';
-    display: block;
-    height: var(--before-size);
-    width: var(--before-size);
-  }
+  ${({ status }) =>
+    status === TransactionStatus.Unclaimed
+      ? css`
+          background-color: ${StatusColors[status] ?? StatusColors.DEFAULT};
+          cursor: pointer;
+          transition: none;
 
-  strong {
-    color: ${({ theme }) => theme.colors.darkestGrey};
-    font-size: 1.2rem;
-    font-weight: 700;
-    line-height: 1.8rem;
+          &:active {
+            opacity: 0.6;
+          }
 
-    &:first-letter {
-      text-transform: capitalize;
-    }
-  }
+          ${Text} {
+            color: ${({ theme }) => theme.colors.darkestGrey};
+          }
+        `
+      : css`
+          ${Text} {
+            color: ${StatusColors[status] ?? StatusColors.DEFAULT};
+
+            &:before {
+              --before-size: 7px;
+
+              background-color: ${StatusColors[status] ?? StatusColors.DEFAULT};
+              border-radius: 50%;
+              content: '';
+              display: block;
+              height: var(--before-size);
+              width: var(--before-size);
+            }
+          }
+        `};
 `
 
 interface Props {
+  onClick?: MouseEventHandler<HTMLButtonElement> | undefined
   status: TransactionStatus
 }
 
-export const Status: React.FC<Props> = ({ status }) => {
+export const Status: React.FC<Props> = ({ onClick, status, ...restProps }) => {
+  const text = status === TransactionStatus.Unclaimed ? 'Claim' : status.toLowerCase()
   return (
-    <Wrapper status={status}>
-      <strong>{status}</strong>
+    <Wrapper
+      as={status === TransactionStatus.Unclaimed ? 'button' : 'div'}
+      onClick={onClick}
+      status={status}
+      {...restProps}
+    >
+      <Text>{text}</Text>
     </Wrapper>
   )
 }

@@ -31,6 +31,8 @@ const lightYellow = '#EEFB9E'
 
 const primaryGradient = `linear-gradient(180deg, #3E6655 0%, ${primary} 100%)`
 const grayGradient = `linear-gradient(180deg, ${lightGrey} 0%, ${darkGrey} 100%)`
+const commonBoxShadow =
+  '0 27px 80px rgba(0, 0, 0, 0.07), 0 10.4px 25.4815px rgba(0, 0, 0, 0.0425185), 0 2.2px 6.51852px rgba(0, 0, 0, 0.0274815)'
 
 export const dark = {
   body: {
@@ -100,8 +102,7 @@ export const dark = {
   dropdown: {
     background: lightGrey,
     borderColor: 'transparent',
-    boxShadow:
-      '0 27px 80px rgba(0, 0, 0, 0.07), 0 10.4px 25.4815px rgba(0, 0, 0, 0.0425185), 0 2.2px 6.51852px rgba(0, 0, 0, 0.0274815);',
+    boxShadow: commonBoxShadow,
     item: {
       backgroundColor: 'transparent',
       backgroundColorHover: primary,
@@ -158,8 +159,8 @@ export const dark = {
     sidebarBackgroundColor: 'rgb(235, 235, 237)',
   },
   toast: {
-    backgroundColor: componentBackgroundColor,
-    borderColor: borderColor,
-    boxShadow: '0 0 10px rgba(255, 255, 255, 0.25)',
+    backgroundColor: primary,
+    borderColor: primary,
+    boxShadow: commonBoxShadow,
   },
 }

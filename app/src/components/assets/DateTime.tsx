@@ -5,12 +5,12 @@ import { DateFormated } from '@/src/utils/date'
 import { Tooltip } from '@/src/components/common/Tooltip'
 
 const Wrapper = styled.div`
-  padding-top: 8px;
   position: relative;
 `
 
 const Text = styled.div`
   font-size: 1.2rem;
+  line-height: 1.2;
   opacity: 0.6;
 `
 

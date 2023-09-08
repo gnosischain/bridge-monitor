@@ -4,6 +4,8 @@ import styled, { css } from 'styled-components'
 import { IconCopy } from '@/src/components/assets/IconCopy'
 import { IconLink } from '@/src/components/assets/IconLink'
 import { shortenAddress } from '@/src/utils/tools'
+import { ToastComponent } from '@/src/components/toast/ToastComponent'
+import { Toast, toast } from 'react-hot-toast'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -52,6 +54,11 @@ const Link = styled(IconLink)`
   }
 `
 
+const Error = styled.span`
+  color: ${({ theme: { colors } }) => colors.error};
+  font-style: italic;
+`
+
 interface Props {
   characters?: number
   address: string
@@ -68,13 +75,28 @@ export const Address: React.FC<Props> = ({
   link,
   ...restProps
 }) => {
-  const [isCopied, toggleCopied] = useState(false)
+  const [isCopied, setIsCopied] = useState(false)
+  const [toastId, setToastId] = useState('')
+  const timeDelay = 2000
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const copyWalletAddress = (e: any, address: string) => {
     e.stopPropagation()
+
     navigator.clipboard.writeText(address)
-    toggleCopied(true)
+
+    toast.remove(toastId)
+    toast.custom(
+      (t: Toast) => {
+        setToastId(t.id)
+        return <ToastComponent message={'Address copied'} t={t} />
+      },
+      {
+        duration: timeDelay,
+        position: 'top-center',
+      },
+    )
+    setIsCopied(true)
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -85,17 +107,21 @@ export const Address: React.FC<Props> = ({
 
   useEffect(() => {
     const timeCopied = setTimeout(() => {
-      toggleCopied(false)
-    }, 2000)
+      setIsCopied(false)
+    }, timeDelay)
     return () => clearTimeout(timeCopied)
   }, [isCopied])
 
   return (
     <Wrapper {...restProps}>
       <AddressText link={link ? true : false} onClick={link ? (e) => openLink(e, link) : undefined}>
-        {shortenAddress(address, characters + 2, characters)}
+        {address ? (
+          shortenAddress(address, characters + 2, characters)
+        ) : (
+          <Error>Error retrieving address</Error>
+        )}
       </AddressText>
-      {copy && (
+      {address && copy && (
         <CopyButton
           className={isCopied ? 'copied' : 'uncopied'}
           onClick={(e) => copyWalletAddress(e, address)}
@@ -103,7 +129,7 @@ export const Address: React.FC<Props> = ({
           <IconCopy height={bigIcons ? 21 : 14} width={bigIcons ? 21 : 14} />
         </CopyButton>
       )}
-      {link && (
+      {address && link && (
         <Link
           height={bigIcons ? 21 : 14}
           onClick={(e) => openLink(e, link)}

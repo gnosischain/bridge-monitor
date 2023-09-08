@@ -1,44 +1,32 @@
 import styled from 'styled-components'
 
 import { ChainsInitiatorReceiver } from '@/src/components/common/ChainsInitiatorReceiver'
-import { InitiatorReceiver } from '@/src/components/common/InitiatorReceiver'
 import { Pod } from '@/src/components/common/Pod'
 import { TransactionDate } from '@/src/components/transaction/TransactionDate'
 import { getAddressScanUrl } from '@/src/utils/transactions'
-import { transaction } from '@/src/constants/transaction'
+import { Address } from '@/src/components/token/Address'
+import { TokenWithValue } from '@/src/components/token/TokenWithValue'
 
 const Wrapper = styled.div`
-  display: grid;
-  gap: ${({ theme: { common } }) => common.space * 2}px;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
+  row-gap: ${({ theme: { common } }) => common.space * 2}px;
   width: 100%;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    grid-template-columns: 1fr 1fr;
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    column-gap: ${({ theme: { common } }) => common.space * 2}px;
+    flex-direction: row;
+  }
+`
 
-    div:nth-child(3) {
-      grid-column: 1 / 2;
-      grid-row: 2 / 3;
-    }
-
-    div:nth-child(2) {
-      grid-column: 2 / 2;
-      grid-row: 2 / 3;
-    }
+const Value = styled(TokenWithValue)`
+  .label {
+    display: none;
   }
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
-    grid-template-columns: 215px 2fr 2fr 1fr;
-
-    div:nth-child(3) {
-      grid-column: unset;
-      grid-row: unset;
-    }
-
-    div:nth-child(2) {
-      grid-column: unset;
-      grid-row: unset;
-    }
+  .value {
+    font-size: inherit;
+    line-height: inherit;
   }
 `
 
@@ -47,36 +35,28 @@ interface Props {
   transactionStatus: string
   timestampExecution: number
   timestampStarted: number
-
   initiator: string
   initiatorAmount: string
   initiatorName: string
   initiatorNetwork: string
   initiatorNetworkIcon?: string
   initiatorToken: string
-
   receiver: string
-  receiverAmount: string
   receiverName: string
   receiverNetwork: string
   receiverNetworkIcon?: string
-  receiverToken: string
 }
 
-export const TransactionResume: React.FC<Props> = ({
+export const TransactionSummary: React.FC<Props> = ({
   bridgeName,
   initiator,
   initiatorAmount,
   initiatorNetwork,
   initiatorNetworkIcon,
-
   initiatorToken,
   receiver,
-  receiverAmount,
   receiverNetwork,
   receiverNetworkIcon,
-
-  receiverToken,
   timestampExecution,
   timestampStarted,
   transactionStatus,
@@ -84,7 +64,6 @@ export const TransactionResume: React.FC<Props> = ({
   return (
     <Wrapper>
       <Pod subTitle={bridgeName} title="Bridge">
-        {/* @todo */}
         <ChainsInitiatorReceiver
           chainIconInitiator={initiatorNetworkIcon}
           chainIconReceiver={receiverNetworkIcon}
@@ -94,24 +73,23 @@ export const TransactionResume: React.FC<Props> = ({
         />
       </Pod>
       <Pod title="Initiator">
-        <InitiatorReceiver
+        <Address
           address={initiator}
-          bigNumber
-          inline
-          scanLink={getAddressScanUrl(initiator, initiatorNetwork)}
-          token={initiatorToken}
-          tokenValue={initiatorAmount}
+          characters={6}
+          copy
+          link={getAddressScanUrl(initiator, initiatorNetwork)}
         />
       </Pod>
       <Pod title="Receiver">
-        <InitiatorReceiver
+        <Address
           address={receiver}
-          bigNumber
-          inline
-          scanLink={getAddressScanUrl(receiver, receiverNetwork)}
-          token={receiverToken}
-          tokenValue={receiverAmount}
+          characters={6}
+          copy
+          link={getAddressScanUrl(receiver, receiverNetwork)}
         />
+      </Pod>
+      <Pod title="Amount">
+        <Value token={initiatorToken} tokenValue={initiatorAmount} />
       </Pod>
       {/* @todo - If a signature fails it has to change state */}
       <Pod status={transactionStatus} subTitle={transactionStatus} title="Status">

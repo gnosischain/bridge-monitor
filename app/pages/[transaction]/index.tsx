@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { Address as BaseAddress } from '@/src/components/token/Address'
 import { TransactionDetailsListItem } from '@/src/components/transaction/TransactionDetailsListItem'
 import { TransactionFooter } from '@/src/components/transaction/TransactionFooter'
-import { TransactionResume } from '@/src/components/transaction/TransactionResume'
+import { TransactionSummary } from '@/src/components/transaction/TransactionSummary'
 import { TransactionValidations } from '@/src/components/transaction/TransactionValidations'
 import { TransactionValidator } from '@/src/components/transaction/TransactionValidator'
 import { AMB_SIGNATURE_THRESHOLD, XDAI_SIGNATURE_THRESHOLD } from '@/src/constants/misc'
@@ -14,7 +14,6 @@ import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
 import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'
 import { getChainIconName } from '@/src/utils/icons'
-import { ButtonPrimary } from '@/src/components/buttons/Button'
 import { isSameString } from '@/src/utils/tools'
 
 const Wrapper = styled.div`
@@ -23,28 +22,7 @@ const Wrapper = styled.div`
   row-gap: ${({ theme: { common } }) => common.space * 6}px;
 `
 
-const Head = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  row-gap: 15px;
-
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
-    align-items: center;
-    flex-direction: row;
-  }
-`
-
-const Button = styled(ButtonPrimary)`
-  height: fit-content;
-  padding: 10px 20px;
-  font-size: 1.6rem;
-
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
-    margin-left: auto;
-    margin-top: auto;
-  }
-`
+const Head = styled.div``
 
 const Title = styled.h1`
   color: ${({ theme: { colors } }) => colors.cream};
@@ -123,10 +101,6 @@ const Bridges: NextPage = () => {
   const hasBeenCompleted = (): boolean => {
     return currentTx.transactionStatus === TransactionStatus.Completed
   }
-  const isUnclaimed = (): boolean => {
-    return currentTx.transactionStatus === TransactionStatus.Unclaimed
-  }
-
   const getValidatorName = (validatorAddress: string) => {
     const v = bridgeValidators.find((bridgeValidator) =>
       isSameString(bridgeValidator.address, validatorAddress),
@@ -138,24 +112,17 @@ const Bridges: NextPage = () => {
   return (
     <Wrapper>
       <Head>
-        <div>
-          <Title>Transaction</Title>
-          <Address
-            address={currentTx.transactionHash}
-            bigIcons
-            characters={6}
-            copy
-            link={getTxScanUrl(currentTx.transactionHash, currentTx.initiatorNetwork)}
-          />
-        </div>
-        {isUnclaimed() && (
-          <Button>
-            <span>Claim</span>
-          </Button>
-        )}
+        <Title>Transaction</Title>
+        <Address
+          address={currentTx.transactionHash}
+          bigIcons
+          characters={6}
+          copy
+          link={getTxScanUrl(currentTx.transactionHash, currentTx.initiatorNetwork)}
+        />
       </Head>
       <TransactionInformation>
-        <TransactionResume
+        <TransactionSummary
           bridgeName={currentTx.bridgeName}
           initiator={currentTx.initiator}
           initiatorAmount={currentTx.initiatorAmount}
@@ -164,11 +131,9 @@ const Bridges: NextPage = () => {
           initiatorNetworkIcon={getChainIconName(currentTx.initiatorNetwork)}
           initiatorToken={currentTx.initiatorToken}
           receiver={currentTx.receiver}
-          receiverAmount={currentTx.receiverAmount}
           receiverName={currentTx.receiver}
           receiverNetwork={currentTx.receiverNetwork}
           receiverNetworkIcon={getChainIconName(currentTx.receiverNetwork)}
-          receiverToken={currentTx.receiverToken}
           timestampExecution={currentTx.execution?.timestamp ?? 0}
           timestampStarted={currentTx.timestamp ?? 0}
           transactionStatus={currentTx.transactionStatus}
@@ -234,7 +199,7 @@ const Bridges: NextPage = () => {
                   title="Tokens Bridged"
                   transactionStatus={currentTx.transactionStatus}
                   waiting={currentTx.timestamp ? false : true}
-                ></TransactionDetailsListItem>
+                />
               </>
             )}
           </TransactionDetailsList>

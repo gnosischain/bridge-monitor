@@ -5,87 +5,129 @@ import { useRouter } from 'next/router'
 
 import { DateTime } from '@/src/components/assets/DateTime'
 import { ChevronDown } from '@/src/components/assets/ChevronDown'
+import { ArrowUp } from '@/src/components/assets/ArrowUp'
 import { ChainsInitiatorReceiver } from '@/src/components/common/ChainsInitiatorReceiver'
-import { InitiatorReceiver } from '@/src/components/common/InitiatorReceiver'
-import { Status } from '@/src/components/common/Status'
-import { ButtonPrimary } from '@/src/components/buttons/Button'
+import { Status as BaseStatus } from '@/src/components/common/Status'
 import { Address } from '@/src/components/token/Address'
-import { Validators } from '@/src/components/transactions/Validators'
+import { TokenWithValue } from '@/src/components/token/TokenWithValue'
+import { Validators as BaseValidators } from '@/src/components/transactions/Validators'
 import { Transaction } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'
-import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
-
-const Bridge = styled.div`
-  font-size: 1.4rem;
-  min-width: 100px;
-
-  @media (max-width: ${({ theme }) => theme.breakPoints.desktopWideStart}) {
-    min-width: auto;
-  }
-`
-const BridgeWrapper = styled.div`
-  @media (max-width: ${({ theme }) => theme.breakPoints.desktopWideStart}) {
-    align-items: center;
-    display: flex;
-    gap: ${({ theme: { common } }) => common.space * 2}px;
-  }
-`
 
 const TD = styled.td`
   --td-padding-vertical: ${({ theme: { common } }) => common.space * 3}px;
   --td-padding-horizontal: ${({ theme: { common } }) => common.space * 2}px;
 
-  border-bottom: 1px solid ${({ theme }) => theme.colors.black};
   flex-grow: 1;
-  padding: var(--td-padding-vertical) var(--td-padding-horizontal);
   transition: background-color 0.15s linear;
   vertical-align: middle;
+  padding: 0 var(--td-padding-horizontal);
 
-  @media (max-width: ${({ theme }) => theme.breakPoints.desktopWideStart}) {
-    border-bottom: none;
-    padding: ${({ theme: { common } }) => common.space}px
-      ${({ theme: { common } }) => common.space * 2}px !important;
+  &:first-child {
+    padding-top: var(--td-padding-vertical);
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    padding: var(--td-padding-vertical) var(--td-padding-horizontal);
   }
 `
 
-const TDStatus = styled(TD)`
-  line-height: 0;
-  min-width: 114px;
+const ViewMore = styled.span`
+  color: ${({ theme: { colors } }) => colors.tertiary};
+  font-size: 1.2rem;
+  line-height: 1.2;
+  height: fit-content;
+  position: absolute;
+  right: var(--td-padding-horizontal);
+  bottom: var(--td-padding-vertical);
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    display: none;
+  }
+`
+
+const TDLastMobile = styled(TD)`
+  padding-bottom: var(--td-padding-vertical);
+  position: relative;
 `
 
 const TDValidators = styled(TD)`
-  background-color: ${({ theme }) => theme.colors.darkerGrey};
-  padding: ${({ theme: { common } }) => common.space * 3}px 0;
+  background-color: ${({ theme: { colors } }) => colors.darkerGrey};
+  padding: 0 var(--td-padding-horizontal);
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    padding: var(--td-padding-vertical) 0;
+  }
 `
 
-const TDReceiver = styled(TD)`
-  @media (max-width: ${({ theme }) => theme.breakPoints.desktopWideStart}) {
+const TDInitiatorReceiver = styled(TD)`
+  display: flex;
+  flex-direction: column;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    display: table-cell;
+  }
+`
+
+const MobileLabel = styled.span`
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 300;
+  line-height: 1.2;
+  margin: 0 0 4px;
+  opacity: 0.6;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     display: none;
   }
+`
 
-  @media (max-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+const InitiatorReceiverAddress = styled(Address)``
+
+const InitiatorReceiverWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  ${MobileLabel} {
+    margin: 0;
+  }
+
+  ${InitiatorReceiverAddress} {
+    margin-bottom: 10px;
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    align-items: center;
+    column-gap: ${({ theme: { common } }) => common.space * 3}px;
+    flex-direction: row;
+    margin-bottom: 4px;
+
+    ${InitiatorReceiverAddress} {
+      margin-bottom: 0;
+    }
+  }
+`
+
+const ArrowRight = styled(ArrowUp)`
+  display: none;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     display: block;
-    flex-basis: 100%;
-    height: 0;
-    overflow: hidden;
-    padding: 0 !important;
-    width: 0;
+    transform: rotate(-90deg);
   }
 `
 
 const TR = styled.tr`
   cursor: pointer;
-
-  @media (max-width: ${({ theme }) => theme.breakPoints.desktopWideStart}) {
-    background-color: ${({ theme }) => theme.colors.darkerGrey};
-    border-radius: ${({ theme: { common } }) => common.borderRadius};
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    margin: ${({ theme: { common } }) => common.space / 2}px 0;
-    padding: ${({ theme: { common } }) => common.space}px
-      ${({ theme: { common } }) => common.space}px;
-  }
+  background-color: ${({ theme: { colors } }) => colors.darkerGrey};
+  border-bottom: 4px solid ${({ theme: { colors } }) => colors.black};
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  row-gap: 10px;
 
   &:last-child {
     ${TDValidators} {
@@ -95,48 +137,41 @@ const TR = styled.tr`
   }
 
   &:hover {
-    ${TD} {
-      background-color: rgba(255, 255, 255, 0.03);
-    }
-
     &:active {
       ${TD} {
         opacity: 0.8;
       }
     }
   }
-`
 
-const ActionButton = styled(ButtonPrimary)`
-  margin: auto;
-  font-size: 1.4rem;
-  padding: 6px 12px;
-  width: 100%;
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    background-color: transparent;
+    border-bottom-width: 1px;
+    display: table-row;
+    margin: 0;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
-    width: auto;
+    &:hover {
+      ${TD} {
+        background-color: rgba(255, 255, 255, 0.03);
+      }
+    }
   }
 `
 
-const ViewMore = styled.button`
-  background-color: transparent;
-  border: none;
-  color: ${({ theme }) => theme.colors.tertiary};
-  cursor: pointer;
-  font-size: 1.3rem;
-  margin: 10px auto auto auto;
-  padding: 6px 12px;
-  width: 100%;
+const Status = styled(BaseStatus)`
+  margin: auto;
+  display: inline-flex;
+  justify-content: center;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
-    display: none;
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    display: flex;
   }
 `
 
 const TDChevron = styled(TD)`
   display: none;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     display: table-cell;
     padding-left: 0;
     vertical-align: middle;
@@ -145,6 +180,14 @@ const TDChevron = styled(TD)`
 
 const ChevronRight = styled(ChevronDown)`
   transform: rotate(-90deg);
+`
+
+const Validators = styled(BaseValidators)`
+  justify-content: flex-start;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    justify-content: center;
+  }
 `
 
 interface Props {
@@ -183,6 +226,7 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
       {...restProps}
     >
       <TD>
+        <MobileLabel>Transaction Hash</MobileLabel>
         <Address
           address={transaction.transactionHash}
           characters={6}
@@ -192,48 +236,55 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
         <DateTime transactiondate={transaction.timestamp} />
       </TD>
       <TD>
-        <BridgeWrapper>
-          <Bridge>{transaction.bridgeName}</Bridge>
-          <ChainsInitiatorReceiver
-            chainIconInitiator={transaction.initiatorNetworkIcon}
-            chainIconReceiver={transaction.receiverNetworkIcon}
-            chainInitiator={transaction.initiatorNetwork}
-            chainReceiver={transaction.receiverNetwork}
-          />
-        </BridgeWrapper>
+        <MobileLabel>Bridge</MobileLabel>
+        <ChainsInitiatorReceiver
+          chainIconInitiator={transaction.initiatorNetworkIcon}
+          chainIconReceiver={transaction.receiverNetworkIcon}
+          chainInitiator={transaction.initiatorNetwork}
+          chainReceiver={transaction.receiverNetwork}
+        />
       </TD>
-      <TD>
-        <InitiatorReceiver
-          address={transaction.initiator}
-          scanLink={transaction.initiatorScanUrl}
+      <TDInitiatorReceiver>
+        <InitiatorReceiverWrapper>
+          <MobileLabel>Initiator</MobileLabel>
+          <InitiatorReceiverAddress
+            address={transaction.initiator}
+            characters={6}
+            copy
+            link={transaction.initiatorScanUrl}
+          />
+          <ArrowRight />
+          <MobileLabel>Receiver</MobileLabel>
+          <InitiatorReceiverAddress
+            address={transaction.receiver}
+            characters={6}
+            copy
+            link={transaction.receiverScanUrl}
+          />
+        </InitiatorReceiverWrapper>
+        <MobileLabel>Amount</MobileLabel>
+        <TokenWithValue
           token={transaction.initiatorToken}
           tokenValue={transaction.initiatorAmount}
         />
-      </TD>
-      <TDReceiver>
-        <InitiatorReceiver
-          address={transaction.receiver}
-          scanLink={transaction.receiverScanUrl}
-          token={transaction.receiverToken}
-          tokenValue={transaction.receiverAmount}
-        />
-      </TDReceiver>
-      <TDStatus>
-        <Status status={transaction.transactionStatus} />
-      </TDStatus>
+      </TDInitiatorReceiver>
       <TDValidators>
+        <MobileLabel>Validators</MobileLabel>
         {/* States available: pending, submitted, submittedExecuted, executed, notRequired */}
         <Validators transaction={transaction} />
       </TDValidators>
-      <TD>
-        <ActionButton
-          disabled={transaction.transactionStatus !== TransactionStatus.Unclaimed}
-          onClick={(e) => handleClaim(e)}
-        >
-          Claim
-        </ActionButton>
-        <ViewMore>View More</ViewMore>
-      </TD>
+      <TDLastMobile>
+        <MobileLabel>Status</MobileLabel>
+        <Status
+          onClick={
+            transaction.transactionStatus === TransactionStatus.Unclaimed
+              ? (e) => handleClaim(e)
+              : undefined
+          }
+          status={transaction.transactionStatus}
+        />
+        <ViewMore>View More &gt;</ViewMore>
+      </TDLastMobile>
       <TDChevron>
         <ChevronRight />
       </TDChevron>

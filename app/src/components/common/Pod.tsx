@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Badge } from '@/src/components/common/Badge'
 import { InnerCard } from '@/src/components/common/InnerCard'
 import { TransactionStatusTypes } from '@/src/constants/types'
-import { Status } from '@/src/components/common/Status'
+import { Status as BaseStatus } from '@/src/components/common/Status'
 import { TransactionStatus } from '@/types/generated/subgraph'
 
 const Wrapper = styled(InnerCard)<{ status?: string }>`
@@ -17,8 +17,14 @@ const Wrapper = styled(InnerCard)<{ status?: string }>`
       ? ({ theme }) => theme.colors.successDark
       : ({ theme }) => theme.colors.darkGrey};
   border-radius: 8px;
+  flex: 1 1 0px;
+  justify-content: space-between;
   padding-bottom: ${({ theme: { common } }) => common.space * 3}px;
   padding-top: ${({ theme: { common } }) => common.space * 3}px;
+
+  > div {
+    min-height: 24px;
+  }
 `
 const Header = styled.div`
   align-items: flex-start;
@@ -27,10 +33,14 @@ const Header = styled.div`
   gap: ${({ theme: { common } }) => common.space / 2}px;
 `
 
+const Status = styled(BaseStatus)`
+  margin-left: auto;
+`
+
 interface Props {
+  status?: string
   subTitle?: string
   title: string
-  status?: string
 }
 
 export const Pod: React.FC<Props> = ({ children, status, subTitle, title }) => {

@@ -20,6 +20,7 @@ const Rows = styled.ul`
   margin: 0;
   padding: 0;
   row-gap: ${({ theme: { common } }) => common.space}px;
+
   &.last {
     margin: ${({ theme: { common } }) => common.space * 3}px 0 0;
   }

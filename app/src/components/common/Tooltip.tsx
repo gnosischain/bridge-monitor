@@ -4,8 +4,6 @@ import styled from 'styled-components'
 import { AnimatePresence, motion } from 'framer-motion'
 
 const Wrapper = styled.div`
-  font-size: 0;
-  line-height: 0;
   position: relative;
   z-index: 10;
 `
@@ -18,7 +16,7 @@ const TooltipWrapper = styled(motion.div)`
   display: inline-block;
   font-size: 1.2rem;
   left: 0;
-  line-height: 1.5;
+  line-height: 1.2;
   max-width: 180px;
   padding: ${({ theme: { common } }) => common.space / 4}px
     ${({ theme: { common } }) => common.space}px;

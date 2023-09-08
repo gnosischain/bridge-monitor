@@ -18,11 +18,13 @@ const Wrapper = styled.div<{ inline?: boolean }>`
     min-width: 250px;
   }
 `
+
 const Tokens = styled.div`
   align-items: center;
   display: flex;
-  column-gap: ${({ theme: { common } }) => common.space * 2}px;
+  column-gap: ${({ theme: { common } }) => common.space}px;
 `
+
 const Value = styled.strong<{ bigNumber?: boolean }>`
   font-size: ${(props) => (props.bigNumber ? '2.1rem' : '1.2rem')};
   font-weight: 400;
