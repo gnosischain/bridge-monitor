@@ -18,7 +18,9 @@ import {
   parseAMBTransactionInput,
   isAffirmationFromOmnibridge,
   isFromOmniBridgeUsageNew,
+  parseAMBTransactionInputForTelepathy,
 } from "./message";
+import { telepathyAddress } from "./utils";
 
 //-------------------------
 // Home > Foreign
@@ -152,7 +154,18 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
     return;
   }
 
-  const messageId = parseAMBTransactionInput(transactionData);
+  // if signer is Telepathy, txData has to be processed with different indexes
+  const messageId =
+    signerString == telepathyAddress
+      ? parseAMBTransactionInputForTelepathy(event.receipt)
+      : parseAMBTransactionInput(transactionData);
+
+  if (messageId.length == 0) {
+    log.error(`handlerSignedForAffirmation: MessageId is null - hash: {}`, [
+      event.transaction.hash.toHexString(),
+    ]);
+    return;
+  }
 
   // Get or create transaction (as it might have be created by a previous validator)
   let transaction = AMBTransaction.load(messageId);

@@ -1,3 +1,4 @@
+import { Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { isSameString } from "./utils";
 
 /**
@@ -70,6 +71,27 @@ export function parseAMBTransactionInput(_input: string): string {
   return `0x${_input.slice(138, 202)}`;
 }
 
+export function parseAMBTransactionInputForTelepathy(
+  receipt: ethereum.TransactionReceipt | null
+): string {
+  if (!receipt) return "";
+
+  const _userRequestForSignatureTopic = receipt.logs.filter((_log) => {
+    const _topics = _log.topics;
+    return _topics.includes(
+      Bytes.fromHexString(
+        "0x720079e7f8eea356a67c3ee9cdde73af7e603734d051a9c2c1a986faed12c2fa"
+      )
+    );
+  });
+
+  if (_userRequestForSignatureTopic.length > 0) {
+    return _userRequestForSignatureTopic[0].topics[2].toHexString();
+  }
+
+  return "";
+}
+
 export function getReceiver(_input: string): string {
   // well known data content from messageHash:
   // - receiver: chars 266 to 306
@@ -101,13 +123,21 @@ export function isOmniBridgeUsage(_message: string): boolean {
 
 // Check if the tx is to bridge ERC20 tokens.
 export function isAffirmationFromOmnibridge(_input: string): boolean {
-  const originMediator = `${_input.slice(202, 242)}`;
-  const destinationMediator = `${_input.slice(242, 282)}`;
+  // This was the old implementation, but it was not working for Telepathy validator.
+
+  // const originMediator = `${_input.slice(202, 242)}`;
+  // const destinationMediator = `${_input.slice(242, 282)}`;
+  // return (
+  //   (isSameString(originMediator, HOME_MEDIATOR) &&
+  //     isSameString(destinationMediator, FOREIGN_MEDIATOR)) ||
+  //   (isSameString(destinationMediator, HOME_MEDIATOR) &&
+  //     isSameString(originMediator, FOREIGN_MEDIATOR))
+  // );
+
+  // For now checking if Foreign and Home mediator are present in the input is enough.
   return (
-    (isSameString(originMediator, HOME_MEDIATOR) &&
-      isSameString(destinationMediator, FOREIGN_MEDIATOR)) ||
-    (isSameString(destinationMediator, HOME_MEDIATOR) &&
-      isSameString(originMediator, FOREIGN_MEDIATOR))
+    _input.indexOf(HOME_MEDIATOR.toLowerCase()) > -1 &&
+    _input.indexOf(FOREIGN_MEDIATOR.toLowerCase()) > -1
   );
 }
 

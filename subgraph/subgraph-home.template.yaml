@@ -150,6 +150,7 @@ dataSources:
           handler: handlerSignedForUserRequest
         - event: SignedForAffirmation(indexed address,bytes32)
           handler: handlerSignedForAffirmation
+          receipt: true
         - event: CollectedSignatures(address,bytes32,uint256)
           handler: handlerCollectedSignatures
         - event: AffirmationCompleted(indexed address,indexed address,indexed bytes32,bool)
