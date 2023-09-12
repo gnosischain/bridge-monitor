@@ -1,6 +1,8 @@
 import styled from 'styled-components'
 
+import { useMemo } from 'react'
 import { LimitDot } from '@/src/components/limits/LimitDot'
+import Image from 'next/image'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -17,11 +19,26 @@ const Title = styled.h3`
   margin: 0;
 `
 
-const Circle = styled.div`
+const Circle = styled.div<{ shortName?: string }>`
   --size: 40px;
 
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.primary};
+  background-color: ${({ shortName, theme: { colors } }) =>
+    shortName === 'GS'
+      ? '#12FF80'
+      : shortName === 'GW'
+      ? '#EDE9EF'
+      : shortName === 'PF'
+      ? '#121f3f'
+      : shortName === 'CP'
+      ? '#052b65'
+      : shortName === 'GD'
+      ? '#0d251c'
+      : shortName === 'K'
+      ? '#221F20'
+      : shortName === 'G'
+      ? '#fff'
+      : colors.primary};
   border-radius: 50%;
   color: ${({ theme: { colors } }) => colors.cream};
   display: flex;
@@ -38,20 +55,64 @@ const Dot = styled(LimitDot)`
 `
 
 interface Props {
+  shortName: string
   title: string
   validatorHealth: string
 }
 
 export const BridgeValidatorHeader: React.FC<Props> = ({
+  shortName,
   title,
   validatorHealth,
   ...restProps
 }) => {
-  const Capitals = title.replace(/[a-z+\s]/g, '')
+  const capitals = title.replace(/[a-z+\s]/g, '')
+  const validatorIcon = useMemo(() => {
+    const basePath = '/images/validators/'
+    const icons = `${basePath}${
+      shortName === 'GS'
+        ? 'gnosis-safe.svg'
+        : shortName === 'GW'
+        ? 'gateway.svg'
+        : shortName === 'PF'
+        ? 'protofire.svg'
+        : shortName === 'CP'
+        ? 'cow-protocol.svg'
+        : shortName === 'GD'
+        ? 'gnosis-dao.png'
+        : shortName === 'K'
+        ? 'karpatkey.svg'
+        : shortName === 'G'
+        ? 'giveth.svg'
+        : capitals
+    }`
+    const size =
+      shortName === 'GS'
+        ? 38
+        : shortName === 'GW'
+        ? 36
+        : shortName === 'PF'
+        ? 28
+        : shortName === 'CP'
+        ? 40
+        : shortName === 'GD'
+        ? 36
+        : shortName === 'K'
+        ? 36
+        : shortName === 'G'
+        ? 30
+        : 40
+
+    return (
+      <Circle shortName={shortName}>
+        <Image alt={title} height={size} src={icons} width={size} />
+      </Circle>
+    )
+  }, [capitals, shortName, title])
 
   return (
     <Wrapper {...restProps}>
-      <Circle>{Capitals}</Circle>
+      {validatorIcon}
       <Title>{title}</Title>
       <Dot status={validatorHealth} />
     </Wrapper>

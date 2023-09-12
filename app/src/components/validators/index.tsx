@@ -76,6 +76,7 @@ export const BridgeValidators: React.FC = () => {
   const ambTodaysSignedTXs = useFetchValidatorsSignatures('AMB', dayAgoTimestamp())
   const xdaiTodaysExecutedTXs = useFetchValidatorsExecutions('XDAI', dayAgoTimestamp())
   const ambTodaysExecutedTXs = useFetchValidatorsExecutions('AMB', dayAgoTimestamp())
+
   if (!xdaiSignedTXs.data && xdaiSignedTXs.error) {
     throw new Error('No data for XDAI Signed Transactions')
   }
@@ -109,10 +110,9 @@ export const BridgeValidators: React.FC = () => {
           )
           validator.signed = todaysSignatures?.value ?? 0
           validator.executed = todaysExecutions?.value ?? 0
+
           return (
-            <>
-              <BridgeValidator bridgeValidator={validator} key={`validator_${index}`} />
-            </>
+            <BridgeValidator bridgeValidator={validator} key={`xDaiBridgeValidator_${index}`} />
           )
         })}
       </Columns>
@@ -140,11 +140,8 @@ export const BridgeValidators: React.FC = () => {
           )
           validator.signed = todaysSignatures?.value ?? 0
           validator.executed = todaysExecutions?.value ?? 0
-          return (
-            <>
-              <BridgeValidator bridgeValidator={validator} key={`validator_${index}`} />
-            </>
-          )
+
+          return <BridgeValidator bridgeValidator={validator} key={`AMBBridgeValidator_${index}`} />
         })}
       </Columns>
     </>
