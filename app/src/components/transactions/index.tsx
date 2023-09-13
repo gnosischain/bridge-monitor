@@ -35,6 +35,7 @@ const Title = styled(MainTitle)`
 export const Transactions: React.FC = () => {
   const {
     filters,
+    resetFilters,
     setBridge,
     setBridgeDirection,
     setEndTimestamp,
@@ -62,7 +63,14 @@ export const Transactions: React.FC = () => {
         <TabsWrapper>
           <Tabs>
             {transactions.map(({ title }, index) => (
-              <TabHeader key={index} onClick={setBridge} title={title} />
+              <TabHeader
+                key={index}
+                onClick={(t) => {
+                  resetFilters()
+                  setBridge(t)
+                }}
+                title={title}
+              />
             ))}
           </Tabs>
         </TabsWrapper>
