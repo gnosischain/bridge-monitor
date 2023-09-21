@@ -8,6 +8,11 @@ export function isSameString(a: string, b: string): boolean {
 export const telepathyAddress = "0xfdbf5711f77b97ea7f1f812832884c7328a682ec";
 
 export function debug_addValidatorsManually(): void {
+  const loaded = Validator.load("0x105cd22ed3d089bf5589c59b452f9de0796ca52d");
+  if (loaded) {
+    return;
+  }
+
   const v1 = new Validator("0x105cd22ed3d089bf5589c59b452f9de0796ca52d");
   v1.name = "Giveth";
   v1.bridgeType = "AMB";

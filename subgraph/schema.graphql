@@ -1,5 +1,5 @@
 enum BridgeType {
-  XDAI,
+  XDAI
   AMB
 }
 
@@ -7,7 +7,7 @@ type Validator @entity {
   id: ID! # Validator Address
   name: String # See Config folder
   bridgeType: BridgeType # xDai, AMB, Omnibridge
-  address: Bytes
+  address: Bytes!
   lastActivity: BigInt # Last time Validator Signed|Executed a Tx
   signed: [TransactionValidation!]! @derivedFrom(field: "validator") # tx signed (24hs)
   executed: [TransactionExecution!]! @derivedFrom(field: "executor") # tx executed (24hs)
@@ -17,13 +17,11 @@ type Validator @entity {
 }
 
 enum TransactionStatus {
-  INITIATED,
-  REQUESTED,
-  COLLECTING,
-  CLAIMED,
-  UNCLAIMED,
-  COMPLETED,
-  ERROR,
+  INITIATED
+  COLLECTING
+  UNCLAIMED
+  COMPLETED
+  ERROR
 }
 
 type TransactionValidation @entity {
@@ -31,16 +29,19 @@ type TransactionValidation @entity {
   transaction: Transaction!
   transactionHash: Bytes
   validator: Validator!
-  responsableAddress: Bytes
-  timestamp: BigInt
+  validatorAddr: Bytes # helper to allow filtering by validator address TODO: make this required
+  timestamp: BigInt!
 }
+
 type TransactionExecution @entity {
   id: ID! # tx.id + '-' + validator.id
   transaction: Transaction! # Tx hash where the bridge operation ended
-  transactionHash: Bytes # timestamp when the bridge operation ended
-  timestamp: BigInt
-  executor: Validator # the execution could be run by the user so this field may be null
-  responsableAddress: Bytes
+  transactionHash: Bytes!
+  timestamp: BigInt! # timestamp when the bridge operation ended
+  # if Foreign > Home set validator (The last signer). if Home > Foreign set Null.
+  # todo: rename to validator.
+  executor: Validator
+  validatorAddr: Bytes # helper to allow filtering by validator address
 }
 
 interface Transaction {
@@ -58,7 +59,7 @@ interface Transaction {
   receiverToken: Bytes # ERC20 token address
   transactionStatus: TransactionStatus
   validations: [TransactionValidation!] @derivedFrom(field: "transaction")
-  execution: TransactionExecution
+  execution: TransactionExecution # This is the "end" of the bridge operation. It can be seen as the "claim". In Home is executed by the validator when the threshold is reached. In Foreign is executed by the user manually.
   messageId: Bytes # AMB id
 }
 
@@ -70,26 +71,7 @@ type XDAITransaction implements Transaction @entity {
   initiatorNetwork: String
   initiatorAmount: BigInt
   initiatorToken: Bytes
-  receiver: Bytes 
-  receiverNetwork: String
-  receiverAmount: BigInt
-  receiverToken: Bytes 
-  transactionStatus: TransactionStatus
-  timestamp: BigInt
-  validations: [TransactionValidation!] @derivedFrom(field: "transaction")
-  execution: TransactionExecution
-  messageId: Bytes 
-}
-
-type AMBTransaction implements Transaction @entity {
-  id: ID! # Message ID
-  transactionHash: Bytes
-  bridgeName: String 
-  initiator: Bytes 
-  initiatorNetwork: String
-  initiatorAmount: BigInt
-  initiatorToken: Bytes 
-  receiver: Bytes 
+  receiver: Bytes
   receiverNetwork: String
   receiverAmount: BigInt
   receiverToken: Bytes
@@ -97,5 +79,24 @@ type AMBTransaction implements Transaction @entity {
   timestamp: BigInt
   validations: [TransactionValidation!] @derivedFrom(field: "transaction")
   execution: TransactionExecution
-  messageId: Bytes 
+  messageId: Bytes
+}
+
+type AMBTransaction implements Transaction @entity {
+  id: ID! # Message ID
+  transactionHash: Bytes
+  bridgeName: String
+  initiator: Bytes
+  initiatorNetwork: String
+  initiatorAmount: BigInt
+  initiatorToken: Bytes
+  receiver: Bytes
+  receiverNetwork: String
+  receiverAmount: BigInt
+  receiverToken: Bytes
+  transactionStatus: TransactionStatus
+  timestamp: BigInt
+  validations: [TransactionValidation!] @derivedFrom(field: "transaction")
+  execution: TransactionExecution
+  messageId: Bytes
 }

@@ -262,6 +262,7 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
             link={transaction.receiverScanUrl}
           />
         </InitiatorReceiverWrapper>
+
         <MobileLabel>Amount</MobileLabel>
         <TokenWithValue
           token={transaction.initiatorToken}

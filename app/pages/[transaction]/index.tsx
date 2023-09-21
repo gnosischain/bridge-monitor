@@ -75,9 +75,13 @@ const TransactionDetailsList = styled.ul`
 const Bridges: NextPage = () => {
   const router = useRouter()
   const transactionId = String(router.query?.id)
-  const { transactions } = useFetchTransactions({
-    where: { id: transactionId },
-  })
+  const { transactions } = useFetchTransactions(
+    {},
+    {
+      // transactionId is txHash in on the network that originated the bridge
+      where: { id: transactionId },
+    },
+  )
   // hack, for some reason TS is not recognizing that transactions[0] can be null
   const currentTx = transactions.length > 0 ? transactions[0] : null
   const txValidations = currentTx?.validations ?? []
@@ -152,7 +156,7 @@ const Bridges: NextPage = () => {
               description={`User requested for Signature/Affirmation.
               ${messageIDText}`}
               title="Transaction Confirmed"
-              transactionStatus={TransactionStatus.Requested}
+              transactionStatus={TransactionStatus.Initiated}
               waiting={currentTx.validations?.length === 0}
             />
             {hasValidations() && (
@@ -185,13 +189,13 @@ const Bridges: NextPage = () => {
                       key={txExecution.id}
                       status="not-required"
                       transaction={txExecution}
-                      validator={getValidatorName(txExecution.responsableAddress)}
+                      validator={getValidatorName(txExecution.validatorAddr ?? '')}
                     />
                   </ul>
                 </TransactionDetailsListItem>
               </>
             )}
-            {hasBeenCompleted() && (
+            {currentTx.execution && (
               <>
                 <TransactionDetailsListItem
                   dateCompleted={currentTx.timestamp} // tokens bridged event timestamp (COMPLETED)
@@ -199,7 +203,16 @@ const Bridges: NextPage = () => {
                   title="Tokens Bridged"
                   transactionStatus={currentTx.transactionStatus}
                   waiting={currentTx.timestamp ? false : true}
-                />
+                >
+                  <ul>
+                    <TransactionValidator
+                      key={txExecution.id}
+                      status="not-required"
+                      transaction={currentTx.execution}
+                      validator={''}
+                    />
+                  </ul>
+                </TransactionDetailsListItem>
               </>
             )}
           </TransactionDetailsList>

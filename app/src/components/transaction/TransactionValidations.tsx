@@ -33,7 +33,7 @@ export const TransactionValidations: React.FC<Props> = ({ fetchValidatorName, va
           key={index}
           status={signaturesStatus}
           transaction={validation}
-          validator={fetchValidatorName(validation.responsableAddress)}
+          validator={fetchValidatorName(validation.validatorAddr)}
         />
       ))}
 

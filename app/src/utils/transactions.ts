@@ -5,6 +5,7 @@ import { Token } from '../constants/token'
 import { getForeignGraphqlClient, getHomeGraphqlClient } from '@/src/constants/config/subgraph'
 import { TRANSACTION_QUERY } from '@/src/queries/transactions'
 import {
+  QueryTransactionsArgs,
   // OrderDirection,
   TransactionExecution as TransactionExecutionSG,
   Transaction as TransactionSG,
@@ -12,7 +13,6 @@ import {
   TransactionValidation as TransactionValidationSG,
   // Transaction_OrderBy,
   TransactionsQuery,
-  TransactionsQueryVariables,
 } from '@/types/generated/subgraph'
 import findKey from 'lodash/findKey'
 import { constants } from 'ethers'
@@ -28,7 +28,7 @@ export type TransactionExecution = {
   id: string
   timestamp: number
   transactionHash: string
-  responsableAddress: string
+  validatorAddr?: string
   scanUrl?: string
 }
 
@@ -36,7 +36,7 @@ export type TransactionValidation = {
   id: string
   timestamp: number
   transactionHash: string
-  responsableAddress: string
+  validatorAddr: string
   scanUrl?: string
 }
 
@@ -65,6 +65,8 @@ export type Transaction = {
   execution?: TransactionExecution
 }
 
+export type TxsInMemoryFilters = { validator?: string; executor?: string }
+
 const getNetworkIcon = (network: string) => {
   return network === MAINNET ? 'eth' : 'gnosis'
 }
@@ -92,7 +94,7 @@ const transformExecution = (
     id: txExecution.id,
     timestamp: fromSubgraphTimestamp(txExecution.timestamp),
     transactionHash: txExecution.transactionHash,
-    responsableAddress: txExecution.responsableAddress,
+    validatorAddr: txExecution.validatorAddr,
     // @todo validators tx are only created in the GNOSIS network
     scanUrl: getTxScanUrl(txExecution.transactionHash, GNOSIS),
   }
@@ -103,7 +105,7 @@ const transformValidation = (txValidation: TransactionValidationSG): Transaction
     id: txValidation.id,
     timestamp: fromSubgraphTimestamp(txValidation.timestamp),
     transactionHash: txValidation.transactionHash,
-    responsableAddress: txValidation.responsableAddress,
+    validatorAddr: txValidation.validatorAddr,
     // @todo validators tx are only created in the GNOSIS network
     scanUrl: getTxScanUrl(txValidation.transactionHash, GNOSIS),
   }
@@ -139,112 +141,113 @@ const transformTx = (tx: TransactionSG): Transaction => {
   return res
 }
 
-const fetchHomeTransaction = async (query?: TransactionsQueryVariables) => {
-  const { transactions } = await getHomeGraphqlClient()<
-    TransactionsQuery,
-    TransactionsQueryVariables
-  >(TRANSACTION_QUERY, query)
+const fetchHomeTransaction = async (query?: QueryTransactionsArgs) => {
+  const { transactions } = await getHomeGraphqlClient()<TransactionsQuery, QueryTransactionsArgs>(
+    TRANSACTION_QUERY,
+    query,
+  )
   return transactions
 }
 
-const fetchForeignTransaction = async (query?: TransactionsQueryVariables) => {
+const fetchForeignTransaction = async (query?: QueryTransactionsArgs) => {
   const { transactions } = await getForeignGraphqlClient()<
     TransactionsQuery,
-    TransactionsQueryVariables
+    QueryTransactionsArgs
   >(TRANSACTION_QUERY, query)
   return transactions
 }
 
-export const unifyTransactions = async (homeTxs: TransactionSG[], foreignTxs: TransactionSG[]) => {
-  const transactions: Record<string, TransactionSG> = homeTxs.reduce((acc, tx) => {
+export const unifyTransactions = async (
+  _homeTxs: TransactionSG[],
+  _foreignTxs: TransactionSG[],
+) => {
+  let homeTxs = [..._homeTxs]
+  let foreignTxs = [..._foreignTxs]
+
+  // Some filters like tx.hash or tx.timestamp will filter txs only on one side.
+  // We use messageId from one side to bring the tx from the other side.
+  const foreignTxsIds = foreignTxs.map((tx) => tx.id)
+  const homeTxsIds = homeTxs.map((tx) => tx.id)
+
+  const missingForeignIds = homeTxsIds.filter((id) => !foreignTxsIds.includes(id))
+  const missingHomeIds = foreignTxsIds.filter((id) => !homeTxsIds.includes(id))
+
+  if (missingHomeIds.length > 0) {
+    const missingTxs = (await fetchHomeTransaction({
+      where: { id_in: missingHomeIds },
+    })) as TransactionSG[]
+
+    homeTxs = [...homeTxs, ...missingTxs]
+  }
+
+  if (missingForeignIds.length > 0) {
+    const missingTxs = (await fetchForeignTransaction({
+      where: { id_in: missingForeignIds },
+    })) as TransactionSG[]
+
+    foreignTxs = [...foreignTxs, ...missingTxs]
+  }
+
+  // 1. initiate with homeTxs.
+  const allTransactions: Record<string, TransactionSG> = homeTxs.reduce((acc, tx) => {
     acc[tx.id] = tx
     return acc
   }, {} as Record<string, TransactionSG>)
 
-  // There is a special case where the tx is completed in one side, but due it might be filtered out in the other side
-  // because of the date it has been completed.
-  // For example:
-  // filter = 1/1/2024-1/2/2024
-  // it brings all the txs that have "initiated" in home and all the txs that have been "claimed" in foreign
-  // this scenario sometimes bring txs in foreign that are not in home.
-  // We take the txs ids that aren't in home and fetch them in foreign manually.
-  const missingHomeTxs = foreignTxs
-    .filter((tx) => tx.transactionStatus == TransactionStatus.Completed)
-    .filter((tx) => !transactions[tx.id])
-    .map((tx) => tx.id)
-
-  if (missingHomeTxs.length > 0) {
-    const completedTxs = (await fetchHomeTransaction({
-      where: { id_in: missingHomeTxs },
-    })) as TransactionSG[]
-
-    completedTxs.forEach((tx) => {
-      transactions[tx.id] = tx
-    })
-  }
-
-  // we add to the transactions the information provided by the foreign request.
+  // 2. hydrate with foreign txs
   foreignTxs.forEach((foreignTx) => {
-    if (!transactions[foreignTx.id]) {
-      transactions[foreignTx.id] = foreignTx
+    if (!allTransactions[foreignTx.id]) {
+      // initiated on foreign but home is not aware of it yet
+      allTransactions[foreignTx.id] = foreignTx
     } else {
-      const completedTx = transactions[foreignTx.id]
+      const hydratedTx = allTransactions[foreignTx.id]
 
       if (foreignTx.initiatorNetwork == 'gnosis') {
-        // when the tx is finalized in foreign
-        completedTx.receiver = foreignTx.receiver
-        completedTx.receiverNetwork = foreignTx.receiverNetwork
-        completedTx.receiverAmount = foreignTx.receiverAmount
-        completedTx.receiverToken = foreignTx.receiverToken
+        // get execution info from foreign
+        if (foreignTx.execution) {
+          hydratedTx.transactionStatus = foreignTx.transactionStatus
+          hydratedTx.execution = foreignTx.execution
+        }
       } else {
-        // when the tx is initiated in foreign
-        completedTx.transactionHash = foreignTx.transactionHash
-        completedTx.initiator = foreignTx.initiator
-        completedTx.initiatorAmount = foreignTx.initiatorAmount
-        completedTx.initiatorNetwork = foreignTx.initiatorNetwork
-        completedTx.initiatorToken = foreignTx.initiatorToken
-      }
-
-      // set claim tx data
-      if (foreignTx.transactionStatus === 'COMPLETED') {
-        completedTx.transactionStatus = TransactionStatus.Completed
-        completedTx.execution = foreignTx.execution
+        // get initiator info from foreign
+        hydratedTx.transactionHash = foreignTx.transactionHash
+        hydratedTx.timestamp = foreignTx.timestamp
+        hydratedTx.initiator = foreignTx.initiator
+        hydratedTx.initiatorAmount = foreignTx.initiatorAmount
+        hydratedTx.initiatorNetwork = foreignTx.initiatorNetwork
+        hydratedTx.initiatorToken = foreignTx.initiatorToken
       }
     }
   })
 
-  return Object.values(transactions)
+  return Object.values(allTransactions).sort((a, b) => Number(a.timestamp) - Number(b.timestamp))
 }
 
-export const fetchTransactions = async (query: TransactionsQueryVariables) => {
+export const fetchTransactions = async (
+  query: QueryTransactionsArgs,
+  inMemoryFilters: TxsInMemoryFilters,
+) => {
   const [homeTxs, foreignTxs] = await Promise.all([
     fetchHomeTransaction(query),
     fetchForeignTransaction(query),
   ])
 
-  // If the query is filtering by transactionHash, it will only bring the tx from the network that has the tx.
-  // So we need to fetch the tx in the other network.
-  if (findKey(query.where?.and, 'transactionHash') !== undefined) {
-    // if the tx is not in home, we fetch it in home using the tx id from foreign
-    if (!homeTxs.length && foreignTxs[0]) {
-      const [homeTx] = await fetchHomeTransaction({
-        where: { id: foreignTxs[0].id },
-      })
-      homeTx !== undefined && homeTxs.push(homeTx)
-    }
-    // if the tx is not in foreign, we fetch it in foreign using the tx id from home
-    else if (!foreignTxs.length && homeTxs[0]) {
-      const [foreignTx] = await fetchForeignTransaction({
-        where: { id: homeTxs[0].id },
-      })
-      foreignTx !== undefined && foreignTxs.push(foreignTx)
-    }
-  }
-
-  const transactions = await unifyTransactions(
+  let transactions = await unifyTransactions(
     homeTxs as TransactionSG[],
     foreignTxs as TransactionSG[],
   )
+
+  if (inMemoryFilters.validator) {
+    transactions = transactions.filter((tx) =>
+      tx.validations?.some((validation) => validation.validatorAddr === inMemoryFilters.validator),
+    )
+  }
+
+  if (inMemoryFilters.executor) {
+    transactions = transactions.filter(
+      (tx) => tx.execution?.validatorAddr === inMemoryFilters.executor,
+    )
+  }
 
   const res = transactions.map(transformTx)
   return res

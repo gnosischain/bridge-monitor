@@ -13,7 +13,7 @@ dataSources:
       startBlock: {{startBlockForeignBridgeErcToNative}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Transaction
@@ -39,7 +39,7 @@ dataSources:
       startBlock: {{startBlockXDAIBridgeValidators}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Validator
@@ -61,7 +61,7 @@ dataSources:
       startBlock: {{startBlockAMBBridgeValidators}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Validator
@@ -83,7 +83,7 @@ dataSources:
       startBlock: {{startDAI}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Transaction
@@ -107,7 +107,7 @@ dataSources:
       startBlock: {{startBlockOmniBridgeForeignMediator}} # Should we use a specific start block?
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Transaction
@@ -115,8 +115,8 @@ dataSources:
         - name: OmniBridgeMediators
           file: ./abis/OmniBridgeMediators.json
       eventHandlers:
-        - event: TokensBridgingInitiated(indexed address,indexed address,uint256,indexed bytes32)
-          handler: handlerTokensBridgingInitiated
+        # - event: TokensBridgingInitiated(indexed address,indexed address,uint256,indexed bytes32)
+        #   handler: handlerTokensBridgingInitiated
         - event: TokensBridged(indexed address,indexed address,uint256,indexed bytes32)
           handler: handlerTokensBridged
       file: ./src/omnibridge-mediators.ts
@@ -129,7 +129,7 @@ dataSources:
       startBlock: {{startBlockForeignAMB}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Transaction
@@ -143,6 +143,7 @@ dataSources:
       eventHandlers:
         - event: UserRequestForAffirmation(indexed bytes32,bytes)
           handler: handlerUserRequestForAffirmation
+          receipt: true
         - event: RelayedMessage(indexed address,indexed address,indexed bytes32,bool)
           handler: handlerRelayedMessage
       file: ./src/foreign-amb.ts

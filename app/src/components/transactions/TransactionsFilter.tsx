@@ -92,11 +92,10 @@ type BridgeDirectionOption = BridgeDirection | 'All Directions'
 type StatusOption = string
 const txStatus = [
   TransactionStatus.Initiated,
-  TransactionStatus.Requested,
   TransactionStatus.Collecting,
-  TransactionStatus.Claimed,
   TransactionStatus.Unclaimed,
   TransactionStatus.Completed,
+  TransactionStatus.Error,
 ]
 type ValidatorOption = string
 

@@ -1,5 +1,6 @@
-import { Bytes, ethereum, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { isSameString } from "./utils";
+import { AMBTransaction } from "../generated/schema";
 
 /**
  * @description This File is based on the parseMessage function from the https://github.com/omni/tokenbridge oracle repository
@@ -160,4 +161,41 @@ export function isFromOmniBridgeUsageNew(
     isSameString(sender, `0x${FOREIGN_MEDIATOR}`) &&
     isSameString(executor, `0x${HOME_MEDIATOR}`)
   );
+}
+
+// capture TokensBridgingInitiated event
+const tokensBridgingInitiatedTopic = Bytes.fromHexString(
+  "0x59a9a8027b9c87b961e254899821c9a276b5efc35d1f7409ea4f291470f1629a"
+);
+
+export function processTokenBridgingInitiatedEvent(
+  transaction: AMBTransaction,
+  receipt: ethereum.TransactionReceipt
+): void {
+  // We need to extract amount, token and the sender address from this event.
+  // We've opt to process the event this way to simplify the understanding of the bridging process.
+  // Another alternative could have been to parse this event declaring the omnibridge data-source and completing
+  // The transaction entity parsing the events independently.
+
+  const filtered = receipt.logs.filter((_log) => {
+    const _topics = _log.topics;
+    return _topics.includes(tokensBridgingInitiatedTopic);
+  });
+
+  if (filtered.length > 0) {
+    const _tokensBridgingInitiated = filtered[0];
+
+    // convert bytes to BigInt
+    transaction.initiatorAmount = BigInt.fromUnsignedBytes(
+      Bytes.fromUint8Array(_tokensBridgingInitiated.data.reverse())
+    );
+    transaction.initiatorToken = Address.fromHexString(
+      _tokensBridgingInitiated.topics[1].toHexString().slice(26, 66)
+    );
+    transaction.initiator = Address.fromHexString(
+      _tokensBridgingInitiated.topics[2].toHexString().slice(26, 66)
+    );
+
+    transaction;
+  }
 }

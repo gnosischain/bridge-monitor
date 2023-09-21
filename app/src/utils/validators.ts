@@ -18,6 +18,7 @@ import { TRANSACTION_QUERY } from '../queries/transactions'
 import { VALIDATORS_QUERY } from '../queries/validators'
 import {
   OrderDirection,
+  QueryTransactionsArgs,
   TransactionStatus,
   Transaction_OrderBy,
   TransactionsQuery,
@@ -82,10 +83,8 @@ export const VALIDATORS_BY_NAME = {
 
 export const VALIDATOR_STATUS: Record<TransactionStatus, ValidatorStatusTypes> = {
   [TransactionStatus.Initiated]: ValidatorStatusTypes.pending,
-  [TransactionStatus.Requested]: ValidatorStatusTypes.pending,
   [TransactionStatus.Collecting]: ValidatorStatusTypes.submitted,
   [TransactionStatus.Unclaimed]: ValidatorStatusTypes.submittedExecuted,
-  [TransactionStatus.Claimed]: ValidatorStatusTypes.submittedExecuted,
   [TransactionStatus.Completed]: ValidatorStatusTypes.submittedExecuted,
   [TransactionStatus.Error]: ValidatorStatusTypes.default,
 }
@@ -95,15 +94,16 @@ export const getValidationsStatus = (transaction: Transaction, _validators: Vali
   const validators = cloneDeep(listByAddress) // @todo analyze if is required to create full clone
   const txStatus = transaction.transactionStatus
 
-  transaction.validations?.forEach(({ responsableAddress, scanUrl }) => {
-    if (validators[responsableAddress]) {
-      validators[responsableAddress].status = VALIDATOR_STATUS[txStatus]
-      validators[responsableAddress].scanUrl = scanUrl
+  transaction.validations?.forEach(({ scanUrl, validatorAddr }) => {
+    if (validators[validatorAddr]) {
+      validators[validatorAddr].status = VALIDATOR_STATUS[txStatus]
+      validators[validatorAddr].scanUrl = scanUrl
     }
   })
-  if (transaction.execution && validators[transaction.execution.responsableAddress]) {
-    validators[transaction.execution.responsableAddress].status = ValidatorStatusTypes.executed
-    validators[transaction.execution.responsableAddress].scanUrl = transaction.execution.scanUrl
+
+  if (transaction.execution?.validatorAddr && validators[transaction.execution.validatorAddr]) {
+    validators[transaction.execution.validatorAddr].status = ValidatorStatusTypes.executed
+    validators[transaction.execution.validatorAddr].scanUrl = transaction.execution.scanUrl
   }
   return Object.values(validators)
 }
@@ -185,15 +185,15 @@ export const fetchSignedTransactions = async (bridge: BridgesValues, timePeriod:
       orderDirection: RESULTS_ORDER,
       where: {
         bridgeName: bridgeValue,
-        validations_: {
-          timestamp_gte: timePeriod.toString(),
-          responsableAddress: validator.address,
-        },
+        // validations_: {
+        //   timestamp_gte: timePeriod.toString(),
+        //   responsableAddress: validator.address,
+        // },
       },
     }
     const { transactions: signedTxs } = await getHomeGraphqlClient()<
       TransactionsQuery,
-      TransactionsQueryVariables
+      QueryTransactionsArgs
     >(TRANSACTION_QUERY, query)
     const signedTxsCount = signedTxs.length
     return { name: validator.name, value: signedTxsCount }
@@ -213,15 +213,15 @@ export const fetchExecutedTransactions = async (bridge: BridgesValues, timePerio
       orderDirection: RESULTS_ORDER,
       where: {
         bridgeName: bridgeValue,
-        execution_: {
-          timestamp_gte: timePeriod.toString(),
-          responsableAddress: validator.address,
-        },
+        // execution_: {
+        //   timestamp_gte: timePeriod.toString(),
+        //   responsableAddress: validator.address,
+        // },
       },
     }
     const { transactions: signedTxs } = await getHomeGraphqlClient()<
       TransactionsQuery,
-      TransactionsQueryVariables
+      QueryTransactionsArgs
     >(TRANSACTION_QUERY, query)
     const signedTxsCount = signedTxs.length
     return { name: validator.name, value: signedTxsCount }
