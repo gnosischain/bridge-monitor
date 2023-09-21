@@ -1,12 +1,28 @@
-import Image from 'next/image'
 import { SetStateAction, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
-
 import { DebounceInput } from 'react-debounce-input'
-
-import { Search } from './Search'
 import { TextfieldCSS } from '@/src/components/form/Textfield'
 import { DEBOUNCE_TIME } from '@/src/constants/misc'
+import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
+
+const Wrapper = styled.div`
+  background: ${({ theme: { colors } }) => colors.darkerGrey};
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
+  overflow: hidden;
+  position: relative;
+`
+
+const Magnifier = styled(BaseMagnifier)`
+  align-items: center;
+  display: flex;
+  height: 15px;
+  justify-content: center;
+  left: ${({ theme: { common } }) => common.space * 2}px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+`
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Textfield: any = styled(DebounceInput)`
@@ -19,9 +35,9 @@ const Textfield: any = styled(DebounceInput)`
 `
 
 interface Props {
-  placeholder?: string
   onChange: (e: string) => void
   onEnterValue: () => void
+  placeholder?: string
   reset: boolean
 }
 
@@ -30,6 +46,7 @@ export const SearchDebounceInput: React.FC<Props> = ({
   onEnterValue,
   placeholder = 'Search',
   reset,
+  ...restProps
 }) => {
   const [value, setValue] = useState('')
 
@@ -45,18 +62,16 @@ export const SearchDebounceInput: React.FC<Props> = ({
   }, [reset])
 
   return (
-    <Search>
+    <Wrapper {...restProps}>
       <Textfield
         debounceTimeout={DEBOUNCE_TIME}
-        id="Search"
+        id="search"
         onChange={(e: { target: { value: SetStateAction<string> } }) => setValue(e.target.value)}
         placeholder={placeholder}
-        type="text"
+        type="search"
         value={value}
       />
-      <div className="icon">
-        <Image alt="search" height={15} src="/images/icon-search.svg" width={15} />
-      </div>
-    </Search>
+      <Magnifier />
+    </Wrapper>
   )
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import styled from 'styled-components'
 
-import { SearchDebounceInput } from '../filters/SearchDebounceInput'
+import { SearchDebounceInput } from '@/src/components/filters/SearchDebounceInput'
 import FilterDropdown from '@/src/components/filters/FilterDropdown'
 import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
 import { TransactionStatus } from '@/types/generated/subgraph'

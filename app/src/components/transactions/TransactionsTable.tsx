@@ -14,7 +14,7 @@ import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 const Table = styled.table<{ empty?: boolean }>`
   line-height: 2.2rem;
   margin-top: ${({ theme: { common } }) => common.space * 2}px;
-  min-height: ${(props) => (props.empty ? 'auto' : '40vh')};
+  min-height: ${(props) => (props.empty ? '20vh' : '0')};
   width: 100%;
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
