@@ -1,10 +1,13 @@
 import { Address, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
-import { isSameString } from "./utils";
-import { AMBTransaction } from "../generated/schema";
+import { isSameString } from "../utils";
+import { AMBTransaction } from "../../generated/schema";
 
 /**
  * @description This File is based on the parseMessage function from the https://github.com/omni/tokenbridge oracle repository
  */
+
+const HOME_MEDIATOR = "F6A78083CA3E2A662D6DD1703C939C8ACE2E268D";
+const MAINNET_MEDIATOR = "88AD09518695C6C3712AC10A214BE5109A655671";
 
 function strip0x(input: string): string {
   return input.replace("0x", "");
@@ -47,20 +50,14 @@ export function parseTXInput(_input: string): string {
   return `0x${_input.slice(138, 202)}`;
 }
 
-// encodedData parsing logic extracted from tokenbridge/commons/message.js
-// @todo should return an object: manualLane: (dataType && 128) === 128
-const decodeAMBDataType = (dataType: number): boolean => {
-  return (dataType && 128) === 128;
-};
+// export function parseAMBEncodedData(_message: string): Array<string> {
+//   // well known data content from encodedData
+//   const messageId = `0x${_message.slice(0, 64)}`;
+//   const token = `0x${_message.slice(196, 236)}`;
+//   const senderReceiver = `0x${_message.slice(260, 300)}`;
 
-export function parseAMBEncodedData(_message: string): Array<string> {
-  // well known data content from encodedData
-  const messageId = `0x${_message.slice(0, 64)}`;
-  const token = `0x${_message.slice(196, 236)}`;
-  const senderReceiver = `0x${_message.slice(260, 300)}`;
-
-  return [messageId, token, senderReceiver];
-}
+//   return [messageId, token, senderReceiver];
+// }
 
 export function parseAMBMessageHash(_message: string): string {
   // well known data content from messageHash: messageId
@@ -93,22 +90,19 @@ export function parseAMBTransactionInputForTelepathy(
   return "";
 }
 
-export function getReceiver(_input: string): string {
-  // well known data content from messageHash:
-  // - receiver: chars 266 to 306
-  const receiver = `0x${_input.slice(266, 306)}`;
+// export function getReceiver(_input: string): string {
+//   // well known data content from messageHash:
+//   // - receiver: chars 266 to 306
+//   const receiver = `0x${_input.slice(266, 306)}`;
 
-  return receiver;
-}
+//   return receiver;
+// }
 
-export function getInitiator(_input: string): string {
-  // well known data content from messageHash:
-  // - receiver: chars 396 to 436
-  return `0x${_input.slice(396, 436)}`;
-}
-
-const HOME_MEDIATOR = "F6A78083CA3E2A662D6DD1703C939C8ACE2E268D";
-const FOREIGN_MEDIATOR = "88AD09518695C6C3712AC10A214BE5109A655671";
+// export function getInitiator(_input: string): string {
+//   // well known data content from messageHash:
+//   // - receiver: chars 396 to 436
+//   return `0x${_input.slice(396, 436)}`;
+// }
 
 // Check if the tx is to bridge ERC20 tokens.
 export function isOmniBridgeUsage(_message: string): boolean {
@@ -116,9 +110,9 @@ export function isOmniBridgeUsage(_message: string): boolean {
   const destinationMediator = _message.slice(106, 146);
   return (
     (isSameString(originMediator, HOME_MEDIATOR) &&
-      isSameString(destinationMediator, FOREIGN_MEDIATOR)) ||
+      isSameString(destinationMediator, MAINNET_MEDIATOR)) ||
     (isSameString(destinationMediator, HOME_MEDIATOR) &&
-      isSameString(originMediator, FOREIGN_MEDIATOR))
+      isSameString(originMediator, MAINNET_MEDIATOR))
   );
 }
 
@@ -138,64 +132,19 @@ export function isAffirmationFromOmnibridge(_input: string): boolean {
   // For now checking if Foreign and Home mediator are present in the input is enough.
   return (
     _input.indexOf(HOME_MEDIATOR.toLowerCase()) > -1 &&
-    _input.indexOf(FOREIGN_MEDIATOR.toLowerCase()) > -1
+    _input.indexOf(MAINNET_MEDIATOR.toLowerCase()) > -1
   );
 }
 
 export function isFromOmniBridgeUsage(
-  sender: string,
-  executor: string
-): boolean {
-  return (
-    isSameString(sender, `0x${HOME_MEDIATOR}`) &&
-    isSameString(executor, `0x${FOREIGN_MEDIATOR}`)
+  homeMediator: string,
+  foreignMediator: string
+): bool {
+  const foreignMatches = [`0x${MAINNET_MEDIATOR}`.toLowerCase()].includes(
+    foreignMediator.toLowerCase()
   );
-}
 
-// TODO: unify with isFromOmniBridgeUsage
-export function isFromOmniBridgeUsageNew(
-  sender: string,
-  executor: string
-): boolean {
   return (
-    isSameString(sender, `0x${FOREIGN_MEDIATOR}`) &&
-    isSameString(executor, `0x${HOME_MEDIATOR}`)
+    bool(isSameString(homeMediator, `0x${HOME_MEDIATOR}`)) && foreignMatches
   );
-}
-
-// capture TokensBridgingInitiated event
-const tokensBridgingInitiatedTopic = Bytes.fromHexString(
-  "0x59a9a8027b9c87b961e254899821c9a276b5efc35d1f7409ea4f291470f1629a"
-);
-
-export function processTokenBridgingInitiatedEvent(
-  transaction: AMBTransaction,
-  receipt: ethereum.TransactionReceipt
-): void {
-  // We need to extract amount, token and the sender address from this event.
-  // We've opt to process the event this way to simplify the understanding of the bridging process.
-  // Another alternative could have been to parse this event declaring the omnibridge data-source and completing
-  // The transaction entity parsing the events independently.
-
-  const filtered = receipt.logs.filter((_log) => {
-    const _topics = _log.topics;
-    return _topics.includes(tokensBridgingInitiatedTopic);
-  });
-
-  if (filtered.length > 0) {
-    const _tokensBridgingInitiated = filtered[0];
-
-    // convert bytes to BigInt
-    transaction.initiatorAmount = BigInt.fromUnsignedBytes(
-      Bytes.fromUint8Array(_tokensBridgingInitiated.data.reverse())
-    );
-    transaction.initiatorToken = Address.fromHexString(
-      _tokensBridgingInitiated.topics[1].toHexString().slice(26, 66)
-    );
-    transaction.initiator = Address.fromHexString(
-      _tokensBridgingInitiated.topics[2].toHexString().slice(26, 66)
-    );
-
-    transaction;
-  }
 }

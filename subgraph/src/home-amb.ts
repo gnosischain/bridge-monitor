@@ -18,11 +18,16 @@ import {
   isOmniBridgeUsage,
   parseAMBTransactionInput,
   isAffirmationFromOmnibridge,
-  isFromOmniBridgeUsageNew,
   parseAMBTransactionInputForTelepathy,
-  processTokenBridgingInitiatedEvent,
-} from "./message";
+  isFromOmniBridgeUsage,
+} from "./utils/message";
 import { debug_addValidatorsManually, telepathyAddress } from "./utils";
+import {
+  processOmniBridgeTokenBridgingInitiatedEvent,
+  processOmniBridgeTokensBridged,
+} from "./utils/omnibridge";
+
+const MAINNET_OMNI_BRIDGE_HOME_MEDIATOR = "88ad09518695c6c3712AC10a214bE5109a655671".toLowerCase();
 
 //-------------------------
 // Home > Foreign
@@ -59,7 +64,7 @@ export function handlerUserRequestForSignature(
   transaction.transactionStatus = "INITIATED";
 
   transaction.initiatorNetwork = dataSource.network();
-  processTokenBridgingInitiatedEvent(transaction, receipt);
+  processOmniBridgeTokenBridgingInitiatedEvent(transaction, receipt);
 
   transaction.receiver = Bytes.fromHexString(message.slice(260, 300));
   transaction.receiverAmount = transaction.initiatorAmount;
@@ -67,7 +72,7 @@ export function handlerUserRequestForSignature(
   // detect the other side using the OmniBridgeHomeMediator address.
   transaction.receiverNetwork = message
     .toLowerCase()
-    .includes("88ad09518695c6c3712AC10a214bE5109a655671".toLowerCase())
+    .includes(MAINNET_OMNI_BRIDGE_HOME_MEDIATOR)
     ? "mainnet"
     : "unknown";
   transaction.save();
@@ -249,25 +254,31 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
   validator.save();
 }
 
-// 2. When the threshold of validators signatures is reached, the omnibridge-mediators.ts triggers handlerTokensBridged
-// We use this event to get information about the receiver, the token and the amount.
-// TODO: this step can be handled on handlerAffirmationCompleted
-
-// 3. AffirmationCompleted.
+// 2. AffirmationCompleted.
 // This event is triggered when after threshold of validators signatures is reached.
-// and the funds are released on home side.
+// and the funds are minted on home side.
+// NOTE: We are getting receiver information by parsing the event TokensBridged from the OmnibridgeMediator.
 // We create the execution and assign it to the tx.
 // AffirmationCompleted (index_topic_1 address sender, index_topic_2 address executor, index_topic_3 bytes32 messageId, bool status)
 export function handlerAffirmationCompleted(event: AffirmationCompleted): void {
-  event.transaction.from;
+  const transactionHash = event.transaction.hash;
   const sender = event.params.sender.toHexString(); // foreignMediator
   const executor = event.params.executor.toHexString(); // homeMediator
   const timestamp = event.block.timestamp;
   const messageId = event.params.messageId.toHexString();
+  const receipt = event.receipt;
 
   // There are some operations that are not for an ERC20 bridge.
   // We need to filter them out as they are out of scope.
-  if (!isFromOmniBridgeUsageNew(sender, executor)) {
+  if (!isFromOmniBridgeUsage(executor, sender)) {
+    return;
+  }
+
+  if (!receipt) {
+    log.error(
+      "handlerAffirmationCompleted: No receipt found for transaction {}",
+      [transactionHash.toHexString()]
+    );
     return;
   }
 
@@ -300,5 +311,6 @@ export function handlerAffirmationCompleted(event: AffirmationCompleted): void {
   }
   transaction.transactionStatus = "COMPLETED";
   transaction.execution = execution.id;
+  processOmniBridgeTokensBridged(transaction, receipt);
   transaction.save();
 }

@@ -1,10 +1,4 @@
-import {
-  Address,
-  BigInt,
-  Bytes,
-  dataSource,
-  log,
-} from "@graphprotocol/graph-ts";
+import { Address, dataSource, log } from "@graphprotocol/graph-ts";
 import {
   AffirmationCompleted,
   CollectedSignatures,
@@ -19,7 +13,7 @@ import {
   Validator,
   XDAITransaction,
 } from "../generated/schema";
-import { parseMessage } from "./message";
+import { parseMessage } from "./utils/message";
 
 export function handlerUserRequestForSignature(
   event: UserRequestForSignature

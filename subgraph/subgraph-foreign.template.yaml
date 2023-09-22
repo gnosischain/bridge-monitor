@@ -98,28 +98,6 @@ dataSources:
         - event: ValidatorRemoved(indexed address)
           handler: handlerValidatorRemoved
       file: ./src/bridge-validators/amb-validators.ts
-  - name: OmniBridgeMediator
-    kind: ethereum/contract
-    network: {{network}} # mainnet or goerli
-    source:
-      address: '{{OmniBridgeForeignMediator}}'
-      abi: OmniBridgeMediators
-      startBlock: {{startBlockOmniBridgeForeignMediator}} # Should we use a specific start block?
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - Transaction
-      abis:
-        - name: OmniBridgeMediators
-          file: ./abis/OmniBridgeMediators.json
-      eventHandlers:
-        # - event: TokensBridgingInitiated(indexed address,indexed address,uint256,indexed bytes32)
-        #   handler: handlerTokensBridgingInitiated
-        - event: TokensBridged(indexed address,indexed address,uint256,indexed bytes32)
-          handler: handlerTokensBridged
-      file: ./src/omnibridge-mediators.ts
   - name: ForeignAMB
     kind: ethereum/contract
     network: {{network}} # mainnet or goerli
@@ -146,4 +124,5 @@ dataSources:
           receipt: true
         - event: RelayedMessage(indexed address,indexed address,indexed bytes32,bool)
           handler: handlerRelayedMessage
+          receipt: true
       file: ./src/foreign-amb.ts

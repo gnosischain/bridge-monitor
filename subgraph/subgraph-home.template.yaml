@@ -101,30 +101,6 @@ dataSources:
         - event: ValidatorRemoved(indexed address)
           handler: handlerValidatorRemoved
       file: ./src/bridge-validators/amb-validators.ts
-  - name: OmniBridgeMediator
-    kind: ethereum/contract
-    network: {{network}} # gnosis | chiado
-    source:
-      address: '{{OmniBridgeHomeMediator}}'
-      abi: OmniBridgeMediators
-      startBlock: {{startBlockOmniBridgeHomeMediator}} # Should we use a specific start block?
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - Transaction
-        - AMBTransaction
-      abis:
-        - name: OmniBridgeMediators
-          file: ./abis/OmniBridgeMediators.json
-      eventHandlers:
-        # - event: TokensBridgingInitiated(indexed address,indexed address,uint256,indexed bytes32)
-        #   handler: handlerTokensBridgingInitiated
-        #   receipt: true
-        - event: TokensBridged(indexed address,indexed address,uint256,indexed bytes32)
-          handler: handlerTokensBridged
-      file: ./src/omnibridge-mediators.ts
   - name: HomeAMB
     kind: ethereum/contract
     network: {{network}} # gnosis | chiado
@@ -158,4 +134,5 @@ dataSources:
           handler: handlerCollectedSignatures
         - event: AffirmationCompleted(indexed address,indexed address,indexed bytes32,bool)
           handler: handlerAffirmationCompleted
+          receipt: true
       file: ./src/home-amb.ts

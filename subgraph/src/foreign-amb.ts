@@ -1,21 +1,14 @@
-import {
-  Address,
-  BigInt,
-  Bytes,
-  dataSource,
-  ethereum,
-  log,
-} from "@graphprotocol/graph-ts";
+import { Bytes, dataSource, log } from "@graphprotocol/graph-ts";
 import {
   RelayedMessage,
   UserRequestForAffirmation,
 } from "../generated/ForeignAMB/ForeignAMB";
 import { AMBTransaction, TransactionExecution } from "../generated/schema";
+import { isOmniBridgeUsage, isFromOmniBridgeUsage } from "./utils/message";
 import {
-  isOmniBridgeUsage,
-  isFromOmniBridgeUsage,
-  processTokenBridgingInitiatedEvent,
-} from "./message";
+  processOmniBridgeTokenBridgingInitiatedEvent,
+  processOmniBridgeTokensBridged,
+} from "./utils/omnibridge";
 
 //-------------------------
 // Foreign > Home
@@ -52,7 +45,7 @@ export function handlerUserRequestForAffirmation(
   transaction.transactionStatus = "INITIATED";
 
   transaction.initiatorNetwork = network;
-  processTokenBridgingInitiatedEvent(transaction, receipt);
+  processOmniBridgeTokenBridgingInitiatedEvent(transaction, receipt);
 
   transaction.receiver = Bytes.fromHexString(message.slice(258, 298));
   transaction.receiverAmount = transaction.initiatorAmount;
@@ -77,8 +70,16 @@ export function handlerRelayedMessage(event: RelayedMessage): void {
   const sender = event.params.sender; // home mediator address
   const executor = event.params.executor; // foreign mediator address
   const status = event.params.status;
+  const receipt = event.receipt;
 
   if (!isFromOmniBridgeUsage(sender.toHexString(), executor.toHexString())) {
+    return;
+  }
+
+  if (!receipt) {
+    log.error("handlerRelayedMessage: No receipt found for transaction {}", [
+      transactionHash.toHexString(),
+    ]);
     return;
   }
 
@@ -98,5 +99,6 @@ export function handlerRelayedMessage(event: RelayedMessage): void {
   transaction.transactionStatus = status ? "COMPLETED" : "ERROR";
   transaction.initiatorNetwork = "gnosis";
   transaction.receiverNetwork = dataSource.network();
+  processOmniBridgeTokensBridged(transaction, receipt);
   transaction.save();
 }
