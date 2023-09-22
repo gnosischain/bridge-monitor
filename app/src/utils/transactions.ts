@@ -165,7 +165,7 @@ export const unifyTransactions = async (
   let foreignTxs = [..._foreignTxs]
 
   // Some filters like tx.hash or tx.timestamp will filter txs only on one side.
-  // We use messageId from one side to bring the tx from the other side.
+  // We use the messageId from one side to bring the tx from the other side.
   const foreignTxsIds = foreignTxs.map((tx) => tx.id)
   const homeTxsIds = homeTxs.map((tx) => tx.id)
 
@@ -220,7 +220,7 @@ export const unifyTransactions = async (
     }
   })
 
-  return Object.values(allTransactions).sort((a, b) => Number(a.timestamp) - Number(b.timestamp))
+  return Object.values(allTransactions).sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
 }
 
 export const fetchTransactions = async (

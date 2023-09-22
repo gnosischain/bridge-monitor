@@ -95,7 +95,7 @@ export function handlerRelayedMessage(event: RelayedMessage): void {
   transaction.bridgeName = "AMB";
   transaction.messageId = messageId;
   transaction.execution = execution.id;
-  transaction.transactionStatus = status ? "CLAIMED" : "ERROR";
+  transaction.transactionStatus = status ? "COMPLETED" : "ERROR";
   transaction.initiatorNetwork = "gnosis";
   transaction.receiverNetwork = dataSource.network();
   transaction.save();

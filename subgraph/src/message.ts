@@ -147,8 +147,8 @@ export function isFromOmniBridgeUsage(
   executor: string
 ): boolean {
   return (
-    isSameString(sender, FOREIGN_MEDIATOR) &&
-    isSameString(executor, HOME_MEDIATOR)
+    isSameString(sender, `0x${HOME_MEDIATOR}`) &&
+    isSameString(executor, `0x${FOREIGN_MEDIATOR}`)
   );
 }
 

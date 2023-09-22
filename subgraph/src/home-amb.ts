@@ -61,7 +61,7 @@ export function handlerUserRequestForSignature(
   transaction.initiatorNetwork = dataSource.network();
   processTokenBridgingInitiatedEvent(transaction, receipt);
 
-  transaction.receiver = Bytes.fromHexString(message.slice(258, 298));
+  transaction.receiver = Bytes.fromHexString(message.slice(260, 300));
   transaction.receiverAmount = transaction.initiatorAmount;
   transaction.receiverToken = transaction.initiatorToken;
   // detect the other side using the OmniBridgeHomeMediator address.
