@@ -26,6 +26,7 @@ interface Props {
 export const TransactionValidations: React.FC<Props> = ({ fetchValidatorName, validations }) => {
   const signaturesCount = validations.length
   const signaturesStatus = signaturesCount === 4 ? 'not-required' : 'waiting'
+
   return (
     <Wrapper>
       {validations.map((validation: TransactionValidation, index) => (
@@ -37,7 +38,7 @@ export const TransactionValidations: React.FC<Props> = ({ fetchValidatorName, va
         />
       ))}
 
-      <MessageRequired>4 of 7 confirmations required</MessageRequired>
+      <MessageRequired>{signaturesCount} of 4 required confirmations</MessageRequired>
     </Wrapper>
   )
 }
