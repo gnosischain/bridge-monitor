@@ -42,7 +42,9 @@ export const DailyBridgeLimits: React.FC = ({ ...restProps }) => {
   const defaultMainnetToken = tokensBySymbol['gno']
   const [mainnetToken, setMainnetToken] = useState<Token>(defaultMainnetToken)
   const { foreignOMNIinformation } = useForeignOMNIBridgeLimits(mainnetToken)
-  const defaultGnosisToken = tokensByNetwork[100].find((t) => t.symbol === 'gno')
+  const defaultGnosisToken = tokensByNetwork[100].find(
+    (t) => t.symbol.toLocaleLowerCase() === 'gno',
+  )
   if (!defaultGnosisToken) throw new Error('Gnosis token not found')
   const [gnosisToken, setGnosisToken] = useState<Token>(defaultGnosisToken)
   const { homeOMNIinformation } = useHomeOMNIBridgeLimits(gnosisToken)
