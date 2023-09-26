@@ -74,16 +74,6 @@ const monthAgoTimestamp = () => {
   const now = new Date()
   return new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).getTime() / 1000
 }
-const yearAgoTimestamp = () => {
-  const now = new Date()
-  return new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()).getTime() / 1000
-}
-const allTimeTimestamp = () => {
-  const now = new Date()
-  const allTimeStartDate = new Date(2018, 10, 8)
-  const timeDiff = now.getTime() - allTimeStartDate.getTime()
-  return Math.floor(timeDiff / 1000)
-}
 
 export type SignedTXsData = {
   validatorName: string
@@ -96,8 +86,6 @@ export const TransactionsSigned: React.FC<{
   const dropdownItems = [
     { title: 'Last week', timestampVal: weekAgoTimestamp() },
     { title: 'Last month', timestampVal: monthAgoTimestamp() },
-    { title: 'Last year', timestampVal: yearAgoTimestamp() },
-    { title: 'All time', timestampVal: allTimeTimestamp() },
   ]
   const [selectedItem, setSelectedItem] = useState(0)
 
