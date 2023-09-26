@@ -5,6 +5,8 @@ import { ChainToken } from '@/src/components/common/ChainToken'
 import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
 import { BigNumber, BigNumberish, FixedNumber } from 'ethers'
 
+const tokenSize = 16
+
 const Wrapper = styled.div`
   align-items: center;
   column-gap: ${({ theme: { common } }) => common.space}px;
@@ -24,11 +26,31 @@ const Label = styled.span`
 `
 
 const TokenIcon = styled(ChainToken)`
-  height: 16px;
-  width: 16px;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  height: ${tokenSize}px;
+  justify-content: center;
+  overflow: hidden;
+  width: ${tokenSize}px;
 
   > div {
-    margin: auto 0;
+    max-height: 100%;
+    max-width: 100%;
+
+    .iconImage {
+      display: block;
+    }
+
+    > div {
+      &,
+      & img {
+        display: block;
+        max-height: ${tokenSize}px;
+        max-width: ${tokenSize}px;
+      }
+    }
   }
 `
 
@@ -53,10 +75,11 @@ export const TokenWithValue: React.FC<Props> = ({ token, tokenValue, ...restProp
       <TokenIcon name={token}>
         <Image
           alt={token}
-          height={16}
+          className="iconImage"
+          height={tokenSize}
           objectFit="cover"
           src={_token?.logoURI || '/images/icons/empty-token.png'}
-          width={16}
+          width={tokenSize}
         />
       </TokenIcon>
       <Value className="value">
