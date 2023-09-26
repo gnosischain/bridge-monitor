@@ -1,7 +1,9 @@
 import styled from 'styled-components'
 import { HTMLAttributes } from 'react'
 
-const Wrapper = styled.svg``
+const Wrapper = styled.svg`
+  display: block;
+`
 
 interface Props extends HTMLAttributes<SVGElement> {
   height?: number

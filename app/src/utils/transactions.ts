@@ -72,7 +72,7 @@ const getNetworkIcon = (network: string) => {
 }
 
 const scanURL = (network: string) => {
-  const chain = network === MAINNET ? Chains.mainnet : Chains.gnosis
+  const chain = network.toLowerCase() === MAINNET ? Chains.mainnet : Chains.gnosis
   return chainsConfig[chain].blockExplorerUrls[0]
 }
 
