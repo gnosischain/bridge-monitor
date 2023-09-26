@@ -24,13 +24,49 @@ export const Validators: React.FC<Props> = ({ transaction, ...restProps }) => {
     () => getValidationsStatus(transaction, validators),
     [transaction, validators],
   )
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const openLink = (e: any, link: string | undefined) => {
+    e.stopPropagation()
+
+    if (link) {
+      window.open(link, '_blank', 'noopener noreferrer')
+    }
+  }
+
   return (
     <Wrapper {...restProps}>
-      {validationsStatus.map((validator, index) => (
-        <Tooltip key={`validator_status_${transaction.id}_${index}`} text={validator.name}>
-          <a href={validator.scanUrl} rel="noopener noreferrer" target="_blank">
-            <ValidatorStatus status={validator.status} />
-          </a>
+      {validationsStatus.map(({ name, scanUrl, status }, index) => (
+        <Tooltip
+          key={`validator_status_${transaction.id}_${index}`}
+          text={
+            <>
+              <div>Validator: {name}</div>
+              <div>
+                Status:{' '}
+                {status === 'pending'
+                  ? 'Pending'
+                  : status === 'submitted'
+                  ? 'Submitted'
+                  : status === 'submittedExecuted'
+                  ? 'Submitted + executed'
+                  : status === 'executed'
+                  ? 'Executed'
+                  : status === 'notRequired'
+                  ? 'Not Required'
+                  : 'Default'}
+              </div>
+            </>
+          }
+        >
+          <ValidatorStatus
+            onClick={(e) =>
+              status === 'notRequired' || status === 'default' || status === 'pending'
+                ? undefined
+                : openLink(e, scanUrl)
+            }
+            status={status}
+          />
         </Tooltip>
       ))}
     </Wrapper>

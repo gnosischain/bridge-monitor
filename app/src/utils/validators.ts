@@ -10,7 +10,7 @@ import xdaiValidators from './validators/xdai.json'
 import { ValidatorStatusType } from '../components/assets/ValidatorStatus'
 import { Bridges, BridgesValues } from '../constants/config/bridges'
 import { chainsConfig } from '../constants/config/chains'
-import { gnosis, mainnet } from '../constants/config/rpc-providers'
+import { gnosis } from '../constants/config/rpc-providers'
 import { getHomeGraphqlClient } from '../constants/config/subgraph'
 import { Chains } from '../constants/config/types'
 import { BalanceType, ValidatorStatusTypes } from '../constants/types'
@@ -22,7 +22,6 @@ import {
   TransactionStatus,
   Transaction_OrderBy,
   TransactionsQuery,
-  TransactionsQueryVariables,
   ValidatorsQuery,
   ValidatorsQueryVariables,
 } from '@/types/generated/subgraph'
@@ -139,11 +138,9 @@ const getBalance = async (address: string, provider: JsonRpcProvider) => {
 
 export const fetchValidators = async (bridge: string) => {
   const homeProvider = gnosis()
-  const foreignProvider = mainnet()
 
   const validatorsData = await Promise.all([fetchHomeValidators()])
   const validatorsFromSG = validatorsData[0]
-  // const validatorsNative = validatorsData[1]
   // @todo verify that both coincide
   // if (validatorsNative.length !== validatorsForeign.length) throw new Error('Validators mismatch')
   const bridgeValue = bridge.toUpperCase() as BridgesValues
@@ -174,7 +171,7 @@ const MAX_RESULTS = 1000
 const RESULTS_ORDER = OrderDirection.Desc
 const ORDER_BY = Transaction_OrderBy.Timestamp
 
-export const fetchSignedTransactions = async (bridge: BridgesValues, timePeriod: number) => {
+export const fetchSignedTransactions = async (bridge: BridgesValues) => {
   const bridgeValue = bridge.toUpperCase() as BridgesValues
   // fetches TXs validated within a period of time
   const validators = VALIDATORS_BY_BRIDGE[bridgeValue]
@@ -185,10 +182,6 @@ export const fetchSignedTransactions = async (bridge: BridgesValues, timePeriod:
       orderDirection: RESULTS_ORDER,
       where: {
         bridgeName: bridgeValue,
-        // validations_: {
-        //   timestamp_gte: timePeriod.toString(),
-        //   responsableAddress: validator.address,
-        // },
       },
     }
     const { transactions: signedTxs } = await getHomeGraphqlClient()<
@@ -202,7 +195,7 @@ export const fetchSignedTransactions = async (bridge: BridgesValues, timePeriod:
   return eachValidatorSignedTXs
 }
 
-export const fetchExecutedTransactions = async (bridge: BridgesValues, timePeriod: number) => {
+export const fetchExecutedTransactions = async (bridge: BridgesValues) => {
   const bridgeValue = bridge.toUpperCase() as BridgesValues
   // fetches TXs validated within a period of time
   const validators = VALIDATORS_BY_BRIDGE[bridgeValue]
@@ -213,10 +206,6 @@ export const fetchExecutedTransactions = async (bridge: BridgesValues, timePerio
       orderDirection: RESULTS_ORDER,
       where: {
         bridgeName: bridgeValue,
-        // execution_: {
-        //   timestamp_gte: timePeriod.toString(),
-        //   responsableAddress: validator.address,
-        // },
       },
     }
     const { transactions: signedTxs } = await getHomeGraphqlClient()<

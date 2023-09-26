@@ -25,7 +25,7 @@ export const useFetchValidatorsSignatures = (bridge: BridgesValues, timePeriod: 
     error,
     mutate: refetch,
   } = useSWR(['useFetchSignedTransactions', bridge, timePeriod.toString()], () =>
-    fetchSignedTransactions(bridge, timePeriod),
+    fetchSignedTransactions(bridge),
   )
   return { data, error, refetch }
 }
@@ -36,7 +36,7 @@ export const useFetchValidatorsExecutions = (bridge: BridgesValues, timePeriod: 
     error,
     mutate: refetch,
   } = useSWR(['useFetchExecutedTransactions', bridge, timePeriod.toString()], () =>
-    fetchExecutedTransactions(bridge, timePeriod),
+    fetchExecutedTransactions(bridge),
   )
   return { data, error, refetch }
 }

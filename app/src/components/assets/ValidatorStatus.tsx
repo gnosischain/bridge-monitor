@@ -6,6 +6,7 @@ const ValidatorStyles = {
   pending: css`
     background-color: ${({ theme }) => theme.colors.cream};
     opacity: 0.1;
+
     svg {
       display: none;
     }
@@ -23,6 +24,7 @@ const ValidatorStyles = {
   notRequired: css`
     border: 1px solid ${({ theme }) => theme.colors.cream};
     opacity: 0.2;
+
     svg {
       display: none;
     }
@@ -30,6 +32,7 @@ const ValidatorStyles = {
   default: css`
     border: 1px solid ${({ theme }) => theme.colors.cream};
     opacity: 0.2;
+
     svg {
       display: none;
     }
@@ -40,26 +43,28 @@ const Wrapper = styled.span<{ status: keyof typeof ValidatorStyles }>`
   ${(props) => {
     return ValidatorStyles[props.status] ?? ValidatorStyles.default
   }}
-  height: 16px;
-  width: 16px;
-  flex-shrink: 0;
+
+  align-items: center;
   border-radius: 50%;
   display: flex;
-  align-items: center;
+  flex-shrink: 0;
+  height: 16px;
   justify-content: center;
+  width: 16px;
 `
 
 export type ValidatorStatusType = keyof typeof ValidatorStyles
 
 interface Props {
+  onClick?: (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => void | undefined
   status?: ValidatorStatusType
 }
 
-export const ValidatorStatus: React.FC<Props> = ({ status = 'pending' }) => {
+export const ValidatorStatus: React.FC<Props> = ({ onClick, status = 'pending' }) => {
   const strokeWidthValue = status !== 'executed' ? 2 : 1.2
 
   return (
-    <Wrapper status={status}>
+    <Wrapper onClick={onClick} status={status}>
       <IconCheck strokeWidth={strokeWidthValue} />
     </Wrapper>
   )

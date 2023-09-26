@@ -102,9 +102,6 @@ const Bridges: NextPage = () => {
   const hasBeenExecuted = (): boolean => {
     return txExecution !== null && txExecution.id !== undefined
   }
-  const hasBeenCompleted = (): boolean => {
-    return currentTx.transactionStatus === TransactionStatus.Completed
-  }
   const getValidatorName = (validatorAddress: string) => {
     const v = bridgeValidators.find((bridgeValidator) =>
       isSameString(bridgeValidator.address, validatorAddress),
