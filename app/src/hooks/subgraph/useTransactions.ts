@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { isAddress } from '@ethersproject/address'
+import { isHexString } from '@ethersproject/bytes'
 import useSWR from 'swr'
 
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
@@ -43,6 +44,8 @@ export const useFetchTransactions = (
   return { transactions: data ?? [], error, refetch }
 }
 
+export const isTransactionHash = (hash: string) => isHexString(hash) && hash.length === 66
+
 export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   const [page, setPage] = useState(1)
   const [query, setQuery] = useState<QueryTransactionsArgs>()
@@ -59,8 +62,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
     let updated = false
 
     if (filters.hash) {
-      // is hash ()
-      const isTxHash = filters.hash.length > 42
+      const isTxHash = isTransactionHash(filters.hash)
       const text = filters.hash.toLowerCase()
       if (isTxHash) {
         _where.and?.push({ transactionHash: text })

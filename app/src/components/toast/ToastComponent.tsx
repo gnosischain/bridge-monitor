@@ -99,8 +99,8 @@ export const ToastComponent: React.FC<{
   message?: string
   t: Toast
   title?: string
-}> = ({ icon, link, message, t, title }) => (
-  <Wrapper>
+}> = ({ icon, link, message, t, title, ...restProps }) => (
+  <Wrapper {...restProps}>
     {icon && <IconContainer>{icon}</IconContainer>}
     <TextContainer>
       {title && <Title>{title}</Title>}

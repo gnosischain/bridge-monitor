@@ -131,15 +131,15 @@ const useTokenListQuery = () => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const TokenIconsContext = createContext<TokenListQueryReturn>({} as any)
 
-export const TokenIconsContextProvider: FC<PropsWithChildren<any>> = ({ children }) => {
-  const { data } = useTokenListQuery()
+export const TokenIconsContextProvider: FC<PropsWithChildren<any>> = withGenericSuspense(
+  ({ children }) => {
+    const { data } = useTokenListQuery()
 
-  if (!data) {
-    return null
-  }
-
-  return <TokenIconsContext.Provider value={data}>{children}</TokenIconsContext.Provider>
-}
+    return !data ? null : (
+      <TokenIconsContext.Provider value={data}>{children}</TokenIconsContext.Provider>
+    )
+  },
+)
 
 export default withGenericSuspense(TokenIconsContextProvider)
 

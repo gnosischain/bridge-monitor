@@ -30,7 +30,7 @@ const Actions = styled.div`
 `
 
 const Spinner = styled(Loading)`
-  min-height: 200px;
+  height: 200px;
 `
 
 type TransactionsTableProps = {

@@ -79,13 +79,15 @@ export const Address: React.FC<Props> = ({
   const [toastId, setToastId] = useState('')
   const timeDelay = 2000
 
+  useEffect(() => {
+    toast.remove(toastId)
+  }, [toastId])
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const copyWalletAddress = (e: any, address: string) => {
     e.stopPropagation()
 
     navigator.clipboard.writeText(address)
-
-    toast.remove(toastId)
     toast.custom(
       (t: Toast) => {
         setToastId(t.id)

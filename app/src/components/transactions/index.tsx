@@ -82,17 +82,17 @@ export const Transactions: React.FC = () => {
             ))}
           </Tabs>
         </TabsWrapper>
+        <TransactionsFilter
+          bridge={activeTab}
+          onBridgeDirectionChange={setBridgeDirection}
+          onExecutedByChange={setExecutedBy}
+          onHashChange={setHash}
+          onSignedByChange={setSignedBy}
+          onStatusChange={setStatus}
+        />
+        <Legend />
         {transactions.map(({ title }, index) => (
           <TabContent key={index} title={title}>
-            <TransactionsFilter
-              bridge={title}
-              onBridgeDirectionChange={setBridgeDirection}
-              onExecutedByChange={setExecutedBy}
-              onHashChange={setHash}
-              onSignedByChange={setSignedBy}
-              onStatusChange={setStatus}
-            />
-            <Legend />
             <TransactionsTable bridge={title} filters={filters}></TransactionsTable>
           </TabContent>
         ))}
