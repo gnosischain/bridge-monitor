@@ -55,9 +55,9 @@ export const InitiatorReceiver: React.FC<Props> = ({
     <Wrapper inline={inline}>
       <Address address={address} characters={6} copy link={scanLink} />
       <Tokens>
-        <ChainToken name={token}>
+        <ChainToken name={_token?.name ?? token}>
           <Image
-            alt={token}
+            alt={_token?.name ?? token}
             height={16}
             objectFit="cover"
             src={_token?.logoURI || '/images/icons/empty-token.png'}

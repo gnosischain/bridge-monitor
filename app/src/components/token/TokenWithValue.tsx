@@ -32,7 +32,6 @@ const TokenIcon = styled(ChainToken)`
   display: flex;
   height: ${tokenSize}px;
   justify-content: center;
-  overflow: hidden;
   width: ${tokenSize}px;
 
   > div {
@@ -44,7 +43,6 @@ const TokenIcon = styled(ChainToken)`
     }
 
     > div {
-      &,
       & img {
         display: block;
         max-height: ${tokenSize}px;
@@ -72,9 +70,9 @@ export const TokenWithValue: React.FC<Props> = ({ token, tokenValue, ...restProp
   return (
     <Wrapper {...restProps}>
       <Label className="label">Amount:</Label>
-      <TokenIcon name={token}>
+      <TokenIcon name={_token?.name ?? token}>
         <Image
-          alt={token}
+          alt={_token?.symbol ?? token}
           className="iconImage"
           height={tokenSize}
           objectFit="cover"
