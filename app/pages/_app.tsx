@@ -56,13 +56,13 @@ export default function App({ Component, messages, pageProps }: AppPropsWithLayo
             <ThemeProvider>
               <SafeSuspense>
                 <TransactionNotificationProvider>
-                  <GeneralContextProvider>
-                    <TokenIconsContextProvider>
-                      <Header />
+                  <TokenIconsContextProvider>
+                    <Header />
+                    <GeneralContextProvider>
                       {getLayout(<Component {...pageProps} />)}
-                      <Footer />
-                    </TokenIconsContextProvider>
-                  </GeneralContextProvider>
+                    </GeneralContextProvider>
+                    <Footer />
+                  </TokenIconsContextProvider>
                 </TransactionNotificationProvider>
               </SafeSuspense>
               <Toast />

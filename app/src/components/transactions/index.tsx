@@ -12,6 +12,8 @@ import { TransactionsFilter } from '@/src/components/transactions/TransactionsFi
 import TransactionsTable from '@/src/components/transactions/TransactionsTable'
 import { tabs } from '@/src/constants/tabs'
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
+import { useGeneral } from '@/src/providers/generalProvider'
+import { useEffect } from 'react'
 
 const Head = styled.div`
   align-items: flex-start;
@@ -47,6 +49,12 @@ export const Transactions: React.FC = () => {
   } = useTransactionsFilters()
 
   const { transactions } = tabs
+  const { activeTab } = useGeneral()
+
+  useEffect(() => {
+    resetFilters()
+    setBridge(activeTab)
+  }, [activeTab, resetFilters, setBridge])
 
   return (
     <>

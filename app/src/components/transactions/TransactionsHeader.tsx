@@ -4,8 +4,10 @@ import { Tooltip } from '@/src/components/common/Tooltip'
 import { Validator } from '@/src/utils/validators'
 
 const THead = styled.thead`
-  @media (max-width: ${({ theme }) => theme.breakPoints.desktopWideStart}) {
-    display: none;
+  display: none;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    display: table-header-group;
   }
 `
 
@@ -18,10 +20,6 @@ const TH = styled.th`
   padding: var(--th-padding-vertical) var(--th-padding-horizontal);
   text-align: left;
   vertical-align: top;
-
-  @media (max-width: ${({ theme }) => theme.breakPoints.desktopWideStart}) {
-    display: none;
-  }
 `
 
 const THValidators = styled(TH)`
@@ -74,7 +72,7 @@ export const TransactionHeader: React.FC<Props> = ({ validators }) => {
           <ValidatorNameWrapper>
             {validators.map((validator, index) => (
               <Tooltip key={`validator_column_${index}`} text={validator.name}>
-                <ValidatorName>{validator.shortName}</ValidatorName>
+                <ValidatorName>{validator.shortName.toUpperCase()}</ValidatorName>
               </Tooltip>
             ))}
           </ValidatorNameWrapper>

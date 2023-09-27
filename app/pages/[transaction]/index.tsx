@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
 import { Address as BaseAddress } from '@/src/components/token/Address'
+import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { TransactionDetailsListItem } from '@/src/components/transaction/TransactionDetailsListItem'
 import { TransactionFooter } from '@/src/components/transaction/TransactionFooter'
 import { TransactionSummary } from '@/src/components/transaction/TransactionSummary'
@@ -233,4 +234,5 @@ const Bridges: NextPage = () => {
     </Wrapper>
   )
 }
-export default Bridges
+
+export default genericSuspense(Bridges)

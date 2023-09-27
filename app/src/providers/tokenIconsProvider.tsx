@@ -3,7 +3,7 @@ import { FC, PropsWithChildren, createContext, useContext } from 'react'
 import { TokenInfo } from '@uniswap/token-lists'
 import useSWR from 'swr'
 
-import gnosisChainTokensURL from './token-list.json'
+import gnosisChainTokensURL from '@/src/providers/token-list.json'
 import { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { TokensLists } from '@/src/constants/config/types'
 import {

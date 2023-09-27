@@ -66,7 +66,7 @@ Title.defaultProps = {
 
 interface Props {
   disabled?: boolean
-  onClick: Dispatch<SetStateAction<string>>
+  onClick?: Dispatch<SetStateAction<string>>
   title: string
 }
 
@@ -76,7 +76,10 @@ export const TabHeader: React.FC<Props> = ({ disabled, onClick, title }) => {
 
   const handleActive = () => {
     setActiveTab(title)
-    onClick(title)
+
+    if (onClick) {
+      onClick(title)
+    }
   }
 
   return (

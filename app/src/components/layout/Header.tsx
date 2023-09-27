@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
@@ -112,9 +113,9 @@ export const Header: React.FC = (props) => {
         <InnerContainer>
           <Start>
             <Link href="/" passHref>
-              <span>
+              <a>
                 <Logo />
-              </span>
+              </a>
             </Link>
           </Start>
           <End>

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import styled from 'styled-components'
-
 import { BridgeValidator } from '@/src/components/validators/BridgeValidator'
 import {
   TransactionsSigned,
@@ -12,6 +11,8 @@ import {
   useFetchValidatorsExecutions,
   useFetchValidatorsSignatures,
 } from '@/src/hooks/subgraph/useValidators'
+import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { Loading } from '@/src/components/loading/Loading'
 
 const Columns = styled.div`
   display: grid;
@@ -50,6 +51,10 @@ const Chart = styled(TransactionsSigned)`
   }
 `
 
+const Spinner = styled(Loading)`
+  min-height: 200px;
+`
+
 const dayAgoTimestamp = () => {
   const now = new Date()
   return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).getTime() / 1000
@@ -64,31 +69,19 @@ type ExecsCount = {
   value: number
 }
 
-export const BridgeValidators: React.FC = () => {
-  const { validators: xdaiValidators } = useFetchValidators(Bridges.xdai)
-  const { validators: ambValidators } = useFetchValidators(Bridges.amb)
-  const [xdaiTimePeriod, setXDAITimePeriod] = useState(weekAgoTimestamp())
-  const [ambTimePeriod, setAMBTimePeriod] = useState(weekAgoTimestamp())
-  const xdaiSignedTXs = useFetchValidatorsSignatures('XDAI', xdaiTimePeriod)
-  const ambSignedTXs = useFetchValidatorsSignatures('AMB', ambTimePeriod)
+const XDAIValidators: React.FC = genericSuspense(
+  () => {
+    const { validators: xdaiValidators } = useFetchValidators(Bridges.xdai)
+    const [xdaiTimePeriod, setXDAITimePeriod] = useState(weekAgoTimestamp())
+    const xdaiSignedTXs = useFetchValidatorsSignatures('XDAI', xdaiTimePeriod)
+    const xdaiTodaysSignedTXs = useFetchValidatorsSignatures('XDAI', dayAgoTimestamp())
+    const xdaiTodaysExecutedTXs = useFetchValidatorsExecutions('XDAI', dayAgoTimestamp())
 
-  const xdaiTodaysSignedTXs = useFetchValidatorsSignatures('XDAI', dayAgoTimestamp())
-  const ambTodaysSignedTXs = useFetchValidatorsSignatures('AMB', dayAgoTimestamp())
-  const xdaiTodaysExecutedTXs = useFetchValidatorsExecutions('XDAI', dayAgoTimestamp())
-  const ambTodaysExecutedTXs = useFetchValidatorsExecutions('AMB', dayAgoTimestamp())
+    if (!xdaiSignedTXs.data && xdaiSignedTXs.error) {
+      throw new Error('No data for XDAI Signed Transactions')
+    }
 
-  if (!xdaiSignedTXs.data && xdaiSignedTXs.error) {
-    throw new Error('No data for XDAI Signed Transactions')
-  }
-  if (!ambSignedTXs.data && ambSignedTXs.error) {
-    throw new Error('No data for XDAI Signed Transactions')
-  }
-
-  return (
-    <>
-      <Title>
-        xDai Bridge Validators <TitleNote>(Ethereum-Gnosis Chain)</TitleNote>
-      </Title>
+    return (
       <Columns>
         <Chart
           data={
@@ -116,9 +109,24 @@ export const BridgeValidators: React.FC = () => {
           )
         })}
       </Columns>
-      <Title style={{ paddingTop: '24px' }}>
-        AMB Bridge Validators <TitleNote>(Ethereum-Gnosis Chain)</TitleNote>
-      </Title>
+    )
+  },
+  () => <Spinner />,
+)
+
+const AMBValidators: React.FC = genericSuspense(
+  () => {
+    const { validators: ambValidators } = useFetchValidators(Bridges.amb)
+    const [ambTimePeriod, setAMBTimePeriod] = useState(weekAgoTimestamp())
+    const ambSignedTXs = useFetchValidatorsSignatures('AMB', ambTimePeriod)
+    const ambTodaysSignedTXs = useFetchValidatorsSignatures('AMB', dayAgoTimestamp())
+    const ambTodaysExecutedTXs = useFetchValidatorsExecutions('AMB', dayAgoTimestamp())
+
+    if (!ambSignedTXs.data && ambSignedTXs.error) {
+      throw new Error('No data for XDAI Signed Transactions')
+    }
+
+    return (
       <Columns>
         <Chart
           data={
@@ -144,6 +152,22 @@ export const BridgeValidators: React.FC = () => {
           return <BridgeValidator bridgeValidator={validator} key={`AMBBridgeValidator_${index}`} />
         })}
       </Columns>
+    )
+  },
+  () => <Spinner />,
+)
+
+export const BridgeValidators: React.FC = () => {
+  return (
+    <>
+      <Title>
+        xDai Bridge Validators <TitleNote>(Ethereum-Gnosis Chain)</TitleNote>
+      </Title>
+      <XDAIValidators />
+      <Title style={{ paddingTop: '24px' }}>
+        AMB Bridge Validators <TitleNote>(Ethereum-Gnosis Chain)</TitleNote>
+      </Title>
+      <AMBValidators />
     </>
   )
 }

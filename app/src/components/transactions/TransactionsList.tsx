@@ -3,8 +3,9 @@ import { AnimatePresence } from 'framer-motion'
 
 import { NoResultsMessage } from '@/src/components/common/NoResultsMessage'
 import { TransactionRow } from '@/src/components/transactions/TransactionRow'
-import { ITEMS_PER_PAGE } from '@/src/constants/misc'
+
 import { Transaction } from '@/src/utils/transactions'
+import { ITEMS_PER_PAGE } from '@/src/constants/misc'
 
 const Empty = styled(NoResultsMessage)`
   border: none;

@@ -10,6 +10,7 @@ import { ITEMS_PER_PAGE } from '@/src/constants/misc'
 import { useTransactionsWithFilters } from '@/src/hooks/subgraph/useTransactions'
 import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
+import { Loading } from '@/src/components/loading/Loading'
 
 const Table = styled.table<{ empty?: boolean }>`
   line-height: 2.2rem;
@@ -21,10 +22,15 @@ const Table = styled.table<{ empty?: boolean }>`
     margin-top: ${({ theme: { common } }) => common.space * 10}px;
   }
 `
+
 const Actions = styled.div`
   display: flex;
   justify-content: center;
   margin-top: ${({ theme: { common } }) => common.space * 6}px;
+`
+
+const Spinner = styled(Loading)`
+  min-height: 200px;
 `
 
 type TransactionsTableProps = {
@@ -32,19 +38,33 @@ type TransactionsTableProps = {
   filters: TransactionFilter
 }
 
+interface SuspenseTableProps extends TransactionsTableProps {
+  page: number
+}
+
+const SuspenseTable: React.FC<SuspenseTableProps> = genericSuspense(
+  ({ bridge, filters, page }) => {
+    const { transactions } = useTransactionsWithFilters(filters)
+    const { validators } = useFetchValidators(bridge)
+
+    return (
+      <Table empty={transactions.length === 0}>
+        {transactions.length > 0 && <TransactionHeader validators={validators} />}
+        <TransactionsList page={page} transactions={transactions} />
+      </Table>
+    )
+  },
+  () => <Spinner />,
+)
+
 const TransactionsTable: React.FC<TransactionsTableProps> = ({ bridge, filters }) => {
   const { loadMore, transactions } = useTransactionsWithFilters(filters)
-  const { validators } = useFetchValidators(bridge)
   const [page, setPage] = useState(1)
   const totalPages = Math.ceil(transactions.length / ITEMS_PER_PAGE)
 
   return (
     <>
-      {/* @todo applying filters re-render entire table instead of only transaction list */}
-      <Table empty={transactions.length === 0}>
-        {transactions.length > 0 && <TransactionHeader validators={validators} />}
-        <TransactionsList page={page} transactions={transactions} />
-      </Table>
+      <SuspenseTable bridge={bridge} filters={filters} page={page} />
       {page < totalPages && transactions.length > ITEMS_PER_PAGE && (
         <Actions>
           <ButtonPrimary
@@ -68,4 +88,4 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ bridge, filters }
   )
 }
 
-export default genericSuspense(TransactionsTable)
+export default TransactionsTable

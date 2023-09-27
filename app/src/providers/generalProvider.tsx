@@ -1,5 +1,13 @@
 import { useRouter } from 'next/router'
-import { Dispatch, SetStateAction, createContext, useContext, useEffect, useState } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 
 import { tabs } from '@/src/constants/tabs'
 
@@ -14,17 +22,37 @@ export const GeneralContext = createContext({} as GeneralContextType)
 
 const GeneralContextProvider: React.FC = ({ children }) => {
   const router = useRouter()
-  const currentSection = router.pathname.replace('/', '') || 'transactions'
-  const sectionHasTabs = currentSection in tabs && tabs[currentSection].length
-
+  /**
+   * Try to determine if the current section has tabs using the router's pathname.
+   * 'transactions' is forced for the index page '/' or ''
+   */
+  const currentSectionPathName = useMemo(
+    () => router.pathname.replace('/', '') || 'transactions',
+    [router.pathname],
+  )
+  const currentSection = useMemo(() => tabs[currentSectionPathName], [currentSectionPathName])
   const [activeTab, setActiveTab] = useState<string>('')
   const [isTimeAgo, setIsTimeAgo] = useState<boolean>(true)
 
   useEffect(() => {
-    if (sectionHasTabs) {
-      setActiveTab(tabs[currentSection][0].title)
+    const activeTabisNotInCurrentSection = currentSection
+      ? !currentSection.find(({ title }) => title === activeTab)
+      : false
+
+    const handleRouteChange = () => {
+      if (currentSection && currentSection.length && activeTabisNotInCurrentSection) {
+        setActiveTab(currentSection[0].title)
+      }
     }
-  }, [currentSection, sectionHasTabs])
+
+    handleRouteChange()
+
+    router.events.on('routeChangeComplete', handleRouteChange)
+
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange)
+    }
+  }, [activeTab, currentSection, router.events])
 
   const initialValues = {
     activeTab,
