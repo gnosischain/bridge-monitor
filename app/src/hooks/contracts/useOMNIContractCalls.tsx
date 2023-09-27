@@ -1,29 +1,29 @@
-import { Chains, ChainsValues } from '@/src/constants/config/types'
+import { Chains } from '@/src/constants/config/types'
 import { Token } from '@/src/constants/token'
 import { useContractCall } from '@/src/hooks/useContractCall'
 import { useContractInstance } from '@/src/hooks/useContractInstance'
-import { fromBNtoNumber } from '@/src/utils/bigNumber'
+import { toNumber } from '@/src/utils/bigNumber'
 import {
   ForeignOmniMediator,
   ForeignOmniMediator__factory,
   HomeOmniMediator,
   HomeOmniMediator__factory,
 } from '@/types/typechain'
+import { BigNumberish } from 'ethers'
 
-export const useHomeOMNIBridgeLimits = (token: Token) => {
-  const chainId: ChainsValues = Chains.gnosis
+export const useHomeOMNIBridgeLimits = (token: Token, currentDay: BigNumberish = '0') => {
   const tokenAddress = token.address
-  const decimals = token.decimals
-  const homeOMNI = useContractInstance(HomeOmniMediator__factory, 'OMNI', chainId)
+  const tokenAmountToNumber = toNumber(token.decimals)
+  const homeOMNI = useContractInstance(HomeOmniMediator__factory, 'OMNI', Chains.gnosis)
 
-  const contextCalls = [homeOMNI.owner, homeOMNI.getCurrentDay, homeOMNI.isTokenRegistered] as const
+  const contextCalls = [homeOMNI.getCurrentDay, homeOMNI.isTokenRegistered] as const
   const [{ data: homeOMNIContext }] = useContractCall<HomeOmniMediator, typeof contextCalls>(
     contextCalls,
-    [[], [], [tokenAddress]],
+    [[], [tokenAddress]],
     'homeOMNIContext',
   )
-
-  const registeredToken: boolean = homeOMNIContext?.[2] ?? false
+  const [, isTokenRegistered = false] = homeOMNIContext ?? []
+  currentDay = homeOMNIContext?.[0] ?? currentDay
 
   const limitsCalls = [
     homeOMNI.dailyLimit,
@@ -37,8 +37,14 @@ export const useHomeOMNIBridgeLimits = (token: Token) => {
     [[tokenAddress], [tokenAddress], [tokenAddress], [tokenAddress], [tokenAddress]],
     'homeOMNILimits',
   )
+  const [
+    dailyLimit = 0,
+    executionDailyLimit = 0,
+    minPerTx = 0,
+    maxPerTx = 0,
+    executionMaxPerTx = 0,
+  ] = homeOMNILimits?.map(tokenAmountToNumber) ?? []
 
-  const currentDay = homeOMNIContext?.[1] ?? 0
   const totalsCalls = [homeOMNI.totalSpentPerDay, homeOMNI.totalExecutedPerDay] as const
   const [{ data: homeOMNITotals }] = useContractCall<HomeOmniMediator, typeof totalsCalls>(
     totalsCalls,
@@ -48,39 +54,36 @@ export const useHomeOMNIBridgeLimits = (token: Token) => {
     ],
     'homeOMNITotals',
   )
+  const [totalSpentPerDay = 0, totalExecutedPerDay = 0] =
+    homeOMNITotals?.map(tokenAmountToNumber) ?? []
 
   return {
-    homeOMNIinformation: {
-      isTokenRegistered: registeredToken,
-      dailyLimit: fromBNtoNumber(homeOMNILimits?.[0], decimals) ?? 0,
-      totalSpentPerDay: fromBNtoNumber(homeOMNITotals?.[0], decimals) ?? 0,
-      executionDailyLimit: fromBNtoNumber(homeOMNILimits?.[1], decimals) ?? 0,
-      totalExecutedPerDay: fromBNtoNumber(homeOMNITotals?.[1], decimals) ?? 0,
-      minPerTx: fromBNtoNumber(homeOMNILimits?.[2], decimals) ?? 0,
-      maxPerTx: fromBNtoNumber(homeOMNILimits?.[3], decimals) ?? 0,
-      executionMaxPerTx: fromBNtoNumber(homeOMNILimits?.[4], decimals) ?? 0,
+    homeOmniInformation: {
+      isTokenRegistered,
+      dailyLimit,
+      totalSpentPerDay,
+      executionDailyLimit,
+      totalExecutedPerDay,
+      minPerTx,
+      maxPerTx,
+      executionMaxPerTx,
     },
   }
 }
 
-export const useForeignOMNIBridgeLimits = (token: Token) => {
-  const chainId: ChainsValues = Chains.mainnet
+export const useForeignOMNIBridgeLimits = (token: Token, currentDay: BigNumberish = '0') => {
   const tokenAddress = token.address
-  const decimals = token.decimals
-  const foreignOMNI = useContractInstance(ForeignOmniMediator__factory, 'OMNI', chainId)
+  const tokenAmountToNumber = toNumber(token.decimals)
+  const foreignOMNI = useContractInstance(ForeignOmniMediator__factory, 'OMNI', Chains.mainnet)
 
-  const contextCalls = [
-    foreignOMNI.owner,
-    foreignOMNI.getCurrentDay,
-    foreignOMNI.isTokenRegistered,
-  ] as const
+  const contextCalls = [foreignOMNI.getCurrentDay, foreignOMNI.isTokenRegistered] as const
   const [{ data: foreignOMNIContext }] = useContractCall<ForeignOmniMediator, typeof contextCalls>(
     contextCalls,
-    [[], [], [tokenAddress]],
+    [[], [tokenAddress]],
     'foreignOMNIContext',
   )
-
-  const registeredToken: boolean = foreignOMNIContext?.[2] ?? false
+  currentDay = foreignOMNIContext?.[0] ?? currentDay
+  const [, isTokenRegistered = false] = foreignOMNIContext ?? []
 
   const limitsCalls = [
     foreignOMNI.dailyLimit,
@@ -94,8 +97,14 @@ export const useForeignOMNIBridgeLimits = (token: Token) => {
     [[tokenAddress], [tokenAddress], [tokenAddress], [tokenAddress], [tokenAddress]],
     'foreignOMNILimits',
   )
+  const [
+    dailyLimit = 0,
+    executionDailyLimit = 0,
+    minPerTx = 0,
+    maxPerTx = 0,
+    executionMaxPerTx = 0,
+  ] = foreignOMNILimits?.map(tokenAmountToNumber) ?? []
 
-  const currentDay = foreignOMNIContext?.[1] ?? '0'
   const totalsCalls = [foreignOMNI.totalSpentPerDay, foreignOMNI.totalExecutedPerDay] as const
   const [{ data: foreignOMNITotals }] = useContractCall<ForeignOmniMediator, typeof totalsCalls>(
     totalsCalls,
@@ -105,17 +114,29 @@ export const useForeignOMNIBridgeLimits = (token: Token) => {
     ],
     'foreignOMNITotals',
   )
+  const [totalSpentPerDay = 0, totalExecutedPerDay = 0] =
+    foreignOMNITotals?.map(tokenAmountToNumber) ?? []
+
+  const t = [
+    'dailyLimit',
+    'executionDailyLimit',
+    'minPerTx',
+    'maxPerTx',
+    'executionMaxPerTx',
+    'totalSpentPerDay',
+    'totalExecutedPerDay',
+  ]
 
   return {
-    foreignOMNIinformation: {
-      isTokenRegistered: registeredToken,
-      dailyLimit: fromBNtoNumber(foreignOMNILimits?.[0], decimals) ?? 0,
-      totalSpentPerDay: fromBNtoNumber(foreignOMNITotals?.[0], decimals) ?? 0,
-      executionDailyLimit: fromBNtoNumber(foreignOMNILimits?.[1], decimals) ?? 0,
-      totalExecutedPerDay: fromBNtoNumber(foreignOMNITotals?.[1], decimals) ?? 0,
-      minPerTx: fromBNtoNumber(foreignOMNILimits?.[2], decimals) ?? 0,
-      maxPerTx: fromBNtoNumber(foreignOMNILimits?.[3], decimals) ?? 0,
-      executionMaxPerTx: fromBNtoNumber(foreignOMNILimits?.[4], decimals) ?? 0,
+    foreignOmniInformation: {
+      isTokenRegistered,
+      dailyLimit,
+      totalSpentPerDay,
+      executionDailyLimit,
+      totalExecutedPerDay,
+      minPerTx,
+      maxPerTx,
+      executionMaxPerTx,
     },
   }
 }

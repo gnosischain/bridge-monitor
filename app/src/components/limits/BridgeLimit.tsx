@@ -67,46 +67,52 @@ const Grid = styled.div`
 interface Props {
   bridgeReset: number
   chainId: ChainsValues
-  contractForeignFunds: number
-  contractForeignUsed: number
-  contractNativeFunds: number
-  contractNativeUsed: number
-  executionMaxPerTx: number
-  minPerTransaction: number
-  maxPerTransaction: number
+  dailyLimit: number
   defaultToken: Token
   disableTokenDropdown?: boolean
+  executionDailyLimit: number
+  executionMaxPerTx: number
+  from: string
+  isTokenRegistered?: boolean
+  maxPerTx: number
+  minPerTx: number
   onTokenChange?: (token: Token) => void
   title: string
-  tokenIsRegistered?: boolean
-  fromTo: string
+  to: string
+  totalExecutedPerDay: number
+  totalSpentPerDay: number
   url: string
 }
 
 export const BridgeLimit: React.FC<Props> = ({
   bridgeReset,
   chainId,
-  contractForeignFunds,
-  contractForeignUsed,
-  contractNativeFunds,
-  contractNativeUsed,
+  dailyLimit,
   defaultToken,
   disableTokenDropdown,
+  executionDailyLimit,
   executionMaxPerTx,
-  fromTo,
-  maxPerTransaction,
-  minPerTransaction,
+  from,
+  isTokenRegistered = true,
+  maxPerTx,
+  minPerTx,
   onTokenChange,
   title,
-  tokenIsRegistered = true,
+  to,
+  totalExecutedPerDay,
+  totalSpentPerDay,
   url,
   ...restProps
 }) => {
   const [tokenDropdown, setTokenDropdown] = useState<Token>(defaultToken)
   const refreshTokenDropdown = (token: Token) => {
     setTokenDropdown(token)
-    if (typeof onTokenChange !== 'undefined') onTokenChange(token)
+
+    if (typeof onTokenChange !== 'undefined') {
+      onTokenChange(token)
+    }
   }
+
   return (
     <Wrapper {...restProps}>
       <Header>
@@ -121,36 +127,36 @@ export const BridgeLimit: React.FC<Props> = ({
           onChange={refreshTokenDropdown}
         />
       </Header>
-      {tokenIsRegistered ? (
+      {isTokenRegistered ? (
         <>
           <ContractLimit
-            funds={contractNativeFunds}
-            percentage={percentageNumber(contractNativeUsed, contractNativeFunds)}
-            title="Daily limit"
+            funds={dailyLimit}
+            percentage={percentageNumber(totalSpentPerDay, dailyLimit)}
+            title="Daily Limit"
             token={tokenDropdown?.symbol.toUpperCase() || 'DAI'}
-            tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that users can bridge from ${fromTo} in a day`}
-            used={contractNativeUsed}
+            tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that users can bridge from ${from} to ${to} in a day`}
+            used={totalSpentPerDay}
           />
           <ContractLimit
-            funds={contractForeignFunds}
-            percentage={percentageNumber(contractForeignUsed, contractForeignFunds)}
-            title="Execution daily limit"
+            funds={executionDailyLimit}
+            percentage={percentageNumber(totalExecutedPerDay, executionDailyLimit)}
+            title="Execution Daily Limit"
             token={tokenDropdown?.symbol.toUpperCase() || 'DAI'}
-            tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that bridge validators can execute and bridge from ${fromTo} in a day`}
-            used={contractForeignUsed}
+            tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that bridge validators can execute and bridge from ${to} to ${from} in a day`}
+            used={totalExecutedPerDay}
           />
           <Grid>
             <TransactionLimit
               title="Min. per transaction"
               tooltip={`Minimum amount of ${tokenDropdown?.symbol.toUpperCase()} that users can bridge in a single transaction`}
               trend="down"
-              value={minPerTransaction}
+              value={minPerTx}
             />
             <TransactionLimit
               title="Max. per transaction"
               tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that users can bridge in a single transaction`}
               trend="up"
-              value={maxPerTransaction}
+              value={maxPerTx}
             />
           </Grid>
           <TransactionLimit

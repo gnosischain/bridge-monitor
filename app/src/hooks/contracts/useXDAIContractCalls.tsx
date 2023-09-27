@@ -1,22 +1,24 @@
 import { useContractCall } from '@/src/hooks/useContractCall'
 import { useContractInstance } from '@/src/hooks/useContractInstance'
-import { fromBNtoNumber } from '@/src/utils/bigNumber'
+import { fromWei } from '@/src/utils/bigNumber'
 import {
   ForeignBridgeErcToNative,
   ForeignBridgeErcToNative__factory,
   HomeBridgeErcToNative,
   HomeBridgeErcToNative__factory,
 } from '@/types/typechain'
+import { BigNumberish } from 'ethers'
 
-export const useHomeXDAIBridgeLimits = () => {
+export const useHomeXDAIBridgeLimits = (currentDay: BigNumberish = '0') => {
   const homeXDAI = useContractInstance(HomeBridgeErcToNative__factory, 'XDAI', 100)
 
-  const contextCalls = [homeXDAI.owner, homeXDAI.getCurrentDay] as const
+  const contextCalls = [homeXDAI.getCurrentDay] as const
   const [{ data: homeXDAIContext }] = useContractCall<HomeBridgeErcToNative, typeof contextCalls>(
     contextCalls,
-    [[], []],
+    [[]],
     'homeXDAIContext',
   )
+  currentDay = homeXDAIContext?.[0] ?? currentDay
 
   const limitsCalls = [
     homeXDAI.dailyLimit,
@@ -30,37 +32,44 @@ export const useHomeXDAIBridgeLimits = () => {
     [[], [], [], [], []],
     'homeXDAILimits',
   )
+  const [
+    dailyLimit = 0,
+    executionDailyLimit = 0,
+    minPerTx = 0,
+    maxPerTx = 0,
+    executionMaxPerTx = 0,
+  ] = homeXDAILimits?.map(fromWei) ?? []
 
-  const currentDay = homeXDAIContext?.[1] ?? 0
   const totalsCalls = [homeXDAI.totalSpentPerDay, homeXDAI.totalExecutedPerDay] as const
   const [{ data: homeXDAITotals }] = useContractCall<HomeBridgeErcToNative, typeof totalsCalls>(
     totalsCalls,
     [[currentDay], [currentDay]],
     'homeXDAITotals',
   )
+  const [totalSpentPerDay = 0, totalExecutedPerDay = 0] = homeXDAITotals?.map(fromWei) ?? []
 
-  const homeXDAIBridgeInformation = {
-    homeXDAIinformation: {
-      dailyLimit: fromBNtoNumber(homeXDAILimits?.[0]) ?? 0,
-      totalSpentPerDay: fromBNtoNumber(homeXDAITotals?.[0]) ?? 0,
-      executionDailyLimit: fromBNtoNumber(homeXDAILimits?.[1]) ?? 0,
-      totalExecutedPerDay: fromBNtoNumber(homeXDAITotals?.[1]) ?? 0,
-      minPerTx: fromBNtoNumber(homeXDAILimits?.[2]) ?? 0,
-      maxPerTx: fromBNtoNumber(homeXDAILimits?.[3]) ?? 0,
-      executionMaxPerTx: fromBNtoNumber(homeXDAILimits?.[4]) ?? 0,
+  return {
+    homeXdaiInformation: {
+      dailyLimit,
+      totalSpentPerDay,
+      executionDailyLimit,
+      totalExecutedPerDay,
+      minPerTx,
+      maxPerTx,
+      executionMaxPerTx,
     },
   }
-  return homeXDAIBridgeInformation
 }
 
-export const useForeignXDAIBridgeLimits = () => {
+export const useForeignXDAIBridgeLimits = (currentDay: BigNumberish = '0') => {
   const foreignXDAI = useContractInstance(ForeignBridgeErcToNative__factory, 'XDAI')
 
-  const contextCalls = [foreignXDAI.owner, foreignXDAI.getCurrentDay] as const
+  const contextCalls = [foreignXDAI.getCurrentDay] as const
   const [{ data: foreignXDAIContext }] = useContractCall<
     ForeignBridgeErcToNative,
     typeof contextCalls
-  >(contextCalls, [[], []], 'foreignXDAIContext')
+  >(contextCalls, [[]], 'foreignXDAIContext')
+  currentDay = foreignXDAIContext?.[0] ?? currentDay
 
   const limitsCalls = [
     foreignXDAI.dailyLimit,
@@ -73,24 +82,30 @@ export const useForeignXDAIBridgeLimits = () => {
     ForeignBridgeErcToNative,
     typeof limitsCalls
   >(limitsCalls, [[], [], [], [], []], 'foreignXDAILimits')
+  const [
+    dailyLimit = 0,
+    executionDailyLimit = 0,
+    minPerTx = 0,
+    maxPerTx = 0,
+    executionMaxPerTx = 0,
+  ] = foreignXDAILimits?.map(fromWei) ?? []
 
-  const currentDay = foreignXDAIContext?.[1] ?? '0'
   const totalsCalls = [foreignXDAI.totalSpentPerDay, foreignXDAI.totalExecutedPerDay] as const
   const [{ data: foreignXDAITotals }] = useContractCall<
     ForeignBridgeErcToNative,
     typeof totalsCalls
   >(totalsCalls, [[currentDay], [currentDay]], 'foreignXDAITotals')
+  const [totalSpentPerDay = 0, totalExecutedPerDay = 0] = foreignXDAITotals?.map(fromWei) ?? []
 
-  const foreignXDAIBridgeInformation = {
-    foreignXDAIinformation: {
-      dailyLimit: fromBNtoNumber(foreignXDAILimits?.[0]) ?? 0,
-      totalSpentPerDay: fromBNtoNumber(foreignXDAITotals?.[0]) ?? 0,
-      executionDailyLimit: fromBNtoNumber(foreignXDAILimits?.[1]) ?? 0,
-      totalExecutedPerDay: fromBNtoNumber(foreignXDAITotals?.[1]) ?? 0,
-      minPerTx: fromBNtoNumber(foreignXDAILimits?.[2]) ?? 0,
-      maxPerTx: fromBNtoNumber(foreignXDAILimits?.[3]) ?? 0,
-      executionMaxPerTx: fromBNtoNumber(foreignXDAILimits?.[4]) ?? 0,
+  return {
+    foreignXdaiInformation: {
+      dailyLimit,
+      totalSpentPerDay,
+      executionDailyLimit,
+      totalExecutedPerDay,
+      minPerTx,
+      maxPerTx,
+      executionMaxPerTx,
     },
   }
-  return foreignXDAIBridgeInformation
 }

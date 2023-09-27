@@ -23,9 +23,9 @@ export type TokenListResponse = {
 }
 
 // @todo think a better way to handle {token => info} (missing network...)
-export const tokens: Record<'DAI' | 'XDAI' | 'GNO' | 'INCH', Token> = {
+export const tokens: Record<'DAI' | 'XDAI' | 'GNO' | 'GNO_GC' | 'INCH', Token> = {
   DAI: {
-    address: contracts['DAI'].address[Chains.mainnet],
+    address: contracts.DAI.address[Chains.mainnet],
     chainId: Chains.mainnet,
     decimals: 18,
     logoURI: getIcon('dai'),
@@ -43,16 +43,27 @@ export const tokens: Record<'DAI' | 'XDAI' | 'GNO' | 'INCH', Token> = {
     native: true,
   },
   GNO: {
-    address: contracts['GNO'].address[Chains.mainnet],
+    address: contracts.GNO.address[Chains.mainnet],
     chainId: Chains.mainnet,
     decimals: 18,
-    logoURI: getIcon('gnosis'),
+    logoURI:
+      'https://assets.coingecko.com/coins/images/662/thumb/logo_square_simple_300px.png?1609402668',
+    name: 'Gnosis',
+    symbol: 'GNO',
+    native: false,
+  },
+  GNO_GC: {
+    address: contracts.GNO.address[Chains.gnosis],
+    chainId: Chains.gnosis,
+    decimals: 18,
+    logoURI:
+      'https://assets.coingecko.com/coins/images/662/thumb/logo_square_simple_300px.png?1609402668',
     name: 'Gnosis',
     symbol: 'GNO',
     native: false,
   },
   INCH: {
-    address: contracts['INCH'].address[Chains.mainnet],
+    address: contracts.INCH.address[Chains.mainnet],
     chainId: Chains.mainnet,
     decimals: 18,
     logoURI: getIcon('1inch'),
