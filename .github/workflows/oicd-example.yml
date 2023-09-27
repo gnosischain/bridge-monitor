@@ -1,3 +1,4 @@
+name: OICD EXAMPLE
 # Controls when the action will run. Invokes the workflow on push events but only for the main branch
 on: 
   workflow_dispatch:
