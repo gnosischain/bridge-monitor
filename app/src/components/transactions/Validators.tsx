@@ -54,7 +54,7 @@ export const Validators: React.FC<Props> = ({ transaction, ...restProps }) => {
                   ? 'Executed'
                   : status === 'notRequired'
                   ? 'Not Required'
-                  : 'Default'}
+                  : 'Not Required'}
               </div>
             </>
           }
