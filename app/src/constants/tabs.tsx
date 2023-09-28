@@ -2,7 +2,7 @@ import React from 'react'
 
 import { Configuration } from '@/src/components/bridges/Configuration'
 import { DailyBridgeLimits } from '@/src/components/bridges/DailyBridgeLimits'
-import { InterestFunds } from '@/src/components/bridges/InterestFunds'
+// import { InterestFunds } from '@/src/components/bridges/InterestFunds'
 
 interface tabsType {
   [key: string]: Array<{ title: string; contents?: React.ReactNode }>

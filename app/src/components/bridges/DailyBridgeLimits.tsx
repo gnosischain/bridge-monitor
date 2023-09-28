@@ -15,6 +15,7 @@ import {
 import { useDayNumber } from '@/src/hooks/useDayNumber'
 import { useState } from 'react'
 import styled from 'styled-components'
+import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 
 const Wrapper = styled(TabContentInner)``
 
@@ -27,6 +28,7 @@ const Columns = styled.div`
     grid-template-columns: 1fr 1fr;
   }
 `
+
 const MAINNET = 'mainnet'
 
 const getExplorerUrlForAddress = (network: string, address: string) => {
@@ -34,18 +36,52 @@ const getExplorerUrlForAddress = (network: string, address: string) => {
   return `${chainsConfig[chain].blockExplorerUrls[0]}address/${address}`
 }
 
+const OmnibridgeEthToGC: React.FC = genericSuspense(({ ...restProps }) => {
+  const dayNumber = useDayNumber()
+  const [mainnetToken, setMainnetToken] = useState<Token>(tokens.GNO)
+  const { foreignOmniInformation } = useForeignOMNIBridgeLimits(mainnetToken, dayNumber)
+
+  return (
+    <BridgeLimit
+      bridgeReset={1666882170000}
+      chainId={Chains.mainnet}
+      defaultToken={tokens.GNO}
+      from="Ethereum"
+      onTokenChange={setMainnetToken}
+      title="Ethereum Mainnet -> GC"
+      to="Gnosis"
+      url={getExplorerUrlForAddress('mainnet', contracts.OMNI.address[Chains.mainnet])}
+      {...foreignOmniInformation}
+      {...restProps}
+    />
+  )
+})
+
+const OmnibridgeGCToEth: React.FC = genericSuspense(({ ...restProps }) => {
+  const dayNumber = useDayNumber()
+  const [gnosisToken, setGnosisToken] = useState<Token>(tokens.GNO_GC)
+  const { homeOmniInformation } = useHomeOMNIBridgeLimits(gnosisToken, dayNumber)
+
+  return (
+    <BridgeLimit
+      bridgeReset={1666450170000}
+      chainId={Chains.gnosis}
+      defaultToken={tokens.GNO_GC}
+      from="Gnosis"
+      onTokenChange={setGnosisToken}
+      title="GC -> Ethereum Mainnet"
+      to="Ethereum"
+      url={getExplorerUrlForAddress('gnosis', contracts.OMNI.address[Chains.gnosis])}
+      {...homeOmniInformation}
+      {...restProps}
+    />
+  )
+})
+
 export const DailyBridgeLimits: React.FC = ({ ...restProps }) => {
   const dayNumber = useDayNumber()
-
-  // XDAI
   const { foreignXdaiInformation } = useForeignXDAIBridgeLimits(dayNumber)
   const { homeXdaiInformation } = useHomeXDAIBridgeLimits(dayNumber)
-
-  // OMNI
-  const [mainnetToken, setMainnetToken] = useState<Token>(tokens.GNO)
-  const [gnosisToken, setGnosisToken] = useState<Token>(tokens.GNO_GC)
-  const { foreignOmniInformation } = useForeignOMNIBridgeLimits(mainnetToken, dayNumber)
-  const { homeOmniInformation } = useHomeOMNIBridgeLimits(gnosisToken, dayNumber)
 
   return (
     <Wrapper {...restProps}>
@@ -79,28 +115,8 @@ export const DailyBridgeLimits: React.FC = ({ ...restProps }) => {
       <div>
         <BaseSubTitle>Omnibridge</BaseSubTitle>
         <Columns>
-          <BridgeLimit
-            bridgeReset={1666882170000}
-            chainId={Chains.mainnet}
-            defaultToken={tokens.GNO}
-            from="Ethereum"
-            onTokenChange={setMainnetToken}
-            title="Ethereum Mainnet -> GC"
-            to="Gnosis"
-            url={getExplorerUrlForAddress('mainnet', contracts.OMNI.address[Chains.mainnet])}
-            {...foreignOmniInformation}
-          />
-          <BridgeLimit
-            bridgeReset={1666450170000}
-            chainId={Chains.gnosis}
-            defaultToken={tokens.GNO_GC}
-            from="Gnosis"
-            onTokenChange={setGnosisToken}
-            title="GC -> Ethereum Mainnet"
-            to="Ethereum"
-            url={getExplorerUrlForAddress('gnosis', contracts.OMNI.address[Chains.gnosis])}
-            {...homeOmniInformation}
-          />
+          <OmnibridgeEthToGC />
+          <OmnibridgeGCToEth />
         </Columns>
       </div>
     </Wrapper>
