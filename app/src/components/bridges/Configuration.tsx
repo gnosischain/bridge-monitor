@@ -68,33 +68,37 @@ const Rows = styled.div`
   row-gap: ${({ theme: { common } }) => common.space * 2}px;
 `
 
-export const Configuration: React.FC = ({ ...restProps }) => (
-  <Wrapper {...restProps}>
-    <Column>
-      <Title>xDai bridge configuration</Title>
-      <Card>
-        <SubTitle>Ethereum Addresses</SubTitle>
-        <Rows>
-          <Row address={bridgeConfig.XDAI.bridgeProxy} title="Bridge Proxy Contract" />
-          <Row address={bridgeConfig.XDAI.governorMultisig} title="Governor Multisig" />
-          <Row address={bridgeConfig.XDAI.tokens.dai} title="DAI Token" />
-          <Row address={bridgeConfig.XDAI.protocol.address} title="Protocol" />
-          <Row address={bridgeConfig.XDAI.protocol.token} title="Protocol Token" />
-        </Rows>
-      </Card>
-    </Column>
-    <Column>
-      <Title>Omnibridge bridge configuration</Title>
-      <Card>
-        <SubTitle>Ethereum Addresses</SubTitle>
-        <Rows>
-          <Row address={bridgeConfig.OMNI.bridgeProxy} title="Omnibridge Mediator Proxy" />
-          <Row address={bridgeConfig.OMNI.governorMultisig} title="Governor Multisig" />
-          <Row address={bridgeConfig.OMNI.protocol.address} title="Protocol Interest Module" />
-          <Row address={bridgeConfig.OMNI.tokens.usdc} title="USDC Token" />
-          <Row address={bridgeConfig.OMNI.tokens.usdt} title="USDT Token" />
-        </Rows>
-      </Card>
-    </Column>
-  </Wrapper>
-)
+export const Configuration: React.FC = ({ ...restProps }) => {
+  const { OMNI, XDAI } = bridgeConfig
+
+  return (
+    <Wrapper {...restProps}>
+      <Column>
+        <Title>xDai bridge configuration</Title>
+        <Card>
+          <SubTitle>Ethereum Addresses</SubTitle>
+          <Rows>
+            <Row address={XDAI.bridgeProxy} title="Bridge Proxy Contract" />
+            <Row address={XDAI.governorMultisig} title="Governor Multisig" />
+            <Row address={XDAI.tokens.dai} title="DAI Token" />
+            <Row address={XDAI.protocol.address} title="Protocol" />
+            <Row address={XDAI.protocol.token} title="Protocol Token" />
+          </Rows>
+        </Card>
+      </Column>
+      <Column>
+        <Title>Omnibridge bridge configuration</Title>
+        <Card>
+          <SubTitle>Ethereum Addresses</SubTitle>
+          <Rows>
+            <Row address={OMNI.bridgeProxy} title="Omnibridge Mediator Proxy" />
+            <Row address={OMNI.governorMultisig} title="Governor Multisig" />
+            <Row address={OMNI.protocol.address} title="Protocol Interest Module" />
+            <Row address={OMNI.tokens.usdc} title="USDC Token" />
+            <Row address={OMNI.tokens.usdt} title="USDT Token" />
+          </Rows>
+        </Card>
+      </Column>
+    </Wrapper>
+  )
+}

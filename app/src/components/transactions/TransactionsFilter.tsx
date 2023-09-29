@@ -1,6 +1,6 @@
 import { isTransactionHash } from '@/src/hooks/subgraph/useTransactions'
 import { isAddress } from '@ethersproject/address'
-import { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { TextfieldStatus } from '@/src/components/form/Textfield'
 import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
@@ -8,6 +8,7 @@ import { SearchDebounceInput } from '@/src/components/filters/SearchDebounceInpu
 import FilterDropdown from '@/src/components/filters/FilterDropdown'
 import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
 import { TransactionStatus } from '@/types/generated/subgraph'
+import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 
 const Wrapper = styled.div`
   background: ${({ theme: { gradients } }) => gradients.gray};
@@ -22,7 +23,7 @@ const Wrapper = styled.div`
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
     grid-template-columns: 1fr 1fr 1fr;
 
-    .searchBox {
+    &:first-child {
       grid-column: auto / span 2;
     }
   }
@@ -32,13 +33,13 @@ const Wrapper = styled.div`
     grid-template-columns: 2fr 1fr 1fr 1fr 1fr 100px;
     row-gap: ${({ theme: { common } }) => common.space * 2}px;
 
-    .searchBox {
+    &:first-child {
       grid-column: auto;
     }
   }
 `
 
-const FilterWrapper = styled.div`
+const Column = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme: { common } }) => common.space}px;
@@ -93,6 +94,7 @@ export enum BridgeDirection {
 type BridgeDirectionOption = BridgeDirection | 'All Directions'
 
 type StatusOption = string
+
 const txStatus = [
   TransactionStatus.Initiated,
   TransactionStatus.Collecting,
@@ -100,6 +102,7 @@ const txStatus = [
   TransactionStatus.Completed,
   TransactionStatus.Error,
 ]
+
 type ValidatorOption = string
 
 export const TransactionsFilter: React.FC<Props> = genericSuspense(
@@ -159,8 +162,7 @@ export const TransactionsFilter: React.FC<Props> = genericSuspense(
 
     return (
       <Wrapper {...restProps}>
-        {/* Transactions search */}
-        <FilterWrapper className="searchBox">
+        <Column>
           <Label htmlFor="Search">Search transactions</Label>
           <SearchDebounceInput
             onChange={handleHashChange}
@@ -169,9 +171,8 @@ export const TransactionsFilter: React.FC<Props> = genericSuspense(
             reset={resetFields}
             status={error ? TextfieldStatus.error : undefined}
           />
-        </FilterWrapper>
-        {/* Status filter */}
-        <FilterWrapper>
+        </Column>
+        <Column>
           <Label>Status</Label>
           <FilterDropdown
             onChange={onStatusChange}
@@ -179,9 +180,8 @@ export const TransactionsFilter: React.FC<Props> = genericSuspense(
             options={statusOptions}
             reset={resetFields}
           />
-        </FilterWrapper>
-        {/* Bridge Direction filter */}
-        <FilterWrapper>
+        </Column>
+        <Column>
           <Label>Direction</Label>
           <FilterDropdown
             onChange={onBridgeDirectionChange}
@@ -189,9 +189,8 @@ export const TransactionsFilter: React.FC<Props> = genericSuspense(
             options={bridgeDirectionOptions}
             reset={resetFields}
           />
-        </FilterWrapper>
-        {/* Signature filter */}
-        <FilterWrapper>
+        </Column>
+        <Column>
           <Label>Signed by</Label>
           <FilterDropdown
             onChange={onSignedByChange}
@@ -199,9 +198,8 @@ export const TransactionsFilter: React.FC<Props> = genericSuspense(
             options={validatorsOptions}
             reset={resetFields}
           />
-        </FilterWrapper>
-        {/* Executed filter */}
-        <FilterWrapper>
+        </Column>
+        <Column>
           <Label>Executed by</Label>
           <FilterDropdown
             onChange={onExecutedByChange}
@@ -209,9 +207,20 @@ export const TransactionsFilter: React.FC<Props> = genericSuspense(
             options={validatorsOptions}
             reset={resetFields}
           />
-        </FilterWrapper>
+        </Column>
         <ResetButton onClick={resetFilters}>Reset filters</ResetButton>
       </Wrapper>
     )
   },
+  ({ ...restProps }) => (
+    <Wrapper {...restProps}>
+      {Array.from({ length: 5 }).map((item, index) => (
+        <Column key={index}>
+          <SkeletonLoading style={{ height: '21px', width: '40%' }} />
+          <SkeletonLoading style={{ height: '36px' }} />
+        </Column>
+      ))}
+      <SkeletonLoading style={{ height: '36px', marginTop: 'auto' }} />
+    </Wrapper>
+  ),
 )

@@ -8,12 +8,14 @@ import { Tabs } from '@/src/components/tabs/Tabs'
 import { TabsWrapper } from '@/src/components/tabs/TabsWrapper'
 import { MainTitle } from '@/src/components/text/MainTitle'
 import { DateTimePicker } from '@/src/components/transactions/DateTimePicker'
-import { TransactionsFilter } from '@/src/components/transactions/TransactionsFilter'
+import { TransactionsFilter as Filters } from '@/src/components/transactions/TransactionsFilter'
 import TransactionsTable from '@/src/components/transactions/TransactionsTable'
 import { tabs } from '@/src/constants/tabs'
-import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
+import { TransactionFilter, useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
 import { useGeneral } from '@/src/providers/generalProvider'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
+import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { Loading } from '@/src/components/loading/Loading'
 
 const Head = styled.div`
   align-items: flex-start;
@@ -33,6 +35,24 @@ const Head = styled.div`
 const Title = styled(MainTitle)`
   margin: 0;
 `
+
+const Spinner = styled(Loading)`
+  height: 200px;
+`
+
+const List: React.FC<{
+  title: string
+  filters: TransactionFilter
+}> = genericSuspense(
+  ({ filters, title }) => {
+    return (
+      <TabContent title={title}>
+        <TransactionsTable bridge={title} filters={filters} />
+      </TabContent>
+    )
+  },
+  () => <Spinner />,
+)
 
 export const Transactions: React.FC = () => {
   const {
@@ -82,7 +102,7 @@ export const Transactions: React.FC = () => {
             ))}
           </Tabs>
         </TabsWrapper>
-        <TransactionsFilter
+        <Filters
           bridge={activeTab}
           onBridgeDirectionChange={setBridgeDirection}
           onExecutedByChange={setExecutedBy}
@@ -92,9 +112,7 @@ export const Transactions: React.FC = () => {
         />
         <Legend />
         {transactions.map(({ title }, index) => (
-          <TabContent key={index} title={title}>
-            <TransactionsTable bridge={title} filters={filters}></TransactionsTable>
-          </TabContent>
+          <List filters={filters} key={index} title={title} />
         ))}
       </Section>
     </>

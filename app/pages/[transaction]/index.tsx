@@ -6,7 +6,10 @@ import { Address as BaseAddress } from '@/src/components/token/Address'
 import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { TransactionDetailsListItem } from '@/src/components/transaction/TransactionDetailsListItem'
 import { TransactionFooter } from '@/src/components/transaction/TransactionFooter'
-import { TransactionSummary } from '@/src/components/transaction/TransactionSummary'
+import {
+  TransactionSummary,
+  TransactionSummaryPlaceholder,
+} from '@/src/components/transaction/TransactionSummary'
 import { TransactionValidations } from '@/src/components/transaction/TransactionValidations'
 import { TransactionRowDetails } from '@/src/components/transaction/TransactionRowDetails'
 import { AMB_SIGNATURE_THRESHOLD, XDAI_SIGNATURE_THRESHOLD } from '@/src/constants/misc'
@@ -17,6 +20,7 @@ import { TransactionStatus } from '@/types/generated/subgraph'
 import { getChainIconName } from '@/src/utils/icons'
 import { isSameString } from '@/src/utils/tools'
 import { Status } from '@/src/components/common/Status'
+import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 
 const Wrapper = styled.div`
   display: flex;
@@ -74,7 +78,7 @@ const TransactionDetailsList = styled.ul`
   padding: 0;
 `
 
-const Bridges: NextPage = () => {
+const Bridges: NextPage = ({ ...restProps }) => {
   const router = useRouter()
   const transactionId = String(router.query?.id)
   const { transactions } = useFetchTransactions(
@@ -116,7 +120,7 @@ const Bridges: NextPage = () => {
   }
 
   return (
-    <Wrapper>
+    <Wrapper {...restProps}>
       <Head>
         <Title>Transaction</Title>
         <Address
@@ -235,4 +239,15 @@ const Bridges: NextPage = () => {
   )
 }
 
-export default genericSuspense(Bridges)
+export default genericSuspense(Bridges, ({ ...restProps }) => (
+  <Wrapper {...restProps}>
+    <Head>
+      <Title>Transaction</Title>
+      <SkeletonLoading style={{ width: '25%', height: '40px' }} />
+    </Head>
+    <TransactionInformation>
+      <TransactionSummaryPlaceholder />
+      <SkeletonLoading style={{ borderRadius: '4px', height: '300px' }} />
+    </TransactionInformation>
+  </Wrapper>
+))

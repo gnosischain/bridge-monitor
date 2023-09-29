@@ -6,6 +6,7 @@ import { TransactionDate } from '@/src/components/transaction/TransactionDate'
 import { getAddressScanUrl } from '@/src/utils/transactions'
 import { Address } from '@/src/components/token/Address'
 import { TokenWithValue } from '@/src/components/token/TokenWithValue'
+import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 
 const Wrapper = styled.div`
   display: flex;
@@ -60,9 +61,10 @@ export const TransactionSummary: React.FC<Props> = ({
   timestampExecution,
   timestampStarted,
   transactionStatus,
+  ...restProps
 }) => {
   return (
-    <Wrapper>
+    <Wrapper {...restProps}>
       <Pod subTitle={bridgeName} title="Bridge">
         <ChainsInitiatorReceiver
           chainIconInitiator={initiatorNetworkIcon}
@@ -98,6 +100,16 @@ export const TransactionSummary: React.FC<Props> = ({
         */}
         <TransactionDate completed={timestampExecution} started={timestampStarted} />
       </Pod>
+    </Wrapper>
+  )
+}
+
+export const TransactionSummaryPlaceholder: React.FC = ({ ...restProps }) => {
+  return (
+    <Wrapper {...restProps}>
+      {Array.from({ length: 4 }).map((item, index) => (
+        <SkeletonLoading key={index} style={{ borderRadius: '4px', height: '112px' }} />
+      ))}
     </Wrapper>
   )
 }

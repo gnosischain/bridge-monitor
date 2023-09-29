@@ -6,23 +6,16 @@ import { getForeignGraphqlClient, getHomeGraphqlClient } from '@/src/constants/c
 import { TRANSACTION_QUERY } from '@/src/queries/transactions'
 import {
   QueryTransactionsArgs,
-  // OrderDirection,
   TransactionExecution as TransactionExecutionSG,
   Transaction as TransactionSG,
   TransactionStatus,
   TransactionValidation as TransactionValidationSG,
-  // Transaction_OrderBy,
   TransactionsQuery,
 } from '@/types/generated/subgraph'
-import findKey from 'lodash/findKey'
 import { constants } from 'ethers'
 
 const GNOSIS = 'gnosis'
 const MAINNET = 'mainnet'
-
-// const MAX_RESULTS = 800
-// const RESULTS_ORDER = OrderDirection.Desc
-// const ORDER_BY = Transaction_OrderBy.Timestamp
 
 export type TransactionExecution = {
   id: string
