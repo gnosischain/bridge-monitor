@@ -1,196 +1,316 @@
-import { dataSource, Address, log } from "@graphprotocol/graph-ts"
-import { AffirmationCompleted, CollectedSignatures, HomeAMB, SignedForAffirmation, SignedForUserRequest, UserRequestForSignature } from "../generated/HomeAMB/HomeAMB"
-import { AMBTransaction, TransactionExecution, TransactionValidation, Validator } from "../generated/schema"
-import { parseAMBMessageHash, parseAMBEncodedData, isOmniBridgeUsage, parseAMBTransactionInput, isAffirmationFromOmnibridge, isFromOmniBridgeUsage } from "./message"
+import { Bytes, dataSource, log } from "@graphprotocol/graph-ts";
+import {
+  AffirmationCompleted,
+  CollectedSignatures,
+  HomeAMB,
+  SignedForAffirmation,
+  SignedForUserRequest,
+  UserRequestForSignature,
+} from "../generated/HomeAMB/HomeAMB";
+import {
+  AMBTransaction,
+  TransactionExecution,
+  TransactionValidation,
+  Validator,
+} from "../generated/schema";
+import {
+  parseAMBMessageHash,
+  isOmniBridgeUsage,
+  parseAMBTransactionInput,
+  isAffirmationFromOmnibridge,
+  parseAMBTransactionInputForTelepathy,
+  isFromOmniBridgeUsage,
+} from "./utils/message";
+import { debug_addValidatorsManually, telepathyAddress } from "./utils";
+import {
+  processOmniBridgeTokenBridgingInitiatedEvent,
+  processOmniBridgeTokensBridged,
+} from "./utils/omnibridge";
 
-export function handlerUserRequestForSignatureEvent(event: UserRequestForSignature): void {
-  // UserRequestForSignature (index_topic_1 bytes32 messageId, bytes encodedData)
-  const transactionHash = event.transaction.hash
-  const timestamp = event.block.timestamp
-  const messageId = event.params.messageId
-  const message = event.params.encodedData.toHexString()
-  const network = dataSource.network()
+const MAINNET_OMNI_BRIDGE_HOME_MEDIATOR = "88ad09518695c6c3712AC10a214bE5109a655671".toLowerCase();
 
-  if (isOmniBridgeUsage(message)) {
-    const messageContent = parseAMBEncodedData(message)
-    let transaction = new AMBTransaction(messageId.toHexString())
-    transaction.bridgeName = 'AMB'
-    transaction.messageId = messageId
-    transaction.initiatorNetwork = network
-    transaction.receiver = Address.fromHexString(messageContent[2])
-    transaction.receiverToken = Address.fromHexString(messageContent[1])
-    transaction.receiverNetwork = 'mainnet'
-    transaction.transactionStatus = 'REQUESTED'
-    transaction.timestamp = timestamp
-    transaction.save()
+//-------------------------
+// Home > Foreign
+// When operation is initiated in home > Signature events are called
+//-------------------------
+
+// 1. The user initiates a bridging by transferring funds to the omnibridge mediator.
+export function handlerUserRequestForSignature(
+  event: UserRequestForSignature
+): void {
+  const transactionHash = event.transaction.hash;
+  const messageId = event.params.messageId;
+  const message = event.params.encodedData.toHexString();
+  const receipt = event.receipt;
+
+  // filter transactions by home and foreign mediator addresses within encodedData param
+  if (!isOmniBridgeUsage(message)) {
+    return;
   }
+
+  if (!receipt) {
+    log.error(
+      "handlerUserRequestForAffirmation: No receipt found for transaction {}",
+      [transactionHash.toHexString()]
+    );
+    return;
+  }
+
+  let transaction = new AMBTransaction(messageId.toHexString());
+  transaction.messageId = messageId;
+  transaction.transactionHash = transactionHash;
+  transaction.timestamp = event.block.timestamp;
+  transaction.bridgeName = "AMB";
+  transaction.transactionStatus = "INITIATED";
+
+  transaction.initiatorNetwork = dataSource.network();
+  processOmniBridgeTokenBridgingInitiatedEvent(transaction, receipt);
+
+  transaction.receiver = Bytes.fromHexString(message.slice(260, 300));
+  transaction.receiverAmount = transaction.initiatorAmount;
+  transaction.receiverToken = transaction.initiatorToken;
+  // detect the other side using the OmniBridgeHomeMediator address.
+  transaction.receiverNetwork = message
+    .toLowerCase()
+    .includes(MAINNET_OMNI_BRIDGE_HOME_MEDIATOR)
+    ? "mainnet"
+    : "unknown";
+  transaction.save();
 }
 
+// 2. The validators sign the operation
+// SignedForUserRequest (index_topic_1 address signer, bytes32 messageHash)
 export function handlerSignedForUserRequest(event: SignedForUserRequest): void {
-  // SignedForUserRequest (index_topic_1 address signer, bytes32 messageHash)
-  const contract = HomeAMB.bind(event.address)
-  const messageHash = event.params.messageHash
-  const message = contract.message(messageHash).toHexString()
-  const signer = event.params.signer // validator !!
-  const signerString = signer.toHexString()
-  const transactionHash = event.transaction.hash
-  const timestamp = event.block.timestamp
-  
-  if (isOmniBridgeUsage(message)) {
-    const messageId = parseAMBMessageHash(message)
-    let transaction = AMBTransaction.load(messageId)
-    if (!transaction) {
-      log.error(`Transaction NOT FOUND ${messageId} @handlerSignedForAffirmation`, [])
-      transaction = new AMBTransaction(messageId)
-    }
-    log.error(`Transaction FOUND ${messageId} @handlerSignedForAffirmation`, [])
+  const contract = HomeAMB.bind(event.address);
+  const messageHash = event.params.messageHash;
+  const message = contract.message(messageHash).toHexString();
+  const signer = event.params.signer; // validator !!
+  const signerString = signer.toHexString();
+  const transactionHash = event.transaction.hash;
+  const timestamp = event.block.timestamp;
 
-    let validator = Validator.load(signerString)
-    if (!validator) {
-      log.error(`Validator ${signerString} not found @handlerSignedForUserRequest-homeAMB`, [])
-    } else {
-      const txValidationId = messageId + '-' + signerString
-      let txValidation = new TransactionValidation(txValidationId)
-      txValidation.validator = validator.id
-      txValidation.responsableAddress = signer
-      txValidation.transactionHash = transactionHash
-      txValidation.transaction = messageId
-      txValidation.timestamp = timestamp
-      txValidation.save()
-
-      validator.lastActivity = timestamp
-      validator.save()
-    }
-    transaction.bridgeName = 'AMB'
-    transaction.initiatorNetwork = dataSource.network()
-    transaction.receiverNetwork = 'mainnet'
-    transaction.transactionStatus = "COLLECTING"
-    // transaction.timestamp = timestamp // @todo remove or make it specific to Last Signature added event
-    transaction.save()
-  }
-}
-
-export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
-  const transactionHash = event.transaction.hash
-  const signer = event.params.signer // validator !!
-  const signerString = signer.toHexString()
-  const transactionData = event.transaction.input.toHexString()
-  const timestamp = event.block.timestamp
-  
-  if (isAffirmationFromOmnibridge(transactionData)) {
-    const messageId = parseAMBTransactionInput(transactionData)
-    let transaction = AMBTransaction.load(messageId)
-    if (!transaction) {
-      log.error(`Transaction NOT FOUND ${messageId} @handlerSignedForAffirmation`, [])
-      transaction = new AMBTransaction(messageId)
-    }
-    log.error(`Transaction FOUND ${messageId} @handlerSignedForAffirmation`, [])
-
-    let validator = Validator.load(signerString)
-    if (!validator) {
-      log.error(`Validator ${signerString} not found @handlerSignedForAffirmation-homeAMB`, [])
-    } else {
-      const txValidationId = messageId + '-' + signerString
-      let txValidation = new TransactionValidation(txValidationId)
-      txValidation.validator = validator.id
-      txValidation.responsableAddress = signer
-      txValidation.transactionHash = transactionHash
-      txValidation.transaction = messageId
-      txValidation.timestamp = timestamp
-      txValidation.save()
-
-      validator.lastActivity = timestamp
-      validator.save()
-    }
-    transaction.bridgeName = 'AMB'
-    transaction.initiatorNetwork = 'mainnet'
-    transaction.receiverNetwork = dataSource.network()
-    transaction.transactionStatus = "COLLECTING"
-    // transaction.timestamp = timestamp // @todo remove or make it specific to Last Signature added event
-    transaction.save()
+  // There are some operations that are not for an ERC20 bridge.
+  // We need to filter them out as they are out of scope.
+  if (!isOmniBridgeUsage(message)) {
+    return;
   }
 
+  // update transaction
+  const messageId = parseAMBMessageHash(message);
+  let transaction = AMBTransaction.load(messageId);
+  if (!transaction) {
+    log.error(
+      `handlerSignedForUserRequest: Transaction NOT FOUND {} - txHash: {}`,
+      [messageId, transactionHash.toHexString()]
+    );
+    return;
+  }
+  transaction.transactionStatus = "COLLECTING";
+  transaction.save();
+
+  // load validator
+  debug_addValidatorsManually();
+  let validator = Validator.load(signerString);
+  if (!validator) {
+    log.error(
+      `handlerSignedForUserRequest: Validator {} NOT FOUND - txHash: {}`,
+      [signerString, transactionHash.toHexString()]
+    );
+    return;
+  }
+  validator.lastActivity = timestamp;
+  validator.save();
+
+  // save validation
+  const txValidationId = messageId + "-" + signerString;
+  let txValidation = new TransactionValidation(txValidationId);
+  txValidation.validator = validator.id;
+  txValidation.validatorAddr = validator.address;
+  txValidation.transactionHash = transactionHash;
+  txValidation.transaction = messageId;
+  txValidation.timestamp = timestamp;
+  txValidation.save();
 }
 
+// 3. When the threshold of signatures is reached.
+// CollectedSignatures (address authorityResponsibleForRelay, bytes32 messageHash, uint256 NumberOfCollectedSignatures)
 export function handlerCollectedSignatures(event: CollectedSignatures): void {
-  // CollectedSignatures (address authorityResponsibleForRelay, bytes32 messageHash, uint256 NumberOfCollectedSignatures)
-  const messageHash = event.params.messageHash
-  const contract = HomeAMB.bind(event.address)
-  const message = contract.message(messageHash).toHexString() // can be decoded with HOMEAMB message method
-  const messageId = parseAMBMessageHash(message)
-  const timestamp = event.block.timestamp
+  const messageHash = event.params.messageHash;
+  const contract = HomeAMB.bind(event.address);
+  const message = contract.message(messageHash).toHexString(); // can be decoded with HOMEAMB message method
+  const messageId = parseAMBMessageHash(message);
+  const timestamp = event.block.timestamp;
+  const executorId = event.params.authorityResponsibleForRelay; // validator address
 
-  if (isOmniBridgeUsage(message)) {
-    let transaction = AMBTransaction.load(messageId)
-    if (!transaction) {
-      log.error(`Transaction NOT FOUND ${messageId} @handlerCollectedSignatures`, [])
-      transaction = new AMBTransaction(messageId)
-    }
-    log.error(`Transaction FOUND ${messageId} @handlerCollectedSignatures`, [])
-
-    const executorId = event.params.authorityResponsibleForRelay // validator address
-    const executionId = messageId + '-' + executorId.toHexString()
-    let execution = new TransactionExecution(executionId)
-    let validator = Validator.load(executorId.toHexString())
-    if (!validator) {
-      log.error(`Validator ${executorId} not found @handlerCollectedSignatures-homeXDAI`, [])
-    } else {
-      execution.executor = validator.id
-      validator.lastActivity = timestamp
-      validator.save()
-    }
-    execution.responsableAddress = executorId
-    execution.transaction = messageId
-    execution.transactionHash = event.transaction.hash
-    execution.timestamp = timestamp
-    execution.save()
-
-    transaction.bridgeName = 'AMB'
-    transaction.initiatorNetwork = dataSource.network()
-    transaction.receiverNetwork = 'mainnet'
-    transaction.transactionStatus = "UNCLAIMED"
-    // transaction.timestamp = timestamp // @todo remove or make it specific to Sigs Reached event
-    transaction.save()
+  if (!isOmniBridgeUsage(message)) {
+    return;
   }
+
+  // load transaction
+  let transaction = AMBTransaction.load(messageId);
+  if (!transaction) {
+    log.error(
+      `handlerCollectedSignatures: Transaction {} NOT FOUND - txHash: {}`,
+      [messageId, event.transaction.hash.toHexString()]
+    );
+    return;
+  }
+  transaction.transactionStatus = "UNCLAIMED";
+  transaction.save();
+
+  // load validator
+  debug_addValidatorsManually();
+  const validator = Validator.load(executorId.toHexString());
+  if (!validator) {
+    log.error(
+      `handlerCollectedSignatures: Validator {} NOT FOUND - txHash: {}`,
+      [executorId.toHexString(), event.transaction.hash.toHexString()]
+    );
+    return;
+  }
+
+  // Execution
+  const executionId = messageId + "-" + executorId.toHexString();
+  const execution = new TransactionExecution(executionId);
+  execution.executor = validator.id;
+  execution.validatorAddr = validator.address;
+  execution.transaction = messageId;
+  execution.transactionHash = event.transaction.hash;
+  execution.timestamp = timestamp;
+  execution.save();
 }
 
-export function handlerAffirmationCompleted(event: AffirmationCompleted): void {
-  // AffirmationCompleted (index_topic_1 address sender, index_topic_2 address executor, index_topic_3 bytes32 messageId, bool status)
-  const timestamp = event.block.timestamp
-  const messageId = event.params.messageId.toString()
-  const sender = event.params.sender.toHexString() // foreignMediator
-  const executor = event.params.executor.toHexString() // homeMediator
+//-------------------------
+// Foreign > Home
+// When operation is initiated in foreign > Affirmation events are collected
+//-------------------------
 
-  if (isFromOmniBridgeUsage(executor, sender)) {
-    let transaction = AMBTransaction.load(messageId)
-    if (!transaction) {
-      log.error(`Transaction NOT FOUND ${messageId} @handlerAffirmationCompleted`, [])
-      transaction = new AMBTransaction(messageId)
-    }
-    log.error(`Transaction FOUND ${messageId} @handlerAffirmationCompleted`, [])
-    
-    const executorId = executor // validator address
-    const executionId = messageId + '-' + executorId
-    let execution = new TransactionExecution(executionId)
-    let validator = Validator.load(executorId)
-    if (!validator) {
-      log.error(`Validator ${executorId} not found @handlerCollectedSignatures-homeXDAI`, [])
-    } else {
-      execution.executor = validator.id
-      validator.lastActivity = timestamp
-      validator.save()
-    }
-    execution.responsableAddress = Address.fromHexString(executorId)
-    execution.transaction = messageId
-    execution.transactionHash = event.transaction.hash
-    execution.timestamp = timestamp
-    execution.save()
+// 1. SignedForAffirmation.
+// A user initiated a bridge from Foreign to Home.
+// This is the first event the home is aware of.
+// It is triggered when a validator signs an affirmation (saying the operation is valid).
+export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
+  const transactionData = event.transaction.input.toHexString();
 
-    transaction.bridgeName = 'AMB'
-    transaction.initiatorNetwork = 'mainnet'
-    transaction.receiverNetwork = dataSource.network()
-    transaction.transactionStatus = "UNCLAIMED"
-    // transaction.timestamp = timestamp // @todo remove or make it specific to Sigs Reached event
-    transaction.save()
+  // There are some operations that are not for an ERC20 bridge.
+  // We need to filter them out as they are out of scope.
+  if (!isAffirmationFromOmnibridge(transactionData)) {
+    return;
   }
+
+  const transactionHash = event.transaction.hash;
+  const timestamp = event.block.timestamp;
+  const signer = event.params.signer;
+  const signerString = signer.toHexString();
+
+  // if signer is Telepathy, txData has to be processed with different indexes
+  const messageId =
+    signerString == telepathyAddress
+      ? parseAMBTransactionInputForTelepathy(event.receipt)
+      : parseAMBTransactionInput(transactionData);
+
+  if (messageId.length == 0) {
+    log.error(`handlerSignedForAffirmation: MessageId is null - hash: {}`, [
+      event.transaction.hash.toHexString(),
+    ]);
+    return;
+  }
+
+  // Get or create transaction (as it might have be created by a previous validator)
+  let transaction = AMBTransaction.load(messageId);
+  if (!transaction) {
+    transaction = new AMBTransaction(messageId);
+    // transaction.timestamp = timestamp;
+    transaction.bridgeName = "AMB";
+    transaction.initiatorNetwork = "mainnet";
+    transaction.receiverNetwork = dataSource.network();
+    transaction.transactionStatus = "COLLECTING";
+    transaction.save();
+  }
+
+  // load validator
+  debug_addValidatorsManually();
+  let validator = Validator.load(signerString);
+  if (!validator) {
+    log.error(
+      `handlerSignedForAffirmation: Validator {} NOT FOUND - hash: {}`,
+      [signerString, event.transaction.hash.toHexString()]
+    );
+    return;
+  }
+
+  // save validator signature
+  const txValidationId = event.transaction.hash.toHexString();
+  let txValidation = new TransactionValidation(txValidationId);
+  txValidation.validator = validator.id;
+  txValidation.validatorAddr = validator.address;
+  txValidation.transactionHash = transactionHash;
+  txValidation.transaction = messageId;
+  txValidation.timestamp = timestamp;
+  txValidation.save();
+
+  // update validator
+  validator.lastActivity = timestamp;
+  validator.save();
+}
+
+// 2. AffirmationCompleted.
+// This event is triggered when after threshold of validators signatures is reached.
+// and the funds are minted on home side.
+// NOTE: We are getting receiver information by parsing the event TokensBridged from the OmnibridgeMediator.
+// We create the execution and assign it to the tx.
+// AffirmationCompleted (index_topic_1 address sender, index_topic_2 address executor, index_topic_3 bytes32 messageId, bool status)
+export function handlerAffirmationCompleted(event: AffirmationCompleted): void {
+  const transactionHash = event.transaction.hash;
+  const sender = event.params.sender.toHexString(); // foreignMediator
+  const executor = event.params.executor.toHexString(); // homeMediator
+  const timestamp = event.block.timestamp;
+  const messageId = event.params.messageId.toHexString();
+  const receipt = event.receipt;
+
+  // There are some operations that are not for an ERC20 bridge.
+  // We need to filter them out as they are out of scope.
+  if (!isFromOmniBridgeUsage(executor, sender)) {
+    return;
+  }
+
+  if (!receipt) {
+    log.error(
+      "handlerAffirmationCompleted: No receipt found for transaction {}",
+      [transactionHash.toHexString()]
+    );
+    return;
+  }
+
+  // create execution
+  const executionId = messageId + "-" + executor;
+  const execution = new TransactionExecution(executionId);
+  execution.transaction = messageId;
+  execution.transactionHash = event.transaction.hash;
+  execution.timestamp = timestamp;
+  // the last signature collected happens on the same tx as handlerAffirmationCompleted event.
+  // TransactionValidation uses the txHash as id, so we need to load it here.
+  // and get the validator from it.
+  const validation = TransactionValidation.load(
+    event.transaction.hash.toHexString()
+  );
+  if (validation) {
+    execution.executor = validation.validator;
+    execution.validatorAddr = validation.validatorAddr;
+  }
+  execution.save();
+
+  // save transaction
+  const transaction = AMBTransaction.load(messageId);
+  if (!transaction) {
+    log.error(
+      `handlerAffirmationCompleted: Transaction {} NOT FOUND - hash: {}`,
+      [messageId, event.transaction.hash.toHexString()]
+    );
+    return;
+  }
+  transaction.transactionStatus = "COMPLETED";
+  transaction.execution = execution.id;
+  processOmniBridgeTokensBridged(transaction, receipt);
+  transaction.save();
 }

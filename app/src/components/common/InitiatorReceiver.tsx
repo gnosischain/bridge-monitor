@@ -3,6 +3,8 @@ import styled from 'styled-components'
 
 import { ChainToken } from '@/src/components/common/ChainToken'
 import { Address } from '@/src/components/token/Address'
+import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
+import { BigNumber, BigNumberish, FixedNumber } from 'ethers'
 
 const Wrapper = styled.div<{ inline?: boolean }>`
   display: ${(props) => (props.inline ? 'flex' : 'block')};
@@ -16,11 +18,13 @@ const Wrapper = styled.div<{ inline?: boolean }>`
     min-width: 250px;
   }
 `
+
 const Tokens = styled.div`
   align-items: center;
   display: flex;
-  column-gap: ${({ theme: { common } }) => common.space * 2}px;
+  column-gap: ${({ theme: { common } }) => common.space}px;
 `
+
 const Value = styled.strong<{ bigNumber?: boolean }>`
   font-size: ${(props) => (props.bigNumber ? '2.1rem' : '1.2rem')};
   font-weight: 400;
@@ -33,8 +37,7 @@ interface Props {
   inline?: boolean
   scanLink?: string
   token: string
-  tokenIcon: string
-  tokenValue: string
+  tokenValue: BigNumberish
 }
 
 export const InitiatorReceiver: React.FC<Props> = ({
@@ -43,18 +46,28 @@ export const InitiatorReceiver: React.FC<Props> = ({
   inline,
   scanLink,
   token,
-  tokenIcon,
   tokenValue,
 }) => {
+  const { tokensByAddress } = useTokenIcons()
+  const _token = tokensByAddress[token?.toLowerCase()]
+
   return (
     <Wrapper inline={inline}>
       <Address address={address} characters={6} copy link={scanLink} />
       <Tokens>
-        <ChainToken name={token}>
-          <Image alt={token} height={16} objectFit="cover" src={tokenIcon} width={16} />
+        <ChainToken name={_token?.name ?? token}>
+          <Image
+            alt={_token?.name ?? token}
+            height={16}
+            objectFit="cover"
+            src={_token?.logoURI || '/images/icons/empty-token.png'}
+            width={16}
+          />
         </ChainToken>
         <Value bigNumber={bigNumber} className="number">
-          {tokenValue}
+          {_token
+            ? FixedNumber.fromValue(BigNumber.from(tokenValue), _token.decimals).round(4).toString()
+            : tokenValue.toString()}
         </Value>
       </Tokens>
     </Wrapper>

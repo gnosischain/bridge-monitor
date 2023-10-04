@@ -6,36 +6,34 @@ import { AnimatePresence, motion } from 'framer-motion'
 const Wrapper = styled.div`
   position: relative;
   z-index: 10;
-  font-size: 0;
-  line-height: 0;
 `
+
 const TooltipWrapper = styled(motion.div)`
   background-color: ${({ theme }) => theme.colors.black};
   border-radius: ${({ theme: { common } }) => common.space / 2}px;
+  bottom: calc(100% + 5px);
   color: ${({ theme }) => theme.colors.white};
   display: inline-block;
   font-size: 1.2rem;
-  line-height: 1.5;
+  left: 0;
+  line-height: 1.2;
+  max-width: 180px;
   padding: ${({ theme: { common } }) => common.space / 4}px
     ${({ theme: { common } }) => common.space}px;
   position: absolute;
-  right: 100%;
-  top: 0;
-  margin-top: -4px;
-  margin-right: 5px;
-  max-width: 180px;
-  width: max-content;
   white-space: pre-line;
+  width: max-content;
 `
 
 interface Props {
-  text: string
+  text: string | React.ReactNode
 }
 
-export const Tooltip: React.FC<Props> = ({ children, text }) => {
+export const Tooltip: React.FC<Props> = ({ children, text, ...restProps }) => {
   const [isHovering, setIsHovering] = useState(false)
+
   return (
-    <Wrapper>
+    <Wrapper {...restProps}>
       <AnimatePresence initial={true}>
         {isHovering && (
           <TooltipWrapper

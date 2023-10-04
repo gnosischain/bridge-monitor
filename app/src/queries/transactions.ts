@@ -8,7 +8,9 @@ const TRANSACTION_FRAGMENT = gql`
     initiator
     initiatorAmount
     initiatorNetwork
+    initiatorToken
     receiver
+    receiverToken
     receiverAmount
     receiverNetwork
     transactionStatus
@@ -17,19 +19,18 @@ const TRANSACTION_FRAGMENT = gql`
       id
       timestamp
       transactionHash
-      responsableAddress
+      validatorAddr
     }
     validations {
       id
       timestamp
       transactionHash
-      responsableAddress
+      validatorAddr
     }
   }
 `
 
 export const TRANSACTION_QUERY = gql`
-  ${TRANSACTION_FRAGMENT}
   query Transactions(
     $where: Transaction_filter
     $orderBy: Transaction_orderBy
@@ -47,4 +48,6 @@ export const TRANSACTION_QUERY = gql`
       ...TransactionFragment
     }
   }
+
+  ${TRANSACTION_FRAGMENT}
 `

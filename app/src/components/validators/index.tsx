@@ -1,18 +1,14 @@
-import { useState } from 'react'
-import styled from 'styled-components'
-
+import styled, { css } from 'styled-components'
 import { BridgeValidator } from '@/src/components/validators/BridgeValidator'
-import {
-  SignedTXsData,
-  TransactionsSigned,
-  weekAgoTimestamp,
-} from '@/src/components/validators/TransactionsSigned'
+import { TransactionsSigned } from '@/src/components/validators/TransactionsSigned'
 import { Bridges } from '@/src/constants/config/bridges'
 import {
   useFetchValidators,
   useFetchValidatorsExecutions,
   useFetchValidatorsSignatures,
 } from '@/src/hooks/subgraph/useValidators'
+import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 
 const Columns = styled.div`
   display: grid;
@@ -45,10 +41,20 @@ const TitleNote = styled.span`
   }
 `
 
-const Chart = styled(TransactionsSigned)`
+const ChartCSS = css`
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
     grid-column: 1 / 3;
   }
+`
+
+const Chart = styled(TransactionsSigned)`
+  ${ChartCSS}
+`
+
+const ChartPlaceholder = styled(SkeletonLoading)`
+  ${ChartCSS}
+  border-radius: 4px;
+  height: 326px;
 `
 
 const dayAgoTimestamp = () => {
@@ -60,50 +66,30 @@ type SigsCount = {
   name: string
   value: number
 }
+
 type ExecsCount = {
   name: string
   value: number
 }
 
-export const BridgeValidators: React.FC = () => {
-  const { validators: xdaiValidators } = useFetchValidators(Bridges.xdai)
-  const { validators: ambValidators } = useFetchValidators(Bridges.amb)
-  const [xdaiTimePeriod, setXDAITimePeriod] = useState(weekAgoTimestamp())
-  const [ambTimePeriod, setAMBTimePeriod] = useState(weekAgoTimestamp())
-  const xdaiSignedTXs = useFetchValidatorsSignatures('XDAI', xdaiTimePeriod)
-  const ambSignedTXs = useFetchValidatorsSignatures('AMB', ambTimePeriod)
+const Placeholder: React.FC = () => (
+  <Columns>
+    <ChartPlaceholder />
+    {Array.from({ length: 2 }).map((item, index) => (
+      <SkeletonLoading key={index} style={{ borderRadius: '4px', height: '326px' }} />
+    ))}
+  </Columns>
+)
 
-  console.log(
-    'Mapped xDai data:',
-    xdaiSignedTXs.data?.map((item) => ({ validatorName: item.name, signedTxsCount: item.value })),
-  )
+const XDAIValidators: React.FC = genericSuspense(
+  ({ ...restProps }) => {
+    const { validators: xdaiValidators } = useFetchValidators(Bridges.xdai)
+    const xdaiTodaysSignedTXs = useFetchValidatorsSignatures('XDAI', dayAgoTimestamp())
+    const xdaiTodaysExecutedTXs = useFetchValidatorsExecutions('XDAI', dayAgoTimestamp())
 
-  const xdaiTodaysSignedTXs = useFetchValidatorsSignatures('XDAI', dayAgoTimestamp())
-  const ambTodaysSignedTXs = useFetchValidatorsSignatures('AMB', dayAgoTimestamp())
-  const xdaiTodaysExecutedTXs = useFetchValidatorsExecutions('XDAI', dayAgoTimestamp())
-  const ambTodaysExecutedTXs = useFetchValidatorsExecutions('AMB', dayAgoTimestamp())
-  if (!xdaiSignedTXs.data && xdaiSignedTXs.error) {
-    throw new Error('No data for XDAI Signed Transactions')
-  }
-  if (!ambSignedTXs.data && ambSignedTXs.error) {
-    throw new Error('No data for XDAI Signed Transactions')
-  }
-
-  return (
-    <>
-      <Title>
-        xDai Bridge Validators <TitleNote>(Ethereum-Gnosis Chain)</TitleNote>
-      </Title>
-      <Columns>
-        <Chart
-          data={
-            xdaiSignedTXs.data?.map((item) => ({
-              validatorName: item.name as string,
-              signedTxsCount: item.value as number,
-            })) ?? []
-          }
-          onTimePeriodChange={setXDAITimePeriod}
-        />
+    return (
+      <Columns {...restProps}>
+        <Chart bridge={'XDAI'} />
         {xdaiValidators.map((validator, index) => {
           const todaysSignatures = xdaiTodaysSignedTXs.data?.find((signaturesCount: SigsCount) => {
             return signaturesCount.name === validator.name
@@ -115,44 +101,59 @@ export const BridgeValidators: React.FC = () => {
           )
           validator.signed = todaysSignatures?.value ?? 0
           validator.executed = todaysExecutions?.value ?? 0
+
           return (
-            <>
-              <BridgeValidator bridgeValidator={validator} key={`validator_${index}`} />
-            </>
+            <BridgeValidator bridgeValidator={validator} key={`xDaiBridgeValidator_${index}`} />
           )
         })}
       </Columns>
-      <Title style={{ paddingTop: '24px' }}>
-        AMB Bridge Validators <TitleNote>(Ethereum-Gnosis Chain)</TitleNote>
-      </Title>
-      <Columns>
-        <Chart
-          data={
-            ambSignedTXs.data?.map((item) => ({
-              validatorName: item.name as string,
-              signedTxsCount: item.value as number,
-            })) ?? []
-          }
-          onTimePeriodChange={setAMBTimePeriod}
-        />
-        {ambValidators.map((validator, index) => {
-          const todaysSignatures = ambTodaysSignedTXs.data?.find((signaturesCount: SigsCount) => {
-            return signaturesCount.name === validator.name
-          })
-          const todaysExecutions = ambTodaysExecutedTXs.data?.find(
+    )
+  },
+  () => <Placeholder />,
+)
+
+const OmnibridgeValidators: React.FC = genericSuspense(
+  ({ ...restProps }) => {
+    const { validators: omnibridgeValidators } = useFetchValidators(Bridges.amb)
+    const omnibridgeTodaysSignedTXs = useFetchValidatorsSignatures('AMB', dayAgoTimestamp())
+    const omnibridgeTodaysExecutedTXs = useFetchValidatorsExecutions('AMB', dayAgoTimestamp())
+
+    return (
+      <Columns {...restProps}>
+        <Chart bridge={'AMB'} />
+        {omnibridgeValidators.map((validator, index) => {
+          const todaysSignatures = omnibridgeTodaysSignedTXs.data?.find(
+            (signaturesCount: SigsCount) => {
+              return signaturesCount.name === validator.name
+            },
+          )
+          const todaysExecutions = omnibridgeTodaysExecutedTXs.data?.find(
             (executionsCount: ExecsCount) => {
               return executionsCount.name === validator.name
             },
           )
           validator.signed = todaysSignatures?.value ?? 0
           validator.executed = todaysExecutions?.value ?? 0
-          return (
-            <>
-              <BridgeValidator bridgeValidator={validator} key={`validator_${index}`} />
-            </>
-          )
+
+          return <BridgeValidator bridgeValidator={validator} key={`AMBBridgeValidator_${index}`} />
         })}
       </Columns>
+    )
+  },
+  () => <Placeholder />,
+)
+
+export const BridgeValidators: React.FC = () => {
+  return (
+    <>
+      <Title>
+        xDai Bridge Validators <TitleNote>(Ethereum-Gnosis Chain)</TitleNote>
+      </Title>
+      <XDAIValidators />
+      <Title style={{ paddingTop: '24px' }}>
+        Omnibridge Validators <TitleNote>(Ethereum-Gnosis Chain)</TitleNote>
+      </Title>
+      <OmnibridgeValidators />
     </>
   )
 }

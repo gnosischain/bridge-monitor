@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import styled from 'styled-components'
 
-import { Address } from '@/src/components/assets/Address'
+import { Address } from '@/src/components/token/Address'
 import { ChainToken } from '@/src/components/assets/ChainToken'
 
 const Wrapper = styled.div`

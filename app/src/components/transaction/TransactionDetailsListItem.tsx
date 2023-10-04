@@ -2,7 +2,6 @@ import styled from 'styled-components'
 
 import { IconStatus as BaseIconStatus } from '@/src/components/transaction/IconStatus'
 import { TransactionDate } from '@/src/components/transaction/TransactionDate'
-import { transformDate } from '@/src/utils/date'
 
 const Wrapper = styled.li`
   --line-gap: 24px;
@@ -16,8 +15,8 @@ const Wrapper = styled.li`
   row-gap: ${({ theme: { common } }) => common.space * 2}px;
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
-    grid-template-columns: var(--wrapper-width) minmax(0, 950px);
     column-gap: 50px;
+    grid-template-columns: var(--wrapper-width) minmax(0, 950px);
   }
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
@@ -46,10 +45,10 @@ const Status = styled.div<{ inactive?: boolean; status: string }>`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.darkGrey};
   border-radius: 8px;
-  column-gap: ${({ theme: { common } }) => common.space * 2}px;
+  column-gap: ${({ theme: { common } }) => common.space}px;
   display: flex;
   height: var(--status-height);
-  padding: 0 16px;
+  padding: 0 ${({ theme: { common } }) => common.space}px;
 `
 
 const IconStatus = styled(BaseIconStatus)`

@@ -1,6 +1,3 @@
-import { useState } from 'react'
-import styled from 'styled-components'
-
 import { BridgeLimit } from '@/src/components/limits/BridgeLimit'
 import { TabContentInner } from '@/src/components/tabs/TabContentInner'
 import { BaseSubTitle } from '@/src/components/text/BaseSubTitle'
@@ -15,7 +12,11 @@ import {
   useForeignXDAIBridgeLimits,
   useHomeXDAIBridgeLimits,
 } from '@/src/hooks/contracts/useXDAIContractCalls'
-import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
+import { useDayNumber } from '@/src/hooks/useDayNumber'
+import { useState } from 'react'
+import styled from 'styled-components'
+import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 
 const Wrapper = styled(TabContentInner)``
 
@@ -28,109 +29,156 @@ const Columns = styled.div`
     grid-template-columns: 1fr 1fr;
   }
 `
+
+const Row = styled.div``
+
+const Placeholder: React.FC = () => (
+  <SkeletonLoading
+    animate={false}
+    style={{
+      borderRadius: '4px',
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '24px 16px',
+      rowGap: '16px',
+    }}
+  >
+    <SkeletonLoading
+      style={{
+        height: '34px',
+        marginBottom: '8px',
+      }}
+    />
+    {Array.from({ length: 2 }).map((item, index) => (
+      <SkeletonLoading key={index} style={{ height: '95px' }} />
+    ))}
+    {Array.from({ length: 2 }).map((item, index) => (
+      <SkeletonLoading key={index} style={{ height: '70px' }} />
+    ))}
+    {Array.from({ length: 2 }).map((item, index) => (
+      <SkeletonLoading key={index} style={{ minHeight: '0', height: '17px' }} />
+    ))}
+  </SkeletonLoading>
+)
+
 const MAINNET = 'mainnet'
 
-const getContractAddressUrl = (network: string, address: string) => {
+const getExplorerUrlForAddress = (network: string, address: string) => {
   const chain = network === MAINNET ? Chains.mainnet : Chains.gnosis
   return `${chainsConfig[chain].blockExplorerUrls[0]}address/${address}`
 }
 
+export const XDAIEthToGC: React.FC = genericSuspense(
+  ({ ...restProps }) => {
+    const dayNumber = useDayNumber()
+    const { foreignXdaiInformation } = useForeignXDAIBridgeLimits(dayNumber)
+
+    return (
+      <BridgeLimit
+        bridgeReset={1667054970000}
+        chainId={Chains.mainnet}
+        defaultToken={tokens.DAI}
+        disableTokenDropdown
+        from="Ethereum"
+        title="Ethereum Mainnet -> GC"
+        to="Gnosis"
+        url={getExplorerUrlForAddress('mainnet', contracts.XDAI.address[Chains.mainnet])}
+        {...foreignXdaiInformation}
+        {...restProps}
+      />
+    )
+  },
+  () => <Placeholder />,
+)
+
+export const XDAIGCToEth: React.FC = genericSuspense(
+  ({ ...restProps }) => {
+    const dayNumber = useDayNumber()
+    const { homeXdaiInformation } = useHomeXDAIBridgeLimits(dayNumber)
+
+    return (
+      <BridgeLimit
+        bridgeReset={1666442910000}
+        chainId={Chains.gnosis}
+        defaultToken={tokens.XDAI}
+        disableTokenDropdown
+        from="Gnosis"
+        title="GC -> Ethereum Mainnet"
+        to="Ethereum"
+        url={getExplorerUrlForAddress('gnosis', contracts.XDAI.address[Chains.gnosis])}
+        {...homeXdaiInformation}
+        {...restProps}
+      />
+    )
+  },
+  () => <Placeholder />,
+)
+
+const OmnibridgeEthToGC: React.FC = genericSuspense(
+  ({ ...restProps }) => {
+    const dayNumber = useDayNumber()
+    const [mainnetToken, setMainnetToken] = useState<Token>(tokens.GNO)
+    const { foreignOmniInformation } = useForeignOMNIBridgeLimits(mainnetToken, dayNumber)
+
+    return (
+      <BridgeLimit
+        bridgeReset={1666882170000}
+        chainId={Chains.mainnet}
+        defaultToken={tokens.GNO}
+        from="Ethereum"
+        onTokenChange={setMainnetToken}
+        title="Ethereum Mainnet -> GC"
+        to="Gnosis"
+        url={getExplorerUrlForAddress('mainnet', contracts.OMNI.address[Chains.mainnet])}
+        {...foreignOmniInformation}
+        {...restProps}
+      />
+    )
+  },
+  () => <Placeholder />,
+)
+
+const OmnibridgeGCToEth: React.FC = genericSuspense(
+  ({ ...restProps }) => {
+    const dayNumber = useDayNumber()
+    const [gnosisToken, setGnosisToken] = useState<Token>(tokens.GNO_GC)
+    const { homeOmniInformation } = useHomeOMNIBridgeLimits(gnosisToken, dayNumber)
+
+    return (
+      <BridgeLimit
+        bridgeReset={1666450170000}
+        chainId={Chains.gnosis}
+        defaultToken={tokens.GNO_GC}
+        from="Gnosis"
+        onTokenChange={setGnosisToken}
+        title="GC -> Ethereum Mainnet"
+        to="Ethereum"
+        url={getExplorerUrlForAddress('gnosis', contracts.OMNI.address[Chains.gnosis])}
+        {...homeOmniInformation}
+        {...restProps}
+      />
+    )
+  },
+  () => <Placeholder />,
+)
+
 export const DailyBridgeLimits: React.FC = ({ ...restProps }) => {
-  const { gnosisTokensBySymbol, tokensBySymbol } = useTokenIcons()
-  const { foreignXDAIinformation } = useForeignXDAIBridgeLimits()
-  const { homeXDAIinformation } = useHomeXDAIBridgeLimits()
-  const defaultMainnetToken = tokensBySymbol['gno']
-  const [mainnetToken, setMainnetToken] = useState<Token>(defaultMainnetToken)
-  const { foreignOMNIinformation } = useForeignOMNIBridgeLimits(mainnetToken)
-  const defaultGnosisToken = gnosisTokensBySymbol['gno']
-  const [gnosisToken, setGnosisToken] = useState<Token>(defaultGnosisToken)
-  const { homeOMNIinformation } = useHomeOMNIBridgeLimits(gnosisToken)
-
-  const onChangeForeignToken = (token: Token) => {
-    if (token) setMainnetToken(token)
-  }
-  const onChangeHomeToken = (token: Token) => {
-    if (token) setGnosisToken(token)
-  }
-
   return (
     <Wrapper {...restProps}>
-      <div>
+      <Row>
         <BaseSubTitle>xDai</BaseSubTitle>
         <Columns>
-          <BridgeLimit
-            bridgeReset={1667054970000}
-            chainId={Chains.mainnet}
-            contractForeignFunds={foreignXDAIinformation.dailyLimit}
-            contractForeignUsed={foreignXDAIinformation.totalSpentPerDay}
-            contractNativeFunds={foreignXDAIinformation.executionDailyLimit}
-            contractNativeUsed={foreignXDAIinformation.totalExecutedPerDay}
-            defaultToken={tokensBySymbol['dai']}
-            disableTokenDropdown
-            executionMaxPerTx={foreignXDAIinformation.executionMaxPerTx}
-            fromTo={'Gnosis to Ethereum'}
-            maxPerTransaction={foreignXDAIinformation.maxPerTx}
-            minPerTransaction={foreignXDAIinformation.minPerTx}
-            title="ETH -> GC"
-            url={getContractAddressUrl('mainnet', contracts['XDAI']['address'][Chains.mainnet])}
-          />
-          <BridgeLimit
-            bridgeReset={1666442910000}
-            chainId={Chains.gnosis}
-            contractForeignFunds={homeXDAIinformation.dailyLimit}
-            contractForeignUsed={homeXDAIinformation.totalSpentPerDay}
-            contractNativeFunds={homeXDAIinformation.executionDailyLimit}
-            contractNativeUsed={homeXDAIinformation.totalExecutedPerDay}
-            defaultToken={tokens['XDAI']}
-            disableTokenDropdown
-            executionMaxPerTx={homeXDAIinformation.executionMaxPerTx}
-            fromTo={'Ethereum to Gnosis'}
-            maxPerTransaction={homeXDAIinformation.maxPerTx}
-            minPerTransaction={homeXDAIinformation.minPerTx}
-            title="GC -> ETH"
-            url={getContractAddressUrl('gnosis', contracts['XDAI']['address'][Chains.gnosis])}
-          />
+          <XDAIEthToGC />
+          <XDAIGCToEth />
         </Columns>
-      </div>
-      <div>
+      </Row>
+      <Row>
         <BaseSubTitle>Omnibridge</BaseSubTitle>
         <Columns>
-          <BridgeLimit
-            bridgeReset={1666882170000}
-            chainId={Chains.mainnet}
-            contractForeignFunds={foreignOMNIinformation.dailyLimit}
-            contractForeignUsed={foreignOMNIinformation.totalSpentPerDay}
-            contractNativeFunds={foreignOMNIinformation.executionDailyLimit}
-            contractNativeUsed={foreignOMNIinformation.totalExecutedPerDay}
-            defaultToken={defaultMainnetToken}
-            executionMaxPerTx={foreignOMNIinformation.executionMaxPerTx}
-            fromTo={'Gnosis to Ethereum'}
-            maxPerTransaction={foreignOMNIinformation.maxPerTx}
-            minPerTransaction={foreignOMNIinformation.minPerTx}
-            onTokenChange={onChangeForeignToken}
-            title="ETH -> GC"
-            tokenIsRegistered={foreignOMNIinformation.isTokenRegistered}
-            url={getContractAddressUrl('mainnet', contracts['OMNI']['address'][Chains.mainnet])}
-          />
-          <BridgeLimit
-            bridgeReset={1666450170000}
-            chainId={Chains.gnosis}
-            contractForeignFunds={homeOMNIinformation.dailyLimit}
-            contractForeignUsed={homeOMNIinformation.totalSpentPerDay}
-            contractNativeFunds={homeOMNIinformation.executionDailyLimit}
-            contractNativeUsed={homeOMNIinformation.totalExecutedPerDay}
-            defaultToken={defaultGnosisToken}
-            executionMaxPerTx={homeOMNIinformation.executionMaxPerTx}
-            fromTo={'Gnosis to Ethereum'}
-            maxPerTransaction={homeOMNIinformation.maxPerTx}
-            minPerTransaction={homeOMNIinformation.minPerTx}
-            onTokenChange={onChangeHomeToken}
-            title="GC -> ETH"
-            tokenIsRegistered={homeOMNIinformation.isTokenRegistered}
-            url={getContractAddressUrl('gnosis', contracts['OMNI']['address'][Chains.gnosis])}
-          />
+          <OmnibridgeEthToGC />
+          <OmnibridgeGCToEth />
         </Columns>
-      </div>
+      </Row>
     </Wrapper>
   )
 }

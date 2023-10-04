@@ -1,27 +1,38 @@
 import { ReactNode } from 'react'
-import styled, { css } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
 import { Toast, toast } from 'react-hot-toast'
 
 import { Close } from '@/src/components/assets/Close'
 
-const Wrapper = styled.div`
-  --toast-icon-dimensions: 36px;
-  --toast-padding: 15px;
+const loadingAnimation = keyframes`
+  0% {
+    opacity: 0;
+  }
 
+  100% {
+    opacity: 1;
+  }
+`
+
+const Wrapper = styled.div`
+  animation-delay: 0;
+  animation-duration: 0.25s;
+  animation-iteration-count: 1;
+  animation-name: ${loadingAnimation};
+  animation-timing-function: ease-in-out;
   background-color: ${({ theme: { toast } }) => toast.backgroundColor};
   border-color: ${({ theme: { toast } }) => toast.borderColor};
   border-radius: ${({ theme: { common } }) => common.borderRadius};
-  border-style: solid;
-  border-width: 1px;
+  border-style: none;
+  border-width: 0;
   box-shadow: ${({ theme: { toast } }) => toast.boxShadow};
   column-gap: 10px;
-  display: grid;
-  grid-template-columns: var(--toast-icon-dimensions) 1fr;
-  max-width: 100vw;
-  padding: var(--toast-padding);
+  display: flex;
+  max-width: 350px;
+  min-width: 200px;
+  padding: 10px 15px;
   position: relative;
-  width: 250px;
 `
 
 const IconContainer = styled.div`
@@ -36,7 +47,7 @@ const TextContainer = styled.div`
 `
 
 const Title = styled.h4`
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: 500;
   line-height: 1.2;
   margin: 0;
@@ -44,7 +55,8 @@ const Title = styled.h4`
 
 const TextCSS = css`
   color: ${({ theme: { colors } }) => colors.textColor};
-  font-size: 1.2rem;
+  font-size: 1.5rem;
+  line-height: 1.4;
 `
 
 const Text = styled.p`
@@ -67,37 +79,31 @@ const Link = styled.a`
 
 const ButtonClose = styled.button`
   background: transparent;
-  border: 0;
+  border: none;
   cursor: pointer;
   margin: 0;
   outline: none;
   padding: 0;
   position: absolute;
-  right: calc(var(--toast-padding) - 5px);
-  top: calc(var(--toast-padding) - 5px);
+  right: 10px;
+  top: 10px;
   z-index: 5;
 `
 
-export const ToastComponent = ({
-  icon,
-  link,
-  message,
-  t,
-  title,
-}: {
-  icon: ReactNode
+export const ToastComponent: React.FC<{
+  icon?: ReactNode
   link?: {
     url: string
     text: string
   }
   message?: string
   t: Toast
-  title: string
-}) => (
-  <Wrapper>
-    <IconContainer>{icon}</IconContainer>
+  title?: string
+}> = ({ icon, link, message, t, title, ...restProps }) => (
+  <Wrapper {...restProps}>
+    {icon && <IconContainer>{icon}</IconContainer>}
     <TextContainer>
-      <Title>{title}</Title>
+      {title && <Title>{title}</Title>}
       {message && <Text>{message}</Text>}
       {link && (
         <Link href={link.url} rel="noreferrer" target="_blank">

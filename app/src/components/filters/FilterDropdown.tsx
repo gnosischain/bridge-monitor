@@ -9,10 +9,7 @@ import { TransactionStatus } from '@/types/generated/subgraph'
 const LittleCircleOfExtraClarification = styled.div<{ status: TransactionStatus }>`
   --size: 8px;
 
-  ${(props) => {
-    return StatusColors[props.status] ?? StatusColors.DEFAULT
-  }}
-
+  background-color: ${(props) => StatusColors[props.status] ?? StatusColors.DEFAULT};
   align-items: center;
   border-radius: 50%;
   height: var(--size);

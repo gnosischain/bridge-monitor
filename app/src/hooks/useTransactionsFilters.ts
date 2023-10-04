@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { today, yesterday } from '../utils/date'
 
@@ -34,6 +34,17 @@ export const useTransactionsFilters = () => {
     endTimestamp,
   }
 
+  const resetFilters = useCallback(() => {
+    setHash('')
+    setBridge('XDAI')
+    setStatus('')
+    setSignedBy('')
+    setExecutedBy('')
+    setStartTimestamp(yesterday())
+    setEndTimestamp(today())
+    setBridgeDirection('')
+  }, [])
+
   return {
     setHash,
     setBridge,
@@ -43,6 +54,7 @@ export const useTransactionsFilters = () => {
     setExecutedBy,
     setStartTimestamp,
     setEndTimestamp,
+    resetFilters,
     filters,
   }
 }

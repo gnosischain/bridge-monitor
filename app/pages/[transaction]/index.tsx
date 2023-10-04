@@ -1,20 +1,26 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
 import styled from 'styled-components'
 
 import { Address as BaseAddress } from '@/src/components/token/Address'
+import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { TransactionDetailsListItem } from '@/src/components/transaction/TransactionDetailsListItem'
 import { TransactionFooter } from '@/src/components/transaction/TransactionFooter'
-import { TransactionResume } from '@/src/components/transaction/TransactionResume'
+import {
+  TransactionSummary,
+  TransactionSummaryPlaceholder,
+} from '@/src/components/transaction/TransactionSummary'
 import { TransactionValidations } from '@/src/components/transaction/TransactionValidations'
-import { TransactionValidator } from '@/src/components/transaction/TransactionValidator'
+import { TransactionRowDetails } from '@/src/components/transaction/TransactionRowDetails'
 import { AMB_SIGNATURE_THRESHOLD, XDAI_SIGNATURE_THRESHOLD } from '@/src/constants/misc'
 import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
 import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
-import { tokens } from '@/src/constants/token'
-import { Transaction, TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
+import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'
+import { getChainIconName } from '@/src/utils/icons'
+import { isSameString } from '@/src/utils/tools'
+import { Status } from '@/src/components/common/Status'
+import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 
 const Wrapper = styled.div`
   display: flex;
@@ -38,10 +44,14 @@ const Title = styled.h1`
 const Address = styled(BaseAddress)`
   color: ${({ theme: { colors } }) => colors.cream};
   font-family: ${({ theme: { fonts } }) => fonts.familyCode};
-  font-size: 4rem;
+  font-size: 2.4rem;
   font-weight: 500;
   line-height: 1;
   margin: 0;
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+    font-size: 4rem;
+  }
 `
 
 const TransactionInformation = styled.article`
@@ -67,19 +77,26 @@ const TransactionDetailsList = styled.ul`
   margin: 0;
   padding: 0;
 `
-const GNOSIS = 'gnosis'
-const MAINNET = 'mainnet'
 
-const Bridges: NextPage = () => {
+const Bridges: NextPage = ({ ...restProps }) => {
   const router = useRouter()
   const transactionId = String(router.query?.id)
-  // @todo fetch transaction by Id from SG
-  const { transactions } = useFetchTransactions({
-    where: { id: transactionId },
-  })
-  const currentTx = transactions?.[0]
+  const { transactions } = useFetchTransactions(
+    {},
+    {
+      // transactionId is txHash in on the network that originated the bridge
+      where: { id: transactionId },
+    },
+  )
 
-  const txValidations = currentTx.validations ?? []
+  // hack, for some reason TS is not recognizing that transactions[0] can be null
+  const currentTx = transactions.length > 0 ? transactions[0] : null
+  const txValidations = currentTx?.validations ?? []
+  const txExecution = currentTx?.execution ?? ({} as TransactionExecution)
+  const { validators: bridgeValidators } = useFetchValidators(currentTx?.bridgeName)
+
+  if (!currentTx) return null
+
   const hasValidations = (): boolean => {
     return txValidations !== null && txValidations.length >= 1
   }
@@ -88,49 +105,22 @@ const Bridges: NextPage = () => {
       currentTx.bridgeName === 'AMB' ? AMB_SIGNATURE_THRESHOLD : XDAI_SIGNATURE_THRESHOLD
     return currentTx.validations?.length !== signatureThreshold
   }
-  const txExecution = currentTx.execution ?? ({} as TransactionExecution)
   const hasBeenExecuted = (): boolean => {
     return txExecution !== null && txExecution.id !== undefined
   }
-  const hasBeenCompleted = (): boolean => {
-    return currentTx.transactionStatus === TransactionStatus.Completed
-  }
 
-  const messageIDText = '' // @todo remove it after sg deploys and Transaction entity contains messageId
-  // const messageIDText = currentTx.messageId ? `ID for tx ${currentTx.messageId})` : ''
+  const isForeignInitiated = (): boolean => currentTx.initiatorNetwork !== 'gnosis'
 
-  /*
-    @todo:
-    Set parameters to define status
-    transactionStatus:
-    - "completed" when transaction is completed.
-    - "waiting" if it didn't finish.
-    - "warning" if there is an error in the process or if it is spending more than expected.
-    */
-  const { validators: bridgeValidators } = useFetchValidators(currentTx.bridgeName)
   const getValidatorName = (validatorAddress: string) => {
-    return (
-      bridgeValidators.find((bridgeValidator) => {
-        return bridgeValidator.address === validatorAddress
-      })?.name ?? ''
+    const v = bridgeValidators.find((bridgeValidator) =>
+      isSameString(bridgeValidator.address, validatorAddress),
     )
-  }
 
-  // @todo define TransactionStatusType using dropdown options style
-  const [transactionStatus, setTransactionStatus] = useState(currentTx.transactionStatus)
-  // useEffect(() => {
-  //   if (checkValidatorsSignOneTime) setTransactionStatus(TransactionStatusTypes.warning)
-  //   else if (!currentTx.executorAddress) setTransactionStatus(TransactionStatusTypes.waiting)
-  //   else if (currentTx.signaturesCheckedTimestamp && checkValidatorsSignOneTime === 0)
-  //     setTransactionStatus(TransactionStatusTypes.completed)
-  // }, [checkValidatorsSignOneTime])
-
-  const getNetworkIcon = (network: string): string => {
-    return network === MAINNET ? '/images/icons/eth.png' : '/images/icons/gnosis.png'
+    return v?.name ?? 'unknown'
   }
 
   return (
-    <Wrapper>
+    <Wrapper {...restProps}>
       <Head>
         <Title>Transaction</Title>
         <Address
@@ -142,88 +132,103 @@ const Bridges: NextPage = () => {
         />
       </Head>
       <TransactionInformation>
-        <TransactionResume
+        <TransactionSummary
           bridgeName={currentTx.bridgeName}
           initiator={currentTx.initiator}
           initiatorAmount={currentTx.initiatorAmount}
           initiatorName={currentTx.initiator}
           initiatorNetwork={currentTx.initiatorNetwork}
-          initiatorNetworkIcon={getNetworkIcon(currentTx.initiatorNetwork)}
-          initiatorTokenIcon={currentTx.initiatorTokenData?.logoURI ?? ''}
-          initiatorTokenName={currentTx.initiatorTokenData?.name ?? ''}
+          initiatorNetworkIcon={getChainIconName(currentTx.initiatorNetwork)}
+          initiatorToken={currentTx.initiatorToken}
           receiver={currentTx.receiver}
-          receiverAmount={currentTx.receiverAmount}
           receiverName={currentTx.receiver}
           receiverNetwork={currentTx.receiverNetwork}
-          receiverNetworkIcon={getNetworkIcon(currentTx.receiverNetwork)}
-          receiverTokenIcon={currentTx.receiverTokenData?.logoURI ?? ''}
-          receiverTokenName={currentTx.receiverTokenData?.name ?? ''}
+          receiverNetworkIcon={getChainIconName(currentTx.receiverNetwork)}
           timestampExecution={currentTx.execution?.timestamp ?? 0}
           timestampStarted={currentTx.timestamp ?? 0}
-          transactionStatus={transactionStatus}
+          transactionStatus={currentTx.transactionStatus}
         />
         <TransactionDetails>
           <TransactionDetailsList>
+            {/* Initiated */}
             <TransactionDetailsListItem
-              dateCompleted={currentTx.timestamp} // tokens bridging initiated / user transfer timestamp
-              description={`User locked/minted ${currentTx.initiatorTokenData?.name} tokens.`}
-              title="Transaction Created"
+              description={`The user transferred tokens to the bridge.`}
+              title="Bridging initiated"
               transactionStatus={TransactionStatus.Initiated}
-              waiting={currentTx.timestamp ? false : true}
-            />
-            <TransactionDetailsListItem
-              dateCompleted={currentTx.timestamp} // user request event timestamp
-              description={`User requested for Signature/Affirmation.
-              ${messageIDText}`}
-              title="Transaction Confirmed"
-              transactionStatus={TransactionStatus.Requested}
-              waiting={currentTx.validations?.length === 0}
-            ></TransactionDetailsListItem>
+            >
+              <ul>
+                <TransactionRowDetails
+                  nameValue="Initiated by user"
+                  network={currentTx.initiatorNetwork}
+                  status={TransactionStatus.Initiated}
+                  transaction={currentTx}
+                />
+              </ul>
+            </TransactionDetailsListItem>
+            {/* Collecting */}
             {hasValidations() && (
-              <>
-                <TransactionDetailsListItem
-                  dateCompleted={currentTx.timestamp} // first signature timestamp (COLLECTING initiated)
-                  description="Collecting signatures for Transaction validation"
-                  title="Bridge Validators Signatures"
-                  transactionStatus={TransactionStatus.Collecting}
-                  waiting={signatureThresholdNotReached()}
-                >
-                  <TransactionValidations
-                    fetchValidatorName={getValidatorName}
-                    validations={txValidations}
-                  />
-                </TransactionDetailsListItem>
-              </>
+              <TransactionDetailsListItem
+                description={`${txValidations.length} of 4 required confirmations.`}
+                title="Awaiting consensus"
+                transactionStatus={TransactionStatus.Collecting}
+                waiting={signatureThresholdNotReached()}
+              >
+                <TransactionValidations
+                  fetchValidatorName={getValidatorName}
+                  validations={txValidations}
+                />
+              </TransactionDetailsListItem>
             )}
-            {hasBeenExecuted() && (
+            {/* Completed */}
+            {isForeignInitiated() && hasBeenExecuted() && (
               <>
                 <TransactionDetailsListItem
-                  dateCompleted={currentTx.timestamp} // last signature timestamp (UNCLAIMED)
-                  description="Signatures treshold has been reached. Last Validator signing"
-                  title="Bridge Validator Execution"
-                  transactionStatus={TransactionStatus.Unclaimed}
+                  description="The tokens are in the user's address."
+                  title="Bridging is complete"
+                  transactionStatus={TransactionStatus.Completed}
                   waiting={currentTx.timestamp ? false : true}
                 >
                   <ul>
-                    <TransactionValidator
-                      key={txExecution.id}
+                    <TransactionRowDetails
+                      nameValue="Tokens received"
+                      network="gnosis"
                       status="not-required"
                       transaction={txExecution}
-                      validator={getValidatorName(txExecution.responsableAddress)}
                     />
                   </ul>
                 </TransactionDetailsListItem>
               </>
             )}
-            {hasBeenCompleted() && (
+            {!isForeignInitiated() && currentTx.execution && (
               <>
                 <TransactionDetailsListItem
-                  dateCompleted={currentTx.timestamp} // tokens bridged event timestamp (COMPLETED)
-                  description="Funds should be available on receiver address"
+                  description="Funds should be available on receiver address."
                   title="Tokens Bridged"
-                  transactionStatus={transactionStatus}
-                  waiting={currentTx.timestamp ? false : true}
-                ></TransactionDetailsListItem>
+                  transactionStatus={currentTx.transactionStatus}
+                >
+                  <ul>
+                    <TransactionRowDetails
+                      nameValue="Tokens received"
+                      network={currentTx.receiverNetwork}
+                      status="not-required"
+                      transaction={currentTx.execution}
+                    />
+                  </ul>
+                </TransactionDetailsListItem>
+              </>
+            )}
+            {!isForeignInitiated() && !currentTx.execution && (
+              <>
+                <TransactionDetailsListItem
+                  description="Claim to unlock your tokens."
+                  title="Ready to claim"
+                  transactionStatus={TransactionStatus.Unclaimed}
+                >
+                  <Status
+                    onClick={() => console.log('claim')}
+                    status={TransactionStatus.Unclaimed}
+                  />
+                </TransactionDetailsListItem>
               </>
             )}
           </TransactionDetailsList>
@@ -233,4 +238,16 @@ const Bridges: NextPage = () => {
     </Wrapper>
   )
 }
-export default Bridges
+
+export default genericSuspense(Bridges, ({ ...restProps }) => (
+  <Wrapper {...restProps}>
+    <Head>
+      <Title>Transaction</Title>
+      <SkeletonLoading style={{ width: '25%', height: '40px' }} />
+    </Head>
+    <TransactionInformation>
+      <TransactionSummaryPlaceholder />
+      <SkeletonLoading style={{ borderRadius: '4px', height: '300px' }} />
+    </TransactionInformation>
+  </Wrapper>
+))

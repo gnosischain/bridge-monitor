@@ -3,6 +3,8 @@ import styled from 'styled-components'
 
 import { ChainToken } from '@/src/components/common/ChainToken'
 import { BalanceType } from '@/src/constants/types'
+import { useIcon } from '@/src/hooks/useIcon'
+import { getChainIconName } from '@/src/utils/icons'
 
 const Chain = styled.div`
   align-items: center;
@@ -20,20 +22,21 @@ interface Props {
 }
 
 export const BridgeBalance: React.FC<Props> = ({ balanceType }) => {
-  const getChainIcon = (chain?: string) => {
-    return chain === 'Mainnet' ? '/images/icons/eth.png' : '/images/icons/gnosis.png'
-  }
+  const { iconPath } = useIcon(getChainIconName(balanceType?.chain))
+
   return (
     <>
       <Chain>
         <ChainToken name={balanceType?.chain ?? ''}>
-          <Image
-            alt={balanceType?.chain}
-            height={16}
-            objectFit="cover"
-            src={getChainIcon(balanceType?.chain)}
-            width={16}
-          />
+          {iconPath && (
+            <Image
+              alt={balanceType?.chain}
+              height={16}
+              objectFit="cover"
+              src={iconPath}
+              width={16}
+            />
+          )}
         </ChainToken>
         <Text>{balanceType?.chain}</Text>
       </Chain>

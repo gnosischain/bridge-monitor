@@ -1,5 +1,4 @@
 import type { NextPage } from 'next'
-
 import { Limits } from '@/src/components/limits'
 import { MainTitle } from '@/src/components/text/MainTitle'
 

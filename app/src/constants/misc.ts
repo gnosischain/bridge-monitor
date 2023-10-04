@@ -13,7 +13,7 @@ export const POLLING_INTERVAL = parseInt(process.env.NEXT_PUBLIC_POLLING_INTERVA
 
 export const ITEMS_PER_PAGE = 50
 
-export const DEBOUNCE_TIME = 1000
+export const DEBOUNCE_TIME = 500
 
 export const XDAI_SIGNATURE_THRESHOLD = 4
 export const AMB_SIGNATURE_THRESHOLD = 4

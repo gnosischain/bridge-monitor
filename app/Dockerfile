@@ -1,4 +1,4 @@
-FROM node:14.17.0-alpine AS base
+FROM node:18.0.0-alpine AS base
 
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
@@ -9,6 +9,7 @@ WORKDIR /app
 COPY package.json yarn.lock subgraph-config.js ./
 COPY /src ./src
 RUN  yarn install --frozen-lockfile
+RUN  yarn postinstall
 
 FROM base AS builder
 WORKDIR /app

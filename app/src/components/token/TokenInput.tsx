@@ -5,7 +5,7 @@ import { BigNumberInput } from 'big-number-input'
 import { BigNumber } from 'ethers/lib/ethers'
 import { formatUnits } from 'ethers/lib/utils'
 
-import { Textfield as BaseTextField, TextfieldState } from '@/src/components/form/Textfield'
+import { Textfield as BaseTextField, TextfieldStatus } from '@/src/components/form/Textfield'
 import { Error } from '@/src/components/text/Error'
 
 const Wrapper = styled.div`
@@ -99,7 +99,7 @@ export const TokenInput = ({
             <Textfield
               disabled={disabled}
               placeholder="0"
-              status={inputError ? TextfieldState.error : undefined}
+              status={inputError ? TextfieldStatus.error : undefined}
               type="number"
               {...props}
             />

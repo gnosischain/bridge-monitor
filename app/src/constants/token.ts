@@ -1,7 +1,7 @@
-import { Address } from '@web3-onboard/core/dist/types'
-
 import { contracts } from './config/contracts'
 import { Chains } from './config/types'
+
+import { getIcon } from '@/src/utils/icons'
 
 export type Token = {
   address: string
@@ -23,12 +23,12 @@ export type TokenListResponse = {
 }
 
 // @todo think a better way to handle {token => info} (missing network...)
-export const tokens: Record<'DAI' | 'XDAI' | 'GNO' | 'INCH', Token> = {
+export const tokens: Record<'DAI' | 'XDAI' | 'GNO' | 'GNO_GC' | 'INCH', Token> = {
   DAI: {
-    address: contracts['DAI'].address[Chains.mainnet],
+    address: contracts.DAI.address[Chains.mainnet],
     chainId: Chains.mainnet,
     decimals: 18,
-    logoURI: '/images/icons/dai.png',
+    logoURI: getIcon('dai'),
     name: 'DAI',
     symbol: 'DAI',
     native: false,
@@ -37,25 +37,36 @@ export const tokens: Record<'DAI' | 'XDAI' | 'GNO' | 'INCH', Token> = {
     address: '', // @todo as it is a native token, it does not have an address associated
     chainId: Chains.gnosis,
     decimals: 18,
-    logoURI: '/images/icons/xdai.png',
+    logoURI: getIcon('xdai'),
     name: 'xDAI',
     symbol: 'xDAI',
     native: true,
   },
   GNO: {
-    address: contracts['GNO'].address[Chains.mainnet],
+    address: contracts.GNO.address[Chains.mainnet],
     chainId: Chains.mainnet,
     decimals: 18,
-    logoURI: '/images/icons/gnosis.png',
+    logoURI:
+      'https://assets.coingecko.com/coins/images/662/thumb/logo_square_simple_300px.png?1609402668',
+    name: 'Gnosis',
+    symbol: 'GNO',
+    native: false,
+  },
+  GNO_GC: {
+    address: contracts.GNO.address[Chains.gnosis],
+    chainId: Chains.gnosis,
+    decimals: 18,
+    logoURI:
+      'https://assets.coingecko.com/coins/images/662/thumb/logo_square_simple_300px.png?1609402668',
     name: 'Gnosis',
     symbol: 'GNO',
     native: false,
   },
   INCH: {
-    address: contracts['INCH'].address[Chains.mainnet],
+    address: contracts.INCH.address[Chains.mainnet],
     chainId: Chains.mainnet,
     decimals: 18,
-    logoURI: '/images/icons/1inch.png',
+    logoURI: getIcon('1inch'),
     name: 'OneInch',
     symbol: '1INCH',
     native: false,

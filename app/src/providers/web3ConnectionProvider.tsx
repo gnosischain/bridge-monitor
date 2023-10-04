@@ -118,18 +118,12 @@ export default function Web3ConnectionProvider({ children }: Props) {
   const [{ connecting: connectingWallet, wallet }, connect, disconnect] = useConnectWallet()
   const [{ chains, connectedChain, settingChain }, setChain] = useSetChain()
   const connectedWallets = useWallets()
-
   const [appChainId, setAppChainId] = useState(INITIAL_APP_CHAIN_ID)
   const [address, setAddress] = useState<string | null>(null)
-
   const web3Provider = wallet?.provider != null ? new Web3Provider(wallet.provider) : null
-
   const walletChainId = hexToNumber(connectedChain?.id)
-
   const isWalletConnected = web3Provider != null && address != null
-
   const isAppConnected = isWalletConnected && walletChainId === appChainId
-
   const isWalletNetworkSupported = chains.some(({ id }) => id === connectedChain?.id)
 
   const readOnlyAppProvider = useMemo(
@@ -176,7 +170,7 @@ export default function Web3ConnectionProvider({ children }: Props) {
   const getExplorerUrl = useMemo(() => {
     const url = chainsConfig[appChainId]?.blockExplorerUrls[0]
     return (hash: string) => {
-      const type = hash.length > 42 ? 'tx' : 'address'
+      const type = hash?.length > 42 ? 'tx' : 'address'
       return `${url}${type}/${hash}`
     }
   }, [appChainId])
