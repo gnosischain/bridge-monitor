@@ -1,6 +1,6 @@
 import { Address, BigInt, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
-import { isSameString } from "../utils";
 import { AMBTransaction } from "../../generated/schema";
+import { isSameString } from "./misc";
 
 /**
  * @description This File is based on the parseMessage function from the https://github.com/omni/tokenbridge oracle repository
@@ -50,15 +50,6 @@ export function parseTXInput(_input: string): string {
   return `0x${_input.slice(138, 202)}`;
 }
 
-// export function parseAMBEncodedData(_message: string): Array<string> {
-//   // well known data content from encodedData
-//   const messageId = `0x${_message.slice(0, 64)}`;
-//   const token = `0x${_message.slice(196, 236)}`;
-//   const senderReceiver = `0x${_message.slice(260, 300)}`;
-
-//   return [messageId, token, senderReceiver];
-// }
-
 export function parseAMBMessageHash(_message: string): string {
   // well known data content from messageHash: messageId
   return `${_message.slice(0, 66)}`;
@@ -89,20 +80,6 @@ export function parseAMBTransactionInputForTelepathy(
 
   return "";
 }
-
-// export function getReceiver(_input: string): string {
-//   // well known data content from messageHash:
-//   // - receiver: chars 266 to 306
-//   const receiver = `0x${_input.slice(266, 306)}`;
-
-//   return receiver;
-// }
-
-// export function getInitiator(_input: string): string {
-//   // well known data content from messageHash:
-//   // - receiver: chars 396 to 436
-//   return `0x${_input.slice(396, 436)}`;
-// }
 
 // Check if the tx is to bridge ERC20 tokens.
 export function isOmniBridgeUsage(_message: string): boolean {

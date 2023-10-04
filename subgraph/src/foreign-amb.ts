@@ -8,7 +8,7 @@ import { isOmniBridgeUsage, isFromOmniBridgeUsage } from "./utils/message";
 import {
   processOmniBridgeTokenBridgingInitiatedEvent,
   processOmniBridgeTokensBridged,
-} from "./utils/omnibridge";
+} from "./utils/omni-bridge";
 
 //-------------------------
 // Foreign > Home

@@ -14,211 +14,178 @@ import {
   XDAITransaction,
 } from "../generated/schema";
 import { parseMessage } from "./utils/message";
+import { xDAISignedForAffirmationData } from "./utils/xdai";
+import { mockXDAIValidators } from "./utils/mock-validators";
 
-export function handlerUserRequestForSignature(
-  event: UserRequestForSignature
-): void {
-  const txHash = event.transaction.hash;
-  const txValue = event.params.value;
-  const sender = event.transaction.from;
-  const timestamp = event.block.timestamp;
-  const originNetwork = dataSource.network();
+//------------------
+// Home > Foreign.
+//------------------
 
-  let transaction = new XDAITransaction(txHash.toHexString());
-  transaction.transactionHash = txHash;
-  transaction.bridgeName = "XDAI";
-  transaction.initiator = sender;
-  transaction.initiatorAmount = txValue;
-  transaction.initiatorNetwork = originNetwork;
-  transaction.receiverNetwork = "mainnet";
-  transaction.receiverAmount = txValue;
-  transaction.transactionStatus = "INITIATED";
-  transaction.timestamp = timestamp;
-  transaction.save();
-}
+// export function handlerUserRequestForSignature(
+//   event: UserRequestForSignature
+// ): void {
+//   const txHash = event.transaction.hash;
+//   const txValue = event.params.value;
+//   const sender = event.transaction.from;
+//   const timestamp = event.block.timestamp;
+//   const originNetwork = dataSource.network();
 
-export function handlerSignedForUserRequest(event: SignedForUserRequest): void {
-  const contract = HomeBridgeErcToNative.bind(event.address);
-  const messageHash = event.params.messageHash;
-  const message = contract.message(messageHash);
-  const messageHashContent = parseMessage(message.toHexString());
-  const timestamp = event.block.timestamp;
-  const validationHash = event.transaction.hash;
-  const transactionId = messageHashContent[2];
-  const originNetwork = dataSource.network();
+//   let transaction = new XDAITransaction(txHash.toHexString());
+//   transaction.transactionHash = txHash;
+//   transaction.bridgeName = "XDAI";
+//   transaction.initiator = sender;
+//   transaction.initiatorAmount = txValue;
+//   transaction.initiatorNetwork = originNetwork;
+//   transaction.receiverNetwork = "mainnet";
+//   transaction.receiverAmount = txValue;
+//   transaction.transactionStatus = "INITIATED";
+//   transaction.timestamp = timestamp;
+//   transaction.save();
+// }
 
-  let transaction = XDAITransaction.load(transactionId);
-  if (!transaction) {
-    log.error(
-      `Transaction NOT FOUND ${transactionId} @handlerSignedForUserRequest`,
-      []
-    );
-    transaction = new XDAITransaction(transactionId);
-  }
+// export function handlerSignedForUserRequest(event: SignedForUserRequest): void {
+//   const contract = HomeBridgeErcToNative.bind(event.address);
+//   const messageHash = event.params.messageHash;
+//   const message = contract.message(messageHash);
+//   const messageHashContent = parseMessage(message.toHexString());
+//   const timestamp = event.block.timestamp;
+//   const validationHash = event.transaction.hash;
+//   const transactionId = messageHashContent[2];
+//   const originNetwork = dataSource.network();
 
-  const signer = event.params.signer; // validator address
-  let validator = Validator.load(signer.toHexString());
-  if (!validator) {
-    log.error(
-      `Validator ${signer.toHexString()} not found @handlerSignedForUserRequest-homeXDAI`,
-      []
-    );
-  } else {
-    const validatorId = validator.id;
-    const txValidationId = transactionId + "-" + validatorId;
-    let txValidation = new TransactionValidation(txValidationId);
-    txValidation.validator = validatorId;
-    txValidation.transactionHash = validationHash;
-    txValidation.transaction = transactionId;
-    txValidation.timestamp = timestamp;
-    txValidation.save();
+//   let transaction = XDAITransaction.load(transactionId);
+//   if (!transaction) {
+//     log.error(
+//       `Transaction NOT FOUND ${transactionId} @handlerSignedForUserRequest`,
+//       []
+//     );
+//     transaction = new XDAITransaction(transactionId);
+//   }
 
-    validator.lastActivity = timestamp;
-    validator.save();
-  }
-  transaction.bridgeName = "XDAI";
-  transaction.initiatorNetwork = originNetwork;
-  transaction.receiverNetwork = "mainnet";
-  transaction.transactionStatus = "COLLECTING";
-  // transaction.timestamp = timestamp // @todo remove or make it specific to Last Signature added event
-  transaction.save();
-}
+//   const signer = event.params.signer; // validator address
+//   let validator = Validator.load(signer.toHexString());
+//   if (!validator) {
+//     log.error(
+//       `Validator ${signer.toHexString()} not found @handlerSignedForUserRequest-homeXDAI`,
+//       []
+//     );
+//   } else {
+//     const validatorId = validator.id;
+//     const txValidationId = transactionId + "-" + validatorId;
+//     let txValidation = new TransactionValidation(txValidationId);
+//     txValidation.validator = validatorId;
+//     txValidation.transactionHash = validationHash;
+//     txValidation.transaction = transactionId;
+//     txValidation.timestamp = timestamp;
+//     txValidation.save();
 
+//     validator.lastActivity = timestamp;
+//     validator.save();
+//   }
+//   transaction.bridgeName = "XDAI";
+//   transaction.initiatorNetwork = originNetwork;
+//   transaction.receiverNetwork = "mainnet";
+//   transaction.transactionStatus = "COLLECTING";
+//   // transaction.timestamp = timestamp // @todo remove or make it specific to Last Signature added event
+//   transaction.save();
+// }
+
+//------------------
+// Foreign > Home.
+//------------------
+
+// 1. A users initiates a bridging in the foreign network.
+// >> foreign
+
+// 2. SignedForAffirmation.
+// A validator signs an affirmation (saying the operation is valid).
+// This is the first event the home is aware of.
 export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
-  const transactionId = event.params.transactionHash.toHexString();
-  const timestamp = event.block.timestamp;
-  const destinationNetwork = dataSource.network();
-  const validationHash = event.transaction.hash;
-  let transaction = XDAITransaction.load(transactionId);
+  const foreignTxHash = event.params.transactionHash;
+  const foreignTxHashString = event.params.transactionHash.toHexString();
+  const transactionData = event.transaction.input.toHexString();
+  const signer = event.params.signer.toHexString(); // validator address
+
+  // Try to load tx, as it might be the first validator signing it we might need to create it
+  let transaction = XDAITransaction.load(foreignTxHashString);
   if (!transaction) {
-    log.error(
-      `Transaction NOT FOUND ${transactionId} @handlerSignedForAffirmation`,
-      []
-    );
-    transaction = new XDAITransaction(transactionId);
+    transaction = new XDAITransaction(foreignTxHashString);
+    transaction.bridgeName = "XDAI";
+    transaction.initiatorNetwork = "mainnet";
+    transaction.transactionHash = foreignTxHash;
+    transaction.messageId = foreignTxHash;
+    // Set receiver y receiverAmount by processing the event SignedForAffirmationData
+    xDAISignedForAffirmationData(transaction, transactionData);
+    transaction.receiverNetwork = "gnosis";
+    transaction.transactionStatus = "COLLECTING";
+    transaction.save();
   }
 
-  const signer = event.params.signer; // validator address
-  let validator = Validator.load(signer.toHexString());
+  // Load validator and update last activity
+  // If no validator found, log error and interrupt execution
+  mockXDAIValidators();
+  let validator = Validator.load(signer);
   if (!validator) {
     log.error(
-      `Validator ${signer.toHexString()} not found @handlerSignedForAffirmation-homeXDAI`,
-      []
+      `XDAI:handlerSignedForAffirmation - Validator {} not found, txHash: {}`,
+      [signer, foreignTxHash.toHexString()]
     );
-  } else {
-    const validatorId = validator.id;
-    const txValidationId = transactionId + "-" + validatorId;
-    let txValidation = new TransactionValidation(txValidationId);
-    txValidation.validator = validatorId;
-    txValidation.transactionHash = validationHash;
-    txValidation.transaction = transactionId;
-    txValidation.timestamp = timestamp;
-    txValidation.save();
-
-    validator.lastActivity = timestamp;
-    validator.save();
+    return;
   }
-  transaction.bridgeName = "XDAI";
-  transaction.initiatorNetwork = "mainnet";
-  transaction.receiverNetwork = destinationNetwork;
-  transaction.transactionStatus = "COLLECTING";
-  // transaction.timestamp = timestamp // @todo remove or make it specific to Last Signature added event
-  transaction.save();
+  validator.lastActivity = event.block.timestamp;
+  validator.save();
+
+  // Create validation entity
+  const txValidationId = foreignTxHashString + "-" + validator.id;
+  let txValidation = new TransactionValidation(txValidationId);
+  txValidation.validator = validator.id;
+  txValidation.validatorAddr = validator.address;
+  txValidation.transactionHash = event.transaction.hash;
+  txValidation.transaction = foreignTxHashString;
+  txValidation.timestamp = event.block.timestamp;
+  txValidation.save();
 }
 
-export function handlerCollectedSignatures(event: CollectedSignatures): void {
-  const contract = HomeBridgeErcToNative.bind(event.address);
-  const messageHash = event.params.messageHash;
-  const message = contract.message(messageHash);
-  const messageHashContent = parseMessage(message.toHexString());
-
-  const recipient = messageHashContent[0];
-  // const amount = messageHashContent[1]
-  const transactionId = messageHashContent[2];
-  const timestamp = event.block.timestamp;
-  const executionHash = event.transaction.hash;
-
-  const executorId = event.params.authorityResponsibleForRelay; // validator address
-  const executionId = transactionId + "-" + executorId.toHexString();
-  let execution = new TransactionExecution(executionId);
-  let validator = Validator.load(executorId.toHexString());
-  if (!validator) {
-    log.error(
-      `Validator ${executorId} not found @handlerCollectedSignatures-homeXDAI`,
-      []
-    );
-  } else {
-    execution.executor = validator.id;
-    validator.lastActivity = timestamp;
-    validator.save();
-  }
-  execution.transaction = transactionId;
-  execution.transactionHash = executionHash;
-  execution.timestamp = timestamp;
-  execution.save();
-
-  let transaction = XDAITransaction.load(transactionId);
-  if (!transaction) {
-    log.error(
-      `Transaction NOT FOUND ${transactionId} @handlerCollectedSignatures`,
-      []
-    );
-    transaction = new XDAITransaction(transactionId);
-  }
-
-  transaction.bridgeName = "XDAI";
-  transaction.transactionStatus = "UNCLAIMED";
-  transaction.initiatorNetwork = dataSource.network();
-  transaction.receiver = Address.fromHexString(recipient);
-  transaction.receiverNetwork = "mainnet";
-  // transaction.receiverAmount = BigInt.fromString(amount)
-  // transaction.timestamp = timestamp // @todo remove or make it specific to Sigs Reached event
-  transaction.execution = execution.id;
-  transaction.save();
-}
-
+// 3. AffirmationCompleted.
+// This event is triggered when after threshold of validators signatures is reached.
+// and the funds are minted on home side.
+// txExample: https://gnosisscan.io/tx/0xb431ceba6b6ac480ab6127429251ac621f79cd1292a83c255146c79bd8600960#eventlog
 export function handlerAffirmationCompleted(event: AffirmationCompleted): void {
-  const txValue = event.params.value;
-  const txHash = event.params.transactionHash;
-  const recipient = event.params.recipient;
-  const transactionId = txHash.toHexString();
-  const timestamp = event.block.timestamp;
-  const executionHash = event.transaction.hash;
+  const foreignTxHash = event.params.transactionHash;
+  const foreignTxHashString = foreignTxHash.toHexString();
+  const executorId = event.transaction.from; // validator address
 
-  const executorId = event.transaction.from; // executor address
-  const executionId = transactionId + "-" + executorId.toHexString();
-  let execution = new TransactionExecution(executionId);
-  let validator = Validator.load(executorId.toHexString());
+  // Load validator and update last activity
+  const validator = Validator.load(executorId.toHexString());
   if (!validator) {
     log.error(
-      `Validator ${executorId.toHexString()} not found @handlerAffirmationCompleted-homeXDAI`,
-      []
+      `XDAI:handlerSignedForAffirmation - Validator {} not found, txHash: {}`,
+      [executorId.toHexString(), foreignTxHash.toHexString()]
     );
-  } else {
-    execution.executor = executorId.toHexString();
-    validator.lastActivity = timestamp;
-    validator.save();
+    return;
   }
-  execution.transaction = transactionId;
-  execution.transactionHash = executionHash;
-  execution.timestamp = timestamp;
+  validator.lastActivity = event.block.timestamp;
+  validator.save();
+
+  // Create execution entity
+  const execution = new TransactionExecution(foreignTxHashString);
+  execution.executor = executorId.toHexString();
+  execution.validatorAddr = validator.address;
+  execution.transaction = foreignTxHashString;
+  execution.transactionHash = foreignTxHash;
+  execution.timestamp = event.block.timestamp;
   execution.save();
 
-  let transaction = XDAITransaction.load(transactionId);
+  // Link execution to transaction
+  let transaction = XDAITransaction.load(foreignTxHashString);
   if (!transaction) {
     log.error(
-      `Transaction NOT FOUND ${transactionId} @handlerAffirmationCompleted`,
-      []
+      `XDAI:handlerSignedForAffirmation - Transaction not found, txHash: {}`,
+      [foreignTxHash.toHexString()]
     );
-    transaction = new XDAITransaction(transactionId);
+    return;
   }
-
-  transaction.bridgeName = "XDAI";
-  transaction.transactionStatus = "UNCLAIMED";
-  transaction.receiver = recipient;
-  transaction.receiverNetwork = dataSource.network();
-  transaction.receiverAmount = txValue;
-  // transaction.timestamp = timestamp // @todo remove or make it specific to Sigs Reached event
-  transaction.execution = executionId;
+  transaction.transactionStatus = "COMPLETED";
+  transaction.execution = foreignTxHashString;
   transaction.save();
 }

@@ -1,5 +1,5 @@
 import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts";
-import { AMBTransaction } from "../../generated/schema";
+import { AMBTransaction, XDAITransaction } from "../../generated/schema";
 
 // capture TokensBridgingInitiated event
 const TOKENS_BRIDGING_INITIATED_TOPIC = Bytes.fromHexString(

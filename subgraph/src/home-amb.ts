@@ -21,11 +21,14 @@ import {
   parseAMBTransactionInputForTelepathy,
   isFromOmniBridgeUsage,
 } from "./utils/message";
-import { debug_addValidatorsManually, telepathyAddress } from "./utils";
+import {
+  mockAMBValidators,
+  AMB_telepathyAddress,
+} from "./utils/mock-validators";
 import {
   processOmniBridgeTokenBridgingInitiatedEvent,
   processOmniBridgeTokensBridged,
-} from "./utils/omnibridge";
+} from "./utils/omni-bridge";
 
 const MAINNET_OMNI_BRIDGE_HOME_MEDIATOR = "88ad09518695c6c3712AC10a214bE5109a655671".toLowerCase();
 
@@ -109,7 +112,7 @@ export function handlerSignedForUserRequest(event: SignedForUserRequest): void {
   transaction.save();
 
   // load validator
-  debug_addValidatorsManually();
+  mockAMBValidators();
   let validator = Validator.load(signerString);
   if (!validator) {
     log.error(
@@ -159,7 +162,7 @@ export function handlerCollectedSignatures(event: CollectedSignatures): void {
   transaction.save();
 
   // load validator
-  debug_addValidatorsManually();
+  mockAMBValidators();
   const validator = Validator.load(executorId.toHexString());
   if (!validator) {
     log.error(
@@ -185,8 +188,10 @@ export function handlerCollectedSignatures(event: CollectedSignatures): void {
 // When operation is initiated in foreign > Affirmation events are collected
 //-------------------------
 
-// 1. SignedForAffirmation.
-// A user initiated a bridge from Foreign to Home.
+// 1. A user initiated a bridge from Foreign to Home.
+// >> Foreign
+
+// 2. SignedForAffirmation.
 // This is the first event the home is aware of.
 // It is triggered when a validator signs an affirmation (saying the operation is valid).
 export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
@@ -205,7 +210,7 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
 
   // if signer is Telepathy, txData has to be processed with different indexes
   const messageId =
-    signerString == telepathyAddress
+    signerString == AMB_telepathyAddress
       ? parseAMBTransactionInputForTelepathy(event.receipt)
       : parseAMBTransactionInput(transactionData);
 
@@ -229,7 +234,7 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
   }
 
   // load validator
-  debug_addValidatorsManually();
+  mockAMBValidators();
   let validator = Validator.load(signerString);
   if (!validator) {
     log.error(
@@ -254,7 +259,7 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
   validator.save();
 }
 
-// 2. AffirmationCompleted.
+// 3. AffirmationCompleted.
 // This event is triggered when after threshold of validators signatures is reached.
 // and the funds are minted on home side.
 // NOTE: We are getting receiver information by parsing the event TokensBridged from the OmnibridgeMediator.
