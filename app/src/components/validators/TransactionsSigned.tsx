@@ -103,6 +103,8 @@ const Chart: React.FC<{ timePeriod: number; bridge: string }> = genericSuspense(
       'rgba(108, 68, 193, 0.6)',
       'rgba(185, 110, 182, 0.6)',
       'rgba(69, 104, 194, 0.6)',
+      'rgba(168,58,165,0.6)',
+      'rgba(21,62,171,0.6)',
     ]
 
     const commonAxesStyles = {
@@ -114,6 +116,7 @@ const Chart: React.FC<{ timePeriod: number; bridge: string }> = genericSuspense(
         fill: '#F0EBDE',
       },
       tickLine: false,
+      interval: 0,
     }
 
     return (
@@ -208,5 +211,5 @@ export const TransactionsSigned: React.FC<{
       </Wrapper>
     )
   },
-  () => <>adkjasd</>,
+  () => <>loading...</>,
 )
