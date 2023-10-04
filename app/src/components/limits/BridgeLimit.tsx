@@ -1,6 +1,3 @@
-import { useState } from 'react'
-import styled from 'styled-components'
-
 import { IconLink } from '@/src/components/assets/IconLink'
 import { InnerCard } from '@/src/components/common/InnerCard'
 import { ContractLimit } from '@/src/components/limits/ContractLimit'
@@ -11,6 +8,8 @@ import { TokenDropdown as BaseDropdown } from '@/src/components/token/TokenDropd
 import { ChainsValues } from '@/src/constants/config/types'
 import { percentageNumber } from '@/src/utils/formatNumber'
 import { Token } from '@/types/token'
+import { useMemo, useState } from 'react'
+import styled from 'styled-components'
 
 const Wrapper = styled(InnerCard)``
 
@@ -65,7 +64,7 @@ const Grid = styled.div`
 `
 
 interface Props {
-  bridgeReset: number
+  bridgeReset?: number
   chainId: ChainsValues
   dailyLimit: number
   defaultToken: Token
@@ -112,6 +111,17 @@ export const BridgeLimit: React.FC<Props> = ({
       onTokenChange(token)
     }
   }
+
+  bridgeReset = useMemo(() => {
+    if (bridgeReset) {
+      return bridgeReset
+    }
+
+    const TODAY_ZERO_UTC = new Date().setUTCHours(0, 0, 0, 0)
+    const TOMORROW = new Date(TODAY_ZERO_UTC).getDate() + 1
+
+    return new Date(TODAY_ZERO_UTC).setDate(TOMORROW)
+  }, [bridgeReset])
 
   return (
     <Wrapper {...restProps}>

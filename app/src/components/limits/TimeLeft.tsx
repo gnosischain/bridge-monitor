@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 
 import { useDate } from '@/src/hooks/useDate'
+import { Tooltip } from '@/src/components/common/Tooltip'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -16,14 +17,15 @@ interface Props {
 }
 
 export const TimeLeft: React.FC<Props> = ({ time, ...restProps }) => {
-  const dateBridgeReset = useDate(new Date(time))
+  const date = new Date(time)
+  const { getSuffixRemaining, remaining } = useDate(date)
   return (
     <Wrapper {...restProps}>
       <span>Daily limit reset</span>{' '}
-      <span>
-        {dateBridgeReset.remaining?.interval} {dateBridgeReset.remaining?.epoch}
-        {dateBridgeReset.getSuffixRemaining}
-      </span>
+      <Tooltip text={date.toLocaleString()}>
+        {remaining?.interval} {remaining?.epoch}
+        {getSuffixRemaining}
+      </Tooltip>
     </Wrapper>
   )
 }

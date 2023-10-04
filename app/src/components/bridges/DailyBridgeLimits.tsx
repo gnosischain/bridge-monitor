@@ -75,7 +75,6 @@ export const XDAIEthToGC: React.FC = genericSuspense(
 
     return (
       <BridgeLimit
-        bridgeReset={1667054970000}
         chainId={Chains.mainnet}
         defaultToken={tokens.DAI}
         disableTokenDropdown
@@ -98,7 +97,6 @@ export const XDAIGCToEth: React.FC = genericSuspense(
 
     return (
       <BridgeLimit
-        bridgeReset={1666442910000}
         chainId={Chains.gnosis}
         defaultToken={tokens.XDAI}
         disableTokenDropdown
@@ -122,7 +120,6 @@ const OmnibridgeEthToGC: React.FC = genericSuspense(
 
     return (
       <BridgeLimit
-        bridgeReset={1666882170000}
         chainId={Chains.mainnet}
         defaultToken={tokens.GNO}
         from="Ethereum"
@@ -146,7 +143,6 @@ const OmnibridgeGCToEth: React.FC = genericSuspense(
 
     return (
       <BridgeLimit
-        bridgeReset={1666450170000}
         chainId={Chains.gnosis}
         defaultToken={tokens.GNO_GC}
         from="Gnosis"
