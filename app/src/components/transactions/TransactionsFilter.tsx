@@ -79,11 +79,12 @@ const ResetButton = styled.button`
 
 type Props = {
   bridge: string
-  onHashChange: (value: string) => void
-  onStatusChange: (value: string) => void
-  onSignedByChange: (value: string) => void
-  onExecutedByChange: (value: string) => void
   onBridgeDirectionChange: (value: string) => void
+  onExecutedByChange: (value: string) => void
+  onHashChange: (value: string) => void
+  onResetFilters: () => void
+  onSignedByChange: (value: string) => void
+  onStatusChange: (value: string) => void
 }
 
 export enum BridgeDirection {
@@ -111,6 +112,7 @@ export const TransactionsFilter: React.FC<Props> = genericSuspense(
     onBridgeDirectionChange,
     onExecutedByChange,
     onHashChange,
+    onResetFilters,
     onSignedByChange,
     onStatusChange,
     ...restProps
@@ -132,20 +134,9 @@ export const TransactionsFilter: React.FC<Props> = genericSuspense(
     const [resetFields, setResetFields] = useState<boolean>(false)
 
     const resetFilters = useCallback(() => {
-      onStatusChange(statusOptions[0])
-      onSignedByChange(validatorsOptions[0])
-      onExecutedByChange(validatorsOptions[0])
-      onBridgeDirectionChange(bridgeDirectionOptions[0])
+      onResetFilters()
       setResetFields(true)
-    }, [
-      bridgeDirectionOptions,
-      onBridgeDirectionChange,
-      onExecutedByChange,
-      onSignedByChange,
-      onStatusChange,
-      statusOptions,
-      validatorsOptions,
-    ])
+    }, [onResetFilters])
 
     const [error, setError] = useState<string>('')
     const handleHashChange = (value: string) => {
