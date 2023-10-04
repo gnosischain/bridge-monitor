@@ -1,6 +1,6 @@
 specVersion: 0.0.4
 description: Subgraph for the Bridge Monitoring System
-repository: https://github.com/BootNodeDev/bridge-monitor-subgraph
+repository: https://github.com/BootNodeDev/bridge-monitor
 schema:
   file: ./schema.graphql
 dataSources:
