@@ -8,6 +8,7 @@ import { TimeLeft } from '@/src/components/limits/TimeLeft'
 import { TokenAddress } from '@/src/components/limits/TokenAddress'
 import { TransactionLimit } from '@/src/components/limits/TransactionLimit'
 import { ChainsValues } from '@/src/constants/config/types'
+import { formatNumber } from '@/src/utils/format'
 import { percentageNumber } from '@/src/utils/formatNumber'
 import { Token } from '@/types/token'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
@@ -160,20 +161,20 @@ export const BridgeLimit: React.FC<Props> = ({
               title="Min. per transaction"
               tooltip={`Minimum amount of ${token?.symbol.toUpperCase()} that users can bridge in a single transaction`}
               trend="down"
-              value={minPerTx}
+              value={formatNumber(minPerTx)}
             />
             <TransactionLimit
               title="Max. per transaction"
               tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that users can bridge in a single transaction`}
               trend="up"
-              value={maxPerTx}
+              value={formatNumber(maxPerTx)}
             />
           </Grid>
           <TransactionLimit
             title="Execution max. per transaction"
             tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that validators can execute in a single transaction`}
             trend="up"
-            value={executionMaxPerTx}
+            value={formatNumber(executionMaxPerTx)}
           />
           <TimeLeft time={bridgeReset} />
         </>

@@ -5,7 +5,7 @@ import { MiniCard, MiniCardTitle, MiniCardValue } from '@/src/components/common/
 import { Tooltip } from '@/src/components/common/Tooltip'
 import { HealthStatusTypes } from '@/src/constants/types'
 import { bridgeContractHealth } from '@/src/utils/bridgeHealth'
-import { formatNumber } from '@/src/utils/formatNumber'
+import { formatNumber } from '@/src/utils/format'
 
 const Wrapper = styled(MiniCard)`
   flex-direction: column;

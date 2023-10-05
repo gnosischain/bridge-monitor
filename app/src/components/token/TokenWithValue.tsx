@@ -1,9 +1,10 @@
+import { BigNumber, BigNumberish, FixedNumber } from 'ethers'
 import Image from 'next/image'
 import styled from 'styled-components'
 
 import { ChainToken } from '@/src/components/common/ChainToken'
 import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
-import { BigNumber, BigNumberish, FixedNumber } from 'ethers'
+import { formatNumber } from '@/src/utils/format'
 
 const tokenSize = 16
 
@@ -82,7 +83,11 @@ export const TokenWithValue: React.FC<Props> = ({ token, tokenValue, ...restProp
       </TokenIcon>
       <Value className="value">
         {_token
-          ? FixedNumber.fromValue(BigNumber.from(tokenValue), _token.decimals).round(4).toString()
+          ? formatNumber(
+              +FixedNumber.fromValue(BigNumber.from(tokenValue), _token.decimals)
+                .round(4)
+                .toString(),
+            )
           : tokenValue.toString()}
       </Value>
     </Wrapper>
