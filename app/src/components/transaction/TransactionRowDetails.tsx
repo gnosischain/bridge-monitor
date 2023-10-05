@@ -1,7 +1,6 @@
 import styled from 'styled-components'
 
 import { Address } from '@/src/components/token/Address'
-import { IconStatus } from '@/src/components/transaction/IconStatus'
 import { TransactionDate } from '@/src/components/transaction/TransactionDate'
 import { getTxScanUrl } from '@/src/utils/transactions'
 import { IconLink } from '@/src/components/assets/IconLink'

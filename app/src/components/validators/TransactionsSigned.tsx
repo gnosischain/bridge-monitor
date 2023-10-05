@@ -175,41 +175,38 @@ const Chart: React.FC<{ timePeriod: number; bridge: string }> = genericSuspense(
 
 export const TransactionsSigned: React.FC<{
   bridge: string
-}> = genericSuspense(
-  ({ bridge, ...restProps }) => {
-    const dropdownItems = [
-      { title: 'Last week', timestampVal: weekAgoTimestamp() },
-      { title: 'Last month', timestampVal: monthAgoTimestamp() },
-    ]
-    const [selectedItem, setSelectedItem] = useState(0)
-    const [timePeriod, setTimePeriod] = useState(weekAgoTimestamp())
+}> = genericSuspense(({ bridge, ...restProps }) => {
+  const dropdownItems = [
+    { title: 'Last week', timestampVal: weekAgoTimestamp() },
+    { title: 'Last month', timestampVal: monthAgoTimestamp() },
+  ]
+  const [selectedItem, setSelectedItem] = useState(0)
+  const [timePeriod, setTimePeriod] = useState(weekAgoTimestamp())
 
-    const onDropdownItemSelect = (index: number) => {
-      setTimePeriod(dropdownItems[index].timestampVal)
-      setSelectedItem(index)
-    }
+  const onDropdownItemSelect = (index: number) => {
+    setTimePeriod(dropdownItems[index].timestampVal)
+    setSelectedItem(index)
+  }
 
-    return (
-      <Wrapper {...restProps}>
-        <Header>
-          <Title>Transactions Signed</Title>
-          <Dropdown
-            dropdownButton={
-              <DropdownButton>
-                <span>{dropdownItems[selectedItem].title}</span> <ChevronDown />
-              </DropdownButton>
-            }
-            dropdownPosition={DropdownPosition.right}
-            items={dropdownItems.map((item, index) => (
-              <DropdownItem key={index} onClick={() => onDropdownItemSelect(index)}>
-                {item.title}
-              </DropdownItem>
-            ))}
-          />
-        </Header>
-        <Chart bridge={bridge} timePeriod={timePeriod} />
-      </Wrapper>
-    )
-  },
-  () => <>loading...</>,
-)
+  return (
+    <Wrapper {...restProps}>
+      <Header>
+        <Title>Transactions Signed</Title>
+        <Dropdown
+          dropdownButton={
+            <DropdownButton>
+              <span>{dropdownItems[selectedItem].title}</span> <ChevronDown />
+            </DropdownButton>
+          }
+          dropdownPosition={DropdownPosition.right}
+          items={dropdownItems.map((item, index) => (
+            <DropdownItem key={index} onClick={() => onDropdownItemSelect(index)}>
+              {item.title}
+            </DropdownItem>
+          ))}
+        />
+      </Header>
+      <Chart bridge={bridge} timePeriod={timePeriod} />
+    </Wrapper>
+  )
+})

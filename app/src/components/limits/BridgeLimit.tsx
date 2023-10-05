@@ -1,15 +1,16 @@
+import { useMemo } from 'react'
+import styled from 'styled-components'
+
 import { IconLink } from '@/src/components/assets/IconLink'
 import { InnerCard } from '@/src/components/common/InnerCard'
 import { ContractLimit } from '@/src/components/limits/ContractLimit'
 import { TimeLeft } from '@/src/components/limits/TimeLeft'
 import { TokenAddress } from '@/src/components/limits/TokenAddress'
 import { TransactionLimit } from '@/src/components/limits/TransactionLimit'
-import { TokenDropdown as BaseDropdown } from '@/src/components/token/TokenDropdown'
 import { ChainsValues } from '@/src/constants/config/types'
 import { percentageNumber } from '@/src/utils/formatNumber'
 import { Token } from '@/types/token'
-import { useMemo, useState } from 'react'
-import styled from 'styled-components'
+import { TokenIcon } from '@/src/components/token/TokenIcon'
 
 const Wrapper = styled(InnerCard)``
 
@@ -48,8 +49,22 @@ const ExternalURL = styled.a`
   }
 `
 
-const TokenDropdown = styled(BaseDropdown)`
+const TokenWrapper = styled.div`
+  align-items: center;
+  background-color: ${({ theme: { colors } }) => colors.darkestGrey};
+  border-radius: 6px;
+  column-gap: 8px;
+  display: flex;
+  height: 34px;
   margin-left: auto;
+  padding: 0 10px;
+`
+
+const TokenSymbol = styled.div`
+  color: ${({ theme: { colors } }) => colors.cream};
+  flex-shrink: 0;
+  font-size: 1.4rem;
+  line-height: 1.2;
 `
 
 const Grid = styled.div`
@@ -67,7 +82,7 @@ interface Props {
   bridgeReset?: number
   chainId: ChainsValues
   dailyLimit: number
-  defaultToken: Token
+  token: Token
   disableTokenDropdown?: boolean
   executionDailyLimit: number
   executionMaxPerTx: number
@@ -75,7 +90,6 @@ interface Props {
   isTokenRegistered?: boolean
   maxPerTx: number
   minPerTx: number
-  onTokenChange?: (token: Token) => void
   title: string
   to: string
   totalExecutedPerDay: number
@@ -85,33 +99,21 @@ interface Props {
 
 export const BridgeLimit: React.FC<Props> = ({
   bridgeReset,
-  chainId,
   dailyLimit,
-  defaultToken,
-  disableTokenDropdown,
   executionDailyLimit,
   executionMaxPerTx,
   from,
   isTokenRegistered = true,
   maxPerTx,
   minPerTx,
-  onTokenChange,
   title,
   to,
+  token,
   totalExecutedPerDay,
   totalSpentPerDay,
   url,
   ...restProps
 }) => {
-  const [tokenDropdown, setTokenDropdown] = useState<Token>(defaultToken)
-  const refreshTokenDropdown = (token: Token) => {
-    setTokenDropdown(token)
-
-    if (typeof onTokenChange !== 'undefined') {
-      onTokenChange(token)
-    }
-  }
-
   bridgeReset = useMemo(() => {
     if (bridgeReset) {
       return bridgeReset
@@ -130,12 +132,10 @@ export const BridgeLimit: React.FC<Props> = ({
         <ExternalURL href={url} rel="noopener noreferrer" target="_blank">
           <IconLink height={12} width={12} />
         </ExternalURL>
-        <TokenDropdown
-          chainId={chainId}
-          defaultToken={defaultToken}
-          disabled={disableTokenDropdown}
-          onChange={refreshTokenDropdown}
-        />
+        <TokenWrapper>
+          <TokenIcon dimensions={18} iconSource={token?.logoURI} symbol={token?.symbol} />
+          <TokenSymbol>{token?.symbol.toUpperCase()}</TokenSymbol>
+        </TokenWrapper>
       </Header>
       {isTokenRegistered ? (
         <>
@@ -143,35 +143,35 @@ export const BridgeLimit: React.FC<Props> = ({
             funds={dailyLimit}
             percentage={percentageNumber(totalSpentPerDay, dailyLimit)}
             title="Daily Limit"
-            token={tokenDropdown?.symbol.toUpperCase() || 'DAI'}
-            tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that users can bridge from ${from} to ${to} in a day`}
+            token={token?.symbol.toUpperCase() || 'DAI'}
+            tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that users can bridge from ${from} to ${to} in a day`}
             used={totalSpentPerDay}
           />
           <ContractLimit
             funds={executionDailyLimit}
             percentage={percentageNumber(totalExecutedPerDay, executionDailyLimit)}
             title="Execution Daily Limit"
-            token={tokenDropdown?.symbol.toUpperCase() || 'DAI'}
-            tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that bridge validators can execute and bridge from ${to} to ${from} in a day`}
+            token={token?.symbol.toUpperCase() || 'DAI'}
+            tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that bridge validators can execute and bridge from ${to} to ${from} in a day`}
             used={totalExecutedPerDay}
           />
           <Grid>
             <TransactionLimit
               title="Min. per transaction"
-              tooltip={`Minimum amount of ${tokenDropdown?.symbol.toUpperCase()} that users can bridge in a single transaction`}
+              tooltip={`Minimum amount of ${token?.symbol.toUpperCase()} that users can bridge in a single transaction`}
               trend="down"
               value={minPerTx}
             />
             <TransactionLimit
               title="Max. per transaction"
-              tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that users can bridge in a single transaction`}
+              tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that users can bridge in a single transaction`}
               trend="up"
               value={maxPerTx}
             />
           </Grid>
           <TransactionLimit
             title="Execution max. per transaction"
-            tooltip={`Maximum amount of ${tokenDropdown?.symbol.toUpperCase()} that validators can execute in a single transaction`}
+            tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that validators can execute in a single transaction`}
             trend="up"
             value={executionMaxPerTx}
           />
@@ -180,7 +180,7 @@ export const BridgeLimit: React.FC<Props> = ({
       ) : (
         <p>Token not registered yet.</p>
       )}
-      {tokenDropdown && <TokenAddress address={tokenDropdown?.address} />}
+      {token && <TokenAddress address={token?.address} />}
     </Wrapper>
   )
 }

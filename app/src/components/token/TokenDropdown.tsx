@@ -149,15 +149,15 @@ const ChevronDown = styled(BaseChevronDown)`
 `
 
 export const TokenDropdown: React.FC<{
-  onChange?: (token: Token) => void
+  chainId: ChainsValues
   defaultToken: Token
   disabled?: boolean
-  chainId: ChainsValues
+  onChange?: (token: Token) => void
 }> = ({ chainId, defaultToken, disabled = false, onChange, ...restProps }) => {
   const [token, setToken] = useState<Token>(defaultToken)
   const { tokensByNetwork } = useTokenIcons()
   const tokens = useMemo(() => {
-    if (chainId === 1) return tokensByNetwork[chainId] || []
+    if (chainId === 1) return tokensByNetwork[1] || []
     if (chainId === 100) return tokensByNetwork[chainId] || []
   }, [chainId, tokensByNetwork])
   const [tokensList, setTokensList] = useState(tokens)

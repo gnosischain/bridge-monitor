@@ -21,7 +21,8 @@ export const TokenAddress: React.FC<Props> = ({ address, ...restProps }) => {
 
   return (
     <Wrapper {...restProps}>
-      <span>Token address</span> <Address address={address} copy link={getExplorerUrl(address)} />
+      <span>Token address</span>{' '}
+      <Address address={address} characters={6} copy link={getExplorerUrl(address)} />
     </Wrapper>
   )
 }
