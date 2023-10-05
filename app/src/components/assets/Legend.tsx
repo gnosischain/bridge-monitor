@@ -4,25 +4,26 @@ import { ValidatorStatus } from '@/src/components/assets/ValidatorStatus'
 import { ValidatorStatusTypes } from '@/src/constants/types'
 
 const Wrapper = styled.div`
+  align-items: flex-start;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: end;
   gap: ${({ theme: { common } }) => common.space}px;
+  justify-content: end;
   margin: ${({ theme: { common } }) => common.space * 4}px 0;
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    flex-direction: row;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     align-items: center;
+    flex-direction: row;
     gap: ${({ theme: { common } }) => common.space * 4}px;
   }
 `
 const Label = styled.span`
-  display: flex;
   align-items: center;
-  gap: ${({ theme: { common } }) => common.space}px;
+  color: ${({ theme: { colors } }) => colors.cream};
+  display: flex;
   font-size: 1.4rem;
   font-weight: 300;
-  color: ${({ theme }) => theme.colors.cream};
+  gap: ${({ theme: { common } }) => common.space}px;
   opacity: 0.6;
 `
 
@@ -30,20 +31,12 @@ export const Legend: React.FC = () => {
   return (
     <Wrapper>
       <Label>
-        <ValidatorStatus status={ValidatorStatusTypes.pending} />
-        Pending
-      </Label>
-      <Label>
-        <ValidatorStatus status={ValidatorStatusTypes.submitted} />
-        Signature submitted
-      </Label>
-      <Label>
         <ValidatorStatus status={ValidatorStatusTypes.submittedExecuted} />
-        Signature submitted + executed
+        Signed
       </Label>
       <Label>
         <ValidatorStatus status={ValidatorStatusTypes.executed} />
-        Executed
+        Signed and Executed
       </Label>
       <Label>
         <ValidatorStatus status={ValidatorStatusTypes.notRequired} />
