@@ -1,6 +1,6 @@
 import { Address, Bytes, ethereum, log } from "@graphprotocol/graph-ts";
 import { XDAITransaction } from "../../generated/schema";
-import { bytesToBigInt } from "./misc";
+import { DAI_ADDRESS, bytesToBigInt, strip0x } from "./misc";
 
 const USER_REQUEST_FOR_AFFIRMATION_TOPIC = Bytes.fromHexString(
   "0x1d491a427d1f8cc0d447496f300fac39f7306122481d8e663451eb268274146b"
@@ -34,9 +34,19 @@ export function xDAISignedForAffirmationData(
   transaction: XDAITransaction,
   _message: string
 ): void {
-  // save receiver
-  transaction.receiver = Address.fromHexString(`0x${_message.slice(34, 74)}`);
   // save receiver amount
   const amount = Bytes.fromHexString(`0x${_message.slice(74, 138)}`);
+
+  // save receiver
+  transaction.receiver = Address.fromHexString(`0x${_message.slice(34, 74)}`);
   transaction.receiverAmount = bytesToBigInt(amount);
+  transaction.receiverToken = Address.zero();
+
+  transaction.initiatorAmount = bytesToBigInt(amount);
+  transaction.initiatorToken = Address.fromHexString(DAI_ADDRESS);
+}
+
+export function getHomeTxHashFromMessageMethod(_message: Bytes): string {
+  const message = strip0x(_message.toHexString());
+  return `0x${message.slice(104, 168)}`;
 }

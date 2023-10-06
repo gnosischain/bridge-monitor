@@ -4,8 +4,10 @@ import {
   UserRequestForAffirmation,
 } from "../generated/ForeignAMB/ForeignAMB";
 import { AMBTransaction, TransactionExecution } from "../generated/schema";
-import { isOmniBridgeUsage, isFromOmniBridgeUsage } from "./utils/message";
+
 import {
+  isOmniBridgeKnownMediator,
+  isOmniBridgeUsage,
   processOmniBridgeTokenBridgingInitiatedEvent,
   processOmniBridgeTokensBridged,
 } from "./utils/omni-bridge";
@@ -72,7 +74,9 @@ export function handlerRelayedMessage(event: RelayedMessage): void {
   const status = event.params.status;
   const receipt = event.receipt;
 
-  if (!isFromOmniBridgeUsage(sender.toHexString(), executor.toHexString())) {
+  if (
+    !isOmniBridgeKnownMediator(sender.toHexString(), executor.toHexString())
+  ) {
     return;
   }
 

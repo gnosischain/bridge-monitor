@@ -1,4 +1,4 @@
-import { dataSource, log } from "@graphprotocol/graph-ts";
+import { Address, dataSource, log } from "@graphprotocol/graph-ts";
 import { RelayedMessage } from "../generated/ForeignBridgeErcToNative/ForeignBridgeErcToNative";
 import {
   XDAITransaction,
@@ -7,8 +7,8 @@ import {
 } from "../generated/schema";
 import { Transfer } from "../generated/DAI/DAI";
 import { FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS } from "./config/addresses";
-import { processUserRequestForAffirmation } from "./utils/xdai";
-import { isSameString } from "./utils/misc";
+import { processUserRequestForAffirmation } from "./utils/xdai-bridge";
+import { DAI_ADDRESS, isSameString } from "./utils/misc";
 
 //-------------------------
 // Foreign > Home
@@ -39,12 +39,14 @@ export function handlerTransfer(event: Transfer): void {
   transaction.timestamp = event.block.timestamp;
 
   transaction.initiator = sender;
+  transaction.initiatorToken = Address.fromHexString(DAI_ADDRESS);
   transaction.initiatorAmount = value;
   transaction.initiatorNetwork = dataSource.network();
 
   processUserRequestForAffirmation(transaction, receipt);
   transaction.receiverAmount = value;
   transaction.receiverNetwork = "gnosis";
+  transaction.receiverToken = Address.zero();
 
   transaction.save();
 }
@@ -70,11 +72,14 @@ export function handlerRelayedMessage(event: RelayedMessage): void {
   transaction.transactionStatus = "COMPLETED";
 
   transaction.initiatorNetwork = "gnosis";
+  transaction.initiatorToken = Address.zero();
   transaction.initiatorAmount = event.params.value;
 
   transaction.receiver = event.params.recipient;
+  transaction.receiverToken = Address.fromHexString(DAI_ADDRESS);
   transaction.receiverNetwork = dataSource.network();
   transaction.receiverAmount = event.params.value;
+
   transaction.execution = execution.id;
   transaction.save();
 }

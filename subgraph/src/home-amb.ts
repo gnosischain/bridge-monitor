@@ -13,19 +13,16 @@ import {
   TransactionValidation,
   Validator,
 } from "../generated/schema";
-import {
-  parseAMBMessageHash,
-  isOmniBridgeUsage,
-  parseAMBTransactionInput,
-  isAffirmationFromOmnibridge,
-  parseAMBTransactionInputForTelepathy,
-  isFromOmniBridgeUsage,
-} from "./utils/message";
+
 import {
   mockAMBValidators,
   AMB_telepathyAddress,
 } from "./utils/mock-validators";
 import {
+  isAffirmationFromOmnibridge,
+  isOmniBridgeKnownMediator,
+  isOmniBridgeUsage,
+  getMessageIdFromTelepathySingedAffirmation,
   processOmniBridgeTokenBridgingInitiatedEvent,
   processOmniBridgeTokensBridged,
 } from "./utils/omni-bridge";
@@ -99,7 +96,7 @@ export function handlerSignedForUserRequest(event: SignedForUserRequest): void {
   }
 
   // update transaction
-  const messageId = parseAMBMessageHash(message);
+  const messageId = message.slice(0, 66);
   let transaction = AMBTransaction.load(messageId);
   if (!transaction) {
     log.error(
@@ -141,7 +138,7 @@ export function handlerCollectedSignatures(event: CollectedSignatures): void {
   const messageHash = event.params.messageHash;
   const contract = HomeAMB.bind(event.address);
   const message = contract.message(messageHash).toHexString(); // can be decoded with HOMEAMB message method
-  const messageId = parseAMBMessageHash(message);
+  const messageId = message.slice(0, 66);
   const timestamp = event.block.timestamp;
   const executorId = event.params.authorityResponsibleForRelay; // validator address
 
@@ -211,8 +208,8 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
   // if signer is Telepathy, txData has to be processed with different indexes
   const messageId =
     signerString == AMB_telepathyAddress
-      ? parseAMBTransactionInputForTelepathy(event.receipt)
-      : parseAMBTransactionInput(transactionData);
+      ? getMessageIdFromTelepathySingedAffirmation(event.receipt)
+      : `0x${transactionData.slice(138, 202)}`;
 
   if (messageId.length == 0) {
     log.error(`handlerSignedForAffirmation: MessageId is null - hash: {}`, [
@@ -275,7 +272,7 @@ export function handlerAffirmationCompleted(event: AffirmationCompleted): void {
 
   // There are some operations that are not for an ERC20 bridge.
   // We need to filter them out as they are out of scope.
-  if (!isFromOmniBridgeUsage(executor, sender)) {
+  if (!isOmniBridgeKnownMediator(executor, sender)) {
     return;
   }
 

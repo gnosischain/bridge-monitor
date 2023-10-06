@@ -25,39 +25,17 @@ dataSources:
         - name: HomeBridgeErcToNative
           file: ./abis/HomeBridgeErcToNative.json
       eventHandlers:
-        # - event: UserRequestForSignature(address,uint256)
-        #   handler: handlerUserRequestForSignature
-        # - event: SignedForUserRequest(indexed address,bytes32)
-        #   handler: handlerSignedForUserRequest
-        # - event: CollectedSignatures(address,bytes32,uint256)
-        #   handler: handlerCollectedSignatures
+        - event: UserRequestForSignature(address,uint256)
+          handler: handlerUserRequestForSignature
+        - event: SignedForUserRequest(indexed address,bytes32)
+          handler: handlerSignedForUserRequest
+        - event: CollectedSignatures(address,bytes32,uint256)
+          handler: handlerCollectedSignatures
         - event: SignedForAffirmation(indexed address,bytes32)
           handler: handlerSignedForAffirmation
         - event: AffirmationCompleted(address,uint256,bytes32)
           handler: handlerAffirmationCompleted
       file: ./src/home-xdai.ts
-
-  # - name: BlockReward
-  #   kind: ethereum/contract
-  #   network: {{network}} # gnosis | chiado
-  #   source:
-  #     address: '{{BlockReward}}'
-  #     abi: BlockReward
-  #     startBlock: {{startBlockBlockReward}}
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.7
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - Transaction
-  #       - XDAITransaction
-  #     abis:
-  #       - name: BlockReward
-  #         file: ./abis/BlockReward.json
-  #     eventHandlers:
-  #       - event: AddedReceiver(uint256,indexed address,indexed address)
-  #         handler: handlerAddedReceiver
-  #     file: ./src/xdai-blockreward.ts
 
   # - name: XDAIBridgeValidators
   #   kind: ethereum/contract
@@ -81,6 +59,7 @@ dataSources:
   #       - event: ValidatorRemoved(indexed address)
   #         handler: handlerValidatorRemoved
   #     file: ./src/bridge-validators/xdai-validators.ts
+
   - name: AMBBridgeValidators
     kind: ethereum/contract
     network: {{network}} # gnosis | chiado
