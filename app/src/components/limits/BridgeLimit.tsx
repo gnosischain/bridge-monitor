@@ -7,8 +7,9 @@ import { ContractLimit } from '@/src/components/limits/ContractLimit'
 import { TimeLeft } from '@/src/components/limits/TimeLeft'
 import { TokenAddress } from '@/src/components/limits/TokenAddress'
 import { TransactionLimit } from '@/src/components/limits/TransactionLimit'
-import { ChainsValues } from '@/src/constants/config/types'
+import { ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 import { formatNumber } from '@/src/utils/format'
+import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { percentageNumber } from '@/src/utils/formatNumber'
 import { Token } from '@/types/token'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
@@ -83,19 +84,21 @@ interface Props {
   bridgeReset?: number
   chainId: ChainsValues
   dailyLimit: number
-  token: Token
   disableTokenDropdown?: boolean
   executionDailyLimit: number
   executionMaxPerTx: number
   from: string
+  isNativeToken?: boolean | undefined
   isTokenRegistered?: boolean
   maxPerTx: number
   minPerTx: number
+  networkName: ChainsKeys
   title: string
   to: string
+  token: Token
+  tokenTooltip?: string | undefined
   totalExecutedPerDay: number
   totalSpentPerDay: number
-  url: string
 }
 
 export const BridgeLimit: React.FC<Props> = ({
@@ -104,17 +107,20 @@ export const BridgeLimit: React.FC<Props> = ({
   executionDailyLimit,
   executionMaxPerTx,
   from,
+  isNativeToken,
   isTokenRegistered = true,
   maxPerTx,
   minPerTx,
+  networkName,
   title,
   to,
   token,
+  tokenTooltip,
   totalExecutedPerDay,
   totalSpentPerDay,
-  url,
   ...restProps
 }) => {
+  const { getExplorerUrl } = useWeb3Connection()
   bridgeReset = useMemo(() => {
     if (bridgeReset) {
       return bridgeReset
@@ -130,9 +136,15 @@ export const BridgeLimit: React.FC<Props> = ({
     <Wrapper {...restProps}>
       <Header>
         <Title>{title}</Title>
-        <ExternalURL href={url} rel="noopener noreferrer" target="_blank">
-          <IconLink height={12} width={12} />
-        </ExternalURL>
+        {token?.address ? (
+          <ExternalURL
+            href={getExplorerUrl(token?.address || '', networkName)}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <IconLink height={12} width={12} />
+          </ExternalURL>
+        ) : null}
         <TokenWrapper>
           <TokenIcon dimensions={18} iconSource={token?.logoURI} symbol={token?.symbol} />
           <TokenSymbol>{token?.symbol.toUpperCase()}</TokenSymbol>
@@ -181,7 +193,14 @@ export const BridgeLimit: React.FC<Props> = ({
       ) : (
         <p>Token not registered yet.</p>
       )}
-      {token && <TokenAddress address={token?.address} />}
+      {token && (
+        <TokenAddress
+          address={token?.address}
+          isNative={isNativeToken}
+          network={networkName}
+          tooltip={tokenTooltip}
+        />
+      )}
     </Wrapper>
   )
 }

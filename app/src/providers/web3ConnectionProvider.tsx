@@ -18,13 +18,13 @@ import nullthrows from 'nullthrows'
 
 import { INITIAL_APP_CHAIN_ID, chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
 import { appName } from '@/src/constants/config/common'
-import { ChainConfig, Chains, ChainsValues } from '@/src/constants/config/types'
+import { ChainConfig, Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 import {
   recoverLocalStorageKey,
   removeLocalStorageKey,
   setLocalStorageKey,
 } from '@/src/hooks/usePersistedState'
-import { hexToNumber } from '@/src/utils/tools'
+import { hexToNumber, isValidChain } from '@/src/utils/tools'
 import { RequiredNonNull } from '@/types/utils'
 
 const STORAGE_CONNECTED_WALLET = 'onboard_selectedWallet'
@@ -90,7 +90,7 @@ export type Web3Context = {
   connectWallet: () => Promise<void> | null
   connectingWallet: boolean
   disconnectWallet: () => Promise<void> | null
-  getExplorerUrl: (hash: string) => string
+  getExplorerUrl: (hash: string, network?: ChainsKeys) => string
   isAppConnected: boolean
   isOnboardChangingChain: boolean
   isWalletConnected: boolean
@@ -168,12 +168,29 @@ export default function Web3ConnectionProvider({ children }: Props) {
   }, [connect, chains, connectedWallets.length])
 
   const getExplorerUrl = useMemo(() => {
-    const url = chainsConfig[appChainId]?.blockExplorerUrls[0]
-    return (hash: string) => {
-      const type = hash?.length > 42 ? 'tx' : 'address'
+    return (hash: string, network = 'mainnet') => {
+      const chain = Object.entries(Chains).find(
+        ([key]) => key.toLowerCase() === network.toLowerCase(),
+      )
+
+      if (!chain || !isValidChain(chain[1])) {
+        throw new Error(`Invalid chain: ${chain}`)
+      }
+
+      const url = chainsConfig[chain[1]]?.blockExplorerUrls[0]
+      const type = {
+        '42': 'address',
+        '66': 'tx',
+      }[hash?.length]
+
+      if (!type) {
+        // assume it's the native token, thus point to the chain explorer homepage
+        return url
+      }
+
       return `${url}${type}/${hash}`
     }
-  }, [appChainId])
+  }, [])
 
   const handleDisconnectWallet = async () => {
     if (wallet) {

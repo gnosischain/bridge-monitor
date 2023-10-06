@@ -116,7 +116,7 @@ export const Address: React.FC<Props> = ({
 
   return (
     <Wrapper {...restProps}>
-      <AddressText link={link ? true : false} onClick={link ? (e) => openLink(e, link) : undefined}>
+      <AddressText link={!!link} onClick={link ? (e) => openLink(e, link) : undefined}>
         {address ? (
           shortenAddress(address, characters + 2, characters)
         ) : (

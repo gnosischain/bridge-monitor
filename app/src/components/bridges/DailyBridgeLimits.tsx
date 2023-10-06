@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { BridgeLimit } from '@/src/components/limits/BridgeLimit'
 import { TabContentInner } from '@/src/components/tabs/TabContentInner'
 import { BaseSubTitle } from '@/src/components/text/BaseSubTitle'
-import { Chains, chainsConfig } from '@/src/constants/config/chains'
-import { contracts } from '@/src/constants/config/contracts'
+import { Chains } from '@/src/constants/config/chains'
 import { Token, tokens } from '@/src/constants/token'
 import {
   useForeignOMNIBridgeLimits,
@@ -21,6 +20,7 @@ import { TokenDropdown } from '@/src/components/token/TokenDropdown'
 import { InnerCard } from '@/src/components/common/InnerCard'
 import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
+import { isSameString } from '@/src/utils/tools'
 
 const Wrapper = styled(TabContentInner)``
 
@@ -95,13 +95,6 @@ const Placeholder: React.FC = () => (
   </SkeletonLoading>
 )
 
-const MAINNET = 'mainnet'
-
-const getExplorerUrlForAddress = (network: string, address: string) => {
-  const chain = network === MAINNET ? Chains.mainnet : Chains.gnosis
-  return `${chainsConfig[chain].blockExplorerUrls[0]}address/${address}`
-}
-
 export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericSuspense(
   ({ dayNumber, ...restProps }) => {
     const { foreignXdaiInformation } = useForeignXDAIBridgeLimits(dayNumber)
@@ -111,10 +104,10 @@ export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericS
         chainId={Chains.mainnet}
         disableTokenDropdown
         from="Ethereum"
+        networkName="mainnet"
         title="Ethereum Mainnet -> GC"
         to="Gnosis"
         token={tokens.DAI}
-        url={getExplorerUrlForAddress('mainnet', contracts.XDAI.address[Chains.mainnet])}
         {...foreignXdaiInformation}
         {...restProps}
       />
@@ -132,10 +125,12 @@ export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericS
         chainId={Chains.gnosis}
         disableTokenDropdown
         from="Gnosis"
+        isNativeToken
+        networkName="gnosis"
         title="GC -> Ethereum Mainnet"
         to="Ethereum"
         token={tokens.XDAI}
-        url={getExplorerUrlForAddress('gnosis', contracts.XDAI.address[Chains.gnosis])}
+        tokenTooltip="xDAI tokens are native to Gnosis and enable payments for smart contract execution and gas fees."
         {...homeXdaiInformation}
         {...restProps}
       />
@@ -153,10 +148,10 @@ const OmnibridgeMainnetToGnosisChain: React.FC<{ token: Token; dayNumber: string
         <BridgeLimit
           chainId={Chains.mainnet}
           from="Ethereum"
+          networkName="mainnet"
           title="Ethereum Mainnet -> GC"
           to="Gnosis"
           token={token}
-          url={getExplorerUrlForAddress('mainnet', contracts.OMNI.address[Chains.mainnet])}
           {...foreignOmniInformation}
           {...restProps}
         />
@@ -174,10 +169,10 @@ const OmnibridgeGnosisChainToMainnet: React.FC<{ token: Token; dayNumber: string
         <BridgeLimit
           chainId={Chains.gnosis}
           from="Gnosis"
+          networkName="gnosis"
           title="GC -> Ethereum Mainnet"
           to="Ethereum"
           token={token}
-          url={getExplorerUrlForAddress('gnosis', contracts.OMNI.address[Chains.gnosis])}
           {...homeOmniInformation}
           {...restProps}
         />
@@ -196,11 +191,11 @@ export const DailyBridgeLimits: React.FC = ({ ...restProps }) => {
   const gnosisTokens = tokensByNetwork[Chains.gnosis] || []
 
   const onChangeToken = (token: Token) => {
-    const mainnetToGnosisChain = mainnetTokens.find(
-      (item) => item.symbol.toLowerCase() === token.symbol.toLowerCase(),
+    const mainnetToGnosisChain = mainnetTokens.find((item) =>
+      isSameString(item.symbol, token.symbol),
     )
-    const gnosisChainToMainnet = gnosisTokens.find(
-      (item) => item.symbol.toLowerCase() === token.symbol.toLowerCase(),
+    const gnosisChainToMainnet = gnosisTokens.find((item) =>
+      isSameString(item.symbol, token.symbol),
     )
     const isSelectedTokenValid = mainnetToGnosisChain && gnosisChainToMainnet
 
