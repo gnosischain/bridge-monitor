@@ -91,7 +91,7 @@ export const TransactionSummary: React.FC<Props> = ({
         />
       </Pod>
       <Pod title="Amount">
-        <Value token={initiatorToken} tokenValue={initiatorAmount} />
+        <Value bridgeName={bridgeName} token={initiatorToken} tokenValue={initiatorAmount} />
       </Pod>
       {/* @todo - If a signature fails it has to change state */}
       <Pod status={transactionStatus} subTitle={transactionStatus} title="Status">

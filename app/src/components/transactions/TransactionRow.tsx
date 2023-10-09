@@ -264,6 +264,7 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
         </InitiatorReceiverWrapper>
         <MobileLabel>Amount</MobileLabel>
         <TokenWithValue
+          bridgeName={transaction.bridgeName}
           token={transaction.initiatorToken}
           tokenValue={transaction.initiatorAmount}
         />

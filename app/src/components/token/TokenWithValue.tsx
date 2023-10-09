@@ -1,6 +1,6 @@
-import { BigNumber, BigNumberish, FixedNumber } from 'ethers'
 import Image from 'next/image'
 import styled from 'styled-components'
+import { BigNumber, BigNumberish, FixedNumber, constants } from 'ethers'
 
 import { ChainToken } from '@/src/components/common/ChainToken'
 import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
@@ -61,12 +61,38 @@ const Value = styled.span`
 
 interface Props {
   token: string
+  bridgeName: string
   tokenValue: BigNumberish
 }
 
-export const TokenWithValue: React.FC<Props> = ({ token, tokenValue, ...restProps }) => {
+export const TokenWithValue: React.FC<Props> = ({
+  bridgeName,
+  token,
+  tokenValue,
+  ...restProps
+}) => {
   const { tokensByAddress } = useTokenIcons()
-  const _token = tokensByAddress[token?.toLowerCase()]
+
+  const isXdai = bridgeName === 'XDAI'
+  const isZeroToken = token === constants.AddressZero
+
+  const _token =
+    isXdai && isZeroToken
+      ? { name: 'xDAI', symbol: 'xDAI', logoURI: '/images/icons/xdai.png', decimals: 18 }
+      : tokensByAddress[token?.toLowerCase()]
+
+  const xdaiReceiverToken = (
+    <TokenIcon name={isZeroToken ? 'DAI' : 'xDAI'}>
+      <Image
+        alt={isZeroToken ? 'DAI' : 'xDAI'}
+        className="iconImage"
+        height={tokenSize}
+        objectFit="cover"
+        src={isZeroToken ? '/images/icons/dai.png' : '/images/icons/xdai.png'}
+        width={tokenSize}
+      />
+    </TokenIcon>
+  )
 
   return (
     <Wrapper {...restProps}>
@@ -81,6 +107,8 @@ export const TokenWithValue: React.FC<Props> = ({ token, tokenValue, ...restProp
           width={tokenSize}
         />
       </TokenIcon>
+      {isXdai && '>'}
+      {isXdai && xdaiReceiverToken}
       <Value className="value">
         {_token
           ? formatNumber(
