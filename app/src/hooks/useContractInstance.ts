@@ -1,4 +1,4 @@
-import { JsonRpcProvider, JsonRpcSigner } from '@ethersproject/providers'
+import { JsonRpcProvider } from '@ethersproject/providers'
 import nullthrows from 'nullthrows'
 
 import { ChainsValues } from '../constants/config/types'
@@ -17,14 +17,16 @@ export const useContractInstance = <F extends AppFactories, RT extends ReturnTyp
   contractKey: ContractsKeys,
   chainId?: ChainsValues,
 ) => {
-  const { appChainId, readOnlyAppProvider, web3Provider } = useWeb3Connection()
+  const { appChainId, web3Provider } = useWeb3Connection()
   const currentChainId = chainId ?? appChainId
   const address = contracts[contractKey]['address'][currentChainId]
-  const readOnlyProvider = chainId
-    ? new JsonRpcProvider(getNetworkConfig(currentChainId)?.rpcUrl, currentChainId)
-    : readOnlyAppProvider
-  const signer = web3Provider?.getSigner() || readOnlyProvider
-  nullthrows(signer, 'There is not signer to execute a tx.')
 
-  return contractFactory.connect(address, signer as JsonRpcSigner | JsonRpcProvider) as RT
+  // If `chainId` is specified, we use a read-only provider
+  if (chainId) {
+    const readOnlyProvider = new JsonRpcProvider(getNetworkConfig(chainId)?.rpcUrl, chainId)
+    return contractFactory.connect(address, readOnlyProvider) as RT
+  }
+
+  const signer = nullthrows(web3Provider?.getSigner(), 'There is not signer to execute a tx.')
+  return contractFactory.connect(address, signer) as RT
 }

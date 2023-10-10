@@ -7,7 +7,7 @@ import { BaseCard } from '@/src/components/common/BaseCard'
 
 const Wrapper = styled.div`
   align-items: center;
-  background-color: ${({ theme }) => theme.modal.overlayColor};
+  background-color: ${({ theme: { modal } }) => modal.overlayColor};
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -21,7 +21,8 @@ const Wrapper = styled.div`
 `
 
 const Card = styled(BaseCard)<{ size?: modalSize }>`
-  border-color: ${({ theme: { colors } }) => colors.lightGray};
+  //background-color: ${({ theme: { colors } }) => colors.lightGrey};
+  border-color: ${({ theme: { colors } }) => colors.darkGrey};
   display: flex;
   flex-direction: column;
   margin: auto;
@@ -34,7 +35,7 @@ const Card = styled(BaseCard)<{ size?: modalSize }>`
 
 const Title = styled.h1`
   color: ${({ theme: { colors } }) => colors.textColor};
-  font-family: ${({ theme }) => theme.fonts.fontFamilyTitle};
+  font-family: ${({ theme: { fonts } }) => fonts.family};
   font-size: 1.8rem;
   font-weight: 700;
   line-height: 1.2;
@@ -64,7 +65,7 @@ const Contents = styled.div`
 `
 
 export const ModalTextCSS = css`
-  color: ${({ theme: { colors } }) => colors.textColorLight};
+  color: ${({ theme: { colors } }) => colors.textColor};
   font-size: 1.4rem;
   font-weight: 400;
   line-height: 1.2;
@@ -81,7 +82,7 @@ export const ModalText = styled.p`
 `
 
 export const ModalLine = styled.div`
-  background-color: ${({ theme: { colors } }) => colors.lightGray};
+  background-color: ${({ theme: { colors } }) => colors.darkGrey};
   height: 1px;
   margin: 0 auto 20px;
   width: 180px;

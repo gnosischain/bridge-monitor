@@ -13,6 +13,7 @@ import { TokenWithValue } from '@/src/components/token/TokenWithValue'
 import { Validators as BaseValidators } from '@/src/components/transactions/Validators'
 import { Transaction } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'
+import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 
 const TD = styled.td`
   --td-padding-vertical: ${({ theme: { common } }) => common.space * 3}px;
@@ -195,6 +196,7 @@ interface Props {
 }
 
 export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) => {
+  const { isWalletConnected, isWalletNetworkSupported } = useWeb3Connection()
   const router = useRouter()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -277,6 +279,15 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
       <TDLastMobile>
         <MobileLabel>Status</MobileLabel>
         <Status
+          /**
+           * Status behaves "as" button when the status is "Unclaimed",
+           * we need to disable it when it's not possible to claim.
+           * As "disable" is not recognized as a valid attribute by TS,
+           * we need to use the eslint-disable-next-line to ignore the error.
+           **/
+          /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
+          /* @ts-ignore */
+          disabled={!isWalletConnected || !isWalletNetworkSupported}
           onClick={
             transaction.transactionStatus === TransactionStatus.Unclaimed
               ? (e) => handleClaim(e)

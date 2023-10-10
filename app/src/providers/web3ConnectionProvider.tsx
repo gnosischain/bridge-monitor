@@ -1,3 +1,4 @@
+import { getSupportedNetworks } from '@/src/utils/getSupportedNetworks'
 import {
   Dispatch,
   ReactNode,
@@ -17,7 +18,11 @@ import walletConnectModule from '@web3-onboard/walletconnect'
 import nullthrows from 'nullthrows'
 
 import { INITIAL_APP_CHAIN_ID, chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
-import { appName } from '@/src/constants/config/common'
+import {
+  WALLET_CONNECT_DAPP_URL,
+  WALLET_CONNECT_PROJECT_ID,
+  appName,
+} from '@/src/constants/config/common'
 import { ChainConfig, Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 import {
   recoverLocalStorageKey,
@@ -36,7 +41,12 @@ nullthrows(
 )
 
 const injected = injectedModule()
-const walletConnect = walletConnectModule()
+const walletConnect = walletConnectModule({
+  dappUrl: WALLET_CONNECT_DAPP_URL,
+  projectId: WALLET_CONNECT_PROJECT_ID,
+  requiredChains: getSupportedNetworks().map(({ id }) => id),
+  version: 2,
+})
 
 const chainsForOnboard = Object.values(chainsConfig).map(
   ({ chainIdHex, name, rpcUrl, token }: ChainConfig) => ({
@@ -61,8 +71,7 @@ export function initOnboard() {
     appMetadata: {
       name: appName || '',
       icon: '<svg><svg/>', // brand icon
-      description: 'Boontnode Web3 Frontend starter kit',
-      recommendedInjectedWallets: [{ name: 'MetaMask', url: 'https://metamask.io' }],
+      description: 'Gnosis Bridge Explorer',
     },
     // Account center put an interactive menu in the UI to manage your account.
     accountCenter: {
@@ -116,7 +125,7 @@ initOnboard()
 
 export default function Web3ConnectionProvider({ children }: Props) {
   const [{ connecting: connectingWallet, wallet }, connect, disconnect] = useConnectWallet()
-  const [{ chains, connectedChain, settingChain }, setChain] = useSetChain()
+  const [{ connectedChain, settingChain }, setChain] = useSetChain()
   const connectedWallets = useWallets()
   const [appChainId, setAppChainId] = useState(INITIAL_APP_CHAIN_ID)
   const [address, setAddress] = useState<string | null>(null)
@@ -124,7 +133,11 @@ export default function Web3ConnectionProvider({ children }: Props) {
   const walletChainId = hexToNumber(connectedChain?.id)
   const isWalletConnected = web3Provider != null && address != null
   const isAppConnected = isWalletConnected && walletChainId === appChainId
-  const isWalletNetworkSupported = chains.some(({ id }) => id === connectedChain?.id)
+  const isWalletNetworkSupported = getSupportedNetworks().some(({ id }) => {
+    if (connectedChain) {
+      return id === +connectedChain?.id
+    }
+  })
 
   const readOnlyAppProvider = useMemo(
     () => new JsonRpcProvider(getNetworkConfig(appChainId)?.rpcUrl, appChainId),
@@ -165,7 +178,7 @@ export default function Web3ConnectionProvider({ children }: Props) {
 
       setWalletFromLocalStorage()
     }
-  }, [connect, chains, connectedWallets.length])
+  }, [connect, connectedWallets.length])
 
   const getExplorerUrl = useMemo(() => {
     return (hash: string, network = 'mainnet') => {

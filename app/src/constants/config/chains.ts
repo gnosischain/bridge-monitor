@@ -19,15 +19,15 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     blockExplorerUrls: ['https://etherscan.io/'],
     token: 'ETH',
   },
-  [Chains.goerli]: {
-    id: Chains.goerli,
-    name: 'Görli Testnet',
-    shortName: 'Goerli',
-    chainId: Chains.goerli,
-    chainIdHex: '0x5',
-    rpcUrl: getProviderUrl(Chains.goerli),
-    blockExplorerUrls: ['https://goerli.etherscan.io/'],
-    token: 'ETH',
+  [Chains.chiado]: {
+    id: Chains.chiado,
+    name: 'Gnosis Chiado Testnet',
+    shortName: 'Chiado',
+    chainId: Chains.chiado,
+    chainIdHex: '0x27d8',
+    rpcUrl: getProviderUrl(Chains.chiado),
+    blockExplorerUrls: ['https://gnosis-chiado.blockscout.com/'],
+    token: 'Testnet xDai on Chiado',
   },
   [Chains.gnosis]: {
     id: Chains.gnosis,
@@ -35,7 +35,7 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     shortName: 'Gnosis',
     chainId: Chains.gnosis,
     chainIdHex: '0x64',
-    rpcUrl: getProviderUrl(Chains.gnosis), // @todo we might need to use the gnosis rpc
+    rpcUrl: getProviderUrl(Chains.gnosis),
     blockExplorerUrls: ['https://gnosisscan.io/'],
     token: 'xDAI',
   },

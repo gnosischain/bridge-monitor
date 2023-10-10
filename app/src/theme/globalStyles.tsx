@@ -43,7 +43,7 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
 
   a,
   button{
-    transition: all 0.3s ease-in-out;
+    transition: all 0.2s ease-in-out;
   }
 
   h1, h2, h3, h4 {

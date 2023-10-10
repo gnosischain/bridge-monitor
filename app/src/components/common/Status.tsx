@@ -37,6 +37,12 @@ const Wrapper = styled.div<{ status: TransactionStatus }>`
           ${Text} {
             color: ${({ theme }) => theme.colors.darkestGrey};
           }
+
+          &[disabled],
+          &[disabled]:hover {
+            cursor: not-allowed;
+            opacity: 0.5;
+          }
         `
       : css`
           ${Text} {
