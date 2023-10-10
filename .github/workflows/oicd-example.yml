@@ -45,6 +45,6 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          tags: ${{ steps.aws_account_id.outputs.Account }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/bridge-monitor:eks-test
+          tags: "${{ steps.aws_account_id.outputs.Account }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/bridge-monitor:eks-test"
           platforms: |
             linux/amd64
