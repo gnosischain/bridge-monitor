@@ -48,3 +48,4 @@ jobs:
           tags: "${{ env.REGISTRY }}/bridge-monitor:eks-test"
           platforms: |
             linux/amd64
+        timeout-minutes: 6
