@@ -45,7 +45,7 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          tags: "${{ env.REGISTRY }}/bridge-monitor:eks-test"
+          tags: "${{ env.REGISTRY }}/${{ env.REGISTRY }}/bridge-explorer:eks-test"
           platforms: |
             linux/amd64
         timeout-minutes: 6
