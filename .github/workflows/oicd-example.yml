@@ -1,11 +1,14 @@
 name: OICD EXAMPLE
+# name: Deploy Bridge-Explorer
+
 # Controls when the action will run. Invokes the workflow on push events but only for the main branch
 on: 
   workflow_dispatch:
 
 env:
-  
   AWS_REGION : "eu-central-1" #Change to reflect your Region
+  REPOSITORY: "bridge-explorer"
+  NAMESPACE: "bridges"
 
 # Permission can be added at job level or workflow level    
 permissions:
@@ -25,27 +28,35 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE }} #change to reflect your IAM role’s ARN
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
-      
-      - name: Sts GetCallerIdentity
-        id: aws_account_id
-        run: |
-          aws sts get-caller-identity
           
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, tag, and push docker image to Amazon ECR
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: "bridge-explorer"
-          IMAGE_TAG: ${{ github.sha }}
-        uses: docker/build-push-action@v3
-        with:
-          context: ./app
-          file: ./app/Dockerfile
-          push: true
-          tags: "${{ env.REGISTRY }}/bridge-explorer:eks-test"
-          platforms: |
-            linux/amd64
-        timeout-minutes: 6
+      # - name: Build, tag, and push docker image to Amazon ECR
+      #   env:
+      #     REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #     IMAGE_TAG: ${{ github.sha }}
+      #   uses: docker/build-push-action@v3
+      #   with:
+      #     context: ./app
+      #     file: ./app/Dockerfile
+      #     push: true
+      #     tags: "${{ env.REGISTRY }}/bridge-explorer:eks-test"
+      #     platforms: |
+      #       linux/amd64
+
+      # - name: Setup kubectl credentials
+      #   uses: engineerd/setup-kubectl@v1
+      #   with:
+      #     eks-region: ${{ env.AWS_REGION }}
+      #     eks-cluster: ${{ secrets.AWS_EKS_CLUSTER }}
+      #   env:
+      #     KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+
+      - name: Configure kubectl for EKS
+        run: aws eks update-kubeconfig --name ${{ secrets.AWS_EKS_CLUSTER }} --region ${{ env.AWS_REGION }}
+
+      - name: Restart Deployment
+        # run: kubectl rollout restart deploy/${{ env.REPOSITORY }} -n ${{ env.NAMESPACE }}
+        run: kubectl get po -n ${{ env.NAMESPACE }}
