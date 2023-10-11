@@ -5,16 +5,20 @@ import { useGeneral } from '@/src/providers/generalProvider'
 
 const Wrapper = styled.button<{ isActive: boolean }>`
   background-color: transparent;
-  border-right: 1px solid ${({ theme }) => theme.colors.darkerGrey};
-  border: none;
+  border-bottom-color: ${({ theme }) => theme.colors.darkerGrey};
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-style: solid;
+  border-top-color: transparent;
+  border-width: 1px;
   color: ${({ theme }) => theme.colors.white};
   cursor: pointer;
-  display: inline-block;
-  padding: ${({ theme: { common } }) => common.space * 4}px
-    ${({ theme: { common } }) => common.space * 4}px;
+  display: block;
+  margin-bottom: -1px;
+  padding: ${({ theme: { common } }) => common.space * 4}px;
 
   &:hover {
-    background-color: ${({ theme }) => theme.colors.black};
+    background-color: ${({ theme: { colors } }) => colors.black};
 
     .tabTitle {
       opacity: 1;
@@ -31,15 +35,21 @@ const Wrapper = styled.button<{ isActive: boolean }>`
   ${({ isActive }) =>
     isActive &&
     css`
-      background-color: ${({ theme }) => theme.colors.darkestGrey};
-      color: ${({ theme }) => theme.colors.white};
+      background-color: ${({ theme: { colors } }) => colors.darkestGrey};
+      border-bottom-color: ${({ theme: { colors } }) => colors.darkestGrey};
+      border-left-color: ${({ theme: { colors } }) => colors.darkerGrey};
+      border-right-color: ${({ theme: { colors } }) => colors.darkerGrey};
+      color: ${({ theme: { colors } }) => colors.white};
       cursor: default;
-      margin-bottom: -2px;
       opacity: 1;
       pointer-events: none;
 
       &:hover {
-        background-color: ${({ theme }) => theme.colors.darkestGrey};
+        background-color: ${({ theme: { colors } }) => colors.darkestGrey};
+      }
+
+      &:first-child {
+        border-left-color: transparent;
       }
 
       .tabTitle {
