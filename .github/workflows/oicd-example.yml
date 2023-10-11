@@ -25,7 +25,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4.0.0
         with:
           audience: sts.amazonaws.com
-          role-to-assume: ${{ secrets.AWS_ROLE }} #change to reflect your IAM role’s ARN
+          role-to-assume: "arn:aws:iam::163030813197:role/system/oicd-github-actions" #change to reflect your IAM role’s ARN
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
           
