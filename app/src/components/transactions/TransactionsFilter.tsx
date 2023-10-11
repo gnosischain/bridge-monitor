@@ -20,7 +20,7 @@ const Wrapper = styled.div`
     ${({ theme: { common } }) => common.space * 2}px;
   row-gap: ${({ theme: { common } }) => common.space}px;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     grid-template-columns: 1fr 1fr 1fr;
 
     &:first-child {
@@ -28,7 +28,7 @@ const Wrapper = styled.div`
     }
   }
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     column-gap: ${({ theme: { common } }) => common.space * 4}px;
     grid-template-columns: 2fr 1fr 1fr 1fr 1fr 100px;
     row-gap: ${({ theme: { common } }) => common.space * 2}px;
@@ -53,27 +53,31 @@ const ResetButton = styled.button`
   align-self: end;
   background-color: transparent;
   border: none;
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.textColor};
   cursor: pointer;
   font-family: ${({ theme: { fonts } }) => fonts.family};
   font-size: 1.3rem;
-  font-weight: 300;
+  font-weight: 400;
   height: 36px;
   letter-spacing: 0.5px;
-  opacity: 0.5;
-  text-align: right;
+  opacity: 0.9;
+  text-align: center;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     grid-column: auto / span 3;
   }
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     grid-column: auto;
   }
 
   &:hover {
     color: ${({ theme: { colors } }) => colors.warning};
     opacity: 1;
+  }
+
+  &:active {
+    opacity: 0.7;
   }
 `
 
