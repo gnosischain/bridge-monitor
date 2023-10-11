@@ -162,9 +162,10 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   return {
     page,
     setPage,
-    transactions: filters.status
-      ? transactions.filter((tx) => tx.transactionStatus == filters.status.toUpperCase())
-      : transactions,
+    transactions:
+      !filters.status || filters.status == 'All Status'
+        ? transactions
+        : transactions.filter((tx) => tx.transactionStatus == filters.status.toUpperCase()),
     loadMore,
   }
 }
