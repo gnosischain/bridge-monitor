@@ -1,6 +1,6 @@
 import { isTransactionHash } from '@/src/hooks/subgraph/useTransactions'
 import { isAddress } from '@ethersproject/address'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { HTMLAttributes, useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { TextfieldStatus } from '@/src/components/form/Textfield'
 import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
@@ -80,8 +80,7 @@ const ResetButton = styled.button`
     opacity: 0.7;
   }
 `
-
-type Props = {
+interface Props extends HTMLAttributes<HTMLDivElement> {
   bridge: string
   onBridgeDirectionChange: (value: string) => void
   onExecutedByChange: (value: string) => void
@@ -158,7 +157,7 @@ export const TransactionsFilter: React.FC<Props> = genericSuspense(
     return (
       <Wrapper {...restProps}>
         <Column>
-          <Label htmlFor="Search">Search transactions</Label>
+          <Label htmlFor="search">Search transactions</Label>
           <SearchDebounceInput
             onChange={handleHashChange}
             onEnterValue={() => setResetFields(false)}
@@ -207,8 +206,8 @@ export const TransactionsFilter: React.FC<Props> = genericSuspense(
       </Wrapper>
     )
   },
-  ({ ...restProps }) => (
-    <Wrapper {...restProps}>
+  ({ className }) => (
+    <Wrapper className={className}>
       {Array.from({ length: 5 }).map((item, index) => (
         <Column key={index}>
           <SkeletonLoading style={{ height: '21px', width: '40%' }} />

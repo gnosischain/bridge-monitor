@@ -15,13 +15,14 @@ import { ButtonPrimary } from '@/src/components/buttons/Button'
 import { useState } from 'react'
 
 const Wrapper = styled.div`
-  height: 100%;
+  height: 100vh;
   left: 0;
   overflow: hidden;
   position: absolute;
   top: 0;
-  width: 100%;
+  width: 100vw;
 `
+
 const MenuBackground = styled.div`
   background-color: ${({ theme: { colors } }) => colors.black};
   cursor: pointer;
@@ -32,12 +33,7 @@ const MenuBackground = styled.div`
   width: 100%;
   z-index: 10;
 `
-const Menu = styled.div`
-  align-items: flex-start;
-  color: ${({ theme }) => theme.colors.cream};
-  display: flex;
-  flex-direction: column;
-`
+
 const MenuWrapper = styled.div`
   background-color: ${({ theme: { colors } }) => colors.darkestGrey};
   box-shadow: 59.8671px 3.99114px 121px rgba(0, 0, 0, 0.07),
@@ -46,10 +42,10 @@ const MenuWrapper = styled.div`
     2.61919px 0.174612px 6.99531px rgba(0, 0, 0, 0.02275);
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   overflow-y: auto;
   padding: 0 ${({ theme: { common } }) => common.space * 2}px
-    ${({ theme: { common } }) => common.space * 2}px;
+    ${({ theme: { common } }) => common.space * 4}px;
   max-width: 94%;
   position: absolute;
   right: 0;
@@ -62,6 +58,7 @@ const MenuWrapper = styled.div`
       ${({ theme: { common } }) => common.space * 4}px;
   }
 `
+
 const MenuHeader = styled.div`
   align-items: center;
   border-bottom: 1px solid rgba(256, 256, 256, 0.1);
@@ -71,6 +68,7 @@ const MenuHeader = styled.div`
   min-height: 100px;
   width: 100%;
 `
+
 const H2 = styled.h2`
   font-weight: 400;
   margin: 0;
@@ -229,21 +227,19 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
           initial={{ opacity: 0, x: '150px' }}
           transition={{ duration: 0.1, type: 'spring', stiffness: 1000, damping: 100 }}
         >
-          <Menu>
-            <MenuHeader>
-              <H2>Menu</H2>
-              <CloseButton onClick={() => closeMenu()}>
-                <Image alt="Alerts" height={24} src="/images/icon-close.svg" width={24} />
-              </CloseButton>
-            </MenuHeader>
-            <Nav>
-              {sections.map(({ href, section }, index) => (
-                <NavLink href={href} key={`links_${index}`} onClick={() => closeMenu()}>
-                  {section}
-                </NavLink>
-              ))}
-            </Nav>
-          </Menu>
+          <MenuHeader>
+            <H2>Menu</H2>
+            <CloseButton onClick={() => closeMenu()}>
+              <Image alt="Alerts" height={24} src="/images/icon-close.svg" width={24} />
+            </CloseButton>
+          </MenuHeader>
+          <Nav>
+            {sections.map(({ href, section }, index) => (
+              <NavLink href={href} key={`links_${index}`} onClick={() => closeMenu()}>
+                {section}
+              </NavLink>
+            ))}
+          </Nav>
           {isWalletConnected ? (
             <UserMenu>
               <Connected>
