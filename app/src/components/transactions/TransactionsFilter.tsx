@@ -1,4 +1,3 @@
-import { isTransactionHash } from '@/src/hooks/subgraph/useTransactions'
 import { isAddress } from '@ethersproject/address'
 import React, { HTMLAttributes, useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
@@ -9,6 +8,7 @@ import FilterDropdown from '@/src/components/filters/FilterDropdown'
 import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
 import { TransactionStatus } from '@/types/generated/subgraph'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
+import { isTransactionHash } from '@/src/utils/tools'
 
 const Wrapper = styled.div`
   background: ${({ theme: { gradients } }) => gradients.gray};

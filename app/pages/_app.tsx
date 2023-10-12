@@ -18,6 +18,7 @@ import { TransactionNotificationProvider } from '@/src/providers/TransactionNoti
 import GeneralContextProvider from '@/src/providers/generalProvider'
 import ThemeProvider from '@/src/providers/themeProvider'
 import { intlErrorHandler } from '@/src/utils/intlErrorHandler'
+import 'react-datepicker/dist/react-datepicker.css'
 import 'sanitize.css'
 
 const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3ConnectionProvider'), {

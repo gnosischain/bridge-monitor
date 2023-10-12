@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { isAddress } from '@ethersproject/address'
-import { isHexString } from '@ethersproject/bytes'
 import useSWR from 'swr'
 
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
@@ -16,6 +15,7 @@ import {
   Transaction_Filter,
   Transaction_OrderBy,
 } from '@/types/generated/subgraph'
+import { isTransactionHash } from '@/src/utils/tools'
 
 // @todo hardcoded value (need to think about useSWRPage or useSWRInfinite)
 const PAGE_SIZE = 500
@@ -43,8 +43,6 @@ export const useFetchTransactions = (
 
   return { transactions: data ?? [], error, refetch }
 }
-
-export const isTransactionHash = (hash: string) => isHexString(hash) && hash.length === 66
 
 export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   const [page, setPage] = useState(1)
@@ -93,8 +91,6 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
       if (filters.signedBy.includes('All')) {
         inMemoryFiltersAux['validator'] = undefined
       } else {
-        // @todo we might need to convert the validator name -> address in a diff place
-        // @todo as we can not differentiate the network we will check in both validators objects
         const bridgeValue = filters.bridge.toUpperCase() as BridgesValues
         const validator = getValidatorByName(filters.signedBy, bridgeValue)
         if (validator) {

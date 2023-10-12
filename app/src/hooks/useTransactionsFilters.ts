@@ -1,6 +1,5 @@
+import { getEndOfDay, getStartOfDay } from '@/src/utils/date'
 import { useCallback, useState } from 'react'
-
-import { today, yesterday } from '../utils/date'
 
 export type TransactionFilter = {
   hash: string
@@ -19,8 +18,8 @@ export const useTransactionsFilters = () => {
   const [status, setStatus] = useState<string>('')
   const [signedBy, setSignedBy] = useState<string>('')
   const [executedBy, setExecutedBy] = useState<string>('')
-  const [startTimestamp, setStartTimestamp] = useState<Date>(yesterday())
-  const [endTimestamp, setEndTimestamp] = useState<Date>(new Date())
+  const [startTimestamp, setStartTimestamp] = useState(getStartOfDay())
+  const [endTimestamp, setEndTimestamp] = useState(getEndOfDay())
   const [bridgeDirection, setBridgeDirection] = useState<string>('')
 
   const filters: TransactionFilter = {
@@ -40,8 +39,8 @@ export const useTransactionsFilters = () => {
     setStatus('')
     setSignedBy('')
     setExecutedBy('')
-    setStartTimestamp(yesterday())
-    setEndTimestamp(today())
+    setStartTimestamp(getStartOfDay())
+    setEndTimestamp(getEndOfDay())
     setBridgeDirection('')
   }, [])
 

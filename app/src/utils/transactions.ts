@@ -158,13 +158,16 @@ export const unifyTransactions = async (
   let foreignTxs = [..._foreignTxs]
 
   // Some filters like tx.hash or tx.timestamp will filter txs only on one side.
-  // We use the messageId from one side to bring the tx from the other side.
+  // We use the tx id from one side to bring the tx from the other side.
   const foreignTxsIds = foreignTxs.map((tx) => tx.id)
   const homeTxsIds = homeTxs.map((tx) => tx.id)
 
+  // all the txs that are on home but not on foreign
   const missingForeignIds = homeTxsIds.filter((id) => !foreignTxsIds.includes(id))
+  // all the txs that are on foreign but not on home
   const missingHomeIds = foreignTxsIds.filter((id) => !homeTxsIds.includes(id))
 
+  // if there are missing txs on home, we fetch them and assign them to homeTxs
   if (missingHomeIds.length > 0) {
     const missingTxs = (await fetchHomeTransaction({
       where: { id_in: missingHomeIds },
@@ -173,6 +176,7 @@ export const unifyTransactions = async (
     homeTxs = [...homeTxs, ...missingTxs]
   }
 
+  // if there are missing txs on foreign, we fetch them and assign them to foreignTxs
   if (missingForeignIds.length > 0) {
     const missingTxs = (await fetchForeignTransaction({
       where: { id_in: missingForeignIds },
@@ -232,7 +236,10 @@ export const fetchTransactions = async (
 
   if (inMemoryFilters.validator) {
     transactions = transactions.filter((tx) =>
-      tx.validations?.some((validation) => validation.validatorAddr === inMemoryFilters.validator),
+      tx.validations?.some((validation) => {
+        // filter by validator address
+        validation.validatorAddr === inMemoryFilters.validator
+      }),
     )
   }
 

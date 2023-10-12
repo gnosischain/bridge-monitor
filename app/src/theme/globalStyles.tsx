@@ -1,6 +1,6 @@
 import { createGlobalStyle } from 'styled-components'
-
 import { onBoardCSS } from '@/src/theme/onBoard'
+import { datePickerCSS } from '@/src/theme/datePicker'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const GlobalStyles = createGlobalStyle<{ theme: any }>`
@@ -86,4 +86,5 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
   }
 
   ${onBoardCSS}
+  ${datePickerCSS}
 `
