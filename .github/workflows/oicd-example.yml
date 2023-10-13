@@ -25,7 +25,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4.0.0
         with:
           audience: sts.amazonaws.com
-          role-to-assume: arn:aws:iam::163030813197:role/oicd-github-actions #change to reflect your IAM role’s ARN
+          role-to-assume: ${{ secrets.AWS_ROLE }} #change to reflect your IAM role’s ARN
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
           
@@ -61,4 +61,5 @@ jobs:
         # run: kubectl rollout restart deploy/${{ env.REPOSITORY }} -n ${{ env.NAMESPACE }}
         run: |
           kubectl config use-context arn:aws:eks:${{ env.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:cluster/${{ secrets.AWS_EKS_CLUSTER }}
+          kubectl config get-contexts
           kubectl get po -n ${{ env.NAMESPACE }}
