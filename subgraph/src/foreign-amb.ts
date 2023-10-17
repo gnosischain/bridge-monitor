@@ -47,7 +47,7 @@ export function handlerUserRequestForAffirmation(
   transaction.transactionStatus = "INITIATED";
 
   transaction.initiatorNetwork = network;
-  processOmniBridgeTokenBridgingInitiatedEvent(transaction, receipt);
+  processOmniBridgeTokenBridgingInitiatedEvent(transaction, receipt, messageId);
 
   transaction.receiver = Bytes.fromHexString(message.slice(258, 298));
   transaction.receiverAmount = transaction.initiatorAmount;

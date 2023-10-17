@@ -73,21 +73,28 @@ export function isOmniBridgeKnownMediator(
 
 export function processOmniBridgeTokenBridgingInitiatedEvent(
   transaction: AMBTransaction,
-  receipt: ethereum.TransactionReceipt
+  receipt: ethereum.TransactionReceipt,
+  messageId: Bytes
 ): void {
   // We need to extract amount, token and the sender address from this event.
   // We've opt to process the event this way to simplify the understanding of the bridging process.
   // Another alternative could have been to parse this event declaring the omnibridge data-source and filling
   // the transaction entity parsing the events independently.
 
-  const filtered = receipt.logs.filter((_log) => {
+  let _tokensBridgingEvent: ethereum.Log | null = null;
+  for (let index = 0; index < receipt.logs.length; index++) {
+    const _log = receipt.logs[index];
     const _topics = _log.topics;
-    return _topics.includes(TOKENS_BRIDGING_INITIATED_TOPIC);
-  });
+    if (
+      _topics[0] == TOKENS_BRIDGING_INITIATED_TOPIC &&
+      _topics[3] == messageId
+    ) {
+      _tokensBridgingEvent = _log;
+      break;
+    }
+  }
 
-  if (filtered.length > 0) {
-    const _tokensBridgingEvent = filtered[0];
-
+  if (_tokensBridgingEvent) {
     // convert bytes to BigInt
     transaction.initiatorAmount = BigInt.fromUnsignedBytes(
       Bytes.fromUint8Array(_tokensBridgingEvent.data.reverse())
