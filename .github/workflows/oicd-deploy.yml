@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
+        with:
+          ref: 'refs/tags/*:refs/tags/*'
       
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
