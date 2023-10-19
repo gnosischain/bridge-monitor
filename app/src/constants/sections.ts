@@ -5,10 +5,10 @@ export const sections = [
   },
   {
     section: 'Bridges',
-    href: '/bridges',
+    href: 'bridges',
   },
   {
     section: 'Validators',
-    href: '/validators',
+    href: 'validators',
   },
 ] as const

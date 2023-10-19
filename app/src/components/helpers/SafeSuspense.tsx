@@ -1,4 +1,4 @@
-import React, { ComponentType, FC, PropsWithChildren, Suspense } from 'react'
+import React, { ComponentType, FC, Suspense } from 'react'
 
 import { ErrorBoundary } from 'react-error-boundary'
 

@@ -9,6 +9,7 @@ const Wrapper = styled.span<{ status?: string }>`
       : ({ theme }) => theme.colors.darkGrey};
   border-radius: 50%;
   display: flex;
+  flex-shrink: 0;
   height: 24px;
   justify-content: center;
   width: 24px;

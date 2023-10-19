@@ -1,72 +1,79 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { isAddress } from '@ethersproject/address'
+import { isHexString } from '@ethersproject/bytes'
 import useSWR from 'swr'
 
-import { TransactionFilter } from '../useTransactionsFilters'
+import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import { BridgeDirection } from '@/src/components/transactions/TransactionsFilter'
 import { BridgesValues } from '@/src/constants/config/bridges'
-import { POLLING_INTERVAL } from '@/src/constants/misc'
-import { milliToSeconds, toSeconds } from '@/src/utils/date'
-import { fetchTransactions } from '@/src/utils/transactions'
+import { msToSeconds } from '@/src/utils/date'
+import { TxsInMemoryFilters, fetchTransactions } from '@/src/utils/transactions'
 import { getValidatorByName } from '@/src/utils/validators'
 import {
   OrderDirection,
-  TransactionStatus,
+  QueryTransactionsArgs,
   Transaction_Filter,
   Transaction_OrderBy,
-  TransactionsQueryVariables,
 } from '@/types/generated/subgraph'
 
 // @todo hardcoded value (need to think about useSWRPage or useSWRInfinite)
 const PAGE_SIZE = 500
 
-export const useFetchTransactions = (query?: TransactionsQueryVariables) => {
+export const useFetchTransactions = (
+  inMemoryFilters: TxsInMemoryFilters,
+  query?: QueryTransactionsArgs,
+) => {
   const {
     data,
     error,
     mutate: refetch,
   } = useSWR(
-    query ? ['useFetchTransactions', JSON.stringify(query)] : null,
-    () => {
-      if (!query) return []
-      return fetchTransactions(query)
-    },
-    { refreshInterval: POLLING_INTERVAL },
+    query
+      ? [
+          'useFetchTransactions',
+          JSON.stringify(query),
+          query,
+          JSON.stringify(inMemoryFilters),
+          inMemoryFilters,
+        ]
+      : null,
+    (a, b, _query, c, _inMemoryFilters) => fetchTransactions(_query, _inMemoryFilters),
   )
 
   return { transactions: data ?? [], error, refetch }
 }
 
+export const isTransactionHash = (hash: string) => isHexString(hash) && hash.length === 66
+
 export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   const [page, setPage] = useState(1)
-  const [query, setQuery] = useState<TransactionsQueryVariables>()
-  const { transactions } = useFetchTransactions(query)
+  const [query, setQuery] = useState<QueryTransactionsArgs>()
+  const [inMemoryFilters, setInMemoryFilters] = useState<TxsInMemoryFilters>({})
+  const { transactions } = useFetchTransactions(inMemoryFilters, query)
 
   useEffect(() => {
     const _where: Transaction_Filter = {
-      // @todo there are some bridges without name
-      bridgeName_not: null,
+      and: [{ bridgeName_not: null }],
     }
+
+    const inMemoryFiltersAux: TxsInMemoryFilters = { validator: undefined, executor: undefined }
+
     let updated = false
+
     if (filters.hash) {
-      // is hash ()
-      const isHash = filters.hash.length > 42
+      const isTxHash = isTransactionHash(filters.hash)
       const text = filters.hash.toLowerCase()
-      if (isHash) {
-        _where['transactionHash'] = text
-      } else {
-        if (isAddress(text)) {
-          _where['initiator'] = text
-        } else {
-          _where['initiator'] = '0x00' // @todo awful way to fetch no results by using an invalid address, a better approach would be adding a valid/invalid status in query object
-        }
+      if (isTxHash) {
+        _where.and?.push({ transactionHash: text })
+      } else if (isAddress(text)) {
+        _where.and?.push({ or: [{ initiator: text }, { receiver: text }] })
       }
       updated = true
     }
     if (filters.bridge) {
       if (!filters.bridge.includes('All')) {
-        _where['bridgeName_contains_nocase'] = filters.bridge.toUpperCase()
+        _where.and?.push({ bridgeName_contains_nocase: filters.bridge.toUpperCase() })
       }
       updated = true
     }
@@ -75,77 +82,43 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
         updated = true
       }
       if (BridgeDirection.gnosis2mainnet === filters.bridgeDirection) {
-        _where['initiatorNetwork'] = 'gnosis'
+        _where.and?.push({ initiatorNetwork: 'gnosis' })
       }
       if (BridgeDirection.mainnet2gnosis === filters.bridgeDirection) {
-        _where['initiatorNetwork'] = 'mainnet'
+        _where.and?.push({ initiatorNetwork: 'mainnet' })
       }
       updated = true
     }
-    if (filters.status) {
-      if (filters.status.includes('All')) {
-        updated = true
-      }
-      // @todo not added into the selector options yet
-      if (TransactionStatus.Initiated === filters.status.toUpperCase()) {
-        _where['transactionStatus'] = TransactionStatus.Initiated
-        updated = true
-      }
-      if (TransactionStatus.Requested === filters.status.toUpperCase()) {
-        _where['transactionStatus'] = TransactionStatus.Requested
-        updated = true
-      }
-      if (TransactionStatus.Collecting === filters.status.toUpperCase()) {
-        _where['transactionStatus'] = TransactionStatus.Collecting
-        updated = true
-      }
-      if (TransactionStatus.Claimed === filters.status.toUpperCase()) {
-        _where['transactionStatus'] = TransactionStatus.Claimed
-        updated = true
-      }
-      if (TransactionStatus.Unclaimed === filters.status.toUpperCase()) {
-        _where['transactionStatus'] = TransactionStatus.Unclaimed
-        updated = true
-      }
-      if (TransactionStatus.Completed === filters.status.toUpperCase()) {
-        _where['transactionStatus'] = TransactionStatus.Completed
-        updated = true
-      }
-    }
     if (filters.signedBy) {
       if (filters.signedBy.includes('All')) {
-        updated = true
-      }
-      // @todo we might need to convert the validator name -> address in a diff place
-      // @todo as we can not differentiate the network we will check in both validators objects
-      const bridgeValue = filters.bridge.toUpperCase() as BridgesValues
-      const validator = getValidatorByName(filters.signedBy, bridgeValue)
-      if (validator) {
-        _where['validations_'] = {
-          responsableAddress: validator.address.toLowerCase(),
+        inMemoryFiltersAux['validator'] = undefined
+      } else {
+        // @todo we might need to convert the validator name -> address in a diff place
+        // @todo as we can not differentiate the network we will check in both validators objects
+        const bridgeValue = filters.bridge.toUpperCase() as BridgesValues
+        const validator = getValidatorByName(filters.signedBy, bridgeValue)
+        if (validator) {
+          inMemoryFiltersAux['validator'] = validator.address.toLowerCase()
         }
-        updated = true
       }
     }
     if (filters.executedBy) {
       if (filters.executedBy.includes('All')) {
-        updated = true
-      }
-      const bridgeValue = filters.bridge.toUpperCase() as BridgesValues
-      const validator = getValidatorByName(filters.executedBy, bridgeValue)
-      if (validator) {
-        _where['execution_'] = {
-          responsableAddress: validator.address.toLowerCase(),
+        inMemoryFiltersAux['executor'] = undefined
+      } else {
+        const bridgeValue = filters.bridge.toUpperCase() as BridgesValues
+        const validator = getValidatorByName(filters.executedBy, bridgeValue)
+        if (validator) {
+          inMemoryFiltersAux['executor'] = validator.address.toLowerCase()
         }
-        updated = true
       }
     }
     if (filters.startTimestamp) {
-      _where['timestamp_gte'] = milliToSeconds(toSeconds(filters.startTimestamp))
+      _where.and?.push({ timestamp_gte: msToSeconds(filters.startTimestamp.getTime()) })
       updated = true
     }
     if (filters.endTimestamp) {
-      _where['timestamp_lte'] = milliToSeconds(toSeconds(filters.endTimestamp))
+      _where.and?.push({ timestamp_lte: msToSeconds(filters.endTimestamp.getTime()) })
       updated = true
     }
     if (updated) {
@@ -159,6 +132,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
         where: _where,
       }))
     }
+    setInMemoryFilters(inMemoryFiltersAux)
   }, [
     filters.hash,
     filters.bridge,
@@ -188,7 +162,9 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   return {
     page,
     setPage,
-    transactions,
+    transactions: filters.status
+      ? transactions.filter((tx) => tx.transactionStatus == filters.status.toUpperCase())
+      : transactions,
     loadMore,
   }
 }

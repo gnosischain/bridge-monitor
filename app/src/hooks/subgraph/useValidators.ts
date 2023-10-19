@@ -7,12 +7,14 @@ import {
   fetchValidators,
 } from '@/src/utils/validators'
 
-export const useFetchValidators = (bridge: string) => {
+export const useFetchValidators = (bridge?: string) => {
   const {
     data,
     error,
     mutate: refetch,
-  } = useSWR(['useFetchValidators', bridge], () => fetchValidators(bridge))
+  } = useSWR(bridge ? ['useFetchValidators', bridge] : null, (a, _bridge) =>
+    fetchValidators(_bridge),
+  )
 
   return { validators: data ?? [], error, refetch }
 }
@@ -23,7 +25,7 @@ export const useFetchValidatorsSignatures = (bridge: BridgesValues, timePeriod: 
     error,
     mutate: refetch,
   } = useSWR(['useFetchSignedTransactions', bridge, timePeriod.toString()], () =>
-    fetchSignedTransactions(bridge, timePeriod),
+    fetchSignedTransactions(bridge),
   )
   return { data, error, refetch }
 }
@@ -34,7 +36,7 @@ export const useFetchValidatorsExecutions = (bridge: BridgesValues, timePeriod: 
     error,
     mutate: refetch,
   } = useSWR(['useFetchExecutedTransactions', bridge, timePeriod.toString()], () =>
-    fetchExecutedTransactions(bridge, timePeriod),
+    fetchExecutedTransactions(bridge),
   )
   return { data, error, refetch }
 }

@@ -1,13 +1,13 @@
 import { InputHTMLAttributes } from 'react'
 import styled, { css } from 'styled-components'
 
-export enum TextfieldState {
+export enum TextfieldStatus {
   error = 'error',
   success = 'success',
 }
 
 interface TexfieldCSSProps {
-  status?: TextfieldState | undefined
+  status?: TextfieldStatus | undefined
 }
 
 export interface TextfieldProps extends InputHTMLAttributes<HTMLInputElement>, TexfieldCSSProps {}
@@ -17,14 +17,14 @@ export const TexfieldPartsCSS = css<TexfieldCSSProps>`
   &:focus {
     background-color: ${({ theme: { textField } }) => textField.active.backgroundColor};
     border-color: ${({ status, theme: { textField } }) =>
-      status === TextfieldState.error
+      status === TextfieldStatus.error
         ? textField.errorColor
-        : status === TextfieldState.success
+        : status === TextfieldStatus.success
         ? textField.successColor
         : textField.active.borderColor};
     box-shadow: ${({ theme: { textField } }) => textField.active.boxShadow};
     color: ${({ status, theme: { textField } }) =>
-      status === TextfieldState.error ? textField.errorColor : textField.color};
+      status === TextfieldStatus.error ? textField.errorColor : textField.color};
   }
 
   &[disabled],
@@ -83,16 +83,16 @@ export const TextfieldCSS = css<TexfieldCSSProps>`
 
   background-color: ${({ theme: { textField } }) => textField.backgroundColor};
   border-color: ${({ status, theme: { textField } }) =>
-    status === TextfieldState.error
+    status === TextfieldStatus.error
       ? textField.errorColor
-      : status === TextfieldState.success
+      : status === TextfieldStatus.success
       ? textField.successColor
       : textField.borderColor};
   border-radius: var(--textfield-border-radius);
   border-style: solid;
   border-width: 0.5px;
   color: ${({ status, theme: { textField } }) =>
-    status === TextfieldState.error ? textField.errorColor : textField.color};
+    status === TextfieldStatus.error ? textField.errorColor : textField.color};
   font-size: var(--texfield-font-size);
   font-weight: var(--textfield-font-weight);
   height: var(--textfield-height);

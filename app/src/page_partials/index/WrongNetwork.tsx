@@ -21,16 +21,15 @@ const loadingAnimation = keyframes`
 const Content = styled.div`
   --inline-loading-opacity-start: 0.4;
 
+  align-items: center;
   animation-delay: 0;
   animation-duration: 2s;
   animation-iteration-count: infinite;
   animation-name: ${loadingAnimation};
   animation-timing-function: ease-in-out;
   color: ${({ theme: { colors } }) => colors.error};
-  font-style: italic;
-
   display: flex;
-  align-items: center;
+  font-style: italic;
 `
 
 export default function WrongNetwork() {

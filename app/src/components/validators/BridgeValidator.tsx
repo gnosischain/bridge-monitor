@@ -7,6 +7,7 @@ import { BridgeValidatorHeader } from '@/src/components/validators/BridgeValidat
 import { HealthStatusTypes } from '@/src/constants/types'
 import { useDate } from '@/src/hooks/useDate'
 import { Validator } from '@/src/utils/validators'
+import { getAddressScanUrl } from '@/src/utils/transactions'
 
 const Wrapper = styled(InnerCard)`
   padding: ${({ theme: { common } }) => common.space * 3}px
@@ -20,6 +21,7 @@ const Rows = styled.ul`
   margin: 0;
   padding: 0;
   row-gap: ${({ theme: { common } }) => common.space}px;
+
   &.last {
     margin: ${({ theme: { common } }) => common.space * 3}px 0 0;
   }
@@ -76,6 +78,7 @@ export const BridgeValidator: React.FC<Props> = ({ bridgeValidator, ...restProps
   return (
     <Wrapper {...restProps}>
       <BridgeValidatorHeader
+        shortName={bridgeValidator.shortName}
         title={bridgeValidator.name ?? ''}
         validatorHealth={validatorHealth()}
       />
@@ -102,7 +105,12 @@ export const BridgeValidator: React.FC<Props> = ({ bridgeValidator, ...restProps
       <Rows className="last">
         <Row>
           <Text>Send tokens</Text>
-          <Address address={bridgeValidator.address} characters={6} copy />
+          <Address
+            address={bridgeValidator.address}
+            characters={6}
+            copy
+            link={getAddressScanUrl(bridgeValidator.address, bridgeValidator.scanUrl ?? 'gnosis')}
+          />
         </Row>
       </Rows>
     </Wrapper>

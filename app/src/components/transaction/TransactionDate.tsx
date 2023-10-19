@@ -6,11 +6,10 @@ import { DateFormated } from '@/src/utils/date'
 
 const Wrapper = styled.div`
   align-items: center;
+  column-gap: ${({ theme: { common } }) => common.space}px;
   display: flex;
   font-size: 1.4rem;
   line-height: 1.2;
-  column-gap: ${({ theme: { common } }) => common.space}px;
-  margin: auto 0 0 0;
 `
 
 const IconClock = styled(BaseIconClock)`
@@ -27,13 +26,11 @@ interface Props {
 }
 
 export const TransactionDate: React.FC<Props> = ({ completed, started = 0, ...restProps }) => {
-  let dateInfo
   const dateUtils = useDate(new Date(started))
-  dateInfo =
-    dateUtils.duration?.interval + ' ' + dateUtils.duration?.epoch + dateUtils.getSuffix + ' ago'
-  if (completed) {
-    dateInfo = DateFormated(new Date(completed))
-  }
+  const dateInfo = completed
+    ? DateFormated(new Date(completed))
+    : dateUtils.duration?.interval + ' ' + dateUtils.duration?.epoch + dateUtils.getSuffix + ' ago'
+
   return (
     <Wrapper {...restProps}>
       <IconClock /> <Text>{dateInfo}</Text>

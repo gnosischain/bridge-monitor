@@ -69,7 +69,7 @@ export const toSeconds = (d: Date) => {
   return d.getTime()
 }
 
-export const milliToSeconds = (milliseconds: number) => {
+export const msToSeconds = (milliseconds: number) => {
   return Math.floor(milliseconds / 1000)
 }
 

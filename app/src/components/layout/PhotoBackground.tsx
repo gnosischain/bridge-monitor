@@ -31,7 +31,7 @@ const Wrapper = styled.div`
 export const PhotoBackground: React.FC = () => {
   return (
     <Wrapper>
-      <Image alt="Monitoring" layout="fill" objectFit="cover" src="/images/bg.jpg" />
+      <Image alt="Monitoring" layout="fill" objectFit="cover" priority src="/images/bg.jpg" />
     </Wrapper>
   )
 }

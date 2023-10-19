@@ -11,14 +11,16 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-
+import { useFetchValidatorsSignatures } from '@/src/hooks/subgraph/useValidators'
 import { ChevronDown } from '@/src/components/assets/ChevronDown'
 import {
   Dropdown as BaseDropdown,
   DropdownItem,
   DropdownPosition,
 } from '@/src/components/common/Dropdown'
+import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { InnerCard } from '@/src/components/common/InnerCard'
+import { BridgesValues } from '@/src/constants/config/bridges'
 
 const Wrapper = styled(InnerCard)``
 
@@ -46,13 +48,13 @@ const DropdownButton = styled.button`
   border: none;
   color: ${({ theme: { colors } }) => colors.cream};
   column-gap: 30px;
+  cursor: pointer;
   display: flex;
   font-size: 1.4rem;
   font-weight: 500;
   height: 42px;
   justify-content: space-between;
   padding: 0 16px;
-  cursor: pointer;
   transition: opacity 0.15s linear;
 
   &:active {
@@ -74,74 +76,47 @@ const monthAgoTimestamp = () => {
   const now = new Date()
   return new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).getTime() / 1000
 }
-const yearAgoTimestamp = () => {
-  const now = new Date()
-  return new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()).getTime() / 1000
-}
-const allTimeTimestamp = () => {
-  const now = new Date()
-  return new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()).getTime() / 1000
-}
 
 export type SignedTXsData = {
   validatorName: string
   signedTxsCount: number
 }[]
-export const TransactionsSigned: React.FC<{
-  data: SignedTXsData
-  onTimePeriodChange: (timePeriod: number) => void
-}> = ({ data, onTimePeriodChange, ...restProps }) => {
-  const dropdownItems = [
-    { title: 'Last week', timestampVal: weekAgoTimestamp() },
-    { title: 'Last month', timestampVal: monthAgoTimestamp() },
-    { title: 'Last year', timestampVal: yearAgoTimestamp() },
-    { title: 'All time', timestampVal: allTimeTimestamp() },
-  ]
-  const [selectedItem, setSelectedItem] = useState(0)
 
-  const onDropdownItemSelect = (index: number) => {
-    onTimePeriodChange(dropdownItems[index].timestampVal)
-    setSelectedItem(index)
-  }
+const Chart: React.FC<{ timePeriod: number; bridge: string }> = genericSuspense(
+  ({ bridge, timePeriod }) => {
+    const signedTXs = useFetchValidatorsSignatures(bridge as BridgesValues, timePeriod)
 
-  const colors = [
-    'rgba(43, 157, 109, 0.6)',
-    'rgba(43, 157, 157, 0.6)',
-    'rgba(43, 95, 157, 0.6)',
-    'rgba(108, 68, 193, 0.6)',
-    'rgba(185, 110, 182, 0.6)',
-    'rgba(69, 104, 194, 0.6)',
-  ]
+    if (!signedTXs.data && signedTXs.error) {
+      throw new Error('No data for XDAI Signed Transactions')
+    }
 
-  const commonAxesStyles = {
-    axisLine: false,
-    tick: {
-      fontFamily: 'Karla, Arial, sans-serif',
-      fontWeight: 400,
-      fontSize: '1.4rem',
-      fill: '#F0EBDE',
-    },
-    tickLine: false,
-  }
+    const data =
+      signedTXs.data?.map((item) => ({
+        validatorName: item.name as string,
+        signedTxsCount: item.value as number,
+      })) ?? []
 
-  return (
-    <Wrapper {...restProps}>
-      <Header>
-        <Title>Transactions Signed</Title>
-        <Dropdown
-          dropdownButton={
-            <DropdownButton>
-              <span>{dropdownItems[selectedItem].title}</span> <ChevronDown />
-            </DropdownButton>
-          }
-          dropdownPosition={DropdownPosition.right}
-          items={dropdownItems.map((item, index) => (
-            <DropdownItem key={index} onClick={() => onDropdownItemSelect(index)}>
-              {item.title}
-            </DropdownItem>
-          ))}
-        />
-      </Header>
+    const colors = [
+      'rgba(43, 157, 109, 0.6)',
+      'rgba(43, 157, 157, 0.6)',
+      'rgba(43, 95, 157, 0.6)',
+      'rgba(108, 68, 193, 0.6)',
+      'rgba(185, 110, 182, 0.6)',
+      'rgba(69, 104, 194, 0.6)',
+    ]
+
+    const commonAxesStyles = {
+      axisLine: false,
+      tick: {
+        fontFamily: 'Karla, Arial, sans-serif',
+        fontWeight: 400,
+        fontSize: '1.4rem',
+        fill: '#F0EBDE',
+      },
+      tickLine: false,
+    }
+
+    return (
       <ChartWrapper>
         <ResponsiveContainer height="100%" width="100%">
           <BarChart
@@ -191,6 +166,47 @@ export const TransactionsSigned: React.FC<{
           </BarChart>
         </ResponsiveContainer>
       </ChartWrapper>
-    </Wrapper>
-  )
-}
+    )
+  },
+)
+
+export const TransactionsSigned: React.FC<{
+  bridge: string
+}> = genericSuspense(
+  ({ bridge, ...restProps }) => {
+    const dropdownItems = [
+      { title: 'Last week', timestampVal: weekAgoTimestamp() },
+      { title: 'Last month', timestampVal: monthAgoTimestamp() },
+    ]
+    const [selectedItem, setSelectedItem] = useState(0)
+    const [timePeriod, setTimePeriod] = useState(weekAgoTimestamp())
+
+    const onDropdownItemSelect = (index: number) => {
+      setTimePeriod(dropdownItems[index].timestampVal)
+      setSelectedItem(index)
+    }
+
+    return (
+      <Wrapper {...restProps}>
+        <Header>
+          <Title>Transactions Signed</Title>
+          <Dropdown
+            dropdownButton={
+              <DropdownButton>
+                <span>{dropdownItems[selectedItem].title}</span> <ChevronDown />
+              </DropdownButton>
+            }
+            dropdownPosition={DropdownPosition.right}
+            items={dropdownItems.map((item, index) => (
+              <DropdownItem key={index} onClick={() => onDropdownItemSelect(index)}>
+                {item.title}
+              </DropdownItem>
+            ))}
+          />
+        </Header>
+        <Chart bridge={bridge} timePeriod={timePeriod} />
+      </Wrapper>
+    )
+  },
+  () => <>adkjasd</>,
+)

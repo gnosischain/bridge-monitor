@@ -1,0 +1,78 @@
+name: Deploy Bridge-Explorer
+
+# Controls when the action will run. Invokes the workflow on push events
+# on: 
+#   workflow_dispatch:
+on:
+  push:
+    branches:
+      - develop
+      - staging
+env:
+  AWS_REGION : "eu-central-1" 
+  REPOSITORY: "bridge-explorer"
+  NAMESPACE: "bridges"
+
+# Permission can be added at job level or workflow level    
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+jobs:
+  AssumeRoleAndCallIdentity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v3
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.0
+        with:
+          audience: sts.amazonaws.com
+          role-to-assume: ${{ secrets.AWS_ROLE }} #change to reflect your IAM role’s ARN
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push DEVELOP docker image to Amazon ECR
+        if: startsWith(github.ref, 'refs/heads/develop')
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        uses: docker/build-push-action@v3
+        with:
+          context: ./app
+          file: ./app/Dockerfile
+          push: true
+          tags: "${{ env.REGISTRY }}/bridge-explorer:latest"
+          platforms: |
+            linux/amd64
+        
+      - name: Get Release Tag
+        if: ( github.ref == 'refs/heads/staging' )
+        id: release_tag
+        run: echo "tag=$(git describe --abbrev=0 --tags)" >> $GITHUB_OUTPUT
+
+      - name: Build, tag, and push STAGING to Amazon ECR
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ steps.release_tag.outputs.tag }}
+        uses: docker/build-push-action@v3
+        with:
+          context: ./app
+          file: ./app/Dockerfile
+          push: true
+          tags: "${{ env.REGISTRY }}/bridge-explorer:${{ env.IMAGE_TAG }}"
+          platforms: |
+            linux/amd64
+
+      - name: Configure kubectl for EKS
+        run: aws eks update-kubeconfig --name ${{ secrets.AWS_EKS_CLUSTER }} --region ${{ env.AWS_REGION }}
+
+      - name: Restart Bridge Explorer Deployment
+        run: |
+          kubectl config use-context arn:aws:eks:${{ env.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:cluster/${{ secrets.AWS_EKS_CLUSTER }}
+          kubectl rollout restart deploy/${{ env.REPOSITORY }} -n ${{ env.NAMESPACE }}

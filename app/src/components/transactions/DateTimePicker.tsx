@@ -2,11 +2,11 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 
 import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
-
-import FilterDropdown from '../filters/FilterDropdown'
-import { TextfieldCSS } from '../form/Textfield'
+import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
+import FilterDropdown from '@/src/components/filters/FilterDropdown'
+import { TextfieldCSS } from '@/src/components/form/Textfield'
 import { composeDateTimeFilterValue, dayHoursOptions } from '@/src/utils/date'
+import 'react-datepicker/dist/react-datepicker.css'
 
 const Wrapper = styled.div`
   display: flex;
@@ -140,56 +140,54 @@ type Props = {
   endDate: Date
 }
 
-export const DateTimePicker: React.FC<Props> = ({
-  endDate,
-  onEndDateChange,
-  onStartDateChange,
-  startDate,
-}) => {
-  const timeOptions = dayHoursOptions
-  const [, setStartTime] = useState<string>(timeOptions[0])
-  const [, setEndTime] = useState<string>(timeOptions[0])
+export const DateTimePicker: React.FC<Props> = genericSuspense(
+  ({ endDate, onEndDateChange, onStartDateChange, startDate, ...restProps }) => {
+    const timeOptions = dayHoursOptions
+    const [, setStartTime] = useState<string>(timeOptions[0])
+    const [, setEndTime] = useState<string>(timeOptions[0])
 
-  const onSetStartTime = (newStartTime: string) => {
-    setStartTime(newStartTime)
-    const newStartingDateTime = composeDateTimeFilterValue(startDate, newStartTime)
-    onStartDateChange(newStartingDateTime)
-  }
+    const onSetStartTime = (newStartTime: string) => {
+      setStartTime(newStartTime)
+      const newStartingDateTime = composeDateTimeFilterValue(startDate, newStartTime)
+      onStartDateChange(newStartingDateTime)
+    }
 
-  const onSetEndTime = (newEndTime: string) => {
-    setEndTime(newEndTime)
-    const newEndingDateTime = composeDateTimeFilterValue(endDate, newEndTime)
-    onEndDateChange(newEndingDateTime)
-  }
+    const onSetEndTime = (newEndTime: string) => {
+      setEndTime(newEndTime)
+      const newEndingDateTime = composeDateTimeFilterValue(endDate, newEndTime)
+      onEndDateChange(newEndingDateTime)
+    }
 
-  return (
-    <Wrapper>
-      <Column>
-        <Label>From </Label>
-        <DatePickerWrapper>
-          <DatePickerStyle
-            endDate={endDate}
-            maxDate={endDate}
-            onChange={onStartDateChange}
-            selected={startDate}
-            selectsStart
-          />
-        </DatePickerWrapper>
-        <FilterDropdown onChange={onSetStartTime} options={timeOptions} />
-      </Column>
-      <Column>
-        <Label>To </Label>
-        <DatePickerWrapper>
-          <DatePickerStyle
-            minDate={startDate}
-            onChange={onEndDateChange}
-            selected={endDate}
-            selectsEnd
-            startDate={startDate}
-          />
-        </DatePickerWrapper>
-        <FilterDropdown onChange={onSetEndTime} options={timeOptions} />
-      </Column>
-    </Wrapper>
-  )
-}
+    return (
+      <Wrapper {...restProps}>
+        <Column>
+          <Label>From </Label>
+          <DatePickerWrapper>
+            <DatePickerStyle
+              endDate={endDate}
+              maxDate={endDate}
+              onChange={onStartDateChange}
+              selected={startDate}
+              selectsStart
+            />
+          </DatePickerWrapper>
+          <FilterDropdown onChange={onSetStartTime} options={timeOptions} />
+        </Column>
+        <Column>
+          <Label>To </Label>
+          <DatePickerWrapper>
+            <DatePickerStyle
+              minDate={startDate}
+              onChange={onEndDateChange}
+              selected={endDate}
+              selectsEnd
+              startDate={startDate}
+            />
+          </DatePickerWrapper>
+          <FilterDropdown onChange={onSetEndTime} options={timeOptions} />
+        </Column>
+      </Wrapper>
+    )
+  },
+  () => <></>,
+)

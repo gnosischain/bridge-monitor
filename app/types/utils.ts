@@ -1,7 +1,6 @@
 import { DetailedHTMLProps, HTMLAttributes } from 'react'
 
 import { Contract } from '@ethersproject/contracts'
-import { ContractTransaction } from 'ethers'
 import { KeyedMutator } from 'swr'
 
 export type ObjectValues<T> = T[keyof T]

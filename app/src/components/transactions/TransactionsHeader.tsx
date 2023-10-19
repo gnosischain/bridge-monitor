@@ -1,47 +1,85 @@
 import styled from 'styled-components'
 
 import { Tooltip } from '@/src/components/common/Tooltip'
-import { useGeneral } from '@/src/providers/generalProvider'
 import { Validator } from '@/src/utils/validators'
 
-const SwitchDate = styled.button`
-  background-color: ${({ theme: { colors } }) => colors.darkerGrey};
-  color: inherit;
-  padding: 0 ${({ theme: { common } }) => common.space}px;
-  line-height: 1.6;
-  border-radius: ${({ theme: { common } }) => common.borderRadius};
-  border: none;
-  cursor: pointer;
+const THead = styled.thead`
+  display: none;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    display: table-header-group;
+  }
 `
+
+const TH = styled.th`
+  --th-padding-vertical: ${({ theme: { common } }) => common.space * 3}px;
+  --th-padding-horizontal: ${({ theme: { common } }) => common.space * 2}px;
+
+  font-size: 1.4rem;
+  font-weight: 300;
+  padding: var(--th-padding-vertical) var(--th-padding-horizontal);
+  text-align: left;
+  vertical-align: top;
+`
+
+const THValidators = styled(TH)`
+  background-color: ${({ theme }) => theme.colors.darkerGrey};
+  border-top-left-radius: ${({ theme: { common } }) => common.borderRadius};
+  border-top-right-radius: ${({ theme: { common } }) => common.borderRadius};
+  padding-left: 0;
+  padding-right: 0;
+`
+
+const ValidatorNameWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  column-gap: 8px;
+  padding-left: 10px;
+  padding-right: 10px;
+`
+
+const ValidatorName = styled.span`
+  --validator-name-size: 16px;
+
+  display: inline-block;
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  height: var(--validator-name-size);
+  line-height: 2.2rem;
+  text-align: center;
+  white-space: nowrap;
+  width: var(--validator-name-size);
+`
+
+const THActions = styled(TH)`
+  text-align: center;
+`
+
+const THLast = styled(TH)``
 
 interface Props {
   validators: Validator[]
 }
 
 export const TransactionHeader: React.FC<Props> = ({ validators }) => {
-  const { isTimeAgo, setIsTimeAgo } = useGeneral()
-  const changeFormatDate = () => {
-    setIsTimeAgo((current) => !current)
-  }
   return (
-    <thead>
+    <THead>
       <tr>
-        <th>Txn Hash</th>
-        <th>Bridge</th>
-        <th>Initiator</th>
-        <th>Receiver</th>
-        <th>Status</th>
-        <th className="validators validatorsHeader">
-          {validators.map((validator, index) => (
-            <Tooltip key={`validator_column_${index}`} text={validator.name}>
-              <span>{validator.shortName}</span>
-            </Tooltip>
-          ))}
-        </th>
-        <th>
-          <SwitchDate onClick={changeFormatDate}>{isTimeAgo ? 'Age' : 'Date Time'}</SwitchDate>
-        </th>
+        <TH>Tx Hash</TH>
+        <TH>Bridge Direction</TH>
+        <TH>Initiator / Receiver</TH>
+        <THValidators className="validators">
+          <ValidatorNameWrapper>
+            {validators.map((validator, index) => (
+              <Tooltip key={`validator_column_${index}`} text={validator.name}>
+                <ValidatorName>{validator.shortName.toUpperCase()}</ValidatorName>
+              </Tooltip>
+            ))}
+          </ValidatorNameWrapper>
+        </THValidators>
+        <THActions>Status</THActions>
+        <THLast>&nbsp;</THLast>
       </tr>
-    </thead>
+    </THead>
   )
 }

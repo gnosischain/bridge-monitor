@@ -3,10 +3,10 @@ import { _handlerValidatorAdded, _handlerValidatorRemoved } from "./bridge-valid
 
 export function handlerValidatorAdded(event: ValidatorAdded): void {
   const validatorAddress = event.params.validator
-  _handlerValidatorAdded(validatorAddress)
+  _handlerValidatorAdded(validatorAddress, event.transaction.hash.toHexString());
 }
 
 export function handlerValidatorRemoved(event: ValidatorRemoved): void {
   const validatorAddress = event.params.validator
-  _handlerValidatorRemoved(validatorAddress)
+  _handlerValidatorRemoved(validatorAddress, event.transaction.hash.toHexString());
 }

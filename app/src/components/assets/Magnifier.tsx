@@ -8,7 +8,7 @@ const Wrapper = styled.svg`
 
 export const Magnifier: React.FC<HTMLAttributes<SVGElement>> = ({ className, ...restProps }) => (
   <Wrapper
-    className={`menu ${className}`}
+    className={`magnifier ${className}`}
     fill="none"
     height="20"
     viewBox="0 0 20 20"

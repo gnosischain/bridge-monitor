@@ -1,6 +1,8 @@
 import styled from 'styled-components'
 
+import { useMemo } from 'react'
 import { LimitDot } from '@/src/components/limits/LimitDot'
+import Image from 'next/image'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -17,11 +19,11 @@ const Title = styled.h3`
   margin: 0;
 `
 
-const Circle = styled.div`
+const Circle = styled.div<{ bgColor: string }>`
   --size: 40px;
 
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.primary};
+  background-color: ${({ bgColor }) => bgColor};
   border-radius: 50%;
   color: ${({ theme: { colors } }) => colors.cream};
   display: flex;
@@ -30,6 +32,7 @@ const Circle = styled.div`
   font-weight: 700;
   height: var(--size);
   justify-content: center;
+  overflow: hidden;
   width: var(--size);
 `
 
@@ -38,20 +41,49 @@ const Dot = styled(LimitDot)`
 `
 
 interface Props {
+  shortName: string
   title: string
   validatorHealth: string
 }
 
 export const BridgeValidatorHeader: React.FC<Props> = ({
+  shortName,
   title,
   validatorHealth,
   ...restProps
 }) => {
-  const Capitals = title.replace(/[a-z+\s]/g, '')
+  const validator = shortName.toUpperCase()
+  const validatorIcon = useMemo(() => {
+    const basePath = '/images/validators/'
+    const data =
+      validator === 'GS'
+        ? { image: `${basePath}gnosis-safe.svg`, size: 38, bgColor: '#12FF80' }
+        : validator === 'GW'
+        ? { image: `${basePath}gateway.svg`, size: 36, bgColor: '#EDE9EF' }
+        : validator === 'PF'
+        ? { image: `${basePath}protofire.svg`, size: 28, bgColor: '#121f3f' }
+        : validator === 'CP'
+        ? { image: `${basePath}cow-protocol.svg`, size: 40, bgColor: '#052b65' }
+        : validator === 'GD'
+        ? { image: `${basePath}gnosis-dao.png`, size: 36, bgColor: '#0d251c' }
+        : validator === 'K'
+        ? { image: `${basePath}karpatkey.svg`, size: 36, bgColor: '#221F20' }
+        : validator === 'G'
+        ? { image: `${basePath}giveth.svg`, size: 30, bgColor: '#fff' }
+        : validator === 'TY'
+        ? { image: `${basePath}telepathy.svg`, size: 36, bgColor: '#fff' }
+        : { image: `${basePath}empty-token.png`, size: 40, bgColor: '#3E6957' }
+
+    return (
+      <Circle bgColor={data.bgColor}>
+        <Image alt={title} height={data.size} src={data.image} width={data.size} />
+      </Circle>
+    )
+  }, [title, validator])
 
   return (
     <Wrapper {...restProps}>
-      <Circle>{Capitals}</Circle>
+      {validatorIcon}
       <Title>{title}</Title>
       <Dot status={validatorHealth} />
     </Wrapper>

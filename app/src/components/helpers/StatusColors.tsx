@@ -2,27 +2,27 @@ import { css } from 'styled-components'
 
 export const StatusColors = {
   CLAIMED: css`
-    background-color: ${({ theme: { colors } }) => colors.darkGreen};
+    ${({ theme: { colors } }) => colors.darkGreen};
   `,
   COLLECTING: css`
-    background-color: ${({ theme: { colors } }) => colors.lightYellow};
+    ${({ theme: { colors } }) => colors.lightYellow};
   `,
   COMPLETED: css`
-    background-color: ${({ theme: { colors } }) => colors.successDark};
+    ${({ theme: { colors } }) => colors.successDark};
   `,
   ERROR: css`
-    background-color: ${({ theme: { colors } }) => colors.error};
+    ${({ theme: { colors } }) => colors.error};
   `,
   INITIATED: css`
-    background-color: ${({ theme: { colors } }) => colors.secondary};
+    ${({ theme: { colors } }) => colors.secondary};
   `,
   REQUESTED: css`
-    background-color: ${({ theme: { colors } }) => colors.cream};
+    ${({ theme: { colors } }) => colors.cream};
   `,
   UNCLAIMED: css`
-    background-color: ${({ theme: { colors } }) => colors.warning};
+    ${({ theme: { colors } }) => colors.warning};
   `,
   DEFAULT: css`
-    background-color: ${({ theme: { colors } }) => colors.darkerGray};
+    ${({ theme: { colors } }) => colors.darkerGray};
   `,
 }
