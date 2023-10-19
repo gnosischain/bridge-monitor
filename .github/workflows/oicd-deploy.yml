@@ -46,7 +46,7 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          tags: "${{ env.REGISTRY }}/bridge-explorer:eks-test"
+          tags: "${{ env.REGISTRY }}/bridge-explorer:latest"
           platforms: |
             linux/amd64
         
@@ -65,7 +65,7 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          tags: "${{ env.REGISTRY }}/bridge-explorer:eks-test"
+          tags: "${{ env.REGISTRY }}/bridge-explorer:${{ env.IMAGE_TAG }}"
           platforms: |
             linux/amd64
 
