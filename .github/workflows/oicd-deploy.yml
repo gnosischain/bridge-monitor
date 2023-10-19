@@ -57,10 +57,10 @@ jobs:
           platforms: |
             linux/amd64
         
-      - name: Get Release Tag
+      - name: Get latest Release Tag
         if: ( github.ref == 'refs/heads/staging' )
         id: release_tag
-        run: echo "tag=$(git describe --abbrev=0 --tags)" >> $GITHUB_OUTPUT
+        run: echo "tag=$(git describe --abbrev=0 --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_OUTPUT
 
       - name: Build, tag, and push STAGING to Amazon ECR
         if: startsWith(github.ref, 'refs/heads/staging')
