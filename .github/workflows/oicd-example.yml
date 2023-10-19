@@ -61,4 +61,5 @@ jobs:
         # run: kubectl rollout restart deploy/${{ env.REPOSITORY }} -n ${{ env.NAMESPACE }}
         run: |
           kubectl config use-context arn:aws:eks:${{ env.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:cluster/${{ secrets.AWS_EKS_CLUSTER }}
+          kubectl get po -n ${{ env.NAMESPACE }}
           kubectl rollout restart deploy bridge-explorer -n ${{ env.NAMESPACE }}
