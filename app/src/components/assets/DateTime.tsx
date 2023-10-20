@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 import { useDate } from '@/src/hooks/useDate'
 import { DateFormated } from '@/src/utils/date'
-import { Tooltip } from '@/src/components/common/Tooltip'
+import { Tooltip } from '@/src/components/tooltip/Tooltip'
 
 const Wrapper = styled.div`
   position: relative;
@@ -11,6 +11,7 @@ const Wrapper = styled.div`
 const Text = styled.div`
   font-size: 1.2rem;
   line-height: 1.2;
+  max-width: fit-content;
   opacity: 0.6;
 `
 
@@ -24,7 +25,7 @@ export const DateTime: React.FC<Props> = ({ transactiondate, ...restProps }) => 
 
   return (
     <Wrapper {...restProps}>
-      <Tooltip key={`transaction_date_${transactiondate}`} text={DateFormat}>
+      <Tooltip content={DateFormat} key={`transaction_date_${transactiondate}`}>
         <Text>
           {sinceDateFormat.duration?.interval} {sinceDateFormat.duration?.epoch}
           {sinceDateFormat.getSuffix} ago

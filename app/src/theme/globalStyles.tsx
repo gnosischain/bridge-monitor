@@ -1,9 +1,18 @@
 import { createGlobalStyle } from 'styled-components'
 import { onBoardCSS } from '@/src/theme/onBoard'
 import { datePickerCSS } from '@/src/theme/datePicker'
+import { tooltipCSS } from '@/src/theme/tooltip'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const GlobalStyles = createGlobalStyle<{ theme: any }>`
+
+  :root {
+      /* Tooltip */
+      --rt-color-dark:  ${({ theme: { colors } }) => colors.black};
+      --rt-color-info:  ${({ theme: { colors } }) => colors.white};
+      --rt-opacity: 1;
+  }
+
   html {
     font-size: 10px;
     scroll-behavior: smooth;
@@ -87,4 +96,5 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
 
   ${onBoardCSS}
   ${datePickerCSS}
+  ${tooltipCSS}
 `

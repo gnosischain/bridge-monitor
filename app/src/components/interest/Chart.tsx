@@ -3,8 +3,7 @@ import styled from 'styled-components'
 import { Cell, Pie, PieChart } from 'recharts'
 
 import { Status } from '@/src/components/assets/Status'
-import { Tooltip as TooltipIcon } from '@/src/components/assets/Tooltip'
-import { Tooltip } from '@/src/components/common/Tooltip'
+import { Tooltip } from '@/src/components/tooltip/Tooltip'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 
 const LabelWrapper = styled.div`
@@ -79,11 +78,7 @@ const Label: React.FC<{ status: satus; tokenSymbol: string; color: string }> = (
       <LabelContentsWrapper>
         <LabelTitleWrapper>
           <LabelTitle>{title}</LabelTitle>
-          {tooltip && (
-            <Tooltip text={tooltip}>
-              <TooltipIcon />
-            </Tooltip>
-          )}
+          {tooltip && <Tooltip content={tooltip} />}
         </LabelTitleWrapper>
         <LabelValue>
           <TokenIcon symbol={tokenSymbol} /> {value}

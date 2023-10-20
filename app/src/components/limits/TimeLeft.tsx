@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 import { useDate } from '@/src/hooks/useDate'
-import { Tooltip } from '@/src/components/common/Tooltip'
+import { Tooltip } from '@/src/components/tooltip/Tooltip'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -22,7 +22,7 @@ export const TimeLeft: React.FC<Props> = ({ time, ...restProps }) => {
   return (
     <Wrapper {...restProps}>
       <span>Daily limit reset</span>{' '}
-      <Tooltip text={date.toLocaleString()}>
+      <Tooltip content={date.toLocaleString()}>
         {remaining?.interval} {remaining?.epoch}
         {getSuffixRemaining}
       </Tooltip>
