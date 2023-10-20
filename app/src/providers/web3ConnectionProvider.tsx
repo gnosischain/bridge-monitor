@@ -31,6 +31,7 @@ import {
 } from '@/src/hooks/usePersistedState'
 import { hexToNumber, isValidChain } from '@/src/utils/tools'
 import { RequiredNonNull } from '@/types/utils'
+import { ModalCSS } from '@/src/theme/onBoard'
 
 const STORAGE_CONNECTED_WALLET = 'onboard_selectedWallet'
 
@@ -120,8 +121,23 @@ type Props = {
   children: ReactNode
 }
 
-//Initialize onboarding
+// Initialize onboarding
 initOnboard()
+
+/**
+ * This is a workaround (hacky shit) to add custom CSS to the onboard modal
+ */
+const setCSSStyles = () => {
+  const style = document.createElement('style')
+
+  style.innerHTML = ModalCSS
+
+  const onboardV2 = document.querySelector('onboard-v2')
+
+  if (onboardV2 && onboardV2.shadowRoot) {
+    onboardV2.shadowRoot.appendChild(style)
+  }
+}
 
 export default function Web3ConnectionProvider({ children }: Props) {
   const [{ connecting: connectingWallet, wallet }, connect, disconnect] = useConnectWallet()
@@ -217,6 +233,8 @@ export default function Web3ConnectionProvider({ children }: Props) {
       connect()
     }
   }
+
+  setCSSStyles()
 
   const value = {
     address,
