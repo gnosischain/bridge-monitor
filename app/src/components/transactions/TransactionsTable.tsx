@@ -59,7 +59,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ bridge, filters }
         </Actions>
       )}
       <ListBottomInformation
-        endDate={filters.endTimestamp.toLocaleDateString()}
+        endDate={filters.endTimestamp?.toLocaleDateString() || 'undefined'}
         startDate={filters.startTimestamp.toLocaleDateString()}
         transactionsNumber={transactions.length}
       />

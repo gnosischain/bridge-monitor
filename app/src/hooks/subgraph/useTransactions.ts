@@ -16,6 +16,7 @@ import {
   Transaction_OrderBy,
 } from '@/types/generated/subgraph'
 import { isTransactionHash } from '@/src/utils/tools'
+import differenceInDays from 'date-fns/differenceInDays'
 
 // @todo hardcoded value (need to think about useSWRPage or useSWRInfinite)
 const PAGE_SIZE = 500
@@ -52,12 +53,20 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
 
   useEffect(() => {
     const _where: Transaction_Filter = {
-      and: [{ bridgeName_not: null }],
+      and: [],
     }
 
     const inMemoryFiltersAux: TxsInMemoryFilters = { validator: undefined, executor: undefined }
 
     let updated = false
+
+    // if the date rage is more than 2 days, abort the query
+    if (
+      !filters.endTimestamp ||
+      (filters.endTimestamp && differenceInDays(filters.endTimestamp, filters.startTimestamp) > 2)
+    ) {
+      return
+    }
 
     if (filters.hash) {
       const isTxHash = isTransactionHash(filters.hash)
@@ -109,11 +118,11 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
         }
       }
     }
-    if (filters.startTimestamp) {
+    if (!filters.hash && filters.startTimestamp) {
       _where.and?.push({ timestamp_gte: msToSeconds(filters.startTimestamp.getTime()) })
       updated = true
     }
-    if (filters.endTimestamp) {
+    if (!filters.hash && filters.endTimestamp) {
       _where.and?.push({ timestamp_lte: msToSeconds(filters.endTimestamp.getTime()) })
       updated = true
     }
