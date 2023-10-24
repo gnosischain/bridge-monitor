@@ -58,7 +58,7 @@ jobs:
           tags: "${{ env.REGISTRY }}/bridge-explorer:latest"
           platforms: |
             linux/amd64
-            
+
       - name: Get latest Release Tag
         if: ( github.ref == 'refs/heads/staging' )
         id: release_tag
@@ -79,6 +79,7 @@ jobs:
             linux/amd64
     
   Get_images_and_restart_deployments:
+    needs: Build_and_push_image_to_ECR
     runs-on: ubuntu-latest
     steps:
       - name: configure aws credentials
