@@ -217,20 +217,22 @@ const Bridges: NextPage = ({ ...restProps }) => {
                 </TransactionDetailsListItem>
               </>
             )}
-            {!isForeignInitiated() && !currentTx.execution && (
-              <>
-                <TransactionDetailsListItem
-                  description="Claim to unlock your tokens."
-                  title="Ready to claim"
-                  transactionStatus={TransactionStatus.Unclaimed}
-                >
-                  <Status
-                    onClick={() => console.log('claim')}
-                    status={TransactionStatus.Unclaimed}
-                  />
-                </TransactionDetailsListItem>
-              </>
-            )}
+            {!isForeignInitiated() &&
+              currentTx.transactionStatus === TransactionStatus.Unclaimed &&
+              !currentTx.execution && (
+                <>
+                  <TransactionDetailsListItem
+                    description="Claim to unlock your tokens."
+                    title="Ready to claim"
+                    transactionStatus={TransactionStatus.Unclaimed}
+                  >
+                    <Status
+                      onClick={() => console.log('claim')}
+                      status={TransactionStatus.Unclaimed}
+                    />
+                  </TransactionDetailsListItem>
+                </>
+              )}
           </TransactionDetailsList>
         </TransactionDetails>
       </TransactionInformation>
