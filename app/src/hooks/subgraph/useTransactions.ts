@@ -17,6 +17,7 @@ import {
 } from '@/types/generated/subgraph'
 import { isTransactionHash } from '@/src/utils/tools'
 import differenceInDays from 'date-fns/differenceInDays'
+import { MAX_DAYS_TO_FILTER } from '@/src/constants/misc'
 
 // @todo hardcoded value (need to think about useSWRPage or useSWRInfinite)
 const PAGE_SIZE = 500
@@ -63,7 +64,8 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
     // if the date rage is more than 2 days, abort the query
     if (
       !filters.endTimestamp ||
-      (filters.endTimestamp && differenceInDays(filters.endTimestamp, filters.startTimestamp) > 2)
+      (filters.endTimestamp &&
+        differenceInDays(filters.endTimestamp, filters.startTimestamp) > MAX_DAYS_TO_FILTER)
     ) {
       return
     }

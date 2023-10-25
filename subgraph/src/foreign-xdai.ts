@@ -1,10 +1,6 @@
 import { Address, dataSource, log } from "@graphprotocol/graph-ts";
 import { RelayedMessage } from "../generated/ForeignBridgeErcToNative/ForeignBridgeErcToNative";
-import {
-  XDAITransaction,
-  TransactionExecution,
-  Validator,
-} from "../generated/schema";
+import { XDAITransaction, TransactionExecution } from "../generated/schema";
 import { Transfer } from "../generated/DAI/DAI";
 import { FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS } from "./config/addresses";
 import { processUserRequestForAffirmation } from "./utils/xdai-bridge";
@@ -29,6 +25,11 @@ export function handlerTransfer(event: Transfer): void {
   if (
     !isSameString(FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS, recipient.toHexString())
   ) {
+    return;
+  }
+
+  // discard transfers from 0x
+  if (sender == Address.zero()) {
     return;
   }
 

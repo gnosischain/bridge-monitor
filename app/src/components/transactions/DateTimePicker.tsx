@@ -7,8 +7,8 @@ import { TextfieldCSS } from '@/src/components/form/Textfield'
 import startOfDay from 'date-fns/startOfDay'
 import endOfDay from 'date-fns/endOfDay'
 import addDays from 'date-fns/addDays'
-import isToday from 'date-fns/isToday'
 import isAfter from 'date-fns/isAfter'
+import { MAX_DAYS_TO_FILTER } from '@/src/constants/misc'
 
 const Wrapper = styled.div`
   align-items: start;
@@ -75,7 +75,7 @@ export const DateTimePicker: React.FC<Props> = genericSuspense(
       if (startDate && endDate) return now
 
       // if only startDate is selected, sex max date
-      const maxrange = addDays(startDate, 2)
+      const maxrange = addDays(startDate, MAX_DAYS_TO_FILTER)
       return isAfter(maxrange, now) ? now : maxrange
     }
 
