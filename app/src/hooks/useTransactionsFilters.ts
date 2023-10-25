@@ -8,7 +8,7 @@ export type TransactionFilter = {
   signedBy: string
   executedBy: string
   startTimestamp: Date
-  endTimestamp: Date | null
+  endTimestamp: Date
   bridgeDirection: string
 }
 
@@ -19,7 +19,7 @@ export const useTransactionsFilters = () => {
   const [signedBy, setSignedBy] = useState<string>('')
   const [executedBy, setExecutedBy] = useState<string>('')
   const [startTimestamp, setStartTimestamp] = useState<Date>(getStartOfDay())
-  const [endTimestamp, setEndTimestamp] = useState<Date | null>(getEndOfDay())
+  const [endTimestamp, setEndTimestamp] = useState<Date>(getEndOfDay())
   const [bridgeDirection, setBridgeDirection] = useState<string>('')
 
   const filters: TransactionFilter = {

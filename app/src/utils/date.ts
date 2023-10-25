@@ -100,5 +100,5 @@ export const dayHours: Array<{ key: string; value: number }> = [
 
 export const transformDate = (date: string) => parseInt(date ?? '0') * 1000
 
-export const getStartOfDay = () => startOfDay(sub(new Date(), { days: 1 }))
+export const getStartOfDay = () => startOfDay(new Date())
 export const getEndOfDay = () => endOfDay(new Date())

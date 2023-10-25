@@ -120,7 +120,7 @@ export const Address: React.FC<Props> = ({
         {address ? (
           shortenAddress(address, characters + 2, characters)
         ) : (
-          <Error>Error retrieving address</Error>
+          <Error>Momentarily unknown address</Error>
         )}
       </AddressText>
       {address && copy && (
