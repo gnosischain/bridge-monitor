@@ -7,7 +7,7 @@ import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import { BridgeDirection } from '@/src/components/transactions/TransactionsFilter'
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { msToSeconds } from '@/src/utils/date'
-import { TxsInMemoryFilters, fetchTransactions } from '@/src/utils/transactions'
+import { Transaction, TxsInMemoryFilters, fetchTransactions } from '@/src/utils/transactions'
 import { getValidatorByName } from '@/src/utils/validators'
 import {
   OrderDirection,
@@ -42,15 +42,33 @@ export const useFetchTransactions = (
       : null,
     (a, b, _query, c, _inMemoryFilters) => fetchTransactions(_query, _inMemoryFilters),
   )
+  const [inMemoryTransactions, setInMemoryTransactions] = useState<Array<Transaction>>(data ?? [])
 
-  return { transactions: data ?? [], error, refetch }
+  useEffect(() => {
+    if (data) {
+      setInMemoryTransactions(data)
+    }
+  }, [data])
+
+  const updateInMemoryTransaction = (transaction: Transaction) => {
+    setInMemoryTransactions((txs) =>
+      txs.map((tx) => {
+        if (tx.id === transaction.id) {
+          return transaction
+        }
+        return tx
+      }),
+    )
+  }
+
+  return { transactions: inMemoryTransactions, error, refetch, updateInMemoryTransaction }
 }
 
 export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   const [page, setPage] = useState(1)
   const [query, setQuery] = useState<QueryTransactionsArgs>()
   const [inMemoryFilters, setInMemoryFilters] = useState<TxsInMemoryFilters>({})
-  const { transactions } = useFetchTransactions(inMemoryFilters, query)
+  const { transactions, updateInMemoryTransaction } = useFetchTransactions(inMemoryFilters, query)
 
   useEffect(() => {
     const _where: Transaction_Filter = {
@@ -174,5 +192,6 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
         ? transactions
         : transactions.filter((tx) => tx.transactionStatus == filters.status.toUpperCase()),
     loadMore,
+    updateInMemoryTransaction,
   }
 }

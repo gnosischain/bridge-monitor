@@ -1,4 +1,3 @@
-import { getSupportedNetworks } from '@/src/utils/getSupportedNetworks'
 import {
   Dispatch,
   ReactNode,
@@ -29,6 +28,7 @@ import {
   removeLocalStorageKey,
   setLocalStorageKey,
 } from '@/src/hooks/usePersistedState'
+import { getSupportedNetworks } from '@/src/utils/getSupportedNetworks'
 import { hexToNumber, isValidChain } from '@/src/utils/tools'
 import { RequiredNonNull } from '@/types/utils'
 import { ModalCSS } from '@/src/theme/onBoard'
@@ -97,9 +97,9 @@ export type Web3Context = {
   address: string | null
   appChainId: ChainsValues
   balance?: Record<string, string> | null
-  connectWallet: () => Promise<void> | null
+  connectWallet: () => Promise<WalletState[] | void>
   connectingWallet: boolean
-  disconnectWallet: () => Promise<void> | null
+  disconnectWallet: () => Promise<void>
   getExplorerUrl: (hash: string, network?: ChainsKeys) => string
   isAppConnected: boolean
   isOnboardChangingChain: boolean
@@ -224,13 +224,13 @@ export default function Web3ConnectionProvider({ children }: Props) {
   const handleDisconnectWallet = async () => {
     if (wallet) {
       removeLocalStorageKey(STORAGE_CONNECTED_WALLET)
-      disconnect(wallet)
+      await disconnect(wallet)
     }
   }
 
   const handleConnectWallet = async () => {
     if (window.onboard) {
-      connect()
+      return connect()
     }
   }
 

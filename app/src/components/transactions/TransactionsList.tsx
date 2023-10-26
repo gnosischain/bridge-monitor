@@ -17,9 +17,14 @@ const Empty = styled(NoResultsMessage)`
 interface Props {
   transactions: Transaction[]
   page: number
+  updateInMemoryTransaction: (transaction: Transaction) => void
 }
 
-export const TransactionsList: React.FC<Props> = ({ page, transactions }) => {
+export const TransactionsList: React.FC<Props> = ({
+  page,
+  transactions,
+  updateInMemoryTransaction,
+}) => {
   return (
     <tbody>
       <AnimatePresence>
@@ -27,7 +32,11 @@ export const TransactionsList: React.FC<Props> = ({ page, transactions }) => {
           transactions
             .slice(0, page * ITEMS_PER_PAGE)
             .map((transaction, index) => (
-              <TransactionRow key={`transaction_${index}`} transaction={transaction} />
+              <TransactionRow
+                key={`transaction_${index}`}
+                transaction={transaction}
+                updateInMemoryTransaction={updateInMemoryTransaction}
+              />
             ))
         ) : (
           <tr>

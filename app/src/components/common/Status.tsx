@@ -62,7 +62,7 @@ const Wrapper = styled.div<{ status: TransactionStatus }>`
         `};
 `
 
-interface Props {
+export interface Props {
   onClick?: MouseEventHandler<HTMLButtonElement> | undefined
   status: TransactionStatus
 }

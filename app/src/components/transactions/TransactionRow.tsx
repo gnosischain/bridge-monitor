@@ -1,19 +1,18 @@
-import styled from 'styled-components'
-
-import { motion } from 'framer-motion'
-import { useRouter } from 'next/router'
+import { ArrowUp } from '@/src/components/assets/ArrowUp'
+import { ChevronDown } from '@/src/components/assets/ChevronDown'
 
 import { DateTime } from '@/src/components/assets/DateTime'
-import { ChevronDown } from '@/src/components/assets/ChevronDown'
-import { ArrowUp } from '@/src/components/assets/ArrowUp'
 import { ChainsInitiatorReceiver } from '@/src/components/common/ChainsInitiatorReceiver'
-import { Status as BaseStatus } from '@/src/components/common/Status'
 import { Address } from '@/src/components/token/Address'
 import { TokenWithValue } from '@/src/components/token/TokenWithValue'
+import { ClaimButton, Status } from '@/src/components/transactions/TxStatus'
 import { Validators as BaseValidators } from '@/src/components/transactions/Validators'
 import { Transaction } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'
-import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+
+import { motion } from 'framer-motion'
+import { useRouter } from 'next/router'
+import styled from 'styled-components'
 
 const TD = styled.td`
   --td-padding-vertical: ${({ theme: { common } }) => common.space * 3}px;
@@ -159,16 +158,6 @@ const TR = styled.tr`
   }
 `
 
-const Status = styled(BaseStatus)`
-  margin: auto;
-  display: inline-flex;
-  justify-content: center;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    display: flex;
-  }
-`
-
 const TDChevron = styled(TD)`
   display: none;
 
@@ -193,10 +182,14 @@ const Validators = styled(BaseValidators)`
 
 interface Props {
   transaction: Transaction
+  updateInMemoryTransaction: (transaction: Transaction) => void
 }
 
-export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) => {
-  const { isWalletConnected, isWalletNetworkSupported } = useWeb3Connection()
+export const TransactionRow: React.FC<Props> = ({
+  transaction,
+  updateInMemoryTransaction,
+  ...restProps
+}) => {
   const router = useRouter()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -207,13 +200,6 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
       pathname: `/${transaction.transactionHash}`,
       query: { id: transaction.id },
     })
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleClaim = (e: any) => {
-    e.stopPropagation()
-
-    console.log('claiming')
   }
 
   return (
@@ -278,23 +264,14 @@ export const TransactionRow: React.FC<Props> = ({ transaction, ...restProps }) =
       </TDValidators>
       <TDLastMobile>
         <MobileLabel>Status</MobileLabel>
-        <Status
-          /**
-           * Status behaves "as" button when the status is "Unclaimed",
-           * we need to disable it when it's not possible to claim.
-           * As "disable" is not recognized as a valid attribute by TS,
-           * we need to use the eslint-disable-next-line to ignore the error.
-           **/
-          /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
-          /* @ts-ignore */
-          disabled={!isWalletConnected || !isWalletNetworkSupported}
-          onClick={
-            transaction.transactionStatus === TransactionStatus.Unclaimed
-              ? (e) => handleClaim(e)
-              : undefined
-          }
-          status={transaction.transactionStatus}
-        />
+        {transaction.transactionStatus === TransactionStatus.Unclaimed ? (
+          <ClaimButton
+            transaction={transaction}
+            updateInMemoryTransaction={updateInMemoryTransaction}
+          />
+        ) : (
+          <Status status={transaction.transactionStatus} />
+        )}
         <ViewMore>View More &gt;</ViewMore>
       </TDLastMobile>
       <TDChevron>

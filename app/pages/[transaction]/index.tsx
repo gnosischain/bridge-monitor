@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
 import { Address as BaseAddress } from '@/src/components/token/Address'
+import { ClaimButton as BaseClaimButton } from '@/src/components/transactions/TxStatus'
 import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { TransactionDetailsListItem } from '@/src/components/transaction/TransactionDetailsListItem'
 import { TransactionFooter } from '@/src/components/transaction/TransactionFooter'
@@ -19,7 +20,6 @@ import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'
 import { getChainIconName } from '@/src/utils/icons'
 import { isSameString } from '@/src/utils/tools'
-import { Status } from '@/src/components/common/Status'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 
 const Wrapper = styled.div`
@@ -78,10 +78,16 @@ const TransactionDetailsList = styled.ul`
   padding: 0;
 `
 
+const ClaimButton = styled(BaseClaimButton)`
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    display: inline-block;
+  }
+`
+
 const Bridges: NextPage = ({ ...restProps }) => {
   const router = useRouter()
   const transactionId = String(router.query?.id)
-  const { transactions } = useFetchTransactions(
+  const { transactions, updateInMemoryTransaction } = useFetchTransactions(
     {},
     {
       // transactionId is txHash in on the network that originated the bridge
@@ -146,7 +152,9 @@ const Bridges: NextPage = ({ ...restProps }) => {
           receiverNetworkIcon={getChainIconName(currentTx.receiverNetwork)}
           timestampExecution={currentTx.execution?.timestamp ?? 0}
           timestampStarted={currentTx.timestamp ?? 0}
+          transaction={currentTx}
           transactionStatus={currentTx.transactionStatus}
+          updateInMemoryTransaction={updateInMemoryTransaction}
         />
         <TransactionDetails>
           <TransactionDetailsList>
@@ -186,7 +194,7 @@ const Bridges: NextPage = ({ ...restProps }) => {
                   description="The tokens are in the user's address."
                   title="Bridging is complete"
                   transactionStatus={TransactionStatus.Completed}
-                  waiting={currentTx.timestamp ? false : true}
+                  waiting={!currentTx.timestamp}
                 >
                   <ul>
                     <TransactionRowDetails
@@ -226,9 +234,9 @@ const Bridges: NextPage = ({ ...restProps }) => {
                     title="Ready to claim"
                     transactionStatus={TransactionStatus.Unclaimed}
                   >
-                    <Status
-                      onClick={() => console.log('claim')}
-                      status={TransactionStatus.Unclaimed}
+                    <ClaimButton
+                      transaction={currentTx}
+                      updateInMemoryTransaction={updateInMemoryTransaction}
                     />
                   </TransactionDetailsListItem>
                 </>

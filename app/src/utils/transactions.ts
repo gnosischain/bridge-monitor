@@ -1,3 +1,4 @@
+import { getForeignTransactions } from '@/src/utils/localTransactions'
 import { fromSubgraphTimestamp } from './date'
 import { chainsConfig } from '../constants/config/chains'
 import { Chains } from '../constants/config/types'
@@ -182,7 +183,14 @@ export const unifyTransactions = async (
       where: { id_in: missingForeignIds },
     })) as TransactionSG[]
 
-    foreignTxs = [...foreignTxs, ...missingTxs]
+    const localForeignTxs = getForeignTransactions()
+    const persistedTxs = localForeignTxs
+      ? missingForeignIds
+          .map((missingForeignId) => localForeignTxs[missingForeignId])
+          .filter((tx) => tx)
+      : []
+
+    foreignTxs = [...foreignTxs, ...persistedTxs, ...missingTxs]
   }
 
   // 1. initiate with homeTxs.
