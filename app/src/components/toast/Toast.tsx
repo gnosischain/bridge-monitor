@@ -10,6 +10,7 @@ type ToastComponentProps = {
   t: Toast
   explorerUrl?: string
   message?: string
+  title?: string
 }
 
 type ToastTypes = {
@@ -19,31 +20,31 @@ type ToastTypes = {
 }
 
 const ToastTypes: ToastTypes = {
-  [ToastStates.waiting]: ({ explorerUrl, message, t }: ToastComponentProps) => (
+  [ToastStates.waiting]: ({ explorerUrl, message, t, title }: ToastComponentProps) => (
     <ToastComponent
       icon={<Spinner />}
       link={explorerUrl ? { url: explorerUrl, text: 'Click to verify on explorer' } : undefined}
       message={message ? message : undefined}
       t={t}
-      title="Transaction Sent"
+      title={title ? title : 'Transaction Sent'}
     />
   ),
-  [ToastStates.failed]: ({ explorerUrl, message, t }: ToastComponentProps) => (
+  [ToastStates.failed]: ({ explorerUrl, message, t, title }: ToastComponentProps) => (
     <ToastComponent
       icon={<FailedIcon />}
       link={explorerUrl ? { url: explorerUrl, text: 'Click to see on explorer' } : undefined}
       message={message ? message : undefined}
       t={t}
-      title="Transaction Failed"
+      title={title ? title : 'Transaction Failed'}
     />
   ),
-  [ToastStates.success]: ({ explorerUrl, message, t }: ToastComponentProps) => (
+  [ToastStates.success]: ({ explorerUrl, message, t, title }: ToastComponentProps) => (
     <ToastComponent
       icon={<SuccessIcon />}
       link={explorerUrl ? { url: explorerUrl, text: 'Click to verify on explorer' } : undefined}
       message={message ? message : undefined}
       t={t}
-      title="Transaction confirmed"
+      title={title ? title : 'Transaction confirmed'}
     />
   ),
 }
@@ -52,13 +53,15 @@ const notify = ({
   explorerUrl,
   id,
   message,
+  title,
   type,
 }: {
   explorerUrl?: string
   message?: string
+  title?: string
   type: ToastStates
   id?: string | undefined
-}) => toast.custom((t: Toast) => ToastTypes[type]({ t, explorerUrl, message }), { id })
+}) => toast.custom((t: Toast) => ToastTypes[type]({ title, t, explorerUrl, message }), { id })
 
 const Toast = () => (
   <Toaster

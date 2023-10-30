@@ -33,7 +33,7 @@ type TransactionsTableProps = {
 }
 
 const TransactionsTable: React.FC<TransactionsTableProps> = ({ bridge, filters }) => {
-  const { loadMore, transactions } = useTransactionsWithFilters(filters)
+  const { loadMore, transactions, updateInMemoryTransaction } = useTransactionsWithFilters(filters)
   const [page, setPage] = useState(1)
   const totalPages = Math.ceil(transactions.length / ITEMS_PER_PAGE)
   const { validators } = useFetchValidators(bridge)
@@ -42,7 +42,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ bridge, filters }
     <>
       <Table empty={transactions.length === 0}>
         {transactions.length > 0 && <TransactionHeader validators={validators} />}
-        <TransactionsList page={page} transactions={transactions} />
+        <TransactionsList
+          page={page}
+          transactions={transactions}
+          updateInMemoryTransaction={updateInMemoryTransaction}
+        />
       </Table>
       {page < totalPages && transactions.length > ITEMS_PER_PAGE && (
         <Actions>
@@ -59,7 +63,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ bridge, filters }
         </Actions>
       )}
       <ListBottomInformation
-        endDate={filters.endTimestamp.toLocaleDateString()}
+        endDate={filters.endTimestamp?.toLocaleDateString() || 'undefined'}
         startDate={filters.startTimestamp.toLocaleDateString()}
         transactionsNumber={transactions.length}
       />

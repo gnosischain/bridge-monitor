@@ -13,19 +13,19 @@ import {
   TransactionValidation,
   Validator,
 } from "../generated/schema";
+
 import {
-  parseAMBMessageHash,
-  isOmniBridgeUsage,
-  parseAMBTransactionInput,
+  mockAMBValidators,
+  AMB_telepathyAddress,
+} from "./utils/mock-validators";
+import {
   isAffirmationFromOmnibridge,
-  parseAMBTransactionInputForTelepathy,
-  isFromOmniBridgeUsage,
-} from "./utils/message";
-import { debug_addValidatorsManually, telepathyAddress } from "./utils";
-import {
+  isOmniBridgeKnownMediator,
+  isOmniBridgeUsage,
+  getMessageIdFromTelepathySingedAffirmation,
   processOmniBridgeTokenBridgingInitiatedEvent,
   processOmniBridgeTokensBridged,
-} from "./utils/omnibridge";
+} from "./utils/omni-bridge";
 
 const MAINNET_OMNI_BRIDGE_HOME_MEDIATOR = "88ad09518695c6c3712AC10a214bE5109a655671".toLowerCase();
 
@@ -96,7 +96,7 @@ export function handlerSignedForUserRequest(event: SignedForUserRequest): void {
   }
 
   // update transaction
-  const messageId = parseAMBMessageHash(message);
+  const messageId = message.slice(0, 66);
   let transaction = AMBTransaction.load(messageId);
   if (!transaction) {
     log.error(
@@ -109,7 +109,7 @@ export function handlerSignedForUserRequest(event: SignedForUserRequest): void {
   transaction.save();
 
   // load validator
-  debug_addValidatorsManually();
+  mockAMBValidators();
   let validator = Validator.load(signerString);
   if (!validator) {
     log.error(
@@ -138,7 +138,7 @@ export function handlerCollectedSignatures(event: CollectedSignatures): void {
   const messageHash = event.params.messageHash;
   const contract = HomeAMB.bind(event.address);
   const message = contract.message(messageHash).toHexString(); // can be decoded with HOMEAMB message method
-  const messageId = parseAMBMessageHash(message);
+  const messageId = message.slice(0, 66);
   const timestamp = event.block.timestamp;
   const executorId = event.params.authorityResponsibleForRelay; // validator address
 
@@ -159,7 +159,7 @@ export function handlerCollectedSignatures(event: CollectedSignatures): void {
   transaction.save();
 
   // load validator
-  debug_addValidatorsManually();
+  mockAMBValidators();
   const validator = Validator.load(executorId.toHexString());
   if (!validator) {
     log.error(
@@ -185,8 +185,10 @@ export function handlerCollectedSignatures(event: CollectedSignatures): void {
 // When operation is initiated in foreign > Affirmation events are collected
 //-------------------------
 
-// 1. SignedForAffirmation.
-// A user initiated a bridge from Foreign to Home.
+// 1. A user initiated a bridge from Foreign to Home.
+// >> Foreign
+
+// 2. SignedForAffirmation.
 // This is the first event the home is aware of.
 // It is triggered when a validator signs an affirmation (saying the operation is valid).
 export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
@@ -205,9 +207,9 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
 
   // if signer is Telepathy, txData has to be processed with different indexes
   const messageId =
-    signerString == telepathyAddress
-      ? parseAMBTransactionInputForTelepathy(event.receipt)
-      : parseAMBTransactionInput(transactionData);
+    signerString == AMB_telepathyAddress
+      ? getMessageIdFromTelepathySingedAffirmation(event.receipt)
+      : `0x${transactionData.slice(138, 202)}`;
 
   if (messageId.length == 0) {
     log.error(`handlerSignedForAffirmation: MessageId is null - hash: {}`, [
@@ -229,7 +231,7 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
   }
 
   // load validator
-  debug_addValidatorsManually();
+  mockAMBValidators();
   let validator = Validator.load(signerString);
   if (!validator) {
     log.error(
@@ -254,7 +256,7 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
   validator.save();
 }
 
-// 2. AffirmationCompleted.
+// 3. AffirmationCompleted.
 // This event is triggered when after threshold of validators signatures is reached.
 // and the funds are minted on home side.
 // NOTE: We are getting receiver information by parsing the event TokensBridged from the OmnibridgeMediator.
@@ -270,7 +272,7 @@ export function handlerAffirmationCompleted(event: AffirmationCompleted): void {
 
   // There are some operations that are not for an ERC20 bridge.
   // We need to filter them out as they are out of scope.
-  if (!isFromOmniBridgeUsage(executor, sender)) {
+  if (!isOmniBridgeKnownMediator(executor, sender)) {
     return;
   }
 

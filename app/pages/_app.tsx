@@ -18,7 +18,11 @@ import { TransactionNotificationProvider } from '@/src/providers/TransactionNoti
 import GeneralContextProvider from '@/src/providers/generalProvider'
 import ThemeProvider from '@/src/providers/themeProvider'
 import { intlErrorHandler } from '@/src/utils/intlErrorHandler'
+import TooltipConfig from '@/src/components/tooltip/TooltipConfig'
+
 import 'sanitize.css'
+import 'react-tooltip/dist/react-tooltip.css'
+import 'react-datepicker/dist/react-datepicker.css'
 
 const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3ConnectionProvider'), {
   ssr: false,
@@ -62,10 +66,11 @@ export default function App({ Component, messages, pageProps }: AppPropsWithLayo
                       {getLayout(<Component {...pageProps} />)}
                     </GeneralContextProvider>
                     <Footer />
+                    <Toast />
+                    <TooltipConfig />
                   </TokenIconsContextProvider>
                 </TransactionNotificationProvider>
               </SafeSuspense>
-              <Toast />
             </ThemeProvider>
           </Web3ConnectionProvider>
         </SWRConfig>

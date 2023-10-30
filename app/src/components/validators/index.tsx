@@ -52,7 +52,7 @@ const Chart = styled(TransactionsSigned)`
 `
 
 const ChartPlaceholder = styled(SkeletonLoading)`
-  ${ChartCSS}
+  ${ChartCSS};
   border-radius: 4px;
   height: 326px;
 `

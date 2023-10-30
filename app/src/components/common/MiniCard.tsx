@@ -1,7 +1,6 @@
 import styled from 'styled-components'
 
-import { Tooltip as TooltipIcon } from '@/src/components/assets/Tooltip'
-import { Tooltip } from '@/src/components/common/Tooltip'
+import { Tooltip } from '@/src/components/tooltip/Tooltip'
 
 export const MiniCard = styled.div<{ dark?: boolean }>`
   background: ${({ dark, theme: { colors } }) => (dark ? colors.darkestGrey : colors.darkGrey)};
@@ -39,11 +38,7 @@ export const MiniCardTitle: React.FC<{ title: string; tooltip?: string }> = ({
   return (
     <MiniCardTitleWrapper {...restProps}>
       <Title>{title}</Title>
-      {tooltip && (
-        <Tooltip text={tooltip}>
-          <TooltipIcon />
-        </Tooltip>
-      )}
+      {tooltip && <Tooltip content={tooltip} />}
     </MiniCardTitleWrapper>
   )
 }

@@ -1,7 +1,9 @@
 import styled from 'styled-components'
 
 import { Address } from '@/src/components/token/Address'
+import { MiniCardTitle } from '@/src/components/common/MiniCard'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+import { ChainsKeys } from '@/src/constants/config/types'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -14,14 +16,33 @@ const Wrapper = styled.div`
 
 interface Props {
   address: string
+  isNative: boolean | undefined
+  network?: ChainsKeys
+  tooltip: string | undefined
 }
 
-export const TokenAddress: React.FC<Props> = ({ address, ...restProps }) => {
+interface NativeProps extends Props {
+  isNative: boolean
+  tooltip: string
+}
+
+export const TokenAddress: React.FC<Props | NativeProps> = ({
+  address,
+  isNative,
+  network,
+  tooltip,
+  ...restProps
+}) => {
   const { getExplorerUrl } = useWeb3Connection()
 
   return (
     <Wrapper {...restProps}>
-      <span>Token address</span> <Address address={address} copy link={getExplorerUrl(address)} />
+      <span>Token address</span>
+      {isNative ? (
+        <MiniCardTitle title="Native token" tooltip={tooltip} />
+      ) : (
+        <Address address={address} characters={6} copy link={getExplorerUrl(address, network)} />
+      )}
     </Wrapper>
   )
 }

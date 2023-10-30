@@ -107,6 +107,7 @@ export const Transactions: React.FC = () => {
           onBridgeDirectionChange={setBridgeDirection}
           onExecutedByChange={setExecutedBy}
           onHashChange={setHash}
+          onResetFilters={resetFilters}
           onSignedByChange={setSignedBy}
           onStatusChange={setStatus}
         />

@@ -1,41 +1,67 @@
+import endpoints from '@/src/constants/config/subgraph-endpoints.json'
 import { DocumentNode } from 'graphql'
 import { GraphQLClient } from 'graphql-request'
+import memoize from 'lodash/memoize'
 
-import endpoints from '@/src/constants/config/subgraph-endpoints.json'
-import { Chains } from '@/src/constants/config/types'
-
-/**
- * @todo this was developed in a way that there must be 1 sg deploy per network
- * but in the case of the Monitoring system we might have to use multiples SGs
- * from different networks, so the relation network -> sg, does not apply
- * we should refactor this logic
- */
-const API_ENDPOINTS_KEYS = endpoints[Chains.mainnet]
-const API_ENDPOINTS_LIST = Object.values(endpoints[Chains.mainnet])
-
-export enum SubgraphName {
-  BridgeMonitorForeign = 'bridge-monitor-foreign',
-  BridgeMonitorHome = 'bridge-monitor-home',
-}
-
-const initGraphQLClients = (apiURLs: string[]) => {
-  const clients: Record<string, GraphQLClient> = {}
-  apiURLs.forEach((apiUrl) => {
-    clients[apiUrl] = new GraphQLClient(apiUrl)
-  })
-  return clients
-}
-const graphqlClients = initGraphQLClients(API_ENDPOINTS_LIST)
-
-const getGraphqlFetcher =
-  (apiURL: string) =>
-  <Response, Variables = void>(query: DocumentNode, variables?: Variables) => {
-    if (!graphqlClients[apiURL]) throw new Error('graphql endpoint not initialized')
-    const fetcher = graphqlClients[apiURL]
-    return fetcher.request<Response>(query, variables ?? {})
+const getSubgraphEnvVariables = () => {
+  if (!process.env.NEXT_PUBLIC_SUBGRAPH_ORGANIZATION) {
+    throw Error('Missing env var NEXT_PUBLIC_SUBGRAPH_ORGANIZATION')
   }
 
-export const getHomeGraphqlClient = () =>
-  getGraphqlFetcher(API_ENDPOINTS_KEYS[SubgraphName.BridgeMonitorHome])
-export const getForeignGraphqlClient = () =>
-  getGraphqlFetcher(API_ENDPOINTS_KEYS[SubgraphName.BridgeMonitorForeign])
+  const ORGANIZATION = process.env.NEXT_PUBLIC_SUBGRAPH_ORGANIZATION
+  const SUFFIX = process.env.NEXT_PUBLIC_SUBGRAPH_SUFFIX
+    ? process.env.NEXT_PUBLIC_SUBGRAPH_SUFFIX
+    : ''
+
+  return { ORGANIZATION, SUFFIX }
+}
+
+const { ORGANIZATION, SUFFIX } = getSubgraphEnvVariables()
+
+type ChainsPairs = keyof typeof endpoints
+
+const getEndpointsByChain = (chainsPair: ChainsPairs) => {
+  const endpointsByChainPair = endpoints[chainsPair]
+
+  if (!endpointsByChainPair) {
+    throw new Error(`No endpoints found for chain pair ${chainsPair}`)
+  }
+
+  return Object.fromEntries(
+    Object.entries(endpoints[chainsPair]).map(([name, endpoint]) => {
+      // the org registered in The Graph
+      const baseUrl = `${endpoint.replace('{{org}}', ORGANIZATION)}`
+
+      // if defined,
+      // the suffix is appended with a hyphen at the end of the endpoint
+      const finalEndpoint = SUFFIX ? `${baseUrl}-${SUFFIX}` : baseUrl
+
+      return [name, finalEndpoint]
+    }),
+  )
+}
+
+export enum SubgraphName {
+  BridgeMonitorForeign = 'foreign',
+  BridgeMonitorHome = 'home',
+}
+
+const getGraphqlFetcher =
+  (gqlClient: GraphQLClient) =>
+  <Response, Variables = void>(query: DocumentNode, variables?: Variables) => {
+    return gqlClient.request<Response>(query, variables ?? {})
+  }
+
+const getGraphqlClient = (chainsPair: ChainsPairs, type: SubgraphName) => {
+  const apiEndpoints = getEndpointsByChain(chainsPair)
+  const gqlClient = new GraphQLClient(apiEndpoints[type])
+  return getGraphqlFetcher(gqlClient)
+}
+
+export const getHomeGraphqlClient = memoize((chainsPair: ChainsPairs = '100:1') =>
+  getGraphqlClient(chainsPair, SubgraphName.BridgeMonitorHome),
+)
+
+export const getForeignGraphqlClient = memoize((chainsPair: ChainsPairs = '100:1') =>
+  getGraphqlClient(chainsPair, SubgraphName.BridgeMonitorForeign),
+)

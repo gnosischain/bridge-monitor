@@ -28,8 +28,8 @@ const Placeholder = styled.div<{ dimensions: string }>`
 
 interface Props {
   dimensions?: number
-  symbol: string
   iconSource?: string
+  symbol: string
 }
 
 export const TokenIcon: React.FC<Props> = ({

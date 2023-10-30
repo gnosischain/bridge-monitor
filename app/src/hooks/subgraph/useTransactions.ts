@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { isAddress } from '@ethersproject/address'
-import { isHexString } from '@ethersproject/bytes'
 import useSWR from 'swr'
 
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import { BridgeDirection } from '@/src/components/transactions/TransactionsFilter'
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { msToSeconds } from '@/src/utils/date'
-import { TxsInMemoryFilters, fetchTransactions } from '@/src/utils/transactions'
+import { Transaction, TxsInMemoryFilters, fetchTransactions } from '@/src/utils/transactions'
 import { getValidatorByName } from '@/src/utils/validators'
 import {
   OrderDirection,
@@ -16,6 +15,9 @@ import {
   Transaction_Filter,
   Transaction_OrderBy,
 } from '@/types/generated/subgraph'
+import { isTransactionHash } from '@/src/utils/tools'
+import differenceInDays from 'date-fns/differenceInDays'
+import { MAX_DAYS_TO_FILTER } from '@/src/constants/misc'
 
 // @todo hardcoded value (need to think about useSWRPage or useSWRInfinite)
 const PAGE_SIZE = 500
@@ -40,26 +42,51 @@ export const useFetchTransactions = (
       : null,
     (a, b, _query, c, _inMemoryFilters) => fetchTransactions(_query, _inMemoryFilters),
   )
+  const [inMemoryTransactions, setInMemoryTransactions] = useState<Array<Transaction>>(data ?? [])
 
-  return { transactions: data ?? [], error, refetch }
+  useEffect(() => {
+    if (data) {
+      setInMemoryTransactions(data)
+    }
+  }, [data])
+
+  const updateInMemoryTransaction = (transaction: Transaction) => {
+    setInMemoryTransactions((txs) =>
+      txs.map((tx) => {
+        if (tx.id === transaction.id) {
+          return transaction
+        }
+        return tx
+      }),
+    )
+  }
+
+  return { transactions: inMemoryTransactions, error, refetch, updateInMemoryTransaction }
 }
-
-export const isTransactionHash = (hash: string) => isHexString(hash) && hash.length === 66
 
 export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   const [page, setPage] = useState(1)
   const [query, setQuery] = useState<QueryTransactionsArgs>()
   const [inMemoryFilters, setInMemoryFilters] = useState<TxsInMemoryFilters>({})
-  const { transactions } = useFetchTransactions(inMemoryFilters, query)
+  const { transactions, updateInMemoryTransaction } = useFetchTransactions(inMemoryFilters, query)
 
   useEffect(() => {
     const _where: Transaction_Filter = {
-      and: [{ bridgeName_not: null }],
+      and: [],
     }
 
     const inMemoryFiltersAux: TxsInMemoryFilters = { validator: undefined, executor: undefined }
 
     let updated = false
+
+    // if the date rage is more than 2 days, abort the query
+    if (
+      !filters.endTimestamp ||
+      (filters.endTimestamp &&
+        differenceInDays(filters.endTimestamp, filters.startTimestamp) > MAX_DAYS_TO_FILTER)
+    ) {
+      return
+    }
 
     if (filters.hash) {
       const isTxHash = isTransactionHash(filters.hash)
@@ -93,8 +120,6 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
       if (filters.signedBy.includes('All')) {
         inMemoryFiltersAux['validator'] = undefined
       } else {
-        // @todo we might need to convert the validator name -> address in a diff place
-        // @todo as we can not differentiate the network we will check in both validators objects
         const bridgeValue = filters.bridge.toUpperCase() as BridgesValues
         const validator = getValidatorByName(filters.signedBy, bridgeValue)
         if (validator) {
@@ -113,11 +138,11 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
         }
       }
     }
-    if (filters.startTimestamp) {
+    if (!filters.hash && filters.startTimestamp) {
       _where.and?.push({ timestamp_gte: msToSeconds(filters.startTimestamp.getTime()) })
       updated = true
     }
-    if (filters.endTimestamp) {
+    if (!filters.hash && filters.endTimestamp) {
       _where.and?.push({ timestamp_lte: msToSeconds(filters.endTimestamp.getTime()) })
       updated = true
     }
@@ -162,9 +187,11 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   return {
     page,
     setPage,
-    transactions: filters.status
-      ? transactions.filter((tx) => tx.transactionStatus == filters.status.toUpperCase())
-      : transactions,
+    transactions:
+      !filters.status || filters.status == 'All Status'
+        ? transactions
+        : transactions.filter((tx) => tx.transactionStatus == filters.status.toUpperCase()),
     loadMore,
+    updateInMemoryTransaction,
   }
 }

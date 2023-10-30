@@ -1,42 +1,17 @@
 specVersion: 0.0.4
 description: Subgraph for the Bridge Monitoring System
-repository: https://github.com/BootNodeDev/bridge-monitor-subgraph
+repository: https://github.com/BootNodeDev/bridge-monitor
 schema:
   file: ./schema.graphql
 dataSources:
-  # - name: ForeignBridgeErcToNative
-  #   kind: ethereum/contract
-  #   network: {{network}} # mainnet | goerli
-  #   source:
-  #     address: '{{ForeignBridgeErcToNative}}'
-  #     abi: ForeignBridgeErcToNative
-  #     startBlock: {{startBlockForeignBridgeErcToNative}}
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.7
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - Transaction
-  #       - XDAITransaction
-  #       - TransactionValidation
-  #       - TransactionExecution
-  #       - Validator
-  #     abis:
-  #       - name: ForeignBridgeErcToNative
-  #         file: ./abis/ForeignBridgeErcToNative.json
-  #     eventHandlers:
-  #       - event: RelayedMessage(address,uint256,bytes32)
-  #         handler: handlerRelayedMessage
-  #       - event: UserRequestForAffirmation(address,uint256)
-  #         handler: handlerUserRequestForAffirmation
-  #     file: ./src/foreign-xdai.ts
+  ##### XDAI #####
   # - name: XDAIBridgeValidators
   #   kind: ethereum/contract
-  #   network: {{network}} # mainnet | goerli
+  #   network: { { network } } # mainnet | goerli
   #   source:
-  #     address: '{{XDAIBridgeValidators}}'
+  #     address: "{{XDAIBridgeValidators}}"
   #     abi: BridgeValidators
-  #     startBlock: {{startBlockXDAIBridgeValidators}}
+  #     startBlock: { { startBlockXDAIBridgeValidators } }
   #   mapping:
   #     kind: ethereum/events
   #     apiVersion: 0.0.7
@@ -52,35 +27,61 @@ dataSources:
   #       - event: ValidatorRemoved(indexed address)
   #         handler: handlerValidatorRemoved
   #     file: ./src/bridge-validators/xdai-validators.ts
-  # - name: DAI
-  #   kind: ethereum/contract
-  #   network: { { network } } # mainnet | goerli
-  #   source:
-  #     address: "{{DAI}}"
-  #     abi: DAI
-  #     startBlock: { { startDAI } }
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.7
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - Transaction
-  #       - XDAITransaction
-  #       - TransactionValidation
-  #       - TransactionExecution
-  #       - Validator
-  #     abis:
-  #       - name: DAI
-  #         file: ./abis/DAI.json
-  #     eventHandlers:
-  #       - event: Transfer(indexed address,indexed address,uint256)
-  #         handler: handlerTransfer
-  #     file: ./src/foreign-xdai.ts
+  - name: DAI
+    kind: ethereum/contract
+    network: {{network}} # mainnet | goerli
+    source:
+      address: "{{DAI}}"
+      abi: DAI
+      startBlock: {{startDAI}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Transaction
+        - XDAITransaction
+        - TransactionValidation
+        - TransactionExecution
+        - Validator
+      abis:
+        - name: DAI
+          file: ./abis/DAI.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handlerTransfer
+          receipt: true
+      file: ./src/foreign-xdai.ts
+  - name: ForeignBridgeErcToNative
+    kind: ethereum/contract
+    network: {{network}} # mainnet | goerli
+    source:
+      address: "{{ForeignBridgeErcToNative}}"
+      abi: ForeignBridgeErcToNative
+      startBlock: {{startBlockForeignBridgeErcToNative}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Transaction
+        - XDAITransaction
+        - TransactionValidation
+        - TransactionExecution
+        - Validator
+      abis:
+        - name: ForeignBridgeErcToNative
+          file: ./abis/ForeignBridgeErcToNative.json
+      eventHandlers:
+        - event: RelayedMessage(address,uint256,bytes32)
+          handler: handlerRelayedMessage
+      file: ./src/foreign-xdai.ts
+  ##### AMB #####
   - name: AMBBridgeValidators
     kind: ethereum/contract
     network: {{network}} # mainnet | goerli
     source:
-      address: '{{AMBBridgeValidators}}'
+      address: "{{AMBBridgeValidators}}"
       abi: BridgeValidators
       startBlock: {{startBlockAMBBridgeValidators}}
     mapping:
@@ -102,7 +103,7 @@ dataSources:
     kind: ethereum/contract
     network: {{network}} # mainnet or goerli
     source:
-      address: '{{ForeignAMB}}'
+      address: "{{ForeignAMB}}"
       abi: ForeignAMB
       startBlock: {{startBlockForeignAMB}}
     mapping:
@@ -126,3 +127,6 @@ dataSources:
           handler: handlerRelayedMessage
           receipt: true
       file: ./src/foreign-amb.ts
+
+
+

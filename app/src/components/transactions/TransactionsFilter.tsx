@@ -1,6 +1,5 @@
-import { isTransactionHash } from '@/src/hooks/subgraph/useTransactions'
 import { isAddress } from '@ethersproject/address'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { HTMLAttributes, useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { TextfieldStatus } from '@/src/components/form/Textfield'
 import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
@@ -9,6 +8,7 @@ import FilterDropdown from '@/src/components/filters/FilterDropdown'
 import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
 import { TransactionStatus } from '@/types/generated/subgraph'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
+import { isTransactionHash } from '@/src/utils/tools'
 
 const Wrapper = styled.div`
   background: ${({ theme: { gradients } }) => gradients.gray};
@@ -20,7 +20,7 @@ const Wrapper = styled.div`
     ${({ theme: { common } }) => common.space * 2}px;
   row-gap: ${({ theme: { common } }) => common.space}px;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     grid-template-columns: 1fr 1fr 1fr;
 
     &:first-child {
@@ -28,7 +28,7 @@ const Wrapper = styled.div`
     }
   }
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     column-gap: ${({ theme: { common } }) => common.space * 4}px;
     grid-template-columns: 2fr 1fr 1fr 1fr 1fr 100px;
     row-gap: ${({ theme: { common } }) => common.space * 2}px;
@@ -53,21 +53,21 @@ const ResetButton = styled.button`
   align-self: end;
   background-color: transparent;
   border: none;
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.textColor};
   cursor: pointer;
   font-family: ${({ theme: { fonts } }) => fonts.family};
   font-size: 1.3rem;
-  font-weight: 300;
+  font-weight: 400;
   height: 36px;
   letter-spacing: 0.5px;
-  opacity: 0.5;
-  text-align: right;
+  opacity: 0.9;
+  text-align: center;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     grid-column: auto / span 3;
   }
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     grid-column: auto;
   }
 
@@ -75,15 +75,19 @@ const ResetButton = styled.button`
     color: ${({ theme: { colors } }) => colors.warning};
     opacity: 1;
   }
-`
 
-type Props = {
+  &:active {
+    opacity: 0.7;
+  }
+`
+interface Props extends HTMLAttributes<HTMLDivElement> {
   bridge: string
-  onHashChange: (value: string) => void
-  onStatusChange: (value: string) => void
-  onSignedByChange: (value: string) => void
-  onExecutedByChange: (value: string) => void
   onBridgeDirectionChange: (value: string) => void
+  onExecutedByChange: (value: string) => void
+  onHashChange: (value: string) => void
+  onResetFilters: () => void
+  onSignedByChange: (value: string) => void
+  onStatusChange: (value: string) => void
 }
 
 export enum BridgeDirection {
@@ -111,6 +115,7 @@ export const TransactionsFilter: React.FC<Props> = genericSuspense(
     onBridgeDirectionChange,
     onExecutedByChange,
     onHashChange,
+    onResetFilters,
     onSignedByChange,
     onStatusChange,
     ...restProps
@@ -132,20 +137,9 @@ export const TransactionsFilter: React.FC<Props> = genericSuspense(
     const [resetFields, setResetFields] = useState<boolean>(false)
 
     const resetFilters = useCallback(() => {
-      onStatusChange(statusOptions[0])
-      onSignedByChange(validatorsOptions[0])
-      onExecutedByChange(validatorsOptions[0])
-      onBridgeDirectionChange(bridgeDirectionOptions[0])
+      onResetFilters()
       setResetFields(true)
-    }, [
-      bridgeDirectionOptions,
-      onBridgeDirectionChange,
-      onExecutedByChange,
-      onSignedByChange,
-      onStatusChange,
-      statusOptions,
-      validatorsOptions,
-    ])
+    }, [onResetFilters])
 
     const [error, setError] = useState<string>('')
     const handleHashChange = (value: string) => {
@@ -163,7 +157,7 @@ export const TransactionsFilter: React.FC<Props> = genericSuspense(
     return (
       <Wrapper {...restProps}>
         <Column>
-          <Label htmlFor="Search">Search transactions</Label>
+          <Label htmlFor="search">Search transactions</Label>
           <SearchDebounceInput
             onChange={handleHashChange}
             onEnterValue={() => setResetFields(false)}
@@ -212,8 +206,8 @@ export const TransactionsFilter: React.FC<Props> = genericSuspense(
       </Wrapper>
     )
   },
-  ({ ...restProps }) => (
-    <Wrapper {...restProps}>
+  ({ className }) => (
+    <Wrapper className={className}>
       {Array.from({ length: 5 }).map((item, index) => (
         <Column key={index}>
           <SkeletonLoading style={{ height: '21px', width: '40%' }} />

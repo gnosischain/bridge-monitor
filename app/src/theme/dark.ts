@@ -3,7 +3,6 @@
 
 const borderColor = 'rgba(250,250,250,0.2)'
 const darkGray = 'rgb(10, 25, 50)'
-const componentBackgroundColor = 'rgba(13, 2, 2, 0.85)'
 
 const primary = '#3E6957'
 const primaryDark = '#133629'
@@ -74,7 +73,6 @@ export const dark = {
   colors: {
     black: black,
     borderColor: borderColor,
-    componentBackgroundColor: componentBackgroundColor,
     cream: cream,
     creamDark: creamDark,
     creamLight: creamLight,
@@ -152,11 +150,10 @@ export const dark = {
     borderColor: borderColor,
   },
   onBoard: {
-    backgroundColor: componentBackgroundColor,
+    backgroundColor: darkGrey,
+    borderColor: 'transparent',
     color: textColor,
-    borderRadius: '5px',
-    borderColor: borderColor,
-    sidebarBackgroundColor: 'rgb(235, 235, 237)',
+    sidebarBackgroundColor: darkestGrey2,
   },
   toast: {
     backgroundColor: primary,

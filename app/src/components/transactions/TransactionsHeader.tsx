@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-import { Tooltip } from '@/src/components/common/Tooltip'
+import { Tooltip } from '@/src/components/tooltip/Tooltip'
 import { Validator } from '@/src/utils/validators'
 
 const THead = styled.thead`
@@ -71,7 +71,7 @@ export const TransactionHeader: React.FC<Props> = ({ validators }) => {
         <THValidators className="validators">
           <ValidatorNameWrapper>
             {validators.map((validator, index) => (
-              <Tooltip key={`validator_column_${index}`} text={validator.name}>
+              <Tooltip content={validator.name} key={`validator_column_${index}`}>
                 <ValidatorName>{validator.shortName.toUpperCase()}</ValidatorName>
               </Tooltip>
             ))}

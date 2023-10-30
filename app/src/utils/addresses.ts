@@ -20,7 +20,7 @@ export const addresses: {
       abi: foreignOMNIMediator,
     },
   },
-  goerli: {
+  chiado: {
     XDAI: { address: '', abi: foreignXDAI },
     OMNI: { address: '', abi: foreignOMNIMediator },
   },
