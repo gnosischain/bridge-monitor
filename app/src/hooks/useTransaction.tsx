@@ -10,7 +10,9 @@ export type QueryOptions = {
   refetchInterval: number
 }
 
-export default function useTransaction() {
+export default function useTransaction({
+  skipConnectionCheck,
+}: { skipConnectionCheck?: boolean } = {}) {
   const { isAppConnected } = useWeb3Connection()
   const {
     notifyRejectSignature,
@@ -41,10 +43,11 @@ export default function useTransaction() {
 
   return useCallback(
     async (methodToCall: () => Promise<ContractTransaction>) => {
-      if (!isAppConnected) {
+      if (!skipConnectionCheck && !isAppConnected) {
         console.error('App is not connected')
         return null
       }
+
       try {
         notifyWaitingForSignature()
         const receipt = await methodToCall()
@@ -63,6 +66,12 @@ export default function useTransaction() {
         return null
       }
     },
-    [isAppConnected, notifyWaitingForSignature, waitForTxExecution, notifyRejectSignature],
+    [
+      skipConnectionCheck,
+      isAppConnected,
+      notifyWaitingForSignature,
+      waitForTxExecution,
+      notifyRejectSignature,
+    ],
   )
 }

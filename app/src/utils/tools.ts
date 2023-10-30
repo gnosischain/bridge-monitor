@@ -1,3 +1,6 @@
+import { Chains, ChainsValues } from '@/src/constants/config/types'
+import { isHexString } from '@ethersproject/bytes'
+
 export const truncateStringInTheMiddle = (
   str: string,
   strPositionStart: number,
@@ -22,3 +25,9 @@ export const shortenAddress = (address: string, first = 6, last = 4): string => 
 export function isSameString(a: string, b: string): boolean {
   return a.toLowerCase() == b.toLowerCase()
 }
+
+export function isValidChain(chain?: ChainsValues | number): chain is ChainsValues {
+  return Object.values(Chains).includes(chain as ChainsValues)
+}
+
+export const isTransactionHash = (hash: string) => isHexString(hash) && hash.length === 66

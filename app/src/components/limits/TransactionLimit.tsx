@@ -37,7 +37,7 @@ interface Props {
   title: string
   tooltip?: string
   trend: 'up' | 'down'
-  value: number
+  value: string
 }
 
 export const TransactionLimit: React.FC<Props> = ({

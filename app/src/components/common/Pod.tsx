@@ -3,8 +3,9 @@ import styled from 'styled-components'
 import { Badge } from '@/src/components/common/Badge'
 import { InnerCard } from '@/src/components/common/InnerCard'
 import { TransactionStatusTypes } from '@/src/constants/types'
-import { Status as BaseStatus } from '@/src/components/common/Status'
+import { ClaimButton, Status } from '@/src/components/transactions/TxStatus'
 import { TransactionStatus } from '@/types/generated/subgraph'
+import { Transaction } from '@/src/utils/transactions'
 
 const Wrapper = styled(InnerCard)<{ status?: string }>`
   background: ${(props) =>
@@ -17,7 +18,7 @@ const Wrapper = styled(InnerCard)<{ status?: string }>`
       ? ({ theme }) => theme.colors.successDark
       : ({ theme }) => theme.colors.darkGrey};
   border-radius: 8px;
-  flex: 1 1 0px;
+  flex: 1 1 0;
   justify-content: space-between;
   padding-bottom: ${({ theme: { common } }) => common.space * 3}px;
   padding-top: ${({ theme: { common } }) => common.space * 3}px;
@@ -33,25 +34,35 @@ const Header = styled.div`
   gap: ${({ theme: { common } }) => common.space / 2}px;
 `
 
-const Status = styled(BaseStatus)`
-  margin-left: auto;
-`
-
 interface Props {
-  status?: string
+  transaction?: Transaction
   subTitle?: string
   title: string
+  updateInMemoryTransaction?: (transaction: Transaction) => void
 }
 
-export const Pod: React.FC<Props> = ({ children, status, subTitle, title }) => {
+export const Pod: React.FC<Props> = ({
+  children,
+  subTitle,
+  title,
+  transaction,
+  updateInMemoryTransaction,
+}) => {
   return (
-    <Wrapper status={status}>
+    <Wrapper status={transaction?.transactionStatus}>
       <Header>
         <Badge text={title} />
-        {status ? (
-          <Status status={status as TransactionStatus} />
+        {transaction && updateInMemoryTransaction ? (
+          transaction.transactionStatus === TransactionStatus.Unclaimed ? (
+            <ClaimButton
+              transaction={transaction}
+              updateInMemoryTransaction={updateInMemoryTransaction}
+            />
+          ) : (
+            <Status status={transaction.transactionStatus} />
+          )
         ) : subTitle ? (
-          <Badge status={status} text={subTitle} />
+          <Badge text={subTitle} />
         ) : null}
       </Header>
       <>{children}</>

@@ -1,115 +1,86 @@
-import { dataSource, log } from "@graphprotocol/graph-ts";
-import {
-  RelayedMessage,
-  UserRequestForAffirmation,
-} from "../generated/ForeignBridgeErcToNative/ForeignBridgeErcToNative";
-import {
-  XDAITransaction,
-  TransactionExecution,
-  Validator,
-} from "../generated/schema";
+import { Address, dataSource, log } from "@graphprotocol/graph-ts";
+import { RelayedMessage } from "../generated/ForeignBridgeErcToNative/ForeignBridgeErcToNative";
+import { XDAITransaction, TransactionExecution } from "../generated/schema";
 import { Transfer } from "../generated/DAI/DAI";
 import { FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS } from "./config/addresses";
+import { processUserRequestForAffirmation } from "./utils/xdai-bridge";
+import { DAI_ADDRESS, isSameString } from "./utils/misc";
 
-// @todo filter txs where event.params.dst === foreign.address
+//-------------------------
+// Foreign > Home
+//-------------------------
+
+// The bridging operation is initiated in foreign and can be started in two different ways:
+// 1. A user transfers DAI directly to the bridge contract
+// 2. The user transfer DAI to the bridge contract via the OmniBridge
+// For 1. the event UserRequestForAffirmation is not emitted.
 export function handlerTransfer(event: Transfer): void {
-  if (
-    FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS.toLowerCase() ==
-    event.params.dst.toHexString()
-  ) {
-    const txHash = event.transaction.hash;
-    const txValue = event.params.wad;
-    const sender = event.params.src;
-    const timestamp = event.block.timestamp;
-    const originNetwork = dataSource.network();
-    log.error(
-      `handlerTransfer XDAI ETH-GC INITIATED ${txHash.toHexString()} `,
-      []
-    );
-
-    let transaction = new XDAITransaction(txHash.toHexString());
-    transaction.transactionHash = txHash;
-    transaction.bridgeName = "XDAI";
-    transaction.transactionStatus = "INITIATED";
-    transaction.initiator = sender;
-    transaction.initiatorAmount = txValue;
-    transaction.initiatorNetwork = originNetwork;
-    transaction.receiverAmount = txValue;
-    transaction.receiverNetwork = "gnosis";
-    transaction.timestamp = timestamp;
-    transaction.save();
-  }
-}
-
-export function handlerUserRequestForAffirmation(
-  event: UserRequestForAffirmation
-): void {
   const txHash = event.transaction.hash;
-  const txValue = event.params.value;
-  const sender = event.transaction.from;
-  const timestamp = event.block.timestamp;
-  const originNetwork = dataSource.network();
-  log.error(
-    `handlerUserRequestForAffirmation XDAI ETH-GC REQUESTED
-  event.transaction.hash ${txHash.toHexString()}`,
-    []
-  );
+  const value = event.params.wad;
+  const sender = event.params.src;
+  const recipient = event.params.dst;
+  const receipt = event.receipt;
+
+  // discard events not related to the bridge
+  if (
+    !isSameString(FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS, recipient.toHexString())
+  ) {
+    return;
+  }
+
+  // discard transfers from 0x
+  if (sender == Address.zero()) {
+    return;
+  }
 
   let transaction = new XDAITransaction(txHash.toHexString());
   transaction.transactionHash = txHash;
   transaction.bridgeName = "XDAI";
   transaction.transactionStatus = "INITIATED";
+  transaction.timestamp = event.block.timestamp;
+
   transaction.initiator = sender;
-  transaction.initiatorAmount = txValue;
-  transaction.initiatorNetwork = originNetwork;
-  transaction.receiverAmount = txValue;
+  transaction.initiatorToken = Address.fromHexString(DAI_ADDRESS);
+  transaction.initiatorAmount = value;
+  transaction.initiatorNetwork = dataSource.network();
+
+  processUserRequestForAffirmation(transaction, receipt);
+  transaction.receiverAmount = value;
   transaction.receiverNetwork = "gnosis";
-  transaction.timestamp = timestamp;
+  transaction.receiverToken = Address.zero();
+
   transaction.save();
 }
 
+//-------------------------
+// Home > Foreign
+//-------------------------
+// This event is triggered when the user receives the funds on the foreign chain.
+// Note that the bridging operation was initiated in home.
 export function handlerRelayedMessage(event: RelayedMessage): void {
   const txHash = event.params.transactionHash.toHexString();
   const timestamp = event.block.timestamp;
-  // const sender = event.transaction.from
-  const txValue = event.params.value;
-  const originNetwork = dataSource.network();
-  log.error(
-    `handlerRelayedMessage XDAI GC-ETH
-  event.params.transactionHash ${txHash}
-  event.transaction.hash ${event.transaction.hash.toHexString()}`,
-    []
-  );
 
-  let transaction = new XDAITransaction(txHash);
-  const executorId = event.transaction.from;
-  const executionId = txHash + "-" + executorId.toHexString();
-  let execution = new TransactionExecution(executionId);
-
-  let validator = Validator.load(executorId.toHexString());
-  if (!validator) {
-    log.error(
-      `Validator ${executorId.toHexString()} not found @handlerRelayedMessage-foreignXDAI`,
-      []
-    );
-  } else {
-    execution.executor = executorId.toHexString();
-    execution.executor = validator.id;
-    validator.lastActivity = timestamp;
-    validator.save();
-  }
+  let execution = new TransactionExecution(txHash);
   execution.transaction = txHash;
   execution.transactionHash = event.transaction.hash;
   execution.timestamp = timestamp;
   execution.save();
 
+  let transaction = new XDAITransaction(txHash);
   transaction.transactionHash = event.params.transactionHash;
   transaction.bridgeName = "XDAI";
   transaction.transactionStatus = "COMPLETED";
+
+  transaction.initiatorNetwork = "gnosis";
+  transaction.initiatorToken = Address.zero();
+  transaction.initiatorAmount = event.params.value;
+
   transaction.receiver = event.params.recipient;
+  transaction.receiverToken = Address.fromHexString(DAI_ADDRESS);
   transaction.receiverNetwork = dataSource.network();
-  transaction.receiverAmount = txValue;
-  transaction.timestamp = timestamp;
+  transaction.receiverAmount = event.params.value;
+
   transaction.execution = execution.id;
   transaction.save();
 }

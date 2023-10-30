@@ -1,14 +1,6 @@
 {
-    "1": {
-        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/nicosampler/gnosis-home-bridge",
-        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/nicosampler/gnosis-foreign-bridge"
-    },
-    "5": {
-        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/nicosampler/gnosis-home-bridge",
-        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/nicosampler/gnosis-foreign-bridge"
-    },
-    "100": {
-        "bridge-monitor-home": "https://api.thegraph.com/subgraphs/name/nicosampler/gnosis-home-bridge",
-        "bridge-monitor-foreign": "https://api.thegraph.com/subgraphs/name/nicosampler/gnosis-foreign-bridge"
-    }
+  "100:1": {
+    "home": "https://api.thegraph.com/subgraphs/name/{{org}}/gbc-bridge-gnosis",
+    "foreign": "https://api.thegraph.com/subgraphs/name/{{org}}/gbc-bridge-mainnet"
+  }
 }

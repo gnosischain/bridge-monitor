@@ -1,3 +1,4 @@
+import { TransactionStatus } from '@/types/generated/subgraph'
 import styled from 'styled-components'
 
 import { ChainsInitiatorReceiver } from '@/src/components/common/ChainsInitiatorReceiver'
@@ -7,6 +8,7 @@ import { getAddressScanUrl } from '@/src/utils/transactions'
 import { Address } from '@/src/components/token/Address'
 import { TokenWithValue } from '@/src/components/token/TokenWithValue'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
+import { Transaction } from '@/src/utils/transactions'
 
 const Wrapper = styled.div`
   display: flex;
@@ -33,9 +35,6 @@ const Value = styled(TokenWithValue)`
 
 interface Props {
   bridgeName: string
-  transactionStatus: string
-  timestampExecution: number
-  timestampStarted: number
   initiator: string
   initiatorAmount: string
   initiatorName: string
@@ -46,6 +45,11 @@ interface Props {
   receiverName: string
   receiverNetwork: string
   receiverNetworkIcon?: string
+  timestampExecution: number
+  timestampStarted: number
+  transaction?: Transaction
+  transactionStatus: TransactionStatus
+  updateInMemoryTransaction: (transaction: Transaction) => void
 }
 
 export const TransactionSummary: React.FC<Props> = ({
@@ -60,7 +64,9 @@ export const TransactionSummary: React.FC<Props> = ({
   receiverNetworkIcon,
   timestampExecution,
   timestampStarted,
+  transaction,
   transactionStatus,
+  updateInMemoryTransaction,
   ...restProps
 }) => {
   return (
@@ -91,10 +97,15 @@ export const TransactionSummary: React.FC<Props> = ({
         />
       </Pod>
       <Pod title="Amount">
-        <Value token={initiatorToken} tokenValue={initiatorAmount} />
+        <Value bridgeName={bridgeName} token={initiatorToken} tokenValue={initiatorAmount} />
       </Pod>
       {/* @todo - If a signature fails it has to change state */}
-      <Pod status={transactionStatus} subTitle={transactionStatus} title="Status">
+      <Pod
+        subTitle={transactionStatus}
+        title="Status"
+        transaction={transaction}
+        updateInMemoryTransaction={updateInMemoryTransaction}
+      >
         {/* @todo:
          - if transactionStatus is not completed, completed value must be empty
         */}

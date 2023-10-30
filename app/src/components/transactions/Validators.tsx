@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import styled from 'styled-components'
 
 import { ValidatorStatus } from '@/src/components/assets/ValidatorStatus'
-import { Tooltip } from '@/src/components/common/Tooltip'
+import { Tooltip } from '@/src/components/tooltip/Tooltip'
 import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
 import { Transaction } from '@/src/utils/transactions'
 import { getValidationsStatus } from '@/src/utils/validators'
@@ -38,8 +38,7 @@ export const Validators: React.FC<Props> = ({ transaction, ...restProps }) => {
     <Wrapper {...restProps}>
       {validationsStatus.map(({ name, scanUrl, status }, index) => (
         <Tooltip
-          key={`validator_status_${transaction.id}_${index}`}
-          text={
+          content={
             <>
               <div>Validator: {name}</div>
               <div>
@@ -58,6 +57,7 @@ export const Validators: React.FC<Props> = ({ transaction, ...restProps }) => {
               </div>
             </>
           }
+          key={`validator_status_${transaction.id}_${index}`}
         >
           <ValidatorStatus
             onClick={(e) =>

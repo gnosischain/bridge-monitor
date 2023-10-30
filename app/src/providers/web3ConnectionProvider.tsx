@@ -17,15 +17,21 @@ import walletConnectModule from '@web3-onboard/walletconnect'
 import nullthrows from 'nullthrows'
 
 import { INITIAL_APP_CHAIN_ID, chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
-import { appName } from '@/src/constants/config/common'
-import { ChainConfig, Chains, ChainsValues } from '@/src/constants/config/types'
+import {
+  WALLET_CONNECT_DAPP_URL,
+  WALLET_CONNECT_PROJECT_ID,
+  appName,
+} from '@/src/constants/config/common'
+import { ChainConfig, Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 import {
   recoverLocalStorageKey,
   removeLocalStorageKey,
   setLocalStorageKey,
 } from '@/src/hooks/usePersistedState'
-import { hexToNumber } from '@/src/utils/tools'
+import { getSupportedNetworks } from '@/src/utils/getSupportedNetworks'
+import { hexToNumber, isValidChain } from '@/src/utils/tools'
 import { RequiredNonNull } from '@/types/utils'
+import { ModalCSS } from '@/src/theme/onBoard'
 
 const STORAGE_CONNECTED_WALLET = 'onboard_selectedWallet'
 
@@ -36,7 +42,12 @@ nullthrows(
 )
 
 const injected = injectedModule()
-const walletConnect = walletConnectModule()
+const walletConnect = walletConnectModule({
+  dappUrl: WALLET_CONNECT_DAPP_URL,
+  projectId: WALLET_CONNECT_PROJECT_ID,
+  requiredChains: getSupportedNetworks().map(({ id }) => id),
+  version: 2,
+})
 
 const chainsForOnboard = Object.values(chainsConfig).map(
   ({ chainIdHex, name, rpcUrl, token }: ChainConfig) => ({
@@ -61,8 +72,7 @@ export function initOnboard() {
     appMetadata: {
       name: appName || '',
       icon: '<svg><svg/>', // brand icon
-      description: 'Boontnode Web3 Frontend starter kit',
-      recommendedInjectedWallets: [{ name: 'MetaMask', url: 'https://metamask.io' }],
+      description: 'Gnosis Bridge Explorer',
     },
     // Account center put an interactive menu in the UI to manage your account.
     accountCenter: {
@@ -87,10 +97,10 @@ export type Web3Context = {
   address: string | null
   appChainId: ChainsValues
   balance?: Record<string, string> | null
-  connectWallet: () => Promise<void> | null
+  connectWallet: () => Promise<WalletState[] | void>
   connectingWallet: boolean
-  disconnectWallet: () => Promise<void> | null
-  getExplorerUrl: (hash: string) => string
+  disconnectWallet: () => Promise<void>
+  getExplorerUrl: (hash: string, network?: ChainsKeys) => string
   isAppConnected: boolean
   isOnboardChangingChain: boolean
   isWalletConnected: boolean
@@ -111,12 +121,27 @@ type Props = {
   children: ReactNode
 }
 
-//Initialize onboarding
+// Initialize onboarding
 initOnboard()
+
+/**
+ * This is a workaround (hacky shit) to add custom CSS to the onboard modal
+ */
+const setCSSStyles = () => {
+  const style = document.createElement('style')
+
+  style.innerHTML = ModalCSS
+
+  const onboardV2 = document.querySelector('onboard-v2')
+
+  if (onboardV2 && onboardV2.shadowRoot) {
+    onboardV2.shadowRoot.appendChild(style)
+  }
+}
 
 export default function Web3ConnectionProvider({ children }: Props) {
   const [{ connecting: connectingWallet, wallet }, connect, disconnect] = useConnectWallet()
-  const [{ chains, connectedChain, settingChain }, setChain] = useSetChain()
+  const [{ connectedChain, settingChain }, setChain] = useSetChain()
   const connectedWallets = useWallets()
   const [appChainId, setAppChainId] = useState(INITIAL_APP_CHAIN_ID)
   const [address, setAddress] = useState<string | null>(null)
@@ -124,7 +149,11 @@ export default function Web3ConnectionProvider({ children }: Props) {
   const walletChainId = hexToNumber(connectedChain?.id)
   const isWalletConnected = web3Provider != null && address != null
   const isAppConnected = isWalletConnected && walletChainId === appChainId
-  const isWalletNetworkSupported = chains.some(({ id }) => id === connectedChain?.id)
+  const isWalletNetworkSupported = getSupportedNetworks().some(({ id }) => {
+    if (connectedChain) {
+      return id === +connectedChain?.id
+    }
+  })
 
   const readOnlyAppProvider = useMemo(
     () => new JsonRpcProvider(getNetworkConfig(appChainId)?.rpcUrl, appChainId),
@@ -165,28 +194,47 @@ export default function Web3ConnectionProvider({ children }: Props) {
 
       setWalletFromLocalStorage()
     }
-  }, [connect, chains, connectedWallets.length])
+  }, [connect, connectedWallets.length])
 
   const getExplorerUrl = useMemo(() => {
-    const url = chainsConfig[appChainId]?.blockExplorerUrls[0]
-    return (hash: string) => {
-      const type = hash?.length > 42 ? 'tx' : 'address'
+    return (hash: string, network = 'mainnet') => {
+      const chain = Object.entries(Chains).find(
+        ([key]) => key.toLowerCase() === network.toLowerCase(),
+      )
+
+      if (!chain || !isValidChain(chain[1])) {
+        throw new Error(`Invalid chain: ${chain}`)
+      }
+
+      const url = chainsConfig[chain[1]]?.blockExplorerUrls[0]
+      const type = {
+        '42': 'address',
+        '66': 'tx',
+      }[hash?.length]
+
+      if (!type) {
+        // assume it's the native token, thus point to the chain explorer homepage
+        return url
+      }
+
       return `${url}${type}/${hash}`
     }
-  }, [appChainId])
+  }, [])
 
   const handleDisconnectWallet = async () => {
     if (wallet) {
       removeLocalStorageKey(STORAGE_CONNECTED_WALLET)
-      disconnect(wallet)
+      await disconnect(wallet)
     }
   }
 
   const handleConnectWallet = async () => {
     if (window.onboard) {
-      connect()
+      return connect()
     }
   }
+
+  setCSSStyles()
 
   const value = {
     address,

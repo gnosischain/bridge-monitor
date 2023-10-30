@@ -1,3 +1,4 @@
+import { Chains } from '@/src/constants/config/types'
 import { useContractCall } from '@/src/hooks/useContractCall'
 import { useContractInstance } from '@/src/hooks/useContractInstance'
 import { fromWei } from '@/src/utils/bigNumber'
@@ -10,7 +11,7 @@ import {
 import { BigNumberish } from 'ethers'
 
 export const useHomeXDAIBridgeLimits = (currentDay: BigNumberish = '0') => {
-  const homeXDAI = useContractInstance(HomeBridgeErcToNative__factory, 'XDAI', 100)
+  const homeXDAI = useContractInstance(HomeBridgeErcToNative__factory, 'XDAI', Chains.gnosis)
 
   const contextCalls = [homeXDAI.getCurrentDay] as const
   const [{ data: homeXDAIContext }] = useContractCall<HomeBridgeErcToNative, typeof contextCalls>(
@@ -62,7 +63,7 @@ export const useHomeXDAIBridgeLimits = (currentDay: BigNumberish = '0') => {
 }
 
 export const useForeignXDAIBridgeLimits = (currentDay: BigNumberish = '0') => {
-  const foreignXDAI = useContractInstance(ForeignBridgeErcToNative__factory, 'XDAI')
+  const foreignXDAI = useContractInstance(ForeignBridgeErcToNative__factory, 'XDAI', Chains.gnosis)
 
   const contextCalls = [foreignXDAI.getCurrentDay] as const
   const [{ data: foreignXDAIContext }] = useContractCall<

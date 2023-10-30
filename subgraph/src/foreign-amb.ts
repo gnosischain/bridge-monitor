@@ -4,11 +4,13 @@ import {
   UserRequestForAffirmation,
 } from "../generated/ForeignAMB/ForeignAMB";
 import { AMBTransaction, TransactionExecution } from "../generated/schema";
-import { isOmniBridgeUsage, isFromOmniBridgeUsage } from "./utils/message";
+
 import {
+  isOmniBridgeKnownMediator,
+  isOmniBridgeUsage,
   processOmniBridgeTokenBridgingInitiatedEvent,
   processOmniBridgeTokensBridged,
-} from "./utils/omnibridge";
+} from "./utils/omni-bridge";
 
 //-------------------------
 // Foreign > Home
@@ -45,7 +47,7 @@ export function handlerUserRequestForAffirmation(
   transaction.transactionStatus = "INITIATED";
 
   transaction.initiatorNetwork = network;
-  processOmniBridgeTokenBridgingInitiatedEvent(transaction, receipt);
+  processOmniBridgeTokenBridgingInitiatedEvent(transaction, receipt, messageId);
 
   transaction.receiver = Bytes.fromHexString(message.slice(258, 298));
   transaction.receiverAmount = transaction.initiatorAmount;
@@ -72,7 +74,9 @@ export function handlerRelayedMessage(event: RelayedMessage): void {
   const status = event.params.status;
   const receipt = event.receipt;
 
-  if (!isFromOmniBridgeUsage(sender.toHexString(), executor.toHexString())) {
+  if (
+    !isOmniBridgeKnownMediator(sender.toHexString(), executor.toHexString())
+  ) {
     return;
   }
 

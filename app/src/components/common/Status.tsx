@@ -37,6 +37,12 @@ const Wrapper = styled.div<{ status: TransactionStatus }>`
           ${Text} {
             color: ${({ theme }) => theme.colors.darkestGrey};
           }
+
+          &[disabled],
+          &[disabled]:hover {
+            cursor: not-allowed;
+            opacity: 0.5;
+          }
         `
       : css`
           ${Text} {
@@ -56,7 +62,7 @@ const Wrapper = styled.div<{ status: TransactionStatus }>`
         `};
 `
 
-interface Props {
+export interface Props {
   onClick?: MouseEventHandler<HTMLButtonElement> | undefined
   status: TransactionStatus
 }

@@ -1,11 +1,10 @@
 import styled from 'styled-components'
 
-import { Tooltip as TooltipIcon } from '@/src/components/assets/Tooltip'
 import { MiniCard, MiniCardTitle, MiniCardValue } from '@/src/components/common/MiniCard'
-import { Tooltip } from '@/src/components/common/Tooltip'
+import { Tooltip } from '@/src/components/tooltip/Tooltip'
 import { HealthStatusTypes } from '@/src/constants/types'
 import { bridgeContractHealth } from '@/src/utils/bridgeHealth'
-import { formatNumber } from '@/src/utils/formatNumber'
+import { formatNumber } from '@/src/utils/format'
 
 const Wrapper = styled(MiniCard)`
   flex-direction: column;
@@ -84,11 +83,7 @@ export const ContractLimit: React.FC<Props> = ({
         <Amount style={{ marginLeft: 'auto' }}>
           {token} {fundsNumber}
         </Amount>
-        {tooltip && (
-          <Tooltip text={tooltip}>
-            <TooltipIcon />
-          </Tooltip>
-        )}
+        {tooltip && <Tooltip content={tooltip} />}
       </Amounts>
     </Wrapper>
   )

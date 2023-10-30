@@ -110,17 +110,19 @@ export const ButtonDropdownIsOpenCSS = css`
 export const ButtonDropdownCSS = css<{ currentThemeName?: ThemeType }>`
   background-color: ${({ theme: { buttonDropdown } }) => buttonDropdown.backgroundColor};
   border-color: ${({ theme: { buttonDropdown } }) => buttonDropdown.borderColor};
-  color: ${({ theme: { buttonDropdown } }) => buttonDropdown.color};
   border-radius: ${({ theme: { common } }) => common.borderRadius};
+  color: ${({ theme: { buttonDropdown } }) => buttonDropdown.color};
   font-size: 1.2rem;
   font-weight: 400;
   height: 36px;
+  justify-content: space-between;
   padding: 0 15px;
   width: 100%;
-  justify-content: space-between;
+
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
     font-size: 1.4rem;
   }
+
   &:hover {
     background-color: ${({ theme: { buttonDropdown } }) => buttonDropdown.backgroundColorHover};
     border-color: ${({ theme: { buttonDropdown } }) => buttonDropdown.borderColorHover};

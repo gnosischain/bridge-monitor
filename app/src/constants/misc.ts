@@ -17,3 +17,5 @@ export const DEBOUNCE_TIME = 500
 
 export const XDAI_SIGNATURE_THRESHOLD = 4
 export const AMB_SIGNATURE_THRESHOLD = 4
+
+export const MAX_DAYS_TO_FILTER = 1

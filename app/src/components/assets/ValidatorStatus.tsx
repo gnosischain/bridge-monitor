@@ -2,40 +2,40 @@ import styled, { css } from 'styled-components'
 
 import { IconCheck } from '@/src/components/assets/IconCheck'
 
+const NotRequired = css`
+  border: 1px solid ${({ theme: { colors } }) => colors.cream};
+  opacity: 0.2;
+
+  svg {
+    display: none;
+  }
+`
+
 const ValidatorStyles = {
+  // signed
+  submittedExecuted: css`
+    color: ${({ theme: { colors } }) => colors.success};
+  `,
+  // signed and executed
+  executed: css`
+    background-color: ${({ theme: { colors } }) => colors.success};
+    color: ${({ theme: { colors } }) => colors.darkestGrey};
+  `,
+  // not required and default are visually the same
+  notRequired: NotRequired,
+  default: NotRequired,
+  // deprecated
   pending: css`
-    background-color: ${({ theme }) => theme.colors.cream};
+    background-color: ${({ theme: { colors } }) => colors.cream};
     opacity: 0.1;
 
     svg {
       display: none;
     }
   `,
+  // deprecated
   submitted: css`
-    color: ${({ theme }) => theme.colors.warning};
-  `,
-  submittedExecuted: css`
-    color: ${({ theme }) => theme.colors.success};
-  `,
-  executed: css`
-    background-color: ${({ theme }) => theme.colors.success};
-    color: ${({ theme }) => theme.colors.darkestGrey};
-  `,
-  notRequired: css`
-    border: 1px solid ${({ theme }) => theme.colors.cream};
-    opacity: 0.2;
-
-    svg {
-      display: none;
-    }
-  `,
-  default: css`
-    border: 1px solid ${({ theme }) => theme.colors.cream};
-    opacity: 0.2;
-
-    svg {
-      display: none;
-    }
+    color: ${({ theme: { colors } }) => colors.warning};
   `,
 }
 

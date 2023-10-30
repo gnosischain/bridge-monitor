@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react'
+import sub from 'date-fns/sub'
+import endOfDay from 'date-fns/endOfDay'
+import startOfDay from 'date-fns/startOfDay'
 
 export const DateFormat = (date: Date) => {
   const [duration, setDuration] = useState<
@@ -39,25 +42,6 @@ export const DateFormat = (date: Date) => {
   return `${duration?.interval} ${duration?.epoch}${suffix} ago`
 }
 
-const cleanDate = (date: Date): Date => {
-  date.setHours(0)
-  date.setMinutes(0)
-  date.setSeconds(0)
-  date.setMilliseconds(0)
-  return date
-}
-
-export const today = () => {
-  const d = cleanDate(new Date())
-  d.setHours(new Date().getHours())
-  return d
-}
-
-export const yesterday = () => {
-  const d = cleanDate(new Date())
-  d.setDate(d.getDate() - 1)
-  return d
-}
 export const isToday = (someDate: Date) => new Date().toDateString() === someDate.toDateString()
 export const isYesterday = (someDate: Date) => {
   const yesterday = new Date()
@@ -114,50 +98,7 @@ export const dayHours: Array<{ key: string; value: number }> = [
   { key: '11:00 PM', value: 23 },
 ]
 
-export const dayHoursOptions = [
-  '00:00 AM',
-  '01:00 AM',
-  '02:00 AM',
-  '03:00 AM',
-  '04:00 AM',
-  '05:00 AM',
-  '06:00 AM',
-  '07:00 AM',
-  '08:00 AM',
-  '09:00 AM',
-  '10:00 AM',
-  '11:00 AM',
-  '12:00 PM',
-  '01:00 PM',
-  '02:00 PM',
-  '03:00 PM',
-  '04:00 PM',
-  '05:00 PM',
-  '06:00 PM',
-  '07:00 PM',
-  '08:00 PM',
-  '09:00 PM',
-  '10:00 pm',
-  '11:00 pm',
-]
-
-const parseHours = (value: string): number => {
-  const hour = dayHours.find((elem) => elem.key === value)
-  return hour ? hour.value : 0
-}
-
-const convertHours = (hours: string) => {
-  const parsedHours = parseHours(hours)
-  const hoursInMilliseconds = parsedHours * 60 * 60 * 1000
-  return hoursInMilliseconds
-}
-
-export const composeDateTimeFilterValue = (filterDate: Date, filterHour: string): Date => {
-  const date = cleanDate(filterDate)
-  const dateToSeconds = toSeconds(date)
-  const hoursToSeconds = convertHours(filterHour)
-  const dateTimeValue = new Date(dateToSeconds + hoursToSeconds)
-  return dateTimeValue
-}
-
 export const transformDate = (date: string) => parseInt(date ?? '0') * 1000
+
+export const getStartOfDay = () => startOfDay(new Date())
+export const getEndOfDay = () => endOfDay(new Date())

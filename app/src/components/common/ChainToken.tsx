@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-import { Tooltip } from '@/src/components/common/Tooltip'
+import { Tooltip } from '@/src/components/tooltip/Tooltip'
 
 const Wrapper = styled.div<{ withNames?: boolean }>`
   align-items: center;
@@ -32,7 +32,7 @@ interface Props {
 export const ChainToken: React.FC<Props> = ({ children, name, showName, ...restProps }) => {
   return (
     <Wrapper withNames={showName} {...restProps}>
-      <Tooltip text={name}>{children}</Tooltip>
+      <Tooltip content={name}>{children}</Tooltip>
       {showName && name}
     </Wrapper>
   )

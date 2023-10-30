@@ -74,14 +74,12 @@ export const removeLocalStorageKey = (name: string) => {
 type SetValue<T> = Dispatch<SetStateAction<T>>
 
 export const useLocalStorage = <T>(name: string, initialState: T): [T, SetValue<T>, () => void] => {
-  const key = `${appName}_${name}`
-
   const [storedValue, setStoredValue] = useState(() => {
     if (isServer() || window.localStorage === undefined) {
       return initialState
     }
     try {
-      return recoverLocalStorageKey(key, initialState)
+      return recoverLocalStorageKey(name, initialState)
     } catch (error) {
       console.error(error)
       return initialState
@@ -97,17 +95,17 @@ export const useLocalStorage = <T>(name: string, initialState: T): [T, SetValue<
       setStoredValue(valueToStore)
 
       if (!isServer()) {
-        setLocalStorageKey(key, valueToStore)
+        setLocalStorageKey(name, valueToStore)
       }
     },
-    [key, storedValue],
+    [name, storedValue],
   )
 
   const clearValue = useCallback(() => {
     if (!isServer()) {
-      removeLocalStorageKey(key)
+      removeLocalStorageKey(name)
     }
-  }, [key])
+  }, [name])
 
   return [storedValue, setValue, clearValue]
 }
