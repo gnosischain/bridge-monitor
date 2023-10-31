@@ -55,14 +55,9 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          tags: "${{ env.REGISTRY }}/bridge-explorer:latest"
+          tags: "${{ env.REGISTRY }}/bridge-explorer:develop"
           platforms: |
             linux/amd64
-
-      - name: Get latest Release Tag
-        if: ( github.ref == 'refs/heads/staging' )
-        id: release_tag
-        run: echo "tag=$(git describe --abbrev=0 --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_OUTPUT
   
       - name: Build, tag, and push STAGING to Amazon ECR
         if: startsWith(github.ref, 'refs/heads/staging')
@@ -74,9 +69,16 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          tags: "${{ env.REGISTRY }}/bridge-explorer:${{ env.IMAGE_TAG }}"
+          tags: "${{ env.REGISTRY }}/bridge-explorer:staging"
           platforms: |
             linux/amd64
+
+      - name: Get latest Release Tag
+        if: ( github.ref == 'refs/heads/staging' )
+        id: release_tag
+        run: echo "tag=$(git describe --abbrev=0 --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_OUTPUT
+
+      # CREATE ${{ env.IMAGE_TAG }} + 1 for PROD
     
   Get_images_and_restart_deployments:
     needs: Build_and_push_image_to_ECR
