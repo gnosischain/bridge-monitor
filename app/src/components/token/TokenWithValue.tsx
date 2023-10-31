@@ -5,25 +5,25 @@ import { BigNumber, BigNumberish, FixedNumber, constants } from 'ethers'
 import { ChainToken } from '@/src/components/common/ChainToken'
 import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
 import { formatNumber } from '@/src/utils/format'
+import { ArrowUp } from '@/src/components/assets/ArrowUp'
 
 const tokenSize = 16
 
 const Wrapper = styled.div`
   align-items: center;
-  column-gap: ${({ theme: { common } }) => common.space}px;
+  column-gap: ${({ theme: { common } }) => common.space * 3}px;
   display: flex;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    display: grid;
+    grid-template-columns: 1fr 10px 1fr;
+  }
 `
 
-const Label = styled.span`
-  display: none;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    display: block;
-    font-size: 1.2rem;
-    font-weight: 400;
-    line-height: 1.2;
-    opacity: 0.8;
-  }
+const Row = styled.div`
+  align-items: center;
+  column-gap: ${({ theme: { common } }) => common.space}px;
+  display: flex;
 `
 
 const TokenIcon = styled(ChainToken)`
@@ -53,8 +53,13 @@ const TokenIcon = styled(ChainToken)`
   }
 `
 
+const ArrowRight = styled(ArrowUp)`
+  display: block;
+  transform: rotate(-90deg);
+`
+
 const Value = styled.span`
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 400;
   line-height: 1;
 `
@@ -81,43 +86,43 @@ export const TokenWithValue: React.FC<Props> = ({
       ? { name: 'xDAI', symbol: 'xDAI', logoURI: '/images/icons/xdai.png', decimals: 18 }
       : tokensByAddress[token?.toLowerCase()]
 
-  const xdaiReceiverToken = (
-    <TokenIcon name={isZeroToken ? 'DAI' : 'xDAI'}>
-      <Image
-        alt={isZeroToken ? 'DAI' : 'xDAI'}
-        className="iconImage"
-        height={tokenSize}
-        objectFit="cover"
-        src={isZeroToken ? '/images/icons/dai.png' : '/images/icons/xdai.png'}
-        width={tokenSize}
-      />
-    </TokenIcon>
-  )
+  const value = _token
+    ? formatNumber(
+        +FixedNumber.fromValue(BigNumber.from(tokenValue), _token.decimals).round(4).toString(),
+      )
+    : tokenValue.toString()
 
   return (
     <Wrapper {...restProps}>
-      <Label className="label">Amount:</Label>
-      <TokenIcon name={_token?.name ?? token}>
-        <Image
-          alt={_token?.symbol ?? token}
-          className="iconImage"
-          height={tokenSize}
-          objectFit="cover"
-          src={_token?.logoURI || '/images/icons/empty-token.png'}
-          width={tokenSize}
-        />
-      </TokenIcon>
-      {isXdai && '>'}
-      {isXdai && xdaiReceiverToken}
-      <Value className="value">
-        {_token
-          ? formatNumber(
-              +FixedNumber.fromValue(BigNumber.from(tokenValue), _token.decimals)
-                .round(4)
-                .toString(),
-            )
-          : tokenValue.toString()}
-      </Value>
+      <Row>
+        <TokenIcon name={_token?.name ?? token}>
+          <Image
+            alt={_token?.symbol ?? token}
+            className="iconImage"
+            height={tokenSize}
+            objectFit="cover"
+            src={_token?.logoURI || '/images/icons/empty-token.png'}
+            width={tokenSize}
+          />
+        </TokenIcon>
+        <Value className="value">{value}</Value>
+      </Row>
+      <div className="arrowWrapper">
+        <ArrowRight />
+      </div>
+      <Row>
+        <TokenIcon name={isZeroToken ? 'DAI' : 'xDAI'}>
+          <Image
+            alt={isZeroToken ? 'DAI' : 'xDAI'}
+            className="iconImage"
+            height={tokenSize}
+            objectFit="cover"
+            src={isZeroToken ? '/images/icons/dai.png' : '/images/icons/xdai.png'}
+            width={tokenSize}
+          />
+        </TokenIcon>
+        <Value className="value">{value}</Value>
+      </Row>
     </Wrapper>
   )
 }
