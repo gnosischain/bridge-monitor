@@ -8,6 +8,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock subgraph-config.js ./
 COPY /src ./src
+COPY .env ./.env
 RUN  yarn install --frozen-lockfile
 RUN  yarn postinstall
 
@@ -16,6 +17,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/src ./src
 COPY --from=deps /app/types ./types
+COPY --from=deps /app/.env ./.env
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED 1
