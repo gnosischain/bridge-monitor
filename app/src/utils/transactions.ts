@@ -14,6 +14,7 @@ import {
   TransactionsQuery,
 } from '@/types/generated/subgraph'
 import { constants } from 'ethers'
+import { isSameString } from '@/src/utils/tools'
 
 const GNOSIS = 'gnosis'
 const MAINNET = 'mainnet'
@@ -243,18 +244,19 @@ export const fetchTransactions = async (
   )
 
   if (inMemoryFilters.validator) {
-    transactions = transactions.filter((tx) =>
-      tx.validations?.some((validation) => {
-        // filter by validator address
-        validation.validatorAddr === inMemoryFilters.validator
-      }),
-    )
+    transactions = transactions
+      .filter((tx) => tx.validations)
+      .filter((tx) =>
+        tx.validations?.some((validation) =>
+          isSameString(validation.validatorAddr, inMemoryFilters.validator ?? ''),
+        ),
+      )
   }
 
   if (inMemoryFilters.executor) {
-    transactions = transactions.filter(
-      (tx) => tx.execution?.validatorAddr === inMemoryFilters.executor,
-    )
+    transactions = transactions
+      .filter((tx) => !!tx.execution?.validatorAddr)
+      .filter((tx) => isSameString(tx.execution?.validatorAddr, inMemoryFilters.executor ?? ''))
   }
 
   const res = transactions.map(transformTx)

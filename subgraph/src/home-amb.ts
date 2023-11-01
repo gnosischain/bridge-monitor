@@ -64,7 +64,7 @@ export function handlerUserRequestForSignature(
   transaction.transactionStatus = "INITIATED";
 
   transaction.initiatorNetwork = dataSource.network();
-  processOmniBridgeTokenBridgingInitiatedEvent(transaction, receipt);
+  processOmniBridgeTokenBridgingInitiatedEvent(transaction, receipt, messageId);
 
   transaction.receiver = Bytes.fromHexString(message.slice(260, 300));
   transaction.receiverAmount = transaction.initiatorAmount;

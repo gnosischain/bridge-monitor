@@ -1,5 +1,5 @@
 import { isAddress } from '@ethersproject/address'
-import React, { HTMLAttributes, useCallback, useMemo, useState } from 'react'
+import React, { HTMLAttributes, useCallback, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { TextfieldStatus } from '@/src/components/form/Textfield'
 import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
@@ -153,6 +153,10 @@ export const TransactionsFilter: React.FC<Props> = genericSuspense(
         onHashChange('')
       }
     }
+
+    useEffect(() => {
+      setResetFields(true)
+    }, [bridge])
 
     return (
       <Wrapper {...restProps}>
