@@ -94,8 +94,7 @@ export const Transactions: React.FC = () => {
               <TabHeader
                 key={index}
                 onClick={(t) => {
-                  resetFilters()
-                  setBridge(t)
+                  resetFilters({ bridge: t.toString() })
                 }}
                 title={title}
               />
@@ -107,7 +106,7 @@ export const Transactions: React.FC = () => {
           onBridgeDirectionChange={setBridgeDirection}
           onExecutedByChange={setExecutedBy}
           onHashChange={setHash}
-          onResetFilters={resetFilters}
+          onResetFilters={() => resetFilters({ bridge: activeTab })}
           onSignedByChange={setSignedBy}
           onStatusChange={setStatus}
         />
