@@ -78,11 +78,11 @@ export const TokenWithValue: React.FC<Props> = ({
 }) => {
   const { tokensByAddress } = useTokenIcons()
 
-  const isXdai = bridgeName === 'XDAI'
+  const isXdaiBrigde = bridgeName === 'XDAI'
   const isZeroToken = token === constants.AddressZero
 
   const _token =
-    isXdai && isZeroToken
+    isXdaiBrigde && isZeroToken
       ? { name: 'xDAI', symbol: 'xDAI', logoURI: '/images/icons/xdai.png', decimals: 18 }
       : tokensByAddress[token?.toLowerCase()]
 
@@ -107,22 +107,26 @@ export const TokenWithValue: React.FC<Props> = ({
         </TokenIcon>
         <Value className="value">{value}</Value>
       </Row>
-      <div className="arrowWrapper">
-        <ArrowRight />
-      </div>
-      <Row>
-        <TokenIcon name={isZeroToken ? 'DAI' : 'xDAI'}>
-          <Image
-            alt={isZeroToken ? 'DAI' : 'xDAI'}
-            className="iconImage"
-            height={tokenSize}
-            objectFit="cover"
-            src={isZeroToken ? '/images/icons/dai.png' : '/images/icons/xdai.png'}
-            width={tokenSize}
-          />
-        </TokenIcon>
-        <Value className="value">{value}</Value>
-      </Row>
+      {isXdaiBrigde && (
+        <>
+          <div className="arrowWrapper">
+            <ArrowRight />
+          </div>
+          <Row>
+            <TokenIcon name={isZeroToken ? 'DAI' : 'xDAI'}>
+              <Image
+                alt={isZeroToken ? 'DAI' : 'xDAI'}
+                className="iconImage"
+                height={tokenSize}
+                objectFit="cover"
+                src={isZeroToken ? '/images/icons/dai.png' : '/images/icons/xdai.png'}
+                width={tokenSize}
+              />
+            </TokenIcon>
+            <Value className="value">{value}</Value>
+          </Row>
+        </>
+      )}
     </Wrapper>
   )
 }
