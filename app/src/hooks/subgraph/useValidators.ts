@@ -19,24 +19,24 @@ export const useFetchValidators = (bridge?: string) => {
   return { validators: data ?? [], error, refetch }
 }
 
-export const useFetchValidatorsSignatures = (bridge: BridgesValues, timePeriod: number) => {
+export const useFetchValidatorsSignatures = (bridge: BridgesValues, afterDate: number) => {
   const {
     data,
     error,
     mutate: refetch,
-  } = useSWR(['useFetchSignedTransactions', bridge, timePeriod.toString()], () =>
-    fetchSignedTransactions(bridge),
+  } = useSWR(['useFetchSignedTransactions', bridge, afterDate.toString()], () =>
+    fetchSignedTransactions(bridge, afterDate),
   )
   return { data, error, refetch }
 }
 
-export const useFetchValidatorsExecutions = (bridge: BridgesValues, timePeriod: number) => {
+export const useFetchValidatorsExecutions = (bridge: BridgesValues, afterDate: number) => {
   const {
     data,
     error,
     mutate: refetch,
-  } = useSWR(['useFetchExecutedTransactions', bridge, timePeriod.toString()], () =>
-    fetchExecutedTransactions(bridge),
+  } = useSWR(['useFetchExecutedTransactions', bridge, afterDate.toString()], () =>
+    fetchExecutedTransactions(bridge, afterDate),
   )
   return { data, error, refetch }
 }

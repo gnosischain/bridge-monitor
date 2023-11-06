@@ -21,6 +21,7 @@ import {
 import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { InnerCard } from '@/src/components/common/InnerCard'
 import { BridgesValues } from '@/src/constants/config/bridges'
+import { get1DayBeforeInSeconds, get7DaysBeforeInSeconds } from '@/src/utils/date'
 
 const Wrapper = styled(InnerCard)``
 
@@ -66,16 +67,6 @@ const ChartWrapper = styled.div`
   flex-grow: 1;
   min-height: 196px;
 `
-
-export const weekAgoTimestamp = () => {
-  const now = new Date()
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).getTime() / 1000
-}
-
-const monthAgoTimestamp = () => {
-  const now = new Date()
-  return new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).getTime() / 1000
-}
 
 export type SignedTXsData = {
   validatorName: string
@@ -173,15 +164,18 @@ const Chart: React.FC<{ timePeriod: number; bridge: string }> = genericSuspense(
   },
 )
 
+const _1DayBeforeInSeconds = get1DayBeforeInSeconds()
+const _1WeekBeforeInSeconds = get7DaysBeforeInSeconds()
+
 export const TransactionsSigned: React.FC<{
   bridge: string
 }> = genericSuspense(({ bridge, ...restProps }) => {
   const dropdownItems = [
-    { title: 'Last week', timestampVal: weekAgoTimestamp() },
-    { title: 'Last month', timestampVal: monthAgoTimestamp() },
+    { title: 'Last day', timestampVal: _1DayBeforeInSeconds },
+    { title: 'Last week', timestampVal: _1WeekBeforeInSeconds },
   ]
   const [selectedItem, setSelectedItem] = useState(0)
-  const [timePeriod, setTimePeriod] = useState(weekAgoTimestamp())
+  const [timePeriod, setTimePeriod] = useState(_1DayBeforeInSeconds)
 
   const onDropdownItemSelect = (index: number) => {
     setTimePeriod(dropdownItems[index].timestampVal)

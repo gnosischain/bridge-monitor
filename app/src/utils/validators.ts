@@ -171,34 +171,45 @@ const MAX_RESULTS = 1000
 const RESULTS_ORDER = OrderDirection.Desc
 const ORDER_BY = Transaction_OrderBy.Timestamp
 
-export const fetchSignedTransactions = async (bridge: BridgesValues) => {
+export const fetchSignedTransactions = async (bridge: BridgesValues, afterDate: number) => {
   const bridgeValue = bridge.toUpperCase() as BridgesValues
   // fetches TXs validated within a period of time
   const validators = VALIDATORS_BY_BRIDGE[bridgeValue]
+
   const signedTXsPromises = validators.map(async (validator) => {
     const query = {
       first: MAX_RESULTS,
       orderBy: ORDER_BY,
       orderDirection: RESULTS_ORDER,
+      skip: 0,
       where: {
         bridgeName: bridgeValue,
+        validations_: {
+          timestamp_gt: afterDate,
+          validatorAddr: validator.address.toLowerCase(),
+        },
       },
     }
+
     const { transactions: signedTxs } = await getHomeGraphqlClient()<
       TransactionsQuery,
       QueryTransactionsArgs
     >(TRANSACTION_QUERY, query)
+
     const signedTxsCount = signedTxs.length
     return { name: validator.name, value: signedTxsCount }
   })
+
   const eachValidatorSignedTXs = await Promise.all(signedTXsPromises)
+
   return eachValidatorSignedTXs
 }
 
-export const fetchExecutedTransactions = async (bridge: BridgesValues) => {
+export const fetchExecutedTransactions = async (bridge: BridgesValues, afterDate: number) => {
   const bridgeValue = bridge.toUpperCase() as BridgesValues
   // fetches TXs validated within a period of time
   const validators = VALIDATORS_BY_BRIDGE[bridgeValue]
+
   const executedTXsPromises = validators.map(async (validator) => {
     const query = {
       first: MAX_RESULTS,
@@ -206,15 +217,19 @@ export const fetchExecutedTransactions = async (bridge: BridgesValues) => {
       orderDirection: RESULTS_ORDER,
       where: {
         bridgeName: bridgeValue,
+        execution_: {
+          timestamp_gt: afterDate,
+          validatorAddr: validator.address.toLowerCase(),
+        },
       },
     }
-    const { transactions: signedTxs } = await getHomeGraphqlClient()<
-      TransactionsQuery,
-      QueryTransactionsArgs
-    >(TRANSACTION_QUERY, query)
-    const signedTxsCount = signedTxs.length
-    return { name: validator.name, value: signedTxsCount }
+
+    const { transactions } = await getHomeGraphqlClient()<TransactionsQuery, QueryTransactionsArgs>(
+      TRANSACTION_QUERY,
+      query,
+    )
+    return { name: validator.name, value: transactions.length }
   })
-  const eachValidatorSignedTXs = await Promise.all(executedTXsPromises)
-  return eachValidatorSignedTXs
+
+  return await Promise.all(executedTXsPromises)
 }
