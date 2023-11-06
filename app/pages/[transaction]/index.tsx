@@ -6,7 +6,6 @@ import { Address as BaseAddress } from '@/src/components/token/Address'
 import { ClaimButton as BaseClaimButton } from '@/src/components/transactions/TxStatus'
 import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { TransactionDetailsListItem } from '@/src/components/transaction/TransactionDetailsListItem'
-import { TransactionFooter } from '@/src/components/transaction/TransactionFooter'
 import {
   TransactionSummary,
   TransactionSummaryPlaceholder,
@@ -244,7 +243,6 @@ const Bridges: NextPage = ({ ...restProps }) => {
           </TransactionDetailsList>
         </TransactionDetails>
       </TransactionInformation>
-      <TransactionFooter />
     </Wrapper>
   )
 }

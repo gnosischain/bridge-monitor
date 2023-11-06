@@ -16,7 +16,7 @@ import { useRouter } from 'next/router'
 
 const TD = styled.td`
   --td-padding-vertical: ${({ theme: { common } }) => common.space * 3}px;
-  --td-padding-horizontal: ${({ theme: { common } }) => common.space * 2}px;
+  --td-padding-horizontal: ${({ theme: { common } }) => common.space}px;
 
   flex-grow: 1;
   transition: background-color 0.15s linear;
@@ -123,11 +123,12 @@ const ArrowRight = styled(ArrowUp)`
 const TR = styled.tr`
   cursor: pointer;
   background-color: ${({ theme: { colors } }) => colors.darkerGrey};
-  border-bottom: 4px solid ${({ theme: { colors } }) => colors.black};
+  border-bottom: 4px solid ${({ theme: { colors } }) => colors.darkestGrey};
   border-radius: ${({ theme: { common } }) => common.borderRadius};
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
+  min-width: 0;
   row-gap: 10px;
 
   &:last-child {
@@ -145,8 +146,13 @@ const TR = styled.tr`
     }
   }
 
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    border-right: 4px solid ${({ theme: { colors } }) => colors.darkestGrey};
+  }
+
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     background-color: transparent;
+    border-bottom-color: ${({ theme: { colors } }) => colors.black};
     border-bottom-width: 1px;
     display: table-row;
     margin: 0;
@@ -213,6 +219,8 @@ export const TransactionRow: React.FC<Props> = ({
     })
   }
 
+  const addressCharacters = 6
+
   return (
     <TR
       animate={{ y: 0, opacity: 1 }}
@@ -228,7 +236,7 @@ export const TransactionRow: React.FC<Props> = ({
         <MobileLabel>Transaction Hash</MobileLabel>
         <Address
           address={transaction.transactionHash}
-          characters={9}
+          characters={addressCharacters}
           copy
           link={transaction.scanUrl}
         />
@@ -248,7 +256,7 @@ export const TransactionRow: React.FC<Props> = ({
           <MobileLabel>Initiator</MobileLabel>
           <InitiatorReceiverAddress
             address={transaction.initiator}
-            characters={9}
+            characters={addressCharacters}
             copy
             link={transaction.initiatorScanUrl}
           />
@@ -256,7 +264,7 @@ export const TransactionRow: React.FC<Props> = ({
           <MobileLabel>Receiver</MobileLabel>
           <InitiatorReceiverAddress
             address={transaction.receiver}
-            characters={9}
+            characters={addressCharacters}
             copy
             link={transaction.receiverScanUrl}
           />

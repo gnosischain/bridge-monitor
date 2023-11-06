@@ -64,10 +64,6 @@ const ResetButton = styled.button`
   text-align: center;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    grid-column: auto / span 3;
-  }
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     grid-column: auto;
   }
 

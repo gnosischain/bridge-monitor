@@ -13,6 +13,8 @@ const Wrapper = styled.div`
   align-items: center;
   column-gap: ${({ theme: { common } }) => common.space * 3}px;
   display: flex;
+  flex-wrap: wrap;
+  row-gap: ${({ theme: { common } }) => common.space}px;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     display: grid;

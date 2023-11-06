@@ -7,6 +7,23 @@ import { TransactionRow } from '@/src/components/transactions/TransactionRow'
 import { Transaction } from '@/src/utils/transactions'
 import { ITEMS_PER_PAGE } from '@/src/constants/misc'
 
+const TBody = styled.tbody`
+  display: table-row-group;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    display: table-row-group;
+  }
+`
+
 const Empty = styled(NoResultsMessage)`
   border: none;
   height: 100%;
@@ -26,7 +43,7 @@ export const TransactionsList: React.FC<Props> = ({
   updateInMemoryTransaction,
 }) => {
   return (
-    <tbody>
+    <TBody>
       <AnimatePresence>
         {transactions.length > 0 ? (
           transactions
@@ -49,6 +66,6 @@ export const TransactionsList: React.FC<Props> = ({
           </tr>
         )}
       </AnimatePresence>
-    </tbody>
+    </TBody>
   )
 }

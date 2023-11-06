@@ -47,9 +47,10 @@ export const Pod: React.FC<Props> = ({
   title,
   transaction,
   updateInMemoryTransaction,
+  ...restProps
 }) => {
   return (
-    <Wrapper status={transaction?.transactionStatus}>
+    <Wrapper status={transaction?.transactionStatus} {...restProps}>
       <Header>
         <Badge text={title} />
         {transaction && updateInMemoryTransaction ? (
