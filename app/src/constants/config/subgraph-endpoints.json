@@ -1,6 +1,6 @@
 {
   "100:1": {
-    "home": "https://api.thegraph.com/subgraphs/name/{{org}}/gbc-bridge-gnosis",
-    "foreign": "https://api.thegraph.com/subgraphs/name/{{org}}/gbc-bridge-mainnet"
+    "home": "https://api.studio.thegraph.com/query/57751/gnosis-home-bridge/version/latest",
+    "foreign": "https://api.studio.thegraph.com/query/57751/gnosis-foreign-bridge/version/latest"
   }
 }
