@@ -127,7 +127,7 @@ export const ClaimButton = ({
       ])
 
       // build claim tx
-      const address = contracts.XDAI.address[Chains.mainnet]
+      const address = contracts.homeXdaiBridge.address[Chains.mainnet]
       const foreignXDAI = ForeignBridgeErcToNative__factory.connect(address, provider.getSigner())
       claim = () => foreignXDAI.executeSignatures(message, signatures)
     } else {

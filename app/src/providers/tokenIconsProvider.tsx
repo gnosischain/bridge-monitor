@@ -1,35 +1,107 @@
 import { FC, PropsWithChildren, createContext, useContext } from 'react'
 
-import { TokenInfo } from '@uniswap/token-lists'
 import useSWR from 'swr'
 
-import gnosisChainTokensURL from '@/src/providers/token-list.json'
 import { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { TokensLists } from '@/src/constants/config/types'
+
+import { getIcon } from '@/src/utils/icons'
+import { isNativeToken, isSameString } from '@/src/utils/tools'
 import {
+  NativeTokensByNetwork,
   Token,
   TokenListResponse,
   TokensByAddress,
   TokensByNetwork,
-  TokensBySymbol,
 } from '@/types/token'
 import { isFulfilled } from '@/types/utils'
 
-type ForeignTokenListQueryReturn = {
-  tokens: Token[]
-  tokensByAddress: TokensByAddress
-  tokensBySymbol: TokensBySymbol
-  tokensByNetwork: TokensByNetwork
-}
 type TokenListQueryReturn = {
   tokens: Token[]
   tokensByAddress: TokensByAddress
-  tokensBySymbol: TokensBySymbol
   tokensByNetwork: TokensByNetwork
+  nativeTokensByNetwork: NativeTokensByNetwork
+  ambTokensByNetwork: TokensByNetwork
 }
 
-const fetchGnosisChainTokens = async () => gnosisChainTokensURL
+const fetchBridgedTokens = async (): Promise<Array<Token>> =>
+  fetch('/api/tokens').then((response) => response.json())
 
+const baseTokensInfo: TokenListQueryReturn = {
+  tokens: [],
+  tokensByAddress: {},
+  tokensByNetwork: {},
+  nativeTokensByNetwork: {},
+  ambTokensByNetwork: {},
+}
+
+const addLogoUriByTokenList = (tokenList: Token[]) => (token: Token) => {
+  if (isNativeToken(token.address)) {
+    const logoURI = token.chainId === 1 ? getIcon('eth') : getIcon('xdai')
+    return {
+      ...token,
+      logoURI,
+    }
+  }
+
+  // if the token has no logoURI, look for it in the token list
+  if (!token.logoURI) {
+    // if the chain is gnosis, look for the token in the token list of the foreign chain
+    if (token.chainId === 100) {
+      const foreignTokenAddress = token.extensions.bridgeInfo[1].tokenAddress
+
+      const logoUriFromTokenList = tokenList.find(({ address }) =>
+        isSameString(address, foreignTokenAddress),
+      )?.logoURI
+
+      if (logoUriFromTokenList) {
+        return {
+          ...token,
+          logoURI: logoUriFromTokenList,
+        }
+      }
+    }
+
+    // if on the foreign chain, look for the token in the token list
+    const logoUriFromTokenList = tokenList.find(({ address }) =>
+      isSameString(address, token.address),
+    )?.logoURI
+
+    if (logoUriFromTokenList) {
+      return {
+        ...token,
+        logoURI: logoUriFromTokenList,
+      }
+    }
+  }
+
+  return token
+}
+
+const lowerCaseAddresses = (token: Token) => ({
+  ...token,
+  address: token.address.toLowerCase(),
+  extensions: {
+    ...token.extensions,
+    bridgeInfo: Object.fromEntries(
+      Object.entries(token.extensions.bridgeInfo).map(([chainId, bridgeInfo]) => [
+        chainId,
+        { ...bridgeInfo, tokenAddress: bridgeInfo.tokenAddress.toLowerCase() },
+      ]),
+    ) as Token['extensions']['bridgeInfo'],
+  },
+})
+
+const removeSpecialCharactersInName = (token: Token) => ({
+  ...token,
+  // this one goes for USD//C
+  name: token.name.replace('//', ''),
+})
+
+/**
+ * Custom hook that fetches and returns a list of tokens from various sources.
+ * @returns An object containing the list of tokens, indexed by address, symbol, and network.
+ */
 const useTokenListQuery = () => {
   return useSWR(['token-list'], async () => {
     const tokenListPromises = Object.values(TokensLists).map(async (url) => fetch(url))
@@ -39,99 +111,52 @@ const useTokenListQuery = () => {
     )
     const tokenLists: TokenListResponse[] = await Promise.all(
       fulfilledResults.map((fulfilledResult) => {
-        if (!fulfilledResult.value.ok) {
-          return Promise.resolve({ tokens: [] })
+        if (fulfilledResult.value.ok) {
+          return fulfilledResult.value.json()
         }
-        return fulfilledResult.value.json()
+
+        return Promise.resolve({ tokens: [] })
       }),
     )
     const tokenList = tokenLists.flatMap((tokenList) => tokenList.tokens)
 
-    const gnosisTokenList = await fetchGnosisChainTokens()
+    const bridgedTokens = await fetchBridgedTokens()
 
-    /**
-     * Custom hook that fetches and returns a list of tokens from various sources.
-     * @returns An object containing the list of tokens, indexed by address, symbol, and network.
-     */
-    const remoteTokensInfo = tokenList.reduce(
-      (acc: ForeignTokenListQueryReturn, token: TokenInfo) => {
-        const address = token.address.toLowerCase()
+    const addLogoUri = addLogoUriByTokenList(tokenList)
 
-        if (acc.tokensByAddress[address] || token.chainId !== 1) {
-          return acc
-        }
+    return bridgedTokens.reduce((acc: TokenListQueryReturn, token: Token) => {
+      token = addLogoUri(removeSpecialCharactersInName(lowerCaseAddresses(token)))
 
-        acc.tokens.push(token)
-        acc.tokensByAddress[address] = token
-        acc.tokensBySymbol[token.symbol.toUpperCase()] = token
-
-        if (!acc.tokensByNetwork[token.chainId]) {
-          acc.tokensByNetwork[token.chainId] = [token]
-        } else {
-          acc.tokensByNetwork[token.chainId].push(token)
-        }
-
+      // native tokens indexing
+      if (isNativeToken(token.address)) {
+        acc.nativeTokensByNetwork[token.chainId] = token
         return acc
-      },
-      {
-        tokens: [],
-        tokensByAddress: {},
-        tokensBySymbol: {},
-        tokensByNetwork: {},
-      },
-    )
+      }
 
-    /**
-     * Extend the previous list with the tokens from the Gnosis chain.
-     * We try to find the corresponding token in the previous list, if we find it , we add it to the lists
-     * using the gnosis token address and the previous token info.
-     * @returns An object containing the list of tokens, indexed by address, symbol, and network.
-     */
-    const finalTokens = gnosisTokenList
-      .filter((gt) => gt.foreignChainId == '1')
-      .reduce((acc, gnosisToken) => {
-        if (!acc) {
-          return acc
-        }
-        if (!acc) {
-          return acc
-        }
-        const currentToken = acc.tokensBySymbol[gnosisToken.homeSymbol.toUpperCase()]
-        // if no token found, skip
-        if (!currentToken) {
-          return acc
-        }
+      acc.tokens.concat(token)
+      acc.tokensByAddress[token.address] = token
+      acc.tokensByNetwork[token.chainId] = (acc.tokensByNetwork[token.chainId] ?? []).concat(token)
 
-        const gnosisTokenAddress = gnosisToken.homeContractAddressHash.toLowerCase()
-        // if we already have this token, skip
-        if (acc.tokensByAddress[gnosisTokenAddress]) {
-          return acc
-        }
+      const isBridgedToNative = isNativeToken(
+        token.extensions.bridgeInfo[1]?.tokenAddress ??
+          token.extensions.bridgeInfo[100]?.tokenAddress,
+      )
 
-        // add gnosis token to the list
-        const token: TokenInfo = {
-          ...currentToken,
-          chainId: 100,
-          address: gnosisTokenAddress,
-        }
-        acc.tokens.push(token)
-        acc.tokensByAddress[token.address] = token
-        acc.tokensBySymbol[token.symbol.toLowerCase()] = token
-        acc.tokensByNetwork[token.chainId] = acc.tokensByNetwork[token.chainId]
-          ? [...acc.tokensByNetwork[token.chainId], token]
-          : [token]
+      if (!isBridgedToNative) {
+        acc.ambTokensByNetwork[token.chainId] = (
+          acc.ambTokensByNetwork[token.chainId] ?? []
+        ).concat(token)
+      }
 
-        return acc
-      }, remoteTokensInfo)
-
-    return finalTokens
+      return acc
+    }, baseTokensInfo)
   })
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const TokenIconsContext = createContext<TokenListQueryReturn>({} as any)
 
-export const TokenIconsContextProvider: FC<PropsWithChildren<any>> = withGenericSuspense(
+export const TokenIconsContextProvider: FC<PropsWithChildren<unknown>> = withGenericSuspense(
   ({ children }) => {
     const { data } = useTokenListQuery()
 
@@ -143,6 +168,6 @@ export const TokenIconsContextProvider: FC<PropsWithChildren<any>> = withGeneric
 
 export default withGenericSuspense(TokenIconsContextProvider)
 
-export function useTokenIcons(): TokenListQueryReturn {
+export function useBridgedTokens(): TokenListQueryReturn {
   return useContext<TokenListQueryReturn>(TokenIconsContext)
 }

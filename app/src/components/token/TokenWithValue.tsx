@@ -3,9 +3,10 @@ import styled from 'styled-components'
 import { BigNumber, BigNumberish, FixedNumber, constants } from 'ethers'
 
 import { ChainToken } from '@/src/components/common/ChainToken'
-import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
+import { useBridgedTokens } from '@/src/providers/tokenIconsProvider'
 import { formatNumber } from '@/src/utils/format'
 import { ArrowUp } from '@/src/components/assets/ArrowUp'
+import { useDaiToken } from '@/src/hooks/useDaiToken'
 
 const tokenSize = 16
 
@@ -74,54 +75,55 @@ interface Props {
 
 export const TokenWithValue: React.FC<Props> = ({
   bridgeName,
-  token,
+  token: tokenAddress,
   tokenValue,
   ...restProps
 }) => {
-  const { tokensByAddress } = useTokenIcons()
+  const { gnosisXdaiToken, mainnetDaiToken } = useDaiToken()
+  const { tokensByAddress } = useBridgedTokens()
 
-  const isXdaiBrigde = bridgeName === 'XDAI'
-  const isZeroToken = token === constants.AddressZero
+  tokenAddress = tokenAddress?.toLowerCase()
+  const isXdaiBridge = bridgeName === 'XDAI'
+  const isZeroToken = tokenAddress === constants.AddressZero
+  const isNativeInXdaiBridge = isXdaiBridge && isZeroToken
 
-  const _token =
-    isXdaiBrigde && isZeroToken
-      ? { name: 'xDAI', symbol: 'xDAI', logoURI: '/images/icons/xdai.png', decimals: 18 }
-      : tokensByAddress[token?.toLowerCase()]
+  const token = isNativeInXdaiBridge ? gnosisXdaiToken : tokensByAddress[tokenAddress]
+  const xDaiBridgedToken = isNativeInXdaiBridge ? mainnetDaiToken : gnosisXdaiToken
 
-  const value = _token
+  const value = token
     ? formatNumber(
-        +FixedNumber.fromValue(BigNumber.from(tokenValue), _token.decimals).round(4).toString(),
+        +FixedNumber.fromValue(BigNumber.from(tokenValue), token.decimals).round(4).toString(),
       )
     : tokenValue.toString()
 
   return (
     <Wrapper {...restProps}>
       <Row>
-        <TokenIcon name={_token?.name ?? token}>
+        <TokenIcon name={token?.name ?? token}>
           <Image
-            alt={_token?.symbol ?? token}
+            alt={token?.symbol ?? token}
             className="iconImage"
             height={tokenSize}
             objectFit="cover"
-            src={_token?.logoURI || '/images/icons/empty-token.png'}
+            src={token?.logoURI || '/images/icons/empty-token.png'}
             width={tokenSize}
           />
         </TokenIcon>
         <Value className="value">{value}</Value>
       </Row>
-      {isXdaiBrigde && (
+      {isXdaiBridge && (
         <>
           <div className="arrowWrapper">
             <ArrowRight />
           </div>
           <Row>
-            <TokenIcon name={isZeroToken ? 'DAI' : 'xDAI'}>
+            <TokenIcon name={xDaiBridgedToken.name}>
               <Image
-                alt={isZeroToken ? 'DAI' : 'xDAI'}
+                alt={xDaiBridgedToken.symbol}
                 className="iconImage"
                 height={tokenSize}
                 objectFit="cover"
-                src={isZeroToken ? '/images/icons/dai.png' : '/images/icons/xdai.png'}
+                src={xDaiBridgedToken.logoURI as string}
                 width={tokenSize}
               />
             </TokenIcon>

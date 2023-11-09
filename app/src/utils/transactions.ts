@@ -1,8 +1,8 @@
 import { getForeignTransactions } from '@/src/utils/localTransactions'
-import { fromSubgraphTimestamp } from './date'
-import { chainsConfig } from '../constants/config/chains'
-import { Chains } from '../constants/config/types'
-import { Token } from '../constants/token'
+import { fromSubgraphTimestamp } from '@/src/utils/date'
+import { chainsConfig } from '@/src/constants/config/chains'
+import { Chains } from '@/src/constants/config/types'
+import { Token } from '@/types/token'
 import { getForeignGraphqlClient, getHomeGraphqlClient } from '@/src/constants/config/subgraph'
 import { TRANSACTION_QUERY } from '@/src/queries/transactions'
 import {
