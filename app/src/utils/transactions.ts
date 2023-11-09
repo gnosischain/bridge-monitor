@@ -18,6 +18,7 @@ import { isSameString } from '@/src/utils/tools'
 
 const GNOSIS = 'gnosis'
 const MAINNET = 'mainnet'
+const defaultRequestLimit = 1000
 
 export type TransactionExecution = {
   id: string
@@ -137,18 +138,40 @@ const transformTx = (tx: TransactionSG): Transaction => {
 }
 
 const fetchHomeTransaction = async (query?: QueryTransactionsArgs) => {
-  const { transactions } = await getHomeGraphqlClient()<TransactionsQuery, QueryTransactionsArgs>(
-    TRANSACTION_QUERY,
-    query,
-  )
+  let skip = 0
+  let transactions: TransactionsQuery['transactions'] = []
+  let shouldIterate = true
+
+  while (shouldIterate) {
+    const { transactions: newTransactions } = await getHomeGraphqlClient()<
+      TransactionsQuery,
+      QueryTransactionsArgs
+    >(TRANSACTION_QUERY, { ...query, skip, first: defaultRequestLimit })
+
+    transactions = [...transactions, ...newTransactions]
+    skip += query?.first ?? defaultRequestLimit
+    shouldIterate = newTransactions.length == (query?.first ?? defaultRequestLimit)
+  }
+
   return transactions
 }
 
 const fetchForeignTransaction = async (query?: QueryTransactionsArgs) => {
-  const { transactions } = await getForeignGraphqlClient()<
-    TransactionsQuery,
-    QueryTransactionsArgs
-  >(TRANSACTION_QUERY, query)
+  let skip = 0
+  let transactions: TransactionsQuery['transactions'] = []
+  let shouldIterate = true
+
+  while (shouldIterate) {
+    const { transactions: newTransactions } = await getForeignGraphqlClient()<
+      TransactionsQuery,
+      QueryTransactionsArgs
+    >(TRANSACTION_QUERY, { ...query, skip, first: defaultRequestLimit })
+
+    transactions = [...transactions, ...newTransactions]
+    skip += query?.first ?? defaultRequestLimit
+    shouldIterate = newTransactions.length == (query?.first ?? defaultRequestLimit)
+  }
+
   return transactions
 }
 
