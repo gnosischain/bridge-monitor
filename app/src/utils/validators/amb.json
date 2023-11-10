@@ -34,9 +34,9 @@
   {
     "id": 6,
     "address": "0x258667E543C913264388B33328337257aF208a8f",
-    "name": "Gnosis Safe",
+    "name": "Safe",
     "bridgeType": "AMB",
-    "shortName": "GS",
+    "shortName": "S",
     "status": "default"
   },
   {

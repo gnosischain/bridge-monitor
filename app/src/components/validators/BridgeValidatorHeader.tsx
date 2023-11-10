@@ -56,8 +56,8 @@ export const BridgeValidatorHeader: React.FC<Props> = ({
   const validatorIcon = useMemo(() => {
     const basePath = '/images/validators/'
     const data =
-      validator === 'GS'
-        ? { image: `${basePath}gnosis-safe.svg`, size: 38, bgColor: '#12FF80' }
+      validator === 'S'
+        ? { image: `${basePath}safe.svg`, size: 38, bgColor: '#12FF80' }
         : validator === 'GW'
         ? { image: `${basePath}gateway.svg`, size: 36, bgColor: '#EDE9EF' }
         : validator === 'PF'
