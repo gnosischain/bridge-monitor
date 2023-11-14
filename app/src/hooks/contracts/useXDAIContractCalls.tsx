@@ -8,7 +8,7 @@ import {
   HomeBridgeErcToNative,
   HomeBridgeErcToNative__factory,
 } from '@/types/typechain'
-import { BigNumberish } from 'ethers'
+import { BigNumberish } from '@ethersproject/bignumber'
 
 export const useHomeXDAIBridgeLimits = (currentDay: BigNumberish = '0') => {
   const homeXDAI = useContractInstance(
@@ -70,7 +70,7 @@ export const useForeignXDAIBridgeLimits = (currentDay: BigNumberish = '0') => {
   const foreignXDAI = useContractInstance(
     ForeignBridgeErcToNative__factory,
     'homeXdaiBridge',
-    Chains.gnosis,
+    Chains.mainnet,
   )
 
   const contextCalls = [foreignXDAI.getCurrentDay] as const
