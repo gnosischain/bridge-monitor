@@ -15,7 +15,7 @@ import {
   Transaction_Filter,
   Transaction_OrderBy,
 } from '@/types/generated/subgraph'
-import { isTransactionHash } from '@/src/utils/tools'
+import { isSameString, isTransactionHash } from '@/src/utils/tools'
 import differenceInDays from 'date-fns/differenceInDays'
 import { MAX_DAYS_TO_FILTER } from '@/src/constants/misc'
 
@@ -29,6 +29,8 @@ export const useFetchTransactions = (
   const {
     data,
     error,
+    isLoading,
+    isValidating,
     mutate: refetch,
   } = useSWR(
     query
@@ -40,7 +42,7 @@ export const useFetchTransactions = (
           inMemoryFilters,
         ]
       : null,
-    (a, b, _query, c, _inMemoryFilters) => fetchTransactions(_query, _inMemoryFilters),
+    ([, , _query, , _inMemoryFilters]) => fetchTransactions(_query, _inMemoryFilters),
   )
   const [inMemoryTransactions, setInMemoryTransactions] = useState<Array<Transaction>>(data ?? [])
 
@@ -50,25 +52,27 @@ export const useFetchTransactions = (
     }
   }, [data])
 
-  const updateInMemoryTransaction = (transaction: Transaction) => {
-    setInMemoryTransactions((txs) =>
-      txs.map((tx) => {
-        if (tx.id === transaction.id) {
-          return transaction
-        }
-        return tx
-      }),
-    )
-  }
+  const updateInMemoryTransaction = (transaction: Transaction) =>
+    setInMemoryTransactions((txs) => txs.map((tx) => (tx.id === transaction.id ? transaction : tx)))
 
-  return { transactions: inMemoryTransactions, error, refetch, updateInMemoryTransaction }
+  return {
+    transactions: inMemoryTransactions,
+    error,
+    refetch,
+    updateInMemoryTransaction,
+    isLoading,
+    isValidating,
+  }
 }
 
 export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   const [page, setPage] = useState(1)
   const [query, setQuery] = useState<QueryTransactionsArgs>()
   const [inMemoryFilters, setInMemoryFilters] = useState<TxsInMemoryFilters>({})
-  const { transactions, updateInMemoryTransaction } = useFetchTransactions(inMemoryFilters, query)
+  const { isLoading, isValidating, transactions, updateInMemoryTransaction } = useFetchTransactions(
+    inMemoryFilters,
+    query,
+  )
 
   useEffect(() => {
     const _where: Transaction_Filter = {
@@ -184,14 +188,19 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
     }))
   }, [setQuery, setPage, page])
 
+  const filteredTransactions = !isSameString(filters.bridge, transactions[0]?.bridgeName || '')
+    ? []
+    : !filters.status || filters.status == 'All Status'
+    ? transactions
+    : transactions.filter((tx) => tx.transactionStatus == filters.status.toUpperCase())
+
   return {
     page,
     setPage,
-    transactions:
-      !filters.status || filters.status == 'All Status'
-        ? transactions
-        : transactions.filter((tx) => tx.transactionStatus == filters.status.toUpperCase()),
+    transactions: filteredTransactions,
     loadMore,
     updateInMemoryTransaction,
+    isLoading,
+    isValidating,
   }
 }

@@ -1,6 +1,7 @@
 import { BaseContract } from '@ethersproject/contracts'
 import useSWR, { SWRConfiguration } from 'swr'
 
+import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import getCacheKey from '@/src/utils/cacheKey'
 import { MySWRResponse, TupleParametersType, TupleReturnType, Writeable } from '@/types/utils'
 
@@ -13,23 +14,26 @@ export function useContractCall<
   key: string | null,
   options?: SWRConfiguration,
 ): MySWRResponse<TupleReturnType<MyContract, Writeable<Calls>>> {
-  // @todo add to key: data related to functions called
+  const { appChainId } = useWeb3Connection()
+
   const {
     data = [],
     error,
     mutate: refetch,
+    isLoading,
+    isValidating,
   } = useSWR(
-    key ? [getCacheKey([...params, key])] : null,
+    key ? [getCacheKey([...params, key, appChainId || 0])] : null,
     async () => {
       try {
         // eslint-disable-next-line prefer-spread
         return Promise.all(calls.map((c, i) => c.apply(null, params[i])))
       } catch (e) {
-        console.error({ error: e })
+        console.log({ error: e })
       }
     },
     options,
   )
 
-  return [error ? { data: null, error } : { data, error: null }, refetch]
+  return [error ? { data: null, error } : { data, error: null }, refetch, isLoading, isValidating]
 }

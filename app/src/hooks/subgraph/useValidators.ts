@@ -1,23 +1,7 @@
 import useSWR from 'swr'
 
 import { BridgesValues } from '@/src/constants/config/bridges'
-import {
-  fetchExecutedTransactions,
-  fetchSignedTransactions,
-  fetchValidators,
-} from '@/src/utils/validators'
-
-export const useFetchValidators = (bridge?: string) => {
-  const {
-    data,
-    error,
-    mutate: refetch,
-  } = useSWR(bridge ? ['useFetchValidators', bridge] : null, (a, _bridge) =>
-    fetchValidators(_bridge),
-  )
-
-  return { validators: data ?? [], error, refetch }
-}
+import { fetchExecutedTransactions, fetchSignedTransactions } from '@/src/utils/validators'
 
 export const useFetchValidatorsSignatures = (bridge: BridgesValues, afterDate: number) => {
   const {

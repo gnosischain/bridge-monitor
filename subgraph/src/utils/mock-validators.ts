@@ -195,18 +195,18 @@ export function mockXDAIValidators(): void {
   v5.removed = false;
   v5.save();
 
-  const v6 = new Validator("0xfe24cfb2f8872e9ed097c451de065a9f6048915b");
-  v6.name = "Syncnode";
-  v6.bridgeType = "XDAI";
-  v6.address = Bytes.fromHexString(
-    "0xfe24cfb2f8872e9ed097c451de065a9f6048915b"
-  );
-  v6.lastActivity = BigInt.fromI32(1691605420);
-  v6.hashAdded =
-    "0x01b608491bdf1a8b067b743288f51017b7b8050399fc0f75989825431ae3010d";
-  v6.hashRemoved = null;
-  v6.removed = false;
-  v6.save();
+  // const v6 = new Validator("0xfe24cfb2f8872e9ed097c451de065a9f6048915b");
+  // v6.name = "Syncnode";
+  // v6.bridgeType = "XDAI";
+  // v6.address = Bytes.fromHexString(
+  //   "0xfe24cfb2f8872e9ed097c451de065a9f6048915b"
+  // );
+  // v6.lastActivity = BigInt.fromI32(1691605420);
+  // v6.hashAdded =
+  //   "0x01b608491bdf1a8b067b743288f51017b7b8050399fc0f75989825431ae3010d";
+  // v6.hashRemoved = null;
+  // v6.removed = false;
+  // v6.save();
 
   const v7 = new Validator("0x90776017057b84bc47d7e7383b65c463c80a6cdd");
   v7.name = "Gateway";

@@ -3,7 +3,6 @@ import { BridgeValidator } from '@/src/components/validators/BridgeValidator'
 import { TransactionsSigned } from '@/src/components/validators/TransactionsSigned'
 import { Bridges } from '@/src/constants/config/bridges'
 import {
-  useFetchValidators,
   useFetchValidatorsExecutions,
   useFetchValidatorsSignatures,
 } from '@/src/hooks/subgraph/useValidators'
@@ -11,6 +10,8 @@ import SafeSuspense from '@/src/components/helpers/SafeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { get1DayBeforeInSeconds } from '@/src/utils/date'
 import { isSameString } from '@/src/utils/tools'
+import { useValidators } from '@/src/providers/validatorsProvider'
+import { useEffect } from 'react'
 
 const Columns = styled.div`
   display: grid;
@@ -81,11 +82,13 @@ const Placeholder: React.FC = () => (
 const _1DayBefore = get1DayBeforeInSeconds()
 
 const XDAIValidators: React.FC = ({ ...restProps }) => {
-  const { validators: xdaiValidators } = useFetchValidators(Bridges.xdai)
-
+  const { refetch, validators: xdaiValidators } = useValidators(Bridges.xdai)
   const xdaiTodaysSignedTXs = useFetchValidatorsSignatures('XDAI', _1DayBefore)
-
   const xdaiTodaysExecutedTXs = useFetchValidatorsExecutions('XDAI', _1DayBefore)
+
+  // We force doing a refetch only on the first render to bring updated information
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => refetch(), [])
 
   return (
     <Columns {...restProps}>
@@ -110,9 +113,13 @@ const XDAIValidators: React.FC = ({ ...restProps }) => {
 }
 
 const OmnibridgeValidators: React.FC = ({ ...restProps }) => {
-  const { validators: omnibridgeValidators } = useFetchValidators(Bridges.amb)
+  const { refetch, validators: omnibridgeValidators } = useValidators(Bridges.amb)
   const omnibridgeTodaysSignedTXs = useFetchValidatorsSignatures('AMB', _1DayBefore)
   const omnibridgeTodaysExecutedTXs = useFetchValidatorsExecutions('AMB', _1DayBefore)
+
+  // We force doing a refetch only on the first render to bring updated information
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => refetch(), [])
 
   return (
     <Columns {...restProps}>

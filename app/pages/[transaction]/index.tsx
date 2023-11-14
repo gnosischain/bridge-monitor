@@ -14,12 +14,13 @@ import { TransactionValidations } from '@/src/components/transaction/Transaction
 import { TransactionRowDetails } from '@/src/components/transaction/TransactionRowDetails'
 import { AMB_SIGNATURE_THRESHOLD, XDAI_SIGNATURE_THRESHOLD } from '@/src/constants/misc'
 import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
-import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
 import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'
 import { getChainIconName } from '@/src/utils/icons'
 import { isSameString } from '@/src/utils/tools'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
+import { useValidators } from '@/src/providers/validatorsProvider'
+import { BridgesValues } from '@/src/constants/config/bridges'
 
 const Wrapper = styled.div`
   display: flex;
@@ -98,7 +99,7 @@ const Bridges: NextPage = ({ ...restProps }) => {
   const currentTx = transactions.length > 0 ? transactions[0] : null
   const txValidations = currentTx?.validations ?? []
   const txExecution = currentTx?.execution ?? ({} as TransactionExecution)
-  const { validators: bridgeValidators } = useFetchValidators(currentTx?.bridgeName)
+  const { validators: bridgeValidators } = useValidators(currentTx?.bridgeName as BridgesValues)
 
   if (!currentTx) return null
 

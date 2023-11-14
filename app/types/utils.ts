@@ -13,6 +13,8 @@ export type SwrResponse<T> = { data: T[]; loading: boolean; error: any }
 export type MySWRResponse<T> = [
   { data: Awaited<T>; error: null } | { data: null; error: Error },
   KeyedMutator<T>,
+  boolean,
+  boolean,
 ]
 export type Writeable<T> = { -readonly [P in keyof T]: T[P] }
 

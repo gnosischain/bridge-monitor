@@ -2,17 +2,13 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import { cloneDeep } from 'lodash'
 
 import { fromBNtoNumber } from '@/src/utils/bigNumber'
-import { fromSubgraphTimestamp } from '@/src/utils/date'
 import { formatNumber } from '@/src/utils/format'
 import { Transaction } from '@/src/utils/transactions'
 import ambValidators from '@/src/utils/validators/amb.json'
 import xdaiValidators from '@/src/utils/validators/xdai.json'
 import { ValidatorStatusType } from '@/src/components/assets/ValidatorStatus'
 import { Bridges, BridgesValues } from '@/src/constants/config/bridges'
-import { chainsConfig } from '@/src/constants/config/chains'
-import { gnosis } from '@/src/constants/config/rpc-providers'
 import { getHomeGraphqlClient } from '@/src/constants/config/subgraph'
-import { Chains } from '@/src/constants/config/types'
 import { BalanceType, ValidatorStatusTypes } from '@/src/constants/types'
 import { TRANSACTION_QUERY } from '@/src/queries/transactions'
 import { VALIDATORS_QUERY } from '@/src/queries/validators'
@@ -107,7 +103,7 @@ export const getValidationsStatus = (transaction: Transaction, _validators: Vali
   return Object.values(validators)
 }
 
-const fetchHomeValidators = async (filter?: ValidatorsQueryVariables) => {
+export const fetchHomeValidators = async (filter?: ValidatorsQueryVariables) => {
   const { validators } = await getHomeGraphqlClient()<ValidatorsQuery, ValidatorsQueryVariables>(
     VALIDATORS_QUERY,
     filter,
@@ -131,40 +127,9 @@ export const getValidatorByName = (validatorName: string, bridge: BridgesValues)
   return bridgeValidators[lowerCaseAddress]
 }
 
-const getBalance = async (address: string, provider: JsonRpcProvider) => {
+export const getBalance = async (address: string, provider: JsonRpcProvider) => {
   const balance = await provider.getBalance(address)
   return formatNumber(fromBNtoNumber(balance) ?? 0)
-}
-
-export const fetchValidators = async (bridge: string) => {
-  const homeProvider = gnosis()
-
-  const validatorsData = await Promise.all([fetchHomeValidators()])
-  const validatorsFromSG = validatorsData[0]
-  // @todo verify that both coincide
-  // if (validatorsNative.length !== validatorsForeign.length) throw new Error('Validators mismatch')
-  const bridgeValue = bridge.toUpperCase() as BridgesValues
-  const validatorsPromises = validatorsFromSG.map(async (v) => {
-    const val = getValidatorByAddress(v.address, bridgeValue)
-    if (val) {
-      const balanceHomeValue = await getBalance(v.address, homeProvider)
-      return {
-        ...val,
-        lastSeen: fromSubgraphTimestamp(v.lastActivity),
-        signed: v.signed.length,
-        executed: v.executed.length,
-        balanceHome: {
-          token: chainsConfig[Chains.gnosis].token,
-          chain: chainsConfig[Chains.gnosis].name,
-          value: balanceHomeValue,
-        },
-      }
-    }
-  })
-  const validators = await Promise.all(validatorsPromises)
-  return validators
-    .filter(Boolean)
-    .filter((v) => v && v.bridgeType.toUpperCase() === bridgeValue) as Validator[]
 }
 
 const MAX_RESULTS = 1000

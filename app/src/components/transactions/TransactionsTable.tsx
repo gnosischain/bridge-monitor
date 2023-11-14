@@ -7,8 +7,10 @@ import { TransactionHeader } from '@/src/components/transactions/TransactionsHea
 import { TransactionsList } from '@/src/components/transactions/TransactionsList'
 import { ITEMS_PER_PAGE } from '@/src/constants/misc'
 import { useTransactionsWithFilters } from '@/src/hooks/subgraph/useTransactions'
-import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
+import { Loading } from '@/src/components/loading/Loading'
+import { useValidators } from '@/src/providers/validatorsProvider'
+import { BridgesValues } from '@/src/constants/config/bridges'
 
 const Table = styled.table<{ empty?: boolean }>`
   line-height: 2.2rem;
@@ -33,10 +35,13 @@ type TransactionsTableProps = {
 }
 
 const TransactionsTable: React.FC<TransactionsTableProps> = ({ bridge, filters }) => {
-  const { loadMore, transactions, updateInMemoryTransaction } = useTransactionsWithFilters(filters)
+  const { isLoading, loadMore, transactions, updateInMemoryTransaction } =
+    useTransactionsWithFilters(filters)
   const [page, setPage] = useState(1)
   const totalPages = Math.ceil(transactions.length / ITEMS_PER_PAGE)
-  const { validators } = useFetchValidators(bridge)
+  const { validators } = useValidators(bridge as BridgesValues)
+
+  if (isLoading) return <Loading />
 
   return (
     <>

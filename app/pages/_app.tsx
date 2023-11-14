@@ -23,6 +23,7 @@ import TooltipConfig from '@/src/components/tooltip/TooltipConfig'
 import 'sanitize.css'
 import 'react-tooltip/dist/react-tooltip.css'
 import 'react-datepicker/dist/react-datepicker.css'
+import { ValidatorsProvider } from '@/src/providers/validatorsProvider'
 
 const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3ConnectionProvider'), {
   ssr: false,
@@ -63,7 +64,9 @@ export default function App({ Component, messages, pageProps }: AppPropsWithLayo
                   <TokenIconsContextProvider>
                     <Header />
                     <GeneralContextProvider>
-                      {getLayout(<Component {...pageProps} />)}
+                      <ValidatorsProvider>
+                        {getLayout(<Component {...pageProps} />)}
+                      </ValidatorsProvider>
                     </GeneralContextProvider>
                     <Footer />
                     <Toast />
