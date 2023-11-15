@@ -188,11 +188,10 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
     }))
   }, [setQuery, setPage, page])
 
-  const filteredTransactions = !isSameString(filters.bridge, transactions[0]?.bridgeName || '')
-    ? []
-    : !filters.status || filters.status == 'All Status'
-    ? transactions
-    : transactions.filter((tx) => tx.transactionStatus == filters.status.toUpperCase())
+  const filteredTransactions =
+    !filters.status || filters.status == 'All Status'
+      ? transactions
+      : transactions.filter((tx) => tx.transactionStatus == filters.status.toUpperCase())
 
   return {
     page,
