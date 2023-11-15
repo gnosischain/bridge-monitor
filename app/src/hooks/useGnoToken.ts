@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 import { Chains } from '@/src/constants/config/types'
-import { useBridgedTokens } from '@/src/providers/tokenIconsProvider'
+import { useBridgedTokens } from '@/src/providers/TokenListProvider'
 import { isSameString } from '@/src/utils/tools'
 import { Token } from '@/types/token'
 

@@ -11,7 +11,7 @@ import { TextfieldCSS } from '@/src/components/form/Textfield'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
-import { useBridgedTokens } from '@/src/providers/tokenIconsProvider'
+import { useBridgedTokens } from '@/src/providers/TokenListProvider'
 
 const Wrapper = styled(Dropdown)`
   --inner-padding: 4px;

@@ -1,12 +1,11 @@
+import type { TokenInfo as UniswapToken } from '@uniswap/token-lists'
 import Image from 'next/image'
 import styled from 'styled-components'
-import { BigNumber, BigNumberish, FixedNumber, constants } from 'ethers'
+import { BigNumberish } from 'ethers'
 
 import { ChainToken } from '@/src/components/common/ChainToken'
-import { useBridgedTokens } from '@/src/providers/tokenIconsProvider'
-import { formatNumber } from '@/src/utils/format'
 import { ArrowUp } from '@/src/components/assets/ArrowUp'
-import { useDaiToken } from '@/src/hooks/useDaiToken'
+import { useLookupBridgedToken } from '@/src/hooks/useLookupBridgedToken'
 
 const tokenSize = 16
 
@@ -67,7 +66,31 @@ const Value = styled.span`
   line-height: 1;
 `
 
+interface TokenInfo {
+  token: UniswapToken
+  value: string
+}
+
+const TokenInfo: React.FC<TokenInfo> = ({ token, value }) => {
+  return (
+    <>
+      <TokenIcon name={token.name}>
+        <Image
+          alt={token.symbol}
+          className="iconImage"
+          height={tokenSize}
+          objectFit="cover"
+          src={token.logoURI ?? '/images/icons/empty-token.png'}
+          width={tokenSize}
+        />
+      </TokenIcon>
+      <Value className="value">{value}</Value>
+    </>
+  )
+}
+
 interface Props {
+  initiatorNetwork: string
   token: string
   bridgeName: string
   tokenValue: BigNumberish
@@ -75,41 +98,22 @@ interface Props {
 
 export const TokenWithValue: React.FC<Props> = ({
   bridgeName,
+  initiatorNetwork,
   token: tokenAddress,
   tokenValue,
   ...restProps
 }) => {
-  const { gnosisXdaiToken, mainnetDaiToken } = useDaiToken()
-  const { tokensByAddress } = useBridgedTokens()
-
-  tokenAddress = tokenAddress?.toLowerCase()
-  const isXdaiBridge = bridgeName === 'XDAI'
-  const isZeroToken = tokenAddress === constants.AddressZero
-  const isNativeInXdaiBridge = isXdaiBridge && isZeroToken
-
-  const token = isNativeInXdaiBridge ? gnosisXdaiToken : tokensByAddress[tokenAddress]
-  const xDaiBridgedToken = isNativeInXdaiBridge ? mainnetDaiToken : gnosisXdaiToken
-
-  const value = token
-    ? formatNumber(
-        +FixedNumber.fromValue(BigNumber.from(tokenValue), token.decimals).round(4).toString(),
-      )
-    : tokenValue.toString()
+  const { destinationToken, initiatorToken, isXdaiBridge, value } = useLookupBridgedToken({
+    bridgeName,
+    initiatorNetwork,
+    tokenAddress,
+    tokenValue,
+  })
 
   return (
     <Wrapper {...restProps}>
       <Row>
-        <TokenIcon name={token?.name ?? token}>
-          <Image
-            alt={token?.symbol ?? token}
-            className="iconImage"
-            height={tokenSize}
-            objectFit="cover"
-            src={token?.logoURI || '/images/icons/empty-token.png'}
-            width={tokenSize}
-          />
-        </TokenIcon>
-        <Value className="value">{value}</Value>
+        <TokenInfo token={initiatorToken} value={value} />
       </Row>
       {isXdaiBridge && (
         <>
@@ -117,17 +121,7 @@ export const TokenWithValue: React.FC<Props> = ({
             <ArrowRight />
           </div>
           <Row>
-            <TokenIcon name={xDaiBridgedToken.name}>
-              <Image
-                alt={xDaiBridgedToken.symbol}
-                className="iconImage"
-                height={tokenSize}
-                objectFit="cover"
-                src={xDaiBridgedToken.logoURI as string}
-                width={tokenSize}
-              />
-            </TokenIcon>
-            <Value className="value">{value}</Value>
+            <TokenInfo token={destinationToken} value={value} />
           </Row>
         </>
       )}

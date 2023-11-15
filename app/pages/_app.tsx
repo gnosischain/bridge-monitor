@@ -29,7 +29,7 @@ const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3Connect
   ssr: false,
 })
 
-const TokenIconsContextProvider = dynamic(() => import('@/src/providers/tokenIconsProvider'), {
+const TokenListProvider = dynamic(() => import('@/src/providers/TokenListProvider'), {
   ssr: false,
 })
 
@@ -61,7 +61,7 @@ export default function App({ Component, messages, pageProps }: AppPropsWithLayo
             <ThemeProvider>
               <SafeSuspense>
                 <TransactionNotificationProvider>
-                  <TokenIconsContextProvider>
+                  <TokenListProvider>
                     <Header />
                     <GeneralContextProvider>
                       <ValidatorsProvider>
@@ -71,7 +71,7 @@ export default function App({ Component, messages, pageProps }: AppPropsWithLayo
                     <Footer />
                     <Toast />
                     <TooltipConfig />
-                  </TokenIconsContextProvider>
+                  </TokenListProvider>
                 </TransactionNotificationProvider>
               </SafeSuspense>
             </ThemeProvider>

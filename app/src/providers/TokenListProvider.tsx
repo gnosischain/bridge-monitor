@@ -2,7 +2,7 @@ import { FC, PropsWithChildren, createContext, useContext } from 'react'
 
 import useSWR from 'swr'
 
-import { withGenericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { TokensLists } from '@/src/constants/config/types'
 
 import { getIcon } from '@/src/utils/icons'
@@ -17,7 +17,8 @@ import {
 import { isFulfilled } from '@/types/utils'
 
 type TokenListQueryReturn = {
-  tokens: Token[]
+  tokens: Array<Token>
+  tokenList: Array<Token>
   tokensByAddress: TokensByAddress
   tokensByNetwork: TokensByNetwork
   nativeTokensByNetwork: NativeTokensByNetwork
@@ -29,6 +30,7 @@ const fetchBridgedTokens = async (): Promise<Array<Token>> =>
 
 const baseTokensInfo: TokenListQueryReturn = {
   tokens: [],
+  tokenList: [],
   tokensByAddress: {},
   tokensByNetwork: {},
   nativeTokensByNetwork: {},
@@ -124,50 +126,53 @@ const useTokenListQuery = () => {
 
     const addLogoUri = addLogoUriByTokenList(tokenList)
 
-    return bridgedTokens.reduce((acc: TokenListQueryReturn, token: Token) => {
-      token = addLogoUri(removeSpecialCharactersInName(lowerCaseAddresses(token)))
+    return {
+      ...bridgedTokens.reduce((acc: TokenListQueryReturn, token: Token) => {
+        token = addLogoUri(removeSpecialCharactersInName(lowerCaseAddresses(token)))
 
-      // native tokens indexing
-      if (isNativeToken(token.address)) {
-        acc.nativeTokensByNetwork[token.chainId] = token
+        // native tokens indexing
+        if (isNativeToken(token.address)) {
+          acc.nativeTokensByNetwork[token.chainId] = token
+          return acc
+        }
+
+        acc.tokens.concat(token)
+        acc.tokensByAddress[token.address] = token
+        acc.tokensByNetwork[token.chainId] = (acc.tokensByNetwork[token.chainId] ?? []).concat(
+          token,
+        )
+
+        const isBridgedToNative = isNativeToken(
+          token.extensions.bridgeInfo[1]?.tokenAddress ??
+            token.extensions.bridgeInfo[100]?.tokenAddress,
+        )
+
+        if (!isBridgedToNative) {
+          acc.ambTokensByNetwork[token.chainId] = (
+            acc.ambTokensByNetwork[token.chainId] ?? []
+          ).concat(token)
+        }
+
         return acc
-      }
-
-      acc.tokens.concat(token)
-      acc.tokensByAddress[token.address] = token
-      acc.tokensByNetwork[token.chainId] = (acc.tokensByNetwork[token.chainId] ?? []).concat(token)
-
-      const isBridgedToNative = isNativeToken(
-        token.extensions.bridgeInfo[1]?.tokenAddress ??
-          token.extensions.bridgeInfo[100]?.tokenAddress,
-      )
-
-      if (!isBridgedToNative) {
-        acc.ambTokensByNetwork[token.chainId] = (
-          acc.ambTokensByNetwork[token.chainId] ?? []
-        ).concat(token)
-      }
-
-      return acc
-    }, baseTokensInfo)
+      }, baseTokensInfo),
+      tokenList,
+    }
   })
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const TokenIconsContext = createContext<TokenListQueryReturn>({} as any)
+const TokenListContext = createContext<TokenListQueryReturn>({} as any)
 
-export const TokenIconsContextProvider: FC<PropsWithChildren<unknown>> = withGenericSuspense(
-  ({ children }) => {
-    const { data } = useTokenListQuery()
+export const TokenListProvider: FC<PropsWithChildren<unknown>> = genericSuspense(({ children }) => {
+  const { data } = useTokenListQuery()
 
-    return !data ? null : (
-      <TokenIconsContext.Provider value={data}>{children}</TokenIconsContext.Provider>
-    )
-  },
-)
+  return data ? (
+    <TokenListContext.Provider value={data}>{children}</TokenListContext.Provider>
+  ) : null
+})
 
-export default withGenericSuspense(TokenIconsContextProvider)
+export default TokenListProvider
 
 export function useBridgedTokens(): TokenListQueryReturn {
-  return useContext<TokenListQueryReturn>(TokenIconsContext)
+  return useContext<TokenListQueryReturn>(TokenListContext)
 }

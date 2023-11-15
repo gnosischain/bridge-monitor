@@ -20,7 +20,7 @@ import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { TokenDropdown } from '@/src/components/token/TokenDropdown'
 import { InnerCard } from '@/src/components/common/InnerCard'
-import { useBridgedTokens } from '@/src/providers/tokenIconsProvider'
+import { useBridgedTokens } from '@/src/providers/TokenListProvider'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 
 const Wrapper = styled(TabContentInner)``
