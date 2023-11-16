@@ -82,13 +82,9 @@ const Placeholder: React.FC = () => (
 const _1DayBefore = get1DayBeforeInSeconds()
 
 const XDAIValidators: React.FC = ({ ...restProps }) => {
-  const { refetch, validators: xdaiValidators } = useValidators(Bridges.xdai)
+  const { validators: xdaiValidators } = useValidators(Bridges.xdai)
   const xdaiTodaysSignedTXs = useFetchValidatorsSignatures('XDAI', _1DayBefore)
   const xdaiTodaysExecutedTXs = useFetchValidatorsExecutions('XDAI', _1DayBefore)
-
-  // We force doing a refetch only on the first render to bring updated information
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => refetch(), [])
 
   return (
     <Columns {...restProps}>
@@ -113,13 +109,9 @@ const XDAIValidators: React.FC = ({ ...restProps }) => {
 }
 
 const OmnibridgeValidators: React.FC = ({ ...restProps }) => {
-  const { refetch, validators: omnibridgeValidators } = useValidators(Bridges.amb)
+  const { validators: omnibridgeValidators } = useValidators(Bridges.amb)
   const omnibridgeTodaysSignedTXs = useFetchValidatorsSignatures('AMB', _1DayBefore)
   const omnibridgeTodaysExecutedTXs = useFetchValidatorsExecutions('AMB', _1DayBefore)
-
-  // We force doing a refetch only on the first render to bring updated information
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => refetch(), [])
 
   return (
     <Columns {...restProps}>
@@ -145,6 +137,14 @@ const OmnibridgeValidators: React.FC = ({ ...restProps }) => {
 }
 
 export const BridgeValidators: React.FC = () => {
+  const { refetch } = useValidators(Bridges.amb)
+
+  // Call refetch to bring the last validator's activity
+  useEffect(() => {
+    refetch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <>
       <Title>

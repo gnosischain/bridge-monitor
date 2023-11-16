@@ -6,6 +6,7 @@ import { Validator } from '@/src/utils/validators'
 import { gnosis } from '@/src/constants/config/rpc-providers'
 import { fromSubgraphTimestamp } from '@/src/utils/date'
 import { Chains, chainsConfig } from '@/src/constants/config/chains'
+import cloneDeep from 'lodash/cloneDeep'
 
 type ValidatorsContextType = {
   validators: Record<BridgesValues, Validator[]>
@@ -54,7 +55,7 @@ const fetcher = async () => {
 
   const validators = await Promise.all(validatorsPromises)
 
-  const res = { ...defaultValidators }
+  const res = cloneDeep(defaultValidators)
 
   validators.forEach((v) => {
     res[v.bridgeType.toUpperCase() as BridgesValues].push(v)
