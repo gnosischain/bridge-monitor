@@ -85,24 +85,28 @@ export const Transactions: React.FC = () => {
             ))}
           </Tabs>
         </TabsWrapper>
-        <SafeSuspense fallback={<TransactionsFilterSkeleton />}>
-          <Filters
-            bridge={activeTab}
-            onBridgeDirectionChange={setBridgeDirection}
-            onExecutedByChange={setExecutedBy}
-            onHashChange={setHash}
-            onResetFilters={() => resetFilters({ bridge: activeTab })}
-            onSignedByChange={setSignedBy}
-            onStatusChange={setStatus}
-          />
-          <Legend />
 
-          <SafeSuspense>
-            <TabContent title={activeTab}>
-              <TransactionsTable bridge={activeTab} filters={filters} />
-            </TabContent>
+        {transactions.map((v) => v.title).includes(activeTab) && (
+          <SafeSuspense fallback={<TransactionsFilterSkeleton />}>
+            <Filters
+              bridge={activeTab}
+              onBridgeDirectionChange={setBridgeDirection}
+              onExecutedByChange={setExecutedBy}
+              onHashChange={setHash}
+              onResetFilters={() => resetFilters({ bridge: activeTab })}
+              onSignedByChange={setSignedBy}
+              onStatusChange={setStatus}
+            />
+
+            <Legend />
+
+            <SafeSuspense>
+              <TabContent title={activeTab}>
+                <TransactionsTable bridge={activeTab} filters={filters} />
+              </TabContent>
+            </SafeSuspense>
           </SafeSuspense>
-        </SafeSuspense>
+        )}
       </Section>
     </>
   )
