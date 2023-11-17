@@ -102,3 +102,7 @@ export const transformDate = (date: string) => parseInt(date ?? '0') * 1000
 
 export const getStartOfDay = () => startOfDay(new Date())
 export const getEndOfDay = () => endOfDay(new Date())
+export const get1DayBefore = () => sub(new Date(), { days: 1 })
+export const get7DaysBefore = () => sub(new Date(), { days: 7 })
+export const get1DayBeforeInSeconds = () => Math.round(get1DayBefore().getTime() / 1000)
+export const get7DaysBeforeInSeconds = () => Math.round(get7DaysBefore().getTime() / 1000)

@@ -3,9 +3,10 @@ import styled from 'styled-components'
 
 import { ValidatorStatus } from '@/src/components/assets/ValidatorStatus'
 import { Tooltip } from '@/src/components/tooltip/Tooltip'
-import { useFetchValidators } from '@/src/hooks/subgraph/useValidators'
 import { Transaction } from '@/src/utils/transactions'
 import { getValidationsStatus } from '@/src/utils/validators'
+import { useValidators } from '@/src/providers/validatorsProvider'
+import { BridgesValues } from '@/src/constants/config/bridges'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -19,7 +20,7 @@ interface Props {
 }
 
 export const Validators: React.FC<Props> = ({ transaction, ...restProps }) => {
-  const { validators } = useFetchValidators(transaction.bridgeName)
+  const { validators } = useValidators(transaction.bridgeName as BridgesValues)
   const validationsStatus = useMemo(
     () => getValidationsStatus(transaction, validators),
     [transaction, validators],

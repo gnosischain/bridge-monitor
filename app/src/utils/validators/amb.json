@@ -34,15 +34,15 @@
   {
     "id": 6,
     "address": "0x258667E543C913264388B33328337257aF208a8f",
-    "name": "Gnosis Safe",
+    "name": "Safe",
     "bridgeType": "AMB",
-    "shortName": "GS",
+    "shortName": "S",
     "status": "default"
   },
   {
     "id": 7,
     "address": "0xfA98B60E02A61B6590f073cAD56e68326652d094",
-    "name": "Kartpatkey",
+    "name": "Karpatkey",
     "bridgeType": "AMB",
     "shortName": "K",
     "status": "default"

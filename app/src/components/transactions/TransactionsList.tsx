@@ -5,7 +5,23 @@ import { NoResultsMessage } from '@/src/components/common/NoResultsMessage'
 import { TransactionRow } from '@/src/components/transactions/TransactionRow'
 
 import { Transaction } from '@/src/utils/transactions'
-import { ITEMS_PER_PAGE } from '@/src/constants/misc'
+
+const TBody = styled.tbody`
+  display: table-row-group;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    display: table-row-group;
+  }
+`
 
 const Empty = styled(NoResultsMessage)`
   border: none;
@@ -16,28 +32,21 @@ const Empty = styled(NoResultsMessage)`
 
 interface Props {
   transactions: Transaction[]
-  page: number
   updateInMemoryTransaction: (transaction: Transaction) => void
 }
 
-export const TransactionsList: React.FC<Props> = ({
-  page,
-  transactions,
-  updateInMemoryTransaction,
-}) => {
+export const TransactionsList: React.FC<Props> = ({ transactions, updateInMemoryTransaction }) => {
   return (
-    <tbody>
+    <TBody>
       <AnimatePresence>
         {transactions.length > 0 ? (
-          transactions
-            .slice(0, page * ITEMS_PER_PAGE)
-            .map((transaction, index) => (
-              <TransactionRow
-                key={`transaction_${index}`}
-                transaction={transaction}
-                updateInMemoryTransaction={updateInMemoryTransaction}
-              />
-            ))
+          transactions.map((transaction, index) => (
+            <TransactionRow
+              key={`transaction_${index}`}
+              transaction={transaction}
+              updateInMemoryTransaction={updateInMemoryTransaction}
+            />
+          ))
         ) : (
           <tr>
             <td colSpan={8}>
@@ -49,6 +58,6 @@ export const TransactionsList: React.FC<Props> = ({
           </tr>
         )}
       </AnimatePresence>
-    </tbody>
+    </TBody>
   )
 }

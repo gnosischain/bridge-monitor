@@ -14,10 +14,7 @@ import {
   Validator,
 } from "../generated/schema";
 
-import {
-  mockAMBValidators,
-  AMB_telepathyAddress,
-} from "./utils/mock-validators";
+import { AMB_telepathyAddress } from "./utils/mock-validators";
 import {
   isAffirmationFromOmnibridge,
   isOmniBridgeKnownMediator,
@@ -26,6 +23,7 @@ import {
   processOmniBridgeTokenBridgingInitiatedEvent,
   processOmniBridgeTokensBridged,
 } from "./utils/omni-bridge";
+import { BRIDGE_AMB, loadValidator } from "./utils/misc";
 
 const MAINNET_OMNI_BRIDGE_HOME_MEDIATOR = "88ad09518695c6c3712AC10a214bE5109a655671".toLowerCase();
 
@@ -64,7 +62,7 @@ export function handlerUserRequestForSignature(
   transaction.transactionStatus = "INITIATED";
 
   transaction.initiatorNetwork = dataSource.network();
-  processOmniBridgeTokenBridgingInitiatedEvent(transaction, receipt);
+  processOmniBridgeTokenBridgingInitiatedEvent(transaction, receipt, messageId);
 
   transaction.receiver = Bytes.fromHexString(message.slice(260, 300));
   transaction.receiverAmount = transaction.initiatorAmount;
@@ -109,8 +107,7 @@ export function handlerSignedForUserRequest(event: SignedForUserRequest): void {
   transaction.save();
 
   // load validator
-  mockAMBValidators();
-  let validator = Validator.load(signerString);
+  let validator = loadValidator(signerString, BRIDGE_AMB);
   if (!validator) {
     log.error(
       `handlerSignedForUserRequest: Validator {} NOT FOUND - txHash: {}`,
@@ -159,8 +156,7 @@ export function handlerCollectedSignatures(event: CollectedSignatures): void {
   transaction.save();
 
   // load validator
-  mockAMBValidators();
-  const validator = Validator.load(executorId.toHexString());
+  const validator = loadValidator(executorId.toHexString(), BRIDGE_AMB);
   if (!validator) {
     log.error(
       `handlerCollectedSignatures: Validator {} NOT FOUND - txHash: {}`,
@@ -231,8 +227,7 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
   }
 
   // load validator
-  mockAMBValidators();
-  let validator = Validator.load(signerString);
+  let validator = loadValidator(signerString, BRIDGE_AMB);
   if (!validator) {
     log.error(
       `handlerSignedForAffirmation: Validator {} NOT FOUND - hash: {}`,

@@ -3,7 +3,7 @@ import { BridgeLimit } from '@/src/components/limits/BridgeLimit'
 import { TabContentInner } from '@/src/components/tabs/TabContentInner'
 import { BaseSubTitle } from '@/src/components/text/BaseSubTitle'
 import { Chains } from '@/src/constants/config/chains'
-import { Token, tokens } from '@/src/constants/token'
+import { Token } from '@/types/token'
 import {
   useForeignOMNIBridgeLimits,
   useHomeOMNIBridgeLimits,
@@ -12,15 +12,16 @@ import {
   useForeignXDAIBridgeLimits,
   useHomeXDAIBridgeLimits,
 } from '@/src/hooks/contracts/useXDAIContractCalls'
+import { useGnoToken } from '@/src/hooks/useGnoToken'
+import { useDaiToken } from '@/src/hooks/useDaiToken'
 import { useDayNumber } from '@/src/hooks/useDayNumber'
 import styled from 'styled-components'
 import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { TokenDropdown } from '@/src/components/token/TokenDropdown'
 import { InnerCard } from '@/src/components/common/InnerCard'
-import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
+import { useBridgedTokens } from '@/src/providers/TokenListProvider'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
-import { isSameString } from '@/src/utils/tools'
 
 const Wrapper = styled(TabContentInner)``
 
@@ -98,6 +99,7 @@ const Placeholder: React.FC = () => (
 export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericSuspense(
   ({ dayNumber, ...restProps }) => {
     const { foreignXdaiInformation } = useForeignXDAIBridgeLimits(dayNumber)
+    const { mainnetDaiToken } = useDaiToken()
 
     return (
       <BridgeLimit
@@ -107,7 +109,7 @@ export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericS
         networkName="mainnet"
         title="Ethereum Mainnet -> GC"
         to="Gnosis"
-        token={tokens.DAI}
+        token={mainnetDaiToken}
         {...foreignXdaiInformation}
         {...restProps}
       />
@@ -119,6 +121,7 @@ export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericS
 export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericSuspense(
   ({ dayNumber, ...restProps }) => {
     const { homeXdaiInformation } = useHomeXDAIBridgeLimits(dayNumber)
+    const { gnosisXdaiToken } = useDaiToken()
 
     return (
       <BridgeLimit
@@ -129,7 +132,7 @@ export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericS
         networkName="gnosis"
         title="GC -> Ethereum Mainnet"
         to="Ethereum"
-        token={tokens.XDAI}
+        token={gnosisXdaiToken}
         tokenTooltip="xDAI tokens are native to Gnosis and enable payments for smart contract execution and gas fees."
         {...homeXdaiInformation}
         {...restProps}
@@ -183,20 +186,18 @@ const OmnibridgeGnosisChainToMainnet: React.FC<{ token: Token; dayNumber: string
 
 export const DailyBridgeLimits: React.FC = ({ ...restProps }) => {
   const dayNumber = useDayNumber()
-  const [mainnetToGnosisChainToken, setMainnetToGnosisChainToken] = useState<Token>(tokens.GNO)
-  const [gnosisChainToMainnet, setGnosisChainToMainnet] = useState<Token>(tokens.GNO_GC)
+  const { gnosisGnoToken, mainnetGnoToken } = useGnoToken()
+  const [mainnetToGnosisChainToken, setMainnetToGnosisChainToken] = useState<Token>(mainnetGnoToken)
+  const [gnosisChainToMainnet, setGnosisChainToMainnet] = useState<Token>(gnosisGnoToken)
   const [invalidToken, setInvalidToken] = useState<Token | false>(false)
-  const { tokensByNetwork } = useTokenIcons()
-  const mainnetTokens = tokensByNetwork[Chains.mainnet] || []
-  const gnosisTokens = tokensByNetwork[Chains.gnosis] || []
+  const { tokensByAddress } = useBridgedTokens()
 
   const onChangeToken = (token: Token) => {
-    const mainnetToGnosisChain = mainnetTokens.find((item) =>
-      isSameString(item.symbol, token.symbol),
-    )
-    const gnosisChainToMainnet = gnosisTokens.find((item) =>
-      isSameString(item.symbol, token.symbol),
-    )
+    // the list of tokens used are those of Mainnet (foreign network)
+    const mainnetToGnosisChain = token
+    const gnosisChainToMainnet =
+      tokensByAddress[token.extensions.bridgeInfo[Chains.gnosis].tokenAddress.toLowerCase()]
+
     const isSelectedTokenValid = mainnetToGnosisChain && gnosisChainToMainnet
 
     if (isSelectedTokenValid) {

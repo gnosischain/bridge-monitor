@@ -61,13 +61,15 @@ interface Props {
 }
 
 export const BridgeValidator: React.FC<Props> = ({ bridgeValidator, ...restProps }) => {
-  const lastSeen = bridgeValidator.lastSeen ?? Date.now()
-  const dateLastSeen = useDate(new Date(lastSeen))
   const lastSeenStatus = HealthStatusTypes.success
   const signedStatus = HealthStatusTypes.success
   const executedStatus = HealthStatusTypes.success
-  const balanceGnosis = bridgeValidator.balanceHome
   const balanceGnosisStatus = HealthStatusTypes.success
+
+  const balanceGnosis = bridgeValidator.balanceHome
+
+  const lastSeen = bridgeValidator.lastSeen ?? Date.now()
+  const dateLastSeen = useDate(new Date(lastSeen))
   const lastSeenTime = `${dateLastSeen.duration?.interval} ${dateLastSeen.duration?.epoch}${dateLastSeen.getSuffix}`
 
   // @todo adds validator label

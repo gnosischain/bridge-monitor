@@ -2,8 +2,6 @@ import Image from 'next/image'
 import { useState } from 'react'
 import styled from 'styled-components'
 
-import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
-
 const IconWrapper = styled.span`
   display: flex;
   img {
@@ -38,18 +36,16 @@ export const TokenIcon: React.FC<Props> = ({
   symbol,
   ...restProps
 }) => {
-  const { tokensBySymbol } = useTokenIcons()
   const [error, setError] = useState(false)
-  const tokenImage = iconSource ?? tokensBySymbol[symbol.toLowerCase()]?.logoURI
 
-  return tokenImage && !error ? (
+  return iconSource && !error ? (
     <IconWrapper>
       <Image
         alt={symbol}
         className="tokenIcon"
         height={dimensions}
         onError={() => setError(true)}
-        src={tokenImage}
+        src={iconSource}
         title={symbol}
         width={dimensions}
         {...restProps}

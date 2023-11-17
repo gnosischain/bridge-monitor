@@ -33,9 +33,9 @@ export const useTransactionsFilters = () => {
     endTimestamp,
   }
 
-  const resetFilters = useCallback(() => {
+  const resetFilters = useCallback((defaults?: Partial<TransactionFilter>) => {
     setHash('')
-    setBridge('XDAI')
+    setBridge(defaults?.bridge || 'XDAI')
     setStatus('')
     setSignedBy('')
     setExecutedBy('')
