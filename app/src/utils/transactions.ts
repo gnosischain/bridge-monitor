@@ -107,10 +107,10 @@ const transformValidation = (txValidation: TransactionValidationSG): Transaction
   }
 }
 
-const transformTx = (tx: TransactionSG): Transaction => {
+const prepareTransactionForView = (tx: TransactionSG): Transaction => {
   const res = {
     id: tx.id,
-    transactionHash: tx.transactionHash ?? tx.id,
+    transactionHash: tx.transactionHash ?? '',
     bridgeName: tx.bridgeName ?? '',
 
     initiator: tx.initiator ?? '',
@@ -282,6 +282,6 @@ export const fetchTransactions = async (
       .filter((tx) => isSameString(tx.execution?.validatorAddr, inMemoryFilters.executor ?? ''))
   }
 
-  const res = transactions.map(transformTx)
+  const res = transactions.map(prepareTransactionForView)
   return res
 }

@@ -65,8 +65,10 @@ export const useLookupBridgedToken = ({
   const [token, setToken] = useState<UniswapToken | undefined>(() =>
     isNativeInXdaiBridge
       ? gnosisXdaiToken
-      : tokensByAddress[tokenAddress] ??
-        tokenList.find(({ address }) => isSameString(address, tokenAddress)),
+      : tokenAddress
+      ? tokensByAddress[tokenAddress] ??
+        tokenList.find(({ address }) => isSameString(address, tokenAddress))
+      : undefined,
   )
 
   const xDaiBridgedToken = isNativeInXdaiBridge ? mainnetDaiToken : gnosisXdaiToken
