@@ -20,7 +20,10 @@ export function mockAMBValidators(): void {
     return;
   }
 
-  const giveth = new Validator("0x105cd22ed3d089bf5589c59b452f9de0796ca52d-AMB");
+  // giveth
+  const giveth = new Validator(
+    "0x105cd22ed3d089bf5589c59b452f9de0796ca52d-AMB"
+  );
   giveth.name = "Giveth";
   giveth.bridgeType = "AMB";
   giveth.address = Bytes.fromHexString(
@@ -33,6 +36,7 @@ export function mockAMBValidators(): void {
   giveth.removed = false;
   giveth.save();
 
+  // safe
   const safe = new Validator("0x258667e543c913264388b33328337257af208a8f-AMB");
   safe.name = "Gnosis Safe";
   safe.bridgeType = "AMB";
@@ -46,7 +50,10 @@ export function mockAMBValidators(): void {
   safe.removed = false;
   safe.save();
 
-  const gateway = new Validator("0x3e0a20099626f3d4d4ea7b0ce0330e88d1fe65d6-AMB");
+  // gateway
+  const gateway = new Validator(
+    "0x3e0a20099626f3d4d4ea7b0ce0330e88d1fe65d6-AMB"
+  );
   gateway.name = "Gateway";
   gateway.bridgeType = "AMB";
   gateway.address = Bytes.fromHexString(
@@ -59,7 +66,10 @@ export function mockAMBValidators(): void {
   gateway.removed = false;
   gateway.save();
 
-  const protofire = new Validator("0x459a3bd49f1ff109bc90b76125533699aaaaf9a6-AMB");
+  // protofire
+  const protofire = new Validator(
+    "0x459a3bd49f1ff109bc90b76125533699aaaaf9a6-AMB"
+  );
   protofire.name = "Protofire";
   protofire.bridgeType = "AMB";
   protofire.address = Bytes.fromHexString(
@@ -72,6 +82,7 @@ export function mockAMBValidators(): void {
   protofire.removed = false;
   protofire.save();
 
+  // cow
   const cow = new Validator("0x674c97db4ce6cac04a124d745979f3e4cba0e9f0-AMB");
   cow.name = "Cow Protocol";
   cow.bridgeType = "AMB";
@@ -85,7 +96,10 @@ export function mockAMBValidators(): void {
   cow.removed = false;
   cow.save();
 
-  const gnosis = new Validator("0xbdc141c8d2343f33f40cb9edd601ccf460cd0dde-AMB");
+  // gnosis
+  const gnosis = new Validator(
+    "0xbdc141c8d2343f33f40cb9edd601ccf460cd0dde-AMB"
+  );
   gnosis.name = "Gnosis DAO";
   gnosis.bridgeType = "AMB";
   gnosis.address = Bytes.fromHexString(
@@ -98,7 +112,10 @@ export function mockAMBValidators(): void {
   gnosis.removed = false;
   gnosis.save();
 
-  const karpakey = new Validator("0xfa98b60e02a61b6590f073cad56e68326652d094-AMB");
+  // karpakey
+  const karpakey = new Validator(
+    "0xfa98b60e02a61b6590f073cad56e68326652d094-AMB"
+  );
   karpakey.name = "Karpatkey";
   karpakey.bridgeType = "AMB";
   karpakey.address = Bytes.fromHexString(
@@ -111,7 +128,10 @@ export function mockAMBValidators(): void {
   karpakey.removed = false;
   karpakey.save();
 
-  const telepathy = new Validator("0xfdbf5711f77b97ea7f1f812832884c7328a682ec-AMB");
+  // telepathy
+  const telepathy = new Validator(
+    "0xfdbf5711f77b97ea7f1f812832884c7328a682ec-AMB"
+  );
   telepathy.name = "Telepathy";
   telepathy.bridgeType = "AMB";
   telepathy.address = Bytes.fromHexString(
@@ -134,6 +154,7 @@ export function mockXDAIValidators(): void {
     return;
   }
 
+  // karpatkey
   const karpatkey = new Validator(
     "0xfa98b60e02a61b6590f073cad56e68326652d094-XDAI"
   );
@@ -149,6 +170,7 @@ export function mockXDAIValidators(): void {
   karpatkey.removed = false;
   karpatkey.save();
 
+  // cow
   const cow = new Validator("0x587c0d02b40822f15f05301d87c16f6a08aaddde-XDAI");
   cow.name = "Cow Protocol";
   cow.bridgeType = "XDAI";
@@ -162,6 +184,7 @@ export function mockXDAIValidators(): void {
   cow.removed = false;
   cow.save();
 
+  // giveth
   const giveth = new Validator(
     "0xc073c8e5ed9aa11cf6776c69b3e13b259ba9f506-XDAI"
   );
@@ -177,6 +200,7 @@ export function mockXDAIValidators(): void {
   giveth.removed = false;
   giveth.save();
 
+  // gnosis
   const gnosis = new Validator(
     "0x97630e2ae609d4104abda91f3066c556403182dd-XDAI"
   );
@@ -192,6 +216,7 @@ export function mockXDAIValidators(): void {
   gnosis.removed = false;
   gnosis.save();
 
+  // safe
   const safe = new Validator("0x1312e98995bbcc30fc63db3cef807e20cdd33dca-XDAI");
   safe.name = "Gnosis Safe";
   safe.bridgeType = "XDAI";
@@ -205,6 +230,7 @@ export function mockXDAIValidators(): void {
   safe.removed = false;
   safe.save();
 
+  // protofire
   const protofire = new Validator(
     "0x4d1c96b9a49c4469a0b720a22b74b034eddfe051-XDAI"
   );
@@ -220,6 +246,7 @@ export function mockXDAIValidators(): void {
   protofire.removed = false;
   protofire.save();
 
+  // gateway
   const gateway = new Validator(
     "0x90776017057b84bc47d7e7383b65c463c80a6cdd-XDAI"
   );
