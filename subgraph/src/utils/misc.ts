@@ -28,13 +28,13 @@ export function loadValidator(
   address: string,
   bridgeType: string
 ): Validator | null {
-  if (bridgeType == BRIDGE_AMB) {
-    mockAMBValidators();
-  }
+  // if (bridgeType == BRIDGE_AMB) {
+  //   mockAMBValidators();
+  // }
 
-  if (bridgeType == BRIDGE_XDAI) {
-    mockXDAIValidators();
-  }
+  // if (bridgeType == BRIDGE_XDAI) {
+  //   mockXDAIValidators();
+  // }
 
   return Validator.load(`${address}-${bridgeType}`);
 }

@@ -6,10 +6,10 @@
   "startBlockHomeBridgeErcToNative": 25736050,
 
   "XDAIBridgeValidators": "0xb289f0e6fbdff8eee340498a56e1787b303f1b6d",
-  "startBlockXDAIBridgeValidators": 25736050,
+  "startBlockXDAIBridgeValidators": 756,
 
   "AMBBridgeValidators": "0xa280fed8d7cad9a76c8b50ca5c33c2534ffa5008",
-  "startBlockAMBBridgeValidators": 25736050,
+  "startBlockAMBBridgeValidators": 7904944,
 
   "HomeAMB": "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59",
   "startBlockHomeAMB": 25736050,
