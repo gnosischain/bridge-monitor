@@ -19,17 +19,25 @@ permissions:
       id-token: write   # This is required for requesting the JWT
       contents: read    # This is required for actions/checkout
 jobs:
-  AssumeRoleAndCallIdentity:
+  Build_and_push_image_to_ECR:
     runs-on: ubuntu-latest
     steps:
       - name: Git clone the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v4.0.0
         with:
           audience: sts.amazonaws.com
-          role-to-assume: ${{ secrets.AWS_ROLE }} 
+          role-to-assume: ${{ secrets.AWS_ECR_ROLE }} 
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
           
@@ -47,15 +55,10 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          tags: "${{ env.REGISTRY }}/bridge-explorer:latest"
+          tags: "${{ env.REGISTRY }}/bridge-explorer:develop"
           platforms: |
             linux/amd64
-        
-      - name: Get Release Tag
-        if: ( github.ref == 'refs/heads/staging' )
-        id: release_tag
-        run: echo "tag=$(git describe --abbrev=0 --tags)" >> $GITHUB_OUTPUT
-
+  
       - name: Build, tag, and push STAGING to Amazon ECR
         if: startsWith(github.ref, 'refs/heads/staging')
         env:
@@ -66,9 +69,28 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          tags: "${{ env.REGISTRY }}/bridge-explorer:${{ env.IMAGE_TAG }}"
+          tags: "${{ env.REGISTRY }}/bridge-explorer:staging"
           platforms: |
             linux/amd64
+
+      - name: Get latest Release Tag
+        if: ( github.ref == 'refs/heads/staging' )
+        id: release_tag
+        run: echo "tag=$(git describe --abbrev=0 --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_OUTPUT
+
+      # CREATE ${{ env.IMAGE_TAG }} + 1 for PROD
+    
+  Get_images_and_restart_deployments:
+    needs: Build_and_push_image_to_ECR
+    runs-on: ubuntu-latest
+    steps:
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.0
+        with:
+          audience: sts.amazonaws.com
+          role-to-assume: ${{ secrets.AWS_EKS_ROLE }} 
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Configure kubectl for EKS
         run: aws eks update-kubeconfig --name ${{ secrets.AWS_EKS_CLUSTER }} --region ${{ env.AWS_REGION }}
