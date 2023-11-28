@@ -1,4 +1,4 @@
-import subgraphEndpointsJson from '@/src/constants/config/subgraph-endpoints.json'
+import subgraphEndpoints from '@/src/constants/config/subgraph-endpoints.json'
 import { DocumentNode } from 'graphql'
 import { GraphQLClient } from 'graphql-request'
 import memoize from 'lodash/memoize'
@@ -7,6 +7,10 @@ export enum SubgraphName {
   BridgeMonitorForeign = 'foreign',
   BridgeMonitorHome = 'home',
 }
+
+// TODO: fix this, the TS compiler (v4.6.2) complains when we pass allowArbitraryExtensions flag no enable .d.json.ts
+// therefore types are not loaded, for now we cast it to any
+const subgraphEndpointsJson: any = subgraphEndpoints
 
 const getSubgraphEnvVariables = (chainPair: string) => {
   // verify NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT is set with the correct value
@@ -64,10 +68,10 @@ const getEndpointsByChain = (chainsPair: string) => {
 
   const endpointsArray = Object.entries(subgraphEndpointsJson[chainsPair]).map(
     ([bridgeSideName, environments]) => {
-      const endpoint = environments[ENVIRONMENT].replace('{{accessId}}', ACCESS_ID).replace(
-        '{{resourceId}}',
-        RESOURCE_ID_BY_BRIDGE[bridgeSideName],
-      )
+      const endpoint = (environments as any)[ENVIRONMENT].replace(
+        '{{accessId}}',
+        ACCESS_ID,
+      ).replace('{{resourceId}}', RESOURCE_ID_BY_BRIDGE[bridgeSideName])
 
       return [bridgeSideName, endpoint]
     },
