@@ -136,9 +136,9 @@ export const BridgeLimit: React.FC<Props> = ({
     <Wrapper {...restProps}>
       <Header>
         <Title>{title}</Title>
-        {token?.address ? (
+        {!isNativeToken ? (
           <ExternalURL
-            href={getExplorerUrl(token?.address || '', networkName)}
+            href={getExplorerUrl(token.address, networkName)}
             rel="noopener noreferrer"
             target="_blank"
           >

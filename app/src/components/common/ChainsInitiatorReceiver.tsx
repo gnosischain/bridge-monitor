@@ -6,10 +6,10 @@ const Wrapper = styled.div`
   --height: 22px;
 
   display: flex;
-  height: 22px;
+  height: var(--height);
   margin-top: auto;
 `
-const BridgeWrapper = styled.div<{ chain?: string }>`
+const Chain = styled.div<{ chain?: string }>`
   align-items: center;
   background: ${(props) =>
     props.chain === 'gnosis'
@@ -20,12 +20,12 @@ const BridgeWrapper = styled.div<{ chain?: string }>`
   font-size: 1.2rem;
   gap: ${({ theme: { common } }) => common.space / 2}px;
   justify-content: center;
+  min-width: fit-content;
   padding: 0 ${({ theme: { common } }) => common.space / 2}px;
   position: relative;
 
   > span {
     border-radius: 50%;
-    overflow: hidden;
     flex-shrink: 0;
   }
 
@@ -71,10 +71,10 @@ const Bridge: React.FC<{ chain: string; iconName?: string }> = ({
   const { iconPath } = useIcon(iconName)
 
   return iconPath ? (
-    <BridgeWrapper chain={chain.toLowerCase()} {...restProps}>
+    <Chain chain={chain.toLowerCase()} {...restProps}>
       <Image alt={chain} height={16} objectFit="cover" src={iconPath} width={16} />
       {chain}
-    </BridgeWrapper>
+    </Chain>
   ) : null
 }
 

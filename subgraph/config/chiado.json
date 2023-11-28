@@ -1,6 +1,0 @@
-{
-  "description": "Subgraph for the Bridge Monitoring System (Chiado)",
-  "network": "gnosistestnet",
-  "startBlock": 0,
-  "HomeBridgeErcToNative": ""
-}

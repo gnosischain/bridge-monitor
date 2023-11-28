@@ -23,12 +23,13 @@ import TooltipConfig from '@/src/components/tooltip/TooltipConfig'
 import 'sanitize.css'
 import 'react-tooltip/dist/react-tooltip.css'
 import 'react-datepicker/dist/react-datepicker.css'
+import { ValidatorsProvider } from '@/src/providers/validatorsProvider'
 
 const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3ConnectionProvider'), {
   ssr: false,
 })
 
-const TokenIconsContextProvider = dynamic(() => import('@/src/providers/tokenIconsProvider'), {
+const TokenListProvider = dynamic(() => import('@/src/providers/TokenListProvider'), {
   ssr: false,
 })
 
@@ -60,15 +61,17 @@ export default function App({ Component, messages, pageProps }: AppPropsWithLayo
             <ThemeProvider>
               <SafeSuspense>
                 <TransactionNotificationProvider>
-                  <TokenIconsContextProvider>
+                  <TokenListProvider>
                     <Header />
                     <GeneralContextProvider>
-                      {getLayout(<Component {...pageProps} />)}
+                      <ValidatorsProvider>
+                        {getLayout(<Component {...pageProps} />)}
+                      </ValidatorsProvider>
                     </GeneralContextProvider>
                     <Footer />
                     <Toast />
                     <TooltipConfig />
-                  </TokenIconsContextProvider>
+                  </TokenListProvider>
                 </TransactionNotificationProvider>
               </SafeSuspense>
             </ThemeProvider>

@@ -1,5 +1,5 @@
 import { Chains } from '@/src/constants/config/types'
-import { Token } from '@/src/constants/token'
+import { Token } from '@/types/token'
 import { useContractCall } from '@/src/hooks/useContractCall'
 import { useContractInstance } from '@/src/hooks/useContractInstance'
 import { toNumber } from '@/src/utils/bigNumber'
@@ -14,7 +14,7 @@ import { BigNumberish } from 'ethers'
 export const useHomeOMNIBridgeLimits = (token: Token, currentDay: BigNumberish = '0') => {
   const tokenAddress = token.address
   const tokenAmountToNumber = toNumber(token.decimals)
-  const homeOMNI = useContractInstance(HomeOmniMediator__factory, 'OMNI', Chains.gnosis)
+  const homeOMNI = useContractInstance(HomeOmniMediator__factory, 'homeOmniBridge', Chains.gnosis)
 
   const contextCalls = [homeOMNI.getCurrentDay, homeOMNI.isTokenRegistered] as const
   const [{ data: homeOMNIContext }] = useContractCall<HomeOmniMediator, typeof contextCalls>(
@@ -74,7 +74,11 @@ export const useHomeOMNIBridgeLimits = (token: Token, currentDay: BigNumberish =
 export const useForeignOMNIBridgeLimits = (token: Token, currentDay: BigNumberish = '0') => {
   const tokenAddress = token.address
   const tokenAmountToNumber = toNumber(token.decimals)
-  const foreignOMNI = useContractInstance(ForeignOmniMediator__factory, 'OMNI', Chains.mainnet)
+  const foreignOMNI = useContractInstance(
+    ForeignOmniMediator__factory,
+    'homeOmniBridge',
+    Chains.mainnet,
+  )
 
   const contextCalls = [foreignOMNI.getCurrentDay, foreignOMNI.isTokenRegistered] as const
   const [{ data: foreignOMNIContext }] = useContractCall<ForeignOmniMediator, typeof contextCalls>(

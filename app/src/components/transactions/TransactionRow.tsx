@@ -1,10 +1,11 @@
+import styled from 'styled-components'
 import { ArrowUp } from '@/src/components/assets/ArrowUp'
 import { ChevronDown } from '@/src/components/assets/ChevronDown'
 
 import { DateTime } from '@/src/components/assets/DateTime'
 import { ChainsInitiatorReceiver } from '@/src/components/common/ChainsInitiatorReceiver'
 import { Address } from '@/src/components/token/Address'
-import { TokenWithValue } from '@/src/components/token/TokenWithValue'
+import { TokenWithValue as BaseTokenWithValue } from '@/src/components/token/TokenWithValue'
 import { ClaimButton, Status } from '@/src/components/transactions/TxStatus'
 import { Validators as BaseValidators } from '@/src/components/transactions/Validators'
 import { Transaction } from '@/src/utils/transactions'
@@ -12,11 +13,10 @@ import { TransactionStatus } from '@/types/generated/subgraph'
 
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/router'
-import styled from 'styled-components'
 
 const TD = styled.td`
   --td-padding-vertical: ${({ theme: { common } }) => common.space * 3}px;
-  --td-padding-horizontal: ${({ theme: { common } }) => common.space * 2}px;
+  --td-padding-horizontal: ${({ theme: { common } }) => common.space}px;
 
   flex-grow: 1;
   transition: background-color 0.15s linear;
@@ -101,7 +101,8 @@ const InitiatorReceiverWrapper = styled.div`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     align-items: center;
     column-gap: ${({ theme: { common } }) => common.space * 3}px;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 1fr 10px 1fr;
     margin-bottom: 4px;
 
     ${InitiatorReceiverAddress} {
@@ -122,11 +123,12 @@ const ArrowRight = styled(ArrowUp)`
 const TR = styled.tr`
   cursor: pointer;
   background-color: ${({ theme: { colors } }) => colors.darkerGrey};
-  border-bottom: 4px solid ${({ theme: { colors } }) => colors.black};
+  border-bottom: 4px solid ${({ theme: { colors } }) => colors.darkestGrey};
   border-radius: ${({ theme: { common } }) => common.borderRadius};
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
+  min-width: 0;
   row-gap: 10px;
 
   &:last-child {
@@ -144,8 +146,13 @@ const TR = styled.tr`
     }
   }
 
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    border-right: 4px solid ${({ theme: { colors } }) => colors.darkestGrey};
+  }
+
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     background-color: transparent;
+    border-bottom-color: ${({ theme: { colors } }) => colors.black};
     border-bottom-width: 1px;
     display: table-row;
     margin: 0;
@@ -153,6 +160,16 @@ const TR = styled.tr`
     &:hover {
       ${TD} {
         background-color: rgba(255, 255, 255, 0.03);
+      }
+    }
+  }
+`
+
+const TokenWithValue = styled(BaseTokenWithValue)`
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    .arrowWrapper {
+      > svg {
+        display: none;
       }
     }
   }
@@ -202,6 +219,8 @@ export const TransactionRow: React.FC<Props> = ({
     })
   }
 
+  const addressCharacters = 6
+
   return (
     <TR
       animate={{ y: 0, opacity: 1 }}
@@ -217,7 +236,7 @@ export const TransactionRow: React.FC<Props> = ({
         <MobileLabel>Transaction Hash</MobileLabel>
         <Address
           address={transaction.transactionHash}
-          characters={6}
+          characters={addressCharacters}
           copy
           link={transaction.scanUrl}
         />
@@ -237,7 +256,7 @@ export const TransactionRow: React.FC<Props> = ({
           <MobileLabel>Initiator</MobileLabel>
           <InitiatorReceiverAddress
             address={transaction.initiator}
-            characters={6}
+            characters={addressCharacters}
             copy
             link={transaction.initiatorScanUrl}
           />
@@ -245,7 +264,7 @@ export const TransactionRow: React.FC<Props> = ({
           <MobileLabel>Receiver</MobileLabel>
           <InitiatorReceiverAddress
             address={transaction.receiver}
-            characters={6}
+            characters={addressCharacters}
             copy
             link={transaction.receiverScanUrl}
           />
@@ -253,6 +272,7 @@ export const TransactionRow: React.FC<Props> = ({
         <MobileLabel>Amount</MobileLabel>
         <TokenWithValue
           bridgeName={transaction.bridgeName}
+          initiatorNetwork={transaction.initiatorNetwork}
           token={transaction.initiatorToken}
           tokenValue={transaction.initiatorAmount}
         />

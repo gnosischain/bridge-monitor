@@ -67,6 +67,7 @@ export const SearchDebounceInput: React.FC<Props> = ({
   return (
     <Wrapper {...restProps}>
       <Textfield
+        autoComplete="off"
         debounceTimeout={DEBOUNCE_TIME}
         id="search"
         minLength={3}

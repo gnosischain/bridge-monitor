@@ -77,28 +77,28 @@ dataSources:
           handler: handlerRelayedMessage
       file: ./src/foreign-xdai.ts
   ##### AMB #####
-  - name: AMBBridgeValidators
-    kind: ethereum/contract
-    network: {{network}} # mainnet | goerli
-    source:
-      address: "{{AMBBridgeValidators}}"
-      abi: BridgeValidators
-      startBlock: {{startBlockAMBBridgeValidators}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - Validator
-      abis:
-        - name: BridgeValidators
-          file: ./abis/BridgeValidators.json
-      eventHandlers:
-        - event: ValidatorAdded(indexed address)
-          handler: handlerValidatorAdded
-        - event: ValidatorRemoved(indexed address)
-          handler: handlerValidatorRemoved
-      file: ./src/bridge-validators/amb-validators.ts
+  # - name: AMBBridgeValidators
+  #   kind: ethereum/contract
+  #   network: {{network}} # mainnet | goerli
+  #   source:
+  #     address: "{{AMBBridgeValidators}}"
+  #     abi: BridgeValidators
+  #     startBlock: {{startBlockAMBBridgeValidators}}
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.7
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - Validator
+  #     abis:
+  #       - name: BridgeValidators
+  #         file: ./abis/BridgeValidators.json
+  #     eventHandlers:
+  #       - event: ValidatorAdded(indexed address)
+  #         handler: handlerValidatorAdded
+  #       - event: ValidatorRemoved(indexed address)
+  #         handler: handlerValidatorRemoved
+  #     file: ./src/bridge-validators/amb-validators.ts
   - name: ForeignAMB
     kind: ethereum/contract
     network: {{network}} # mainnet or goerli

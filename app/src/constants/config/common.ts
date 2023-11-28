@@ -9,3 +9,5 @@ export const RPC_CHIADO = process.env.NEXT_PUBLIC_RPC_CHIADO || ''
 
 export const WALLET_CONNECT_DAPP_URL = process.env.NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL || ''
 export const WALLET_CONNECT_PROJECT_ID = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || ''
+
+export const NATIVE_TOKEN_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'

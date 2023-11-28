@@ -37,28 +37,28 @@ dataSources:
           handler: handlerAffirmationCompleted
       file: ./src/home-xdai.ts
 
-  # - name: XDAIBridgeValidators
-  #   kind: ethereum/contract
-  #   network: {{network}} # gnosis | chiado
-  #   source:
-  #     address: '{{XDAIBridgeValidators}}'
-  #     abi: BridgeValidators
-  #     startBlock: {{startBlockXDAIBridgeValidators}}
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.7
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - Validator
-  #     abis:
-  #       - name: BridgeValidators
-  #         file: ./abis/BridgeValidators.json
-  #     eventHandlers:
-  #       - event: ValidatorAdded(indexed address)
-  #         handler: handlerValidatorAdded
-  #       - event: ValidatorRemoved(indexed address)
-  #         handler: handlerValidatorRemoved
-  #     file: ./src/bridge-validators/xdai-validators.ts
+  - name: XDAIBridgeValidators
+    kind: ethereum/contract
+    network: {{network}} # gnosis | chiado
+    source:
+      address: '{{XDAIBridgeValidators}}'
+      abi: BridgeValidators
+      startBlock: {{startBlockXDAIBridgeValidators}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Validator
+      abis:
+        - name: BridgeValidators
+          file: ./abis/BridgeValidators.json
+      eventHandlers:
+        - event: ValidatorAdded(indexed address)
+          handler: handlerValidatorAdded
+        - event: ValidatorRemoved(indexed address)
+          handler: handlerValidatorRemoved
+      file: ./src/bridge-validators/xdai-validators.ts
 
   - name: AMBBridgeValidators
     kind: ethereum/contract
@@ -82,6 +82,7 @@ dataSources:
         - event: ValidatorRemoved(indexed address)
           handler: handlerValidatorRemoved
       file: ./src/bridge-validators/amb-validators.ts
+  
   - name: HomeAMB
     kind: ethereum/contract
     network: {{network}} # gnosis | chiado

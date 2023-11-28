@@ -18,7 +18,7 @@
   {
     "id": 4,
     "address": "0x97630e2ae609d4104abda91f3066c556403182dd",
-    "name": "Gnosis Dao",
+    "name": "Gnosis DAO",
     "bridgeType": "XDAI",
     "shortName": "GD",
     "status": "default"
@@ -26,7 +26,7 @@
   {
     "id": 5,
     "address": "0x587c0d02b40822f15f05301d87c16f6a08aaddde",
-    "name": "Cow Protocol",
+    "name": "CoW Protocol",
     "bridgeType": "XDAI",
     "shortName": "CP",
     "status": "default"
@@ -34,15 +34,15 @@
   {
     "id": 6,
     "address": "0x1312e98995bbcc30fc63db3cef807e20cdd33dca",
-    "name": "Gnosis Safe",
+    "name": "Safe",
     "bridgeType": "XDAI",
-    "shortName": "GS",
+    "shortName": "S",
     "status": "default"
   },
   {
     "id": 7,
     "address": "0xfa98b60e02a61b6590f073cad56e68326652d094",
-    "name": "Kartpatkey",
+    "name": "Karpatkey",
     "bridgeType": "XDAI",
     "shortName": "K",
     "status": "default"

@@ -21,6 +21,7 @@ import {
 import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { InnerCard } from '@/src/components/common/InnerCard'
 import { BridgesValues } from '@/src/constants/config/bridges'
+import { get1DayBeforeInSeconds, get7DaysBeforeInSeconds } from '@/src/utils/date'
 
 const Wrapper = styled(InnerCard)``
 
@@ -67,14 +68,44 @@ const ChartWrapper = styled.div`
   min-height: 196px;
 `
 
-export const weekAgoTimestamp = () => {
-  const now = new Date()
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).getTime() / 1000
-}
+const TooltipWrapper = styled.div`
+  background-color: #252f2b;
+  border-radius: 6px;
+  border: none;
+  color: #f0ebde;
+  font-family: Karla, Arial, sans-serif;
+  padding: 10px 15px;
+`
 
-const monthAgoTimestamp = () => {
-  const now = new Date()
-  return new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).getTime() / 1000
+const TooltipLabel = styled.div`
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+`
+
+const TooltipValue = styled.div`
+  font-size: 1.4rem;
+  font-weight: 400;
+  margin: 0;
+  text-transform: capitalize;
+`
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CustomTooltip: React.FC<{ active?: boolean; label?: string; payload?: any }> = ({
+  active,
+  label,
+  payload,
+}) => {
+  return (
+    active &&
+    payload &&
+    payload.length && (
+      <TooltipWrapper>
+        <TooltipLabel>{label}</TooltipLabel>
+        <TooltipValue>Signatures: {payload[0].value}</TooltipValue>
+      </TooltipWrapper>
+    )
+  )
 }
 
 export type SignedTXsData = {
@@ -130,8 +161,8 @@ const Chart: React.FC<{ timePeriod: number; bridge: string }> = genericSuspense(
             layout="vertical"
             margin={{
               top: 0,
-              right: 10,
-              left: 0,
+              right: 20,
+              left: -15,
               bottom: 0,
             }}
           >
@@ -144,6 +175,7 @@ const Chart: React.FC<{ timePeriod: number; bridge: string }> = genericSuspense(
               ))}
             </Bar>
             <Tooltip
+              content={<CustomTooltip />}
               contentStyle={{
                 backgroundColor: '#252F2B',
                 border: 'none',
@@ -153,17 +185,6 @@ const Chart: React.FC<{ timePeriod: number; bridge: string }> = genericSuspense(
                 padding: '10px 15px',
               }}
               cursor={false}
-              itemStyle={{
-                fontSize: '1.4rem',
-                fontWeight: '400',
-                margin: '0',
-                textTransform: 'capitalize',
-              }}
-              labelStyle={{
-                fontSize: '1.4rem',
-                fontWeight: '700',
-                margin: '0',
-              }}
               wrapperStyle={{ outline: 'none' }}
             />
           </BarChart>
@@ -173,15 +194,18 @@ const Chart: React.FC<{ timePeriod: number; bridge: string }> = genericSuspense(
   },
 )
 
+const _1DayBeforeInSeconds = get1DayBeforeInSeconds()
+const _1WeekBeforeInSeconds = get7DaysBeforeInSeconds()
+
 export const TransactionsSigned: React.FC<{
   bridge: string
 }> = genericSuspense(({ bridge, ...restProps }) => {
   const dropdownItems = [
-    { title: 'Last week', timestampVal: weekAgoTimestamp() },
-    { title: 'Last month', timestampVal: monthAgoTimestamp() },
+    { title: 'Last day', timestampVal: _1DayBeforeInSeconds },
+    { title: 'Last week', timestampVal: _1WeekBeforeInSeconds },
   ]
   const [selectedItem, setSelectedItem] = useState(0)
-  const [timePeriod, setTimePeriod] = useState(weekAgoTimestamp())
+  const [timePeriod, setTimePeriod] = useState(_1DayBeforeInSeconds)
 
   const onDropdownItemSelect = (index: number) => {
     setTimePeriod(dropdownItems[index].timestampVal)

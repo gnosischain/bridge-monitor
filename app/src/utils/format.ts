@@ -319,10 +319,14 @@ export function formatNumber(
 }
 
 export function formatCurrencyAmount(
-  amount: Nullish<CurrencyAmount<Currency>>,
+  amount: Nullish<CurrencyAmount<Currency> | number>,
   type: NumberType = NumberType.TokenNonTx,
   placeholder?: string,
 ) {
+  if (typeof amount === 'number') {
+    return formatNumber(amount, type, placeholder)
+  }
+
   return formatNumber(amount ? parseFloat(amount.toSignificant()) : undefined, type, placeholder)
 }
 
