@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
 import { Address as BaseAddress } from '@/src/components/token/Address'
-import { ClaimButton as BaseClaimButton } from '@/src/components/transactions/TxStatus'
+import { ClaimButton as BaseClaimButton } from '@/src/components/transactions/ClaimButton'
 import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { TransactionDetailsListItem } from '@/src/components/transaction/TransactionDetailsListItem'
 import {
@@ -86,7 +86,9 @@ const ClaimButton = styled(BaseClaimButton)`
 
 const Bridges: NextPage = ({ ...restProps }) => {
   const router = useRouter()
-  const transactionId = String(router.query?.id)
+  const transactionId = String(router.query?.transaction)
+  /* TODO: use goBackUrl when the button is added */
+  const goBackUrl = String(router.query?.goBackUrl) || '/'
   const { transactions, updateInMemoryTransaction } = useFetchTransactions(
     {},
     {

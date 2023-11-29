@@ -11,7 +11,7 @@ const Wrapper = styled.div`
   justify-content: end;
   margin: ${({ theme: { common } }) => common.space * 4}px 0;
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     align-items: center;
     flex-direction: row;
     gap: ${({ theme: { common } }) => common.space * 4}px;

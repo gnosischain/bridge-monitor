@@ -9,9 +9,9 @@ interface tabsType {
 }
 
 export const tabs: tabsType = {
-  transactions: [
+  bridgeTypes: [
     {
-      title: 'xDAI',
+      title: 'xDai',
     },
     {
       title: 'AMB',

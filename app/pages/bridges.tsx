@@ -1,13 +1,7 @@
 import type { NextPage } from 'next'
-import { Limits } from '@/src/components/limits'
-import { MainTitle } from '@/src/components/text/MainTitle'
+import { BridgesInformation } from '@/src/components/bridges'
 
 const Bridges: NextPage = () => {
-  return (
-    <>
-      <MainTitle>Bridges information</MainTitle>
-      <Limits />
-    </>
-  )
+  return <BridgesInformation />
 }
 export default Bridges

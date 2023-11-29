@@ -1,8 +1,8 @@
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
-import { Legend } from '@/src/components/assets/Legend'
+import { Legend } from '@/src/components/transactions/Legend'
 import { Section } from '@/src/components/layout/Section'
-import { TabContent } from '@/src/components/tabs/TabContent'
 import { TabHeader } from '@/src/components/tabs/TabHeader'
 import { Tabs } from '@/src/components/tabs/Tabs'
 import { TabsWrapper } from '@/src/components/tabs/TabsWrapper'
@@ -13,10 +13,12 @@ import {
   TransactionsFilterSkeleton,
 } from '@/src/components/transactions/TransactionsFilter'
 import TransactionsTable from '@/src/components/transactions/TransactionsTable'
+import { Wrapper } from '@/src/components/layout/Wrapper'
 import { tabs } from '@/src/constants/tabs'
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
-import { useGeneral } from '@/src/providers/generalProvider'
-import React, { useEffect } from 'react'
+import { getEndOfDay, getStartOfDay } from '@/src/utils/date'
+import { useRouter } from 'next/router'
+import { isSameString } from '@/src/utils/tools'
 import SafeSuspense from '@/src/components/helpers/SafeSuspense'
 
 const Head = styled.div`
@@ -25,20 +27,26 @@ const Head = styled.div`
   flex-direction: column;
   gap: ${({ theme: { common } }) => common.space * 2}px;
   justify-content: space-between;
-  padding-bottom: ${({ theme: { common } }) => common.space * 2}px;
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
     align-items: center;
     flex-direction: row;
-    padding-bottom: ${({ theme: { common } }) => common.space * 4}px;
   }
 `
 
-const Title = styled(MainTitle)`
-  margin: 0;
-`
+export const Transactions: React.FC = ({ ...restProps }) => {
+  const router = useRouter()
+  const activeTab = (router.query.bridge as string) || 'xDai'
+  const sectionPath = 'latest-transactions'
 
-export const Transactions: React.FC = () => {
+  useEffect(() => {
+    if (router.pathname == `/${sectionPath}` && !router.query.bridge) {
+      router.push({ pathname: sectionPath, query: { bridge: 'xDai' } }, undefined, {
+        shallow: true,
+      })
+    }
+  }, [router])
+
   const {
     filters,
     resetFilters,
@@ -50,64 +58,56 @@ export const Transactions: React.FC = () => {
     setSignedBy,
     setStartTimestamp,
     setStatus,
-  } = useTransactionsFilters()
-
-  const { transactions } = tabs
-  const { activeTab } = useGeneral()
+  } = useTransactionsFilters({
+    bridge: activeTab,
+    startTimestamp: getStartOfDay(),
+    endTimestamp: getEndOfDay(),
+  })
 
   useEffect(() => {
-    resetFilters()
     setBridge(activeTab)
-  }, [activeTab, resetFilters, setBridge])
+  }, [activeTab, setBridge])
 
   return (
-    <>
+    <Wrapper {...restProps}>
       <Head>
-        <Title>Transactions</Title>
-        <DateTimePicker
-          endDate={filters.endTimestamp}
-          onEndDateChange={setEndTimestamp}
-          onStartDateChange={setStartTimestamp}
-          startDate={filters.startTimestamp}
-        />
+        <MainTitle>Transactions</MainTitle>
+        {filters.endTimestamp && filters.startTimestamp && (
+          <DateTimePicker
+            endDate={filters.endTimestamp}
+            onEndDateChange={setEndTimestamp}
+            onStartDateChange={setStartTimestamp}
+            startDate={filters.startTimestamp}
+          />
+        )}
       </Head>
       <Section>
         <TabsWrapper>
           <Tabs>
-            {transactions.map(({ title }, index) => (
+            {tabs.bridgeTypes.map(({ title }, index) => (
               <TabHeader
+                isActive={isSameString(activeTab, title)}
                 key={index}
-                onClick={(t) => {
-                  resetFilters({ bridge: t.toString() })
-                }}
+                onClick={() => router.push(`/${sectionPath}?bridge=${title}`)}
                 title={title}
               />
             ))}
           </Tabs>
         </TabsWrapper>
-
-        {transactions.map((v) => v.title).includes(activeTab) && (
-          <SafeSuspense fallback={<TransactionsFilterSkeleton />}>
-            <Filters
-              bridge={activeTab}
-              onBridgeDirectionChange={setBridgeDirection}
-              onExecutedByChange={setExecutedBy}
-              onHashChange={setHash}
-              onResetFilters={() => resetFilters({ bridge: activeTab })}
-              onSignedByChange={setSignedBy}
-              onStatusChange={setStatus}
-            />
-
-            <Legend />
-
-            <SafeSuspense>
-              <TabContent title={activeTab}>
-                <TransactionsTable bridge={activeTab} filters={filters} />
-              </TabContent>
-            </SafeSuspense>
-          </SafeSuspense>
-        )}
+        <SafeSuspense fallback={<TransactionsFilterSkeleton />}>
+          <Filters
+            bridge={activeTab}
+            onBridgeDirectionChange={setBridgeDirection}
+            onExecutedByChange={setExecutedBy}
+            onHashChange={setHash}
+            onResetFilters={() => resetFilters({ bridge: activeTab })}
+            onSignedByChange={setSignedBy}
+            onStatusChange={setStatus}
+          />
+        </SafeSuspense>
+        <Legend />
+        <TransactionsTable bridge={activeTab} filters={filters} />
       </Section>
-    </>
+    </Wrapper>
   )
 }

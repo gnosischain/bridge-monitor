@@ -35,7 +35,7 @@ export const ModalSwitchNetwork: React.FC<{ onClose: () => void }> = ({
       <NetworkButtons>
         {chainOptions.map((item, index) => (
           <NetworkButton
-            key={index}
+            key={`${item.chainId}_${index}`}
             onClick={() => {
               setAppChainId(item.chainId)
               pushNetwork({ chainId: item.chainIdHex })

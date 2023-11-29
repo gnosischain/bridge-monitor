@@ -2,10 +2,10 @@ import styled from 'styled-components'
 
 import { useDate } from '@/src/hooks/useDate'
 import { DateFormated } from '@/src/utils/date'
-import { Tooltip } from '@/src/components/tooltip/Tooltip'
+import { Tooltip as BaseTooltip } from '@/src/components/tooltip/Tooltip'
 
-const Wrapper = styled.div`
-  position: relative;
+const Wrapper = styled(BaseTooltip)`
+  display: inline;
 `
 
 const Text = styled.div`
@@ -24,13 +24,11 @@ export const DateTime: React.FC<Props> = ({ transactiondate, ...restProps }) => 
   const DateFormat = DateFormated(new Date(transactiondate))
 
   return (
-    <Wrapper {...restProps}>
-      <Tooltip content={DateFormat} key={`transaction_date_${transactiondate}`}>
-        <Text>
-          {sinceDateFormat.duration?.interval} {sinceDateFormat.duration?.epoch}
-          {sinceDateFormat.getSuffix} ago
-        </Text>
-      </Tooltip>
+    <Wrapper content={DateFormat} key={`transaction_date_${transactiondate}`} {...restProps}>
+      <Text>
+        {sinceDateFormat.duration?.interval} {sinceDateFormat.duration?.epoch}
+        {sinceDateFormat.getSuffix} ago
+      </Text>
     </Wrapper>
   )
 }

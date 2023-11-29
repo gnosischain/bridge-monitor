@@ -62,27 +62,38 @@ export const useLookupBridgedToken = ({
   const isZeroToken = tokenAddress === constants.AddressZero
   const isNativeInXdaiBridge = isXdaiBridge && isZeroToken
 
-  const [token, setToken] = useState<UniswapToken | undefined>(() =>
-    isNativeInXdaiBridge
-      ? gnosisXdaiToken
-      : tokenAddress
-      ? tokensByAddress[tokenAddress] ??
-        tokenList.find(({ address }) => isSameString(address, tokenAddress))
-      : undefined,
-  )
+  const [token, setToken] = useState<UniswapToken | undefined>()
 
   const xDaiBridgedToken = isNativeInXdaiBridge ? mainnetDaiToken : gnosisXdaiToken
 
   useEffect(() => {
-    if (!token && !isXdaiBridge && !isZeroToken) {
+    if (!isXdaiBridge && !isZeroToken) {
       lookupToken(tokenAddress, isMainnetToken, tokenList)
         .then(setToken)
         .catch((error) => {
           // fail silently
           console.error('Error looking up token', error)
         })
+    } else {
+      setToken(
+        isNativeInXdaiBridge
+          ? gnosisXdaiToken
+          : tokenAddress
+          ? tokensByAddress[tokenAddress] ??
+            tokenList.find(({ address }) => isSameString(address, tokenAddress))
+          : undefined,
+      )
     }
-  }, [isMainnetToken, isXdaiBridge, isZeroToken, token, tokenAddress, tokenList])
+  }, [
+    gnosisXdaiToken,
+    isMainnetToken,
+    isNativeInXdaiBridge,
+    isXdaiBridge,
+    isZeroToken,
+    tokenAddress,
+    tokenList,
+    tokensByAddress,
+  ])
 
   const defaultToken: UniswapToken = {
     name: tokenAddress,

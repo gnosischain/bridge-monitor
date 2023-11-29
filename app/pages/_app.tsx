@@ -11,19 +11,18 @@ import { SWRConfig } from 'swr'
 import SafeSuspense from '@/src/components/helpers/SafeSuspense'
 import { Layout } from '@/src/components/layout'
 import { Footer } from '@/src/components/layout/Footer'
-import { Header } from '@/src/components/layout/Header'
+import { Header } from '@/src/components/header'
 import Toast from '@/src/components/toast/Toast'
 import { Head } from '@/src/page_partials/index/Head'
 import { TransactionNotificationProvider } from '@/src/providers/TransactionNotificationProvider'
-import GeneralContextProvider from '@/src/providers/generalProvider'
 import ThemeProvider from '@/src/providers/themeProvider'
 import { intlErrorHandler } from '@/src/utils/intlErrorHandler'
 import TooltipConfig from '@/src/components/tooltip/TooltipConfig'
+import { ValidatorsProvider } from '@/src/providers/validatorsProvider'
 
 import 'sanitize.css'
 import 'react-tooltip/dist/react-tooltip.css'
 import 'react-datepicker/dist/react-datepicker.css'
-import { ValidatorsProvider } from '@/src/providers/validatorsProvider'
 
 const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3ConnectionProvider'), {
   ssr: false,
@@ -63,11 +62,9 @@ export default function App({ Component, messages, pageProps }: AppPropsWithLayo
                 <TransactionNotificationProvider>
                   <TokenListProvider>
                     <Header />
-                    <GeneralContextProvider>
-                      <ValidatorsProvider>
-                        {getLayout(<Component {...pageProps} />)}
-                      </ValidatorsProvider>
-                    </GeneralContextProvider>
+                    <ValidatorsProvider>
+                      {getLayout(<Component {...pageProps} />)}
+                    </ValidatorsProvider>
                     <Footer />
                     <Toast />
                     <TooltipConfig />

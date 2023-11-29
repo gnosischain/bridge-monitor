@@ -15,7 +15,7 @@ import {
   Transaction_Filter,
   Transaction_OrderBy,
 } from '@/types/generated/subgraph'
-import { isSameString, isTransactionHash } from '@/src/utils/tools'
+import { isTransactionHash } from '@/src/utils/tools'
 import differenceInDays from 'date-fns/differenceInDays'
 import { MAX_DAYS_TO_FILTER } from '@/src/constants/misc'
 
@@ -26,13 +26,7 @@ export const useFetchTransactions = (
   inMemoryFilters: TxsInMemoryFilters,
   query?: QueryTransactionsArgs,
 ) => {
-  const {
-    data,
-    error,
-    isLoading,
-    isValidating,
-    mutate: refetch,
-  } = useSWR(
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
     query
       ? [
           'useFetchTransactions',
@@ -42,25 +36,22 @@ export const useFetchTransactions = (
           inMemoryFilters,
         ]
       : null,
-    ([, , _query, , _inMemoryFilters]) => fetchTransactions(_query, _inMemoryFilters),
+    async ([, , _query, , _inMemoryFilters]) => fetchTransactions(_query, _inMemoryFilters),
+    { suspense: false, dedupingInterval: Number.MAX_SAFE_INTEGER, revalidateIfStale: false },
   )
-  const [inMemoryTransactions, setInMemoryTransactions] = useState<Array<Transaction>>(data ?? [])
 
-  useEffect(() => {
-    if (data) {
-      setInMemoryTransactions(data)
-    }
-  }, [data])
-
-  const updateInMemoryTransaction = (transaction: Transaction) =>
-    setInMemoryTransactions((txs) => txs.map((tx) => (tx.id === transaction.id ? transaction : tx)))
+  const updateInMemoryTransaction = (transaction: Transaction) => {
+    mutate((txs) => txs?.map((tx) => (tx.id === transaction.id ? transaction : tx)), {
+      revalidate: false,
+    })
+  }
 
   return {
-    transactions: inMemoryTransactions,
+    transactions: data || [],
     error,
-    refetch,
+    refetch: mutate,
     updateInMemoryTransaction,
-    isLoading,
+    isLoading: isLoading,
     isValidating,
   }
 }
@@ -83,11 +74,11 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
 
     let updated = false
 
-    // if the date rage is more than 2 days, abort the query
+    // if the date rage is bigger than MAX_DAYS_TO_FILTER, abort the query
     if (
-      !filters.endTimestamp ||
-      (filters.endTimestamp &&
-        differenceInDays(filters.endTimestamp, filters.startTimestamp) > MAX_DAYS_TO_FILTER)
+      filters?.endTimestamp &&
+      filters?.startTimestamp &&
+      differenceInDays(filters.endTimestamp, filters.startTimestamp) > MAX_DAYS_TO_FILTER
     ) {
       return
     }

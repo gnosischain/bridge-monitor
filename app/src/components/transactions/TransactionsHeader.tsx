@@ -2,41 +2,20 @@ import styled from 'styled-components'
 
 import { Tooltip } from '@/src/components/tooltip/Tooltip'
 import { Validator } from '@/src/utils/validators'
-
-const THead = styled.thead`
-  display: none;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    display: table-header-group;
-  }
-`
-
-const TH = styled.th`
-  --th-padding-vertical: ${({ theme: { common } }) => common.space * 3}px;
-  --th-padding-horizontal: ${({ theme: { common } }) => common.space}px;
-
-  font-size: 1.4rem;
-  font-weight: 300;
-  padding: var(--th-padding-vertical) var(--th-padding-horizontal);
-  text-align: left;
-  vertical-align: top;
-  white-space: nowrap;
-`
+import { TH, THead } from '@/src/components/common/Table'
 
 const THValidators = styled(TH)`
   background-color: ${({ theme }) => theme.colors.darkerGrey};
   border-top-left-radius: ${({ theme: { common } }) => common.borderRadius};
   border-top-right-radius: ${({ theme: { common } }) => common.borderRadius};
-  padding-left: 0;
-  padding-right: 0;
 `
 
 const ValidatorNameWrapper = styled.div`
+  column-gap: ${({ theme: { common } }) => common.space}px;
   display: flex;
   justify-content: center;
-  column-gap: 8px;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: var(--table-padding-common);
+  padding-right: var(--table-padding-common);
 `
 
 const ValidatorName = styled.span`
@@ -52,23 +31,19 @@ const ValidatorName = styled.span`
   width: var(--validator-name-size);
 `
 
-const THActions = styled(TH)`
-  text-align: center;
-`
-
-const THLast = styled(TH)``
-
 interface Props {
-  validators: Validator[]
+  validators?: Validator[]
 }
 
 export const TransactionHeader: React.FC<Props> = ({ validators }) => {
   return (
-    <THead>
-      <tr>
-        <TH>Tx Hash</TH>
-        <TH>Bridge Direction</TH>
-        <TH>Initiator / Receiver</TH>
+    <THead compact={!validators}>
+      <TH>Tx Hash</TH>
+      <TH>Bridge Direction</TH>
+      <TH>Initiator</TH>
+      <TH>&nbsp;</TH>
+      <TH>Receiver</TH>
+      {validators && (
         <THValidators className="validators">
           <ValidatorNameWrapper>
             {validators.map((validator, index) => (
@@ -78,9 +53,8 @@ export const TransactionHeader: React.FC<Props> = ({ validators }) => {
             ))}
           </ValidatorNameWrapper>
         </THValidators>
-        <THActions>Status</THActions>
-        <THLast>&nbsp;</THLast>
-      </tr>
+      )}
+      <TH>Status</TH>
     </THead>
   )
 }

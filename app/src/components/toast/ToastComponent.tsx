@@ -31,7 +31,7 @@ const Wrapper = styled.div`
   display: flex;
   max-width: 350px;
   min-width: 200px;
-  padding: 10px 15px;
+  padding: 10px 30px 10px 15px;
   position: relative;
 `
 
@@ -85,8 +85,8 @@ const ButtonClose = styled.button`
   outline: none;
   padding: 0;
   position: absolute;
-  right: 10px;
-  top: 10px;
+  right: 7px;
+  top: 5px;
   z-index: 5;
 `
 

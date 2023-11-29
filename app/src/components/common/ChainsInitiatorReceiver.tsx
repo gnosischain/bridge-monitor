@@ -7,7 +7,6 @@ const Wrapper = styled.div`
 
   display: flex;
   height: var(--height);
-  margin-top: auto;
 `
 const Chain = styled.div<{ chain?: string }>`
   align-items: center;

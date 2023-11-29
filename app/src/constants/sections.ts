@@ -1,7 +1,11 @@
 export const sections = [
   {
-    section: 'Transactions',
+    section: 'Search',
     href: '/',
+  },
+  {
+    section: 'Latest Transactions',
+    href: '/latest-transactions',
   },
   {
     section: 'Bridges',

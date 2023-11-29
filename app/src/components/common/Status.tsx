@@ -16,12 +16,20 @@ const Text = styled.span`
   text-transform: capitalize;
 `
 
+Text.defaultProps = {
+  className: 'text',
+}
+
 const Wrapper = styled.div<{ status: TransactionStatus }>`
+  display: inline-flex;
   border-radius: 4px;
   border: none;
-  display: block;
   min-width: 80px;
   padding: 0;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    display: flex;
+  }
 
   ${({ status }) =>
     status === TransactionStatus.Unclaimed

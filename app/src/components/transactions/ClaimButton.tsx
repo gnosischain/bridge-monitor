@@ -1,4 +1,4 @@
-import { Status as BaseStatus, Props as StatusProps } from '@/src/components/common/Status'
+import { Status, Props as StatusProps } from '@/src/components/common/Status'
 import { notify } from '@/src/components/toast/Toast'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { contracts } from '@/src/constants/config/contracts'
@@ -27,14 +27,10 @@ import { JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
 import { WalletState } from '@web3-onboard/core'
 import styled from 'styled-components'
 
-export const Status = styled(BaseStatus)`
-  margin: auto;
+const Wrapper = styled(Status)`
   display: inline-flex;
   justify-content: center;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    display: flex;
-  }
+  width: fit-content;
 `
 
 type ClaimButtonProps = Omit<StatusProps, 'status'> & {
@@ -64,8 +60,10 @@ export const ClaimButton = ({
 
   const sendTx = useTransaction({ skipConnectionCheck: true })
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleClaim = async (e: any) => {
     e.stopPropagation()
+    e.preventDefault()
 
     // if not connected, show a modal to connect
     if (!isWalletConnected) {
@@ -200,6 +198,7 @@ export const ClaimButton = ({
           ...transaction,
           execution: {
             ...(foreignTransaction.execution as TransactionExecution),
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             timestamp: +foreignTransaction.execution!.timestamp * 1000,
           },
           transactionStatus: TransactionStatus.Completed,
@@ -216,5 +215,5 @@ export const ClaimButton = ({
     }
   }
 
-  return <Status onClick={handleClaim} status={TransactionStatus.Unclaimed} {...restProps} />
+  return <Wrapper onClick={handleClaim} status={TransactionStatus.Unclaimed} {...restProps} />
 }

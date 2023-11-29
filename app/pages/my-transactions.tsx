@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
 import { SearchByHash } from '@/src/components/searchByHash'
 
-const Home: NextPage = () => {
+const MyTransactions: NextPage = () => {
   return <SearchByHash />
 }
-export default Home
+export default MyTransactions

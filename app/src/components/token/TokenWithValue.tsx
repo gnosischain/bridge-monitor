@@ -4,27 +4,13 @@ import styled from 'styled-components'
 import { BigNumberish } from 'ethers'
 
 import { ChainToken } from '@/src/components/common/ChainToken'
-import { ArrowUp } from '@/src/components/assets/ArrowUp'
 import { useLookupBridgedToken } from '@/src/hooks/useLookupBridgedToken'
 
 const tokenSize = 16
 
 const Wrapper = styled.div`
   align-items: center;
-  column-gap: ${({ theme: { common } }) => common.space * 3}px;
-  display: flex;
-  flex-wrap: wrap;
-  row-gap: ${({ theme: { common } }) => common.space}px;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    display: grid;
-    grid-template-columns: 1fr 10px 1fr;
-  }
-`
-
-const Row = styled.div`
-  align-items: center;
-  column-gap: ${({ theme: { common } }) => common.space}px;
+  column-gap: 6px;
   display: flex;
 `
 
@@ -55,15 +41,19 @@ const TokenIcon = styled(ChainToken)`
   }
 `
 
-const ArrowRight = styled(ArrowUp)`
-  display: block;
-  transform: rotate(-90deg);
+const Label = styled.span`
+  color: ${({ theme: { colors } }) => colors.cream};
+  font-size: 1.2rem;
+  font-weight: 400;
+  line-height: 1.2;
+  opacity: 0.6;
 `
 
 const Value = styled.span`
+  color: ${({ theme: { colors } }) => colors.cream};
   font-size: 1.3rem;
   font-weight: 400;
-  line-height: 1;
+  line-height: 1.2;
 `
 
 interface TokenInfo {
@@ -79,6 +69,7 @@ const TokenInfo: React.FC<TokenInfo> = ({ token, value }) => {
           alt={token.symbol}
           className="iconImage"
           height={tokenSize}
+          key={token.symbol}
           objectFit="cover"
           src={token.logoURI ?? '/images/icons/empty-token.png'}
           width={tokenSize}
@@ -90,20 +81,20 @@ const TokenInfo: React.FC<TokenInfo> = ({ token, value }) => {
 }
 
 interface Props {
+  bridgeName: string
   initiatorNetwork: string
   token: string
-  bridgeName: string
   tokenValue: BigNumberish
 }
 
-export const TokenWithValue: React.FC<Props> = ({
+export const Initiator: React.FC<Props> = ({
   bridgeName,
   initiatorNetwork,
   token: tokenAddress,
   tokenValue,
   ...restProps
 }) => {
-  const { destinationToken, initiatorToken, isXdaiBridge, value } = useLookupBridgedToken({
+  const { initiatorToken, value } = useLookupBridgedToken({
     bridgeName,
     initiatorNetwork,
     tokenAddress,
@@ -112,19 +103,32 @@ export const TokenWithValue: React.FC<Props> = ({
 
   return (
     <Wrapper {...restProps}>
-      <Row>
-        <TokenInfo token={initiatorToken} value={value} />
-      </Row>
-      {isXdaiBridge && (
-        <>
-          <div className="arrowWrapper">
-            <ArrowRight />
-          </div>
-          <Row>
-            <TokenInfo token={destinationToken} value={value} />
-          </Row>
-        </>
-      )}
+      <Label className="label">Sent:</Label>
+      <TokenInfo token={initiatorToken} value={value} />
     </Wrapper>
+  )
+}
+
+export const Receiver: React.FC<Props> = ({
+  bridgeName,
+  initiatorNetwork,
+  token: tokenAddress,
+  tokenValue,
+  ...restProps
+}) => {
+  const { destinationToken, isXdaiBridge, value } = useLookupBridgedToken({
+    bridgeName,
+    initiatorNetwork,
+    tokenAddress,
+    tokenValue,
+  })
+
+  return isXdaiBridge ? (
+    <Wrapper {...restProps}>
+      <Label>Received:</Label>
+      <TokenInfo token={destinationToken} value={value} />
+    </Wrapper>
+  ) : (
+    <></>
   )
 }

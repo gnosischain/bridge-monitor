@@ -11,6 +11,11 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
       --rt-color-dark:  ${({ theme: { colors } }) => colors.black};
       --rt-color-info:  ${({ theme: { colors } }) => colors.white};
       --rt-opacity: 1;
+
+      /* common variables */
+      --layout-vertical-padding: 48px;
+      --layout-vertical-padding-xl: calc(var(--layout-vertical-padding) * 2);
+      --layout-vertical-padding-xxl: calc(var(--layout-vertical-padding) * 3);
   }
 
   html {
@@ -22,11 +27,17 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
     background-color: ${({ theme: { body } }) => body.backgroundColor};
+    background-image: url('/images/bg.jpg');
     color: ${({ theme: { colors } }) => colors.textColor};
     font-family: ${({ theme: { fonts } }) => fonts.family};
     font-size: ${({ theme: { fonts } }) => fonts.defaultSize};
     min-height: 100vh;
     outline-color: ${({ theme: { colors } }) => colors.secondary};
+    scroll-behavior: smooth;
+
+    @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+      background-size: contain;
+    }
   }
 
   code {
@@ -52,7 +63,7 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
 
   a,
   button{
-    transition: all 0.2s ease-in-out;
+    transition: all 0.15s ease-in-out;
   }
 
   h1, h2, h3, h4 {

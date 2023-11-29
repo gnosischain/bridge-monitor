@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 import { useMemo } from 'react'
-import { LimitDot } from '@/src/components/limits/LimitDot'
+import { LimitDot } from '@/src/components/common/LimitDot'
 import Image from 'next/image'
 
 const Wrapper = styled.div`

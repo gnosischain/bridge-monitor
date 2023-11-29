@@ -9,23 +9,14 @@ import { Toast, toast } from 'react-hot-toast'
 
 const Wrapper = styled.div`
   align-items: center;
-  column-gap: ${({ theme: { common } }) => common.space / 4}px;
+  column-gap: 4px;
   display: flex;
 `
 
-const AddressText = styled.span<{ link?: boolean }>`
+const AddressText = styled.span`
   display: block;
   overflow: hidden;
-
-  ${({ link }) =>
-    link &&
-    css`
-      cursor: pointer;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    `}
+  line-height: 1.2;
 `
 
 const CopyButton = styled.button`
@@ -35,12 +26,8 @@ const CopyButton = styled.button`
   cursor: pointer;
 
   &:active {
-    opacity: 0.6;
-  }
-
-  &.copied {
-    opacity: 1;
     color: ${({ theme: { colors } }) => colors.success};
+    opacity: 0.6;
   }
 `
 
@@ -75,64 +62,51 @@ export const Address: React.FC<Props> = ({
   link,
   ...restProps
 }) => {
-  const [isCopied, setIsCopied] = useState(false)
-  const [toastId, setToastId] = useState('')
-  const timeDelay = 2000
-
-  useEffect(() => {
-    toast.remove(toastId)
-  }, [toastId])
+  const timeDelay = 2500
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const copyWalletAddress = (e: any, address: string) => {
     e.stopPropagation()
+    e.preventDefault()
 
     navigator.clipboard.writeText(address)
     toast.custom(
       (t: Toast) => {
-        setToastId(t.id)
         return <ToastComponent message={'Address copied'} t={t} />
       },
       {
         duration: timeDelay,
         position: 'top-center',
+        id: 'copy-address',
       },
     )
-    setIsCopied(true)
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const openLink = (e: any, link: string) => {
     e.stopPropagation()
+    e.preventDefault()
+
     window.open(link, '_blank', 'noopener noreferrer')
   }
 
-  useEffect(() => {
-    const timeCopied = setTimeout(() => {
-      setIsCopied(false)
-    }, timeDelay)
-    return () => clearTimeout(timeCopied)
-  }, [isCopied])
-
   return (
     <Wrapper {...restProps}>
-      <AddressText link={!!link} onClick={link ? (e) => openLink(e, link) : undefined}>
+      <AddressText>
         {address ? (
           shortenAddress(address, characters + 2, characters)
         ) : (
-          <Error>Momentarily unknown address</Error>
+          <Error>Fetching address...</Error>
         )}
       </AddressText>
       {address && copy && (
-        <CopyButton
-          className={isCopied ? 'copied' : 'uncopied'}
-          onClick={(e) => copyWalletAddress(e, address)}
-        >
+        <CopyButton className="copyButton" onClick={(e) => copyWalletAddress(e, address)}>
           <IconCopy height={bigIcons ? 21 : 14} width={bigIcons ? 21 : 14} />
         </CopyButton>
       )}
       {address && link && (
         <Link
+          className="externalLink"
           height={bigIcons ? 21 : 14}
           onClick={(e) => openLink(e, link)}
           width={bigIcons ? 21 : 14}

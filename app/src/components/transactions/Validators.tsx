@@ -13,6 +13,13 @@ const Wrapper = styled.div`
   column-gap: ${({ theme: { common } }) => common.space}px;
   display: flex;
   height: 16px;
+  justify-content: flex-start;
+  padding-left: var(--table-padding-common);
+  padding-right: var(--table-padding-common);
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    justify-content: center;
+  }
 `
 
 interface Props {

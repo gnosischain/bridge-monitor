@@ -12,6 +12,8 @@ import { get1DayBeforeInSeconds } from '@/src/utils/date'
 import { isSameString } from '@/src/utils/tools'
 import { useValidators } from '@/src/providers/validatorsProvider'
 import { useEffect } from 'react'
+import { Wrapper } from '@/src/components/layout/Wrapper'
+import { MainTitle } from '@/src/components/text/MainTitle'
 
 const Columns = styled.div`
   display: grid;
@@ -58,6 +60,12 @@ const ChartPlaceholder = styled(SkeletonLoading)`
   ${ChartCSS};
   border-radius: 4px;
   height: 326px;
+`
+
+const BridgesList = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: ${({ theme: { common } }) => common.space * 4}px;
 `
 
 type SigsCount = {
@@ -136,7 +144,7 @@ const OmnibridgeValidators: React.FC = ({ ...restProps }) => {
   )
 }
 
-export const BridgeValidators: React.FC = () => {
+export const BridgeValidators: React.FC = ({ ...restProps }) => {
   const { refetch } = useValidators(Bridges.amb)
 
   // Call refetch to bring the last validator's activity
@@ -146,19 +154,22 @@ export const BridgeValidators: React.FC = () => {
   }, [])
 
   return (
-    <>
-      <Title>
-        xDai Bridge Validators <TitleNote>(Ethereum-Gnosis Chain)</TitleNote>
-      </Title>
-      <SafeSuspense fallback={<Placeholder />}>
-        <XDAIValidators />
-      </SafeSuspense>
-      <Title style={{ paddingTop: '24px' }}>
-        Omnibridge Validators <TitleNote>(Ethereum-Gnosis Chain)</TitleNote>
-      </Title>
-      <SafeSuspense fallback={<Placeholder />}>
-        <OmnibridgeValidators />
-      </SafeSuspense>
-    </>
+    <Wrapper {...restProps}>
+      <MainTitle>Validators</MainTitle>
+      <BridgesList>
+        <Title>
+          xDai Bridge Validators <TitleNote>(Ethereum-Gnosis Chain)</TitleNote>
+        </Title>
+        <SafeSuspense fallback={<Placeholder />}>
+          <XDAIValidators />
+        </SafeSuspense>
+        <Title style={{ paddingTop: '24px' }}>
+          Omnibridge Validators <TitleNote>(Ethereum-Gnosis Chain)</TitleNote>
+        </Title>
+        <SafeSuspense fallback={<Placeholder />}>
+          <OmnibridgeValidators />
+        </SafeSuspense>
+      </BridgesList>
+    </Wrapper>
   )
 }

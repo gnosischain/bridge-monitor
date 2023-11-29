@@ -103,10 +103,9 @@ export const TextfieldCSS = css<TexfieldCSSProps>`
   transition: border-color 0.15s linear;
   white-space: nowrap;
   width: 100%;
-
-  ${TexfieldPartsCSS}
 `
 
 export const Textfield = styled.input<TextfieldProps>`
   ${TextfieldCSS}
+  ${TexfieldPartsCSS}
 `

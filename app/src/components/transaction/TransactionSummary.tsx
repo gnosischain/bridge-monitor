@@ -6,7 +6,7 @@ import { Pod } from '@/src/components/common/Pod'
 import { TransactionDate } from '@/src/components/transaction/TransactionDate'
 import { getAddressScanUrl } from '@/src/utils/transactions'
 import { Address } from '@/src/components/token/Address'
-import { TokenWithValue } from '@/src/components/token/TokenWithValue'
+import { Initiator } from '@/src/components/token/TokenWithValue'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Transaction } from '@/src/utils/transactions'
 
@@ -28,7 +28,7 @@ const Wrapper = styled.div`
   }
 `
 
-const Value = styled(TokenWithValue)`
+const Value = styled(Initiator)`
   .label {
     display: none;
   }

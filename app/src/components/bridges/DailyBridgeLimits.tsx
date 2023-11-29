@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BridgeLimit } from '@/src/components/limits/BridgeLimit'
+import { BridgeLimit } from '@/src/components/bridges/BridgeLimit'
 import { TabContentInner } from '@/src/components/tabs/TabContentInner'
 import { BaseSubTitle } from '@/src/components/text/BaseSubTitle'
 import { Chains } from '@/src/constants/config/chains'
