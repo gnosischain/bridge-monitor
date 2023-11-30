@@ -49,7 +49,7 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/develop')
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${{ github.sha }} # Using develop instead
         uses: docker/build-push-action@v3
         with:
           context: ./app
@@ -89,7 +89,7 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          tags: "${{ env.REGISTRY }}/bridge-explorer:staging"
+          tags: "${{ env.REGISTRY }}/bridge-explorer:${{ env.IMAGE_TAG }}"
           platforms: |
             linux/amd64
           build-args: |
