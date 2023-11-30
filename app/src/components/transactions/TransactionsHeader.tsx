@@ -13,13 +13,14 @@ const THead = styled.thead`
 
 const TH = styled.th`
   --th-padding-vertical: ${({ theme: { common } }) => common.space * 3}px;
-  --th-padding-horizontal: ${({ theme: { common } }) => common.space * 2}px;
+  --th-padding-horizontal: ${({ theme: { common } }) => common.space}px;
 
   font-size: 1.4rem;
   font-weight: 300;
   padding: var(--th-padding-vertical) var(--th-padding-horizontal);
   text-align: left;
   vertical-align: top;
+  white-space: nowrap;
 `
 
 const THValidators = styled(TH)`

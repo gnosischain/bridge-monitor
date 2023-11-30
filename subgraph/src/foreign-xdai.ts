@@ -45,6 +45,16 @@ export function handlerTransfer(event: Transfer): void {
   transaction.initiatorNetwork = dataSource.network();
 
   processUserRequestForAffirmation(transaction, receipt);
+  // if processUserRequestForAffirmation hasn't set receiver address
+  // we can be sure it was a transfer directly to the xDAI bridge contract
+  // when that happens, userRequestForAffirmation event is not emitted
+  // for this case, we can assume the receiver is the same as the sender
+  // here are examples of both cases:
+  // https://etherscan.io/tx/0x1445acd5d72025e5cf824edbb3d036e1e8adf5340acbe9940551a095ae8af575#eventlog
+  // https://etherscan.io/tx/0xc718b857fa518056264d7fab70d3a6eb8634fd76eb3d54e60c5a1ff873f1b0a4#eventlog
+  if (!transaction.receiver) {
+    transaction.receiver = sender;
+  }
   transaction.receiverAmount = value;
   transaction.receiverNetwork = "gnosis";
   transaction.receiverToken = Address.zero();

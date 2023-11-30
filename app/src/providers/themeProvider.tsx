@@ -43,10 +43,8 @@ const ThemeContextProvider: React.FC = ({ children }) => {
   return (
     <ThemeContext.Provider value={values}>
       <ThemeProvider theme={currentThemeJSON}>
-        <>
-          <GlobalStyles />
-          {children}
-        </>
+        <GlobalStyles />
+        {children}
       </ThemeProvider>
     </ThemeContext.Provider>
   )

@@ -9,9 +9,9 @@ import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown, DropdownPosition } from '@/src/components/common/Dropdown'
 import { TextfieldCSS } from '@/src/components/form/Textfield'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
-import { ChainsValues } from '@/src/constants/config/types'
-import { Token } from '@/src/constants/token'
-import { useTokenIcons } from '@/src/providers/tokenIconsProvider'
+import { Chains, ChainsValues } from '@/src/constants/config/types'
+import { Token } from '@/types/token'
+import { useBridgedTokens } from '@/src/providers/TokenListProvider'
 
 const Wrapper = styled(Dropdown)`
   --inner-padding: 4px;
@@ -43,7 +43,7 @@ const TextFieldWrapper = styled.div`
 const Textfield: any = styled(DebounceInput)`
   --texfield-font-size: 1.4rem;
 
-  ${TextfieldCSS}
+  ${TextfieldCSS};
 
   background-color: ${({ theme: { colors } }) => colors.darkerGrey};
   border-radius: 4px;
@@ -155,11 +155,12 @@ export const TokenDropdown: React.FC<{
   onChange?: (token: Token) => void
 }> = ({ chainId, defaultToken, disabled = false, onChange, ...restProps }) => {
   const [token, setToken] = useState<Token>(defaultToken)
-  const { tokensByNetwork } = useTokenIcons()
+  const { ambTokensByNetwork } = useBridgedTokens()
   const tokens = useMemo(() => {
-    if (chainId === 1) return tokensByNetwork[1] || []
-    if (chainId === 100) return tokensByNetwork[chainId] || []
-  }, [chainId, tokensByNetwork])
+    if (([Chains.mainnet, Chains.gnosis] as Array<number>).includes(chainId)) {
+      return ambTokensByNetwork[chainId] ?? []
+    }
+  }, [chainId, ambTokensByNetwork])
   const [tokensList, setTokensList] = useState(tokens)
   const [value, setValue] = useState('')
 
@@ -217,7 +218,7 @@ export const TokenDropdown: React.FC<{
                 onSelectToken(item)
               }}
             >
-              <TokenIcon dimensions={18} symbol={item.symbol} />
+              <TokenIcon dimensions={18} iconSource={item.logoURI} symbol={item.symbol} />
               {item.symbol}
             </DropdownItem>
           ))}

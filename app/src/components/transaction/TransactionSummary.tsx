@@ -11,13 +11,19 @@ import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Transaction } from '@/src/utils/transactions'
 
 const Wrapper = styled.div`
+  column-gap: ${({ theme: { common } }) => common.space * 2}px;
   display: flex;
   flex-direction: column;
   row-gap: ${({ theme: { common } }) => common.space * 2}px;
   width: 100%;
 
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    column-gap: ${({ theme: { common } }) => common.space * 2}px;
+    display: flex;
     flex-direction: row;
   }
 `
@@ -97,7 +103,12 @@ export const TransactionSummary: React.FC<Props> = ({
         />
       </Pod>
       <Pod title="Amount">
-        <Value bridgeName={bridgeName} token={initiatorToken} tokenValue={initiatorAmount} />
+        <Value
+          bridgeName={bridgeName}
+          initiatorNetwork={initiatorNetwork}
+          token={initiatorToken}
+          tokenValue={initiatorAmount}
+        />
       </Pod>
       {/* @todo - If a signature fails it has to change state */}
       <Pod

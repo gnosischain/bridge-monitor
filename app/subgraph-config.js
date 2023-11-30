@@ -1,48 +1,80 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { loadEnvConfig } = require('@next/env')
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const endpoints = require('./src/constants/config/subgraph-endpoints.json')
+const subgraphEndpoints = require('./src/constants/config/subgraph-endpoints.json')
+const codeGenOutDir = 'types/generated/subgraph.ts'
 
-if (!Object.keys(endpoints).length) {
+if (!Object.keys(subgraphEndpoints).length) {
   return
 }
 
 loadEnvConfig(process.cwd())
 
-const getSubgraphEnvVariables = () => {
-  if (!process.env.NEXT_PUBLIC_SUBGRAPH_ORGANIZATION) {
-    throw Error('Missing env var NEXT_PUBLIC_SUBGRAPH_ORGANIZATION')
+const getSubgraphEnvVariables = (chainPair) => {
+  // verify NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT is set with the correct value
+  const ENVIRONMENT = process.env.NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT
+  if (!['development', 'production'].includes(ENVIRONMENT)) {
+    throw Error(
+      `Invalid value for NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT: ${process.env.NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT}`,
+    )
   }
 
-  const ORGANIZATION = process.env.NEXT_PUBLIC_SUBGRAPH_ORGANIZATION
-  const SUFFIX = process.env.NEXT_PUBLIC_SUBGRAPH_SUFFIX
-    ? process.env.NEXT_PUBLIC_SUBGRAPH_SUFFIX
-    : ''
+  // verify NEXT_PUBLIC_SUBGRAPH_ACCESS_ID is set
+  const ACCESS_ID = process.env.NEXT_PUBLIC_SUBGRAPH_ACCESS_ID
+  if (!ACCESS_ID) {
+    throw Error('Missing env var NEXT_PUBLIC_SUBGRAPH_ACCESS_ID')
+  }
 
-  return { ORGANIZATION, SUFFIX }
+  // verify NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE is set if env is production
+  const CHAINS_RESOURCE_IDS = process.env.NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS
+  if (!CHAINS_RESOURCE_IDS) {
+    throw Error('Missing env var NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE')
+  }
+
+  // for dev it is: 100:v2.1.1,1:v2.1.2
+  // for prod it is: 100:someID,1:someID
+  const parsedResourceIds = CHAINS_RESOURCE_IDS.trim()
+    .split(',')
+    .map((t) => t.trim())
+    .reduce((acc, tag) => {
+      const [key, value] = tag.split(':')
+      return { ...acc, [key]: value }
+    }, {})
+
+  // pair is always home:foreign
+  const [homeChainId, foreignChainId] = chainPair.split(':')
+
+  if (!parsedResourceIds[homeChainId] || !parsedResourceIds[foreignChainId]) {
+    throw Error(`Missing endpoint for chain pair ${chainPair}`)
+  }
+
+  const RESOURCE_ID_BY_BRIDGE = {
+    home: parsedResourceIds[homeChainId],
+    foreign: parsedResourceIds[foreignChainId],
+  }
+
+  return { ENVIRONMENT, ACCESS_ID, RESOURCE_ID_BY_BRIDGE }
 }
-
-const { ORGANIZATION, SUFFIX } = getSubgraphEnvVariables()
-
-const codeGenOutDir = 'types/generated/subgraph.ts'
 
 const schemas = [
   ...new Set(
-    Object.values(endpoints).reduce((acc, current) => {
+    Object.entries(subgraphEndpoints).reduce((acc, [chainPair, bridgeSides]) => {
+      const { ACCESS_ID, ENVIRONMENT, RESOURCE_ID_BY_BRIDGE } = getSubgraphEnvVariables(chainPair)
+
       return [
         ...acc,
-        ...Object.values(current).map((endpoint) => {
-          // the org registered in The Graph
-          const baseUrl = `${endpoint.replace('{{org}}', ORGANIZATION)}`
-
-          // if defined,
-          // the suffix is appended with a hyphen at the end of the endpoint
-          return SUFFIX ? `${baseUrl}-${SUFFIX}` : baseUrl
+        ...Object.entries(bridgeSides).map(([bridgeSide, environments]) => {
+          return environments[ENVIRONMENT].replace('{{accessId}}', ACCESS_ID).replace(
+            '{{resourceId}}',
+            RESOURCE_ID_BY_BRIDGE[bridgeSide],
+          )
         }),
       ]
     }, []),
   ),
 ]
+
+console.log('schemas', schemas)
 
 module.exports = {
   overwrite: true,

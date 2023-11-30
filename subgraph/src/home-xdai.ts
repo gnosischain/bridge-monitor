@@ -17,8 +17,7 @@ import {
   getHomeTxHashFromMessageMethod,
   xDAISignedForAffirmationData,
 } from "./utils/xdai-bridge";
-import { mockXDAIValidators } from "./utils/mock-validators";
-import { DAI_ADDRESS } from "./utils/misc";
+import { BRIDGE_XDAI, DAI_ADDRESS, loadValidator } from "./utils/misc";
 
 //------------------
 // Home > Foreign.
@@ -77,8 +76,7 @@ export function handlerSignedForUserRequest(event: SignedForUserRequest): void {
   transaction.save();
 
   // load validator or fail
-  mockXDAIValidators();
-  const validator = Validator.load(validatorAddress.toHexString());
+  const validator = loadValidator(validatorAddress.toHexString(), BRIDGE_XDAI);
   if (!validator) {
     log.error(
       `XDAI:handlerSignedForUserRequest - Validator {} not found, txHash: {}`,
@@ -160,8 +158,7 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
 
   // Load validator and update last activity
   // If no validator found, log error and interrupt execution
-  mockXDAIValidators();
-  let validator = Validator.load(signer);
+  let validator = loadValidator(signer, BRIDGE_XDAI);
   if (!validator) {
     log.error(
       `XDAI:handlerSignedForAffirmation - Validator {} not found, txHash: {}`,
@@ -193,7 +190,7 @@ export function handlerAffirmationCompleted(event: AffirmationCompleted): void {
   const executorId = event.transaction.from; // validator address
 
   // Load validator and update last activity
-  const validator = Validator.load(executorId.toHexString());
+  const validator = loadValidator(executorId.toHexString(), BRIDGE_XDAI);
   if (!validator) {
     log.error(
       `XDAI:handlerSignedForAffirmation - Validator {} not found, txHash: {}`,

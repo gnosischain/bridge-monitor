@@ -1,8 +1,8 @@
 import { getForeignTransactions } from '@/src/utils/localTransactions'
-import { fromSubgraphTimestamp } from './date'
-import { chainsConfig } from '../constants/config/chains'
-import { Chains } from '../constants/config/types'
-import { Token } from '../constants/token'
+import { fromSubgraphTimestamp } from '@/src/utils/date'
+import { chainsConfig } from '@/src/constants/config/chains'
+import { Chains } from '@/src/constants/config/types'
+import { Token } from '@/types/token'
 import { getForeignGraphqlClient, getHomeGraphqlClient } from '@/src/constants/config/subgraph'
 import { TRANSACTION_QUERY } from '@/src/queries/transactions'
 import {
@@ -14,9 +14,11 @@ import {
   TransactionsQuery,
 } from '@/types/generated/subgraph'
 import { constants } from 'ethers'
+import { isSameString } from '@/src/utils/tools'
 
 const GNOSIS = 'gnosis'
 const MAINNET = 'mainnet'
+const defaultRequestLimit = 1000
 
 export type TransactionExecution = {
   id: string
@@ -105,10 +107,10 @@ const transformValidation = (txValidation: TransactionValidationSG): Transaction
   }
 }
 
-const transformTx = (tx: TransactionSG): Transaction => {
+const prepareTransactionForView = (tx: TransactionSG): Transaction => {
   const res = {
     id: tx.id,
-    transactionHash: tx.transactionHash ?? tx.id,
+    transactionHash: tx.transactionHash ?? '',
     bridgeName: tx.bridgeName ?? '',
 
     initiator: tx.initiator ?? '',
@@ -136,18 +138,40 @@ const transformTx = (tx: TransactionSG): Transaction => {
 }
 
 const fetchHomeTransaction = async (query?: QueryTransactionsArgs) => {
-  const { transactions } = await getHomeGraphqlClient()<TransactionsQuery, QueryTransactionsArgs>(
-    TRANSACTION_QUERY,
-    query,
-  )
+  let skip = 0
+  let transactions: TransactionsQuery['transactions'] = []
+  let shouldIterate = true
+
+  while (shouldIterate) {
+    const { transactions: newTransactions } = await getHomeGraphqlClient()<
+      TransactionsQuery,
+      QueryTransactionsArgs
+    >(TRANSACTION_QUERY, { ...query, skip, first: defaultRequestLimit })
+
+    transactions = [...transactions, ...newTransactions]
+    skip += query?.first ?? defaultRequestLimit
+    shouldIterate = newTransactions.length == (query?.first ?? defaultRequestLimit)
+  }
+
   return transactions
 }
 
 const fetchForeignTransaction = async (query?: QueryTransactionsArgs) => {
-  const { transactions } = await getForeignGraphqlClient()<
-    TransactionsQuery,
-    QueryTransactionsArgs
-  >(TRANSACTION_QUERY, query)
+  let skip = 0
+  let transactions: TransactionsQuery['transactions'] = []
+  let shouldIterate = true
+
+  while (shouldIterate) {
+    const { transactions: newTransactions } = await getForeignGraphqlClient()<
+      TransactionsQuery,
+      QueryTransactionsArgs
+    >(TRANSACTION_QUERY, { ...query, skip, first: defaultRequestLimit })
+
+    transactions = [...transactions, ...newTransactions]
+    skip += query?.first ?? defaultRequestLimit
+    shouldIterate = newTransactions.length == (query?.first ?? defaultRequestLimit)
+  }
+
   return transactions
 }
 
@@ -243,20 +267,21 @@ export const fetchTransactions = async (
   )
 
   if (inMemoryFilters.validator) {
-    transactions = transactions.filter((tx) =>
-      tx.validations?.some((validation) => {
-        // filter by validator address
-        validation.validatorAddr === inMemoryFilters.validator
-      }),
-    )
+    transactions = transactions
+      .filter((tx) => tx.validations)
+      .filter((tx) =>
+        tx.validations?.some((validation) =>
+          isSameString(validation.validatorAddr, inMemoryFilters.validator ?? ''),
+        ),
+      )
   }
 
   if (inMemoryFilters.executor) {
-    transactions = transactions.filter(
-      (tx) => tx.execution?.validatorAddr === inMemoryFilters.executor,
-    )
+    transactions = transactions
+      .filter((tx) => !!tx.execution?.validatorAddr)
+      .filter((tx) => isSameString(tx.execution?.validatorAddr, inMemoryFilters.executor ?? ''))
   }
 
-  const res = transactions.map(transformTx)
+  const res = transactions.map(prepareTransactionForView)
   return res
 }

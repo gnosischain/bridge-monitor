@@ -1,6 +1,12 @@
 {
   "100:1": {
-    "home": "https://api.thegraph.com/subgraphs/name/{{org}}/gbc-bridge-gnosis",
-    "foreign": "https://api.thegraph.com/subgraphs/name/{{org}}/gbc-bridge-mainnet"
+    "home": {
+      "development": "https://api.studio.thegraph.com/query/{{accessId}}/gbc-bridge-gnosis/{{resourceId}}",
+      "production": "https://gateway-arbitrum.network.thegraph.com/api/{{accessId}}/subgraphs/id/{{resourceId}}"
+    },
+    "foreign": {
+      "development": "https://api.studio.thegraph.com/query/{{accessId}}/gbc-bridge-mainnet/{{resourceId}}",
+      "production": "https://gateway-arbitrum.network.thegraph.com/api/{{accessId}}/subgraphs/id/{{resourceId}}"
+    }
   }
 }
