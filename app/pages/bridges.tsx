@@ -1,5 +1,5 @@
 import type { NextPage } from 'next'
-import { BridgesInformation } from '@/src/components/bridges'
+import { BridgesInformation } from '@/src/pagePartials/bridges'
 
 const Bridges: NextPage = () => {
   return <BridgesInformation />

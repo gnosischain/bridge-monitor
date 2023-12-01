@@ -1,7 +1,7 @@
 import React from 'react'
 
-import { Configuration } from '@/src/components/bridges/Configuration'
-import { DailyBridgeLimits } from '@/src/components/bridges/DailyBridgeLimits'
+import { Configuration } from '@/src/pagePartials/bridges/Configuration'
+import { DailyBridgeLimits } from '@/src/pagePartials/bridges/DailyBridgeLimits'
 // import { InterestFunds } from '@/src/components/bridges/InterestFunds'
 
 interface tabsType {

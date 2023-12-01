@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 
-import { Transactions } from '@/src/components/transactions'
+import { Transactions } from '@/src/pagePartials/transactions'
 
 const LatestTransactions: NextPage = () => {
   return <Transactions />

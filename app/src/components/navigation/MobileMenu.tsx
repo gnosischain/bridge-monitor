@@ -5,7 +5,6 @@ import { motion } from 'framer-motion'
 
 import { NavLink as BaseNavLink } from '@/src/components/navigation/NavLink'
 import { sections } from '@/src/constants/sections'
-import { Link as BaseLink } from '@/src/components/assets/Link'
 import { Disconnect } from '@/src/components/assets/Disconnect'
 import { SwitchNetwork } from '@/src/components/assets/SwitchNetwork'
 import { ModalSwitchNetwork } from '@/src/components/helpers/ModalSwitchNetwork'

@@ -8,6 +8,7 @@ const black = '#0A0C0B'
 const commonBoxShadow =
   '0 27px 80px rgba(0, 0, 0, 0.07), 0 10.4px 25.4815px rgba(0, 0, 0, 0.0425185), 0 2.2px 6.51852px rgba(0, 0, 0, 0.0274815)'
 const cream = '#F0EBDE'
+const creamRGB = '240, 235, 222'
 const creamDark = '#DDD4BE'
 const creamLight = '#F8F5ED'
 const darkGreen = '#3E6957'
@@ -33,6 +34,7 @@ const warning = '#FAB754'
 const warningDark = '#D39435'
 const white = '#FBF9F3'
 const grayGradient = `linear-gradient(180deg, ${lightGrey} 0%, ${darkGrey} 100%)`
+const cream06 = `rgba(${creamRGB}, 0.6)`
 
 export const dark = {
   body: {
@@ -43,8 +45,8 @@ export const dark = {
     backgroundColorHover: darkestGrey,
     borderColor: darkerGrey,
     borderColorHover: darkestGrey,
-    color: textColor,
-    colorHover: textColor,
+    color: cream06,
+    colorHover: cream,
   },
   buttonPrimary: {
     backgroundColor: primary,
@@ -107,6 +109,7 @@ export const dark = {
     item: {
       backgroundColor: 'transparent',
       backgroundColorHover: primary,
+      backgroundColorActive: darkGrey,
       borderColor: 'transparent',
       color: textColor,
       colorActive: textColor,
@@ -119,17 +122,17 @@ export const dark = {
   textField: {
     backgroundColor: darkerGrey,
     borderColor: darkerGrey,
-    color: textColor,
+    color: cream,
     errorColor: error,
     successColor: success,
     active: {
       backgroundColor: darkestGrey,
-      borderColor: primary,
+      borderColor: darkestGrey,
       boxShadow: 'none',
-      color: white,
+      color: cream,
     },
     placeholder: {
-      color: creamDark,
+      color: cream06,
     },
   },
   header: {

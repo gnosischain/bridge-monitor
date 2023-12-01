@@ -48,6 +48,14 @@ const Wallet = styled.div`
   display: flex;
 `
 
+const Chevron = styled(ChevronDown)`
+  transition: transform 0.1s linear;
+
+  .isOpen & {
+    transform: rotate(180deg);
+  }
+`
+
 const Status = styled.div`
   --ball-dimensions: 14px;
 
@@ -236,7 +244,7 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
               <UserWallet /> {address && truncateStringInTheMiddle(address, 6, 4)}
             </Wallet>
             {!isWalletNetworkSupported && <Status />}
-            <ChevronDown />
+            <Chevron />
           </ButtonConnect>
         }
         dropdownPosition={DropdownPosition.right}

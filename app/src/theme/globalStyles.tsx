@@ -16,6 +16,8 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
       --layout-vertical-padding: 48px;
       --layout-vertical-padding-xl: calc(var(--layout-vertical-padding) * 2);
       --layout-vertical-padding-xxl: calc(var(--layout-vertical-padding) * 3);
+
+      --input-height: 42px;
   }
 
   html {
@@ -67,7 +69,6 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
   }
 
   h1, h2, h3, h4 {
-    font-family: ${({ theme: { fonts } }) => fonts.familyTitles};
     line-height: 1.2;
   }
 
@@ -100,8 +101,7 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
     }
   }
 
-  .number
-  {
+  .number {
     font-family: ${({ theme: { fonts } }) => fonts.familyCode};
   }
 

@@ -62,6 +62,8 @@ export const TexfieldPartsCSS = css<TexfieldCSSProps>`
 
   &[type='number'] {
     -moz-appearance: textfield;
+    appearance: textfield;
+
     ::-webkit-inner-spin-button,
     ::-webkit-outer-spin-button {
       -webkit-appearance: none;
@@ -75,10 +77,10 @@ export const TexfieldPartsCSS = css<TexfieldCSSProps>`
 `
 
 export const TextfieldCSS = css<TexfieldCSSProps>`
-  --textfield-border-radius: 8px;
-  --texfield-font-size: 1.4rem;
-  --textfield-padding: 0 15px;
-  --textfield-height: 36px;
+  --textfield-border-radius: ${({ theme: { common } }) => common.borderRadius};
+  --texfield-font-size: 1.3rem;
+  --textfield-padding: 0 ${({ theme: { common } }) => common.space * 2}px;
+  --textfield-height: var(--input-height);
   --textfield-font-weight: 400;
 
   background-color: ${({ theme: { textField } }) => textField.backgroundColor};
@@ -100,9 +102,13 @@ export const TextfieldCSS = css<TexfieldCSSProps>`
   overflow: hidden;
   padding: var(--textfield-padding);
   text-overflow: ellipsis;
-  transition: border-color 0.15s linear;
+  transition: border-color 0.15s linear, background-color 0.15s linear;
   white-space: nowrap;
   width: 100%;
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    --texfield-font-size: 1.4rem;
+  }
 `
 
 export const Textfield = styled.input<TextfieldProps>`

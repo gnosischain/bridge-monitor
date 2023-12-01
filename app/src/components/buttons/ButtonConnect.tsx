@@ -9,6 +9,16 @@ export const ButtonConnect = styled(ButtonPrimary)`
   padding: 0 16px;
   position: relative;
 
+  .isOpen & {
+    background-color: ${({ theme: { buttonPrimary } }) => buttonPrimary.backgroundColorHover};
+    border-color: ${({ theme: { buttonPrimary } }) => buttonPrimary.borderColorHover};
+    color: ${({ theme: { buttonPrimary } }) => buttonPrimary.colorHover};
+  }
+
+  &:active {
+    opacity: 1;
+  }
+
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     display: flex;
   }
