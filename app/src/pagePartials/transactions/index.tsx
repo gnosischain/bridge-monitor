@@ -75,7 +75,13 @@ export const Transactions: React.FC = genericSuspense(
             onEndDateChange={setEndTimestamp}
             onExecutedByChange={setExecutedBy}
             onHashChange={setHash}
-            onResetFilters={() => resetFilters({ bridge: activeTab })}
+            onResetFilters={() =>
+              resetFilters({
+                bridge: activeTab,
+                startTimestamp: getStartOfDay(),
+                endTimestamp: getEndOfDay(),
+              })
+            }
             onSignedByChange={setSignedBy}
             onStartDateChange={setStartTimestamp}
             onStatusChange={setStatus}
