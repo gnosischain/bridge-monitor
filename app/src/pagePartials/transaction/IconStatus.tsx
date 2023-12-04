@@ -1,12 +1,9 @@
 import Image from 'next/image'
 import styled from 'styled-components'
 
-const Wrapper = styled.span<{ status?: string }>`
+const Wrapper = styled.div`
   align-items: center;
-  background-color: ${(props) =>
-    props.status === 'warning'
-      ? ({ theme }) => theme.colors.warning
-      : ({ theme }) => theme.colors.darkGrey};
+  background-color: ${({ theme: { colors } }) => colors.darkGrey};
   border-radius: 50%;
   display: flex;
   flex-shrink: 0;
@@ -15,23 +12,25 @@ const Wrapper = styled.span<{ status?: string }>`
   width: 24px;
 `
 
+export type Status = 'success' | 'waiting' | 'warning' | 'pending'
+
 interface Props {
-  status?: string
+  statusIcon?: Status
 }
 
-export const IconStatus: React.FC<Props> = ({ status, ...restProps }) => {
+export const IconStatus: React.FC<Props> = ({ statusIcon, ...restProps }) => {
   const icon =
-    status === 'success'
+    statusIcon === 'success'
       ? '/images/icon-success.svg'
-      : status === 'waiting'
+      : statusIcon === 'waiting'
       ? '/images/icon-waiting.svg'
-      : status === 'warning'
+      : statusIcon === 'warning'
       ? '/images/icon-warning.svg'
       : '/images/icon-not-required.svg'
 
   return (
-    <Wrapper status={status} {...restProps}>
-      <Image alt={status} height={24} src={icon} width={24} />
+    <Wrapper {...restProps}>
+      <Image alt="" height={24} src={icon} width={24} />
     </Wrapper>
   )
 }

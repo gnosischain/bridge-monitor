@@ -96,15 +96,13 @@ const RowLink = styled.a`
 `
 
 type Props = {
-  transaction: Transaction
-  goBackUrl?: string
   shallowUrl?: string
   showValidations?: boolean
+  transaction: Transaction
   updateInMemoryTransaction: (transaction: Transaction) => void
 }
 
 export const TransactionRow: React.FC<Props> = ({
-  goBackUrl,
   shallowUrl,
   showValidations,
   transaction,
@@ -124,16 +122,17 @@ export const TransactionRow: React.FC<Props> = ({
     }
   }
 
-  return (
-    <Link
-      href={{
+  const href = shallowUrl
+    ? {
         pathname: `/${transaction.id}`,
-        query: { goBackUrl },
-      }}
-      passHref
-      shallow={shallowUrl ? true : false}
-      {...restProps}
-    >
+        query: { goBack: 'true' },
+      }
+    : {
+        pathname: `/${transaction.id}`,
+      }
+
+  return (
+    <Link href={href} passHref {...restProps}>
       <TR as={RowLink} compact={!showValidations} onClick={handleRowClick}>
         <TD>
           <MobileLabel>Transaction Hash</MobileLabel>

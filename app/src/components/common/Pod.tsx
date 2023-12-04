@@ -35,6 +35,14 @@ const Header = styled.div`
   gap: ${({ theme: { common } }) => common.space / 2}px;
 `
 
+const Claim = styled(ClaimButton)`
+  margin-left: auto;
+`
+
+const TxStatus = styled(Status)`
+  margin-left: auto;
+`
+
 interface Props {
   transaction?: Transaction
   subTitle?: string
@@ -56,12 +64,12 @@ export const Pod: React.FC<Props> = ({
         <Badge text={title} />
         {transaction && updateInMemoryTransaction ? (
           transaction.transactionStatus === TransactionStatus.Unclaimed ? (
-            <ClaimButton
+            <Claim
               transaction={transaction}
               updateInMemoryTransaction={updateInMemoryTransaction}
             />
           ) : (
-            <Status status={transaction.transactionStatus} />
+            <TxStatus status={transaction.transactionStatus} />
           )
         ) : subTitle ? (
           <Badge text={subTitle} />

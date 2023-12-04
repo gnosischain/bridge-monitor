@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import styled, { css } from 'styled-components'
 
 import { IconCopy } from '@/src/components/assets/IconCopy'
@@ -6,6 +5,18 @@ import { IconLink } from '@/src/components/assets/IconLink'
 import { shortenAddress } from '@/src/utils/tools'
 import { ToastComponent } from '@/src/components/toast/ToastComponent'
 import { Toast, toast } from 'react-hot-toast'
+
+const CommonCSS = css`
+  transition: color 0.15s ease-in-out;
+
+  &:hover {
+    color: ${({ theme: { colors } }) => colors.success};
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+`
 
 const Wrapper = styled.div`
   align-items: center;
@@ -25,20 +36,14 @@ const CopyButton = styled.button`
   color: ${({ theme: { colors } }) => colors.cream};
   cursor: pointer;
 
-  &:active {
-    color: ${({ theme: { colors } }) => colors.success};
-    opacity: 0.6;
-  }
+  ${CommonCSS}
 `
 
 const Link = styled(IconLink)`
   color: ${({ theme: { colors } }) => colors.cream};
   cursor: pointer;
 
-  &:active {
-    color: ${({ theme: { colors } }) => colors.success};
-    opacity: 0.6;
-  }
+  ${CommonCSS}
 `
 
 const Error = styled.span`

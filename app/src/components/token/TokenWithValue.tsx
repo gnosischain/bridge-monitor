@@ -49,12 +49,20 @@ const Label = styled.span`
   opacity: 0.6;
 `
 
+Label.defaultProps = {
+  className: 'label',
+}
+
 const Value = styled.span`
   color: ${({ theme: { colors } }) => colors.cream};
   font-size: 1.3rem;
   font-weight: 400;
   line-height: 1.2;
 `
+
+Value.defaultProps = {
+  className: 'value',
+}
 
 interface TokenInfo {
   token: UniswapToken
@@ -103,7 +111,7 @@ export const Initiator: React.FC<Props> = ({
 
   return (
     <Wrapper {...restProps}>
-      <Label className="label">Sent:</Label>
+      <Label>Sent:</Label>
       <TokenInfo token={initiatorToken} value={value} />
     </Wrapper>
   )

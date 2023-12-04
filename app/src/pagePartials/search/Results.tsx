@@ -87,7 +87,6 @@ export const Results: React.FC<{ filters: TransactionFilter }> = ({ filters, ...
             </InfoWrapper>
           ) : null}
           <TransactionsList
-            goBackUrl={filters.hash ? `${router.asPath}${filtersHash}` : `${router.asPath}`}
             shallowUrl={`${router.pathname}?hash=${filters.hash}`}
             transactions={transactions}
             updateInMemoryTransaction={updateInMemoryTransaction}

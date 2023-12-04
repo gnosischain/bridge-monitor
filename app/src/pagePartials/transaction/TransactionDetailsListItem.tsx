@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-import { IconStatus as BaseIconStatus } from '@/src/pagePartials/transaction/IconStatus'
+import { IconStatus, Status } from '@/src/pagePartials/transaction/IconStatus'
 import { TransactionDate } from '@/src/pagePartials/transaction/TransactionDate'
 
 const Wrapper = styled.li`
@@ -41,7 +41,7 @@ const Wrapper = styled.li`
   }
 `
 
-const Status = styled.div<{ inactive?: boolean; status: string }>`
+const StatusWrapper = styled.div`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.darkGrey};
   border-radius: 8px;
@@ -51,7 +51,7 @@ const Status = styled.div<{ inactive?: boolean; status: string }>`
   padding: 0 ${({ theme: { common } }) => common.space}px;
 `
 
-const IconStatus = styled(BaseIconStatus)`
+const Icon = styled(IconStatus)`
   --size: 28px;
 
   background-color: ${({ theme: { colors } }) => colors.darkerGrey};
@@ -59,7 +59,7 @@ const IconStatus = styled(BaseIconStatus)`
   width: var(--size);
 `
 
-const StatusText = styled.div`
+const TransactionStatus = styled.div`
   color: ${({ theme: { colors } }) => colors.cream};
   font-size: 1.6rem;
   font-weight: 500;
@@ -99,24 +99,24 @@ interface Props {
   description: string
   title: string
   transactionStatus: string
-  waiting?: boolean
+  statusIcon: Status
 }
 
 export const TransactionDetailsListItem: React.FC<Props> = ({
   children,
   dateCompleted,
   description,
+  statusIcon,
   title,
   transactionStatus,
-  waiting,
   ...restProps
 }) => {
   return (
     <Wrapper {...restProps}>
-      <Status inactive={waiting} status={transactionStatus}>
-        <IconStatus status={transactionStatus} />
-        <StatusText>{transactionStatus}</StatusText>
-      </Status>
+      <StatusWrapper>
+        <Icon statusIcon={statusIcon} />
+        <TransactionStatus>{transactionStatus}</TransactionStatus>
+      </StatusWrapper>
       <Content>
         <Title>{title}</Title>
         <Text>{description}</Text>

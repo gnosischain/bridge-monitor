@@ -2,6 +2,7 @@ import styled from 'styled-components'
 
 import { TransactionRowDetails } from './TransactionRowDetails'
 import { TransactionValidation } from '@/src/utils/transactions'
+import { ValidatorIcon } from '@/src/components/common/ValidatorIcon'
 
 const Wrapper = styled.ul`
   padding: 0;
@@ -13,7 +14,7 @@ const Wrapper = styled.ul`
 
 interface Props {
   validations: TransactionValidation[]
-  fetchValidatorName: (validatorAddress: string) => string
+  fetchValidatorName: (validatorAddress: string) => { name: string; shortName: string }
 }
 
 export const TransactionValidations: React.FC<Props> = ({ fetchValidatorName, validations }) => {
@@ -22,15 +23,22 @@ export const TransactionValidations: React.FC<Props> = ({ fetchValidatorName, va
 
   return (
     <Wrapper>
-      {validations.map((validation: TransactionValidation, index) => (
-        <TransactionRowDetails
-          key={index}
-          nameValue={fetchValidatorName(validation.validatorAddr)}
-          network="gnosis"
-          status={signaturesStatus}
-          transaction={validation}
-        />
-      ))}
+      {validations.map((validation: TransactionValidation, index) => {
+        const validator = fetchValidatorName(validation.validatorAddr)
+
+        return (
+          <TransactionRowDetails
+            icon={
+              <ValidatorIcon shortName={validator.shortName} size="18px" title={validator.name} />
+            }
+            key={index}
+            network="gnosis"
+            status={signaturesStatus}
+            title={validator.name}
+            transaction={validation}
+          />
+        )
+      })}
     </Wrapper>
   )
 }

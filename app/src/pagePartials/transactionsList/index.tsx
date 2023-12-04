@@ -6,7 +6,6 @@ import { Validator } from '@/src/utils/validators'
 import { Table } from '@/src/components/common/Table'
 
 interface Props {
-  goBackUrl?: string
   shallowUrl?: string
   transactions: Transaction[]
   updateInMemoryTransaction: (transaction: Transaction) => void
@@ -14,7 +13,6 @@ interface Props {
 }
 
 export const TransactionsList: React.FC<Props> = ({
-  goBackUrl,
   shallowUrl,
   transactions,
   updateInMemoryTransaction,
@@ -28,7 +26,6 @@ export const TransactionsList: React.FC<Props> = ({
       <TransactionHeader validators={validators} />
       {transactions.map((transaction) => (
         <TransactionRow
-          goBackUrl={goBackUrl}
           key={`transaction_${transaction.id}`}
           shallowUrl={shallowUrl}
           showValidations={validators ? true : false}

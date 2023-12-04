@@ -1,14 +1,18 @@
 import { TransactionStatus } from '@/types/generated/subgraph'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { ChainsInitiatorReceiver } from '@/src/components/common/ChainsInitiatorReceiver'
 import { Pod } from '@/src/components/common/Pod'
 import { TransactionDate } from '@/src/pagePartials/transaction/TransactionDate'
 import { getAddressScanUrl } from '@/src/utils/transactions'
 import { Address } from '@/src/components/token/Address'
-import { Initiator } from '@/src/components/token/TokenWithValue'
+import {
+  Initiator as BaseInitiator,
+  Receiver as BaseReceiver,
+} from '@/src/components/token/TokenWithValue'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Transaction } from '@/src/utils/transactions'
+import { ArrowUp } from '@/src/components/assets/ArrowUp'
 
 const Wrapper = styled.div`
   column-gap: ${({ theme: { common } }) => common.space * 2}px;
@@ -23,12 +27,33 @@ const Wrapper = styled.div`
   }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    display: flex;
-    flex-direction: row;
+    grid-template-columns: 0.85fr 0.85fr 0.85fr 1.225fr 1.225fr;
   }
 `
 
-const Value = styled(Initiator)`
+const PodAmount = styled(Pod)`
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    grid-column: auto / span 2;
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    grid-column: auto / span 1;
+  }
+`
+
+const PodStatus = styled(Pod)`
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    grid-column: auto / span 1;
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    grid-column: auto / span 1;
+  }
+`
+
+const CommonCSS = css`
+  min-width: 0;
+
   .label {
     display: none;
   }
@@ -37,6 +62,25 @@ const Value = styled(Initiator)`
     font-size: inherit;
     line-height: inherit;
   }
+`
+
+const AmountRow = styled.div`
+  align-items: center;
+  column-gap: ${({ theme: { common } }) => common.space * 3}px;
+  display: flex;
+`
+
+const Initiator = styled(BaseInitiator)`
+  ${CommonCSS}
+`
+
+const Receiver = styled(BaseReceiver)`
+  ${CommonCSS}
+`
+
+const ArrowRight = styled(ArrowUp)`
+  display: block;
+  transform: rotate(-90deg);
 `
 
 interface Props {
@@ -77,7 +121,7 @@ export const TransactionSummary: React.FC<Props> = ({
 }) => {
   return (
     <Wrapper {...restProps}>
-      <Pod subTitle={bridgeName} title="Bridge">
+      <Pod subTitle={bridgeName === 'AMB' ? 'Omnibridge' : bridgeName} title="Bridge">
         <ChainsInitiatorReceiver
           chainIconInitiator={initiatorNetworkIcon}
           chainIconReceiver={receiverNetworkIcon}
@@ -102,16 +146,25 @@ export const TransactionSummary: React.FC<Props> = ({
           link={getAddressScanUrl(receiver, receiverNetwork)}
         />
       </Pod>
-      <Pod title="Amount">
-        <Value
-          bridgeName={bridgeName}
-          initiatorNetwork={initiatorNetwork}
-          token={initiatorToken}
-          tokenValue={initiatorAmount}
-        />
-      </Pod>
+      <PodAmount title="Amount">
+        <AmountRow>
+          <Initiator
+            bridgeName={bridgeName}
+            initiatorNetwork={initiatorNetwork}
+            token={initiatorToken}
+            tokenValue={initiatorAmount}
+          />
+          {bridgeName.toLowerCase() === 'xdai' && <ArrowRight />}
+          <Receiver
+            bridgeName={bridgeName}
+            initiatorNetwork={initiatorNetwork}
+            token={initiatorToken}
+            tokenValue={initiatorAmount}
+          />
+        </AmountRow>
+      </PodAmount>
       {/* @todo - If a signature fails it has to change state */}
-      <Pod
+      <PodStatus
         subTitle={transactionStatus}
         title="Status"
         transaction={transaction}
@@ -121,7 +174,7 @@ export const TransactionSummary: React.FC<Props> = ({
          - if transactionStatus is not completed, completed value must be empty
         */}
         <TransactionDate completed={timestampExecution} started={timestampStarted} />
-      </Pod>
+      </PodStatus>
     </Wrapper>
   )
 }
@@ -129,7 +182,7 @@ export const TransactionSummary: React.FC<Props> = ({
 export const TransactionSummaryPlaceholder: React.FC = ({ ...restProps }) => {
   return (
     <Wrapper {...restProps}>
-      {Array.from({ length: 4 }).map((item, index) => (
+      {Array.from({ length: 5 }).map((item, index) => (
         <SkeletonLoading key={index} style={{ borderRadius: '4px', height: '112px' }} />
       ))}
     </Wrapper>

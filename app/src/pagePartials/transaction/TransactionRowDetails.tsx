@@ -6,22 +6,22 @@ import { getTxScanUrl } from '@/src/utils/transactions'
 import { IconLink } from '@/src/components/assets/IconLink'
 
 const Wrapper = styled.li<{ status?: string }>`
-  --space: ${({ theme: { common } }) => common.space}px;
+  --gap: ${({ theme: { common } }) => common.space}px;
 
-  align-items: start;
+  align-items: center;
   border-radius: ${({ theme: { common } }) => common.borderRadius};
   color: ${({ status, theme: { colors } }) =>
     status === 'warning' ? colors.warning : colors.cream};
   display: grid;
-  gap: var(--space);
+  gap: var(--gap);
   grid-template-columns: 1fr;
   list-style: none;
-  padding: calc(var(--space) * 2) var(--space);
+  padding: calc(var(--gap) * 2) var(--gap);
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     gap: ${({ theme: { common } }) => common.space * 2}px;
     grid-template-columns: 1fr 3fr;
-    padding: var(--space);
+    padding: var(--gap);
   }
 
   &:nth-child(odd) {
@@ -33,10 +33,10 @@ const Wrapper = styled.li<{ status?: string }>`
   }
 `
 
-const Name = styled.div`
+const Title = styled.div`
   align-items: center;
+  column-gap: calc(var(--gap) * 1.5);
   display: flex;
-  gap: var(--space);
 `
 
 const TransactionInfoWrapper = styled.div`
@@ -45,14 +45,14 @@ const TransactionInfoWrapper = styled.div`
   grid-template-columns: 1fr;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    gap: var(--space);
+    gap: var(--gap);
     grid-template-columns: 1fr;
   }
 `
 
 const TransactionInfo = styled.div`
   display: grid;
-  grid-gap: var(--space);
+  grid-gap: var(--gap);
   grid-template-columns: 1fr;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
@@ -61,14 +61,14 @@ const TransactionInfo = styled.div`
   }
 `
 
-const Info = styled.div<{ status?: string }>`
+const Info = styled.div`
   display: grid;
-  grid-gap: 0 var(--space);
+  gap: var(--gap);
   grid-template-columns: 1fr;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    gap: var(--gap);
     grid-template-columns: 1fr auto;
-    grid-gap: 0 ${({ theme: { common } }) => common.space * 2}px;
   }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
@@ -80,7 +80,7 @@ const Link = styled.a<{ status?: string }>`
   align-items: center;
   color: ${({ status, theme: { colors } }) =>
     status === 'warning' ? colors.warning : colors.secondary};
-  column-gap: var(--space);
+  column-gap: var(--gap);
   display: flex;
   font-size: 1.4rem;
   line-height: 1.5;
@@ -96,25 +96,30 @@ const Link = styled.a<{ status?: string }>`
 `
 
 interface Props {
-  status: string
-  nameValue?: string
+  icon?: React.ReactNode
   network: string
+  status: string
+  title: string
   transaction: { transactionHash: string; timestamp: number }
 }
 
 export const TransactionRowDetails: React.FC<Props> = ({
-  nameValue,
+  icon,
   network,
   status,
+  title,
   transaction,
 }) => {
   return (
     <Wrapper status={status}>
-      <Name>{nameValue}</Name>
+      <Title>
+        {icon}
+        {title}
+      </Title>
       <TransactionInfoWrapper>
         <TransactionInfo>
           <Address address={transaction.transactionHash} copy />
-          <Info status={status}>
+          <Info>
             <TransactionDate completed={transaction.timestamp} />
             <Link
               href={getTxScanUrl(transaction.transactionHash, network)}

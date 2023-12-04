@@ -9,7 +9,6 @@ import {
 } from '@/src/pagePartials/transaction/TransactionSummary'
 import { TransactionValidations } from '@/src/pagePartials/transaction/TransactionValidations'
 import { TransactionRowDetails } from '@/src/pagePartials/transaction/TransactionRowDetails'
-import { AMB_SIGNATURE_THRESHOLD, XDAI_SIGNATURE_THRESHOLD } from '@/src/constants/misc'
 import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
 import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'
@@ -19,8 +18,13 @@ import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { useValidators } from '@/src/providers/validatorsProvider'
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { Wrapper } from '@/src/components/layout/Wrapper'
+import { ButtonGoBack } from '@/src/components/buttons/ButtonGoBack'
 
-const Head = styled.div``
+const Head = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`
 
 const Title = styled.h1`
   color: ${({ theme: { colors } }) => colors.cream};
@@ -91,8 +95,7 @@ const TransactionSkeletonLoading: React.FC = ({ ...restProps }) => (
 export const Transaction: React.FC = ({ ...restProps }) => {
   const router = useRouter()
   const transactionId = String(router.query?.transaction)
-  /* TODO: use goBackUrl when the button is added */
-  const goBackUrl = String(router.query?.goBackUrl) || '/'
+  const goBackEnabled = String(router.query?.goBack) === 'true' || undefined
   const { isLoading, transactions, updateInMemoryTransaction } = useFetchTransactions(
     {},
     {
@@ -112,11 +115,7 @@ export const Transaction: React.FC = ({ ...restProps }) => {
   const hasValidations = (): boolean => {
     return txValidations !== null && txValidations.length >= 1
   }
-  const signatureThresholdNotReached = (): boolean => {
-    const signatureThreshold =
-      currentTx.bridgeName === 'AMB' ? AMB_SIGNATURE_THRESHOLD : XDAI_SIGNATURE_THRESHOLD
-    return currentTx.validations?.length !== signatureThreshold
-  }
+
   const hasBeenExecuted = (): boolean => {
     return txExecution !== null && txExecution.id !== undefined
   }
@@ -128,20 +127,32 @@ export const Transaction: React.FC = ({ ...restProps }) => {
       isSameString(bridgeValidator.address, validatorAddress),
     )
 
-    return v?.name ?? 'unknown'
+    return v?.name && v?.shortName
+      ? { name: v?.name, shortName: v?.shortName }
+      : { name: 'unknown', shortName: 'unknown' }
   }
+
+  const bridgingComplete = isForeignInitiated() && hasBeenExecuted()
+  const tokensBridged = !isForeignInitiated() && currentTx.execution
+  const readyToClaim =
+    !isForeignInitiated() &&
+    currentTx.transactionStatus === TransactionStatus.Unclaimed &&
+    !currentTx.execution
 
   return (
     <Wrapper {...restProps}>
       <Head>
-        <Title>Transaction</Title>
-        <Address
-          address={currentTx.transactionHash}
-          bigIcons
-          characters={7}
-          copy
-          link={getTxScanUrl(currentTx.transactionHash, currentTx.initiatorNetwork)}
-        />
+        <div>
+          <Title>Transaction</Title>
+          <Address
+            address={currentTx.transactionHash}
+            bigIcons
+            characters={7}
+            copy
+            link={getTxScanUrl(currentTx.transactionHash, currentTx.initiatorNetwork)}
+          />
+        </div>
+        {goBackEnabled && <ButtonGoBack onClick={() => router.back()} />}
       </Head>
       <TransactionInformation>
         <TransactionSummary
@@ -164,28 +175,27 @@ export const Transaction: React.FC = ({ ...restProps }) => {
         />
         <TransactionDetails>
           <TransactionDetailsList>
-            {/* Initiated */}
             <TransactionDetailsListItem
               description={`The user transferred tokens to the bridge.`}
+              statusIcon="success"
               title="Bridging initiated"
               transactionStatus={TransactionStatus.Initiated}
             >
               <ul>
                 <TransactionRowDetails
-                  nameValue="Initiated by user"
                   network={currentTx.initiatorNetwork}
                   status={TransactionStatus.Initiated}
+                  title="Initiated by user"
                   transaction={currentTx}
                 />
               </ul>
             </TransactionDetailsListItem>
-            {/* Collecting */}
             {hasValidations() && (
               <TransactionDetailsListItem
                 description={`${txValidations.length} of 4 required confirmations.`}
-                title="Awaiting consensus"
+                statusIcon={txValidations.length === 4 ? 'success' : 'waiting'}
+                title={txValidations.length === 4 ? 'Consensus achieved' : 'Awaiting consensus'}
                 transactionStatus={TransactionStatus.Collecting}
-                waiting={signatureThresholdNotReached()}
               >
                 <TransactionValidations
                   fetchValidatorName={getValidatorName}
@@ -193,60 +203,61 @@ export const Transaction: React.FC = ({ ...restProps }) => {
                 />
               </TransactionDetailsListItem>
             )}
-            {/* Completed */}
-            {isForeignInitiated() && hasBeenExecuted() && (
+            {bridgingComplete && (
               <>
                 <TransactionDetailsListItem
                   description="The tokens are in the user's address."
-                  title="Bridging is complete"
+                  statusIcon="success"
+                  title="Bridging complete"
                   transactionStatus={TransactionStatus.Completed}
-                  waiting={!currentTx.timestamp}
                 >
                   <ul>
                     <TransactionRowDetails
-                      nameValue="Tokens received"
                       network="gnosis"
                       status="not-required"
+                      title="Tokens received"
                       transaction={txExecution}
                     />
                   </ul>
                 </TransactionDetailsListItem>
               </>
             )}
-            {!isForeignInitiated() && currentTx.execution && (
+            {tokensBridged && (
               <>
                 <TransactionDetailsListItem
                   description="Funds should be available on receiver address."
-                  title="Tokens Bridged"
+                  statusIcon="success"
+                  title="Tokens bridged"
                   transactionStatus={currentTx.transactionStatus}
                 >
-                  <ul>
-                    <TransactionRowDetails
-                      nameValue="Tokens received"
-                      network={currentTx.receiverNetwork}
-                      status="not-required"
-                      transaction={currentTx.execution}
-                    />
-                  </ul>
+                  {currentTx.execution && (
+                    <ul>
+                      <TransactionRowDetails
+                        network={currentTx.receiverNetwork}
+                        status="not-required"
+                        title="Tokens received"
+                        transaction={currentTx.execution}
+                      />
+                    </ul>
+                  )}
                 </TransactionDetailsListItem>
               </>
             )}
-            {!isForeignInitiated() &&
-              currentTx.transactionStatus === TransactionStatus.Unclaimed &&
-              !currentTx.execution && (
-                <>
-                  <TransactionDetailsListItem
-                    description="Claim to unlock your tokens."
-                    title="Ready to claim"
-                    transactionStatus={TransactionStatus.Unclaimed}
-                  >
-                    <ClaimButton
-                      transaction={currentTx}
-                      updateInMemoryTransaction={updateInMemoryTransaction}
-                    />
-                  </TransactionDetailsListItem>
-                </>
-              )}
+            {readyToClaim && (
+              <>
+                <TransactionDetailsListItem
+                  description="Claim to unlock your tokens."
+                  statusIcon="waiting"
+                  title="Ready to claim"
+                  transactionStatus={TransactionStatus.Unclaimed}
+                >
+                  <ClaimButton
+                    transaction={currentTx}
+                    updateInMemoryTransaction={updateInMemoryTransaction}
+                  />
+                </TransactionDetailsListItem>
+              </>
+            )}
           </TransactionDetailsList>
         </TransactionDetails>
       </TransactionInformation>

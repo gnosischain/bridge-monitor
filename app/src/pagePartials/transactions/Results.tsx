@@ -8,12 +8,6 @@ import { useValidators } from '@/src/providers/validatorsProvider'
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { Legend } from '@/src/pagePartials/transactions/Legend'
 
-type TransactionsTableProps = {
-  bridge: string
-  filters: TransactionFilter
-  goBackUrl?: string
-}
-
 const InfoWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -33,7 +27,12 @@ const Loading = styled(BaseLoading)`
   min-height: 400px;
 `
 
-export const Results: React.FC<TransactionsTableProps> = ({ bridge, filters, goBackUrl }) => {
+type TransactionsTableProps = {
+  bridge: string
+  filters: TransactionFilter
+}
+
+export const Results: React.FC<TransactionsTableProps> = ({ bridge, filters }) => {
   const { isLoading, transactions, updateInMemoryTransaction } = useTransactionsWithFilters(filters)
   const { validators } = useValidators(bridge as BridgesValues)
 
@@ -49,7 +48,6 @@ export const Results: React.FC<TransactionsTableProps> = ({ bridge, filters, goB
         <Legend />
       </InfoWrapper>
       <TransactionsList
-        goBackUrl={goBackUrl}
         transactions={transactions}
         updateInMemoryTransaction={updateInMemoryTransaction}
         validators={validators}
