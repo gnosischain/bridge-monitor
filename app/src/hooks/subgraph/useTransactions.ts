@@ -133,11 +133,11 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
         }
       }
     }
-    if (!filters.hash && filters.startTimestamp) {
+    if (filters.startTimestamp) {
       _where.and?.push({ timestamp_gte: msToSeconds(filters.startTimestamp.getTime()) })
       updated = true
     }
-    if (!filters.hash && filters.endTimestamp) {
+    if (filters.endTimestamp) {
       _where.and?.push({ timestamp_lte: msToSeconds(filters.endTimestamp.getTime()) })
       updated = true
     }
