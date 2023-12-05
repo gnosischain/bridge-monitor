@@ -1,7 +1,7 @@
-import { NoResultsMessage } from '@/src/components/common/NoResultsMessage'
-import { TransactionRow } from '@/src/pagePartials/transactions/TransactionRow'
+import { NoResultsMessage } from '@/src/pagePartials/transactionsList/NoResultsMessage'
+import { TransactionRow } from '@/src/pagePartials/transactionsList/TransactionRow'
 import { Transaction } from '@/src/utils/transactions'
-import { TransactionHeader } from '@/src/pagePartials/transactions/TransactionsHeader'
+import { TransactionHeader } from '@/src/pagePartials/transactionsList/TransactionsHeader'
 import { Validator } from '@/src/utils/validators'
 import { Table } from '@/src/components/common/Table'
 

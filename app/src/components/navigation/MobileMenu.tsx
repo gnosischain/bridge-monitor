@@ -271,7 +271,7 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
               </UserButton>
               <UserButton
                 onClick={() => {
-                  router.push(`my-transactions/?hash=${address}`)
+                  router.push(`/my-transactions/?hash=${address}`)
                   closeMenu()
                 }}
               >

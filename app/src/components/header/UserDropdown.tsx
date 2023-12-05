@@ -280,7 +280,7 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
           </ClickableItem>,
           <ClickableItem
             key="userDropdown_item_2"
-            onClick={() => router.push(`my-transactions/?hash=${address}`)}
+            onClick={() => router.push(`/my-transactions/?hash=${address}`)}
           >
             <ItemLabel>
               <MyTransactions />

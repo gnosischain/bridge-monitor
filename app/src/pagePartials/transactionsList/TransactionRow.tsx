@@ -122,13 +122,14 @@ export const TransactionRow: React.FC<Props> = ({
     }
   }
 
+  const basePath = '/transaction/'
   const href = shallowUrl
     ? {
-        pathname: `/${transaction.id}`,
+        pathname: `${basePath}${transaction.id}`,
         query: { goBack: 'true' },
       }
     : {
-        pathname: `/${transaction.id}`,
+        pathname: `${basePath}${transaction.id}`,
       }
 
   return (
