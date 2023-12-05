@@ -1,4 +1,3 @@
-import { Status, Props as StatusProps } from '@/src/components/common/Status'
 import { notify } from '@/src/components/toast/Toast'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { contracts } from '@/src/constants/config/contracts'
@@ -26,14 +25,39 @@ import { Interface } from '@ethersproject/abi'
 import { JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
 import { WalletState } from '@web3-onboard/core'
 import styled from 'styled-components'
+import { useState } from 'react'
 
-const Wrapper = styled(Status)`
-  display: inline-flex;
+const Wrapper = styled.button`
+  align-items: center;
+  background-color: ${({ theme: { colors } }) => colors.warning};
+  border-radius: 4px;
+  border: none;
+  color: ${({ theme }) => theme.colors.darkestGrey};
+  column-gap: 6px;
+  cursor: pointer;
+  display: flex;
+  font-size: 1.2rem;
+  font-weight: 700;
+  height: 22px;
   justify-content: center;
+  line-height: 1.2rem;
+  min-width: 80px;
+  padding: 0 ${({ theme: { common } }) => common.space}px;
+  transition: none;
   width: fit-content;
+
+  &:active {
+    opacity: 0.6;
+  }
+
+  &[disabled],
+  &[disabled]:hover {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 `
 
-type ClaimButtonProps = Omit<StatusProps, 'status'> & {
+type ClaimButtonProps = {
   transaction: Transaction
   updateInMemoryTransaction: (transaction: Transaction) => void
 }
@@ -45,6 +69,7 @@ export const ClaimButton = ({
 }: ClaimButtonProps) => {
   const { connectWallet, isWalletConnected, isWalletNetworkSupported, pushNetwork } =
     useWeb3Connection()
+  const [isWorking, setIsWorking] = useState(false)
 
   const erc20ToNativeBridgeHelper = useContractInstance(
     Erc20ToNativeBridgeHelper__factory,
@@ -65,6 +90,8 @@ export const ClaimButton = ({
     e.stopPropagation()
     e.preventDefault()
 
+    setIsWorking(true)
+
     // if not connected, show a modal to connect
     if (!isWalletConnected) {
       const walletStates = await connectWallet()
@@ -76,6 +103,7 @@ export const ClaimButton = ({
           id: 'connectWallet',
         })
         console.error('you need to connect your wallet in order to claim')
+        setIsWorking(false)
         return
       }
     }
@@ -93,6 +121,7 @@ export const ClaimButton = ({
           id: 'switchNetwork',
         })
         console.error('you need to switch to the right network in order to claim')
+        setIsWorking(false)
         return
       }
     }
@@ -150,6 +179,7 @@ export const ClaimButton = ({
           'Unable to build claim tx. Log for UserRequestForSignatures not found',
           initialTx,
         )
+        setIsWorking(false)
         return
       }
 
@@ -163,7 +193,10 @@ export const ClaimButton = ({
     }
 
     try {
-      const tx = await sendTx(claim)
+      const tx = await sendTx(claim).finally(() => {
+        setIsWorking(false)
+      })
+
       if (tx) {
         const receipt = await tx.wait()
 
@@ -203,6 +236,7 @@ export const ClaimButton = ({
           },
           transactionStatus: TransactionStatus.Completed,
         })
+        setIsWorking(false)
       }
     } catch (e) {
       // If the method reverts, the withdrawal was likely already executed.
@@ -212,8 +246,13 @@ export const ClaimButton = ({
         message: 'Failed to claim - it might have already been claimed',
         id: 'claim',
       })
+      setIsWorking(false)
     }
   }
 
-  return <Wrapper onClick={handleClaim} status={TransactionStatus.Unclaimed} {...restProps} />
+  return (
+    <Wrapper disabled={isWorking} onClick={handleClaim} {...restProps}>
+      Claim
+    </Wrapper>
+  )
 }

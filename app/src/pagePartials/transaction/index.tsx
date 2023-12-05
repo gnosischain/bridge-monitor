@@ -8,6 +8,7 @@ import {
   TransactionSummaryPlaceholder,
 } from '@/src/pagePartials/transaction/TransactionSummary'
 import { TransactionValidations } from '@/src/pagePartials/transaction/TransactionValidations'
+import { DelayWarning } from '@/src/pagePartials/transaction/DelayWarning'
 import { TransactionRowDetails } from '@/src/pagePartials/transaction/TransactionRowDetails'
 import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
 import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
@@ -138,6 +139,8 @@ export const Transaction: React.FC = ({ ...restProps }) => {
     !isForeignInitiated() &&
     currentTx.transactionStatus === TransactionStatus.Unclaimed &&
     !currentTx.execution
+  const hasMinimumConsensus = hasValidations()
+  const consensusAchieved = txValidations.length === 4
 
   return (
     <Wrapper {...restProps}>
@@ -189,12 +192,18 @@ export const Transaction: React.FC = ({ ...restProps }) => {
                   transaction={currentTx}
                 />
               </ul>
+              {!hasMinimumConsensus && (
+                <DelayWarning
+                  initiatorNetwork={currentTx.initiatorNetwork}
+                  receiverNetwork={currentTx.receiverNetwork}
+                />
+              )}
             </TransactionDetailsListItem>
-            {hasValidations() && (
+            {hasMinimumConsensus && (
               <TransactionDetailsListItem
                 description={`${txValidations.length} of 4 required confirmations.`}
-                statusIcon={txValidations.length === 4 ? 'success' : 'waiting'}
-                title={txValidations.length === 4 ? 'Consensus achieved' : 'Awaiting consensus'}
+                statusIcon={consensusAchieved ? 'success' : 'waiting'}
+                title={consensusAchieved ? 'Consensus achieved' : 'Awaiting consensus'}
                 transactionStatus={TransactionStatus.Collecting}
               >
                 <TransactionValidations
@@ -204,59 +213,53 @@ export const Transaction: React.FC = ({ ...restProps }) => {
               </TransactionDetailsListItem>
             )}
             {bridgingComplete && (
-              <>
-                <TransactionDetailsListItem
-                  description="The tokens are in the user's address."
-                  statusIcon="success"
-                  title="Bridging complete"
-                  transactionStatus={TransactionStatus.Completed}
-                >
-                  <ul>
-                    <TransactionRowDetails
-                      network="gnosis"
-                      status="not-required"
-                      title="Tokens received"
-                      transaction={txExecution}
-                    />
-                  </ul>
-                </TransactionDetailsListItem>
-              </>
+              <TransactionDetailsListItem
+                description="The tokens are in the user's address."
+                statusIcon="success"
+                title="Bridging complete"
+                transactionStatus={TransactionStatus.Completed}
+              >
+                <ul>
+                  <TransactionRowDetails
+                    network="gnosis"
+                    status="not-required"
+                    title="Tokens received"
+                    transaction={txExecution}
+                  />
+                </ul>
+              </TransactionDetailsListItem>
             )}
             {tokensBridged && (
-              <>
-                <TransactionDetailsListItem
-                  description="Funds should be available on receiver address."
-                  statusIcon="success"
-                  title="Tokens bridged"
-                  transactionStatus={currentTx.transactionStatus}
-                >
-                  {currentTx.execution && (
-                    <ul>
-                      <TransactionRowDetails
-                        network={currentTx.receiverNetwork}
-                        status="not-required"
-                        title="Tokens received"
-                        transaction={currentTx.execution}
-                      />
-                    </ul>
-                  )}
-                </TransactionDetailsListItem>
-              </>
+              <TransactionDetailsListItem
+                description="Funds should be available on receiver address."
+                statusIcon="success"
+                title="Tokens bridged"
+                transactionStatus={currentTx.transactionStatus}
+              >
+                {currentTx.execution && (
+                  <ul>
+                    <TransactionRowDetails
+                      network={currentTx.receiverNetwork}
+                      status="not-required"
+                      title="Tokens received"
+                      transaction={currentTx.execution}
+                    />
+                  </ul>
+                )}
+              </TransactionDetailsListItem>
             )}
             {readyToClaim && (
-              <>
-                <TransactionDetailsListItem
-                  description="Claim to unlock your tokens."
-                  statusIcon="waiting"
-                  title="Ready to claim"
-                  transactionStatus={TransactionStatus.Unclaimed}
-                >
-                  <ClaimButton
-                    transaction={currentTx}
-                    updateInMemoryTransaction={updateInMemoryTransaction}
-                  />
-                </TransactionDetailsListItem>
-              </>
+              <TransactionDetailsListItem
+                description="Claim to unlock your tokens."
+                statusIcon="waiting"
+                title="Ready to claim"
+                transactionStatus={TransactionStatus.Unclaimed}
+              >
+                <ClaimButton
+                  transaction={currentTx}
+                  updateInMemoryTransaction={updateInMemoryTransaction}
+                />
+              </TransactionDetailsListItem>
             )}
           </TransactionDetailsList>
         </TransactionDetails>

@@ -1,14 +1,12 @@
 import styled from 'styled-components'
 import { ArrowUp } from '@/src/components/assets/ArrowUp'
-import { Status as BaseStatus } from '@/src/components/common/Status'
 import { DateTime } from '@/src/components/common/DateTime'
 import { ChainsInitiatorReceiver } from '@/src/components/common/ChainsInitiatorReceiver'
 import { Address as BaseAddress } from '@/src/components/token/Address'
 import { Initiator, Receiver } from '@/src/components/token/TokenWithValue'
-import { ClaimButton } from '@/src/pagePartials/transactions/ClaimButton'
 import { Validators } from '@/src/pagePartials/transactions/Validators'
+import { StatusCell } from '@/src/pagePartials/transactionsList/StatusCell'
 import { Transaction } from '@/src/utils/transactions'
-import { TransactionStatus } from '@/types/generated/subgraph'
 import { TR as BaseTR, TD } from '@/src/components/common/Table'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -82,12 +80,6 @@ const ViewMore = styled.span`
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     display: none;
-  }
-`
-
-const Status = styled(BaseStatus)`
-  .text {
-    padding: 0;
   }
 `
 
@@ -196,14 +188,10 @@ export const TransactionRow: React.FC<Props> = ({
         <TDLastMobile>
           <div>
             <MobileLabel>Status</MobileLabel>
-            {transaction.transactionStatus === TransactionStatus.Unclaimed ? (
-              <ClaimButton
-                transaction={transaction}
-                updateInMemoryTransaction={updateInMemoryTransaction}
-              />
-            ) : (
-              <Status status={transaction.transactionStatus} />
-            )}
+            <StatusCell
+              transaction={transaction}
+              updateInMemoryTransaction={updateInMemoryTransaction}
+            />
           </div>
           <ViewMore>View More &gt;</ViewMore>
         </TDLastMobile>
