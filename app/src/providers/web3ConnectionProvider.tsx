@@ -70,7 +70,7 @@ export function initOnboard() {
       enabled: false,
     },
     appMetadata: {
-      name: appName || '',
+      name: 'Gnosis Bridge Explorer',
       icon: '<svg><svg/>', // brand icon
       description: 'Gnosis Bridge Explorer',
     },
