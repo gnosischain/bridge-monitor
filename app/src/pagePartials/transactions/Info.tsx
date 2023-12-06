@@ -33,7 +33,7 @@ export const Info: React.FC<Props> = ({ date, transactionsNumber, ...restProps }
   return (
     <Wrapper {...restProps}>
       <Emphasized>{transactionsNumber}</Emphasized>
-      <span>transactions where made on</span>
+      <span>transactions were made on</span>
       <Emphasized>{date}</Emphasized>
     </Wrapper>
   )
