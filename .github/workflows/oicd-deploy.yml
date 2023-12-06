@@ -89,7 +89,9 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          tags: "${{ env.REGISTRY }}/bridge-explorer:${{ env.IMAGE_TAG }}"
+          tags: |
+            "${{ env.REGISTRY }}/bridge-explorer:staging"
+            "${{ env.REGISTRY }}/bridge-explorer:${{ env.IMAGE_TAG }}"
           platforms: |
             linux/amd64
           build-args: |
