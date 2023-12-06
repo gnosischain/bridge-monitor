@@ -17,7 +17,7 @@ import { Address } from '@/src/components/token/Address'
 import { MyTransactions } from '@/src/components/assets/MyTransactions'
 
 const Wrapper = styled.div`
-  height: 100vh;
+  height: 100%;
   left: 0;
   overflow: hidden;
   position: absolute;
