@@ -11,7 +11,7 @@ on:
 env:
   AWS_REGION : "eu-central-1" 
   DEPLOYMENT_DEV: "bridge-explorer-develop"
-  DEPLOYMENT_STG: "bridge-explorer"
+  DEPLOYMENT_STG: "bridge-explorer-staging"
   NAMESPACE: "bridges"
 
 # Permission can be added at job level or workflow level    
@@ -49,7 +49,7 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/develop')
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${{ github.sha }} # Using develop instead
         uses: docker/build-push-action@v3
         with:
           context: ./app
@@ -58,7 +58,27 @@ jobs:
           tags: "${{ env.REGISTRY }}/bridge-explorer:develop"
           platforms: |
             linux/amd64
-  
+          build-args: |
+            "NEXT_PUBLIC_APP_NAME=GnosisBridgeMonitor"
+            "NEXT_PUBLIC_DEFAULT_THEME=dark"
+            "NEXT_PUBLIC_DEFAULT_CHAIN_ID=1"
+            "NEXT_PUBLIC_COOKIES_WARNING_ENABLED=true"
+            "NEXT_PUBLIC_POLLING_INTERVAL=10000"
+            "NEXT_PUBLIC_RPC_MAINNET=https://rpc.ankr.com/eth"
+            "NEXT_PUBLIC_RPC_GNOSIS=https://rpc.gnosischain.com"
+            "NEXT_PUBLIC_RPC_CHIADO=https://rpc.chiadochain.net"
+            "NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL=${{ secrets.WALLET_CONNECT_URL }}"
+            "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }}"
+            "NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT=development"
+            "NEXT_PUBLIC_SUBGRAPH_ACCESS_ID=${{ secrets.GRAPH_ORG }}"
+            "NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS=100:v0.0.2-develop,1:v0.0.2-develop"
+
+
+      - name: Get latest Release Tag
+        if: ( github.ref == 'refs/heads/staging' )
+        id: release_tag
+        run: echo "tag=$(git describe --abbrev=0 --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_OUTPUT
+
       - name: Build, tag, and push STAGING to Amazon ECR
         if: startsWith(github.ref, 'refs/heads/staging')
         env:
@@ -69,16 +89,23 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          tags: "${{ env.REGISTRY }}/bridge-explorer:staging"
+          tags: "${{ env.REGISTRY }}/bridge-explorer:${{ env.IMAGE_TAG }}"
           platforms: |
             linux/amd64
-
-      - name: Get latest Release Tag
-        if: ( github.ref == 'refs/heads/staging' )
-        id: release_tag
-        run: echo "tag=$(git describe --abbrev=0 --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_OUTPUT
-
-      # CREATE ${{ env.IMAGE_TAG }} + 1 for PROD
+          build-args: |
+            "NEXT_PUBLIC_APP_NAME=GnosisBridgeMonitor"
+            "NEXT_PUBLIC_DEFAULT_THEME=dark"
+            "NEXT_PUBLIC_DEFAULT_CHAIN_ID=1"
+            "NEXT_PUBLIC_COOKIES_WARNING_ENABLED=true"
+            "NEXT_PUBLIC_POLLING_INTERVAL=10000"
+            "NEXT_PUBLIC_RPC_MAINNET=https://rpc.ankr.com/eth"
+            "NEXT_PUBLIC_RPC_GNOSIS=https://rpc.gnosischain.com"
+            "NEXT_PUBLIC_RPC_CHIADO=https://rpc.chiadochain.net"
+            "NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL=${{ secrets.WALLET_CONNECT_URL }}"
+            "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }}"
+            "NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT=production"
+            "NEXT_PUBLIC_SUBGRAPH_ACCESS_ID=${{ secrets.GRAPH_API_KEY }}"
+            "NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS=100:2ths6FTZhCBggnyakh7PL5KH91zjRv8xPNfzaCRKogJ,1:9W7Ye5xFfefNYDxXD4StqAuj7TU8eLq5PLmuPUnhFbeQ"
     
   Get_images_and_restart_deployments:
     needs: Build_and_push_image_to_ECR
