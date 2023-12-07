@@ -6,6 +6,7 @@ import { TransactionStatus } from '@/types/generated/subgraph'
 import { Warning } from '@/src/components/assets/Warning'
 import { StatusColors } from '@/src/components/helpers/StatusColors'
 import { Tooltip } from '@/src/components/tooltip/Tooltip'
+import { txTime } from '@/src/utils/txTime'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -39,29 +40,26 @@ type Props = {
 }
 
 export const StatusCell: React.FC<Props> = ({ transaction, updateInMemoryTransaction }) => {
-  const { initiatorNetwork, receiverNetwork } = transaction
-  const mainnetToGnosis =
-    initiatorNetwork.toLowerCase() === 'mainnet' && receiverNetwork.toLowerCase() === 'gnosis'
-  const delay = mainnetToGnosis ? '20' : '10'
+  const { initiatorNetwork, receiverNetwork, transactionStatus } = transaction
 
-  return transaction.transactionStatus === TransactionStatus.Unclaimed ? (
+  return transactionStatus === TransactionStatus.Unclaimed ? (
     <ClaimButton transaction={transaction} updateInMemoryTransaction={updateInMemoryTransaction} />
   ) : (
     <Wrapper>
-      {transaction.transactionStatus === 'INITIATED' && (
+      {transactionStatus === 'INITIATED' && (
         <Tooltip
           content={
             <>
               Transactions from <Network>{initiatorNetwork}</Network> to{' '}
               <Network>{receiverNetwork}</Network> can take up to{' '}
-              <Emphasize>{delay} minutes</Emphasize>
+              <Emphasize>{txTime(initiatorNetwork, receiverNetwork)} minutes</Emphasize>
             </>
           }
         >
           <WarningIcon />
         </Tooltip>
       )}
-      <Status status={transaction.transactionStatus} />
+      <Status status={transactionStatus} />
     </Wrapper>
   )
 }

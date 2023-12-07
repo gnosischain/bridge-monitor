@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { Warning } from '@/src/components/assets/Warning'
+import { txTime } from '@/src/utils/txTime'
 
 const Wrapper = styled.div`
   background: rgba(22, 29, 26, 0.5);
@@ -30,16 +31,13 @@ export const DelayWarning: React.FC<{ initiatorNetwork: string; receiverNetwork:
   receiverNetwork,
   ...restProps
 }) => {
-  const mainnetToGnosis =
-    initiatorNetwork.toLowerCase() === 'mainnet' && receiverNetwork.toLowerCase() === 'gnosis'
-  const delay = mainnetToGnosis ? '20' : '10'
-
   return (
     <Wrapper {...restProps}>
       <Warning />
       <span>
         Transactions from <Network>{initiatorNetwork}</Network> to{' '}
-        <Network>{receiverNetwork}</Network> can take up to <Emphasize>{delay} minutes</Emphasize>
+        <Network>{receiverNetwork}</Network> can take up to{' '}
+        <Emphasize>{txTime(initiatorNetwork, receiverNetwork)} minutes</Emphasize>
       </span>
     </Wrapper>
   )
