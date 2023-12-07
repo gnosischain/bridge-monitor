@@ -3,8 +3,7 @@ import styled, { css } from 'styled-components'
 import { IconCopy } from '@/src/components/assets/IconCopy'
 import { IconLink } from '@/src/components/assets/IconLink'
 import { shortenAddress } from '@/src/utils/tools'
-import { ToastComponent } from '@/src/components/toast/ToastComponent'
-import { Toast, toast } from 'react-hot-toast'
+import { useCopyToast } from '@/src/hooks/useCopyToast'
 
 const CommonCSS = css`
   transition: color 0.15s ease-in-out;
@@ -67,25 +66,7 @@ export const Address: React.FC<Props> = ({
   link,
   ...restProps
 }) => {
-  const timeDelay = 2500
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const copyWalletAddress = (e: any, address: string) => {
-    e.stopPropagation()
-    e.preventDefault()
-
-    navigator.clipboard.writeText(address)
-    toast.custom(
-      (t: Toast) => {
-        return <ToastComponent message={'Address copied'} t={t} />
-      },
-      {
-        duration: timeDelay,
-        position: 'top-center',
-        id: 'copy-address',
-      },
-    )
-  }
+  const { copy: copyToClipboard } = useCopyToast()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const openLink = (e: any, link: string) => {
@@ -105,7 +86,7 @@ export const Address: React.FC<Props> = ({
         )}
       </AddressText>
       {address && copy && (
-        <CopyButton className="copyButton" onClick={(e) => copyWalletAddress(e, address)}>
+        <CopyButton className="copyButton" onClick={(e) => copyToClipboard(e, address)}>
           <IconCopy height={bigIcons ? 21 : 14} width={bigIcons ? 21 : 14} />
         </CopyButton>
       )}
