@@ -34,7 +34,6 @@
     "graphql-tag": "^2.12.6",
     "lodash": "^4.17.21",
     "next": "^12.2.0",
-    "next-intl": "^2.7.4",
     "nextjs-google-analytics": "^1.2.0",
     "nullthrows": "^1.1.1",
     "polished": "^4.2.2",
