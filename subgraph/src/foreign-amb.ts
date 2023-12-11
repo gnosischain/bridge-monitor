@@ -49,7 +49,7 @@ export function handlerUserRequestForAffirmation(
   transaction.initiatorNetwork = network;
   processOmniBridgeTokenBridgingInitiatedEvent(transaction, receipt, messageId);
 
-  transaction.receiver = Bytes.fromHexString(message.slice(258, 298));
+  transaction.receiver = Bytes.fromHexString(message.slice(260, 300));
   transaction.receiverAmount = transaction.initiatorAmount;
   transaction.receiverToken = transaction.initiatorToken;
   transaction.receiverNetwork = "gnosis";
