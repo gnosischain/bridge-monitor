@@ -2,6 +2,7 @@ import styled from 'styled-components'
 
 import { MiniCard, MiniCardTitle, MiniCardValue } from '@/src/components/common/MiniCard'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
+import { Tooltip } from '@/src/components/tooltip/Tooltip'
 
 const Wrapper = styled(MiniCard)`
   flex-direction: column;
@@ -21,7 +22,13 @@ export const Token: React.FC<{
 }> = ({ title, tokenSymbol, tooltip, value, ...restProps }) => {
   return (
     <Wrapper {...restProps}>
-      <MiniCardTitle title={title} tooltip={tooltip} />
+      <MiniCardTitle
+        title={
+          <>
+            {title} {tooltip && <Tooltip content={tooltip} />}
+          </>
+        }
+      />
       <TokenWrapper>
         <TokenIcon dimensions={18} symbol={tokenSymbol} />
         <MiniCardValue>{value}</MiniCardValue>

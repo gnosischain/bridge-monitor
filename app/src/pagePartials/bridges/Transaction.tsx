@@ -2,6 +2,7 @@ import styled, { css } from 'styled-components'
 
 import { ArrowUp } from '@/src/components/assets/ArrowUp'
 import { MiniCard, MiniCardTitle, MiniCardValue } from '@/src/components/common/MiniCard'
+import { Tooltip } from '@/src/components/tooltip/Tooltip'
 
 const Wrapper = styled(MiniCard)``
 
@@ -47,7 +48,13 @@ export const Transaction: React.FC<Props> = ({ title, tooltip, trend, value, ...
         <ArrowUp />
       </Trend>
       <Info>
-        <MiniCardTitle title={title} tooltip={tooltip} />
+        <MiniCardTitle
+          title={
+            <>
+              {title} {tooltip && <Tooltip content={tooltip} />}
+            </>
+          }
+        />
         <MiniCardValue>{value}</MiniCardValue>
       </Info>
     </Wrapper>

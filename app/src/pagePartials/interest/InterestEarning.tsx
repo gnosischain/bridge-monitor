@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 
 import { MiniCard, MiniCardTitle } from '@/src/components/common/MiniCard'
+import { Tooltip } from '@/src/components/tooltip/Tooltip'
 
 const Check: React.FC = () => (
   <svg fill="none" height="10" viewBox="0 0 12 10" width="12" xmlns="http://www.w3.org/2000/svg">
@@ -59,8 +60,12 @@ export const InterestEarning: React.FC<{
       {!enabled && <Minus />}
     </Status>
     <MiniCardTitle
-      title={enabled ? 'Interest earning is enabled' : 'Interest earning is disabled'}
-      tooltip={tooltip}
+      title={
+        <>
+          {enabled ? 'Interest earning is enabled' : 'Interest earning is disabled'}{' '}
+          {tooltip && <Tooltip content={tooltip} />}
+        </>
+      }
     />
   </Wrapper>
 )

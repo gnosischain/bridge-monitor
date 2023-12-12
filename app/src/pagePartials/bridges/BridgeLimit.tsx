@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 import styled from 'styled-components'
 
 import { IconLink } from '@/src/components/assets/IconLink'
@@ -17,19 +17,38 @@ import { TokenIcon } from '@/src/components/token/TokenIcon'
 const Wrapper = styled(InnerCard)``
 
 const Header = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: ${({ theme: { common } }) => common.space}px;
+  row-gap: 10px;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    align-items: center;
+    column-gap: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+`
+
+const HeaderInner = styled.div`
   align-items: center;
   column-gap: 10px;
   display: flex;
-  justify-content: space-between;
-  margin-bottom: ${({ theme: { common } }) => common.space}px;
 `
 
 const Title = styled.h3`
   font-family: ${({ theme: { fonts } }) => fonts.family};
-  margin: 0;
-  font-weight: 700;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
+  font-weight: 500;
   line-height: 1.2;
+  margin: 0;
+  white-space: nowrap;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
 `
 
 const ExternalURL = styled.a`
@@ -58,8 +77,11 @@ const TokenWrapper = styled.div`
   column-gap: 8px;
   display: flex;
   height: 34px;
-  margin-left: auto;
   padding: 0 10px;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    margin-left: auto;
+  }
 `
 
 const TokenSymbol = styled.div`
@@ -75,7 +97,7 @@ const Grid = styled.div`
   grid-template-columns: 1fr;
   row-gap: ${({ theme: { common } }) => common.space * 2}px;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     grid-template-columns: 1fr 1fr;
   }
 `
@@ -84,7 +106,6 @@ interface Props {
   bridgeReset?: number
   chainId: ChainsValues
   dailyLimit: number
-  disableTokenDropdown?: boolean
   executionDailyLimit: number
   executionMaxPerTx: number
   from: string
@@ -93,7 +114,7 @@ interface Props {
   maxPerTx: number
   minPerTx: number
   networkName: ChainsKeys
-  title: string
+  title: string | React.ReactNode
   to: string
   token: Token
   tokenTooltip?: string | undefined
@@ -135,16 +156,18 @@ export const BridgeLimit: React.FC<Props> = ({
   return (
     <Wrapper {...restProps}>
       <Header>
-        <Title>{title}</Title>
-        {!isNativeToken ? (
-          <ExternalURL
-            href={getExplorerUrl(token.address, networkName)}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <IconLink height={12} width={12} />
-          </ExternalURL>
-        ) : null}
+        <HeaderInner>
+          <Title>{title}</Title>
+          {!isNativeToken ? (
+            <ExternalURL
+              href={getExplorerUrl(token.address, networkName)}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <IconLink height={12} width={12} />
+            </ExternalURL>
+          ) : null}
+        </HeaderInner>
         <TokenWrapper>
           <TokenIcon dimensions={18} iconSource={token?.logoURI} symbol={token?.symbol} />
           <TokenSymbol>{token?.symbol.toUpperCase()}</TokenSymbol>
@@ -155,37 +178,32 @@ export const BridgeLimit: React.FC<Props> = ({
           <ContractLimit
             funds={dailyLimit}
             percentage={percentageNumber(totalSpentPerDay, dailyLimit)}
-            title="Daily Limit"
-            token={token?.symbol.toUpperCase() || 'DAI'}
+            title={`${token?.symbol.toUpperCase() || 'DAI'} deposits per day`}
             tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that users can bridge from ${from} to ${to} in a day`}
-            used={totalSpentPerDay}
+            used={{ value: totalSpentPerDay, title: 'Deposited' }}
           />
           <ContractLimit
             funds={executionDailyLimit}
             percentage={percentageNumber(totalExecutedPerDay, executionDailyLimit)}
-            title="Execution Daily Limit"
-            token={token?.symbol.toUpperCase() || 'DAI'}
+            title={`${token?.symbol.toUpperCase() || 'DAI'} withdrawals per day`}
             tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that bridge validators can execute and bridge from ${to} to ${from} in a day`}
-            used={totalExecutedPerDay}
+            used={{ value: totalExecutedPerDay, title: 'Withdrawn' }}
           />
           <Grid>
             <TransactionLimit
-              title="Min. per transaction"
+              title="Min. deposit per transaction"
               tooltip={`Minimum amount of ${token?.symbol.toUpperCase()} that users can bridge in a single transaction`}
-              trend="down"
               value={formatNumber(minPerTx)}
             />
             <TransactionLimit
-              title="Max. per transaction"
+              title="Max. deposit per transaction"
               tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that users can bridge in a single transaction`}
-              trend="up"
               value={formatNumber(maxPerTx)}
             />
           </Grid>
           <TransactionLimit
-            title="Execution max. per transaction"
+            title="Max. withdrawal per transaction"
             tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that validators can execute in a single transaction`}
-            trend="up"
             value={formatNumber(executionMaxPerTx)}
           />
           <TimeLeft time={bridgeReset} />
