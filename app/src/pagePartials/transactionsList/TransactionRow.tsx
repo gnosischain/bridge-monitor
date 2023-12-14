@@ -4,7 +4,7 @@ import { DateTime } from '@/src/components/common/DateTime'
 import { ChainsInitiatorReceiver } from '@/src/components/common/ChainsInitiatorReceiver'
 import { Address as BaseAddress } from '@/src/components/token/Address'
 import { Initiator, Receiver } from '@/src/components/token/TokenWithValue'
-import { Validators } from '@/src/pagePartials/latestTransactions/Validators'
+import { Validators } from '@/src/pagePartials/transactionsList/Validators'
 import { StatusCell } from '@/src/pagePartials/transactionsList/StatusCell'
 import { Transaction } from '@/src/utils/transactions'
 import { TR as BaseTR, TD } from '@/src/components/common/Table'
@@ -149,14 +149,6 @@ export const TransactionRow: React.FC<Props> = ({
           },
     [id, shallowUrl],
   )
-
-  // const { destinationToken, initiatorToken, isLoading, isXdaiBridge, value } =
-  //   useLookupBridgedToken({
-  //     bridgeName,
-  //     initiatorNetwork,
-  //     tokenAddress,
-  //     tokenValue,
-  //   })
 
   return (
     <Link href={href} passHref {...restProps}>

@@ -3,7 +3,13 @@ import styled, { css } from 'styled-components'
 import { BigNumberish } from 'ethers'
 import { ChainToken } from '@/src/components/common/ChainToken'
 import { useLookupBridgedToken } from '@/src/hooks/useLookupBridgedToken'
-import { InlineLoading } from '@/src/components/loading/InlineLoading'
+import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
+import dynamic from 'next/dynamic'
+
+const TokenListProvider = dynamic(() => import('@/src/providers/TokenListProvider'), {
+  ssr: false,
+})
 
 const tokenSize = 16
 
@@ -58,10 +64,6 @@ Value.defaultProps = {
   className: 'value',
 }
 
-const Loading = styled(InlineLoading)`
-  ${TextCSS}
-`
-
 interface Props {
   bridgeName: string
   initiatorNetwork: string
@@ -69,33 +71,42 @@ interface Props {
   tokenValue: BigNumberish
 }
 
+const Loading: React.FC<{
+  label: string
+}> = ({ label }) => {
+  return (
+    <Wrapper>
+      <Label>{label}:</Label>
+      <SkeletonLoading style={{ height: `${tokenSize}px`, minHeight: '0' }} />
+    </Wrapper>
+  )
+}
+
 const TokenInfo: React.FC<{
   initiatorToken: TokenProps
-  isLoading: boolean
+  isLoading?: boolean
   label: string
   value: string
 }> = ({ initiatorToken, isLoading, label, value }) => {
   const { logoURI, name, symbol } = initiatorToken
 
   return isLoading ? (
-    <Loading />
+    <Loading label={label} />
   ) : (
     <Wrapper>
       <Label>{label}:</Label>
       <TokenIcon name={name}>
-        <Img
-          alt={symbol}
-          className="iconImage"
-          // key={symbol}
-          src={logoURI ?? '/images/icons/empty-token.png'}
-        />
+        <Img alt={symbol} className="iconImage" src={logoURI ?? '/images/icons/empty-token.png'} />
       </TokenIcon>
       <Value className="value">{value}</Value>
     </Wrapper>
   )
 }
 
-export const Initiator: React.FC<Props> = ({
+const receivedLabel = 'Received'
+const sentLabel = 'Sent'
+
+const InitiatorToken: React.FC<Props> = ({
   bridgeName,
   initiatorNetwork,
   token: tokenAddress,
@@ -109,11 +120,16 @@ export const Initiator: React.FC<Props> = ({
   })
 
   return (
-    <TokenInfo initiatorToken={initiatorToken} isLoading={isLoading} label="Sent" value={value} />
+    <TokenInfo
+      initiatorToken={initiatorToken}
+      isLoading={isLoading}
+      label={sentLabel}
+      value={value}
+    />
   )
 }
 
-export const Receiver: React.FC<Props> = ({
+const ReceiverToken: React.FC<Props> = ({
   bridgeName,
   initiatorNetwork,
   token: tokenAddress,
@@ -132,8 +148,26 @@ export const Receiver: React.FC<Props> = ({
     <TokenInfo
       initiatorToken={destinationToken}
       isLoading={isLoading}
-      label="Received"
+      label={receivedLabel}
       value={value}
     />
   )
 }
+
+export const Initiator: React.FC<Props> = genericSuspense(
+  ({ ...restProps }) => (
+    <TokenListProvider {...restProps}>
+      <InitiatorToken {...restProps} />
+    </TokenListProvider>
+  ),
+  () => <Loading label={sentLabel} />,
+)
+
+export const Receiver: React.FC<Props> = genericSuspense(
+  ({ ...restProps }) => (
+    <TokenListProvider {...restProps}>
+      <ReceiverToken {...restProps} />
+    </TokenListProvider>
+  ),
+  () => <Loading label={receivedLabel} />,
+)

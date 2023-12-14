@@ -4,11 +4,8 @@ import { Section } from '@/src/components/layout/Section'
 import { TabHeader } from '@/src/components/tabs/TabHeader'
 import { Tabs, TabsWrapper } from '@/src/components/tabs/Tabs'
 import { MainTitle } from '@/src/components/text/MainTitle'
-import {
-  FiltersSkeleton,
-  TransactionsFilter,
-} from '@/src/pagePartials/latestTransactions/TransactionsFilter'
-import { Results } from '@/src/pagePartials/latestTransactions/Results'
+import { FiltersSkeleton, Filters } from '@/src/pagePartials/latestTransactions/Filters'
+import { Results, ResultsLoading } from '@/src/pagePartials/latestTransactions/Results'
 import { Wrapper } from '@/src/components/layout/Wrapper'
 import { latestTransactions } from '@/src/constants/tabs'
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
@@ -16,8 +13,9 @@ import { getEndOfDay, getStartOfDay } from '@/src/utils/date'
 import { useRouter } from 'next/router'
 import { isSameString } from '@/src/utils/tools'
 import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { ValidatorsProvider } from '@/src/providers/validatorsProvider'
 
-export const Transactions: React.FC = genericSuspense(
+export const LatestTransactions: React.FC = genericSuspense(
   ({ ...restProps }) => {
     const router = useRouter()
     const activeTab = (router.query.bridge as string) || 'xDai'
@@ -68,30 +66,32 @@ export const Transactions: React.FC = genericSuspense(
               ))}
             </Tabs>
           </TabsWrapper>
-          <TransactionsFilter
-            bridge={activeTab}
-            endDate={filters.endTimestamp}
-            onBridgeDirectionChange={setBridgeDirection}
-            onEndDateChange={setEndTimestamp}
-            onExecutedByChange={setExecutedBy}
-            onHashChange={setHash}
-            onResetFilters={() =>
-              resetFilters({
-                bridge: activeTab,
-                startTimestamp: getStartOfDay(),
-                endTimestamp: getEndOfDay(),
-              })
-            }
-            onSignedByChange={setSignedBy}
-            onStartDateChange={setStartTimestamp}
-            onStatusChange={setStatus}
-            startDate={filters.startTimestamp}
-          />
-          {latestTransactions.map(({ title }, index) => {
-            return isSameString(activeTab, title) ? (
-              <Results bridge={title} filters={filters} key={`${title}_transactions_${index}`} />
-            ) : null
-          })}
+          <ValidatorsProvider>
+            <Filters
+              bridge={activeTab}
+              endDate={filters.endTimestamp}
+              onBridgeDirectionChange={setBridgeDirection}
+              onEndDateChange={setEndTimestamp}
+              onExecutedByChange={setExecutedBy}
+              onHashChange={setHash}
+              onResetFilters={() =>
+                resetFilters({
+                  bridge: activeTab,
+                  startTimestamp: getStartOfDay(),
+                  endTimestamp: getEndOfDay(),
+                })
+              }
+              onSignedByChange={setSignedBy}
+              onStartDateChange={setStartTimestamp}
+              onStatusChange={setStatus}
+              startDate={filters.startTimestamp}
+            />
+            {latestTransactions.map(({ title }, index) => {
+              return isSameString(activeTab, title) ? (
+                <Results bridge={title} filters={filters} key={`${title}_transactions_${index}`} />
+              ) : null
+            })}
+          </ValidatorsProvider>
         </Section>
       </Wrapper>
     )
@@ -115,6 +115,7 @@ export const Transactions: React.FC = genericSuspense(
           </Tabs>
         </TabsWrapper>
         <FiltersSkeleton />
+        <ResultsLoading />
       </Section>
     </Wrapper>
   ),

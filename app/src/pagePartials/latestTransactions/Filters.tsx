@@ -64,12 +64,7 @@ const SearchWrapper = styled.div`
   ${CommonGridCSS};
 `
 
-const Search = styled(SearchDebounceInput)`
-  .textfield {
-    --texfield-font-size: 1.4rem;
-    --textfield-height: calc(var(--input-height) + 2px);
-  }
-
+const SearchCommonCSS = css`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     grid-column: auto / span 2;
 
@@ -85,6 +80,21 @@ const Search = styled(SearchDebounceInput)`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     grid-column: auto / span 2;
   }
+`
+
+const Search = styled(SearchDebounceInput)`
+  .textfield {
+    --texfield-font-size: 1.4rem;
+    --textfield-height: calc(var(--input-height) + 2px);
+  }
+
+  ${SearchCommonCSS};
+`
+
+const SearchSkeleton = styled(SkeletonLoading)`
+  height: 44px;
+
+  ${SearchCommonCSS};
 `
 
 const Buttons = styled.div`
@@ -128,15 +138,17 @@ export const FiltersSkeleton: React.FC = ({ ...restProps }) => (
     <MainFields>
       {Array.from({ length: 5 }).map((item, index) => (
         <Field key={index}>
-          <SkeletonLoading style={{ height: '21px', width: '40%' }} />
-          <SkeletonLoading style={{ height: '36px' }} />
+          <SkeletonLoading
+            style={{ height: '16.8px', minHeight: '0', width: '40%', marginBottom: '8px' }}
+          />
+          <SkeletonLoading style={{ height: '42px' }} />
         </Field>
       ))}
     </MainFields>
     <SearchWrapper>
-      <SkeletonLoading style={{ height: '36px' }} />
+      <SearchSkeleton />
       <Buttons>
-        <SkeletonLoading style={{ height: '36px', width: '80px' }} />
+        <SkeletonLoading style={{ height: '36px', width: '90px' }} />
       </Buttons>
     </SearchWrapper>
   </Wrapper>
@@ -175,7 +187,7 @@ const txStatus = [
 
 type ValidatorOption = string
 
-export const TransactionsFilter: React.FC<Props> = ({
+export const Filters: React.FC<Props> = ({
   bridge,
   endDate,
   onBridgeDirectionChange,

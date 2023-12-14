@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, PropsWithChildren } from 'react'
 import { BridgeLimit } from '@/src/pagePartials/bridges/BridgeLimit'
 import { TabContentInner as Wrapper } from '@/src/components/tabs/Tabs'
 import { BaseSubTitle } from '@/src/components/text/BaseSubTitle'
@@ -23,6 +23,11 @@ import { InnerCard } from '@/src/components/common/InnerCard'
 import { useBridgedTokens } from '@/src/providers/TokenListProvider'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { ArrowUp } from '@/src/components/assets/ArrowUp'
+import dynamic from 'next/dynamic'
+
+const TokenListProvider = dynamic(() => import('@/src/providers/TokenListProvider'), {
+  ssr: false,
+})
 
 const Columns = styled.div`
   display: grid;
@@ -217,7 +222,12 @@ const OmnibridgeGnosisChainToMainnet: React.FC<{ token: Token; dayNumber: string
     () => <Placeholder />,
   )
 
-export const DailyBridgeLimits: React.FC = ({ ...restProps }) => {
+const XDAITitle: React.FC = () => <Title>xDai</Title>
+const OmnibridgeTitle: React.FC<PropsWithChildren<unknown>> = ({ children }) => (
+  <Title>Omnibridge{children}</Title>
+)
+
+const Limits: React.FC = ({ ...restProps }) => {
   const dayNumber = useDayNumber()
   const { gnosisGnoToken, mainnetGnoToken } = useGnoToken()
   const [mainnetToGnosisChainToken, setMainnetToGnosisChainToken] = useState<Token>(mainnetGnoToken)
@@ -246,21 +256,20 @@ export const DailyBridgeLimits: React.FC = ({ ...restProps }) => {
   return (
     <Wrapper {...restProps}>
       <Row>
-        <Title>xDai</Title>
+        <XDAITitle />
         <Columns>
           <XDAIEthToGC dayNumber={dayNumber} />
           <XDAIGCToEth dayNumber={dayNumber} />
         </Columns>
       </Row>
       <Row>
-        <Title>
-          Omnibridge
+        <OmnibridgeTitle>
           <TokenDropdown
             chainId={Chains.mainnet}
             defaultToken={mainnetToGnosisChainToken}
             onChange={onChangeToken}
           />
-        </Title>
+        </OmnibridgeTitle>
         <Columns>
           {invalidToken ? (
             <InvalidToken>
@@ -292,3 +301,31 @@ export const DailyBridgeLimits: React.FC = ({ ...restProps }) => {
     </Wrapper>
   )
 }
+
+export const DailyBridgeLimits: React.FC = genericSuspense(
+  ({ ...restProps }) => {
+    return (
+      <TokenListProvider {...restProps}>
+        <Limits />
+      </TokenListProvider>
+    )
+  },
+  ({ ...restProps }) => (
+    <Wrapper {...restProps}>
+      <Row>
+        <XDAITitle />
+        <Columns>
+          <Placeholder />
+          <Placeholder />
+        </Columns>
+      </Row>
+      <Row>
+        <OmnibridgeTitle />
+        <Columns>
+          <Placeholder />
+          <Placeholder />
+        </Columns>
+      </Row>
+    </Wrapper>
+  ),
+)

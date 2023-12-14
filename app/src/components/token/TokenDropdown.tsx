@@ -6,14 +6,19 @@ import { DebounceInput } from 'react-debounce-input'
 
 import { ChevronDown as BaseChevronDown } from '@/src/components/assets/ChevronDown'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
-import { Dropdown, DropdownPosition } from '@/src/components/common/Dropdown'
+import { Dropdown as BaseDropdown, DropdownPosition } from '@/src/components/common/Dropdown'
 import { TextfieldCSS } from '@/src/components/form/Textfield'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { useBridgedTokens } from '@/src/providers/TokenListProvider'
+import dynamic from 'next/dynamic'
 
-const Wrapper = styled(Dropdown)`
+const TokenListProvider = dynamic(() => import('@/src/providers/TokenListProvider'), {
+  ssr: false,
+})
+
+const Wrapper = styled(BaseDropdown)`
   --inner-padding: 4px;
 
   .dropdownItems {
@@ -148,12 +153,20 @@ const ChevronDown = styled(BaseChevronDown)`
   margin-left: 20px;
 `
 
-export const TokenDropdown: React.FC<{
+interface Props {
   chainId: ChainsValues
   defaultToken: Token
   disabled?: boolean
   onChange?: (token: Token) => void
-}> = ({ chainId, defaultToken, disabled = false, onChange, ...restProps }) => {
+}
+
+const Dropdown: React.FC<Props> = ({
+  chainId,
+  defaultToken,
+  disabled = false,
+  onChange,
+  ...restProps
+}) => {
   const [token, setToken] = useState<Token>(defaultToken)
   const { ambTokensByNetwork } = useBridgedTokens()
   const tokens = useMemo(() => {
@@ -230,4 +243,10 @@ export const TokenDropdown: React.FC<{
   )
 }
 
-export default TokenDropdown
+export const TokenDropdown: React.FC<Props> = ({ ...restProps }) => {
+  return (
+    <TokenListProvider>
+      <Dropdown {...restProps} />
+    </TokenListProvider>
+  )
+}

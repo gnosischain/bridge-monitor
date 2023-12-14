@@ -48,7 +48,7 @@ export const Validators: React.FC<Props> = ({ transaction, ...restProps }) => {
         <Tooltip
           content={
             <>
-              <div>Validator: {name}</div>
+              <b>{name}</b>
               <div>
                 Status:{' '}
                 {status === 'pending'

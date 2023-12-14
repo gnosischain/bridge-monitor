@@ -87,7 +87,7 @@ const Text = styled.p`
   }
 `
 
-export const SearchByHash: React.FC = ({ ...restProps }) => {
+export const Search: React.FC = ({ ...restProps }) => {
   const router = useRouter()
   const { hash: byParamHash } = router.query
   const {

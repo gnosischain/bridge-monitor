@@ -3,9 +3,7 @@ import styled from 'styled-components'
 import { Badge } from '@/src/components/common/Badge'
 import { InnerCard } from '@/src/components/common/InnerCard'
 import { TransactionStatusTypes } from '@/src/constants/types'
-import { ClaimButton } from '@/src/pagePartials/latestTransactions/ClaimButton'
 import { Status } from '@/src/components/common/Status'
-import { TransactionStatus } from '@/types/generated/subgraph'
 import { Transaction } from '@/src/utils/transactions'
 import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
@@ -34,10 +32,6 @@ const Header = styled.div`
   display: flex;
   flex-direction: row;
   gap: ${({ theme: { common } }) => common.space / 2}px;
-`
-
-const Claim = styled(ClaimButton)`
-  margin-left: auto;
 `
 
 const TxStatus = styled(Status)`

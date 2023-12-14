@@ -14,7 +14,6 @@ import { Head } from '@/src/pagePartials/index/Head'
 import { TransactionNotificationProvider } from '@/src/providers/TransactionNotificationProvider'
 import ThemeProvider from '@/src/providers/themeProvider'
 import TooltipConfig from '@/src/components/tooltip/TooltipConfig'
-import { ValidatorsProvider } from '@/src/providers/validatorsProvider'
 import { useRef } from 'react'
 
 import 'sanitize.css'
@@ -22,10 +21,6 @@ import 'react-tooltip/dist/react-tooltip.css'
 import 'react-datepicker/dist/react-datepicker.css'
 
 const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3ConnectionProvider'), {
-  ssr: false,
-})
-
-const TokenListProvider = dynamic(() => import('@/src/providers/TokenListProvider'), {
   ssr: false,
 })
 
@@ -107,10 +102,8 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
             <Header />
             <SafeSuspense>
               <TransactionNotificationProvider>
-                <TokenListProvider>
-                  <ValidatorsProvider>{getLayout(<Component {...pageProps} />)}</ValidatorsProvider>
-                  <Toast />
-                </TokenListProvider>
+                {getLayout(<Component {...pageProps} />)}
+                <Toast />
               </TransactionNotificationProvider>
             </SafeSuspense>
             <TooltipConfig />

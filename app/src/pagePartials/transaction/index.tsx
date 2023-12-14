@@ -2,14 +2,14 @@ import { useRouter } from 'next/router'
 import styled from 'styled-components'
 import { Address as BaseAddress } from '@/src/components/token/Address'
 import { ClaimButton as BaseClaimButton } from '@/src/pagePartials/latestTransactions/ClaimButton'
-import { TransactionDetailsListItem } from '@/src/pagePartials/transactionDetails/TransactionDetailsListItem'
+import { TransactionDetailsListItem } from '@/src/pagePartials/transaction/TransactionDetailsListItem'
 import {
   TransactionSummary,
   TransactionSummaryPlaceholder,
-} from '@/src/pagePartials/transactionDetails/TransactionSummary'
-import { TransactionValidations } from '@/src/pagePartials/transactionDetails/TransactionValidations'
-import { DelayWarning } from '@/src/pagePartials/transactionDetails/DelayWarning'
-import { TransactionRowDetails } from '@/src/pagePartials/transactionDetails/TransactionRowDetails'
+} from '@/src/pagePartials/transaction/TransactionSummary'
+import { TransactionValidations } from '@/src/pagePartials/transaction/TransactionValidations'
+import { DelayWarning } from '@/src/pagePartials/transaction/DelayWarning'
+import { TransactionRowDetails } from '@/src/pagePartials/transaction/TransactionRowDetails'
 import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
 import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'
@@ -80,11 +80,13 @@ const ClaimButton = styled(BaseClaimButton)`
   }
 `
 
-const TransactionSkeletonLoading: React.FC = ({ ...restProps }) => (
+export const TransactionSkeletonLoading: React.FC = ({ ...restProps }) => (
   <Wrapper {...restProps}>
     <Head>
-      <Title>Transaction</Title>
-      <SkeletonLoading style={{ width: '25%', height: '40px' }} />
+      <div>
+        <Title>Transaction</Title>
+        <SkeletonLoading style={{ width: '460px', height: '48px', maxWidth: '100%' }} />
+      </div>
     </Head>
     <TransactionInformation>
       <TransactionSummaryPlaceholder />

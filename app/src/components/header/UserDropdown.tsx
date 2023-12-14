@@ -14,6 +14,7 @@ import { Address } from '@/src/components/token/Address'
 import { ChainsValues } from '@/src/constants/config/types'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { useRouter } from 'next/router'
+import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 
 const Wrapper = styled(Dropdown)`
   display: none;
@@ -241,7 +242,12 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
         dropdownButton={
           <ButtonConnect>
             <Wallet>
-              <UserWallet /> {address && truncateStringInTheMiddle(address, 6, 4)}
+              <UserWallet />{' '}
+              {address ? (
+                truncateStringInTheMiddle(address, 6, 4)
+              ) : (
+                <SkeletonLoading style={{ width: '93px', height: '18px', minHeight: '0' }} />
+              )}
             </Wallet>
             {!isWalletNetworkSupported && <Status />}
             <Chevron />

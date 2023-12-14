@@ -6,6 +6,7 @@ export const ButtonConnect = styled(ButtonPrimary)`
   display: none;
   font-size: 1.3rem;
   height: 38px;
+  min-width: 186px;
   padding: 0 16px;
   position: relative;
 

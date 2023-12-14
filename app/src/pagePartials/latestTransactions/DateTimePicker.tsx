@@ -33,9 +33,5 @@ export const DateTimePicker: React.FC<Props> = ({
     onEndDateChange(endOfDay(date))
   }
 
-  return (
-    // <Wrapper {...restProps}>
-    <Wrapper maxDate={new Date()} onChange={onChange} selected={startDate} />
-    // </Wrapper>
-  )
+  return <Wrapper maxDate={new Date()} onChange={onChange} selected={startDate} {...restProps} />
 }
