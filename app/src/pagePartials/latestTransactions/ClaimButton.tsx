@@ -4,15 +4,9 @@ import { contracts } from '@/src/constants/config/contracts'
 import { Chains } from '@/src/constants/config/types'
 import { ToastStates } from '@/src/constants/types'
 import { useContractInstance } from '@/src/hooks/useContractInstance'
-import { setForeignTransaction } from '@/src/utils/localTransactions'
 import useTransaction from '@/src/hooks/useTransaction'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { Transaction } from '@/src/utils/transactions'
-import {
-  TransactionExecution,
-  Transaction as TransactionSG,
-  TransactionStatus,
-} from '@/types/generated/subgraph'
 import {
   AMBBridgeHelper__factory,
   Erc20ToNativeBridgeHelper__factory,
@@ -26,6 +20,7 @@ import { JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
 import { WalletState } from '@web3-onboard/core'
 import styled from 'styled-components'
 import { useState } from 'react'
+import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
 const Wrapper = styled.button`
   align-items: center;
@@ -59,7 +54,7 @@ const Wrapper = styled.button`
 
 type ClaimButtonProps = {
   transaction: Transaction
-  updateInMemoryTransaction: (transaction: Transaction) => void
+  updateInMemoryTransaction: UpdateInMemoryTx
 }
 
 export const ClaimButton = ({
@@ -193,51 +188,20 @@ export const ClaimButton = ({
     }
 
     try {
-      const tx = await sendTx(claim).finally(() => {
+      const receipt = await sendTx(claim)
+      if (!receipt) throw new Error('No receipt')
+
+      // update tx to reflect claiming in progress
+      updateInMemoryTransaction(transaction)
+
+      // once executed, if the page is still open, bring new state from the SG.
+      await provider.waitForTransaction(receipt.hash)
+
+      // give some time the SG to index
+      setTimeout(() => {
+        updateInMemoryTransaction()
         setIsWorking(false)
-      })
-
-      if (tx) {
-        const receipt = await tx.wait()
-
-        // toStore will have all the properties of Transaction that match TransactionSG
-        const keysToExclude = [
-          'initiatorNetworkIcon',
-          'initiatorScanUrl',
-          'receiverNetworkIcon',
-          'receiverScanUrl',
-          'scanUrl',
-        ]
-        const toStoreTx = Object.fromEntries(
-          Object.entries(transaction).filter(([key]) => !keysToExclude.includes(key)),
-        )
-        const foreignTransaction: TransactionSG = {
-          ...(toStoreTx as TransactionSG),
-          execution: {
-            id: transaction.id,
-            transactionHash: receipt.transactionHash,
-            timestamp: `${(await provider.getBlock(receipt.blockNumber)).timestamp}`,
-            validatorAddr: null,
-            transaction: { id: transaction.id },
-          },
-          initiator: null,
-          timestamp: null,
-          transactionStatus: TransactionStatus.Completed,
-          validations: [],
-        }
-
-        setForeignTransaction(foreignTransaction)
-        updateInMemoryTransaction({
-          ...transaction,
-          execution: {
-            ...(foreignTransaction.execution as TransactionExecution),
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            timestamp: +foreignTransaction.execution!.timestamp * 1000,
-          },
-          transactionStatus: TransactionStatus.Completed,
-        })
-        setIsWorking(false)
-      }
+      }, 5000)
     } catch (e) {
       // If the method reverts, the withdrawal was likely already executed.
       // In this case, the user should be notified that the withdrawal was already executed.
@@ -251,8 +215,9 @@ export const ClaimButton = ({
   }
 
   return (
-    <Wrapper disabled={isWorking} onClick={handleClaim} {...restProps}>
+    <Wrapper disabled={isWorking || transaction.isClaiming} onClick={handleClaim} {...restProps}>
       Claim
+      {transaction.isClaiming && 'ing...'}
     </Wrapper>
   )
 }

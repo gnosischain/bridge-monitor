@@ -12,15 +12,31 @@ import { getValidatorByName } from '@/src/utils/validators'
 import {
   OrderDirection,
   QueryTransactionsArgs,
+  TransactionStatus,
   Transaction_Filter,
   Transaction_OrderBy,
 } from '@/types/generated/subgraph'
 import { isTransactionHash } from '@/src/utils/tools'
 import differenceInDays from 'date-fns/differenceInDays'
 import { MAX_DAYS_TO_FILTER } from '@/src/constants/misc'
+import { getForeignTransactions, setForeignTransaction } from '@/src/utils/localTransactions'
+
+export type UpdateInMemoryTx = (transaction?: Transaction) => void
 
 // @todo hardcoded value (need to think about useSWRPage or useSWRInfinite)
 const PAGE_SIZE = 500
+
+const modifyTxs = (txs: Transaction[]) => {
+  const claimingTxs = getForeignTransactions()
+  return txs.map((tx) => {
+    if (tx.transactionStatus !== TransactionStatus.Unclaimed) return tx
+
+    return {
+      ...tx,
+      isClaiming: claimingTxs.some((txId) => txId === tx.id),
+    }
+  })
+}
 
 export const useFetchTransactions = (
   inMemoryFilters: TxsInMemoryFilters,
@@ -37,17 +53,27 @@ export const useFetchTransactions = (
         ]
       : null,
     async ([, , _query, , _inMemoryFilters]) => fetchTransactions(_query, _inMemoryFilters),
-    { suspense: false, dedupingInterval: Number.MAX_SAFE_INTEGER, revalidateIfStale: false },
+    { suspense: false },
   )
 
-  const updateInMemoryTransaction = (transaction: Transaction) => {
-    mutate((txs) => txs?.map((tx) => (tx.id === transaction.id ? transaction : tx)), {
-      revalidate: false,
-    })
+  const updateInMemoryTransaction = (transaction?: Transaction) => {
+    if (!transaction) {
+      mutate()
+    } else {
+      setForeignTransaction(transaction.id)
+      // update in-memory txs
+      mutate(
+        (txs) =>
+          txs?.map((tx) => (tx.id === transaction.id ? { ...transaction, isClaiming: true } : tx)),
+        {
+          revalidate: false,
+        },
+      )
+    }
   }
 
   return {
-    transactions: data || [],
+    transactions: modifyTxs(data || []),
     error,
     refetch: mutate,
     updateInMemoryTransaction,

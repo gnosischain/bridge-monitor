@@ -4,11 +4,12 @@ import { Transaction } from '@/src/utils/transactions'
 import { TransactionHeader } from '@/src/pagePartials/transactionsList/TransactionsHeader'
 import { Validator } from '@/src/utils/validators'
 import { Table } from '@/src/components/common/Table'
+import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
 interface Props {
   shallowUrl?: string
   transactions: Transaction[]
-  updateInMemoryTransaction: (transaction: Transaction) => void
+  updateInMemoryTransaction: UpdateInMemoryTx
   validators?: Validator[] | undefined
 }
 

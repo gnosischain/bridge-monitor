@@ -10,6 +10,7 @@ import { Transaction } from '@/src/utils/transactions'
 import { TR as BaseTR, TD } from '@/src/components/common/Table'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 import { useCallback, useMemo } from 'react'
 
 const TR = styled(BaseTR)`
@@ -92,7 +93,7 @@ type Props = {
   shallowUrl?: string
   showValidations?: boolean
   transaction: Transaction
-  updateInMemoryTransaction: (transaction: Transaction) => void
+  updateInMemoryTransaction: UpdateInMemoryTx
 }
 
 export const TransactionRow: React.FC<Props> = ({

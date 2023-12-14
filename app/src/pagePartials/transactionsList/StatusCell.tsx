@@ -7,6 +7,7 @@ import { Warning } from '@/src/components/assets/Warning'
 import { StatusColors } from '@/src/components/helpers/StatusColors'
 import { Tooltip } from '@/src/components/tooltip/Tooltip'
 import { txTime } from '@/src/utils/txTime'
+import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -36,7 +37,7 @@ const Emphasize = styled.span`
 
 type Props = {
   transaction: Transaction
-  updateInMemoryTransaction: (transaction: Transaction) => void
+  updateInMemoryTransaction: UpdateInMemoryTx
 }
 
 export const StatusCell: React.FC<Props> = ({ transaction, updateInMemoryTransaction }) => {

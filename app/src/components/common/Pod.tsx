@@ -7,6 +7,7 @@ import { ClaimButton } from '@/src/pagePartials/latestTransactions/ClaimButton'
 import { Status } from '@/src/components/common/Status'
 import { TransactionStatus } from '@/types/generated/subgraph'
 import { Transaction } from '@/src/utils/transactions'
+import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
 const Wrapper = styled(InnerCard)<{ status?: string }>`
   background: ${(props) =>
@@ -47,7 +48,7 @@ interface Props {
   transaction?: Transaction
   subTitle?: string
   title: string
-  updateInMemoryTransaction?: (transaction: Transaction) => void
+  updateInMemoryTransaction?: UpdateInMemoryTx
 }
 
 export const Pod: React.FC<Props> = ({
@@ -63,14 +64,7 @@ export const Pod: React.FC<Props> = ({
       <Header>
         <Badge text={title} />
         {transaction && updateInMemoryTransaction ? (
-          transaction.transactionStatus === TransactionStatus.Unclaimed ? (
-            <Claim
-              transaction={transaction}
-              updateInMemoryTransaction={updateInMemoryTransaction}
-            />
-          ) : (
-            <TxStatus status={transaction.transactionStatus} />
-          )
+          <TxStatus status={transaction.transactionStatus} />
         ) : subTitle ? (
           <Badge text={subTitle} />
         ) : null}
