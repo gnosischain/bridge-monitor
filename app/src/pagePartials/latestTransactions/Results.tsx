@@ -1,12 +1,12 @@
 import styled from 'styled-components'
-import { Info } from '@/src/pagePartials/transactions/Info'
+import { Info } from '@/src/pagePartials/latestTransactions/Info'
 import { TransactionsList } from '@/src/pagePartials/transactionsList'
 import { useTransactionsWithFilters } from '@/src/hooks/subgraph/useTransactions'
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import { Loading as BaseLoading } from '@/src/components/loading/Loading'
 import { useValidators } from '@/src/providers/validatorsProvider'
 import { BridgesValues } from '@/src/constants/config/bridges'
-import { Legend } from '@/src/pagePartials/transactions/Legend'
+import { Legend } from '@/src/pagePartials/latestTransactions/Legend'
 
 const InfoWrapper = styled.div`
   display: flex;

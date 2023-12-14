@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components'
 
 import { ChainsInitiatorReceiver } from '@/src/components/common/ChainsInitiatorReceiver'
 import { Pod } from '@/src/components/common/Pod'
-import { TransactionDate } from '@/src/pagePartials/transaction/TransactionDate'
+import { TransactionDate } from '@/src/pagePartials/transactionDetails/TransactionDate'
 import { getAddressScanUrl } from '@/src/utils/transactions'
 import { Address } from '@/src/components/token/Address'
 import {

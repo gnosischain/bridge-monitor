@@ -7,10 +7,10 @@ import { MainTitle } from '@/src/components/text/MainTitle'
 import {
   FiltersSkeleton,
   TransactionsFilter,
-} from '@/src/pagePartials/transactions/TransactionsFilter'
-import { Results } from '@/src/pagePartials/transactions/Results'
+} from '@/src/pagePartials/latestTransactions/TransactionsFilter'
+import { Results } from '@/src/pagePartials/latestTransactions/Results'
 import { Wrapper } from '@/src/components/layout/Wrapper'
-import { tabs } from '@/src/constants/tabs'
+import { latestTransactions } from '@/src/constants/tabs'
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
 import { getEndOfDay, getStartOfDay } from '@/src/utils/date'
 import { useRouter } from 'next/router'
@@ -58,7 +58,7 @@ export const Transactions: React.FC = genericSuspense(
         <Section>
           <TabsWrapper>
             <Tabs>
-              {tabs.bridgeTypes.map(({ title }, index) => (
+              {latestTransactions.map(({ title }, index) => (
                 <TabHeader
                   isActive={isSameString(activeTab, title)}
                   key={index}
@@ -87,7 +87,11 @@ export const Transactions: React.FC = genericSuspense(
             onStatusChange={setStatus}
             startDate={filters.startTimestamp}
           />
-          <Results bridge={activeTab} filters={filters} />
+          {latestTransactions.map(({ title }, index) => {
+            return isSameString(activeTab, title) ? (
+              <Results bridge={title} filters={filters} key={`${title}_transactions_${index}`} />
+            ) : null
+          })}
         </Section>
       </Wrapper>
     )
@@ -98,7 +102,7 @@ export const Transactions: React.FC = genericSuspense(
       <Section>
         <TabsWrapper>
           <Tabs>
-            {tabs.bridgeTypes.map(({ title }, index) => (
+            {latestTransactions.map(({ title }, index) => (
               <TabHeader
                 isActive={index === 0}
                 key={index}

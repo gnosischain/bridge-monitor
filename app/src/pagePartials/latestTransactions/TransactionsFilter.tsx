@@ -10,7 +10,7 @@ import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { isTransactionHash } from '@/src/utils/tools'
 import { useValidators } from '@/src/providers/validatorsProvider'
 import { BridgesValues } from '@/src/constants/config/bridges'
-import { DateTimePicker } from '@/src/pagePartials/transactions/DateTimePicker'
+import { DateTimePicker } from '@/src/pagePartials/latestTransactions/DateTimePicker'
 
 const Wrapper = styled.div`
   --filter-border-radius: ${({ theme: { common } }) => common.borderRadius};

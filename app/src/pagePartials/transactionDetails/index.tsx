@@ -1,15 +1,15 @@
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
 import { Address as BaseAddress } from '@/src/components/token/Address'
-import { ClaimButton as BaseClaimButton } from '@/src/pagePartials/transactions/ClaimButton'
-import { TransactionDetailsListItem } from '@/src/pagePartials/transaction/TransactionDetailsListItem'
+import { ClaimButton as BaseClaimButton } from '@/src/pagePartials/latestTransactions/ClaimButton'
+import { TransactionDetailsListItem } from '@/src/pagePartials/transactionDetails/TransactionDetailsListItem'
 import {
   TransactionSummary,
   TransactionSummaryPlaceholder,
-} from '@/src/pagePartials/transaction/TransactionSummary'
-import { TransactionValidations } from '@/src/pagePartials/transaction/TransactionValidations'
-import { DelayWarning } from '@/src/pagePartials/transaction/DelayWarning'
-import { TransactionRowDetails } from '@/src/pagePartials/transaction/TransactionRowDetails'
+} from '@/src/pagePartials/transactionDetails/TransactionSummary'
+import { TransactionValidations } from '@/src/pagePartials/transactionDetails/TransactionValidations'
+import { DelayWarning } from '@/src/pagePartials/transactionDetails/DelayWarning'
+import { TransactionRowDetails } from '@/src/pagePartials/transactionDetails/TransactionRowDetails'
 import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
 import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'

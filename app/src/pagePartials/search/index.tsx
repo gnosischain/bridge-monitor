@@ -156,7 +156,8 @@ export const SearchByHash: React.FC = ({ ...restProps }) => {
           value={filters.hash}
         />
       </SearchBox>
-      <Results filters={filters} />
+      {/* Don't trigger <Results />'s hooks unnecessarily */}
+      {filters.hash && <Results filters={filters} />}
     </Wrapper>
   )
 }

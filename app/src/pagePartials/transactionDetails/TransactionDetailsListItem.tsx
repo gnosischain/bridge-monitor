@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
-import { IconStatus, Status } from '@/src/pagePartials/transaction/IconStatus'
-import { TransactionDate } from '@/src/pagePartials/transaction/TransactionDate'
+import { IconStatus, Status } from '@/src/pagePartials/transactionDetails/IconStatus'
+import { TransactionDate } from '@/src/pagePartials/transactionDetails/TransactionDate'
 
 const Wrapper = styled.li`
   --line-gap: 24px;

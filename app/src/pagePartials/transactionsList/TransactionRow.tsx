@@ -4,12 +4,13 @@ import { DateTime } from '@/src/components/common/DateTime'
 import { ChainsInitiatorReceiver } from '@/src/components/common/ChainsInitiatorReceiver'
 import { Address as BaseAddress } from '@/src/components/token/Address'
 import { Initiator, Receiver } from '@/src/components/token/TokenWithValue'
-import { Validators } from '@/src/pagePartials/transactions/Validators'
+import { Validators } from '@/src/pagePartials/latestTransactions/Validators'
 import { StatusCell } from '@/src/pagePartials/transactionsList/StatusCell'
 import { Transaction } from '@/src/utils/transactions'
 import { TR as BaseTR, TD } from '@/src/components/common/Table'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useCallback, useMemo } from 'react'
 
 const TR = styled(BaseTR)`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
@@ -103,62 +104,89 @@ export const TransactionRow: React.FC<Props> = ({
 }) => {
   const router = useRouter()
   const addressCharacters = 4
+  const {
+    bridgeName,
+    id,
+    initiator,
+    initiatorAmount,
+    initiatorNetwork,
+    initiatorNetworkIcon,
+    initiatorScanUrl,
+    initiatorToken,
+    receiver,
+    receiverNetwork,
+    receiverNetworkIcon,
+    receiverScanUrl,
+    scanUrl,
+    timestamp,
+    transactionHash,
+  } = transaction
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleRowClick = (e: any) => {
-    e.stopPropagation()
+  const handleRowClick = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (e: any) => {
+      e.stopPropagation()
 
-    // shallow update of the new URL to allow go back to the previous page
-    if (shallowUrl) {
-      router.push(shallowUrl, undefined, { shallow: true })
-    }
-  }
+      // shallow update of the new URL to allow go back to the previous page
+      if (shallowUrl) {
+        router.push(shallowUrl, undefined, { shallow: true })
+      }
+    },
+    [router, shallowUrl],
+  )
 
   const basePath = '/transaction/'
-  const href = shallowUrl
-    ? {
-        pathname: `${basePath}${transaction.id}`,
-        query: { goBack: 'true' },
-      }
-    : {
-        pathname: `${basePath}${transaction.id}`,
-      }
+  const href = useMemo(
+    () =>
+      shallowUrl
+        ? {
+            pathname: `${basePath}${id}`,
+            query: { goBack: 'true' },
+          }
+        : {
+            pathname: `${basePath}${id}`,
+          },
+    [id, shallowUrl],
+  )
+
+  // const { destinationToken, initiatorToken, isLoading, isXdaiBridge, value } =
+  //   useLookupBridgedToken({
+  //     bridgeName,
+  //     initiatorNetwork,
+  //     tokenAddress,
+  //     tokenValue,
+  //   })
 
   return (
     <Link href={href} passHref {...restProps}>
       <TR as={RowLink} compact={!showValidations} onClick={handleRowClick}>
         <TD>
           <MobileLabel>Transaction Hash</MobileLabel>
-          <Address
-            address={transaction.transactionHash}
-            characters={addressCharacters}
-            copy
-            link={transaction.scanUrl}
-          />
-          <DateTime transactiondate={transaction.timestamp} />
+          <Address address={transactionHash} characters={addressCharacters} copy link={scanUrl} />
+          <DateTime transactiondate={timestamp} />
         </TD>
         <TD>
           <MobileLabel>Bridge</MobileLabel>
           <ChainsInitiatorReceiver
-            chainIconInitiator={transaction.initiatorNetworkIcon}
-            chainIconReceiver={transaction.receiverNetworkIcon}
-            chainInitiator={transaction.initiatorNetwork}
-            chainReceiver={transaction.receiverNetwork}
+            chainIconInitiator={initiatorNetworkIcon}
+            chainIconReceiver={receiverNetworkIcon}
+            chainInitiator={initiatorNetwork}
+            chainReceiver={receiverNetwork}
           />
         </TD>
         <TD>
           <MobileLabel>Initiator</MobileLabel>
           <Address
-            address={transaction.initiator}
+            address={initiator}
             characters={addressCharacters}
             copy
-            link={transaction.initiatorScanUrl}
+            link={initiatorScanUrl}
           />
           <Initiator
-            bridgeName={transaction.bridgeName}
-            initiatorNetwork={transaction.initiatorNetwork}
-            token={transaction.initiatorToken}
-            tokenValue={transaction.initiatorAmount}
+            bridgeName={bridgeName}
+            initiatorNetwork={initiatorNetwork}
+            token={initiatorToken}
+            tokenValue={initiatorAmount}
           />
         </TD>
         <TDArrow>
@@ -166,17 +194,12 @@ export const TransactionRow: React.FC<Props> = ({
         </TDArrow>
         <TD>
           <MobileLabel>Receiver</MobileLabel>
-          <Address
-            address={transaction.receiver}
-            characters={addressCharacters}
-            copy
-            link={transaction.receiverScanUrl}
-          />
+          <Address address={receiver} characters={addressCharacters} copy link={receiverScanUrl} />
           <Receiver
-            bridgeName={transaction.bridgeName}
-            initiatorNetwork={transaction.initiatorNetwork}
-            token={transaction.initiatorToken}
-            tokenValue={transaction.initiatorAmount}
+            bridgeName={bridgeName}
+            initiatorNetwork={initiatorNetwork}
+            token={initiatorToken}
+            tokenValue={initiatorAmount}
           />
         </TD>
         {showValidations && (

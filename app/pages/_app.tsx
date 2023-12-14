@@ -95,7 +95,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   return (
     <>
       <GoogleAnalytics />
-
       <Head />
       <SWRConfig
         value={{
@@ -105,17 +104,17 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       >
         <Web3ConnectionProvider>
           <ThemeProvider>
+            <Header />
             <SafeSuspense>
               <TransactionNotificationProvider>
                 <TokenListProvider>
-                  <Header />
                   <ValidatorsProvider>{getLayout(<Component {...pageProps} />)}</ValidatorsProvider>
-                  <Footer />
                   <Toast />
-                  <TooltipConfig />
                 </TokenListProvider>
               </TransactionNotificationProvider>
             </SafeSuspense>
+            <TooltipConfig />
+            <Footer />
           </ThemeProvider>
         </Web3ConnectionProvider>
       </SWRConfig>

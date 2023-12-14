@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { Status } from '@/src/components/common/Status'
-import { ClaimButton } from '@/src/pagePartials/transactions/ClaimButton'
+import { ClaimButton } from '@/src/pagePartials/latestTransactions/ClaimButton'
 import { Transaction } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'
 import { Warning } from '@/src/components/assets/Warning'
