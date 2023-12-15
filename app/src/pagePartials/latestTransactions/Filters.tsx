@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { HTMLAttributes, useCallback, useEffect, useState } from 'react'
 import styled, { css } from 'styled-components'
 
 import { isAddress } from '@ethersproject/address'
@@ -11,6 +11,7 @@ import { isTransactionHash } from '@/src/utils/tools'
 import { useValidators } from '@/src/providers/validatorsProvider'
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { DateTimePicker } from '@/src/pagePartials/latestTransactions/DateTimePicker'
+import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
 
 const Wrapper = styled.div`
   --filter-border-radius: ${({ theme: { common } }) => common.borderRadius};
@@ -156,26 +157,14 @@ export const FiltersSkeleton: React.FC = ({ ...restProps }) => (
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   bridge: string
-  endDate: Date | undefined
-  onBridgeDirectionChange: (value: string) => void
-  onEndDateChange: (date: Date) => void
-  onExecutedByChange: (value: string) => void
-  onHashChange: (value: string) => void
+  filters: ReturnType<typeof useTransactionsFilters>
   onResetFilters: () => void
-  onSignedByChange: (value: string) => void
-  onStartDateChange: (date: Date) => void
-  onStatusChange: (value: string) => void
-  startDate: Date | undefined
 }
 
 export enum BridgeDirection {
   gnosis2mainnet = 'Gnosis > Mainnet',
   mainnet2gnosis = 'Mainnet > Gnosis',
 }
-
-type BridgeDirectionOption = BridgeDirection | 'All Directions'
-
-type StatusOption = string
 
 const txStatus = [
   TransactionStatus.Initiated,
@@ -185,37 +174,22 @@ const txStatus = [
   TransactionStatus.Error,
 ]
 
-type ValidatorOption = string
-
-export const Filters: React.FC<Props> = ({
-  bridge,
-  endDate,
-  onBridgeDirectionChange,
-  onEndDateChange,
-  onExecutedByChange,
-  onHashChange,
-  onResetFilters,
-  onSignedByChange,
-  onStartDateChange,
-  onStatusChange,
-  startDate,
-  ...restProps
-}) => {
+export const Filters: React.FC<Props> = ({ bridge, filters, onResetFilters, ...restProps }) => {
   const { validators } = useValidators(bridge as BridgesValues)
+  const [resetFields, setResetFields] = useState<boolean>(false)
+
   const validatorNames = validators.map((val) => val.name)
-  const validatorsOptions: ValidatorOption[] = ['All Validators'].concat(validatorNames)
-
-  const bridgeDirectionOptions: BridgeDirectionOption[] = useMemo(
-    () => ['All Directions', BridgeDirection.gnosis2mainnet, BridgeDirection.mainnet2gnosis],
-    [],
-  )
-
   const statusNames = txStatus.map(
     (status) => status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(),
   )
 
-  const statusOptions: StatusOption[] = ['All Status'].concat(statusNames)
-  const [resetFields, setResetFields] = useState<boolean>(false)
+  const validatorsOptions = ['All Validators'].concat(validatorNames)
+  const statuses = ['All Status'].concat(statusNames)
+  const bridgeDirections = [
+    'All Directions',
+    BridgeDirection.gnosis2mainnet,
+    BridgeDirection.mainnet2gnosis,
+  ]
 
   const resetFilters = useCallback(() => {
     onResetFilters()
@@ -223,15 +197,27 @@ export const Filters: React.FC<Props> = ({
   }, [onResetFilters])
 
   const [error, setError] = useState<string>('')
+
+  const {
+    filters: { bridgeDirection, endTimestamp, executedBy, signedBy, startTimestamp, status },
+    setBridgeDirection,
+    setEndTimestamp,
+    setExecutedBy,
+    setHash,
+    setSignedBy,
+    setStartTimestamp,
+    setStatus,
+  } = filters
+
   const handleHashChange = (value: string) => {
     setError('')
 
     if (isTransactionHash(value) || isAddress(value)) {
-      onHashChange(value)
+      setHash(value)
     } else if (value !== '') {
       setError('Invalid hash')
     } else {
-      onHashChange('')
+      setHash('')
     }
   }
 
@@ -244,49 +230,41 @@ export const Filters: React.FC<Props> = ({
       <MainFields>
         <Field>
           <Label>Date</Label>
-          {endDate && startDate && (
+          {endTimestamp && startTimestamp && (
             <DateTimePicker
-              endDate={endDate}
-              onEndDateChange={onEndDateChange}
-              onStartDateChange={onStartDateChange}
-              startDate={startDate}
+              endDate={endTimestamp}
+              onEndDateChange={setEndTimestamp}
+              onStartDateChange={setStartTimestamp}
+              startDate={startTimestamp}
             />
           )}
         </Field>
         <Field>
           <Label>Status</Label>
-          <FilterDropdown
-            onChange={onStatusChange}
-            onEnterValue={() => setResetFields(false)}
-            options={statusOptions}
-            reset={resetFields}
-          />
+          <FilterDropdown onChange={setStatus} options={statuses} value={status || 'All Status'} />
         </Field>
         <Field>
           <Label>Direction</Label>
           <FilterDropdown
-            onChange={onBridgeDirectionChange}
-            onEnterValue={() => setResetFields(false)}
-            options={bridgeDirectionOptions}
-            reset={resetFields}
+            onChange={setBridgeDirection}
+            options={bridgeDirections}
+            value={bridgeDirection || 'All Directions'}
           />
         </Field>
         <Field>
           <Label>Signed by</Label>
           <FilterDropdown
-            onChange={onSignedByChange}
-            onEnterValue={() => setResetFields(false)}
+            onChange={setSignedBy}
             options={validatorsOptions}
-            reset={resetFields}
+            value={signedBy || 'All Validators'}
           />
         </Field>
         <Field>
           <Label>Executed by</Label>
           <FilterDropdown
-            onChange={onExecutedByChange}
-            onEnterValue={() => setResetFields(false)}
+            onChange={setExecutedBy}
             options={validatorsOptions}
-            reset={resetFields}
+            value={executedBy || 'All Validators'}
           />
         </Field>
       </MainFields>

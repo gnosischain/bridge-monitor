@@ -4,7 +4,7 @@ import { Section } from '@/src/components/layout/Section'
 import { TabHeader } from '@/src/components/tabs/TabHeader'
 import { Tabs, TabsWrapper } from '@/src/components/tabs/Tabs'
 import { MainTitle } from '@/src/components/text/MainTitle'
-import { FiltersSkeleton, Filters } from '@/src/pagePartials/latestTransactions/Filters'
+import { Filters, FiltersSkeleton } from '@/src/pagePartials/latestTransactions/Filters'
 import { Results, ResultsLoading } from '@/src/pagePartials/latestTransactions/Results'
 import { Wrapper } from '@/src/components/layout/Wrapper'
 import { latestTransactions } from '@/src/constants/tabs'
@@ -21,26 +21,21 @@ export const LatestTransactions: React.FC = genericSuspense(
     const activeTab = (router.query.bridge as string) || 'xDai'
     const sectionPath = 'latest-transactions'
 
-    const {
-      filters,
-      resetFilters,
-      setBridge,
-      setBridgeDirection,
-      setEndTimestamp,
-      setExecutedBy,
-      setHash,
-      setSignedBy,
-      setStartTimestamp,
-      setStatus,
-    } = useTransactionsFilters({
+    const listFilters = useTransactionsFilters({
       bridge: activeTab,
       startTimestamp: getStartOfDay(),
       endTimestamp: getEndOfDay(),
     })
+    const { filters, resetFilters, setBridge } = listFilters
 
     useEffect(() => {
       setBridge(activeTab)
-    }, [activeTab, setBridge])
+      resetFilters({
+        bridge: activeTab,
+        startTimestamp: getStartOfDay(),
+        endTimestamp: getEndOfDay(),
+      })
+    }, [activeTab, setBridge, resetFilters])
 
     return (
       <Wrapper {...restProps}>
@@ -61,11 +56,7 @@ export const LatestTransactions: React.FC = genericSuspense(
           <ValidatorsProvider>
             <Filters
               bridge={activeTab}
-              endDate={filters.endTimestamp}
-              onBridgeDirectionChange={setBridgeDirection}
-              onEndDateChange={setEndTimestamp}
-              onExecutedByChange={setExecutedBy}
-              onHashChange={setHash}
+              filters={listFilters}
               onResetFilters={() =>
                 resetFilters({
                   bridge: activeTab,
@@ -73,10 +64,6 @@ export const LatestTransactions: React.FC = genericSuspense(
                   endTimestamp: getEndOfDay(),
                 })
               }
-              onSignedByChange={setSignedBy}
-              onStartDateChange={setStartTimestamp}
-              onStatusChange={setStatus}
-              startDate={filters.startTimestamp}
             />
             {latestTransactions.map(({ title }, index) => {
               return isSameString(activeTab, title) ? (
