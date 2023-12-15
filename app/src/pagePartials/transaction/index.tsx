@@ -20,6 +20,8 @@ import { useValidators } from '@/src/providers/validatorsProvider'
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { Wrapper } from '@/src/components/layout/Wrapper'
 import { ButtonGoBack } from '@/src/components/buttons/ButtonGoBack'
+import { GenericError } from '@/src/components/common/GenericError'
+import Link from 'next/link'
 
 const Head = styled.div`
   display: flex;
@@ -98,7 +100,8 @@ export const TransactionSkeletonLoading: React.FC = ({ ...restProps }) => (
 export const Transaction: React.FC = ({ ...restProps }) => {
   const router = useRouter()
   const transactionId = String(router.query?.transaction)
-  const goBackEnabled = String(router.query?.goBack) === 'true' || undefined
+  const goBackButtonEnabled = String(router.query?.goBackButtonEnabled) === 'true'
+
   const { isLoading, transactions, updateInMemoryTransaction } = useFetchTransactions(
     {},
     {
@@ -113,7 +116,23 @@ export const Transaction: React.FC = ({ ...restProps }) => {
   const txExecution = currentTx?.execution ?? ({} as TransactionExecution)
   const { validators: bridgeValidators } = useValidators(currentTx?.bridgeName as BridgesValues)
 
-  if (!currentTx || isLoading) return <TransactionSkeletonLoading />
+  if ((!currentTx && isLoading) || isLoading) return <TransactionSkeletonLoading />
+  if (!currentTx)
+    return (
+      <GenericError
+        text={
+          <>
+            Sorry, but the transaction you're looking for doesn't seem to exist. Maybe there's an
+            error in the transaction's hash, or the system is still processing it.
+            <br />
+            <br />
+            Please double-check the URL for any typos or try searching the transaction again from{' '}
+            <Link href="/">the homepage</Link>.
+          </>
+        }
+        title="Transaction Not Found"
+      />
+    )
 
   const hasValidations = (): boolean => {
     return txValidations !== null && txValidations.length >= 1
@@ -157,7 +176,7 @@ export const Transaction: React.FC = ({ ...restProps }) => {
             link={getTxScanUrl(currentTx.transactionHash, currentTx.initiatorNetwork)}
           />
         </div>
-        {goBackEnabled && <ButtonGoBack onClick={() => router.back()} />}
+        {goBackButtonEnabled && <ButtonGoBack onClick={() => router.back()} />}
       </Head>
       <TransactionInformation>
         <TransactionSummary

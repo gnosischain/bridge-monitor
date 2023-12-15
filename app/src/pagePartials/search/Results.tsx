@@ -1,13 +1,13 @@
 import styled from 'styled-components'
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 
 import { Loading } from '@/src/components/loading/Loading'
 import { ShareResults } from '@/src/pagePartials/search/ShareResults'
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import { TransactionsList as BaseTransactionsList } from '@/src/pagePartials/transactionsList'
 import { motion } from 'framer-motion'
-import { useRouter } from 'next/router'
 import { useTransactionsWithFilters } from '@/src/hooks/subgraph/useTransactions'
+import { useRouter } from 'next/router'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -63,9 +63,16 @@ const TransactionsList = styled(BaseTransactionsList)`
 `
 
 export const Results: React.FC<{ filters: TransactionFilter }> = ({ filters, ...restProps }) => {
-  const router = useRouter()
   const { isLoading, transactions, updateInMemoryTransaction } = useTransactionsWithFilters(filters)
-  const filtersHash = useMemo(() => `?hash=${filters.hash}`, [filters.hash])
+  const searchResultsURL = useMemo(
+    () => `${window.location.origin}/?hash=${filters.hash}`,
+    [filters.hash],
+  )
+  const router = useRouter()
+
+  useEffect(() => {
+    router.push(searchResultsURL, undefined, { shallow: true })
+  }, [searchResultsURL])
 
   return (
     <Wrapper
@@ -83,11 +90,10 @@ export const Results: React.FC<{ filters: TransactionFilter }> = ({ filters, ...
               <Info>
                 <b>{transactions.length}</b> transactions found
               </Info>
-              <ShareButton value={`${window.location.origin}/${filtersHash}`} />
+              <ShareButton value={`${searchResultsURL}`} />
             </InfoWrapper>
           ) : null}
           <TransactionsList
-            shallowUrl={`${router.pathname}?hash=${filters.hash}`}
             transactions={transactions}
             updateInMemoryTransaction={updateInMemoryTransaction}
           />

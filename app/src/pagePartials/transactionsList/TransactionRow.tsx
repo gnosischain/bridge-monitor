@@ -11,7 +11,7 @@ import { TR as BaseTR, TD } from '@/src/components/common/Table'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 
 const TR = styled(BaseTR)`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
@@ -90,14 +90,14 @@ const RowLink = styled.a`
 `
 
 type Props = {
-  shallowUrl?: string
+  searchResultsURL?: string
   showValidations?: boolean
   transaction: Transaction
   updateInMemoryTransaction: UpdateInMemoryTx
 }
 
 export const TransactionRow: React.FC<Props> = ({
-  shallowUrl,
+  searchResultsURL,
   showValidations,
   transaction,
   updateInMemoryTransaction,
@@ -123,36 +123,19 @@ export const TransactionRow: React.FC<Props> = ({
     transactionHash,
   } = transaction
 
-  const handleRowClick = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (e: any) => {
-      e.stopPropagation()
-
-      // shallow update of the new URL to allow go back to the previous page
-      if (shallowUrl) {
-        router.push(shallowUrl, undefined, { shallow: true })
-      }
-    },
-    [router, shallowUrl],
-  )
-
-  const basePath = '/transaction/'
-  const href = useMemo(
-    () =>
-      shallowUrl
-        ? {
-            pathname: `${basePath}${id}`,
-            query: { goBack: 'true' },
-          }
-        : {
-            pathname: `${basePath}${id}`,
-          },
-    [id, shallowUrl],
-  )
+  const txURL = useMemo(() => `/transaction/${id}`, [id])
 
   return (
-    <Link href={href} passHref {...restProps}>
-      <TR as={RowLink} compact={!showValidations} onClick={handleRowClick}>
+    <Link
+      as={txURL}
+      href={{
+        pathname: txURL,
+        query: { goBackButtonEnabled: 'true' },
+      }}
+      passHref
+      {...restProps}
+    >
+      <TR as={RowLink} compact={!showValidations}>
         <TD>
           <MobileLabel>Transaction Hash</MobileLabel>
           <Address address={transactionHash} characters={addressCharacters} copy link={scanUrl} />

@@ -21,14 +21,6 @@ export const LatestTransactions: React.FC = genericSuspense(
     const activeTab = (router.query.bridge as string) || 'xDai'
     const sectionPath = 'latest-transactions'
 
-    useEffect(() => {
-      if (router.pathname == `/${sectionPath}` && !router.query.bridge) {
-        router.push({ pathname: sectionPath, query: { bridge: 'xDai' } }, undefined, {
-          shallow: true,
-        })
-      }
-    }, [router])
-
     const {
       filters,
       resetFilters,
