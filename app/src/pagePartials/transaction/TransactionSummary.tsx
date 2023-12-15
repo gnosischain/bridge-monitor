@@ -13,6 +13,7 @@ import {
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Transaction } from '@/src/utils/transactions'
 import { ArrowUp } from '@/src/components/assets/ArrowUp'
+import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
 const Wrapper = styled.div`
   column-gap: ${({ theme: { common } }) => common.space * 2}px;
@@ -99,7 +100,7 @@ interface Props {
   timestampStarted: number
   transaction?: Transaction
   transactionStatus: TransactionStatus
-  updateInMemoryTransaction: (transaction: Transaction) => void
+  updateInMemoryTransaction: UpdateInMemoryTx
 }
 
 export const TransactionSummary: React.FC<Props> = ({

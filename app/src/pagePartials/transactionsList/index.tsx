@@ -4,16 +4,15 @@ import { Transaction } from '@/src/utils/transactions'
 import { TransactionHeader } from '@/src/pagePartials/transactionsList/TransactionsHeader'
 import { Validator } from '@/src/utils/validators'
 import { Table } from '@/src/components/common/Table'
+import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
 interface Props {
-  shallowUrl?: string
   transactions: Transaction[]
-  updateInMemoryTransaction: (transaction: Transaction) => void
+  updateInMemoryTransaction: UpdateInMemoryTx
   validators?: Validator[] | undefined
 }
 
 export const TransactionsList: React.FC<Props> = ({
-  shallowUrl,
   transactions,
   updateInMemoryTransaction,
   validators,
@@ -27,7 +26,6 @@ export const TransactionsList: React.FC<Props> = ({
       {transactions.map((transaction) => (
         <TransactionRow
           key={`transaction_${transaction.id}`}
-          shallowUrl={shallowUrl}
           showValidations={validators ? true : false}
           transaction={transaction}
           updateInMemoryTransaction={updateInMemoryTransaction}

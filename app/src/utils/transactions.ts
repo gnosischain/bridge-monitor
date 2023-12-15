@@ -59,6 +59,7 @@ export type Transaction = {
   transactionStatus: TransactionStatus
   validations?: TransactionValidation[] | null
   execution?: TransactionExecution
+  isClaiming?: boolean
 }
 
 export type TxsInMemoryFilters = { validator?: string; executor?: string }
@@ -207,14 +208,7 @@ export const unifyTransactions = async (
       where: { id_in: missingForeignIds },
     })) as TransactionSG[]
 
-    const localForeignTxs = getForeignTransactions()
-    const persistedTxs = localForeignTxs
-      ? missingForeignIds
-          .map((missingForeignId) => localForeignTxs[missingForeignId])
-          .filter((tx) => tx)
-      : []
-
-    foreignTxs = [...foreignTxs, ...persistedTxs, ...missingTxs]
+    foreignTxs = [...foreignTxs, ...missingTxs]
   }
 
   // 1. initiate with homeTxs.

@@ -1,4 +1,3 @@
-import { useMemo, useState } from 'react'
 import styled, { css } from 'styled-components'
 
 import { ButtonDropdown } from '@/src/components/buttons/ButtonDropdown'
@@ -34,50 +33,19 @@ const LittleCircleOfExtraClarification = styled.div<{ status: TransactionStatus 
 `
 
 interface Props {
-  onChange?: (bridge: string) => void
-  onEnterValue?: () => void
+  onChange: (bridge: string) => void
+  value: string
   options: string[]
-  reset?: boolean
 }
 
-export const FilterDropdown: React.FC<Props> = ({
-  onChange,
-  onEnterValue,
-  options,
-  reset,
-  ...restProps
-}) => {
-  const [selectedOption, setSelectedOption] = useState<string>()
-
-  const onSelectOption = (bridgeFilter: string) => {
-    setSelectedOption(bridgeFilter)
-    if (typeof onChange !== 'undefined') {
-      onChange(bridgeFilter)
-      if (onEnterValue) onEnterValue()
-    }
-  }
-
-  useMemo(() => {
-    if (reset) {
-      setSelectedOption(options[0])
-    }
-  }, [options, reset])
-
+export const FilterDropdown: React.FC<Props> = ({ onChange, options, value, ...restProps }) => {
   return (
     <Dropdown
       activeItemHighlight
-      dropdownButton={
-        <Button activeFilter={options[0] !== selectedOption}>
-          {selectedOption ? selectedOption : options[0]}
-        </Button>
-      }
+      activeItemIndex={options.indexOf(value)}
+      dropdownButton={<Button activeFilter={options[0] !== value}>{value}</Button>}
       items={options.map((el, index) => (
-        <DropdownItem
-          key={index}
-          onClick={() => {
-            onSelectOption(el)
-          }}
-        >
+        <DropdownItem key={index} onClick={() => onChange(el)}>
           {index !== 0 &&
             Object.values(TransactionStatus)?.includes(el.toUpperCase() as TransactionStatus) && (
               <LittleCircleOfExtraClarification status={el.toUpperCase() as TransactionStatus} />

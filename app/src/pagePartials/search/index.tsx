@@ -1,6 +1,5 @@
 import styled from 'styled-components'
-import React, { useState } from 'react'
-
+import React, { useState, useCallback, useEffect } from 'react'
 import { Results } from '@/src/pagePartials/search/Results'
 import { SimpleSearch } from '@/src/components/filters/SimpleSearch'
 import { TextfieldStatus } from '@/src/components/form/Textfield'
@@ -87,35 +86,44 @@ const Text = styled.p`
   }
 `
 
-export const SearchByHash: React.FC = ({ ...restProps }) => {
+export const Search: React.FC = ({ ...restProps }) => {
   const router = useRouter()
   const { hash: byParamHash } = router.query
-  const {
-    filters,
-    hash: currentHash,
-    setHash,
-  } = useTransactionsFilters({ hash: (byParamHash as string) ?? '' })
+  const { filters, hash: currentHash, setHash } = useTransactionsFilters()
   const [error, setError] = useState<string>('')
 
   const handleHashChange = (value: string) => {
     const validHash = isTransactionHash(value) || isAddress(value)
 
-    // Check if input is a valid hash and also check if it's not the same as the current one
+    /**
+     * Check if the input is a valid hash and also check if it's not the same as the current one.
+     * If everything is OK, update the hash.
+     */
     if (validHash && value !== currentHash) {
       setError('')
       setHash(value)
     }
 
-    // Check if input is not empty and also an invalid hash
+    /**
+     * If the input is not empty and also an invalid hash, trigger an error.
+     */
     if (value !== '' && !validHash) {
       setError('Address or transaction hash is invalid')
     }
 
-    // Check if input is empty
+    /**
+     * If the input is empty, remove the error.
+     */
     if (value === '') {
       setError('')
     }
   }
+
+  useEffect(() => {
+    if (byParamHash) {
+      handleHashChange(byParamHash as string)
+    }
+  }, [byParamHash])
 
   const isSearchActive = currentHash !== ''
   const transitionTime = 0.35
@@ -156,7 +164,8 @@ export const SearchByHash: React.FC = ({ ...restProps }) => {
           value={filters.hash}
         />
       </SearchBox>
-      <Results filters={filters} />
+      {/* Don't trigger <Results />'s hooks unnecessarily */}
+      {filters.hash && <Results filters={filters} />}
     </Wrapper>
   )
 }

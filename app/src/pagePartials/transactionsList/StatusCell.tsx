@@ -1,11 +1,13 @@
 import styled from 'styled-components'
 import { Status } from '@/src/components/common/Status'
-import { ClaimButton } from '@/src/pagePartials/transactions/ClaimButton'
+import { ClaimButton } from '@/src/pagePartials/latestTransactions/ClaimButton'
 import { Transaction } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/types/generated/subgraph'
 import { Warning } from '@/src/components/assets/Warning'
 import { StatusColors } from '@/src/components/helpers/StatusColors'
 import { Tooltip } from '@/src/components/tooltip/Tooltip'
+import { txTime } from '@/src/utils/txTime'
+import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -35,33 +37,30 @@ const Emphasize = styled.span`
 
 type Props = {
   transaction: Transaction
-  updateInMemoryTransaction: (transaction: Transaction) => void
+  updateInMemoryTransaction: UpdateInMemoryTx
 }
 
 export const StatusCell: React.FC<Props> = ({ transaction, updateInMemoryTransaction }) => {
-  const { initiatorNetwork, receiverNetwork } = transaction
-  const mainnetToGnosis =
-    initiatorNetwork.toLowerCase() === 'mainnet' && receiverNetwork.toLowerCase() === 'gnosis'
-  const delay = mainnetToGnosis ? '20' : '10'
+  const { initiatorNetwork, receiverNetwork, transactionStatus } = transaction
 
-  return transaction.transactionStatus === TransactionStatus.Unclaimed ? (
+  return transactionStatus === TransactionStatus.Unclaimed ? (
     <ClaimButton transaction={transaction} updateInMemoryTransaction={updateInMemoryTransaction} />
   ) : (
     <Wrapper>
-      {transaction.transactionStatus === 'INITIATED' && (
+      {transactionStatus === 'INITIATED' && (
         <Tooltip
           content={
             <>
               Transactions from <Network>{initiatorNetwork}</Network> to{' '}
               <Network>{receiverNetwork}</Network> can take up to{' '}
-              <Emphasize>{delay} minutes</Emphasize>
+              <Emphasize>{txTime(initiatorNetwork, receiverNetwork)} minutes</Emphasize>
             </>
           }
         >
           <WarningIcon />
         </Tooltip>
       )}
-      <Status status={transaction.transactionStatus} />
+      <Status status={transactionStatus} />
     </Wrapper>
   )
 }

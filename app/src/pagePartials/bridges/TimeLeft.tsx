@@ -21,7 +21,7 @@ export const TimeLeft: React.FC<Props> = ({ time, ...restProps }) => {
   const { getSuffixRemaining, remaining } = useDate(date)
   return (
     <Wrapper {...restProps}>
-      <span>Daily limit reset</span>{' '}
+      <span>Daily limit resets in</span>{' '}
       <Tooltip content={date.toLocaleString()}>
         {remaining?.interval} {remaining?.epoch}
         {getSuffixRemaining}

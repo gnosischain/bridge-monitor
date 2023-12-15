@@ -1,7 +1,5 @@
 import styled from 'styled-components'
 
-import { Tooltip } from '@/src/components/tooltip/Tooltip'
-
 export const MiniCard = styled.div<{ dark?: boolean }>`
   background: ${({ dark, theme: { colors } }) => (dark ? colors.darkestGrey : colors.darkGrey)};
   border-radius: 8px;
@@ -15,31 +13,44 @@ MiniCard.defaultProps = {
   dark: false,
 }
 
-const MiniCardTitleWrapper = styled.div`
-  align-items: center;
-  column-gap: 4px;
+const Wrapper = styled.div`
   display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  row-gap: 4px;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    align-items: flex-end;
+    flex-direction: row;
+  }
 `
 
-const Title = styled.h4`
+const Text = styled.span<{ bigTitle?: boolean }>`
+  align-items: center;
   color: ${({ theme: { colors } }) => colors.cream};
+  column-gap: 6px;
+  display: flex;
   font-family: ${({ theme: { fonts } }) => fonts.family};
-  font-size: 1.4rem;
+  font-size: ${({ bigTitle }) => (bigTitle ? '1.6rem' : '1.3rem')};
   font-weight: 400;
   line-height: 1.2;
   margin: 0;
 `
 
-export const MiniCardTitle: React.FC<{ title: string; tooltip?: string }> = ({
-  title,
-  tooltip,
-  ...restProps
-}) => {
+Text.defaultProps = {
+  bigTitle: false,
+}
+
+export const MiniCardTitle: React.FC<{
+  title: React.ReactNode | string
+  subTitle?: React.ReactNode | React.ReactNode
+  bigTitle?: boolean
+}> = ({ bigTitle, subTitle, title, ...restProps }) => {
   return (
-    <MiniCardTitleWrapper {...restProps}>
-      <Title>{title}</Title>
-      {tooltip && <Tooltip content={tooltip} />}
-    </MiniCardTitleWrapper>
+    <Wrapper {...restProps}>
+      <Text bigTitle={bigTitle}>{title}</Text>
+      {subTitle && <Text>{subTitle}</Text>}
+    </Wrapper>
   )
 }
 

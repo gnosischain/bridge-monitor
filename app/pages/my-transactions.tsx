@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
-import { SearchByHash } from '@/src/pagePartials/search'
+import { Search } from '@/src/pagePartials/search'
 
-const MyTransactions: NextPage = () => {
-  return <SearchByHash />
+const MyTransactionsPage: NextPage = () => {
+  return <Search />
 }
-export default MyTransactions
+export default MyTransactionsPage

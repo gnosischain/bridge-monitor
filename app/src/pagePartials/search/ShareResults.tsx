@@ -1,8 +1,6 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components'
-
-import { ToastComponent } from '@/src/components/toast/ToastComponent'
-import { Toast, toast } from 'react-hot-toast'
+import { useCopyToast } from '@/src/hooks/useCopyToast'
 
 const ShareIcon: React.FC = () => (
   <svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
@@ -43,31 +41,10 @@ export const ShareResults: React.FC<Props> = ({
   value,
   ...restProps
 }) => {
-  const timeDelay = 2500
-
-  useEffect(() => {
-    toast.dismiss()
-  })
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const copyValue = (e: any, value: string) => {
-    e.stopPropagation()
-
-    navigator.clipboard.writeText(value)
-    toast.custom(
-      (t: Toast) => {
-        return <ToastComponent message={'URL copied to the clipboard'} t={t} />
-      },
-      {
-        duration: timeDelay,
-        id: 'copy-url',
-        position: 'top-center',
-      },
-    )
-  }
+  const { copy } = useCopyToast()
 
   return (
-    <Wrapper onClick={(e) => copyValue(e, value)} {...restProps}>
+    <Wrapper onClick={(e) => copy(e, value)} {...restProps}>
       <ShareIcon />
       {text}
     </Wrapper>

@@ -214,11 +214,13 @@ interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivEle
   dropdownPosition?: DropdownPosition | undefined
   fullWidth?: boolean
   items: Array<unknown>
+  activeItemIndex?: number | undefined
 }
 
 export const Dropdown: React.FC<Props> = (props) => {
   const {
     activeItemHighlight,
+    activeItemIndex: itemActiveIndex,
     className = '',
     disabled = false,
     dropdownButton,
@@ -261,6 +263,10 @@ export const Dropdown: React.FC<Props> = (props) => {
       document.removeEventListener('mousedown', handleClick)
     }
   }, [node])
+
+  useEffect(() => {
+    setActiveItem(itemActiveIndex)
+  }, [itemActiveIndex])
 
   return (
     <Wrapper

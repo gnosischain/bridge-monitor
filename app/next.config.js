@@ -11,6 +11,7 @@ module.exports = withBundleAnalyzer({
     defaultLocale: 'en',
   },
   experimental: {
+    scrollRestoration: false,
     images: {
       unoptimized: true,
       remotePatterns: [

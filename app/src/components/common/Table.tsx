@@ -70,6 +70,7 @@ export const TR = styled.div<{ compact?: boolean }>`
     &:last-child {
       border-bottom-left-radius: var(--table-border-radius);
       border-bottom-right-radius: var(--table-border-radius);
+      border-bottom: none;
     }
 
     &:hover {

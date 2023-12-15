@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, PropsWithChildren } from 'react'
 import { BridgeLimit } from '@/src/pagePartials/bridges/BridgeLimit'
 import { TabContentInner as Wrapper } from '@/src/components/tabs/Tabs'
 import { BaseSubTitle } from '@/src/components/text/BaseSubTitle'
@@ -22,6 +22,12 @@ import { TokenDropdown } from '@/src/components/token/TokenDropdown'
 import { InnerCard } from '@/src/components/common/InnerCard'
 import { useBridgedTokens } from '@/src/providers/TokenListProvider'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
+import { ArrowUp } from '@/src/components/assets/ArrowUp'
+import dynamic from 'next/dynamic'
+
+const TokenListProvider = dynamic(() => import('@/src/providers/TokenListProvider'), {
+  ssr: false,
+})
 
 const Columns = styled.div`
   display: grid;
@@ -61,8 +67,20 @@ const Text = styled.p`
   font-size: 1.8rem;
   font-weight: 400;
   margin: 0;
-
   text-align: center;
+`
+
+const TitleWrapper = styled.span`
+  align-items: center;
+  column-gap: 8px;
+  display: flex;
+  flex-direction: row;
+  row-gap: 8px;
+`
+
+const ArrowRight = styled(ArrowUp)`
+  display: block;
+  transform: rotate(-90deg);
 `
 
 const Placeholder: React.FC = () => (
@@ -102,10 +120,15 @@ export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericS
     return (
       <BridgeLimit
         chainId={Chains.mainnet}
-        disableTokenDropdown
         from="Ethereum"
         networkName="mainnet"
-        title="Ethereum Mainnet -> GC"
+        title={
+          <TitleWrapper>
+            Ethereum Mainnet
+            <ArrowRight />
+            Gnosis Chain
+          </TitleWrapper>
+        }
         to="Gnosis"
         token={mainnetDaiToken}
         {...foreignXdaiInformation}
@@ -124,11 +147,16 @@ export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericS
     return (
       <BridgeLimit
         chainId={Chains.gnosis}
-        disableTokenDropdown
         from="Gnosis"
         isNativeToken
         networkName="gnosis"
-        title="GC -> Ethereum Mainnet"
+        title={
+          <TitleWrapper>
+            Gnosis Chain
+            <ArrowRight />
+            Ethereum Mainnet
+          </TitleWrapper>
+        }
         to="Ethereum"
         token={gnosisXdaiToken}
         tokenTooltip="xDAI tokens are native to Gnosis and enable payments for smart contract execution and gas fees."
@@ -150,7 +178,13 @@ const OmnibridgeMainnetToGnosisChain: React.FC<{ token: Token; dayNumber: string
           chainId={Chains.mainnet}
           from="Ethereum"
           networkName="mainnet"
-          title="Ethereum Mainnet -> GC"
+          title={
+            <TitleWrapper>
+              Ethereum Mainnet
+              <ArrowRight />
+              Gnosis Chain
+            </TitleWrapper>
+          }
           to="Gnosis"
           token={token}
           {...foreignOmniInformation}
@@ -171,7 +205,13 @@ const OmnibridgeGnosisChainToMainnet: React.FC<{ token: Token; dayNumber: string
           chainId={Chains.gnosis}
           from="Gnosis"
           networkName="gnosis"
-          title="GC -> Ethereum Mainnet"
+          title={
+            <TitleWrapper>
+              Gnosis Chain
+              <ArrowRight />
+              Ethereum Mainnet
+            </TitleWrapper>
+          }
           to="Ethereum"
           token={token}
           {...homeOmniInformation}
@@ -182,7 +222,12 @@ const OmnibridgeGnosisChainToMainnet: React.FC<{ token: Token; dayNumber: string
     () => <Placeholder />,
   )
 
-export const DailyBridgeLimits: React.FC = ({ ...restProps }) => {
+const XDAITitle: React.FC = () => <Title>xDai</Title>
+const OmnibridgeTitle: React.FC<PropsWithChildren<unknown>> = ({ children }) => (
+  <Title>Omnibridge{children}</Title>
+)
+
+const Limits: React.FC = ({ ...restProps }) => {
   const dayNumber = useDayNumber()
   const { gnosisGnoToken, mainnetGnoToken } = useGnoToken()
   const [mainnetToGnosisChainToken, setMainnetToGnosisChainToken] = useState<Token>(mainnetGnoToken)
@@ -211,21 +256,20 @@ export const DailyBridgeLimits: React.FC = ({ ...restProps }) => {
   return (
     <Wrapper {...restProps}>
       <Row>
-        <Title>xDai</Title>
+        <XDAITitle />
         <Columns>
           <XDAIEthToGC dayNumber={dayNumber} />
           <XDAIGCToEth dayNumber={dayNumber} />
         </Columns>
       </Row>
       <Row>
-        <Title>
-          Omnibridge
+        <OmnibridgeTitle>
           <TokenDropdown
             chainId={Chains.mainnet}
             defaultToken={mainnetToGnosisChainToken}
             onChange={onChangeToken}
           />
-        </Title>
+        </OmnibridgeTitle>
         <Columns>
           {invalidToken ? (
             <InvalidToken>
@@ -257,3 +301,31 @@ export const DailyBridgeLimits: React.FC = ({ ...restProps }) => {
     </Wrapper>
   )
 }
+
+export const DailyBridgeLimits: React.FC = genericSuspense(
+  ({ ...restProps }) => {
+    return (
+      <TokenListProvider {...restProps}>
+        <Limits />
+      </TokenListProvider>
+    )
+  },
+  ({ ...restProps }) => (
+    <Wrapper {...restProps}>
+      <Row>
+        <XDAITitle />
+        <Columns>
+          <Placeholder />
+          <Placeholder />
+        </Columns>
+      </Row>
+      <Row>
+        <OmnibridgeTitle />
+        <Columns>
+          <Placeholder />
+          <Placeholder />
+        </Columns>
+      </Row>
+    </Wrapper>
+  ),
+)

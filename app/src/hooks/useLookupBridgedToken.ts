@@ -2,7 +2,7 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import { TokenInfo as UniswapToken } from '@uniswap/token-lists'
 import { BigNumber, BigNumberish, FixedNumber, constants } from 'ethers'
 import memoize from 'lodash/memoize'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Chains, getNetworkConfig } from '@/src/constants/config/chains'
 import { useDaiToken } from '@/src/hooks/useDaiToken'
@@ -61,19 +61,28 @@ export const useLookupBridgedToken = ({
   const isXdaiBridge = bridgeName === 'XDAI'
   const isZeroToken = tokenAddress === constants.AddressZero
   const isNativeInXdaiBridge = isXdaiBridge && isZeroToken
-
   const [token, setToken] = useState<UniswapToken | undefined>()
-
   const xDaiBridgedToken = isNativeInXdaiBridge ? mainnetDaiToken : gnosisXdaiToken
 
   useEffect(() => {
+    // have to check if the component is still mounted before setting the state
+    let isMounted = true
+
     if (!isXdaiBridge && !isZeroToken) {
       lookupToken(tokenAddress, isMainnetToken, tokenList)
-        .then(setToken)
+        .then((data) => {
+          if (isMounted) {
+            setToken(data)
+          }
+        })
         .catch((error) => {
           // fail silently
           console.error('Error looking up token', error)
         })
+
+      return () => {
+        isMounted = false
+      }
     } else {
       setToken(
         isNativeInXdaiBridge
@@ -95,24 +104,32 @@ export const useLookupBridgedToken = ({
     tokensByAddress,
   ])
 
-  const defaultToken: UniswapToken = {
-    name: tokenAddress,
-    symbol: tokenAddress,
-    decimals: 0,
-    address: tokenAddress,
-    chainId: isMainnetToken ? 1 : 100,
-  }
+  const defaultToken: UniswapToken = useMemo(() => {
+    return {
+      name: tokenAddress,
+      symbol: tokenAddress,
+      decimals: 0,
+      address: tokenAddress,
+      chainId: isMainnetToken ? 1 : 100,
+    }
+  }, [isMainnetToken, tokenAddress])
 
-  const value = token
-    ? formatNumber(
-        +FixedNumber.fromValue(BigNumber.from(tokenValue), token.decimals).round(4).toString(),
-      )
-    : tokenValue.toString()
+  const value = useMemo(
+    () =>
+      token && tokenValue
+        ? formatNumber(
+            +FixedNumber.fromValue(BigNumber.from(tokenValue), token.decimals).round(4).toString(),
+          )
+        : '',
+    [token, tokenValue],
+  )
+  const initiatorToken = useMemo(() => token ?? defaultToken, [defaultToken, token])
 
   return {
-    initiatorToken: token ?? defaultToken,
+    initiatorToken,
     destinationToken: xDaiBridgedToken,
     isXdaiBridge,
     value,
+    isLoading: !initiatorToken || !value,
   }
 }

@@ -4,53 +4,38 @@ import { Section } from '@/src/components/layout/Section'
 import { TabHeader } from '@/src/components/tabs/TabHeader'
 import { Tabs, TabsWrapper } from '@/src/components/tabs/Tabs'
 import { MainTitle } from '@/src/components/text/MainTitle'
-import {
-  FiltersSkeleton,
-  TransactionsFilter,
-} from '@/src/pagePartials/transactions/TransactionsFilter'
-import { Results } from '@/src/pagePartials/transactions/Results'
+import { Filters, FiltersSkeleton } from '@/src/pagePartials/latestTransactions/Filters'
+import { Results, ResultsLoading } from '@/src/pagePartials/latestTransactions/Results'
 import { Wrapper } from '@/src/components/layout/Wrapper'
-import { tabs } from '@/src/constants/tabs'
+import { latestTransactions } from '@/src/constants/tabs'
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
 import { getEndOfDay, getStartOfDay } from '@/src/utils/date'
 import { useRouter } from 'next/router'
 import { isSameString } from '@/src/utils/tools'
 import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { ValidatorsProvider } from '@/src/providers/validatorsProvider'
 
-export const Transactions: React.FC = genericSuspense(
+export const LatestTransactions: React.FC = genericSuspense(
   ({ ...restProps }) => {
     const router = useRouter()
     const activeTab = (router.query.bridge as string) || 'xDai'
     const sectionPath = 'latest-transactions'
 
-    useEffect(() => {
-      if (router.pathname == `/${sectionPath}` && !router.query.bridge) {
-        router.push({ pathname: sectionPath, query: { bridge: 'xDai' } }, undefined, {
-          shallow: true,
-        })
-      }
-    }, [router])
-
-    const {
-      filters,
-      resetFilters,
-      setBridge,
-      setBridgeDirection,
-      setEndTimestamp,
-      setExecutedBy,
-      setHash,
-      setSignedBy,
-      setStartTimestamp,
-      setStatus,
-    } = useTransactionsFilters({
+    const listFilters = useTransactionsFilters({
       bridge: activeTab,
       startTimestamp: getStartOfDay(),
       endTimestamp: getEndOfDay(),
     })
+    const { filters, resetFilters, setBridge } = listFilters
 
     useEffect(() => {
       setBridge(activeTab)
-    }, [activeTab, setBridge])
+      resetFilters({
+        bridge: activeTab,
+        startTimestamp: getStartOfDay(),
+        endTimestamp: getEndOfDay(),
+      })
+    }, [activeTab, setBridge, resetFilters])
 
     return (
       <Wrapper {...restProps}>
@@ -58,7 +43,7 @@ export const Transactions: React.FC = genericSuspense(
         <Section>
           <TabsWrapper>
             <Tabs>
-              {tabs.bridgeTypes.map(({ title }, index) => (
+              {latestTransactions.map(({ title }, index) => (
                 <TabHeader
                   isActive={isSameString(activeTab, title)}
                   key={index}
@@ -68,26 +53,24 @@ export const Transactions: React.FC = genericSuspense(
               ))}
             </Tabs>
           </TabsWrapper>
-          <TransactionsFilter
-            bridge={activeTab}
-            endDate={filters.endTimestamp}
-            onBridgeDirectionChange={setBridgeDirection}
-            onEndDateChange={setEndTimestamp}
-            onExecutedByChange={setExecutedBy}
-            onHashChange={setHash}
-            onResetFilters={() =>
-              resetFilters({
-                bridge: activeTab,
-                startTimestamp: getStartOfDay(),
-                endTimestamp: getEndOfDay(),
-              })
-            }
-            onSignedByChange={setSignedBy}
-            onStartDateChange={setStartTimestamp}
-            onStatusChange={setStatus}
-            startDate={filters.startTimestamp}
-          />
-          <Results bridge={activeTab} filters={filters} />
+          <ValidatorsProvider>
+            <Filters
+              bridge={activeTab}
+              filters={listFilters}
+              onResetFilters={() =>
+                resetFilters({
+                  bridge: activeTab,
+                  startTimestamp: getStartOfDay(),
+                  endTimestamp: getEndOfDay(),
+                })
+              }
+            />
+            {latestTransactions.map(({ title }, index) => {
+              return isSameString(activeTab, title) ? (
+                <Results bridge={title} filters={filters} key={`${title}_transactions_${index}`} />
+              ) : null
+            })}
+          </ValidatorsProvider>
         </Section>
       </Wrapper>
     )
@@ -98,7 +81,7 @@ export const Transactions: React.FC = genericSuspense(
       <Section>
         <TabsWrapper>
           <Tabs>
-            {tabs.bridgeTypes.map(({ title }, index) => (
+            {latestTransactions.map(({ title }, index) => (
               <TabHeader
                 isActive={index === 0}
                 key={index}
@@ -111,6 +94,7 @@ export const Transactions: React.FC = genericSuspense(
           </Tabs>
         </TabsWrapper>
         <FiltersSkeleton />
+        <ResultsLoading />
       </Section>
     </Wrapper>
   ),

@@ -1,8 +1,18 @@
 import type { NextPage } from 'next'
 
-import { BridgeValidators } from '@/src/pagePartials/validators'
+import { Validators, ValidatorsSkeleton } from '@/src/pagePartials/validators'
+import { ValidatorsProvider } from '@/src/providers/validatorsProvider'
+import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 
-const Validators: NextPage = () => {
-  return <BridgeValidators />
-}
-export default Validators
+const ValidatorsPage: NextPage = genericSuspense(
+  () => {
+    return (
+      <ValidatorsProvider>
+        <Validators />
+      </ValidatorsProvider>
+    )
+  },
+  () => <ValidatorsSkeleton />,
+)
+
+export default ValidatorsPage

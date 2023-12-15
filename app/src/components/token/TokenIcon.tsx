@@ -4,8 +4,11 @@ import styled from 'styled-components'
 
 const IconWrapper = styled.span`
   display: flex;
+  flex-shrink: 0;
+
   img {
     border-radius: 50%;
+    flex-shrink: 0;
   }
 `
 

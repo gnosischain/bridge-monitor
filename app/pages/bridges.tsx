@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
-import { BridgesInformation } from '@/src/pagePartials/bridges'
+import { Bridges } from '@/src/pagePartials/bridges'
 
-const Bridges: NextPage = () => {
-  return <BridgesInformation />
+const BridgesPage: NextPage = () => {
+  return <Bridges />
 }
-export default Bridges
+export default BridgesPage

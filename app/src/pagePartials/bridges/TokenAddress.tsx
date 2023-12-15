@@ -4,6 +4,7 @@ import { Address } from '@/src/components/token/Address'
 import { MiniCardTitle } from '@/src/components/common/MiniCard'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { ChainsKeys } from '@/src/constants/config/types'
+import { Tooltip } from '@/src/components/tooltip/Tooltip'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -39,7 +40,7 @@ export const TokenAddress: React.FC<Props | NativeProps> = ({
     <Wrapper {...restProps}>
       <span>Token address</span>
       {isNative ? (
-        <MiniCardTitle title="Native token" tooltip={tooltip} />
+        <MiniCardTitle title={<>Native token {tooltip && <Tooltip content={tooltip} />}</>} />
       ) : (
         <Address address={address} characters={6} copy link={getExplorerUrl(address, network)} />
       )}

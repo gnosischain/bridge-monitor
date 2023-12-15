@@ -1,8 +1,8 @@
 import type { NextPage } from 'next'
 
-import { Transactions } from '@/src/pagePartials/transactions'
+import { LatestTransactions } from '@/src/pagePartials/latestTransactions'
 
-const LatestTransactions: NextPage = () => {
-  return <Transactions />
+const LatestTransactionsPage: NextPage = () => {
+  return <LatestTransactions />
 }
-export default LatestTransactions
+export default LatestTransactionsPage

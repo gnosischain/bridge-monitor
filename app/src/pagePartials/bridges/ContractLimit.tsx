@@ -52,40 +52,46 @@ interface Props {
   funds: number
   percentage: number
   title: string
-  token: string
   tooltip?: string
-  used: number
+  used: { value: number; title?: string }
 }
 
 export const ContractLimit: React.FC<Props> = ({
   funds,
   percentage,
   title,
-  token,
   tooltip,
   used,
   ...restProps
 }) => {
   const bridgeHealth = bridgeContractHealth(percentage)
-  const usedNumber = formatNumber(used)
+  const usedNumber = formatNumber(used.value)
   const fundsNumber = formatNumber(funds)
 
   return (
     <Wrapper dark {...restProps}>
-      <MiniCardTitle title={title} />
+      <MiniCardTitle
+        bigTitle
+        subTitle={
+          <>
+            Max. allowed {fundsNumber} {tooltip && <Tooltip content={tooltip} />}
+          </>
+        }
+        title={title}
+      />
       <Progress>
         <ProgressBar status={bridgeHealth} width={percentage} />
       </Progress>
       <Amounts>
-        <Tooltip content={formatCurrencyAmount(used, NumberType.PortfolioBalance)} key="usedAmount">
+        <Tooltip
+          content={formatCurrencyAmount(used.value, NumberType.PortfolioBalance)}
+          key="usedAmount"
+        >
           <Amount>
-            {token} {usedNumber}
+            {used.title} {usedNumber}
           </Amount>
         </Tooltip>
-        <Amount style={{ marginLeft: 'auto' }}>
-          {token} {fundsNumber}
-        </Amount>
-        {tooltip && <Tooltip content={tooltip} />}
+        <Amount style={{ marginLeft: 'auto' }}>Remaining {formatNumber(funds - used.value)}</Amount>
       </Amounts>
     </Wrapper>
   )

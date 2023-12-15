@@ -1,52 +1,26 @@
 import { recoverLocalStorageKey, setLocalStorageKey } from '@/src/hooks/usePersistedState'
-import { Transaction as TransactionSG } from '@/types/generated/subgraph'
+import addMilliseconds from 'date-fns/addMilliseconds'
+import compareAsc from 'date-fns/compareAsc'
 
-const OLD_ENOUGH = 30 * 60 * 1000
-const key = 'foreignTransactions'
+const OLD_ENOUGH = 30 * 60 * 60 * 1000
+const key = 'claimTxs'
 const setState = setLocalStorageKey.bind(null, key)
-const state = () => recoverLocalStorageKey<Record<string, TransactionSG>>(key, {})
+const state = () => recoverLocalStorageKey<{ id: string; timestamp: Date }[]>(key, [])
 
-const isTooOld = (transaction: TransactionSG) => {
-  const timestamp = transaction.execution?.timestamp ?? 0
-  return +timestamp * 1000 + OLD_ENOUGH < Date.now()
+const isTooOld = (timestamp: Date) => {
+  const now = new Date()
+  const limitDate = addMilliseconds(timestamp, OLD_ENOUGH)
+  return compareAsc(now, limitDate) == 1
 }
 
-export const setForeignTransaction = (transaction: TransactionSG) => {
+export const setForeignTransaction = (transactionId: string) => {
   // persist transaction in localStorage
-  setState({ ...state(), [transaction.id]: transaction })
+  setState([...state(), { id: transactionId, timestamp: new Date() }])
 }
 
 export const removeForeignTransaction = (transactionId: string) => {
-  // remove transaction from localStorage
-  const localState = state()
-
-  // if transaction is not in localStorage, do nothing
-  if (!localState?.[transactionId]) {
-    return
-  }
-
   // update localStorage
-  setState(Object.fromEntries(Object.entries(localState).filter(([id]) => id !== transactionId)))
-}
-
-export const getForeignTransaction = (transactionId: string) => {
-  // recover transaction from localStorage
-  const localState = state()
-
-  // if transaction is not in localStorage, return null
-  if (!localState?.[transactionId]) {
-    return null
-  }
-
-  const transaction = localState[transactionId]
-
-  // if transaction is too old, remove it from localStorage and return null
-  if (isTooOld(transaction)) {
-    removeForeignTransaction(transactionId)
-    return null
-  }
-
-  return transaction
+  setState(state().filter((tx) => tx.id !== transactionId))
 }
 
 export const getForeignTransactions = () => {
@@ -54,16 +28,14 @@ export const getForeignTransactions = () => {
   const localState = state()
 
   if (!localState) {
-    return null
+    return []
   }
 
   // discard transactions that are too old (OLD_ENOUGH)
-  const transactions = Object.fromEntries(
-    Object.entries(localState).filter(([, transaction]) => !isTooOld(transaction)),
-  )
+  const transactions = localState.filter((txInfo) => !isTooOld(txInfo.timestamp))
 
   // update localStorage with the filtered transactions
   setState(transactions)
 
-  return transactions
+  return transactions.map((txInfo) => txInfo.id)
 }

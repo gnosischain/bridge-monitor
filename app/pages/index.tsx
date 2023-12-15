@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
-import { SearchByHash } from '@/src/pagePartials/search'
+import { Search } from '@/src/pagePartials/search'
 
-const Home: NextPage = () => {
-  return <SearchByHash />
+const HomePage: NextPage = () => {
+  return <Search />
 }
-export default Home
+export default HomePage

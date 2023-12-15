@@ -17,7 +17,7 @@ const Wrapper = styled.div`
 const Textfield: any = styled(DebounceInput)`
   ${TextfieldCSS}
 
-  --texfield-font-size: 1.8rem;
+  --texfield-font-size: 1.5rem;
   --textfield-border-radius: var(--border-radius);
   --textfield-font-weight: 400;
   --textfield-height: 100%;
@@ -38,17 +38,13 @@ const Textfield: any = styled(DebounceInput)`
     0 4px 4px 0 rgba(0, 0, 0, 0.25);
   color: var(--textfield-color);
   font-family: ${({ theme: { fonts } }) => fonts.family};
-  font-size: 1.8rem;
+  font-size: var(--texfield-font-size);
   font-weight: 400;
   height: auto;
   position: relative;
   transition: border-color 0.15s linear;
   width: 100%;
   z-index: 1;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    --textfield-padding: 21px 48px 21px 24px;
-  }
 
   &:active,
   &:focus,
@@ -107,6 +103,15 @@ const Textfield: any = styled(DebounceInput)`
 
   &::-webkit-search-decoration {
     -webkit-appearance: none;
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    --textfield-padding: 21px 48px 21px 24px;
+    --texfield-font-size: 1.6rem;
+  }
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    --texfield-font-size: 1.8rem;
   }
 `
 

@@ -23,12 +23,14 @@ export const DateTime: React.FC<Props> = ({ transactiondate, ...restProps }) => 
   const sinceDateFormat = useDate(new Date(transactiondate))
   const DateFormat = DateFormated(new Date(transactiondate))
 
-  return (
+  return sinceDateFormat.duration?.interval ? (
     <Wrapper content={DateFormat} key={`transaction_date_${transactiondate}`} {...restProps}>
       <Text>
         {sinceDateFormat.duration?.interval} {sinceDateFormat.duration?.epoch}
         {sinceDateFormat.getSuffix} ago
       </Text>
     </Wrapper>
+  ) : (
+    <></>
   )
 }
