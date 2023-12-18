@@ -71,7 +71,7 @@ jobs:
             "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }}"
             "NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT=development"
             "NEXT_PUBLIC_SUBGRAPH_ACCESS_ID=${{ secrets.GRAPH_ORG }}"
-            "NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS=100:v1.0.0-dev,1:v1.0.0-develop"
+            "NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS=100:v1.0.0-dev,1:v1.0.0-dev"
 
       - name: Get latest Release Tag
         if: ( github.ref == 'refs/heads/staging' )
