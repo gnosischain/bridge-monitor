@@ -5,17 +5,19 @@ import { motion } from 'framer-motion'
 
 import { NavLink as BaseNavLink } from '@/src/components/navigation/NavLink'
 import { sections } from '@/src/constants/sections'
-import { Link as BaseLink } from '@/src/components/assets/Link'
-import { Logout } from '@/src/components/assets/Logout'
+import { Disconnect } from '@/src/components/assets/Disconnect'
 import { SwitchNetwork } from '@/src/components/assets/SwitchNetwork'
 import { ModalSwitchNetwork } from '@/src/components/helpers/ModalSwitchNetwork'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { truncateStringInTheMiddle } from '@/src/utils/tools'
+import { useRouter } from 'next/router'
 import { ButtonPrimary } from '@/src/components/buttons/Button'
 import { useState } from 'react'
+import { AnimatePresence } from 'framer-motion'
+import { Address } from '@/src/components/token/Address'
+import { MyTransactions } from '@/src/components/assets/MyTransactions'
 
 const Wrapper = styled.div`
-  height: 100vh;
+  height: 100%;
   left: 0;
   overflow: hidden;
   position: absolute;
@@ -148,12 +150,6 @@ const ConnectedText = styled.div`
   line-height: 1.2;
 `
 
-const Link = styled(BaseLink)`
-  .fill {
-    fill: #fff;
-  }
-`
-
 const UserButton = styled.button`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.darkerGrey};
@@ -180,6 +176,17 @@ const Status = styled.div`
   width: var(--ball-dimensions);
 `
 
+const UnsupportedNetworkLabel = styled.span`
+  align-items: center;
+  color: ${({ theme: { colors } }) => colors.error};
+  column-gap: 8px;
+  display: flex;
+`
+
+const LogoutLabel = styled.div`
+  color: ${({ theme: { colors } }) => colors.warning};
+`
+
 interface Props {
   closeMenu: () => void
 }
@@ -194,10 +201,12 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
     isWalletNetworkSupported,
   } = useWeb3Connection()
   const [showNetworkModal, setShowNetworkModal] = useState(false)
+  const router = useRouter()
 
   const handleLogout = async () => {
     try {
       await disconnectWallet()
+      router.push(`/`)
       closeMenu()
     } catch (e) {
       console.error('Error disconnecting wallet', e)
@@ -210,7 +219,7 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
   }
 
   return (
-    <>
+    <AnimatePresence>
       <Wrapper {...restProps}>
         <MenuBackground
           animate={{ opacity: 0.6 }}
@@ -244,13 +253,9 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
             <UserMenu>
               <Connected>
                 <ConnectedTitle>Connected wallet</ConnectedTitle>
-                <ConnectedText onClick={() => window.open(getExplorerUrl(address || ''), '_blank')}>
-                  {address ? (
-                    <>
-                      {truncateStringInTheMiddle(address, 10, 8)} <Link />
-                    </>
-                  ) : (
-                    'Error'
+                <ConnectedText>
+                  {address && (
+                    <Address address={address} characters={4} copy link={getExplorerUrl(address)} />
                   )}
                 </ConnectedText>
               </Connected>
@@ -258,15 +263,24 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
                 {isWalletNetworkSupported ? (
                   'Switch Network'
                 ) : (
-                  <>
+                  <UnsupportedNetworkLabel>
                     Switch To A Valid Network <Status />
-                  </>
+                  </UnsupportedNetworkLabel>
                 )}
                 <SwitchNetwork />
               </UserButton>
+              <UserButton
+                onClick={() => {
+                  router.push(`/my-transactions/?hash=${address}`)
+                  closeMenu()
+                }}
+              >
+                My Transactions
+                <MyTransactions />
+              </UserButton>
               <UserButton onClick={handleLogout}>
-                Log Out
-                <Logout />
+                <LogoutLabel>Log Out</LogoutLabel>
+                <Disconnect />
               </UserButton>
             </UserMenu>
           ) : (
@@ -275,6 +289,6 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
         </MenuWrapper>
       </Wrapper>
       {showNetworkModal && <ModalSwitchNetwork onClose={() => setShowNetworkModal(false)} />}
-    </>
+    </AnimatePresence>
   )
 }

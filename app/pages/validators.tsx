@@ -1,23 +1,18 @@
 import type { NextPage } from 'next'
-import styled from 'styled-components'
 
-import { MainTitle } from '@/src/components/text/MainTitle'
-import { BridgeValidators } from '@/src/components/validators'
+import { Validators, ValidatorsSkeleton } from '@/src/pagePartials/validators'
+import { ValidatorsProvider } from '@/src/providers/validatorsProvider'
+import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 
-const BridgesList = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: ${({ theme: { common } }) => common.space * 4}px;
-`
+const ValidatorsPage: NextPage = genericSuspense(
+  () => {
+    return (
+      <ValidatorsProvider>
+        <Validators />
+      </ValidatorsProvider>
+    )
+  },
+  () => <ValidatorsSkeleton />,
+)
 
-const Validators: NextPage = () => {
-  return (
-    <>
-      <MainTitle>Validators</MainTitle>
-      <BridgesList>
-        <BridgeValidators />
-      </BridgesList>
-    </>
-  )
-}
-export default Validators
+export default ValidatorsPage

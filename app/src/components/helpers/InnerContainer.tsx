@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-import { ContainerPadding } from '@/src/components/helpers/ContainerPadding'
+import { ContainerPadding } from '@/src/components/layout/ContainerPadding'
 
 export const InnerContainer = styled.div`
   display: flex;

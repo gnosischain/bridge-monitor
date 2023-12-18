@@ -1,10 +1,6 @@
 import { FC, PropsWithChildren, createContext, useContext } from 'react'
-
 import useSWR from 'swr'
-
-import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { TokensLists } from '@/src/constants/config/types'
-
 import { getIcon } from '@/src/utils/icons'
 import { isNativeToken, isSameString } from '@/src/utils/tools'
 import {
@@ -163,13 +159,13 @@ const useTokenListQuery = () => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const TokenListContext = createContext<TokenListQueryReturn>({} as any)
 
-export const TokenListProvider: FC<PropsWithChildren<unknown>> = genericSuspense(({ children }) => {
+export const TokenListProvider: FC<PropsWithChildren<unknown>> = ({ children }) => {
   const { data } = useTokenListQuery()
 
   return data ? (
     <TokenListContext.Provider value={data}>{children}</TokenListContext.Provider>
   ) : null
-})
+}
 
 export default TokenListProvider
 

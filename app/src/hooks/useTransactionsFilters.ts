@@ -1,26 +1,24 @@
-import { getEndOfDay, getStartOfDay } from '@/src/utils/date'
 import { useCallback, useState } from 'react'
-
 export type TransactionFilter = {
   hash: string
   bridge: string
   status: string
   signedBy: string
   executedBy: string
-  startTimestamp: Date
-  endTimestamp: Date
+  startTimestamp?: Date
+  endTimestamp?: Date
   bridgeDirection: string
 }
 
-export const useTransactionsFilters = () => {
-  const [hash, setHash] = useState('')
-  const [bridge, setBridge] = useState<string>('XDAI')
-  const [status, setStatus] = useState<string>('')
-  const [signedBy, setSignedBy] = useState<string>('')
-  const [executedBy, setExecutedBy] = useState<string>('')
-  const [startTimestamp, setStartTimestamp] = useState<Date>(getStartOfDay())
-  const [endTimestamp, setEndTimestamp] = useState<Date>(getEndOfDay())
-  const [bridgeDirection, setBridgeDirection] = useState<string>('')
+export const useTransactionsFilters = (init?: Partial<TransactionFilter>) => {
+  const [hash, setHash] = useState(init?.hash || '')
+  const [bridge, setBridge] = useState<string>(init?.bridge || '')
+  const [status, setStatus] = useState<string>(init?.status || '')
+  const [signedBy, setSignedBy] = useState<string>(init?.signedBy || '')
+  const [executedBy, setExecutedBy] = useState<string>(init?.executedBy || '')
+  const [startTimestamp, setStartTimestamp] = useState<Date | undefined>(init?.startTimestamp)
+  const [endTimestamp, setEndTimestamp] = useState<Date | undefined>(init?.endTimestamp)
+  const [bridgeDirection, setBridgeDirection] = useState<string>(init?.bridgeDirection || '')
 
   const filters: TransactionFilter = {
     hash,
@@ -33,18 +31,19 @@ export const useTransactionsFilters = () => {
     endTimestamp,
   }
 
-  const resetFilters = useCallback((defaults?: Partial<TransactionFilter>) => {
-    setHash('')
-    setBridge(defaults?.bridge || 'XDAI')
-    setStatus('')
-    setSignedBy('')
-    setExecutedBy('')
-    setStartTimestamp(getStartOfDay())
-    setEndTimestamp(getEndOfDay())
-    setBridgeDirection('')
+  const resetFilters = useCallback((defaults: Partial<TransactionFilter>) => {
+    setHash(defaults.hash || '')
+    setBridge(defaults.bridge || '')
+    setStatus(defaults.status || '')
+    setSignedBy(defaults.signedBy || '')
+    setExecutedBy(defaults.executedBy || '')
+    setStartTimestamp(defaults.startTimestamp)
+    setEndTimestamp(defaults.endTimestamp)
+    setBridgeDirection(defaults.bridgeDirection || '')
   }, [])
 
   return {
+    hash,
     setHash,
     setBridge,
     setBridgeDirection,

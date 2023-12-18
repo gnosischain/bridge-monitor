@@ -1,8 +1,7 @@
 import type { NextPage } from 'next'
+import { Search } from '@/src/pagePartials/search'
 
-import { Transactions } from '@/src/components/transactions'
-
-const Home: NextPage = () => {
-  return <Transactions />
+const HomePage: NextPage = () => {
+  return <Search />
 }
-export default Home
+export default HomePage
