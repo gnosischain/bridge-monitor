@@ -4,10 +4,8 @@ export const datePickerCSS = css`
   :root {
     .react-datepicker {
       font-size: 1.1rem;
-      background-color: ${({ theme }) => theme.colors.darkerGrey};
       border: none;
-      box-shadow: 0px 63px 80px rgba(0, 0, 0, 0.07), 0px 31.8937px 34.875px rgba(0, 0, 0, 0.04725),
-        0px 12.6px 13px rgba(0, 0, 0, 0.035), 0px 2.75625px 4.625px rgba(0, 0, 0, 0.02275);
+      box-shadow: none;
     }
 
     .react-datepicker__month-container {
@@ -31,7 +29,7 @@ export const datePickerCSS = css`
     .react-datepicker__day-name,
     .react-datepicker__day,
     .react-datepicker__time-name {
-      margin: 0.5rem;
+      margin: 5px;
     }
 
     .react-datepicker__navigation {
@@ -69,7 +67,7 @@ export const datePickerCSS = css`
     .react-datepicker__year-text--keyboard-selected {
       background-color: ${({ theme }) => theme.colors.secondary};
       color: ${({ theme }) => theme.colors.darkerGrey};
-      font-weight: bold;
+      font-weight: 700;
     }
 
     .react-datepicker__day:hover,

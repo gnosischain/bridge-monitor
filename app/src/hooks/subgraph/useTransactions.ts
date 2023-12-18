@@ -4,7 +4,7 @@ import { isAddress } from '@ethersproject/address'
 import useSWR from 'swr'
 
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
-import { BridgeDirection } from '@/src/components/transactions/TransactionsFilter'
+import { BridgeDirection } from '@/src/pagePartials/latestTransactions/Filters'
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { msToSeconds } from '@/src/utils/date'
 import { Transaction, TxsInMemoryFilters, fetchTransactions } from '@/src/utils/transactions'
@@ -12,27 +12,37 @@ import { getValidatorByName } from '@/src/utils/validators'
 import {
   OrderDirection,
   QueryTransactionsArgs,
+  TransactionStatus,
   Transaction_Filter,
   Transaction_OrderBy,
 } from '@/types/generated/subgraph'
-import { isSameString, isTransactionHash } from '@/src/utils/tools'
+import { isTransactionHash } from '@/src/utils/tools'
 import differenceInDays from 'date-fns/differenceInDays'
 import { MAX_DAYS_TO_FILTER } from '@/src/constants/misc'
+import { getForeignTransactions, setForeignTransaction } from '@/src/utils/localTransactions'
+
+export type UpdateInMemoryTx = (transaction?: Transaction) => void
 
 // @todo hardcoded value (need to think about useSWRPage or useSWRInfinite)
 const PAGE_SIZE = 500
+
+const modifyTxs = (txs: Transaction[]) => {
+  const claimingTxs = getForeignTransactions()
+  return txs.map((tx) => {
+    if (tx.transactionStatus !== TransactionStatus.Unclaimed) return tx
+
+    return {
+      ...tx,
+      isClaiming: claimingTxs.some((txId) => txId === tx.id),
+    }
+  })
+}
 
 export const useFetchTransactions = (
   inMemoryFilters: TxsInMemoryFilters,
   query?: QueryTransactionsArgs,
 ) => {
-  const {
-    data,
-    error,
-    isLoading,
-    isValidating,
-    mutate: refetch,
-  } = useSWR(
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
     query
       ? [
           'useFetchTransactions',
@@ -42,25 +52,32 @@ export const useFetchTransactions = (
           inMemoryFilters,
         ]
       : null,
-    ([, , _query, , _inMemoryFilters]) => fetchTransactions(_query, _inMemoryFilters),
+    async ([, , _query, , _inMemoryFilters]) => fetchTransactions(_query, _inMemoryFilters),
+    { suspense: false },
   )
-  const [inMemoryTransactions, setInMemoryTransactions] = useState<Array<Transaction>>(data ?? [])
 
-  useEffect(() => {
-    if (data) {
-      setInMemoryTransactions(data)
+  const updateInMemoryTransaction = (transaction?: Transaction) => {
+    if (!transaction) {
+      mutate()
+    } else {
+      setForeignTransaction(transaction.id)
+      // update in-memory txs
+      mutate(
+        (txs) =>
+          txs?.map((tx) => (tx.id === transaction.id ? { ...transaction, isClaiming: true } : tx)),
+        {
+          revalidate: false,
+        },
+      )
     }
-  }, [data])
-
-  const updateInMemoryTransaction = (transaction: Transaction) =>
-    setInMemoryTransactions((txs) => txs.map((tx) => (tx.id === transaction.id ? transaction : tx)))
+  }
 
   return {
-    transactions: inMemoryTransactions,
+    transactions: modifyTxs(data || []),
     error,
-    refetch,
+    refetch: mutate,
     updateInMemoryTransaction,
-    isLoading,
+    isLoading: isLoading,
     isValidating,
   }
 }
@@ -83,11 +100,11 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
 
     let updated = false
 
-    // if the date rage is more than 2 days, abort the query
+    // if the date rage is bigger than MAX_DAYS_TO_FILTER, abort the query
     if (
-      !filters.endTimestamp ||
-      (filters.endTimestamp &&
-        differenceInDays(filters.endTimestamp, filters.startTimestamp) > MAX_DAYS_TO_FILTER)
+      filters?.endTimestamp &&
+      filters?.startTimestamp &&
+      differenceInDays(filters.endTimestamp, filters.startTimestamp) > MAX_DAYS_TO_FILTER
     ) {
       return
     }
@@ -142,11 +159,11 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
         }
       }
     }
-    if (!filters.hash && filters.startTimestamp) {
+    if (filters.startTimestamp) {
       _where.and?.push({ timestamp_gte: msToSeconds(filters.startTimestamp.getTime()) })
       updated = true
     }
-    if (!filters.hash && filters.endTimestamp) {
+    if (filters.endTimestamp) {
       _where.and?.push({ timestamp_lte: msToSeconds(filters.endTimestamp.getTime()) })
       updated = true
     }

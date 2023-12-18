@@ -1,8 +1,7 @@
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
-import { AnimatePresence, motion } from 'framer-motion'
-
+import { motion } from 'framer-motion'
 import { InnerContainer } from '@/src/components/helpers/InnerContainer'
 
 const Container = styled(InnerContainer)`
@@ -20,53 +19,31 @@ export const Main = styled.main`
 export const Layout: React.FC = ({ children }) => {
   const router = useRouter()
   const easing = [0.175, 0.85, 0.42, 0.96]
-  const variants = {
-    hidden: { opacity: 0, x: 0, y: -20 },
+  const variantsMain = {
+    hidden: { opacity: 1, x: 0, y: -25 },
     enter: {
       y: 0,
       opacity: 1,
       transition: {
-        duration: 0.2,
-        type: 'spring',
         damping: 20,
-      },
-    },
-    exit: { y: 150, opacity: 0, transition: { duration: 0.5, ease: easing } },
-  }
-  const variantsBox = {
-    hidden: { x: 0, y: -10 },
-    enter: {
-      y: 0,
-      transition: {
-        duration: 0.1,
+        duration: 0.5,
         type: 'spring',
-        bounce: 0.5,
       },
     },
-    exit: { y: 150, opacity: 0, transition: { duration: 0.5, ease: easing } },
+    exit: { y: 150, opacity: 0, transition: { duration: 0.2, ease: easing } },
   }
 
   return (
-    <AnimatePresence>
-      <Container
+    <Container>
+      <Main
         animate="enter"
-        as={motion.div}
+        as={motion.main}
         initial="hidden"
         key={router.pathname}
-        variants={variantsBox}
+        variants={variantsMain}
       >
-        <AnimatePresence exitBeforeEnter>
-          <Main
-            animate="enter"
-            as={motion.main}
-            initial="hidden"
-            key={router.pathname}
-            variants={variants}
-          >
-            {children}
-          </Main>
-        </AnimatePresence>
-      </Container>
-    </AnimatePresence>
+        {children}
+      </Main>
+    </Container>
   )
 }

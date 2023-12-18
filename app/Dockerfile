@@ -1,10 +1,15 @@
 FROM node:18.0.0-alpine AS base
 
 FROM base AS deps
+RUN apk add --update --no-cache
 RUN apk add --no-cache libc6-compat
+RUN apk add python3 make g++
 RUN yarn policies set-version v1.22.19
 RUN npm version
 WORKDIR /app
+
+# Copy .env file if it exists for local tests
+# COPY .env* ./
 
 ARG NEXT_PUBLIC_APP_NAME
 ARG NEXT_PUBLIC_DEFAULT_THEME

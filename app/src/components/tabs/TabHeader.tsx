@@ -1,7 +1,4 @@
-import { Dispatch, SetStateAction } from 'react'
 import styled, { css } from 'styled-components'
-
-import { useGeneral } from '@/src/providers/generalProvider'
 
 const Wrapper = styled.button<{ isActive: boolean }>`
   background-color: transparent;
@@ -76,29 +73,17 @@ Title.defaultProps = {
 
 interface Props {
   disabled?: boolean
-  onClick?: Dispatch<SetStateAction<string>>
+  onClick?: () => void
   title: string
+  isActive: boolean
 }
 
-export const TabHeader: React.FC<Props> = ({ disabled, onClick, title }) => {
-  const { activeTab, setActiveTab } = useGeneral()
-  const isActive = title === activeTab
-
-  const handleActive = () => {
-    setActiveTab(title)
-
-    if (onClick) {
-      onClick(title)
-    }
-  }
+export const TabHeader: React.FC<Props> = ({ disabled, isActive, onClick, title }) => {
+  const handleActive = () => onClick && onClick()
 
   return (
     <Wrapper disabled={disabled} isActive={isActive} onClick={handleActive}>
-      {/*
-        This is a hack to change the title from AMB to Omnibridge (the fucking code doesn't work if you change it in tabs.ts because the contents are fucking tied to the tab's title)
-
-        Remove when somebody refactors this to make it work as it should (ie: not tied to the tab's title).
-      */}
+      {/* TODO: Get title from a non-hardcoded way */}
       <Title>{title === 'AMB' ? 'Omnibridge' : title}</Title>
     </Wrapper>
   )

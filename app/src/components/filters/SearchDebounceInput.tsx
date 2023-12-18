@@ -1,13 +1,13 @@
 import { SetStateAction, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { DebounceInput } from 'react-debounce-input'
-import { TextfieldCSS } from '@/src/components/form/Textfield'
 import { DEBOUNCE_TIME } from '@/src/constants/misc'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
-import { TextfieldStatus } from '@/src/components/form/Textfield'
+import { TexfieldPartsCSS, TextfieldCSS, TextfieldStatus } from '@/src/components/form/Textfield'
 
 const Wrapper = styled.div`
-  background: ${({ theme: { colors } }) => colors.darkerGrey};
+  --icon-size: 20px;
+
   border-radius: ${({ theme: { common } }) => common.borderRadius};
   overflow: hidden;
   position: relative;
@@ -16,20 +16,21 @@ const Wrapper = styled.div`
 const Magnifier = styled(BaseMagnifier)`
   align-items: center;
   display: flex;
-  height: 15px;
+  height: var(--icon-size);
   justify-content: center;
   left: ${({ theme: { common } }) => common.space * 2}px;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 15px;
+  width: var(--icon-size);
 `
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Textfield: any = styled(DebounceInput)`
   ${TextfieldCSS}
+  ${TexfieldPartsCSS}
 
-  padding-left: 40px;
+  padding-left: calc(${({ theme: { common } }) => common.space * 4}px + var(--icon-size));
   position: relative;
   width: 100%;
   z-index: 0;
@@ -68,6 +69,7 @@ export const SearchDebounceInput: React.FC<Props> = ({
     <Wrapper {...restProps}>
       <Textfield
         autoComplete="off"
+        className="textfield"
         debounceTimeout={DEBOUNCE_TIME}
         id="search"
         minLength={3}

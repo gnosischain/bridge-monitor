@@ -3,9 +3,9 @@ import styled from 'styled-components'
 import { Badge } from '@/src/components/common/Badge'
 import { InnerCard } from '@/src/components/common/InnerCard'
 import { TransactionStatusTypes } from '@/src/constants/types'
-import { ClaimButton, Status } from '@/src/components/transactions/TxStatus'
-import { TransactionStatus } from '@/types/generated/subgraph'
+import { Status } from '@/src/components/common/Status'
 import { Transaction } from '@/src/utils/transactions'
+import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
 const Wrapper = styled(InnerCard)<{ status?: string }>`
   background: ${(props) =>
@@ -34,11 +34,15 @@ const Header = styled.div`
   gap: ${({ theme: { common } }) => common.space / 2}px;
 `
 
+const TxStatus = styled(Status)`
+  margin-left: auto;
+`
+
 interface Props {
   transaction?: Transaction
   subTitle?: string
   title: string
-  updateInMemoryTransaction?: (transaction: Transaction) => void
+  updateInMemoryTransaction?: UpdateInMemoryTx
 }
 
 export const Pod: React.FC<Props> = ({
@@ -54,14 +58,7 @@ export const Pod: React.FC<Props> = ({
       <Header>
         <Badge text={title} />
         {transaction && updateInMemoryTransaction ? (
-          transaction.transactionStatus === TransactionStatus.Unclaimed ? (
-            <ClaimButton
-              transaction={transaction}
-              updateInMemoryTransaction={updateInMemoryTransaction}
-            />
-          ) : (
-            <Status status={transaction.transactionStatus} />
-          )
+          <TxStatus status={transaction.transactionStatus} />
         ) : subTitle ? (
           <Badge text={subTitle} />
         ) : null}

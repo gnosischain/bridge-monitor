@@ -186,6 +186,12 @@ export const DropdownItemCSS = css<DropdownItemProps>`
       pointer-events: none;
     }
   }
+
+  &.activeDropdownItem {
+    background-color: ${({ theme }) => theme.dropdown.item.backgroundColorActive};
+    color: ${({ theme }) => theme.dropdown.item.colorActive};
+    pointer-events: none;
+  }
 `
 
 export const DropdownItem = styled.div<DropdownItemProps>`
@@ -193,6 +199,7 @@ export const DropdownItem = styled.div<DropdownItemProps>`
 `
 
 DropdownItem.defaultProps = {
+  className: 'dropdownItem',
   closeOnClick: true,
   disabled: false,
   justifyContent: 'flex-start',
@@ -207,10 +214,13 @@ interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivEle
   dropdownPosition?: DropdownPosition | undefined
   fullWidth?: boolean
   items: Array<unknown>
+  activeItemIndex?: number | undefined
 }
 
 export const Dropdown: React.FC<Props> = (props) => {
   const {
+    activeItemHighlight,
+    activeItemIndex: itemActiveIndex,
     className = '',
     disabled = false,
     dropdownButton,
@@ -221,6 +231,7 @@ export const Dropdown: React.FC<Props> = (props) => {
     ...restProps
   } = props
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [activeItem, setActiveItem] = useState<number | undefined>()
   const node = createRef<HTMLDivElement>()
 
   const onButtonClick = useCallback(
@@ -253,6 +264,10 @@ export const Dropdown: React.FC<Props> = (props) => {
     }
   }, [node])
 
+  useEffect(() => {
+    setActiveItem(itemActiveIndex)
+  }, [itemActiveIndex])
+
   return (
     <Wrapper
       className={`dropdown ${isOpen ? 'isOpen' : ''} ${className}`}
@@ -275,7 +290,9 @@ export const Dropdown: React.FC<Props> = (props) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           items.map((item: any, index: number) => {
             const dropdownItem = cloneElement(item, {
-              className: `dropdownItem`,
+              className: `dropdownItem ${
+                activeItemHighlight && activeItem === index ? 'activeDropdownItem' : ''
+              }`,
               key: item.key ? item.key : index,
               onClick: (e) => {
                 e.stopPropagation()
@@ -287,6 +304,8 @@ export const Dropdown: React.FC<Props> = (props) => {
                 if (!item.props.onClick) {
                   return
                 }
+
+                setActiveItem(index)
 
                 item.props.onClick()
               },

@@ -1,30 +1,21 @@
-import type { TokenInfo as UniswapToken } from '@uniswap/token-lists'
-import Image from 'next/image'
-import styled from 'styled-components'
+import type { TokenInfo as TokenProps } from '@uniswap/token-lists'
+import styled, { css } from 'styled-components'
 import { BigNumberish } from 'ethers'
-
 import { ChainToken } from '@/src/components/common/ChainToken'
-import { ArrowUp } from '@/src/components/assets/ArrowUp'
 import { useLookupBridgedToken } from '@/src/hooks/useLookupBridgedToken'
+import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
+import dynamic from 'next/dynamic'
+
+const TokenListProvider = dynamic(() => import('@/src/providers/TokenListProvider'), {
+  ssr: false,
+})
 
 const tokenSize = 16
 
 const Wrapper = styled.div`
   align-items: center;
-  column-gap: ${({ theme: { common } }) => common.space * 3}px;
-  display: flex;
-  flex-wrap: wrap;
-  row-gap: ${({ theme: { common } }) => common.space}px;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    display: grid;
-    grid-template-columns: 1fr 10px 1fr;
-  }
-`
-
-const Row = styled.div`
-  align-items: center;
-  column-gap: ${({ theme: { common } }) => common.space}px;
+  column-gap: 6px;
   display: flex;
 `
 
@@ -36,74 +27,92 @@ const TokenIcon = styled(ChainToken)`
   height: ${tokenSize}px;
   justify-content: center;
   width: ${tokenSize}px;
-
-  > div {
-    max-height: 100%;
-    max-width: 100%;
-
-    .iconImage {
-      display: block;
-    }
-
-    > div {
-      & img {
-        display: block;
-        max-height: ${tokenSize}px;
-        max-width: ${tokenSize}px;
-      }
-    }
-  }
 `
 
-const ArrowRight = styled(ArrowUp)`
+const Img = styled.img`
   display: block;
-  transform: rotate(-90deg);
+  border-radius: 50%;
+  height: ${tokenSize}px;
+  object-fit: cover;
+  width: ${tokenSize}px;
 `
 
-const Value = styled.span`
-  font-size: 1.3rem;
+const TextCSS = css`
+  color: ${({ theme: { colors } }) => colors.cream};
+  font-size: 1.2rem;
   font-weight: 400;
-  line-height: 1;
+  line-height: 1.2;
 `
 
-interface TokenInfo {
-  token: UniswapToken
-  value: string
+const Label = styled.span`
+  ${TextCSS}
+  opacity: 0.6;
+`
+
+Label.defaultProps = {
+  className: 'label',
 }
 
-const TokenInfo: React.FC<TokenInfo> = ({ token, value }) => {
-  return (
-    <>
-      <TokenIcon name={token.name}>
-        <Image
-          alt={token.symbol}
-          className="iconImage"
-          height={tokenSize}
-          objectFit="cover"
-          src={token.logoURI ?? '/images/icons/empty-token.png'}
-          width={tokenSize}
-        />
-      </TokenIcon>
-      <Value className="value">{value}</Value>
-    </>
-  )
+const Value = styled.span`
+  color: ${({ theme: { colors } }) => colors.cream};
+  font-size: 1.3rem;
+  font-weight: 400;
+  line-height: 1.2;
+`
+
+Value.defaultProps = {
+  className: 'value',
 }
 
 interface Props {
+  bridgeName: string
   initiatorNetwork: string
   token: string
-  bridgeName: string
   tokenValue: BigNumberish
 }
 
-export const TokenWithValue: React.FC<Props> = ({
+const Loading: React.FC<{
+  label: string
+}> = ({ label }) => {
+  return (
+    <Wrapper>
+      <Label>{label}:</Label>
+      <SkeletonLoading style={{ height: `${tokenSize}px`, minHeight: '0' }} />
+    </Wrapper>
+  )
+}
+
+const TokenInfo: React.FC<{
+  initiatorToken: TokenProps
+  isLoading?: boolean
+  label: string
+  value: string
+}> = ({ initiatorToken, isLoading, label, value }) => {
+  const { logoURI, name, symbol } = initiatorToken
+
+  return isLoading ? (
+    <Loading label={label} />
+  ) : (
+    <Wrapper>
+      <Label>{label}:</Label>
+      <TokenIcon name={name}>
+        <Img alt={symbol} className="iconImage" src={logoURI ?? '/images/icons/empty-token.png'} />
+      </TokenIcon>
+      <Value className="value">{value}</Value>
+    </Wrapper>
+  )
+}
+
+const receivedLabel = 'Received'
+const sentLabel = 'Sent'
+
+const InitiatorToken: React.FC<Props> = ({
   bridgeName,
   initiatorNetwork,
   token: tokenAddress,
   tokenValue,
-  ...restProps
 }) => {
-  const { destinationToken, initiatorToken, isXdaiBridge, value } = useLookupBridgedToken({
+  const { initiatorToken, isLoading, value } = useLookupBridgedToken({
     bridgeName,
     initiatorNetwork,
     tokenAddress,
@@ -111,20 +120,54 @@ export const TokenWithValue: React.FC<Props> = ({
   })
 
   return (
-    <Wrapper {...restProps}>
-      <Row>
-        <TokenInfo token={initiatorToken} value={value} />
-      </Row>
-      {isXdaiBridge && (
-        <>
-          <div className="arrowWrapper">
-            <ArrowRight />
-          </div>
-          <Row>
-            <TokenInfo token={destinationToken} value={value} />
-          </Row>
-        </>
-      )}
-    </Wrapper>
+    <TokenInfo
+      initiatorToken={initiatorToken}
+      isLoading={isLoading}
+      label={sentLabel}
+      value={value}
+    />
   )
 }
+
+const ReceiverToken: React.FC<Props> = ({
+  bridgeName,
+  initiatorNetwork,
+  token: tokenAddress,
+  tokenValue,
+}) => {
+  const { destinationToken, isLoading, isXdaiBridge, value } = useLookupBridgedToken({
+    bridgeName,
+    initiatorNetwork,
+    tokenAddress,
+    tokenValue,
+  })
+
+  return !isXdaiBridge ? (
+    <></>
+  ) : (
+    <TokenInfo
+      initiatorToken={destinationToken}
+      isLoading={isLoading}
+      label={receivedLabel}
+      value={value}
+    />
+  )
+}
+
+export const Initiator: React.FC<Props> = genericSuspense(
+  ({ ...restProps }) => (
+    <TokenListProvider {...restProps}>
+      <InitiatorToken {...restProps} />
+    </TokenListProvider>
+  ),
+  () => <Loading label={sentLabel} />,
+)
+
+export const Receiver: React.FC<Props> = genericSuspense(
+  ({ ...restProps }) => (
+    <TokenListProvider {...restProps}>
+      <ReceiverToken {...restProps} />
+    </TokenListProvider>
+  ),
+  () => <Loading label={receivedLabel} />,
+)
