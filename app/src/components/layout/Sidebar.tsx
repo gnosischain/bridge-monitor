@@ -1,71 +1,44 @@
-import { useState } from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
+import { bridgeExplorerSections } from '@/src/constants/sections'
+import { BridgeSidebar } from '@/src/pagePartials/bridge/BridgeSidebar'
+import { NavLink as BaseNavLink } from '@/src/components/navigation/NavLink'
 
-import { BaseCard } from '@/src/components/common/BaseCard'
-import { LabeledCheckbox } from '@/src/components/form/LabeledCheckbox'
-import { LabeledRadioButton } from '@/src/components/form/LabeledRadioButton'
-import { Textfield } from '@/src/components/form/Textfield'
-import { BaseParagraph } from '@/src/components/text/BaseParagraph'
-
-const Wrapper = styled(BaseCard)`
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
   max-width: 100%;
+  row-gap: ${({ theme: { common } }) => common.space}px;
 `
 
-const Row = styled.div`
-  margin: 0 0 30px;
+const NavLink = styled(BaseNavLink)`
+  background-color: ${({ theme: { colors } }) => colors.darkGrey};
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
+  color: ${({ theme: { colors } }) => colors.white};
+  display: flex;
+  font-size: 1.6rem;
+  padding: ${({ theme: { common } }) => common.space}px
+    ${({ theme: { common } }) => common.space * 2}px;
+  text-decoration: none;
 
-  &:last-child {
-    margin-bottom: 0;
+  &.active {
+    background-color: ${({ theme: { colors } }) => colors.primary};
   }
-`
 
-const RadioButtonAndCheckBoxCSS = css`
-  margin: 0 0 10px;
-
-  &:last-child {
-    margin-bottom: 0;
+  &:hover {
+    background-color: ${({ theme: { colors } }) => colors.primary};
+    color: ${({ theme: { colors } }) => colors.white};
   }
-`
-
-const RadioButton = styled(LabeledRadioButton)`
-  ${RadioButtonAndCheckBoxCSS}
-`
-
-const CheckBox = styled(LabeledCheckbox)`
-  ${RadioButtonAndCheckBoxCSS}
 `
 
 export const Sidebar: React.FC = ({ ...restProps }) => {
-  const [radioButton, setRadioButton] = useState<'one' | 'two' | 'three' | undefined>()
-  const [checkbox, setCheckbox] = useState<'one' | 'two' | undefined>()
-
   return (
     <Wrapper {...restProps}>
-      <Row>
-        <BaseParagraph>Add something here:</BaseParagraph>
-        <Textfield placeholder="Come on..." />
-      </Row>
-      <Row>
-        <BaseParagraph>Radio Buttons!</BaseParagraph>
-        <RadioButton active={radioButton === 'one'} onClick={() => setRadioButton('one')}>
-          One
-        </RadioButton>
-        <RadioButton active={radioButton === 'two'} onClick={() => setRadioButton('two')}>
-          Two
-        </RadioButton>
-        <RadioButton active={radioButton === 'three'} onClick={() => setRadioButton('three')}>
-          Three
-        </RadioButton>
-      </Row>
-      <Row>
-        <BaseParagraph>Checkboxes!</BaseParagraph>
-        <CheckBox active={checkbox === 'one'} onClick={() => setCheckbox('one')}>
-          One
-        </CheckBox>
-        <CheckBox active={checkbox === 'two'} onClick={() => setCheckbox('two')}>
-          Two
-        </CheckBox>
-      </Row>
+      <BridgeSidebar />
+      {bridgeExplorerSections.map(({ href, section }, index) => (
+        <NavLink href={href} key={`sidebar_links_${index}`}>
+          {section}
+        </NavLink>
+      ))}
     </Wrapper>
   )
 }

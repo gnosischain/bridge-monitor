@@ -1,0 +1,103 @@
+import styled, { css } from 'styled-components'
+
+import { IconCopy } from '@/src/components/assets/IconCopy'
+import { IconLink } from '@/src/components/assets/IconLink'
+import { shortenAddress } from '@/src/utils/tools'
+import { useCopyToast } from '@/src/hooks/useCopyToast'
+
+const CommonCSS = css`
+  transition: color 0.15s ease-in-out;
+
+  &:hover {
+    color: ${({ theme: { colors } }) => colors.success};
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+`
+
+const Wrapper = styled.div`
+  align-items: center;
+  column-gap: 4px;
+  display: flex;
+`
+
+const AddressText = styled.span`
+  display: block;
+  overflow: hidden;
+  line-height: 1.2;
+`
+
+const CopyButton = styled.button`
+  background-color: transparent;
+  border: none;
+  color: ${({ theme: { colors } }) => colors.cream};
+  cursor: pointer;
+
+  ${CommonCSS}
+`
+
+const Link = styled(IconLink)`
+  color: ${({ theme: { colors } }) => colors.cream};
+  cursor: pointer;
+
+  ${CommonCSS}
+`
+
+const Error = styled.span`
+  color: ${({ theme: { colors } }) => colors.error};
+  font-style: italic;
+`
+
+interface Props {
+  address: string
+  bigIcons?: boolean
+  characters?: number
+  copy?: boolean
+  href?: string
+}
+
+export const TokenAddress: React.FC<Props> = ({
+  address,
+  bigIcons = false,
+  characters = 4,
+  copy = false,
+  href,
+  ...restProps
+}) => {
+  const { copy: copyToClipboard } = useCopyToast()
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const openLink = (e: any, href: string) => {
+    e.stopPropagation()
+    e.preventDefault()
+
+    window.open(href, '_blank', 'noopener noreferrer')
+  }
+
+  return (
+    <Wrapper {...restProps}>
+      <AddressText>
+        {address ? (
+          shortenAddress(address, characters + 2, characters)
+        ) : (
+          <Error>Fetching address...</Error>
+        )}
+      </AddressText>
+      {address && copy && (
+        <CopyButton className="copyButton" onClick={(e) => copyToClipboard(e, address)}>
+          <IconCopy height={bigIcons ? 21 : 14} width={bigIcons ? 21 : 14} />
+        </CopyButton>
+      )}
+      {address && href && (
+        <Link
+          className="externalLink"
+          height={bigIcons ? 21 : 14}
+          onClick={(e) => openLink(e, href)}
+          width={bigIcons ? 21 : 14}
+        />
+      )}
+    </Wrapper>
+  )
+}

@@ -4,7 +4,7 @@ import { isAddress } from '@ethersproject/address'
 import useSWR from 'swr'
 
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
-import { BridgeDirection } from '@/src/pagePartials/latestTransactions/Filters'
+import { BridgeDirection } from '@/src/pagePartials/bridgeExplorer/latestTransactions/Filters'
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { msToSeconds } from '@/src/utils/date'
 import { Transaction, TxsInMemoryFilters, fetchTransactions } from '@/src/utils/transactions'

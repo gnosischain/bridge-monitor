@@ -1,7 +1,8 @@
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
-import { Main as BaseMain } from '@/src/components/layout/Main'
+import { MainWrapper } from '@/src/components/layout/MainWrapper'
 import { Sidebar as BaseSidebar } from '@/src/components/layout/Sidebar'
+import { InnerContainer } from '@/src/components/helpers/InnerContainer'
 
 export type SidebarPlacement = 'right' | 'left' | undefined
 
@@ -9,74 +10,49 @@ interface Props {
   sidebarPlacement?: SidebarPlacement
 }
 
-const Wrapper = styled.div<Props>`
+const Wrapper = styled(InnerContainer)<Props>`
+  --sidebar-width: 456px;
+
   display: grid;
   row-gap: 20px;
+  padding-bottom: var(--layout-vertical-padding);
+  padding-top: var(--layout-vertical-padding);
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    --sidebar-width: 250px;
-
-    column-gap: 30px;
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    column-gap: 16px;
     flex-grow: 1;
-
-    ${({ sidebarPlacement }) =>
-      (sidebarPlacement === 'left' || sidebarPlacement === undefined) &&
-      css`
-        grid-template-columns: var(--sidebar-width) 1fr;
-      `}
-
-    ${({ sidebarPlacement }) =>
-      sidebarPlacement === 'right' &&
-      css`
-        grid-template-columns: 1fr var(--sidebar-width);
-      `}
+    grid-template-columns: ${({ sidebarPlacement }) =>
+      sidebarPlacement === 'left' ? 'var(--sidebar-width) 1fr' : '1fr var(--sidebar-width)'};
   }
 `
 
 const Sidebar = styled(BaseSidebar)<Props>`
   order: 1;
+  padding: 0;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    ${({ sidebarPlacement }) =>
-      (sidebarPlacement === 'left' || sidebarPlacement === undefined) &&
-      css`
-        order: 0;
-      `}
-
-    ${({ sidebarPlacement }) =>
-      sidebarPlacement === 'right' &&
-      css`
-        order: 1;
-      `}
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    order: ${({ sidebarPlacement }) => (sidebarPlacement === 'left' ? '0' : '1')};
   }
 `
 
-const Main = styled(BaseMain)<Props>`
+const Main = styled(MainWrapper)<Props>`
   order: 0;
+  padding: 0;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    padding-top: 10px;
-
-    ${({ sidebarPlacement }) =>
-      (sidebarPlacement === 'left' || sidebarPlacement === undefined) &&
-      css`
-        order: 1;
-      `}
-    ${({ sidebarPlacement }) =>
-      sidebarPlacement === 'right' &&
-      css`
-        order: 0;
-      `};
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    order: ${({ sidebarPlacement }) => (sidebarPlacement === 'left' ? '1' : '0')};
   }
 `
 
 export const SidebarLayout: React.FC<Props> = ({
   children,
-  sidebarPlacement = 'left',
+  sidebarPlacement = 'right',
   ...restProps
 }) => (
   <Wrapper sidebarPlacement={sidebarPlacement} {...restProps}>
+    <Main as="main" sidebarPlacement={sidebarPlacement}>
+      {children}
+    </Main>
     <Sidebar sidebarPlacement={sidebarPlacement} />
-    <Main sidebarPlacement={sidebarPlacement}>{children}</Main>
   </Wrapper>
 )

@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components'
 
-import { Dropdown as BaseDropdown } from '@/src/components/common/Dropdown'
+import { Dropdown as BaseDropdown } from '@/src/components/dropdown'
 
 export const NavLinkCSS = css`
   align-items: center;

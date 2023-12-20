@@ -1,19 +1,17 @@
 import Image from 'next/image'
 import styled, { css } from 'styled-components'
-
 import { motion } from 'framer-motion'
-
 import { NavLink as BaseNavLink } from '@/src/components/navigation/NavLink'
-import { sections } from '@/src/constants/sections'
+import { mainMenuSections, myTransactionsFullURL } from '@/src/constants/sections'
 import { Disconnect } from '@/src/components/assets/Disconnect'
 import { SwitchNetwork } from '@/src/components/assets/SwitchNetwork'
-import { ModalSwitchNetwork } from '@/src/components/helpers/ModalSwitchNetwork'
+import { ModalSwitchNetwork } from '@/src/components/modal/ModalSwitchNetwork'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { useRouter } from 'next/router'
 import { ButtonPrimary } from '@/src/components/buttons/Button'
 import { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
-import { Address } from '@/src/components/token/Address'
+import { TokenAddress } from '@/src/components/token/TokenAddress'
 import { MyTransactions } from '@/src/components/assets/MyTransactions'
 
 const Wrapper = styled.div`
@@ -243,7 +241,7 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
             </CloseButton>
           </MenuHeader>
           <Nav>
-            {sections.map(({ href, section }, index) => (
+            {mainMenuSections.map(({ href, section }, index) => (
               <NavLink href={href} key={`links_${index}`} onClick={() => closeMenu()}>
                 {section}
               </NavLink>
@@ -255,7 +253,12 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
                 <ConnectedTitle>Connected wallet</ConnectedTitle>
                 <ConnectedText>
                   {address && (
-                    <Address address={address} characters={4} copy link={getExplorerUrl(address)} />
+                    <TokenAddress
+                      address={address}
+                      characters={4}
+                      copy
+                      href={getExplorerUrl(address)}
+                    />
                   )}
                 </ConnectedText>
               </Connected>
@@ -271,7 +274,7 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
               </UserButton>
               <UserButton
                 onClick={() => {
-                  router.push(`/my-transactions/?hash=${address}`)
+                  router.push(`${myTransactionsFullURL}${address}`)
                   closeMenu()
                 }}
               >

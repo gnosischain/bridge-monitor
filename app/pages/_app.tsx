@@ -6,11 +6,10 @@ import { ReactElement, ReactNode, useEffect } from 'react'
 import { GoogleAnalytics } from 'nextjs-google-analytics'
 import { SWRConfig } from 'swr'
 import SafeSuspense from '@/src/components/helpers/SafeSuspense'
+import { SingleColumnLayout } from '@/src/components/layout/SingleColumnLayout'
 import { Layout } from '@/src/components/layout'
-import { Footer } from '@/src/components/layout/Footer'
-import { Header } from '@/src/components/header'
-import Toast from '@/src/components/toast/Toast'
-import { Head } from '@/src/pagePartials/index/Head'
+import Toast from '@/src/components/toast'
+import { Head } from '@/src/pagePartials/common/Head'
 import { TransactionNotificationProvider } from '@/src/providers/TransactionNotificationProvider'
 import ThemeProvider from '@/src/providers/themeProvider'
 import TooltipConfig from '@/src/components/tooltip/TooltipConfig'
@@ -34,7 +33,8 @@ type AppPropsWithLayout = AppProps & {
 
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
   // Black magic explained here https://nextjs.org/docs/basic-features/layouts
-  const getLayout = Component.getLayout ?? ((page) => <Layout>{page}</Layout>)
+  const getLayout =
+    Component.getLayout ?? ((page) => <SingleColumnLayout>{page}</SingleColumnLayout>)
   const router = useRouter()
 
   const scrollCache = useRef<Record<string, [number, number]>>({})
@@ -99,15 +99,15 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       >
         <Web3ConnectionProvider>
           <ThemeProvider>
-            <Header />
-            <SafeSuspense>
-              <TransactionNotificationProvider>
-                {getLayout(<Component {...pageProps} />)}
-                <Toast />
-              </TransactionNotificationProvider>
-            </SafeSuspense>
-            <TooltipConfig />
-            <Footer />
+            <Layout>
+              <SafeSuspense>
+                <TransactionNotificationProvider>
+                  {getLayout(<Component {...pageProps} />)}
+                  <Toast />
+                </TransactionNotificationProvider>
+              </SafeSuspense>
+              <TooltipConfig />
+            </Layout>
           </ThemeProvider>
         </Web3ConnectionProvider>
       </SWRConfig>

@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 import { NavLink as BaseNavLink } from '@/src/components/navigation/NavLink'
-import { sections } from '@/src/constants/sections'
+import { mainMenuSections } from '@/src/constants/sections'
 
 const Wrapper = styled.nav`
   display: none;
@@ -44,7 +44,7 @@ const NavLink = styled(BaseNavLink)`
 export const MainMenu: React.FC = ({ ...restProps }) => {
   return (
     <Wrapper {...restProps}>
-      {sections.map(({ href, section }, index) => (
+      {mainMenuSections.map(({ href, section }, index) => (
         <NavLink href={href} key={`links_${index}`}>
           {section}
         </NavLink>

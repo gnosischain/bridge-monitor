@@ -6,13 +6,14 @@ import { ChevronDown } from '@/src/components/assets/ChevronDown'
 import { UserWallet } from '@/src/components/assets/UserWallet'
 import { Disconnect } from '@/src/components/assets/Disconnect'
 import { MyTransactions } from '@/src/components/assets/MyTransactions'
-import { Dropdown, DropdownPosition } from '@/src/components/common/Dropdown'
-import { ModalSwitchNetwork } from '@/src/components/helpers/ModalSwitchNetwork'
+import { Dropdown, DropdownPosition } from '@/src/components/dropdown'
+import { ModalSwitchNetwork } from '@/src/components/modal/ModalSwitchNetwork'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { ButtonConnect } from '@/src/components/buttons/ButtonConnect'
-import { Address } from '@/src/components/token/Address'
+import { TokenAddress } from '@/src/components/token/TokenAddress'
 import { ChainsValues } from '@/src/constants/config/types'
 import { chainsConfig } from '@/src/constants/config/chains'
+import { myTransactionsFullURL } from '@/src/constants/sections'
 import { useRouter } from 'next/router'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 
@@ -174,7 +175,7 @@ const Title = styled.div`
   margin: 0 0 6px;
 `
 
-const WalletAddress = styled(Address)`
+const WalletAddress = styled(TokenAddress)`
   color: ${({ theme: { colors } }) => colors.cream};
   font-size: 1.4rem;
   font-weight: 400;
@@ -258,7 +259,7 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
           <Item closeOnClick={false} flexDirection="column" key="userDropdown_item_0">
             <Title>Connected with {wallet?.label}</Title>
             {address && (
-              <WalletAddress address={address} characters={4} copy link={getExplorerUrl(address)} />
+              <WalletAddress address={address} characters={4} copy href={getExplorerUrl(address)} />
             )}
           </Item>,
           <ClickableItem border key="userDropdown_item_1" onClick={() => setShowNetworkModal(true)}>
@@ -286,7 +287,7 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
           </ClickableItem>,
           <ClickableItem
             key="userDropdown_item_2"
-            onClick={() => router.push(`/my-transactions/?hash=${address}`)}
+            onClick={() => router.push(`${myTransactionsFullURL}${address}`)}
           >
             <ItemLabel>
               <MyTransactions />

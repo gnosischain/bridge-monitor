@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 import { TransactionResponse } from '@ethersproject/providers'
 import toast from 'react-hot-toast'
 
-import { notify } from '@/src/components/toast/Toast'
+import { notify } from '@/src/components/toast'
 import { ChainsValues } from '@/src/constants/config/types'
 import { ToastStates } from '@/src/constants/types'
 import { usePersistedState } from '@/src/hooks/usePersistedState'

@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import styled from 'styled-components'
 
-import { GnosisChainLogo } from '@/src/components/common/Logo'
+import { GnosisChainLogo } from '@/src/components/assets/GnosisChainLogo'
 import { InnerContainer as BaseInnerContainer } from '@/src/components/helpers/InnerContainer'
 import { Section } from '@/src/components/layout/Section'
 import { BaseParagraph } from '@/src/components/text/BaseParagraph'
@@ -20,17 +20,19 @@ const InnerContainer = styled(BaseInnerContainer)`
 `
 
 const Paragraph = styled(BaseParagraph)`
+  align-items: center;
   color: ${({ theme: { colors } }) => colors.textColor};
-  font-size: 1.2rem;
-  line-height: 1.5;
-  margin: 0;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  font-size: 1.2rem;
   gap: ${({ theme: { common } }) => common.space}px;
+  line-height: 1.5;
+  margin: 0;
+
   svg {
     max-width: 24px;
   }
+
   a {
     display: flex;
   }
