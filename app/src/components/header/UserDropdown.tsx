@@ -29,8 +29,8 @@ const Wrapper = styled(Dropdown)`
   }
 
   .dropdownItems {
-    --dropdown-items-padding: ${({ theme: { common } }) => common.space * 4}px;
-    --dropdown-items-border-radius: ${({ theme: { common } }) => common.space * 4}px;
+    --dropdown-items-padding: calc(var(--theme-common-space) * 4);
+    --dropdown-items-border-radius: calc(var(--theme-common-space) * 4);
 
     background: ${({ theme: { colors } }) => colors.darkerGrey};
     border-radius: var(--dropdown-items-border-radius);

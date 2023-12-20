@@ -17,10 +17,10 @@ const Chain = styled.div<{ chain?: string }>`
   color: ${({ theme: { colors } }) => colors.cream};
   display: flex;
   font-size: 1.2rem;
-  gap: ${({ theme: { common } }) => common.space / 2}px;
+  gap: calc(var(--theme-common-space) / 2);
   justify-content: center;
   min-width: fit-content;
-  padding: 0 ${({ theme: { common } }) => common.space / 2}px;
+  padding: 0 calc(var(--theme-common-space) / 2);
   position: relative;
 
   > span {
@@ -36,8 +36,8 @@ const Chain = styled.div<{ chain?: string }>`
   &:last-child {
     border-bottom-right-radius: calc(var(--height) / 2);
     border-top-right-radius: calc(var(--height) / 2);
-    padding-left: ${({ theme: { common } }) => common.space + common.space / 2}px;
-    padding-right: ${({ theme: { common } }) => common.space}px;
+    padding-left: calc(var(--theme-common-space) + var(--theme-common-space) / 2);
+    padding-right: var(--theme-common-space);
   }
 
   &:first-child {

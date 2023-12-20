@@ -8,11 +8,11 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: end;
-  row-gap: ${({ theme: { common } }) => common.space * 2}px;
+  row-gap: calc(var(--theme-common-space) * 2);
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     align-items: center;
-    column-gap: ${({ theme: { common } }) => common.space * 4}px;
+    column-gap: calc(var(--theme-common-space) * 4);
     flex-direction: row;
   }
 `
@@ -22,7 +22,7 @@ const Label = styled.span`
   display: flex;
   font-size: 1.4rem;
   font-weight: 300;
-  gap: ${({ theme: { common } }) => common.space}px;
+  gap: var(--theme-common-space);
   opacity: 0.6;
 `
 

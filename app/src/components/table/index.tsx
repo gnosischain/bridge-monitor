@@ -1,8 +1,8 @@
 import styled from 'styled-components'
 
 export const Table = styled.div`
-  --table-padding-vertical: ${({ theme: { common } }) => common.space * 3}px;
-  --table-padding-common: ${({ theme: { common } }) => common.space * 2}px;
+  --table-padding-vertical: calc(var(--theme-common-space) * 3);
+  --table-padding-common: calc(var(--theme-common-space) * 2);
   --table-border-radius: ${({ theme: { common } }) => common.borderRadius};
 
   display: grid;
@@ -112,7 +112,7 @@ export const TD = styled.div`
 `
 
 export const TH = styled(TD)`
-  --th-padding-top: ${({ theme: { common } }) => common.space * 4}px;
+  --th-padding-top: calc(var(--theme-common-space) * 4);
 
   font-size: 1.4rem;
   font-weight: 300;

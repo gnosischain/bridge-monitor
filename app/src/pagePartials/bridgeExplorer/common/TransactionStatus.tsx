@@ -5,7 +5,7 @@ import { TransactionStatus as TxStatusEnum } from '@/types/generated/subgraph'
 
 const Wrapper = styled.div<{ status: TxStatusEnum }>`
   align-items: center;
-  column-gap: ${({ theme: { common } }) => common.space}px;
+  column-gap: var(--theme-common-space);
   display: flex;
   font-size: 1.2rem;
   font-weight: 700;

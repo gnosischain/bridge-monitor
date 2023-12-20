@@ -7,7 +7,7 @@ import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import dynamic from 'next/dynamic'
 
-const TokenListProvider = dynamic(() => import('@/src/providers/TokenListProvider'), {
+const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
   ssr: false,
 })
 

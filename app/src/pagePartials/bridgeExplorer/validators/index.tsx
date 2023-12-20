@@ -17,7 +17,7 @@ import { MainTitle } from '@/src/components/text/MainTitle'
 
 const Columns = styled.div`
   display: grid;
-  gap: ${({ theme: { common } }) => common.space * 2}px;
+  gap: calc(var(--theme-common-space) * 2);
   grid-template-columns: 1fr;
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
@@ -65,7 +65,7 @@ const ChartPlaceholder = styled(SkeletonLoading)`
 const BridgesList = styled.div`
   display: flex;
   flex-direction: column;
-  row-gap: ${({ theme: { common } }) => common.space * 4}px;
+  row-gap: calc(var(--theme-common-space) * 4);
 `
 
 type SigsCount = {

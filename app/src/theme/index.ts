@@ -1,5 +1,9 @@
-/* Dark Theme            */
-/* Add only colors here. */
+/* Theme */
+
+const borderRadius = '4px'
+const radioAndCheckDimensions = '14px'
+const componentPadding = '16px 24px'
+const space = 8
 
 const borderColor = 'rgba(250,250,250,0.2)'
 const darkGray = 'rgb(10, 25, 50)'
@@ -36,7 +40,67 @@ const white = '#FBF9F3'
 const grayGradient = `linear-gradient(180deg, ${lightGrey} 0%, ${darkGrey} 100%)`
 const cream06 = `rgba(${creamRGB}, 0.6)`
 
-export const dark = {
+export const theme = {
+  common: {
+    borderRadius: borderRadius,
+    space: `${space}px`,
+  },
+  fonts: {
+    defaultSize: '1.6rem',
+    family: `'Karla', 'Helvetica Neue', 'Arial', 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'`,
+    familyCode: `'JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', 'Courier New', 'monospace'`,
+  },
+  checkBox: {
+    dimensions: radioAndCheckDimensions,
+    backgroundColorActive: secondary,
+    backgroundColor: darkGray,
+    borderColor: borderColor,
+  },
+  radioButton: {
+    dimensions: radioAndCheckDimensions,
+    backgroundColorActive: secondary,
+    backgroundColor: darkGray,
+    borderColor: borderColor,
+  },
+  dropdown: {
+    borderRadius: '8px',
+    background: lightGrey,
+    borderColor: 'transparent',
+    boxShadow: commonBoxShadow,
+    item: {
+      backgroundColor: 'transparent',
+      backgroundColorHover: primary,
+      backgroundColorActive: darkGrey,
+      borderColor: 'transparent',
+      color: textColor,
+      colorActive: textColor,
+    },
+  },
+  header: {
+    height: '100px',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    color: textColor,
+  },
+  layout: {
+    horizontalPaddingDesktopStart: space * 3 + 'px',
+    horizontalPaddingDesktopWideStart: space * 5 + 'px',
+    horizontalPaddingMobile: space + 'px',
+    horizontalPaddingTabletLandscapeStart: space * 2 + 'px',
+    horizontalPaddingTabletPortraitStart: space * 2 + 'px',
+    maxWidth: '1504px',
+  },
+  breakPoints: {
+    desktopStart: '1025px',
+    desktopWideStart: '1281px',
+    tabletLandscapeStart: '769px',
+    tabletPortraitStart: '481px',
+  },
+  card: {
+    borderRadius: borderRadius,
+    padding: componentPadding,
+    backgroundColor: 'rgba(13, 2, 2, 0.65)',
+    borderColor: borderColor,
+  },
   body: {
     backgroundColor: darkestGrey,
   },
@@ -63,15 +127,6 @@ export const dark = {
     borderColorHover: darkerGrey,
     color: cream,
     colorHover: cream,
-  },
-  card: {
-    backgroundColor: 'rgba(13, 2, 2, 0.65)',
-    borderColor: borderColor,
-  },
-  checkBox: {
-    backgroundColorActive: secondary,
-    backgroundColor: darkGray,
-    borderColor: borderColor,
   },
   colors: {
     black: black,
@@ -102,19 +157,6 @@ export const dark = {
     warningDark: warningDark,
     white: white,
   },
-  dropdown: {
-    background: lightGrey,
-    borderColor: 'transparent',
-    boxShadow: commonBoxShadow,
-    item: {
-      backgroundColor: 'transparent',
-      backgroundColorHover: primary,
-      backgroundColorActive: darkGrey,
-      borderColor: 'transparent',
-      color: textColor,
-      colorActive: textColor,
-    },
-  },
   gradients: {
     primary: primaryGradient,
     gray: grayGradient,
@@ -124,6 +166,7 @@ export const dark = {
     borderColor: darkerGrey,
     color: cream,
     errorColor: error,
+    height: '42px',
     successColor: success,
     active: {
       backgroundColor: darkestGrey,
@@ -135,10 +178,6 @@ export const dark = {
       color: cream06,
     },
   },
-  header: {
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    color: textColor,
-  },
   mainMenu: {
     color: textColor,
   },
@@ -149,11 +188,6 @@ export const dark = {
   },
   modal: {
     overlayColor: 'rgba(0, 0, 0, 0.8)',
-  },
-  radioButton: {
-    backgroundColorActive: secondary,
-    backgroundColor: darkGray,
-    borderColor: borderColor,
   },
   onBoard: {
     backgroundColor: darkGrey,

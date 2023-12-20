@@ -19,7 +19,7 @@ const Wrapper = styled.div`
   justify-content: center;
   margin: 0 auto;
   max-width: 100%;
-  padding: var(--layout-vertical-padding) 0;
+  padding: var(--theme-layout-vertical-padding) 0;
   row-gap: 16px;
   width: var(--wrapper-width);
 `

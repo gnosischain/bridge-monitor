@@ -7,7 +7,7 @@ const Wrapper = styled.div`
   align-items: center;
   display: flex;
   justify-content: flex-start;
-  column-gap: ${({ theme: { common } }) => common.space}px;
+  column-gap: var(--theme-common-space);
 `
 
 const Title = styled.h3`

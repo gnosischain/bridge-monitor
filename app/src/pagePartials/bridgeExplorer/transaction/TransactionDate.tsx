@@ -6,7 +6,7 @@ import { DateFormated } from '@/src/utils/date'
 
 const Wrapper = styled.div`
   align-items: center;
-  column-gap: ${({ theme: { common } }) => common.space}px;
+  column-gap: var(--theme-common-space);
   display: flex;
   font-size: 1.4rem;
   line-height: 1.2;

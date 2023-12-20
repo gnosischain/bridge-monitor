@@ -14,7 +14,7 @@ const Wrapper = styled.header`
   display: flex;
   flex-grow: 0;
   max-width: 100%;
-  padding: ${({ theme: { common } }) => common.space * 4}px 0 0 0;
+  padding: calc(var(--theme-common-space) * 4) 0 0 0;
   position: relative;
 `
 

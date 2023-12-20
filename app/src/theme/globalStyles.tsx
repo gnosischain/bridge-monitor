@@ -12,12 +12,11 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
       --rt-color-info:  ${({ theme: { colors } }) => colors.white};
       --rt-opacity: 1;
 
-      /* common variables */
-      --layout-vertical-padding: 48px;
-      --layout-vertical-padding-xl: calc(var(--layout-vertical-padding) * 2);
-      --layout-vertical-padding-xxl: calc(var(--layout-vertical-padding) * 3);
-
-      --input-height: 42px;
+      /* some common variables (just for convenience) */
+      --theme-layout-vertical-padding: 48px;
+      --theme-layout-vertical-padding-xl: calc(var(--theme-layout-vertical-padding) * 2);
+      --theme-layout-vertical-padding-xxl: calc(var(--theme-layout-vertical-padding) * 3);
+      --theme-common-space: ${({ theme: { common } }) => common.space};
   }
 
   html {
@@ -79,18 +78,18 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
 
     @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
       font-size: 2.8rem;
-      margin: ${({ theme: { common } }) => common.space * 2}px 0;
+      margin: calc(var(--theme-common-space) * 2) 0;
     }
 
     @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
-      margin: ${({ theme: { common } }) => common.space * 3}px 0;
+      margin: calc(var(--theme-common-space) * 3) 0;
     }
   }
 
   h3 {
     font-weight: 500;
     font-size: 1.8rem;
-    margin: ${({ theme: { common } }) => common.space * 2}px 0;
+    margin: calc(var(--theme-common-space) * 2) 0;
 
     @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
       font-size: 2.1rem;

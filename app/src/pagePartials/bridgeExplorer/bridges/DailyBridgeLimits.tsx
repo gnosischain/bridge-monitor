@@ -20,18 +20,18 @@ import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { TokenDropdown } from '@/src/pagePartials/bridgeExplorer/bridges/TokenDropdown'
 import { InnerCard } from '@/src/components/card/InnerCard'
-import { useBridgedTokens } from '@/src/providers/TokenListProvider'
+import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { ArrowUp } from '@/src/components/assets/ArrowUp'
 import dynamic from 'next/dynamic'
 
-const TokenListProvider = dynamic(() => import('@/src/providers/TokenListProvider'), {
+const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
   ssr: false,
 })
 
 const Columns = styled.div`
   display: grid;
-  gap: ${({ theme: { common } }) => common.space * 2}px;
+  gap: calc(var(--theme-common-space) * 2);
   grid-template-columns: 1fr;
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {

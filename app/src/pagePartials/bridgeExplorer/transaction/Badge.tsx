@@ -26,7 +26,7 @@ const Wrapper = styled.div<{ status?: string }>`
   font-weight: 400;
   height: 24px;
   justify-content: center;
-  padding: 0 ${({ theme: { common } }) => common.space}px;
+  padding: 0 var(--theme-common-space);
 
   &:first-of-type {
     background: ${({ theme: { colors } }) => colors.darkestGrey};

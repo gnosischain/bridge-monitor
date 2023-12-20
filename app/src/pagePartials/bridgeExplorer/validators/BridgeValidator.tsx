@@ -10,9 +10,8 @@ import { Validator } from '@/src/utils/validators'
 import { getAddressScanUrl } from '@/src/utils/transactions'
 
 const Wrapper = styled(InnerCard)`
-  padding: ${({ theme: { common } }) => common.space * 3}px
-    ${({ theme: { common } }) => common.space + common.space / 2}px;
-  row-gap: ${({ theme: { common } }) => common.space * 3}px;
+  padding: calc(var(--theme-common-space) * 3) calc(var(--theme-common-space) / 2);
+  row-gap: calc(var(--theme-common-space) * 3);
 `
 
 const Rows = styled.ul`
@@ -20,10 +19,10 @@ const Rows = styled.ul`
   flex-direction: column;
   margin: 0;
   padding: 0;
-  row-gap: ${({ theme: { common } }) => common.space}px;
+  row-gap: var(--theme-common-space);
 
   &.last {
-    margin: ${({ theme: { common } }) => common.space * 3}px 0 0;
+    margin: calc(var(--theme-common-space) * 3) 0 0;
   }
 `
 

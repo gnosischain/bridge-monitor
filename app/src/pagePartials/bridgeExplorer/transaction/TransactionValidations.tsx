@@ -8,8 +8,8 @@ const Wrapper = styled.ul`
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme: { common } }) => common.space}px;
-  margin: ${({ theme: { common } }) => common.space * 4}px 0 0;
+  gap: var(--theme-common-space);
+  margin: calc(var(--theme-common-space) * 4) 0 0;
 `
 
 interface Props {

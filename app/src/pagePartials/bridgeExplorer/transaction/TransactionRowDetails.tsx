@@ -6,7 +6,7 @@ import { getTxScanUrl } from '@/src/utils/transactions'
 import { IconLink } from '@/src/components/assets/IconLink'
 
 const Wrapper = styled.li<{ status?: string }>`
-  --gap: ${({ theme: { common } }) => common.space}px;
+  --gap: var(--theme-common-space);
 
   align-items: center;
   border-radius: ${({ theme: { common } }) => common.borderRadius};
@@ -19,7 +19,7 @@ const Wrapper = styled.li<{ status?: string }>`
   padding: calc(var(--gap) * 2) var(--gap);
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    gap: ${({ theme: { common } }) => common.space * 2}px;
+    gap: calc(var(--theme-common-space) * 2);
     grid-template-columns: 1fr 3fr;
     padding: var(--gap);
   }
@@ -41,7 +41,7 @@ const Title = styled.div`
 
 const TransactionInfoWrapper = styled.div`
   display: grid;
-  gap: ${({ theme: { common } }) => common.space * 2}px;
+  gap: calc(var(--theme-common-space) * 2);
   grid-template-columns: 1fr;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
@@ -57,7 +57,7 @@ const TransactionInfo = styled.div`
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     grid-template-columns: 1fr 2fr;
-    grid-gap: 0 ${({ theme: { common } }) => common.space * 2}px;
+    grid-gap: 0 calc(var(--theme-common-space) * 2);
   }
 `
 

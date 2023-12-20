@@ -11,7 +11,7 @@ import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
 const Wrapper = styled.div`
   align-items: center;
-  column-gap: ${({ theme: { common } }) => common.space}px;
+  column-gap: var(--theme-common-space);
   display: flex;
   flex-direction: row;
 `

@@ -12,7 +12,7 @@ const Wrapper = styled.button<{ isActive: boolean }>`
   cursor: pointer;
   display: block;
   margin-bottom: -1px;
-  padding: ${({ theme: { common } }) => common.space * 4}px;
+  padding: calc(var(--theme-common-space) * 4);
 
   &:hover {
     background-color: ${({ theme: { colors } }) => colors.black};

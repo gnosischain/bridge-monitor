@@ -8,7 +8,7 @@ import { BaseParagraph } from '@/src/components/text/BaseParagraph'
 
 const Wrapper = styled.footer`
   color: ${({ theme: { colors } }) => colors.textColor};
-  margin-top: ${({ theme: { common } }) => common.space}px;
+  margin-top: var(--theme-common-space);
   width: 100%;
 `
 
@@ -25,7 +25,7 @@ const Paragraph = styled(BaseParagraph)`
   display: flex;
   flex-direction: row;
   font-size: 1.2rem;
-  gap: ${({ theme: { common } }) => common.space}px;
+  gap: var(--theme-common-space);
   line-height: 1.5;
   margin: 0;
 

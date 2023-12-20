@@ -3,8 +3,7 @@ import styled from 'styled-components'
 import { HealthStatusTypes } from '@/src/constants/types'
 
 const Wrapper = styled.div<{ status?: string }>`
-  padding: ${({ theme: { common } }) => common.space / 2}px
-    ${({ theme: { common } }) => common.space}px;
+  padding: calc(var(--theme-common-space) / 2) var(--theme-common-space);
   border-radius: 4px;
   display: inline-block;
   background-color: ${({ theme }) => theme.colors.warning};
@@ -16,7 +15,7 @@ const Wrapper = styled.div<{ status?: string }>`
     color: ${({ theme }) => theme.colors.cream};
     display: flex;
     align-items: center;
-    gap: ${({ theme: { common } }) => common.space}px;
+    gap: var(--theme-common-space);
     letter-spacing: -0.2px;
     &:before {
       content: '';

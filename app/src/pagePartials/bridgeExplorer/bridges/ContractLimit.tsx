@@ -42,7 +42,7 @@ const ProgressBar = styled.div<{ status: string; width: number }>`
 `
 
 const Amounts = styled.div`
-  column-gap: ${({ theme: { common } }) => common.space}px;
+  column-gap: var(--theme-common-space);
   display: flex;
   justify-content: space-between;
 `

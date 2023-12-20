@@ -3,7 +3,7 @@ import styled from 'styled-components'
 export const Tabs = styled.nav`
   border-bottom: 1px solid ${({ theme }) => theme.colors.darkerGrey};
   display: flex;
-  padding-right: ${({ theme: { common } }) => common.space * 2}px;
+  padding-right: calc(var(--theme-common-space) * 2);
 `
 
 export const TabContentInner = styled.div`
@@ -14,12 +14,11 @@ export const TabContentInner = styled.div`
 
 export const TabsWrapper = styled.div`
   background-color: ${({ theme }) => theme.colors.darkestGrey2};
-  margin: 0 ${({ theme: { common } }) => common.space * -2}px
-    ${({ theme: { common } }) => common.space * 2}px;
+  margin: 0 calc(var(--theme-common-space) * -2) calc(var(--theme-common-space) * 2);
   overflow-x: auto;
   overflow: hidden;
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    margin-bottom: ${({ theme: { common } }) => common.space * 3}px;
+    margin-bottom: calc(var(--theme-common-space) * 3);
   }
 `

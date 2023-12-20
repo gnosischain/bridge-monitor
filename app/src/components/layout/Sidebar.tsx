@@ -7,7 +7,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   max-width: 100%;
-  row-gap: ${({ theme: { common } }) => common.space}px;
+  row-gap: var(--theme-common-space);
 `
 
 const NavLink = styled(BaseNavLink)`
@@ -16,8 +16,7 @@ const NavLink = styled(BaseNavLink)`
   color: ${({ theme: { colors } }) => colors.white};
   display: flex;
   font-size: 1.6rem;
-  padding: ${({ theme: { common } }) => common.space}px
-    ${({ theme: { common } }) => common.space * 2}px;
+  padding: var(--theme-common-space) calc(var(--theme-common-space) * 2);
   text-decoration: none;
 
   &.active {

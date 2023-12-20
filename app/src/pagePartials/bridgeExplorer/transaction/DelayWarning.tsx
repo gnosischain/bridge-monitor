@@ -9,13 +9,12 @@ const Wrapper = styled.div`
   box-shadow: 0 2.2px 6.519px 0 rgba(0, 0, 0, 0.03), 0 10.4px 25.481px 0 rgba(0, 0, 0, 0.04),
     0 27px 80px 0 rgba(0, 0, 0, 0.07);
   color: ${({ theme: { colors } }) => colors.cream};
-  column-gap: ${({ theme: { common } }) => common.space * 2}px;
+  column-gap: calc(var(--theme-common-space) * 2);
   display: flex;
   font-size: 1.4rem;
   font-weight: 400;
-  margin-top: ${({ theme: { common } }) => common.space * 2}px;
-  padding: ${({ theme: { common } }) => common.space * 2}px
-    ${({ theme: { common } }) => common.space * 3}px;
+  margin-top: calc(var(--theme-common-space) * 2);
+  padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3);
 `
 
 const Network = styled.span`

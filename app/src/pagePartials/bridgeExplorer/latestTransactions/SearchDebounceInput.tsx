@@ -18,7 +18,7 @@ const Magnifier = styled(BaseMagnifier)`
   display: flex;
   height: var(--icon-size);
   justify-content: center;
-  left: ${({ theme: { common } }) => common.space * 2}px;
+  left: calc(var(--theme-common-space) * 2);
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -30,7 +30,7 @@ const Textfield: any = styled(DebounceInput)`
   ${TextfieldCSS}
   ${TexfieldPartsCSS}
 
-  padding-left: calc(${({ theme: { common } }) => common.space * 4}px + var(--icon-size));
+  padding-left: calc(calc(var(--theme-common-space) * 4) + var(--icon-size));
   position: relative;
   width: 100%;
   z-index: 0;

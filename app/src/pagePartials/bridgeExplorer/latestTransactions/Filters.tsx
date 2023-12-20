@@ -15,16 +15,16 @@ import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
 
 const Wrapper = styled.div`
   --filter-border-radius: ${({ theme: { common } }) => common.borderRadius};
-  --filter-common-padding: ${({ theme: { common } }) => common.space * 2}px;
+  --filter-common-padding: calc(var(--theme-common-space) * 2);
 
   background: ${({ theme: { gradients } }) => gradients.gray};
   border-radius: var(--filter-border-radius) var(--filter-border-radius) 0 0;
 `
 
 const CommonGridCSS = css`
-  column-gap: ${({ theme: { common } }) => common.space * 2}px;
+  column-gap: calc(var(--theme-common-space) * 2);
   display: grid;
-  row-gap: ${({ theme: { common } }) => common.space * 2}px;
+  row-gap: calc(var(--theme-common-space) * 2);
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     grid-template-columns: 1fr 1fr 1fr;
@@ -41,7 +41,7 @@ const CommonGridCSS = css`
 
 const MainFields = styled.div`
   grid-template-columns: 1fr;
-  padding: ${({ theme: { common } }) => common.space * 3}px var(--filter-common-padding);
+  padding: calc(var(--theme-common-space) * 3) var(--filter-common-padding);
 
   ${CommonGridCSS};
 `
@@ -54,7 +54,7 @@ const Field = styled.div`
 const Label = styled.label`
   font-size: 1.4rem;
   line-height: 1.2;
-  margin-bottom: ${({ theme: { common } }) => common.space}px;
+  margin-bottom: var(--theme-common-space);
 `
 
 const SearchWrapper = styled.div`
@@ -86,7 +86,7 @@ const SearchCommonCSS = css`
 const Search = styled(SearchDebounceInput)`
   .textfield {
     --texfield-font-size: 1.4rem;
-    --textfield-height: calc(var(--input-height) + 2px);
+    --textfield-height: calc(${({ theme: { textField } }) => textField.height} + 2px);
   }
 
   ${SearchCommonCSS};

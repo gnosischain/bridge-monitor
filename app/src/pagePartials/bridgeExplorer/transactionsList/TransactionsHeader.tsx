@@ -11,7 +11,7 @@ const THValidators = styled(TH)`
 `
 
 const ValidatorNameWrapper = styled.div`
-  column-gap: ${({ theme: { common } }) => common.space}px;
+  column-gap: var(--theme-common-space);
   display: flex;
   justify-content: center;
   padding-left: var(--table-padding-common);

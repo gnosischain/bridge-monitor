@@ -16,10 +16,10 @@ import { ArrowUp } from '@/src/components/assets/ArrowUp'
 import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
 const Wrapper = styled.div`
-  column-gap: ${({ theme: { common } }) => common.space * 2}px;
+  column-gap: calc(var(--theme-common-space) * 2);
   display: flex;
   flex-direction: column;
-  row-gap: ${({ theme: { common } }) => common.space * 2}px;
+  row-gap: calc(var(--theme-common-space) * 2);
   width: 100%;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
@@ -67,7 +67,7 @@ const CommonCSS = css`
 
 const AmountRow = styled.div`
   align-items: center;
-  column-gap: ${({ theme: { common } }) => common.space * 3}px;
+  column-gap: calc(var(--theme-common-space) * 3);
   display: flex;
 `
 

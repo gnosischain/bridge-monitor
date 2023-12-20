@@ -37,7 +37,7 @@ const Wrapper = styled.button`
   justify-content: center;
   line-height: 1.2rem;
   min-width: 80px;
-  padding: 0 ${({ theme: { common } }) => common.space}px;
+  padding: 0 var(--theme-common-space);
   transition: none;
   width: fit-content;
 

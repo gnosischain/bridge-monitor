@@ -56,19 +56,18 @@ const TokenAddress = styled(BaseAddress)`
 const TransactionInformation = styled.article`
   display: flex;
   flex-direction: column;
-  row-gap: ${({ theme: { common } }) => common.space * 2}px;
+  row-gap: calc(var(--theme-common-space) * 2);
 `
 
 const TransactionDetails = styled.div`
   background-color: ${({ theme: { colors } }) => colors.darkerGrey};
   border-radius: ${({ theme: { common } }) => common.borderRadius};
-  padding: ${({ theme: { common } }) => common.space * 4}px
-    ${({ theme: { common } }) => common.space}px ${({ theme: { common } }) => common.space * 2}px;
+  padding: calc(var(--theme-common-space) * 4) var(--theme-common-space)
+    calc(var(--theme-common-space) * 2);
 
   @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
-    padding: ${({ theme: { common } }) => common.space * 6}px
-      ${({ theme: { common } }) => common.space * 2}px
-      ${({ theme: { common } }) => common.space * 3}px;
+    padding: calc(var(--theme-common-space) * 6) calc(var(--theme-common-space) * 2)
+      calc(var(--theme-common-space) * 3);
   }
 `
 

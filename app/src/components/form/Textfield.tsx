@@ -79,8 +79,8 @@ export const TexfieldPartsCSS = css<TexfieldCSSProps>`
 export const TextfieldCSS = css<TexfieldCSSProps>`
   --textfield-border-radius: ${({ theme: { common } }) => common.borderRadius};
   --texfield-font-size: 1.3rem;
-  --textfield-padding: 0 ${({ theme: { common } }) => common.space * 2}px;
-  --textfield-height: var(--input-height);
+  --textfield-padding: 0 calc(var(--theme-common-space) * 2);
+  --textfield-height: ${({ theme: { textField } }) => textField.height};
   --textfield-font-weight: 400;
 
   background-color: ${({ theme: { textField } }) => textField.backgroundColor};

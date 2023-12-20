@@ -7,7 +7,7 @@ const Wrapper = styled.div<{ withNames?: boolean }>`
   display: flex;
   flex-shrink: 0;
   font-size: 1.2rem;
-  gap: ${({ theme: { common } }) => common.space / 2}px;
+  gap: calc(var(--theme-common-space) / 2);
   height: ${(props) => (props.withNames ? '22px' : 'auto')};
   padding-right: ${(props) => (props.withNames ? '4px' : '0')};
   position: relative;

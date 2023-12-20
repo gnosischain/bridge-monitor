@@ -44,8 +44,7 @@ const MenuWrapper = styled.div`
   flex-direction: column;
   height: 100%;
   overflow-y: auto;
-  padding: 0 ${({ theme: { common } }) => common.space * 2}px
-    ${({ theme: { common } }) => common.space * 4}px;
+  padding: 0 calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 4);
   max-width: 94%;
   position: absolute;
   right: 0;
@@ -54,8 +53,7 @@ const MenuWrapper = styled.div`
   z-index: 20;
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    padding: 0 ${({ theme: { common } }) => common.space * 4}px
-      ${({ theme: { common } }) => common.space * 4}px;
+    padding: 0 calc(var(--theme-common-space) * 4) calc(var(--theme-common-space) * 4);
   }
 `
 
@@ -64,7 +62,7 @@ const MenuHeader = styled.div`
   border-bottom: 1px solid rgba(256, 256, 256, 0.1);
   display: flex;
   justify-content: space-between;
-  margin-bottom: ${({ theme: { common } }) => common.space * 4}px;
+  margin-bottom: calc(var(--theme-common-space) * 4);
   min-height: 100px;
   width: 100%;
 `
@@ -87,7 +85,7 @@ const CloseButton = styled.button`
 const Nav = styled.nav`
   display: flex;
   flex-direction: column;
-  row-gap: ${({ theme: { common } }) => common.space}px;
+  row-gap: var(--theme-common-space);
   width: 100%;
 `
 
@@ -95,8 +93,7 @@ const ButtonCSS = css`
   border-radius: ${({ theme: { common } }) => common.borderRadius};
   color: ${({ theme: { colors } }) => colors.white};
   display: flex;
-  padding: ${({ theme: { common } }) => common.space}px
-    ${({ theme: { common } }) => common.space * 2}px;
+  padding: var(--theme-common-space) calc(var(--theme-common-space) * 2);
   text-decoration: none;
 
   &.active {
@@ -121,8 +118,8 @@ const UserMenu = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: auto;
-  padding: ${({ theme: { common } }) => common.space * 2}px;
-  row-gap: ${({ theme: { common } }) => common.space}px;
+  padding: calc(var(--theme-common-space) * 2);
+  row-gap: var(--theme-common-space);
 `
 
 const Connected = styled.div`

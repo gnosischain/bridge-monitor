@@ -10,15 +10,14 @@ export const datePickerCSS = css`
 
     .react-datepicker__month-container {
       background-color: ${({ theme }) => theme.colors.darkerGrey};
-      padding-bottom: ${({ theme: { common } }) => common.space}px;
+      padding-bottom: var(--theme-common-space);
     }
 
     .react-datepicker__header {
       background-color: ${({ theme }) => theme.colors.primary};
       color: ${({ theme }) => theme.colors.cream};
       border: none;
-      padding: ${({ theme: { common } }) => common.space * 2}px 0
-        ${({ theme: { common } }) => common.space}px;
+      padding: calc(var(--theme-common-space) * 2) 0 var(--theme-common-space);
     }
 
     .react-datepicker-popper[data-placement^='bottom'] .react-datepicker__triangle::before,

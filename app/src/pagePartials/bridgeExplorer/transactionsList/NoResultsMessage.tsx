@@ -31,8 +31,8 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: ${({ theme: { common } }) => common.space * 3}px;
-  row-gap: ${({ theme: { common } }) => common.space * 2}px;
+  padding: calc(var(--theme-common-space) * 3);
+  row-gap: calc(var(--theme-common-space) * 2);
   text-align: center;
   width: 100%;
 `

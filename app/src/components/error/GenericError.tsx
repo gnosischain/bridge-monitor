@@ -11,7 +11,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   margin: auto;
-  padding: ${({ theme: { common } }) => common.space * 3}px;
+  padding: calc(var(--theme-common-space) * 3);
   width: 100%;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {

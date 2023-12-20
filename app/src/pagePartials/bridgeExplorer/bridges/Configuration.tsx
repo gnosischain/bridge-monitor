@@ -37,7 +37,7 @@ const Row: React.FC<{ address: string; title: string }> = ({ address, title, ...
 
 const Wrapper = styled.div`
   display: grid;
-  gap: ${({ theme: { common } }) => common.space * 2}px;
+  gap: calc(var(--theme-common-space) * 2);
   grid-template-columns: 1fr;
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
@@ -65,7 +65,7 @@ const SubTitle = styled.h3`
 const Rows = styled.div`
   display: flex;
   flex-direction: column;
-  row-gap: ${({ theme: { common } }) => common.space * 2}px;
+  row-gap: calc(var(--theme-common-space) * 2);
 `
 
 export const Configuration: React.FC = ({ ...restProps }) => {

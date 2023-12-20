@@ -14,12 +14,12 @@ export const ButtonDropdownCSS = css`
   color: ${({ theme: { buttonDropdown } }) => buttonDropdown.color};
   font-size: 1.3rem;
   font-weight: 500;
-  height: var(--input-height);
+  height: ${({ theme: { textField } }) => textField.height};
   justify-content: space-between;
-  padding: 0 ${({ theme: { common } }) => common.space * 2}px;
+  padding: 0 calc(var(--theme-common-space) * 2);
   width: 100%;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     font-size: 1.4rem;
   }
 

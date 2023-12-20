@@ -13,9 +13,8 @@ const InfoWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  row-gap: ${({ theme: { common } }) => common.space * 2}px;
-  padding: ${({ theme: { common } }) => common.space * 2}px 0
-    ${({ theme: { common } }) => common.space * 7}px;
+  row-gap: calc(var(--theme-common-space) * 2);
+  padding: calc(var(--theme-common-space) * 2) 0 calc(var(--theme-common-space) * 7);
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     align-items: center;

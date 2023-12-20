@@ -28,8 +28,7 @@ export const ButtonCSS = css`
   justify-content: center;
   line-height: 1;
   outline: none;
-  padding: ${({ theme: { common } }) => common.space * 2}px
-    ${({ theme: { common } }) => common.space * 4}px;
+  padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 4);
   text-align: center;
   text-decoration: none;
   transition: all 0.15s ease-out;

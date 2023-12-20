@@ -19,7 +19,7 @@ const Wrapper = styled(InnerCard)``
 const Header = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: ${({ theme: { common } }) => common.space}px;
+  margin-bottom: var(--theme-common-space);
   row-gap: 10px;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
@@ -92,10 +92,10 @@ const TokenSymbol = styled.div`
 `
 
 const Grid = styled.div`
-  column-gap: ${({ theme: { common } }) => common.space * 2}px;
+  column-gap: calc(var(--theme-common-space) * 2);
   display: grid;
   grid-template-columns: 1fr;
-  row-gap: ${({ theme: { common } }) => common.space * 2}px;
+  row-gap: calc(var(--theme-common-space) * 2);
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     grid-template-columns: 1fr 1fr;

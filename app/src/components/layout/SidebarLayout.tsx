@@ -15,8 +15,8 @@ const Wrapper = styled(InnerContainer)<Props>`
 
   display: grid;
   row-gap: 20px;
-  padding-bottom: var(--layout-vertical-padding);
-  padding-top: var(--layout-vertical-padding);
+  padding-bottom: var(--theme-layout-vertical-padding);
+  padding-top: var(--theme-layout-vertical-padding);
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     column-gap: 16px;

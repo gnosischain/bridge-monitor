@@ -20,8 +20,8 @@ const Wrapper = styled(InnerCard)<{ status?: string }>`
   border-radius: 8px;
   flex: 1 1 0;
   justify-content: space-between;
-  padding-bottom: ${({ theme: { common } }) => common.space * 3}px;
-  padding-top: ${({ theme: { common } }) => common.space * 3}px;
+  padding-bottom: calc(var(--theme-common-space) * 3);
+  padding-top: calc(var(--theme-common-space) * 3);
 
   > div {
     min-height: 24px;
@@ -31,7 +31,7 @@ const Header = styled.div`
   align-items: flex-start;
   display: flex;
   flex-direction: row;
-  gap: ${({ theme: { common } }) => common.space / 2}px;
+  gap: calc(var(--theme-common-space) / 2);
 `
 
 const Status = styled(TransactionStatus)`

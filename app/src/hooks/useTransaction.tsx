@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import { ContractTransaction } from 'ethers'
 
-import { useTransactionNotification } from '@/src/providers/TransactionNotificationProvider'
+import { useTransactionNotification } from '@/src/providers/transactionNotificationProvider'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { TransactionError } from '@/src/utils/TransactionError'
 

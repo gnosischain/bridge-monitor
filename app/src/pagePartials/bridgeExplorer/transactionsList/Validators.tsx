@@ -10,7 +10,7 @@ import { BridgesValues } from '@/src/constants/config/bridges'
 
 const Wrapper = styled.div`
   align-items: center;
-  column-gap: ${({ theme: { common } }) => common.space}px;
+  column-gap: var(--theme-common-space);
   display: flex;
   height: 16px;
   justify-content: flex-start;

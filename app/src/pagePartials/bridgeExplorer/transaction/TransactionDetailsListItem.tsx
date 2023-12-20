@@ -10,9 +10,9 @@ const Wrapper = styled.li`
 
   display: grid;
   grid-template-columns: 1fr;
-  margin-bottom: ${({ theme: { common } }) => common.space * 3}px;
+  margin-bottom: calc(var(--theme-common-space) * 3);
   position: relative;
-  row-gap: ${({ theme: { common } }) => common.space * 2}px;
+  row-gap: calc(var(--theme-common-space) * 2);
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
     column-gap: 50px;
@@ -45,10 +45,10 @@ const StatusWrapper = styled.div`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.darkGrey};
   border-radius: 8px;
-  column-gap: ${({ theme: { common } }) => common.space}px;
+  column-gap: var(--theme-common-space);
   display: flex;
   height: var(--status-height);
-  padding: 0 ${({ theme: { common } }) => common.space}px;
+  padding: 0 var(--theme-common-space);
 `
 
 const Icon = styled(IconStatus)`
@@ -68,7 +68,7 @@ const TransactionStatus = styled.div`
 
 const Content = styled.div`
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  padding-bottom: ${({ theme: { common } }) => common.space * 4}px;
+  padding-bottom: calc(var(--theme-common-space) * 4);
 `
 
 const Title = styled.h3`
@@ -77,7 +77,7 @@ const Title = styled.h3`
   font-size: 1.8rem;
   font-weight: 700;
   line-height: 1.2;
-  margin: ${({ theme: { common } }) => common.space / 2}px 0 0;
+  margin: calc(var(--theme-common-space) / 2) 0 0;
 `
 
 const Text = styled.p`
@@ -85,7 +85,7 @@ const Text = styled.p`
   font-size: 1.6rem;
   font-weight: 400;
   line-height: 1.5;
-  margin: 0 0 ${({ theme: { common } }) => common.space * 3}px;
+  margin: 0 0 calc(var(--theme-common-space) * 3);
   white-space: pre-wrap;
   word-break: break-word;
 
