@@ -6,7 +6,7 @@
     },
     "foreign": {
       "development": "https://api.studio.thegraph.com/query/{{accessId}}/gbc-bridge-mainnet/{{resourceId}}",
-      "production": "https://api.goldsky.com/api/public/project_clq2h52u1up1v01ycfpcz2r0b/subgraphs/gbc-bridge-mainnet/{{resourceId}}/gn"
+      "production": "https://gateway-arbitrum.network.thegraph.com/api/{{accessId}}/subgraphs/id/{{resourceId}}"
     }
   }
 }

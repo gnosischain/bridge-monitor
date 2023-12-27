@@ -28,7 +28,7 @@ ARG NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS
 COPY package.json yarn.lock subgraph-config.js ./
 COPY /src ./src
 RUN  yarn install 
-# RUN  yarn postinstall ## Omit subgraph compilation for goldsky compability
+RUN  yarn postinstall
 
 FROM base AS builder
 WORKDIR /app
