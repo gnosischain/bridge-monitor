@@ -106,7 +106,7 @@ jobs:
             "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }}"
             "NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT=production"
             "NEXT_PUBLIC_SUBGRAPH_ACCESS_ID=${{ secrets.GRAPH_API_KEY }}"
-            "NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS=100:2ths6FTZhCBggnyakh7PL5KH91zjRv8xPNfzaCRKogJ,1:v1.0.0"
+            "NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS=100:2ths6FTZhCBggnyakh7PL5KH91zjRv8xPNfzaCRKogJ,1:9W7Ye5xFfefNYDxXD4StqAuj7TU8eLq5PLmuPUnhFbeQ"
     
   Get_images_and_restart_deployments:
     needs: Build_and_push_image_to_ECR
