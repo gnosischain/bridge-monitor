@@ -1,59 +1,119 @@
 import Image from 'next/image'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
+import NextLink from 'next/link'
 
-import { GnosisChainLogo } from '@/src/components/assets/GnosisChainLogo'
+import { GnosisChain } from '@/src/components/assets/GnosisChain'
 import { InnerContainer as BaseInnerContainer } from '@/src/components/helpers/InnerContainer'
-import { Section } from '@/src/components/layout/Section'
-import { BaseParagraph } from '@/src/components/text/BaseParagraph'
 
 const Wrapper = styled.footer`
-  color: ${({ theme: { colors } }) => colors.textColor};
+  color: ${({ theme: { colors } }) => colors.primary};
   margin-top: var(--theme-common-space);
+  padding: calc(var(--theme-common-space) * 5) 0;
   width: 100%;
 `
 
 const InnerContainer = styled(BaseInnerContainer)`
-  display: flex;
-  justify-content: space-between;
-  flex-direction: row;
   align-items: center;
+  flex-direction: column;
+  row-gap: calc(var(--theme-common-space) * 2);
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
+  }
 `
 
-const Paragraph = styled(BaseParagraph)`
-  align-items: center;
-  color: ${({ theme: { colors } }) => colors.textColor};
-  display: flex;
-  flex-direction: row;
-  font-size: 1.2rem;
-  gap: var(--theme-common-space);
+const TextCSS = css`
+  color: ${({ theme: { colors } }) => colors.primary};
+  font-size: 1.4rem;
+  font-weight: 400;
   line-height: 1.5;
-  margin: 0;
+`
 
-  svg {
-    max-width: 24px;
+const Start = styled.div`
+  ${TextCSS}
+
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  row-gap: calc(var(--theme-common-space) * 2);
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    column-gap: calc(var(--theme-common-space) * 4);
+    flex-direction: row;
+  }
+`
+
+const Text = styled.span`
+  ${TextCSS}
+`
+
+const ExternalLink = styled.a`
+  ${TextCSS}
+
+  align-items: center;
+  column-gap: var(--theme-common-space);
+  display: flex;
+  font-size: 1.2rem;
+  text-decoration: none;
+
+  &:active {
+    opacity: 0.8;
+  }
+`
+
+const End = styled.div`
+  align-items: center;
+  column-gap: calc(var(--theme-common-space) * 5);
+  display: flex;
+`
+
+const Link = styled.a`
+  ${TextCSS}
+
+  align-items: center;
+  column-gap: var(--theme-common-space);
+  display: flex;
+  font-size: 1.2rem;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
   }
 
-  a {
-    display: flex;
+  &:active {
+    opacity: 0.8;
   }
 `
 
 export const Footer: React.FC = (props) => {
+  const year = new Date().getFullYear()
+
   return (
     <Wrapper {...props}>
-      <Section>
-        <InnerContainer>
-          <Paragraph>
-            Developed by{' '}
-            <a href="https://www.bootnode.dev/" rel="noreferrer" target="_blank">
-              <Image alt="Bootnode" height={24} src="/images/bn.svg" width={24} />
-            </a>
-          </Paragraph>
-          <Paragraph>
-            Powered by <GnosisChainLogo />
-          </Paragraph>
-        </InnerContainer>
-      </Section>
+      <InnerContainer>
+        <Start>
+          <GnosisChain />
+          <Text>Copyright © {year} Gnosis | All rights reserved</Text>
+          <ExternalLink
+            href="https://www.bootnode.dev/"
+            rel="noreferrer"
+            target="_blank"
+            title="BootNode - Web3 Development"
+          >
+            Built by <Image alt="BootNode logo" height={15} src="/images/bn.svg" width={19} />
+          </ExternalLink>
+        </Start>
+        <End>
+          <NextLink href="/privacy" passHref>
+            <Link>Privacy Policy</Link>
+          </NextLink>
+          <NextLink href="/terms" passHref>
+            <Link>Terms &amp; Conditions</Link>
+          </NextLink>
+        </End>
+      </InnerContainer>
     </Wrapper>
   )
 }

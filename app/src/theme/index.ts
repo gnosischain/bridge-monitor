@@ -11,11 +11,9 @@ const darkGray = 'rgb(10, 25, 50)'
 const black = '#0A0C0B'
 const commonBoxShadow =
   '0 27px 80px rgba(0, 0, 0, 0.07), 0 10.4px 25.4815px rgba(0, 0, 0, 0.0425185), 0 2.2px 6.51852px rgba(0, 0, 0, 0.0274815)'
-const cream = '#F0EBDE'
 const creamRGB = '240, 235, 222'
 const creamDark = '#DDD4BE'
 const creamLight = '#F8F5ED'
-const darkGreen = '#3E6957'
 const darkGrey = '#252F2B'
 const darkSecondary = '#8799C7'
 const darkerGrey = '#1E2723'
@@ -26,21 +24,62 @@ const green_1 = '#63b090'
 const green_2 = '#59927a'
 const lightGrey = '#323D38'
 const lightYellow = '#EEFB9E'
-const primary = '#3E6957'
-const primaryDark = '#133629'
-const primaryGradient = `linear-gradient(180deg, #3E6655 0%, ${primary} 100%)`
 const secondary = '#A6BCF5'
 const success = '#40D194'
 const successDark = '#32AF7B'
 const tertiary = '#A6CFD5'
-const textColor = '#F0EBDE'
 const warning = '#FAB754'
 const warningDark = '#D39435'
-const white = '#FBF9F3'
+
 const grayGradient = `linear-gradient(180deg, ${lightGrey} 0%, ${darkGrey} 100%)`
 const cream06 = `rgba(${creamRGB}, 0.6)`
 
+const color_001 = '#F0EBDE'
+const color_002 = '#3E6957'
+const color_003 = '#133629'
+const color_004 = '#FBF9F3'
+
+const cream = color_001
+const primary = color_002
+const primaryGradient = `linear-gradient(180deg, #3E6655 0%, ${color_002} 100%)`
+const primaryDark = color_003
+const darkGreen = color_002
+const textColor = color_002
+const white = color_004
+
 export const theme = {
+  colors: {
+    black: black,
+    borderColor: borderColor,
+    cream: cream,
+    creamDark: creamDark,
+    creamLight: creamLight,
+    darkGreen: darkGreen,
+    darkGrey: darkGrey,
+    darkSecondary: darkSecondary,
+    darkerGrey: darkerGrey,
+    darkestGrey2: darkestGrey2,
+    darkestGrey: darkestGrey,
+    error: error,
+    green_1: green_1,
+    green_2: green_2,
+    lightGrey: lightGrey,
+    lightYellow: lightYellow,
+    mainBodyBackground: darkestGrey,
+    primary: primary,
+    primaryDark: primaryDark,
+    secondary: secondary,
+    success: success,
+    successDark: successDark,
+    tertiary: tertiary,
+    textColor: textColor,
+    warning: warning,
+    warningDark: warningDark,
+    white: white,
+  },
+  body: {
+    backgroundColor: color_001,
+  },
   common: {
     borderRadius: borderRadius,
     space: `${space}px`,
@@ -101,9 +140,6 @@ export const theme = {
     backgroundColor: 'rgba(13, 2, 2, 0.65)',
     borderColor: borderColor,
   },
-  body: {
-    backgroundColor: darkestGrey,
-  },
   buttonDropdown: {
     backgroundColor: darkerGrey,
     backgroundColorHover: darkestGrey,
@@ -127,35 +163,6 @@ export const theme = {
     borderColorHover: darkerGrey,
     color: cream,
     colorHover: cream,
-  },
-  colors: {
-    black: black,
-    borderColor: borderColor,
-    cream: cream,
-    creamDark: creamDark,
-    creamLight: creamLight,
-    darkGreen: darkGreen,
-    darkGrey: darkGrey,
-    darkSecondary: darkSecondary,
-    darkerGrey: darkerGrey,
-    darkestGrey2: darkestGrey2,
-    darkestGrey: darkestGrey,
-    error: error,
-    green_1: green_1,
-    green_2: green_2,
-    lightGrey: lightGrey,
-    lightYellow: lightYellow,
-    mainBodyBackground: darkestGrey,
-    primary: primary,
-    primaryDark: primaryDark,
-    secondary: secondary,
-    success: success,
-    successDark: successDark,
-    tertiary: tertiary,
-    textColor: textColor,
-    warning: warning,
-    warningDark: warningDark,
-    white: white,
   },
   gradients: {
     primary: primaryGradient,

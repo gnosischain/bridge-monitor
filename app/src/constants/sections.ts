@@ -39,4 +39,4 @@ export const savingsDAISections = [
   },
 ] as const
 
-export const mainMenuSections = [...bridgeSections, ...savingsDAISections]
+export const mainMenuSections = [...bridgeSections, ...bridgeExplorerSections]

@@ -10,18 +10,34 @@ import { useRouter } from 'next/router'
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
 
 const Wrapper = styled.div`
-  --wrapper-width: 954px;
+  --wrapper-width: 1002px;
 
   align-items: center;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   justify-content: center;
-  margin: 0 auto;
+  margin: calc(var(--theme-common-space) * 7) auto;
   max-width: 100%;
-  padding: var(--theme-layout-vertical-padding) 0;
-  row-gap: 16px;
   width: var(--wrapper-width);
+`
+
+const Card = styled.div`
+  backdrop-filter: blur(1.3875000476837158px);
+  background: rgba(248, 245, 237, 0.7);
+  border-radius: calc(var(--theme-common-space) * 2);
+  border: 1px solid ${({ theme: { colors } }) => colors.cream};
+  box-shadow: 0 10.2px 7.8px 0 rgba(0, 0, 0, 0.01), 0 25.819px 20.925px 0 rgba(0, 0, 0, 0.02),
+    0 51px 48px 0 rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  padding: var(--theme-common-space);
+  row-gap: 16px;
+  width: 100%;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    padding: calc(var(--theme-common-space) * 3);
+  }
 `
 
 const SearchBox = styled.div`
@@ -29,9 +45,15 @@ const SearchBox = styled.div`
   --search-box-padding: 30px 20px;
 
   backdrop-filter: blur(7.5px);
-  background-color: rgba(255, 255, 255, 0.02);
-  border-radius: 16px;
-  box-shadow: 0 38.51852px 25.48148px 0 rgba(0, 0, 0, 0.12), 0 100px 80px 0 rgba(0, 0, 0, 0.2);
+  background: linear-gradient(
+      142deg,
+      rgba(240, 235, 222, 0) 30.63%,
+      rgba(240, 235, 222, 0.2) 84.81%
+    ),
+    linear-gradient(203deg, #6cac91 14.77%, #4b886e 85.24%), rgba(255, 255, 255, 0.2);
+  border-radius: calc(var(--theme-common-space) * 2);
+  backdrop-filter: blur(7.5px);
+  box-shadow: 0px 100px 80px 0px rgba(46, 62, 55, 0.2);
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -43,23 +65,15 @@ const SearchBox = styled.div`
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     --search-box-padding-active: 40px 175px;
-    --search-box-padding: 95px 175px;
+    --search-box-padding: 100px 175px;
   }
 `
 
 const Title = styled.h1`
-  background: linear-gradient(
-    80deg,
-    ${({ theme: { colors } }) => colors.green_1} 21.77%,
-    ${({ theme: { colors } }) => colors.green_2} 82.43%
-  );
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: ${({ theme: { fonts } }) => fonts.family};
-  font-size: 3.2rem;
+  color: ${({ theme: { colors } }) => colors.cream};
+  font-size: 3rem;
   font-weight: 800;
-  line-height: 1.2;
+  line-height: 1.1;
   margin: 0 0 16px;
   text-align: center;
 
@@ -69,16 +83,16 @@ const Title = styled.h1`
 `
 
 const Text = styled.p`
-  color: ${({ theme: { colors } }) => colors.creamDark};
+  color: ${({ theme: { colors } }) => colors.primaryDark};
   font-size: 1.4rem;
   font-weight: 400;
   line-height: 1.2;
-  margin: 0 0 20px;
+  margin: 0 0 calc(var(--theme-common-space) * 3);
   text-align: center;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     font-size: 1.8rem;
-    margin: 0 0 48px;
+    margin: 0 0 calc(var(--theme-common-space) * 4);
 
     br {
       display: none;
@@ -154,34 +168,36 @@ export const Search: React.FC = ({ ...restProps }) => {
 
   return (
     <Wrapper {...restProps}>
-      <SearchBox
-        animate={isSearchActive ? 'animate' : undefined}
-        as={motion.div}
-        initial="initial"
-        transition={{
-          duration: transitionTime,
-          ease: 'easeInOut',
-        }}
-        variants={searchBoxAnimationVariants}
-      >
-        <Title>
-          The Gnosis
-          <br />
-          Bridge Explorer
-        </Title>
-        <Text>
-          Check real time transaction status
-          <br /> and claim your tokens
-        </Text>
-        <SimpleSearch
-          onChange={handleHashChange}
-          status={error ? TextfieldStatus.error : undefined}
-          statusMessage={error}
-          value={filters.hash}
-        />
-      </SearchBox>
-      {/* Don't trigger <Results />'s hooks unnecessarily */}
-      {filters.hash && <Results filters={filters} />}
+      <Card>
+        <SearchBox
+          animate={isSearchActive ? 'animate' : undefined}
+          as={motion.div}
+          initial="initial"
+          transition={{
+            duration: transitionTime,
+            ease: 'easeInOut',
+          }}
+          variants={searchBoxAnimationVariants}
+        >
+          <Title>
+            The Gnosis
+            <br />
+            Bridge Explorer
+          </Title>
+          <Text>
+            Check real time transaction status
+            <br /> and claim your tokens
+          </Text>
+          <SimpleSearch
+            onChange={handleHashChange}
+            status={error ? TextfieldStatus.error : undefined}
+            statusMessage={error}
+            value={filters.hash}
+          />
+        </SearchBox>
+        {/* Don't trigger <Results />'s hooks unnecessarily */}
+        {filters.hash && <Results filters={filters} />}
+      </Card>
     </Wrapper>
   )
 }

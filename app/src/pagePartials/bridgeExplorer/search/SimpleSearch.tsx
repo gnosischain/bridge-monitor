@@ -10,6 +10,9 @@ const Wrapper = styled.div`
   --border-radius: 8px;
 
   border-radius: var(--border-radius);
+  box-shadow: 0 2.231px 2.775px 0 rgba(0, 0, 0, 0.01), 0 10.2px 7.8px 0 rgba(0, 0, 0, 0.01),
+    0 25.819px 20.925px 0 rgba(0, 0, 0, 0.02), 0 51px 48px 0 rgba(0, 0, 0, 0.03);
+  height: 64px;
   position: relative;
 `
 
@@ -21,7 +24,7 @@ const Textfield: any = styled(DebounceInput)`
   --textfield-border-radius: var(--border-radius);
   --textfield-font-weight: 400;
   --textfield-height: 100%;
-  --textfield-padding: 14px 36px 14px 14px;
+  --textfield-padding: 0 36px 0 14px;
   --textfield-background-color: ${({ theme: { colors } }) => colors.cream};
   --textfield-border-color: ${({ theme: { colors } }) => colors.white};
   --textfield-border-color-error: ${({ theme: { colors } }) => colors.darkerGrey};
@@ -34,13 +37,12 @@ const Textfield: any = styled(DebounceInput)`
     status === TextfieldStatus.error
       ? 'var(--textfield-border-color-error)'
       : 'var(--textfield-border-color)'};
-  box-shadow: 0 38.51852px 25.48148px 0 rgba(0, 0, 0, 0.12), 0 100px 80px 0 rgba(0, 0, 0, 0.2),
-    0 4px 4px 0 rgba(0, 0, 0, 0.25);
+
   color: var(--textfield-color);
   font-family: ${({ theme: { fonts } }) => fonts.family};
   font-size: var(--texfield-font-size);
   font-weight: 400;
-  height: auto;
+  height: 100%;
   position: relative;
   transition: border-color 0.15s linear;
   width: 100%;
@@ -106,7 +108,7 @@ const Textfield: any = styled(DebounceInput)`
   }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    --textfield-padding: 21px 48px 21px 24px;
+    --textfield-padding: 0 48px 0 24px;
     --texfield-font-size: 1.6rem;
   }
 
@@ -128,11 +130,11 @@ const Magnifier = styled(BaseMagnifier)`
   z-index: 5;
 
   path {
-    stroke: ${({ theme: { colors } }) => colors.darkGreen};
+    stroke: ${({ theme: { colors } }) => colors.primary};
   }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    right: 24px;
+    right: 22px;
   }
 `
 

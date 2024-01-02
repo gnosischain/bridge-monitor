@@ -9,27 +9,22 @@ const Wrapper = styled.nav`
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     align-items: center;
-    column-gap: 40px;
+    column-gap: calc(var(--theme-common-space) * 5);
     display: flex;
   }
 `
 const NavLink = styled(BaseNavLink)`
   align-items: center;
-  color: ${({ theme: { colors } }) => colors.white};
+  color: ${({ theme: { colors } }) => colors.primary};
   display: flex;
   font-size: 1.4rem;
   height: 100%;
   justify-content: center;
-  opacity: 0.6;
   text-decoration: none;
+  transition: text-shadow 0.25s ease-in-out;
 
   @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
     font-size: 1.6rem;
-  }
-
-  &.active,
-  &:hover {
-    opacity: 1;
   }
 
   &:active {
@@ -38,6 +33,7 @@ const NavLink = styled(BaseNavLink)`
 
   &.active {
     pointer-events: none;
+    text-shadow: 0 0 1px ${({ theme: { colors } }) => colors.primary};
   }
 `
 
