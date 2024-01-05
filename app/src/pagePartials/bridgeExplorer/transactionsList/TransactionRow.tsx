@@ -15,7 +15,7 @@ import { transactionBaseURL } from '@/src/constants/sections'
 
 const TR = styled(BaseTR)`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNSIgaGVpZ2h0PSI4IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik00Ljg5MyA0LjI1N0wxLjI1NyA3Ljg5M2EuMzY0LjM2NCAwIDAxLS41MTQtLjUxNEw0LjEyMiA0IC43NDIuNjIxYS4zNjQuMzY0IDAgMTEuNTE1LS41MTRsMy42MzYgMy42MzZhLjM2My4zNjMgMCAwMTAgLjUxNHoiIGZpbGw9IiNGMEVCREUiLz48L3N2Zz4=');
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjgiIGZpbGw9Im5vbmUiPjxwYXRoIGQ9Ik00Ljg5MyA0LjI1N0wxLjI1NyA3Ljg5M2EuMzY0LjM2NCAwIDAxLS41MTQtLjUxNEw0LjEyMyA0IC43NDIuNjIxYS4zNjQuMzY0IDAgMTEuNTE0LS41MTRsMy42MzYgMy42MzZhLjM2NC4zNjQgMCAwMTAgLjUxNHoiIGZpbGw9IiMzRTY5NTciLz48L3N2Zz4=');
     background-position: calc(100% - var(--table-padding-common))
       calc(var(--table-padding-vertical) + 7px);
     background-repeat: no-repeat;
@@ -25,10 +25,9 @@ const TR = styled(BaseTR)`
 const MobileLabel = styled.span`
   display: block;
   font-size: 1.2rem;
-  font-weight: 300;
+  font-weight: 600;
   line-height: 1.2;
   margin: 0 0 4px;
-  opacity: 0.6;
   text-transform: uppercase;
   white-space: nowrap;
 
@@ -53,7 +52,7 @@ const TDArrow = styled(TD)`
 
 const ArrowRight = styled(ArrowUp)`
   display: block;
-  transform: rotate(-90deg);
+  transform: rotate(0deg);
 `
 
 const TDValidators = styled(TD)`
@@ -76,8 +75,9 @@ const TDLastMobile = styled(TD)`
 `
 
 const ViewMore = styled.span`
-  color: ${({ theme: { colors } }) => colors.tertiary};
+  color: ${({ theme: { colors } }) => colors.primary};
   font-size: 1.2rem;
+  font-weight: 600;
   line-height: 1.2;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
@@ -104,7 +104,7 @@ export const TransactionRow: React.FC<Props> = ({
   updateInMemoryTransaction,
   ...restProps
 }) => {
-  const addressCharacters = 4
+  const addressCharacters = 6
   const {
     bridgeName,
     id,

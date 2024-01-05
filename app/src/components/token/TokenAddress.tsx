@@ -9,7 +9,7 @@ const CommonCSS = css`
   transition: color 0.15s ease-in-out;
 
   &:hover {
-    color: ${({ theme: { colors } }) => colors.success};
+    color: ${({ theme: { colors } }) => colors.primaryDark};
   }
 
   &:active {
@@ -27,19 +27,20 @@ const AddressText = styled.span`
   display: block;
   overflow: hidden;
   line-height: 1.2;
+  white-space: nowrap;
 `
 
 const CopyButton = styled.button`
   background-color: transparent;
   border: none;
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.primary};
   cursor: pointer;
 
   ${CommonCSS}
 `
 
 const Link = styled(IconLink)`
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.primary};
   cursor: pointer;
 
   ${CommonCSS}

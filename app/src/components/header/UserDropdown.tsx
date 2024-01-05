@@ -46,7 +46,7 @@ const Wrapper = styled(Dropdown)`
 
 const Wallet = styled.div`
   align-items: center;
-  column-gap: 8px;
+  column-gap: var(--theme-common-space);
   display: flex;
 `
 
@@ -224,6 +224,12 @@ const SwitchNetworkButton = styled.span`
   padding: 0 16px;
 `
 
+const Button = styled(ButtonConnect)`
+  justify-content: space-between;
+  min-width: 186px;
+  padding-left: var(--theme-common-space);
+`
+
 export const UserDropdown: React.FC = ({ ...restProps }) => {
   const {
     address,
@@ -241,7 +247,7 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
     <>
       <Wrapper
         dropdownButton={
-          <ButtonConnect>
+          <Button>
             <Wallet>
               <UserWallet />{' '}
               {address ? (
@@ -252,7 +258,7 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
             </Wallet>
             {!isWalletNetworkSupported && <Status />}
             <Chevron />
-          </ButtonConnect>
+          </Button>
         }
         dropdownPosition={DropdownPosition.right}
         items={[

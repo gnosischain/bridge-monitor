@@ -7,9 +7,9 @@ export const Head = () => {
       : { hostname: 'localhost', port: 3000, protocol: 'http:' }
   const portString = port ? `:${port}` : ''
   const siteURL = typeof window !== 'undefined' ? `${protocol}//${hostname}${portString}` : ''
-  const title = 'Gnosis Bridge Explorer'
+  const title = 'Gnosis Bridge'
   const description =
-    'Real-time tracking of xDAI and OmniBridge bridging transactions at your fingertips, integrated claiming functionality, tons of analytics regarding bridge transactions, bridge information on all Gnosis Chain bridges, and the state of bridge validators.'
+    'Gnosis token bridging, real-time tracking of xDAI and OmniBridge bridging transactions at your fingertips, integrated claiming functionality, tons of analytics regarding bridge transactions, bridge information on all Gnosis Chain bridges, and the state of bridge validators.'
   const twitterHandle = '@gnosischain'
 
   return (

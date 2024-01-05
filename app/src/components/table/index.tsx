@@ -5,8 +5,11 @@ export const Table = styled.div`
   --table-padding-common: calc(var(--theme-common-space) * 2);
   --table-border-radius: ${({ theme: { common } }) => common.borderRadius};
 
+  column-gap: calc(var(--theme-common-space) / 2);
   display: grid;
-  width: 100%;
+  min-width: fit-content;
+  overflow-x: auto;
+  row-gap: calc(var(--theme-common-space) / 2);
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     grid-template-columns: 1fr 1fr;
@@ -17,64 +20,57 @@ export const Table = styled.div`
   }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    column-gap: 0;
     grid-template-columns: 1fr;
+    padding-left: var(--table-padding-common);
+    padding-right: var(--table-padding-common);
+    row-gap: 0;
   }
 `
 
 export const TR = styled.div<{ compact?: boolean }>`
-  background-color: ${({ theme: { colors } }) => colors.darkerGrey};
-  border-bottom: 4px solid ${({ theme: { colors } }) => colors.darkestGrey};
+  background-color: ${({ theme: { colors } }) => colors.cream};
+  border: 1px solid ${({ theme: { colors } }) => colors.creamDark};
   border-radius: var(--table-border-radius);
   cursor: pointer;
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  min-width: 0;
+  min-width: 100%;
   padding: var(--table-padding-common);
   row-gap: calc(var(--table-padding-common));
-  transition: background-color 0.15s linear;
+  transition: none;
 
-  &:hover {
-    &:active {
-      opacity: 0.8;
-    }
+  &:hover > * {
+    opacity: 0.8;
   }
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    border-right: 4px solid ${({ theme: { colors } }) => colors.darkestGrey};
+  &:active > * {
+    opacity: 0.5;
   }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     background-color: transparent;
-    border-bottom-color: ${({ theme: { colors } }) => colors.black};
-    border-bottom-width: 1px;
+    border-left: none;
     border-right: none;
-    column-gap: calc(var(--table-padding-common) * 2);
+    border-top: none;
+    border-radius: 0;
+    border-right: none;
+    column-gap: calc(var(--table-padding-common));
     display: grid;
     grid-template-columns: ${({ compact }) => {
-      const baseTemplate = '1fr 1fr 155px 10px 155px'
+      const addressWidth = 'minmax(185px, 1fr)'
+      const bridgeDirectionWidth = 'minmax(155px, 1fr)'
+      const statusWidth = 'minmax(140px, 1fr)'
+      const baseTemplate = `${addressWidth} ${bridgeDirectionWidth} ${addressWidth} 10px ${addressWidth}`
 
-      return compact ? `${baseTemplate} 1fr` : `${baseTemplate} 1fr 1fr`
+      return compact ? `${baseTemplate} ${statusWidth}` : `${baseTemplate} 1fr ${statusWidth}`
     }};
     margin: 0;
-    padding-bottom: 0;
-    padding-left: var(--table-padding-common);
-    padding-right: var(--table-padding-common);
-    padding-top: 0;
-
-    &:first-child {
-      border-top-left-radius: var(--table-border-radius);
-      border-top-right-radius: var(--table-border-radius);
-    }
+    padding: 0;
 
     &:last-child {
-      border-bottom-left-radius: var(--table-border-radius);
-      border-bottom-right-radius: var(--table-border-radius);
       border-bottom: none;
-    }
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.03);
     }
   }
 `
@@ -86,24 +82,19 @@ export const THead = styled(TR)`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     display: grid;
 
-    &:hover {
-      background-color: transparent;
-
-      &:active {
-        opacity: 1;
-      }
+    &:hover,
+    &:active {
+      opacity: 1;
     }
   }
 `
 
 export const TD = styled.div`
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.primary};
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   justify-content: flex-start;
-  transition: background-color 0.15s linear;
-  /* padding: var(--table-padding-common) 0; */
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     padding-bottom: var(--table-padding-vertical);
@@ -115,7 +106,7 @@ export const TH = styled(TD)`
   --th-padding-top: calc(var(--theme-common-space) * 4);
 
   font-size: 1.4rem;
-  font-weight: 300;
+  font-weight: 400;
   padding-top: var(--th-padding-top);
   white-space: nowrap;
 `

@@ -1,7 +1,7 @@
 import { CSSProperties, PropsWithChildren } from 'react'
 import styled, { css, keyframes } from 'styled-components'
 
-const neutralBackground = 'rgba(1,157,139,0.05)'
+const neutralBackground = 'rgba(167, 154, 117, 0.1)'
 
 const loadingAnimation = keyframes`
   0% {
@@ -24,8 +24,8 @@ interface SkeletonProps extends PropsWithChildren<unknown> {
 }
 
 const AnimationCSS = css<SkeletonProps>`
-  --background-color-start: ${({ theme: { colors } }) => colors.darkerGrey};
-  --background-color-end: ${({ theme: { colors } }) => colors.darkestGrey};
+  --background-color-start: #e2dac3;
+  --background-color-end: #e3dbc6;
 
   animation-delay: 0;
   animation-duration: ${({ animationDuration }) => `${animationDuration}`};

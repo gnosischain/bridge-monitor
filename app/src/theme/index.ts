@@ -12,7 +12,6 @@ const black = '#0A0C0B'
 const commonBoxShadow =
   '0 27px 80px rgba(0, 0, 0, 0.07), 0 10.4px 25.4815px rgba(0, 0, 0, 0.0425185), 0 2.2px 6.51852px rgba(0, 0, 0, 0.0274815)'
 const creamRGB = '240, 235, 222'
-const creamDark = '#DDD4BE'
 const creamLight = '#F8F5ED'
 const darkGrey = '#252F2B'
 const darkSecondary = '#8799C7'
@@ -34,10 +33,12 @@ const warningDark = '#D39435'
 const grayGradient = `linear-gradient(180deg, ${lightGrey} 0%, ${darkGrey} 100%)`
 const cream06 = `rgba(${creamRGB}, 0.6)`
 
+// Colors, generic names. Do not export these, use to build the theme with specific names.
 const color_001 = '#F0EBDE'
 const color_002 = '#3E6957'
 const color_003 = '#133629'
 const color_004 = '#FBF9F3'
+const color_005 = '#DDD4BE'
 
 const cream = color_001
 const primary = color_002
@@ -46,6 +47,7 @@ const primaryDark = color_003
 const darkGreen = color_002
 const textColor = color_002
 const white = color_004
+const creamDark = color_005
 
 export const theme = {
   colors: {

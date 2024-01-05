@@ -26,8 +26,6 @@ const Magnifier: React.FC = () => (
 
 const Wrapper = styled.div`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.darkestGrey};
-  border-radius: 16px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -38,7 +36,6 @@ const Wrapper = styled.div`
 `
 
 const Title = styled.h2`
-  color: ${({ theme: { colors } }) => colors.cream};
   font-family: ${({ theme: { fonts } }) => fonts.family};
   font-size: 2rem;
   font-weight: 500;
@@ -51,7 +48,6 @@ const Title = styled.h2`
 `
 
 const Description = styled.p`
-  color: ${({ theme: { colors } }) => colors.cream};
   font-size: 1.4rem;
   font-weight: 400;
   line-height: 1.4;
@@ -66,6 +62,7 @@ export const NoResultsMessage: React.FC<{
     <Wrapper
       animate={{ opacity: 1 }}
       as={motion.div}
+      className="noResultsMessage"
       initial={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
       {...restProps}

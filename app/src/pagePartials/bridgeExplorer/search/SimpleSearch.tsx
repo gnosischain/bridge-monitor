@@ -139,18 +139,23 @@ const Magnifier = styled(BaseMagnifier)`
 `
 
 const Info = styled.div<{ show: boolean }>`
-  background: ${({ theme: { colors } }) => colors.darkerGrey};
-  border-radius: 8px;
-  color: ${({ theme: { colors } }) => colors.warning};
-  column-gap: 8px;
-  display: flex;
-  height: 65px;
+  --y-distance: 6px;
+
   align-items: center;
+  background: ${({ theme: { colors } }) => colors.darkerGrey};
+  border-radius: 0 0 8px 8px;
+  color: ${({ theme: { colors } }) => colors.warning};
+  column-gap: var(--theme-common-space);
+  display: flex;
+  font-size: 1.6rem;
+  height: calc(56px + var(--y-distance));
   left: 0;
+  line-height: 1.2;
   opacity: ${({ show }) => (show ? 1 : 0)};
   padding-left: 24px;
+  padding-top: var(--y-distance);
   position: absolute;
-  top: 100%;
+  top: calc(100% - var(--y-distance));
   transition: opacity 0.15s linear;
   width: 100%;
 `

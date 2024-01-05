@@ -38,7 +38,7 @@ const Img = styled.img`
 `
 
 const TextCSS = css`
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.primary};
   font-size: 1.2rem;
   font-weight: 400;
   line-height: 1.2;
@@ -54,7 +54,7 @@ Label.defaultProps = {
 }
 
 const Value = styled.span`
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.primary};
   font-size: 1.3rem;
   font-weight: 400;
   line-height: 1.2;

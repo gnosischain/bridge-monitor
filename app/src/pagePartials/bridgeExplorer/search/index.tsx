@@ -10,7 +10,7 @@ import { useRouter } from 'next/router'
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
 
 const Wrapper = styled.div`
-  --wrapper-width: 1002px;
+  --wrapper-width: 1080px;
 
   align-items: center;
   display: flex;
@@ -195,8 +195,7 @@ export const Search: React.FC = ({ ...restProps }) => {
             value={filters.hash}
           />
         </SearchBox>
-        {/* Don't trigger <Results />'s hooks unnecessarily */}
-        {filters.hash && <Results filters={filters} />}
+        <Results filters={filters} />
       </Card>
     </Wrapper>
   )

@@ -12,7 +12,7 @@ const Text = styled.div`
   font-size: 1.2rem;
   line-height: 1.2;
   max-width: fit-content;
-  opacity: 0.6;
+  opacity: 0.8;
 `
 
 interface Props {
