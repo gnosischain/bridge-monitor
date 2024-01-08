@@ -10,18 +10,18 @@ const Wrapper = styled.div`
 `
 const Chain = styled.div<{ chain?: string }>`
   align-items: center;
-  background: ${(props) =>
-    props.chain === 'gnosis'
-      ? ({ theme }) => theme.colors.primary
-      : ({ theme }) => theme.colors.darkerGrey};
-  color: ${({ theme: { colors } }) => colors.cream};
+  background: ${({ chain, theme: { colors } }) =>
+    chain === 'gnosis' ? colors.primary : colors.white};
+  color: ${({ chain, theme: { colors } }) => (chain === 'gnosis' ? colors.white : colors.primary)};
   display: flex;
   font-size: 1.2rem;
   gap: calc(var(--theme-common-space) / 2);
   justify-content: center;
+  line-height: 1.2;
   min-width: fit-content;
   padding: 0 calc(var(--theme-common-space) / 2);
   position: relative;
+  text-transform: capitalize;
 
   > span {
     border-radius: 50%;
@@ -46,7 +46,7 @@ const Chain = styled.div<{ chain?: string }>`
         ${(props) =>
           props.chain === 'gnosis'
             ? ({ theme }) => theme.colors.primary
-            : ({ theme }) => theme.colors.darkGrey};
+            : ({ theme }) => theme.colors.white};
       border-style: solid;
       border-width: 12px 0 12px 6px;
       content: '';

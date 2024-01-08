@@ -12,18 +12,17 @@ const Wrapper = styled.div`
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     align-items: center;
-    column-gap: calc(var(--theme-common-space) * 4);
+    column-gap: calc(var(--theme-common-space) * 3);
     flex-direction: row;
   }
 `
 const Label = styled.span`
   align-items: center;
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.primary_50};
   display: flex;
   font-size: 1.4rem;
-  font-weight: 300;
+  font-weight: 400;
   gap: var(--theme-common-space);
-  opacity: 0.6;
 `
 
 export const Legend: React.FC = () => {

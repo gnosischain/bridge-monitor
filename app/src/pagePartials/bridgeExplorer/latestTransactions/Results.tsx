@@ -13,18 +13,30 @@ const InfoWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  padding: 0 var(--theme-common-space) calc(var(--theme-common-space) * 3);
   row-gap: calc(var(--theme-common-space) * 2);
-  padding: calc(var(--theme-common-space) * 2) 0 calc(var(--theme-common-space) * 7);
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopLandscapeStart}) {
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
+    padding: 0 calc(var(--theme-common-space) * 4) calc(var(--theme-common-space) * 3);
   }
 `
 
 export const ResultsLoading = styled(Loading)`
   min-height: 400px;
+`
+
+const TransactionsWrapper = styled.div`
+  background-color: ${({ theme: { colors } }) => colors.creamLight};
+  border-radius: 16px;
+  margin: 0 2px 2px 2px;
+  padding: calc(var(--theme-common-space) / 2);
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    padding: var(--theme-common-space) 0 calc(var(--theme-common-space) * 5);
+  }
 `
 
 type TransactionsTableProps = {
@@ -47,12 +59,14 @@ export const Results: React.FC<TransactionsTableProps> = ({ bridge, filters }) =
         />
         <Legend />
       </InfoWrapper>
-      <TransactionsList
-        goBackURL={latestTransactionsBaseURL}
-        transactions={transactions}
-        updateInMemoryTransaction={updateInMemoryTransaction}
-        validators={validators}
-      />
+      <TransactionsWrapper>
+        <TransactionsList
+          goBackURL={latestTransactionsBaseURL}
+          transactions={transactions}
+          updateInMemoryTransaction={updateInMemoryTransaction}
+          validators={validators}
+        />
+      </TransactionsWrapper>
     </>
   )
 }

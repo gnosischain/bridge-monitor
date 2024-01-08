@@ -1,24 +1,23 @@
 import styled from 'styled-components'
 
+export const MainTabsWrapper = styled.div`
+  --mains-tab-wrapper-border-radius: 8px;
+
+  background-color: ${({ theme: { colors } }) => colors.cream};
+  border-radius: var(--mains-tab-wrapper-border-radius);
+  border: 2px solid ${({ theme: { colors } }) => colors.cream};
+`
+
 export const Tabs = styled.nav`
-  border-bottom: 1px solid ${({ theme }) => theme.colors.darkerGrey};
+  background-color: ${({ theme }) => theme.colors.creamLight};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.cream};
+  border-top-left-radius: var(--mains-tab-wrapper-border-radius);
+  border-top-right-radius: var(--mains-tab-wrapper-border-radius);
   display: flex;
-  padding-right: calc(var(--theme-common-space) * 2);
 `
 
 export const TabContentInner = styled.div`
   display: flex;
   flex-direction: column;
   row-gap: 32px;
-`
-
-export const TabsWrapper = styled.div`
-  background-color: ${({ theme }) => theme.colors.darkestGrey2};
-  margin: 0 calc(var(--theme-common-space) * -2) calc(var(--theme-common-space) * 2);
-  overflow-x: auto;
-  overflow: hidden;
-
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    margin-bottom: calc(var(--theme-common-space) * 3);
-  }
 `

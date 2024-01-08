@@ -31,7 +31,7 @@ export const Table = styled.div`
 export const TR = styled.div<{ compact?: boolean }>`
   background-color: ${({ theme: { colors } }) => colors.cream};
   border: 1px solid ${({ theme: { colors } }) => colors.creamDark};
-  border-radius: var(--table-border-radius);
+  border-radius: 16px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -76,6 +76,7 @@ export const TR = styled.div<{ compact?: boolean }>`
 `
 
 export const THead = styled(TR)`
+  border-bottom: none;
   display: none;
   cursor: default;
 

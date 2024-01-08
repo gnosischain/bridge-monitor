@@ -5,17 +5,10 @@ import { Validator } from '@/src/utils/validators'
 import { TH, THead } from '@/src/components/table'
 
 const THValidators = styled(TH)`
-  background-color: ${({ theme }) => theme.colors.darkerGrey};
-  border-top-left-radius: ${({ theme: { common } }) => common.borderRadius};
-  border-top-right-radius: ${({ theme: { common } }) => common.borderRadius};
-`
-
-const ValidatorNameWrapper = styled.div`
   column-gap: var(--theme-common-space);
   display: flex;
+  flex-direction: row;
   justify-content: center;
-  padding-left: var(--table-padding-common);
-  padding-right: var(--table-padding-common);
 `
 
 const ValidatorName = styled.span`
@@ -45,13 +38,11 @@ export const TransactionHeader: React.FC<Props> = ({ validators, ...restProps })
       <TH>Receiver</TH>
       {validators && (
         <THValidators className="validators">
-          <ValidatorNameWrapper>
-            {validators.map((validator, index) => (
-              <Tooltip content={validator.name} key={`validator_column_${index}`}>
-                <ValidatorName>{validator.shortName.toUpperCase()}</ValidatorName>
-              </Tooltip>
-            ))}
-          </ValidatorNameWrapper>
+          {validators.map((validator, index) => (
+            <Tooltip content={validator.name} key={`validator_column_${index}`}>
+              <ValidatorName>{validator.shortName.toUpperCase()}</ValidatorName>
+            </Tooltip>
+          ))}
         </THValidators>
       )}
       <TH>Status</TH>

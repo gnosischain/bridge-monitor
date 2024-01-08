@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { ArrowUp } from '@/src/components/assets/ArrowUp'
+import { ChevronRight } from '@/src/components/assets/ChevronRight'
 import { DateTime } from '@/src/pagePartials/bridgeExplorer/transactionsList/DateTime'
 import { ChainsInitiatorReceiver } from '@/src/pagePartials/bridgeExplorer/common/ChainsInitiatorReceiver'
 import { TokenAddress as BaseAddress } from '@/src/components/token/TokenAddress'
@@ -7,20 +8,11 @@ import { Initiator, Receiver } from '@/src/pagePartials/bridgeExplorer/common/To
 import { Validators } from '@/src/pagePartials/bridgeExplorer/transactionsList/Validators'
 import { StatusCell } from '@/src/pagePartials/bridgeExplorer/transactionsList/StatusCell'
 import { Transaction } from '@/src/utils/transactions'
-import { TR as BaseTR, TD } from '@/src/components/table'
+import { TD, TR } from '@/src/components/table'
 import Link from 'next/link'
 import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 import { useMemo } from 'react'
 import { transactionBaseURL } from '@/src/constants/sections'
-
-const TR = styled(BaseTR)`
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjgiIGZpbGw9Im5vbmUiPjxwYXRoIGQ9Ik00Ljg5MyA0LjI1N0wxLjI1NyA3Ljg5M2EuMzY0LjM2NCAwIDAxLS41MTQtLjUxNEw0LjEyMyA0IC43NDIuNjIxYS4zNjQuMzY0IDAgMTEuNTE0LS41MTRsMy42MzYgMy42MzZhLjM2NC4zNjQgMCAwMTAgLjUxNHoiIGZpbGw9IiMzRTY5NTciLz48L3N2Zz4=');
-    background-position: calc(100% - var(--table-padding-common))
-      calc(var(--table-padding-vertical) + 7px);
-    background-repeat: no-repeat;
-  }
-`
 
 const MobileLabel = styled.span`
   display: block;
@@ -55,15 +47,6 @@ const ArrowRight = styled(ArrowUp)`
   transform: rotate(0deg);
 `
 
-const TDValidators = styled(TD)`
-  background-color: ${({ theme: { colors } }) => colors.darkerGrey};
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    padding-left: 0;
-    padding-right: 0;
-  }
-`
-
 const TDLastMobile = styled(TD)`
   align-items: flex-end;
   flex-direction: row;
@@ -87,6 +70,24 @@ const ViewMore = styled.span`
 
 const RowLink = styled.a`
   text-decoration: none;
+`
+
+const StatusWrapper = styled.div`
+  > svg {
+    display: none;
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    align-items: center;
+    column-gap: var(--theme-common-space);
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+
+    > svg {
+      display: block;
+    }
+  }
 `
 
 type Props = {
@@ -188,19 +189,20 @@ export const TransactionRow: React.FC<Props> = ({
           />
         </TD>
         {showValidations && (
-          <TDValidators>
+          <TD>
             <MobileLabel>Validators</MobileLabel>
             <Validators transaction={transaction} />
-          </TDValidators>
+          </TD>
         )}
         <TDLastMobile>
-          <div>
+          <StatusWrapper>
             <MobileLabel>Status</MobileLabel>
             <StatusCell
               transaction={transaction}
               updateInMemoryTransaction={updateInMemoryTransaction}
             />
-          </div>
+            <ChevronRight />
+          </StatusWrapper>
           <ViewMore>View More &gt;</ViewMore>
         </TDLastMobile>
       </TR>

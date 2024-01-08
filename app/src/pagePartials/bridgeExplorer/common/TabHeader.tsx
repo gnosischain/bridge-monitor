@@ -2,20 +2,36 @@ import styled, { css } from 'styled-components'
 
 const Wrapper = styled.button<{ isActive: boolean }>`
   background-color: transparent;
-  border-bottom-color: ${({ theme }) => theme.colors.darkerGrey};
+  border-bottom-color: ${({ theme: { colors } }) => colors.cream};
   border-left-color: transparent;
   border-right-color: transparent;
   border-style: solid;
   border-top-color: transparent;
   border-width: 1px;
-  color: ${({ theme }) => theme.colors.white};
+  color: ${({ theme: { colors } }) => colors.primary};
   cursor: pointer;
   display: block;
   margin-bottom: -1px;
-  padding: calc(var(--theme-common-space) * 4);
+  padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3);
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    padding: calc(var(--theme-common-space) * 3);
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    padding: calc(var(--theme-common-space) * 4);
+  }
+
+  &:first-child {
+    border-top-left-radius: var(--mains-tab-wrapper-border-radius);
+  }
+
+  &:last-child {
+    border-top-right-radius: var(--mains-tab-wrapper-border-radius);
+  }
 
   &:hover {
-    background-color: ${({ theme: { colors } }) => colors.black};
+    background-color: ${({ theme: { colors } }) => colors.creamDark};
 
     .tabTitle {
       opacity: 1;
@@ -32,17 +48,17 @@ const Wrapper = styled.button<{ isActive: boolean }>`
   ${({ isActive }) =>
     isActive &&
     css`
-      background-color: ${({ theme: { colors } }) => colors.darkestGrey};
-      border-bottom-color: ${({ theme: { colors } }) => colors.darkestGrey};
-      border-left-color: ${({ theme: { colors } }) => colors.darkerGrey};
-      border-right-color: ${({ theme: { colors } }) => colors.darkerGrey};
-      color: ${({ theme: { colors } }) => colors.white};
+      background-color: ${({ theme: { colors } }) => colors.cream};
+      border-bottom-color: ${({ theme: { colors } }) => colors.cream};
+      border-left-color: ${({ theme: { colors } }) => colors.cream};
+      border-right-color: ${({ theme: { colors } }) => colors.cream};
+      color: ${({ theme: { colors } }) => colors.primary};
       cursor: default;
       opacity: 1;
       pointer-events: none;
 
       &:hover {
-        background-color: ${({ theme: { colors } }) => colors.darkestGrey};
+        background-color: ${({ theme: { colors } }) => colors.cream};
       }
 
       &:first-child {
@@ -60,10 +76,9 @@ const Wrapper = styled.button<{ isActive: boolean }>`
 `
 
 const Title = styled.span`
-  color: #fff;
-  font-size: 1.6rem;
-  font-weight: 400;
-  opacity: 0.5;
+  font-size: 1.8rem;
+  font-weight: 500;
+  opacity: 0.8;
   transition: opacity 0.15s ease-in-out;
 `
 

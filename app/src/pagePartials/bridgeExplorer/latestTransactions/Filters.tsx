@@ -14,11 +14,17 @@ import { DateTimePicker } from '@/src/pagePartials/bridgeExplorer/latestTransact
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
 
 const Wrapper = styled.div`
-  --filter-border-radius: ${({ theme: { common } }) => common.borderRadius};
+  --filter-border-radius: 4px;
   --filter-common-padding: calc(var(--theme-common-space) * 2);
 
-  background: ${({ theme: { gradients } }) => gradients.gray};
+  background-color: ${({ theme: { colors } }) => colors.creamDarker};
   border-radius: var(--filter-border-radius) var(--filter-border-radius) 0 0;
+  margin: calc(var(--theme-common-space) * 2) var(--theme-common-space);
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    margin: calc(var(--theme-common-space) * 3) calc(var(--theme-common-space) * 2)
+      calc(var(--theme-common-space) * 2);
+  }
 `
 
 const CommonGridCSS = css`
@@ -52,6 +58,7 @@ const Field = styled.div`
 `
 
 const Label = styled.label`
+  color: ${({ theme: { colors } }) => colors.primary};
   font-size: 1.4rem;
   line-height: 1.2;
   margin-bottom: var(--theme-common-space);
@@ -59,7 +66,7 @@ const Label = styled.label`
 
 const SearchWrapper = styled.div`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.darkGrey};
+  background-color: ${({ theme: { colors } }) => colors.creamDarkest};
   padding: var(--filter-common-padding);
 
   ${CommonGridCSS};
@@ -114,19 +121,21 @@ const Buttons = styled.div`
 
 const Reset = styled.button`
   background-color: transparent;
-  border: none;
-  color: ${({ theme: { colors } }) => colors.secondary};
+  border-radius: 8px;
+  border: 1px solid ${({ theme: { colors } }) => colors.primary_60};
+  color: ${({ theme: { colors } }) => colors.primary};
   cursor: pointer;
   font-family: ${({ theme: { fonts } }) => fonts.family};
   font-size: 1.4rem;
   font-weight: 400;
-  height: 36px;
-  opacity: 0.9;
+  height: 42px;
+  padding: 0 calc(var(--theme-common-space) * 2);
   text-align: center;
 
   &:hover {
-    color: ${({ theme: { colors } }) => colors.warning};
-    opacity: 1;
+    background-color: ${({ theme: { colors } }) => colors.primary};
+    border-color: ${({ theme: { colors } }) => colors.primary};
+    color: ${({ theme: { colors } }) => colors.cream};
   }
 
   &:active {

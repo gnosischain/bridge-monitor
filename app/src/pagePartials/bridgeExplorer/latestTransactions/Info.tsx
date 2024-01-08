@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 const Wrapper = styled.div`
   align-items: center;
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.primary};
   column-gap: 6px;
   display: flex;
   font-size: 1.3rem;
@@ -16,8 +16,9 @@ const Wrapper = styled.div`
 
 const Emphasized = styled.span`
   align-items: center;
-  background-color: ${({ theme }) => theme.colors.darkerGrey};
+  background-color: ${({ theme: { colors } }) => colors.creamLight};
   border-radius: 4px;
+  color: ${({ theme: { colors } }) => colors.primary};
   display: flex;
   font-weight: 700;
   height: 23px;

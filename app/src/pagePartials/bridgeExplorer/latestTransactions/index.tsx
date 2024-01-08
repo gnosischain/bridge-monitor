@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react'
 
-import { Section } from '@/src/components/layout/Section'
 import { TabHeader } from '@/src/pagePartials/bridgeExplorer/common/TabHeader'
-import { Tabs, TabsWrapper } from '@/src/pagePartials/bridgeExplorer/common/Tabs'
+import { MainTabsWrapper, Tabs } from '@/src/pagePartials/bridgeExplorer/common/Tabs'
 import { MainTitle } from '@/src/components/text/MainTitle'
 import {
   Filters,
@@ -12,7 +11,7 @@ import {
   Results,
   ResultsLoading,
 } from '@/src/pagePartials/bridgeExplorer/latestTransactions/Results'
-import { MainWrapper as Wrapper } from '@/src/components/layout/MainWrapper'
+import { MainCard as Wrapper } from '@/src/components/card/MainCard'
 import { latestTransactions } from '@/src/constants/tabs'
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
 import { getEndOfDay, getStartOfDay } from '@/src/utils/date'
@@ -46,19 +45,17 @@ export const LatestTransactions: React.FC = genericSuspense(
     return (
       <Wrapper {...restProps}>
         <MainTitle>Transactions</MainTitle>
-        <Section>
-          <TabsWrapper>
-            <Tabs>
-              {latestTransactions.map(({ title }, index) => (
-                <TabHeader
-                  isActive={isSameString(activeTab, title)}
-                  key={index}
-                  onClick={() => router.push(`${latestTransactionsBaseURL}?bridge=${title}`)}
-                  title={title}
-                />
-              ))}
-            </Tabs>
-          </TabsWrapper>
+        <MainTabsWrapper>
+          <Tabs>
+            {latestTransactions.map(({ title }, index) => (
+              <TabHeader
+                isActive={isSameString(activeTab, title)}
+                key={index}
+                onClick={() => router.push(`${latestTransactionsBaseURL}?bridge=${title}`)}
+                title={title}
+              />
+            ))}
+          </Tabs>
           <ValidatorsProvider>
             <Filters
               bridge={activeTab}
@@ -77,31 +74,29 @@ export const LatestTransactions: React.FC = genericSuspense(
               ) : null
             })}
           </ValidatorsProvider>
-        </Section>
+        </MainTabsWrapper>
       </Wrapper>
     )
   },
   ({ ...restProps }) => (
     <Wrapper {...restProps}>
       <MainTitle>Transactions</MainTitle>
-      <Section>
-        <TabsWrapper>
-          <Tabs>
-            {latestTransactions.map(({ title }, index) => (
-              <TabHeader
-                isActive={index === 0}
-                key={index}
-                onClick={() => {
-                  return false
-                }}
-                title={title}
-              />
-            ))}
-          </Tabs>
-        </TabsWrapper>
+      <MainTabsWrapper>
+        <Tabs>
+          {latestTransactions.map(({ title }, index) => (
+            <TabHeader
+              isActive={index === 0}
+              key={index}
+              onClick={() => {
+                return false
+              }}
+              title={title}
+            />
+          ))}
+        </Tabs>
         <FiltersSkeleton />
         <ResultsLoading />
-      </Section>
+      </MainTabsWrapper>
     </Wrapper>
   ),
 )
