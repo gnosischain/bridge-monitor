@@ -16,7 +16,7 @@ const InfoWrapper = styled.div`
   padding: 0 var(--theme-common-space) calc(var(--theme-common-space) * 3);
   row-gap: calc(var(--theme-common-space) * 2);
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopLandscapeStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
