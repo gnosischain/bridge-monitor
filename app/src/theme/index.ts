@@ -44,6 +44,7 @@ const color_033 = 'rgba(0, 0, 0, 0.8)'
 const color_034 = 'rgba(0, 0, 0, 0.7)'
 const color_035 = `rgba(62, 105, 87, 0.5)`
 const color_036 = `rgba(62, 105, 87, 0.2)`
+const color_037 = `rgba(248, 245, 237, 0.5)`
 
 // Gradients
 const primaryGradient = `linear-gradient(180deg, ${color_006} 0%, ${color_002} 100%)`
@@ -55,6 +56,7 @@ export const theme = {
     black: color_007,
     borderColor: color_008,
     cream: color_001,
+    cream_50: color_037,
     creamDark: color_005,
     creamDarker: color_028,
     creamDarkest: color_029,
@@ -158,11 +160,11 @@ export const theme = {
   },
   buttonPrimary: {
     backgroundColor: color_002,
-    backgroundColorHover: color_004,
+    backgroundColorHover: color_003,
     borderColor: color_002,
-    borderColorHover: color_004,
+    borderColorHover: color_003,
     color: color_004,
-    colorHover: color_002,
+    colorHover: color_004,
   },
   buttonSecondary: {
     backgroundColor: color_011,

@@ -87,13 +87,13 @@ const TokenInfo: React.FC<{
   isLoading?: boolean
   label: string
   value: string
-}> = ({ initiatorToken, isLoading, label, value }) => {
+}> = ({ initiatorToken, isLoading, label, value, ...restProps }) => {
   const { logoURI, name, symbol } = initiatorToken
 
   return isLoading ? (
     <Loading label={label} />
   ) : (
-    <Wrapper>
+    <Wrapper {...restProps}>
       <Label>{label}:</Label>
       <TokenIcon name={name}>
         <Img alt={symbol} className="iconImage" src={logoURI ?? '/images/icons/empty-token.png'} />
@@ -111,6 +111,7 @@ const InitiatorToken: React.FC<Props> = ({
   initiatorNetwork,
   token: tokenAddress,
   tokenValue,
+  ...restProps
 }) => {
   const { initiatorToken, isLoading, value } = useLookupBridgedToken({
     bridgeName,
@@ -125,6 +126,7 @@ const InitiatorToken: React.FC<Props> = ({
       isLoading={isLoading}
       label={sentLabel}
       value={value}
+      {...restProps}
     />
   )
 }
@@ -134,6 +136,7 @@ const ReceiverToken: React.FC<Props> = ({
   initiatorNetwork,
   token: tokenAddress,
   tokenValue,
+  ...restProps
 }) => {
   const { destinationToken, isLoading, isXdaiBridge, value } = useLookupBridgedToken({
     bridgeName,
@@ -142,21 +145,22 @@ const ReceiverToken: React.FC<Props> = ({
     tokenValue,
   })
 
-  return !isXdaiBridge ? (
-    <></>
-  ) : (
+  return isXdaiBridge ? (
     <TokenInfo
       initiatorToken={destinationToken}
       isLoading={isLoading}
       label={receivedLabel}
       value={value}
+      {...restProps}
     />
+  ) : (
+    <></>
   )
 }
 
 export const Initiator: React.FC<Props> = genericSuspense(
   ({ ...restProps }) => (
-    <TokenListProvider {...restProps}>
+    <TokenListProvider>
       <InitiatorToken {...restProps} />
     </TokenListProvider>
   ),
@@ -165,7 +169,7 @@ export const Initiator: React.FC<Props> = genericSuspense(
 
 export const Receiver: React.FC<Props> = genericSuspense(
   ({ ...restProps }) => (
-    <TokenListProvider {...restProps}>
+    <TokenListProvider>
       <ReceiverToken {...restProps} />
     </TokenListProvider>
   ),

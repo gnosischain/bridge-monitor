@@ -3,16 +3,15 @@ import { Warning } from '@/src/components/assets/Warning'
 import { txTime } from '@/src/utils/txTime'
 
 const Wrapper = styled.div`
-  background: rgba(22, 29, 26, 0.5);
+  align-items: center;
+  background-color: ${({ theme: { colors } }) => colors.creamDark};
   border-radius: 8px;
-  border: 1px solid var(--Darkest-grey, #161d1a);
-  box-shadow: 0 2.2px 6.519px 0 rgba(0, 0, 0, 0.03), 0 10.4px 25.481px 0 rgba(0, 0, 0, 0.04),
-    0 27px 80px 0 rgba(0, 0, 0, 0.07);
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.primary};
   column-gap: calc(var(--theme-common-space) * 2);
   display: flex;
-  font-size: 1.4rem;
+  font-size: 1.8rem;
   font-weight: 400;
+  line-height: 1.2;
   margin-top: calc(var(--theme-common-space) * 2);
   padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3);
 `

@@ -2,26 +2,15 @@ import styled from 'styled-components'
 
 import { Badge } from '@/src/pagePartials/bridgeExplorer/transaction/Badge'
 import { InnerCard } from '@/src/components/card/InnerCard'
-import { TransactionStatusTypes } from '@/src/constants/types'
 import { TransactionStatus } from '@/src/pagePartials/bridgeExplorer/common/TransactionStatus'
 import { Transaction } from '@/src/utils/transactions'
 import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
-const Wrapper = styled(InnerCard)<{ status?: string }>`
-  background: ${(props) =>
-    props.status === TransactionStatusTypes.waiting ||
-    props.status === TransactionStatusTypes.waitingExecution
-      ? ({ theme }) => theme.colors.darkSecondary
-      : props.status === TransactionStatusTypes.warning
-      ? ({ theme }) => theme.colors.warningDark
-      : props.status === TransactionStatusTypes.completed
-      ? ({ theme }) => theme.colors.successDark
-      : ({ theme }) => theme.colors.darkGrey};
+const Wrapper = styled(InnerCard)`
   border-radius: 8px;
   flex: 1 1 0;
   justify-content: space-between;
-  padding-bottom: calc(var(--theme-common-space) * 3);
-  padding-top: calc(var(--theme-common-space) * 3);
+  row-gap: calc(var(--theme-common-space) * 3);
 
   > div {
     min-height: 24px;
@@ -39,9 +28,9 @@ const Status = styled(TransactionStatus)`
 `
 
 interface Props {
-  transaction?: Transaction
   subTitle?: string
   title: string
+  transaction?: Transaction
   updateInMemoryTransaction?: UpdateInMemoryTx
 }
 
@@ -54,7 +43,7 @@ export const Pod: React.FC<Props> = ({
   ...restProps
 }) => {
   return (
-    <Wrapper status={transaction?.transactionStatus} {...restProps}>
+    <Wrapper {...restProps}>
       <Header>
         <Badge text={title} />
         {transaction && updateInMemoryTransaction ? (

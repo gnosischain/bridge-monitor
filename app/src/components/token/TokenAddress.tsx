@@ -19,7 +19,7 @@ const CommonCSS = css`
 
 const Wrapper = styled.div`
   align-items: center;
-  column-gap: 4px;
+  column-gap: var(--theme-common-space);
   display: flex;
 `
 
@@ -35,6 +35,7 @@ const CopyButton = styled.button`
   border: none;
   color: ${({ theme: { colors } }) => colors.primary};
   cursor: pointer;
+  padding: 0;
 
   ${CommonCSS}
 `

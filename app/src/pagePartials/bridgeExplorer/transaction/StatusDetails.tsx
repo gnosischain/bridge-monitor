@@ -1,49 +1,49 @@
 import styled from 'styled-components'
 
 import { IconStatus, Status } from '@/src/pagePartials/bridgeExplorer/transaction/IconStatus'
-import { TransactionDate } from '@/src/pagePartials/bridgeExplorer/transaction/TransactionDate'
 
-const Wrapper = styled.li`
+const Wrapper = styled.div`
   --line-gap: 24px;
   --status-height: 64px;
   --wrapper-width: 155px;
 
   display: grid;
   grid-template-columns: 1fr;
-  margin-bottom: calc(var(--theme-common-space) * 3);
   position: relative;
   row-gap: calc(var(--theme-common-space) * 2);
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+  &:last-child {
+    .details {
+      padding-bottom: 0;
+    }
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     column-gap: 50px;
     grid-template-columns: var(--wrapper-width) minmax(0, 950px);
   }
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     &::after {
-      background-color: ${({ theme: { colors } }) => colors.darkGrey};
+      background-color: ${({ theme: { colors } }) => colors.creamDarker};
       border-radius: 8px;
       content: '';
       height: calc(100% - var(--line-gap) - var(--status-height));
       left: calc(var(--wrapper-width) / 2);
       position: absolute;
       top: calc(var(--status-height) + var(--line-gap));
-      width: 4px;
+      width: 8px;
     }
 
     &:last-child::after {
       display: none;
     }
   }
-
-  ul {
-    padding: 0;
-  }
 `
 
 const StatusWrapper = styled.div`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.darkGrey};
+  background-color: ${({ theme: { colors } }) => colors.creamDarker};
   border-radius: 8px;
   column-gap: var(--theme-common-space);
   display: flex;
@@ -54,34 +54,39 @@ const StatusWrapper = styled.div`
 const Icon = styled(IconStatus)`
   --size: 28px;
 
-  background-color: ${({ theme: { colors } }) => colors.darkerGrey};
+  background-color: ${({ theme: { colors } }) => colors.cream};
   height: var(--size);
   width: var(--size);
 `
 
-const TransactionStatus = styled.div`
-  color: ${({ theme: { colors } }) => colors.cream};
+const TransactionStatus = styled.h2`
+  color: ${({ theme: { colors } }) => colors.primary};
   font-size: 1.6rem;
   font-weight: 500;
   line-height: 1.2;
+  margin: 0;
+  text-transform: uppercase;
 `
 
-const Content = styled.div`
+const Details = styled.div`
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   padding-bottom: calc(var(--theme-common-space) * 4);
 `
 
+Details.defaultProps = {
+  className: 'details',
+}
+
 const Title = styled.h3`
-  color: #fff;
-  font-family: ${({ theme: { fonts } }) => fonts.family};
+  color: ${({ theme: { colors } }) => colors.primary};
   font-size: 1.8rem;
   font-weight: 700;
   line-height: 1.2;
-  margin: calc(var(--theme-common-space) / 2) 0 0;
+  margin: var(--theme-common-space) 0 0;
 `
 
-const Text = styled.p`
-  color: #fff;
+const Description = styled.p`
+  color: ${({ theme: { colors } }) => colors.primary};
   font-size: 1.6rem;
   font-weight: 400;
   line-height: 1.5;
@@ -95,16 +100,14 @@ const Text = styled.p`
 `
 
 interface Props {
-  dateCompleted?: number
   description: string
   title: string
   transactionStatus: string
   statusIcon: Status
 }
 
-export const TransactionDetailsListItem: React.FC<Props> = ({
+export const StatusDetails: React.FC<Props> = ({
   children,
-  dateCompleted,
   description,
   statusIcon,
   title,
@@ -117,12 +120,11 @@ export const TransactionDetailsListItem: React.FC<Props> = ({
         <Icon statusIcon={statusIcon} />
         <TransactionStatus>{transactionStatus}</TransactionStatus>
       </StatusWrapper>
-      <Content>
+      <Details>
         <Title>{title}</Title>
-        <Text>{description}</Text>
-        {dateCompleted && <TransactionDate completed={dateCompleted} />}
+        <Description>{description}</Description>
         {children}
-      </Content>
+      </Details>
     </Wrapper>
   )
 }

@@ -24,20 +24,21 @@ import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
 const Wrapper = styled.button`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.warning};
+  background-color: ${({ theme: { colors } }) => colors.primary};
   border-radius: 4px;
   border: none;
-  color: ${({ theme }) => theme.colors.darkestGrey};
+  color: ${({ theme: { colors } }) => colors.cream};
   column-gap: 6px;
   cursor: pointer;
   display: flex;
-  font-size: 1.2rem;
-  font-weight: 700;
-  height: 22px;
+  font-size: 1.4rem;
+  font-weight: 500;
+  height: 28px;
   justify-content: center;
   line-height: 1.2rem;
-  min-width: 80px;
-  padding: 0 var(--theme-common-space);
+  min-width: 90px;
+  padding: 0;
+  text-transform: uppercase;
   transition: none;
   width: fit-content;
 

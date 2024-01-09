@@ -1,39 +1,34 @@
 import styled from 'styled-components'
 
-import { TransactionRowDetails } from './TransactionRowDetails'
+import { DetailsRow } from '@/src/pagePartials/bridgeExplorer/transaction/DetailsRow'
 import { TransactionValidation } from '@/src/utils/transactions'
 import { ValidatorIcon } from '@/src/pagePartials/bridgeExplorer/common/ValidatorIcon'
 
-const Wrapper = styled.ul`
-  padding: 0;
+const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: var(--theme-common-space);
   margin: calc(var(--theme-common-space) * 4) 0 0;
+  row-gap: var(--theme-common-space);
 `
 
 interface Props {
-  validations: TransactionValidation[]
   fetchValidatorName: (validatorAddress: string) => { name: string; shortName: string }
+  validations: TransactionValidation[]
 }
 
-export const TransactionValidations: React.FC<Props> = ({ fetchValidatorName, validations }) => {
-  const signaturesCount = validations.length
-  const signaturesStatus = signaturesCount === 4 ? 'not-required' : 'waiting'
-
+export const Validations: React.FC<Props> = ({ fetchValidatorName, validations }) => {
   return (
     <Wrapper>
       {validations.map((validation: TransactionValidation, index) => {
         const validator = fetchValidatorName(validation.validatorAddr)
 
         return (
-          <TransactionRowDetails
+          <DetailsRow
             icon={
               <ValidatorIcon shortName={validator.shortName} size="18px" title={validator.name} />
             }
             key={index}
             network="gnosis"
-            status={signaturesStatus}
             title={validator.name}
             transaction={validation}
           />

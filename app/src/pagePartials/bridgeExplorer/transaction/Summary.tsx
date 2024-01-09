@@ -40,6 +40,11 @@ const PodAmount = styled(Pod)`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     grid-column: auto / span 1;
   }
+
+  .badge {
+    background-color: ${({ theme: { colors } }) => colors.darkestGrey};
+    color: ${({ theme: { colors } }) => colors.creamLight};
+  }
 `
 
 const PodStatus = styled(Pod)`
@@ -65,7 +70,7 @@ const CommonCSS = css`
   }
 `
 
-const AmountRow = styled.div`
+const InitiatorReceiver = styled.div`
   align-items: center;
   column-gap: calc(var(--theme-common-space) * 3);
   display: flex;
@@ -81,7 +86,21 @@ const Receiver = styled(BaseReceiver)`
 
 const ArrowRight = styled(ArrowUp)`
   display: block;
-  transform: rotate(-90deg);
+  transform: rotate(0deg);
+`
+
+const Address = styled(TokenAddress)`
+  svg {
+    color: ${({ theme: { colors } }) => colors.primary_50};
+
+    &:hover {
+      color: ${({ theme: { colors } }) => colors.primary};
+    }
+  }
+`
+
+const Date = styled(TransactionDate)`
+  color: ${({ theme: { colors } }) => colors.primary};
 `
 
 interface Props {
@@ -103,7 +122,7 @@ interface Props {
   updateInMemoryTransaction: UpdateInMemoryTx
 }
 
-export const TransactionSummary: React.FC<Props> = ({
+export const Summary: React.FC<Props> = ({
   bridgeName,
   initiator,
   initiatorAmount,
@@ -132,7 +151,7 @@ export const TransactionSummary: React.FC<Props> = ({
         />
       </Pod>
       <Pod title="Initiator">
-        <TokenAddress
+        <Address
           address={initiator}
           characters={6}
           copy
@@ -140,7 +159,7 @@ export const TransactionSummary: React.FC<Props> = ({
         />
       </Pod>
       <Pod title="Receiver">
-        <TokenAddress
+        <Address
           address={receiver}
           characters={6}
           copy
@@ -148,7 +167,7 @@ export const TransactionSummary: React.FC<Props> = ({
         />
       </Pod>
       <PodAmount title="Amount">
-        <AmountRow>
+        <InitiatorReceiver>
           <Initiator
             bridgeName={bridgeName}
             initiatorNetwork={initiatorNetwork}
@@ -162,7 +181,7 @@ export const TransactionSummary: React.FC<Props> = ({
             token={initiatorToken}
             tokenValue={initiatorAmount}
           />
-        </AmountRow>
+        </InitiatorReceiver>
       </PodAmount>
       {/* @todo - If a signature fails it has to change state */}
       <PodStatus
@@ -174,13 +193,13 @@ export const TransactionSummary: React.FC<Props> = ({
         {/* @todo:
          - if transactionStatus is not completed, completed value must be empty
         */}
-        <TransactionDate completed={timestampExecution} started={timestampStarted} />
+        <Date completed={timestampExecution} started={timestampStarted} />
       </PodStatus>
     </Wrapper>
   )
 }
 
-export const TransactionSummaryPlaceholder: React.FC = ({ ...restProps }) => {
+export const SummaryPlaceholder: React.FC = ({ ...restProps }) => {
   return (
     <Wrapper {...restProps}>
       {Array.from({ length: 5 }).map((item, index) => (

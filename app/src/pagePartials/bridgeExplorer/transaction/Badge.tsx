@@ -1,47 +1,29 @@
 import styled from 'styled-components'
 
-import { TransactionStatusTypes } from '@/src/constants/types'
+const Wrapper = styled.div`
+  --height: 24px;
 
-const Wrapper = styled.div<{ status?: string }>`
   align-items: center;
-  background: ${(props) =>
-    props.status === TransactionStatusTypes.waiting ||
-    props.status === TransactionStatusTypes.waitingExecution
-      ? ({ theme }) => theme.colors.secondary
-      : props.status === TransactionStatusTypes.warning
-      ? ({ theme }) => theme.colors.warning
-      : props.status === TransactionStatusTypes.completed
-      ? ({ theme }) => theme.colors.success
-      : ({ theme }) => theme.colors.darkerGrey};
+  background: ${({ theme: { colors } }) => colors.creamLight};
   border-radius: 6px;
-  color: ${(props) =>
-    props.status === TransactionStatusTypes.waiting ||
-    props.status === TransactionStatusTypes.waitingExecution ||
-    props.status === TransactionStatusTypes.warning ||
-    props.status === TransactionStatusTypes.completed
-      ? ({ theme }) => theme.colors.darkestGrey
-      : ({ theme }) => theme.colors.cream};
+  color: ${({ theme: { colors } }) => colors.primary};
   display: flex;
   font-size: 1.4rem;
   font-weight: 400;
-  height: 24px;
+  height: var(--height);
   justify-content: center;
+  line-height: var(--height);
   padding: 0 var(--theme-common-space);
-
-  &:first-of-type {
-    background: ${({ theme: { colors } }) => colors.darkestGrey};
-  }
 `
 
+Wrapper.defaultProps = {
+  className: 'badge',
+}
+
 interface Props {
-  status?: string
   text: string
 }
 
-export const Badge: React.FC<Props> = ({ status, text, ...restProps }) => {
-  return (
-    <Wrapper status={status} {...restProps}>
-      {text}
-    </Wrapper>
-  )
+export const Badge: React.FC<Props> = ({ text, ...restProps }) => {
+  return <Wrapper {...restProps}>{text}</Wrapper>
 }
