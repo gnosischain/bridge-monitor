@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
-import { TokenAddress as Address } from '@/src/components/token/TokenAddress'
-import { MiniCardTitle } from '@/src/pagePartials/bridgeExplorer/bridges/MiniCard'
+import { TokenAddress as BaseTokenAddress } from '@/src/components/token/TokenAddress'
+import { MiniCardHeader } from '@/src/pagePartials/bridgeExplorer/bridges/MiniCard'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { ChainsKeys } from '@/src/constants/config/types'
 import { Tooltip } from '@/src/components/tooltip'
@@ -13,6 +13,17 @@ const Wrapper = styled.div`
   font-weight: 400;
   justify-content: space-between;
   line-height: 1.2;
+  padding: 0 calc(var(--theme-common-space) * 2);
+`
+
+const Address = styled(BaseTokenAddress)`
+  svg {
+    color: ${({ theme: { colors } }) => colors.primary_50};
+
+    &:hover {
+      color: ${({ theme: { colors } }) => colors.primary};
+    }
+  }
 `
 
 interface Props {
@@ -40,7 +51,7 @@ export const TokenAddress: React.FC<Props | NativeProps> = ({
     <Wrapper {...restProps}>
       <span>Token address</span>
       {isNative ? (
-        <MiniCardTitle title={<>Native token {tooltip && <Tooltip content={tooltip} />}</>} />
+        <MiniCardHeader title={<>Native token {tooltip && <Tooltip content={tooltip} />}</>} />
       ) : (
         <Address address={address} characters={6} copy href={getExplorerUrl(address, network)} />
       )}

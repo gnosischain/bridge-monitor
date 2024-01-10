@@ -2,14 +2,14 @@ import styled from 'styled-components'
 
 import {
   MiniCard,
-  MiniCardTitle,
+  MiniCardHeader,
   MiniCardValue,
 } from '@/src/pagePartials/bridgeExplorer/bridges/MiniCard'
 import { Tooltip } from '@/src/components/tooltip'
 
 const Wrapper = styled(MiniCard)`
   flex-direction: column;
-  row-gap: 4px;
+  row-gap: var(--theme-common-space);
 `
 
 interface Props {
@@ -21,8 +21,7 @@ interface Props {
 export const TransactionLimit: React.FC<Props> = ({ title, tooltip, value, ...restProps }) => {
   return (
     <Wrapper {...restProps}>
-      <MiniCardTitle
-        bigTitle
+      <MiniCardHeader
         title={
           <>
             {title} {tooltip && <Tooltip content={tooltip} />}

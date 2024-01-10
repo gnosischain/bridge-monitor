@@ -1,6 +1,5 @@
 import { PropsWithChildren, useState } from 'react'
 import { BridgeLimit } from '@/src/pagePartials/bridgeExplorer/bridges/BridgeLimit'
-import { TabContentInner as Wrapper } from '@/src/pagePartials/bridgeExplorer/common/Tabs'
 import { BaseSubTitle } from '@/src/components/text/BaseSubTitle'
 import { Chains } from '@/src/constants/config/chains'
 import { Token } from '@/types/token'
@@ -34,7 +33,7 @@ const Columns = styled.div`
   gap: calc(var(--theme-common-space) * 2);
   grid-template-columns: 1fr;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     grid-template-columns: 1fr 1fr;
   }
 `
@@ -55,15 +54,14 @@ const InvalidToken = styled(InnerCard)`
   justify-content: center;
   min-height: 350px;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     margin: 0 auto;
     max-width: 400px;
   }
 `
 
 const Text = styled.p`
-  color: ${({ theme: { colors } }) => colors.white};
-  font-family: ${({ theme: { fonts } }) => fonts.family};
+  color: ${({ theme: { colors } }) => colors.primary};
   font-size: 1.8rem;
   font-weight: 400;
   margin: 0;
@@ -80,7 +78,7 @@ const TitleWrapper = styled.span`
 
 const ArrowRight = styled(ArrowUp)`
   display: block;
-  transform: rotate(-90deg);
+  transform: rotate(0deg);
 `
 
 const Placeholder: React.FC = () => (
@@ -113,7 +111,7 @@ const Placeholder: React.FC = () => (
 )
 
 export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericSuspense(
-  ({ dayNumber, ...restProps }) => {
+  ({ dayNumber }) => {
     const { foreignXdaiInformation } = useForeignXDAIBridgeLimits(dayNumber)
     const { mainnetDaiToken } = useDaiToken()
 
@@ -132,7 +130,6 @@ export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericS
         to="Gnosis"
         token={mainnetDaiToken}
         {...foreignXdaiInformation}
-        {...restProps}
       />
     )
   },
@@ -140,7 +137,7 @@ export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericS
 )
 
 export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericSuspense(
-  ({ dayNumber, ...restProps }) => {
+  ({ dayNumber }) => {
     const { homeXdaiInformation } = useHomeXDAIBridgeLimits(dayNumber)
     const { gnosisXdaiToken } = useDaiToken()
 
@@ -161,7 +158,6 @@ export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericS
         token={gnosisXdaiToken}
         tokenTooltip="xDAI tokens are native to Gnosis and enable payments for smart contract execution and gas fees."
         {...homeXdaiInformation}
-        {...restProps}
       />
     )
   },
@@ -170,7 +166,7 @@ export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericS
 
 const OmnibridgeMainnetToGnosisChain: React.FC<{ token: Token; dayNumber: string | undefined }> =
   genericSuspense(
-    ({ dayNumber, token, ...restProps }) => {
+    ({ dayNumber, token }) => {
       const { foreignOmniInformation } = useForeignOMNIBridgeLimits(token, dayNumber)
 
       return (
@@ -188,7 +184,6 @@ const OmnibridgeMainnetToGnosisChain: React.FC<{ token: Token; dayNumber: string
           to="Gnosis"
           token={token}
           {...foreignOmniInformation}
-          {...restProps}
         />
       )
     },
@@ -197,7 +192,7 @@ const OmnibridgeMainnetToGnosisChain: React.FC<{ token: Token; dayNumber: string
 
 const OmnibridgeGnosisChainToMainnet: React.FC<{ token: Token; dayNumber: string | undefined }> =
   genericSuspense(
-    ({ dayNumber, token, ...restProps }) => {
+    ({ dayNumber, token }) => {
       const { homeOmniInformation } = useHomeOMNIBridgeLimits(token, dayNumber)
 
       return (
@@ -215,7 +210,6 @@ const OmnibridgeGnosisChainToMainnet: React.FC<{ token: Token; dayNumber: string
           to="Ethereum"
           token={token}
           {...homeOmniInformation}
-          {...restProps}
         />
       )
     },
@@ -227,7 +221,7 @@ const OmnibridgeTitle: React.FC<PropsWithChildren<unknown>> = ({ children }) => 
   <Title>Omnibridge{children}</Title>
 )
 
-const Limits: React.FC = ({ ...restProps }) => {
+const Limits: React.FC = () => {
   const dayNumber = useDayNumber()
   const { gnosisGnoToken, mainnetGnoToken } = useGnoToken()
   const [mainnetToGnosisChainToken, setMainnetToGnosisChainToken] = useState<Token>(mainnetGnoToken)
@@ -254,7 +248,7 @@ const Limits: React.FC = ({ ...restProps }) => {
   }
 
   return (
-    <Wrapper {...restProps}>
+    <>
       <Row>
         <XDAITitle />
         <Columns>
@@ -298,20 +292,20 @@ const Limits: React.FC = ({ ...restProps }) => {
           )}
         </Columns>
       </Row>
-    </Wrapper>
+    </>
   )
 }
 
 export const DailyBridgeLimits: React.FC = genericSuspense(
-  ({ ...restProps }) => {
+  () => {
     return (
-      <TokenListProvider {...restProps}>
+      <TokenListProvider>
         <Limits />
       </TokenListProvider>
     )
   },
-  ({ ...restProps }) => (
-    <Wrapper {...restProps}>
+  () => (
+    <>
       <Row>
         <XDAITitle />
         <Columns>
@@ -326,6 +320,6 @@ export const DailyBridgeLimits: React.FC = genericSuspense(
           <Placeholder />
         </Columns>
       </Row>
-    </Wrapper>
+    </>
   ),
 )

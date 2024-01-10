@@ -19,5 +19,6 @@ export const Tabs = styled.nav`
 export const TabContentInner = styled.div`
   display: flex;
   flex-direction: column;
-  row-gap: 32px;
+  padding: calc(var(--theme-common-space) * 3) calc(var(--theme-common-space) * 2);
+  row-gap: calc(var(--theme-common-space) * 3);
 `

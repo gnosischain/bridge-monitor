@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 import {
   MiniCard,
-  MiniCardTitle,
+  MiniCardHeader,
   MiniCardValue,
 } from '@/src/pagePartials/bridgeExplorer/bridges/MiniCard'
 import { Tooltip } from '@/src/components/tooltip'
@@ -15,8 +15,10 @@ const Wrapper = styled(MiniCard)`
 `
 
 const Progress = styled.div`
-  background: #000;
-  border-radius: 4px;
+  --border-radius: 4px;
+
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
   height: 8px;
   overflow: hidden;
   position: relative;
@@ -31,6 +33,7 @@ const ProgressBar = styled.div<{ status: string; width: number }>`
       : props.status === HealthStatusTypes.error
       ? ({ theme }) => theme.colors.error
       : ({ theme }) => theme.colors.warning};
+  border-radius: var(--border-radius);
   height: 100%;
   left: 0;
   line-height: 10px;
@@ -53,6 +56,7 @@ const Amount = styled(MiniCardValue)`
 `
 
 interface Props {
+  darkBackground?: boolean
   funds: number
   percentage: number
   title: string
@@ -73,8 +77,8 @@ export const ContractLimit: React.FC<Props> = ({
   const fundsNumber = formatNumber(funds)
 
   return (
-    <Wrapper dark {...restProps}>
-      <MiniCardTitle
+    <Wrapper {...restProps}>
+      <MiniCardHeader
         bigTitle
         subTitle={
           <>

@@ -8,10 +8,10 @@ import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 
 const RowWrapper = styled.div`
   align-items: flex-start;
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.primary};
   display: flex;
   flex-direction: column;
-  font-size: 14px;
+  font-size: 1.4rem;
   font-weight: 400;
   justify-content: space-between;
   line-height: 1.2;
@@ -51,12 +51,13 @@ const Column = styled.div`
 `
 
 const Card = styled(InnerCard)`
+  background-color: ${({ theme: { colors } }) => colors.creamLight};
   flex-grow: 1;
+  row-gap: calc(var(--theme-common-space) * 2);
 `
 
 const SubTitle = styled.h3`
-  font-family: ${({ theme: { fonts } }) => fonts.family};
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: 700;
   line-height: 1.2;
   margin: 0;

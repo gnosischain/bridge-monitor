@@ -14,12 +14,14 @@ import { percentageNumber } from '@/src/utils/formatNumber'
 import { Token } from '@/types/token'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 
-const Wrapper = styled(InnerCard)``
+const Wrapper = styled(InnerCard)`
+  background-color: ${({ theme: { colors } }) => colors.creamLight};
+  row-gap: calc(var(--theme-common-space) * 2);
+`
 
 const Header = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: var(--theme-common-space);
   row-gap: 10px;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
@@ -38,7 +40,6 @@ const HeaderInner = styled.div`
 `
 
 const Title = styled.h3`
-  font-family: ${({ theme: { fonts } }) => fonts.family};
   font-size: 1.5rem;
   font-weight: 500;
   line-height: 1.2;
@@ -55,9 +56,9 @@ const ExternalURL = styled.a`
   --size: 24px;
 
   align-items: center;
-  background: ${({ theme: { colors } }) => colors.darkestGrey};
+  background: ${({ theme: { colors } }) => colors.cream};
   border-radius: 50%;
-  color: #fff;
+  color: ${({ theme: { colors } }) => colors.primary};
   cursor: pointer;
   display: flex;
   height: var(--size);
@@ -72,12 +73,12 @@ const ExternalURL = styled.a`
 
 const TokenWrapper = styled.div`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.darkestGrey};
-  border-radius: 6px;
-  column-gap: 8px;
+  background-color: ${({ theme: { colors } }) => colors.cream};
+  border-radius: 8px;
+  column-gap: var(--theme-common-space);
   display: flex;
   height: 34px;
-  padding: 0 10px;
+  padding: 0 var(--theme-common-space);
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     margin-left: auto;
@@ -85,7 +86,7 @@ const TokenWrapper = styled.div`
 `
 
 const TokenSymbol = styled.div`
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.primary};
   flex-shrink: 0;
   font-size: 1.4rem;
   line-height: 1.2;
@@ -176,6 +177,7 @@ export const BridgeLimit: React.FC<Props> = ({
       {isTokenRegistered ? (
         <>
           <ContractLimit
+            darkBackground
             funds={dailyLimit}
             percentage={percentageNumber(totalSpentPerDay, dailyLimit)}
             title={`${token?.symbol.toUpperCase() || 'DAI'} deposits per day`}
@@ -183,6 +185,7 @@ export const BridgeLimit: React.FC<Props> = ({
             used={{ value: totalSpentPerDay, title: 'Deposited' }}
           />
           <ContractLimit
+            darkBackground
             funds={executionDailyLimit}
             percentage={percentageNumber(totalExecutedPerDay, executionDailyLimit)}
             title={`${token?.symbol.toUpperCase() || 'DAI'} withdrawals per day`}

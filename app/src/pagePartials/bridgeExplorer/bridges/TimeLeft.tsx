@@ -10,6 +10,7 @@ const Wrapper = styled.div`
   font-weight: 400;
   justify-content: space-between;
   line-height: 1.2;
+  padding: 0 calc(var(--theme-common-space) * 2);
 `
 
 interface Props {

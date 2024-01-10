@@ -11,6 +11,7 @@ const Wrapper = styled.button<{ isActive: boolean }>`
   color: ${({ theme: { colors } }) => colors.primary};
   cursor: pointer;
   display: block;
+  font-family: ${({ theme: { fonts } }) => fonts.family};
   margin-bottom: -1px;
   padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3);
 

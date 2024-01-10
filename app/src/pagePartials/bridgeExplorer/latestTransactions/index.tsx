@@ -12,7 +12,6 @@ import {
   ResultsLoading,
 } from '@/src/pagePartials/bridgeExplorer/latestTransactions/Results'
 import { MainCard as Wrapper } from '@/src/components/card/MainCard'
-import { latestTransactions } from '@/src/constants/tabs'
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
 import { getEndOfDay, getStartOfDay } from '@/src/utils/date'
 import { useRouter } from 'next/router'
@@ -20,6 +19,15 @@ import { isSameString } from '@/src/utils/tools'
 import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { ValidatorsProvider } from '@/src/providers/validatorsProvider'
 import { latestTransactionsBaseURL } from '@/src/constants/sections'
+
+const latestTransactions: Array<{ title: string }> = [
+  {
+    title: 'xDai',
+  },
+  {
+    title: 'AMB',
+  },
+]
 
 export const LatestTransactions: React.FC = genericSuspense(
   ({ ...restProps }) => {

@@ -86,11 +86,11 @@ interface ItemProps {
 }
 
 const Items = styled.div<ItemProps>`
-  background: ${({ theme }) => theme.dropdown.background};
-  border-radius: ${({ theme }) => theme.dropdown.borderRadius};
-  border: 1px solid ${({ theme }) => theme.dropdown.borderColor};
-  box-shadow: 0px 63px 80px rgba(0, 0, 0, 0.07), 0px 31.8937px 34.875px rgba(0, 0, 0, 0.04725),
-    0px 12.6px 13px rgba(0, 0, 0, 0.035), 0px 2.75625px 4.625px rgba(0, 0, 0, 0.02275);
+  background: ${({ theme: { dropdown } }) => dropdown.background};
+  border-radius: ${({ theme: { dropdown } }) => dropdown.borderRadius};
+  border: 1px solid ${({ theme: { dropdown } }) => dropdown.borderColor};
+  box-shadow: 0 63px 80px rgba(0, 0, 0, 0.07), 0 31.8937px 34.875px rgba(0, 0, 0, 0.04725),
+    0 12.6px 13px rgba(0, 0, 0, 0.035), 0 2.75625px 4.625px rgba(0, 0, 0, 0.02275);
   display: ${(props) => (props.isOpen ? 'block' : 'none')};
   min-width: 150px;
   max-height: 260px;
@@ -112,19 +112,19 @@ const Items = styled.div<ItemProps>`
 
   /* Track */
   ::-webkit-scrollbar-track {
-    background: ${({ theme }) => theme.colors.darkGrey};
-    border-radius: ${({ theme }) => theme.dropdown.borderRadius};
+    background-color: ${({ theme: { colors } }) => colors.cream};
+    border-radius: ${({ theme: { dropdown } }) => dropdown.borderRadius};
   }
 
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.colors.primary};
-    border-radius: ${({ theme }) => theme.dropdown.borderRadius};
+    background-color: ${({ theme: { colors } }) => colors.creamDark};
+    border-radius: ${({ theme: { dropdown } }) => dropdown.borderRadius};
   }
 
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
-    background: ${({ theme }) => theme.colors.secondary};
+    background-color: ${({ theme: { colors } }) => colors.primary};
   }
 `
 
@@ -142,9 +142,9 @@ export interface DropdownItemProps {
 
 export const DropdownItemCSS = css<DropdownItemProps>`
   align-items: center;
-  background-color: ${({ theme }) => theme.dropdown.item.backgroundColor};
-  border-bottom: 1px solid ${({ theme }) => theme.dropdown.item.borderColor};
-  color: ${({ theme }) => theme.dropdown.item.color};
+  background-color: ${({ theme: { dropdown } }) => dropdown.item.backgroundColor};
+  border-bottom: 1px solid ${({ theme: { dropdown } }) => dropdown.item.borderColor};
+  color: ${({ theme: { dropdown } }) => dropdown.item.color};
   cursor: pointer;
   display: flex;
   font-size: 1.4rem;
@@ -161,25 +161,25 @@ export const DropdownItemCSS = css<DropdownItemProps>`
   white-space: normal;
 
   &:first-child {
-    border-top-left-radius: ${({ theme }) => theme.dropdown.borderRadius};
-    border-top-right-radius: ${({ theme }) => theme.dropdown.borderRadius};
+    border-top-left-radius: ${({ theme: { dropdown } }) => dropdown.borderRadius};
+    border-top-right-radius: ${({ theme: { dropdown } }) => dropdown.borderRadius};
   }
 
   &:last-child {
-    border-bottom-left-radius: ${({ theme }) => theme.dropdown.borderRadius};
-    border-bottom-right-radius: ${({ theme }) => theme.dropdown.borderRadius};
+    border-bottom-left-radius: ${({ theme: { dropdown } }) => dropdown.borderRadius};
+    border-bottom-right-radius: ${({ theme: { dropdown } }) => dropdown.borderRadius};
     border-bottom: none;
   }
 
   &:hover {
-    background-color: ${({ theme }) => theme.dropdown.item.backgroundColorHover};
+    background-color: ${({ theme: { dropdown } }) => dropdown.item.backgroundColorHover};
   }
 
   &:disabled,
   &[disabled] {
     &,
     &:hover {
-      background-color: ${({ theme }) => theme.dropdown.item.backgroundColor};
+      background-color: ${({ theme: { dropdown } }) => dropdown.item.backgroundColor};
       cursor: not-allowed;
       font-weight: 400;
       opacity: 0.5;
@@ -188,8 +188,8 @@ export const DropdownItemCSS = css<DropdownItemProps>`
   }
 
   &.activeDropdownItem {
-    background-color: ${({ theme }) => theme.dropdown.item.backgroundColorActive};
-    color: ${({ theme }) => theme.dropdown.item.colorActive};
+    background-color: ${({ theme: { dropdown } }) => dropdown.item.backgroundColorActive};
+    color: ${({ theme: { dropdown } }) => dropdown.item.colorActive};
     pointer-events: none;
   }
 `

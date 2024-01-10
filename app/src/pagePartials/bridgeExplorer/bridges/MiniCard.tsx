@@ -1,19 +1,17 @@
 import styled from 'styled-components'
 
-export const MiniCard = styled.div<{ dark?: boolean }>`
-  background: ${({ dark, theme: { colors } }) => (dark ? colors.darkestGrey : colors.darkGrey)};
+export const MiniCard = styled.div<{ darkBackground?: boolean }>`
+  background-color: ${({ darkBackground, theme: { colors } }) =>
+    darkBackground ? colors.cream : colors.white};
   border-radius: 8px;
-  column-gap: 16px;
+  border: 1px solid ${({ theme: { colors } }) => colors.cream};
+  column-gap: calc(var(--theme-common-space) * 2);
   display: flex;
-  padding: 16px;
-  row-gap: 12px;
+  padding: calc(var(--theme-common-space) * 2);
+  row-gap: calc(var(--theme-common-space) * 2 - var(--theme-common-space) / 2);
 `
 
-MiniCard.defaultProps = {
-  dark: false,
-}
-
-const Wrapper = styled.div`
+const MiniCardHeaderWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -25,40 +23,48 @@ const Wrapper = styled.div`
   }
 `
 
-const Text = styled.span<{ bigTitle?: boolean }>`
+const Title = styled.span<{ bigTitle?: boolean }>`
   align-items: center;
-  color: ${({ theme: { colors } }) => colors.cream};
-  column-gap: 6px;
+  color: ${({ theme: { colors } }) => colors.primary};
+  column-gap: var(--theme-common-space);
   display: flex;
-  font-family: ${({ theme: { fonts } }) => fonts.family};
-  font-size: ${({ bigTitle }) => (bigTitle ? '1.6rem' : '1.3rem')};
+  font-size: ${({ bigTitle }) => (bigTitle ? '1.6rem' : '1.4rem')};
   font-weight: 400;
   line-height: 1.2;
-  margin: 0;
 `
 
-Text.defaultProps = {
+const SubTitle = styled.span`
+  align-items: center;
+  color: ${({ theme: { colors } }) => colors.primary};
+  column-gap: var(--theme-common-space);
+  display: flex;
+  font-family: ${({ theme: { fonts } }) => fonts.familyCode};
+  font-size: 1.2rem;
+  font-weight: 400;
+  line-height: 1.2;
+`
+
+Title.defaultProps = {
   bigTitle: false,
 }
 
-export const MiniCardTitle: React.FC<{
+export const MiniCardHeader: React.FC<{
   title: React.ReactNode | string
   subTitle?: React.ReactNode | React.ReactNode
   bigTitle?: boolean
 }> = ({ bigTitle, subTitle, title, ...restProps }) => {
   return (
-    <Wrapper {...restProps}>
-      <Text bigTitle={bigTitle}>{title}</Text>
-      {subTitle && <Text>{subTitle}</Text>}
-    </Wrapper>
+    <MiniCardHeaderWrapper {...restProps}>
+      <Title bigTitle={bigTitle}>{title}</Title>
+      {subTitle && <SubTitle>{subTitle}</SubTitle>}
+    </MiniCardHeaderWrapper>
   )
 }
 
 export const MiniCardValue = styled.span`
-  color: ${({ theme: { colors } }) => colors.cream};
-  font-family: ${({ theme: { fonts } }) => fonts.family};
-  font-size: 1.4rem;
+  color: ${({ theme: { colors } }) => colors.primary};
+  font-family: ${({ theme: { fonts } }) => fonts.familyCode};
+  font-size: 1.2rem;
   font-weight: 400;
   line-height: 1.2;
-  margin: 0;
 `

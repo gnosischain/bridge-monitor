@@ -1,12 +1,27 @@
 import { TabHeader } from '@/src/pagePartials/bridgeExplorer/common/TabHeader'
-import { MainTabsWrapper, Tabs } from '@/src/pagePartials/bridgeExplorer/common/Tabs'
-import { bridges } from '@/src/constants/tabs'
+import {
+  MainTabsWrapper,
+  TabContentInner,
+  Tabs,
+} from '@/src/pagePartials/bridgeExplorer/common/Tabs'
+import { Configuration } from '@/src/pagePartials/bridgeExplorer/bridges/Configuration'
+import { DailyBridgeLimits } from '@/src/pagePartials/bridgeExplorer/bridges/DailyBridgeLimits'
 import { Fragment, useState } from 'react'
 import { MainTitle } from '@/src/components/text/MainTitle'
-import { MainWrapper as Wrapper } from '@/src/components/layout/MainWrapper'
+import { MainCard as Wrapper } from '@/src/components/card/MainCard'
 
 export const Bridges: React.FC = ({ ...restProps }) => {
   const [activeTab, setActiveTab] = useState(0)
+  const bridges: Array<{ title: string; contents?: React.ReactNode }> = [
+    {
+      title: 'Daily bridge limits',
+      contents: <DailyBridgeLimits />,
+    },
+    {
+      contents: <Configuration />,
+      title: 'Configuration',
+    },
+  ]
 
   return (
     <Wrapper {...restProps}>
@@ -22,9 +37,11 @@ export const Bridges: React.FC = ({ ...restProps }) => {
             />
           ))}
         </Tabs>
-        {bridges.map(({ contents }, index) => (
-          <Fragment key={index}>{activeTab === index && contents}</Fragment>
-        ))}
+        <TabContentInner>
+          {bridges.map(({ contents }, index) => (
+            <Fragment key={index}>{activeTab === index && contents}</Fragment>
+          ))}
+        </TabContentInner>
       </MainTabsWrapper>
     </Wrapper>
   )

@@ -16,6 +16,7 @@ const Wrapper = styled(InnerCard)`
     min-height: 24px;
   }
 `
+
 const Header = styled.div`
   align-items: flex-start;
   display: flex;

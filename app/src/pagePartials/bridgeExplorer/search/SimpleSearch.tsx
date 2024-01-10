@@ -6,6 +6,14 @@ import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Warning } from '@/src/components/assets/Warning'
 import { TextfieldStatus } from '@/src/components/form/Textfield'
 
+interface Props {
+  onChange: (e: string) => void
+  placeholder?: string
+  status?: TextfieldStatus | undefined
+  statusMessage?: string
+  value: string
+}
+
 const Wrapper = styled.div`
   --border-radius: 8px;
 
@@ -159,14 +167,6 @@ const Info = styled.div<{ show: boolean }>`
   transition: opacity 0.15s linear;
   width: 100%;
 `
-
-interface Props {
-  onChange: (e: string) => void
-  placeholder?: string
-  status?: TextfieldStatus | undefined
-  statusMessage?: string
-  value: string
-}
 
 export const SimpleSearch: React.FC<Props> = ({
   onChange,
