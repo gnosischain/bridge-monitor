@@ -9,7 +9,7 @@ import {
   useState,
 } from 'react'
 
-import { JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
+import { JsonRpcBatchProvider, JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
 import { OnboardAPI, WalletState } from '@web3-onboard/core'
 import injectedModule from '@web3-onboard/injected-wallets'
 import { init, useConnectWallet, useSetChain, useWallets } from '@web3-onboard/react'
@@ -107,6 +107,7 @@ export type Web3Context = {
   isWalletNetworkSupported: boolean
   pushNetwork: (options: SetChainOptions) => Promise<boolean>
   readOnlyAppProvider: JsonRpcProvider
+  readOnlyAppBatchProvider: JsonRpcBatchProvider
   setAppChainId: Dispatch<SetStateAction<ChainsValues>>
   wallet: WalletState | null
   walletChainId: number | null
@@ -157,6 +158,11 @@ export default function Web3ConnectionProvider({ children }: Props) {
 
   const readOnlyAppProvider = useMemo(
     () => new JsonRpcProvider(getNetworkConfig(appChainId)?.rpcUrl, appChainId),
+    [appChainId],
+  )
+
+  const readOnlyAppBatchProvider = useMemo(
+    () => new JsonRpcBatchProvider(getNetworkConfig(appChainId)?.rpcUrl, appChainId),
     [appChainId],
   )
 
@@ -251,6 +257,7 @@ export default function Web3ConnectionProvider({ children }: Props) {
     isWalletNetworkSupported,
     pushNetwork: setChain,
     readOnlyAppProvider,
+    readOnlyAppBatchProvider,
     setAppChainId,
     settingChain,
     wallet,

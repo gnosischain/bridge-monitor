@@ -152,7 +152,7 @@ const ChevronDown = styled(BaseChevronDown)`
 
 interface Props {
   chainId: ChainsValues
-  defaultToken: Token
+  defaultToken?: Token
   disabled?: boolean
   onChange?: (token: Token) => void
 }
@@ -164,13 +164,14 @@ const Dropdown: React.FC<Props> = ({
   onChange,
   ...restProps
 }) => {
-  const [token, setToken] = useState<Token>(defaultToken)
+  const [token, setToken] = useState<Token | undefined>(defaultToken)
   const { ambTokensByNetwork } = useBridgedTokens()
   const tokens = useMemo(() => {
     if (([Chains.mainnet, Chains.gnosis] as Array<number>).includes(chainId)) {
       return ambTokensByNetwork[chainId] ?? []
     }
   }, [chainId, ambTokensByNetwork])
+
   const [tokensList, setTokensList] = useState(tokens)
   const [value, setValue] = useState('')
 
@@ -178,6 +179,12 @@ const Dropdown: React.FC<Props> = ({
     setToken(token)
     if (typeof onChange !== 'undefined') onChange(token)
   }
+
+  useEffect(() => {
+    if (defaultToken && defaultToken.address.toLowerCase() !== token?.address.toLowerCase()) {
+      setToken(defaultToken)
+    }
+  }, [defaultToken, token?.address])
 
   useEffect(() => {
     if (value.length === 0) {
@@ -199,7 +206,7 @@ const Dropdown: React.FC<Props> = ({
     <Wrapper
       disabled={disabled}
       dropdownButton={
-        <Button>
+        <Button type="button">
           {token && <TokenIcon dimensions={18} iconSource={token.logoURI} symbol={token.symbol} />}
           <ButtonText>{token ? token.symbol : 'Select token...'}</ButtonText>
           {!disabled && <ChevronDown />}

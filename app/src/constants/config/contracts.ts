@@ -3,6 +3,7 @@ import HomeOMNI_abi from '@/src/abis/HomeOmniMediator.json'
 import BridgeHelper_abi from '@/src/abis/Erc20ToNativeBridgeHelper.json'
 import ForeignAMB_abi from '@/src/abis/ForeignAMB.json'
 import HomeAMB_abi from '@/src/abis/HomeAMB.json'
+import OMNI_FEE_MANAGER_abi from '@/src/abis/OmniBridgeFeeManager.json'
 import AMBBridgeHelper_abi from '@/src/abis/AMBBridgeHelper.json'
 import { Chains } from '@/src/constants/config/types'
 
@@ -14,6 +15,22 @@ export const contracts = {
       [Chains.gnosis]: '0x7301CFA0e1756B71869E93d4e4Dca5c7d0eb0AA6',
     },
     abi: HomeXDAI_abi,
+  },
+  nativeOmniBridgeMediator: {
+    address: {
+      [Chains.mainnet]: '0xa6439ca0fcba1d0f80df0be6a17220fed9c9038a',
+      [Chains.chiado]: '',
+      [Chains.gnosis]: '',
+    },
+    abi: [],
+  },
+  omnibridgeFeeManager: {
+    address: {
+      [Chains.mainnet]: '',
+      [Chains.chiado]: '',
+      [Chains.gnosis]: '0x5dbc897aef6b18394d845a922bf107fa98e3ac55',
+    },
+    abi: OMNI_FEE_MANAGER_abi,
   },
   homeOmniBridge: {
     address: {

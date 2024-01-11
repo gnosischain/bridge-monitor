@@ -1,5 +1,5 @@
 import { FC, PropsWithChildren, createContext, useContext } from 'react'
-import useSWR from 'swr'
+import useSWR from 'swr/immutable'
 import { TokensLists } from '@/src/constants/config/types'
 import { getIcon } from '@/src/utils/icons'
 import { isNativeToken, isSameString } from '@/src/utils/tools'
@@ -119,7 +119,6 @@ const useTokenListQuery = () => {
     const tokenList = tokenLists.flatMap((tokenList) => tokenList.tokens)
 
     const bridgedTokens = await fetchBridgedTokens()
-
     const addLogoUri = addLogoUriByTokenList(tokenList)
 
     return {
@@ -129,7 +128,6 @@ const useTokenListQuery = () => {
         // native tokens indexing
         if (isNativeToken(token.address)) {
           acc.nativeTokensByNetwork[token.chainId] = token
-          return acc
         }
 
         acc.tokens.concat(token)

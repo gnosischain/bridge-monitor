@@ -18,6 +18,11 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     rpcUrl: getProviderUrl(Chains.mainnet),
     blockExplorerUrls: ['https://etherscan.io/'],
     token: 'ETH',
+    tokenDecimals: 18,
+    bridge: {
+      DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+      wForeignNative: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // WETH
+    },
   },
   [Chains.chiado]: {
     id: Chains.chiado,
@@ -28,6 +33,11 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     rpcUrl: getProviderUrl(Chains.chiado),
     blockExplorerUrls: ['https://gnosis-chiado.blockscout.com/'],
     token: 'Testnet xDai on Chiado',
+    tokenDecimals: 18,
+    bridge: {
+      DAI: '',
+      wForeignNative: '', // WETH
+    },
   },
   [Chains.gnosis]: {
     id: Chains.gnosis,
@@ -38,6 +48,11 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     rpcUrl: getProviderUrl(Chains.gnosis),
     blockExplorerUrls: ['https://gnosisscan.io/'],
     token: 'xDAI',
+    tokenDecimals: 18,
+    bridge: {
+      DAI: '0x44fA8E6f47987339850636F88629646662444217',
+      wForeignNative: '0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1', // WETH
+    },
   },
 }
 

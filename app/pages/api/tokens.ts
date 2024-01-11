@@ -19,6 +19,22 @@ const bridgedTokenName = /( on xDai| from Mainnet)$/
 const WETH_ON_XDAI = '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1'
 const DAI_ON_MAINNET = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
 
+const NATIVE_ETH: Token = {
+  chainId: 1,
+  address: NATIVE_TOKEN_ADDRESS,
+  decimals: 18,
+  logoURI: 'https://assets.coingecko.com/coins/images/279/standard/ethereum.png?1696501628',
+  name: 'ETH',
+  symbol: 'ETH',
+  extensions: {
+    bridgeInfo: {
+      100: {
+        tokenAddress: WETH_ON_XDAI,
+      },
+    },
+  },
+}
+
 /**
  * Retrieves data from the 'bridgedTokens' array and processes it to create an array of 'Token' objects.
  *
@@ -140,6 +156,8 @@ export default function handler(_: NextApiRequest, res: NextApiResponse<Array<To
       ...extraTokens,
     ]
   })
+
+  tokens.push(NATIVE_ETH)
 
   res.status(200).json(tokens)
 }

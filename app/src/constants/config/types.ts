@@ -15,6 +15,11 @@ export type ChainConfig = {
   rpcUrl: string
   blockExplorerUrls: string[]
   token: string
+  tokenDecimals: number
+  bridge: {
+    DAI: string
+    wForeignNative: string
+  }
 }
 
 export type ChainsValues = ObjectValues<typeof Chains>
