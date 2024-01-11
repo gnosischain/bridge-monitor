@@ -1,3 +1,4 @@
+import styled from 'styled-components'
 import { PropsWithChildren, useState } from 'react'
 import { BridgeLimit } from '@/src/pagePartials/bridgeExplorer/bridges/BridgeLimit'
 import { BaseSubTitle } from '@/src/components/text/BaseSubTitle'
@@ -14,14 +15,13 @@ import {
 import { useGnoToken } from '@/src/hooks/useGnoToken'
 import { useDaiToken } from '@/src/hooks/useDaiToken'
 import { useDayNumber } from '@/src/hooks/useDayNumber'
-import styled from 'styled-components'
 import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { TokenDropdown } from '@/src/pagePartials/bridgeExplorer/bridges/TokenDropdown'
 import { InnerCard } from '@/src/components/card/InnerCard'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
-import { ArrowUp } from '@/src/components/assets/ArrowUp'
+import { ArrowRight } from '@/src/components/assets/ArrowRight'
 import dynamic from 'next/dynamic'
 
 const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
@@ -76,14 +76,8 @@ const TitleWrapper = styled.span`
   row-gap: 8px;
 `
 
-const ArrowRight = styled(ArrowUp)`
-  display: block;
-  transform: rotate(0deg);
-`
-
 const Placeholder: React.FC = () => (
   <SkeletonLoading
-    animate={false}
     style={{
       borderRadius: '4px',
       display: 'flex',
@@ -93,19 +87,20 @@ const Placeholder: React.FC = () => (
     }}
   >
     <SkeletonLoading
+      animate={false}
       style={{
         height: '34px',
         marginBottom: '8px',
       }}
     />
     {Array.from({ length: 2 }).map((item, index) => (
-      <SkeletonLoading key={index} style={{ height: '95px' }} />
+      <SkeletonLoading animate={false} key={index} style={{ height: '95px' }} />
     ))}
     {Array.from({ length: 2 }).map((item, index) => (
-      <SkeletonLoading key={index} style={{ height: '70px' }} />
+      <SkeletonLoading animate={false} key={index} style={{ height: '70px' }} />
     ))}
     {Array.from({ length: 2 }).map((item, index) => (
-      <SkeletonLoading key={index} style={{ minHeight: '0', height: '17px' }} />
+      <SkeletonLoading animate={false} key={index} style={{ minHeight: '0', height: '17px' }} />
     ))}
   </SkeletonLoading>
 )

@@ -22,7 +22,6 @@ const ValidatorsPage: NextPage = genericSuspense(
         </NextHead>
         <ValidatorsProvider>
           <Validators />
-          <Validators />
         </ValidatorsProvider>
       </>
     )

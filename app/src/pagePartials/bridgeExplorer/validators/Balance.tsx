@@ -11,17 +11,24 @@ const Chain = styled.div`
   column-gap: 6px;
   display: flex;
 `
-const Text = styled.span``
+const Text = styled.span`
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1.2;
+`
 
 const Value = styled.span`
   font-family: ${({ theme: { fonts } }) => fonts.familyCode};
+  font-size: 1.2rem;
+  font-weight: 400;
+  line-height: 1.2;
 `
 
 interface Props {
   balanceType?: BalanceType
 }
 
-export const BridgeBalance: React.FC<Props> = ({ balanceType }) => {
+export const Balance: React.FC<Props> = ({ balanceType }) => {
   const { iconPath } = useIcon(getChainIconName(balanceType?.chain))
 
   return (

@@ -12,7 +12,7 @@ import {
 } from '@/src/pagePartials/bridgeExplorer/common/TokenWithValue'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Transaction } from '@/src/utils/transactions'
-import { ArrowUp } from '@/src/components/assets/ArrowUp'
+import { ArrowRight } from '@/src/components/assets/ArrowRight'
 import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
 const Wrapper = styled.div`
@@ -82,11 +82,6 @@ const Initiator = styled(BaseInitiator)`
 
 const Receiver = styled(BaseReceiver)`
   ${CommonCSS}
-`
-
-const ArrowRight = styled(ArrowUp)`
-  display: block;
-  transform: rotate(0deg);
 `
 
 const Address = styled(TokenAddress)`

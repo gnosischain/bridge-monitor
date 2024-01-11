@@ -24,6 +24,7 @@ const Wrapper = styled.div<{ withNames?: boolean }>`
     font-size: 1.4rem;
   }
 `
+
 interface Props {
   name: string
   showName?: boolean

@@ -28,7 +28,7 @@ interface Props {
   validatorHealth: string
 }
 
-export const BridgeValidatorHeader: React.FC<Props> = ({
+export const ValidatorHeader: React.FC<Props> = ({
   shortName,
   title,
   validatorHealth,

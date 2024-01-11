@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { ArrowUp } from '@/src/components/assets/ArrowUp'
+import { ArrowRight } from '@/src/components/assets/ArrowRight'
 import { ChevronRight } from '@/src/components/assets/ChevronRight'
 import { DateTime } from '@/src/pagePartials/bridgeExplorer/transactionsList/DateTime'
 import { ChainsInitiatorReceiver } from '@/src/pagePartials/bridgeExplorer/common/ChainsInitiatorReceiver'
@@ -40,11 +40,6 @@ const TDArrow = styled(TD)`
     display: flex;
     margin: auto;
   }
-`
-
-const ArrowRight = styled(ArrowUp)`
-  display: block;
-  transform: rotate(0deg);
 `
 
 const TDLastMobile = styled(TD)`

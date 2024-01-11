@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
-import { BridgeValidator } from '@/src/pagePartials/bridgeExplorer/validators/BridgeValidator'
+import { Validator } from '@/src/pagePartials/bridgeExplorer/validators/Validator'
 import { TransactionsSigned } from '@/src/pagePartials/bridgeExplorer/validators/TransactionsSigned'
-import { Bridges } from '@/src/constants/config/bridges'
+import { Bridges as BridgesConfig } from '@/src/constants/config/bridges'
 import {
   useFetchValidatorsExecutions,
   useFetchValidatorsSignatures,
@@ -12,8 +12,30 @@ import { get1DayBeforeInSeconds } from '@/src/utils/date'
 import { isSameString } from '@/src/utils/tools'
 import { useValidators } from '@/src/providers/validatorsProvider'
 import { useEffect } from 'react'
-import { MainWrapper as Wrapper } from '@/src/components/layout/MainWrapper'
+import { MainCard } from '@/src/components/card/MainCard'
 import { MainTitle } from '@/src/components/text/MainTitle'
+
+const Wrapper = styled(MainCard)`
+  --validator-item-min-height: 338px;
+
+  row-gap: calc(var(--theme-common-space) * 2);
+`
+
+const Bridges = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: calc(var(--theme-common-space) * 4);
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
+    row-gap: calc(var(--theme-common-space) * 6);
+  }
+`
+
+const Bridge = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: calc(var(--theme-common-space) * 4);
+`
 
 const Columns = styled.div`
   display: grid;
@@ -32,7 +54,7 @@ const Title = styled.h2`
   font-size: 2.1rem;
   font-weight: 500;
   line-height: 1.2;
-  margin: 0 0 8px;
+  margin: 0;
 `
 
 const TitleNote = styled.span`
@@ -59,13 +81,7 @@ const Chart = styled(TransactionsSigned)`
 const ChartPlaceholder = styled(SkeletonLoading)`
   ${ChartCSS};
   border-radius: 4px;
-  height: 326px;
-`
-
-const BridgesList = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: calc(var(--theme-common-space) * 4);
+  height: var(--validator-item-min-height);
 `
 
 type SigsCount = {
@@ -81,8 +97,11 @@ type ExecsCount = {
 const Placeholder: React.FC = () => (
   <Columns>
     <ChartPlaceholder />
-    {Array.from({ length: 2 }).map((item, index) => (
-      <SkeletonLoading key={index} style={{ borderRadius: '4px', height: '326px' }} />
+    {Array.from({ length: 6 }).map((item, index) => (
+      <SkeletonLoading
+        key={index}
+        style={{ borderRadius: '4px', height: 'var(--validator-item-min-height)' }}
+      />
     ))}
   </Columns>
 )
@@ -91,14 +110,13 @@ const _1DayBefore = get1DayBeforeInSeconds()
 
 const XDAIValidators: React.FC = genericSuspense(
   ({ ...restProps }) => {
-    const { validators: xdaiValidators } = useValidators(Bridges.xdai)
+    const { validators: xdaiValidators } = useValidators(BridgesConfig.xdai)
     const xdaiTodaysSignedTXs = useFetchValidatorsSignatures('XDAI', _1DayBefore)
     const xdaiTodaysExecutedTXs = useFetchValidatorsExecutions('XDAI', _1DayBefore)
 
     return (
       <Columns {...restProps}>
         <Chart bridge={'XDAI'} />
-
         {xdaiValidators.map((validator, index) => {
           const todaysSignatures = xdaiTodaysSignedTXs.data?.find((validatorSig) =>
             isSameString(validatorSig.name, validator.name),
@@ -111,9 +129,7 @@ const XDAIValidators: React.FC = genericSuspense(
           validator.signed = todaysSignatures?.value ?? 0
           validator.executed = todaysExecutions?.value ?? 0
 
-          return (
-            <BridgeValidator bridgeValidator={validator} key={`xDaiBridgeValidator_${index}`} />
-          )
+          return <Validator bridgeValidator={validator} key={`xDaiBridgeValidator_${index}`} />
         })}
       </Columns>
     )
@@ -123,7 +139,7 @@ const XDAIValidators: React.FC = genericSuspense(
 
 const OmnibridgeValidators: React.FC = genericSuspense(
   ({ ...restProps }) => {
-    const { validators: omnibridgeValidators } = useValidators(Bridges.amb)
+    const { validators: omnibridgeValidators } = useValidators(BridgesConfig.amb)
     const omnibridgeTodaysSignedTXs = useFetchValidatorsSignatures('AMB', _1DayBefore)
     const omnibridgeTodaysExecutedTXs = useFetchValidatorsExecutions('AMB', _1DayBefore)
 
@@ -144,7 +160,7 @@ const OmnibridgeValidators: React.FC = genericSuspense(
           validator.signed = todaysSignatures?.value ?? 0
           validator.executed = todaysExecutions?.value ?? 0
 
-          return <BridgeValidator bridgeValidator={validator} key={`AMBBridgeValidator_${index}`} />
+          return <Validator bridgeValidator={validator} key={`AMBBridgeValidator_${index}`} />
         })}
       </Columns>
     )
@@ -159,7 +175,7 @@ const XDAITitle: React.FC = () => (
   </Title>
 )
 const OmnibridgeTitle: React.FC = () => (
-  <Title style={{ paddingTop: '24px' }}>
+  <Title>
     Omnibridge Validators <TitleNote>(Ethereum-Gnosis Chain)</TitleNote>
   </Title>
 )
@@ -167,12 +183,16 @@ const OmnibridgeTitle: React.FC = () => (
 export const ValidatorsSkeleton: React.FC = () => (
   <Wrapper>
     <ValidatorsTitle />
-    <BridgesList>
-      <XDAITitle />
-      <Placeholder />
-      <OmnibridgeTitle />
-      <Placeholder />
-    </BridgesList>
+    <Bridges>
+      <Bridge>
+        <XDAITitle />
+        <Placeholder />
+      </Bridge>
+      <Bridge>
+        <OmnibridgeTitle />
+        <Placeholder />
+      </Bridge>
+    </Bridges>
   </Wrapper>
 )
 
@@ -190,12 +210,16 @@ export const Validators: React.FC = ({ ...restProps }) => {
   return (
     <Wrapper {...restProps}>
       <ValidatorsTitle />
-      <BridgesList>
-        <XDAITitle />
-        <XDAIValidators />
-        <OmnibridgeTitle />
-        <OmnibridgeValidators />
-      </BridgesList>
+      <Bridges>
+        <Bridge>
+          <XDAITitle />
+          <XDAIValidators />
+        </Bridge>
+        <Bridge>
+          <OmnibridgeTitle />
+          <OmnibridgeValidators />
+        </Bridge>
+      </Bridges>
     </Wrapper>
   )
 }
