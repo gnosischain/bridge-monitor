@@ -1,17 +1,16 @@
-import React, { createRef, useEffect, useState } from 'react'
-import styled, { css } from 'styled-components'
+import React from 'react'
+import styled from 'styled-components'
 
-import { GnosisChain } from '@/src/components/assets/GnosisChain'
+import { GnosisChainLogo } from '@/src/components/assets/GnosisChainLogo'
+import { MainCard } from '@/src/components/card/MainCard'
 
-const Wrapper = styled.div`
+const Wrapper = styled(MainCard)`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.darkestGrey};
-  border-radius: 16px;
-  display: flex;
   flex-direction: column;
   justify-content: center;
   margin: auto;
-  padding: calc(var(--theme-common-space) * 3);
+  padding-bottom: calc(var(--theme-common-space) * 5);
+  row-gap: calc(var(--theme-common-space) * 5);
   width: 100%;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
@@ -20,90 +19,52 @@ const Wrapper = styled.div`
 `
 
 const Icon = styled.div`
-  margin-bottom: 20px;
   display: flex;
   justify-content: center;
-  width: 100%;
 `
 
-const MainLogo = styled(GnosisChain)`
-  --size: 50px;
+const MainLogo = styled(GnosisChainLogo)`
+  --size: 30px;
 
   animation-iteration-count: infinite;
   height: var(--size);
-  width: var(--size);
 `
 
 const Title = styled.h1`
   color: ${({ theme: { colors } }) => colors.textColor};
-  font-size: 1.6rem;
+  font-size: 2rem;
   font-weight: 700;
   line-height: 1.2;
-  margin: 0 0 8px;
-  text-align: center;
-  word-break: break-word;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    font-size: 2.2rem;
-    margin-bottom: 16px;
-  }
-`
-
-const MessageWrapper = styled.div<{
-  maxHeight?: number
-  showAll?: boolean
-  togglerActive?: boolean
-}>`
-  cursor: ${({ togglerActive }) => (togglerActive ? 'pointer' : 'auto')};
-  overflow: hidden;
-  position: relative;
-
-  ${({ maxHeight, showAll, togglerActive }) =>
-    !togglerActive
-      ? css`
-          max-height: none;
-        `
-      : showAll
-      ? css`
-          max-height: none;
-        `
-      : css`
-          max-height: ${maxHeight}px;
-        `};
-
-  ${({ showAll, theme: { colors }, togglerActive }) =>
-    togglerActive &&
-    !showAll &&
-    css`
-      &::after {
-        align-items: center;
-        background-color: ${colors.primaryLight};
-        border-radius: 15px;
-        bottom: 0;
-        color: ${colors.textColor};
-        content: 'Show more';
-        cursor: pointer;
-        display: flex;
-        font-size: 1.2rem;
-        padding: 0 8px;
-        position: absolute;
-        right: 50%;
-        transform: translateX(50%);
-      }
-    `};
-`
-
-const Text = styled.p`
-  color: ${({ theme: { colors } }) => colors.textColor};
-  font-size: 1.4rem;
-  font-weight: 400;
-  line-height: 1.5;
   margin: 0;
   text-align: center;
   word-break: break-word;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    font-size: 1.6rem;
+    font-size: 2.8rem;
+  }
+`
+
+const MessageWrapper = styled.div`
+  max-height: 250px;
+  overflow: auto;
+  position: relative;
+`
+
+const Text = styled.div`
+  align-items: center;
+  color: ${({ theme: { colors } }) => colors.textColor};
+  display: flex;
+  flex-direction: column;
+  font-size: 1.6rem;
+  font-weight: 400;
+  line-height: 1.5;
+  row-gap: calc(var(--theme-common-space) * 3);
+  text-align: center;
+  width: 100%;
+  word-break: break-word;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    font-size: 1.8rem;
   }
 
   a {
@@ -121,35 +82,11 @@ export const GenericError: React.FC<{
   text?: string | React.ReactNode
   icon?: React.ReactNode
 }> = ({ icon = <MainLogo />, text = 'Something went wrong.', title = 'Error', ...restProps }) => {
-  const maxHeight = 196
-  const [showAll, setShowAll] = useState(false)
-  const [togglerActive, setAllTogglerActive] = useState(false)
-  const node = createRef<HTMLParagraphElement>()
-
-  useEffect(() => {
-    if (node.current) {
-      if (node.current.clientHeight > maxHeight) {
-        setAllTogglerActive(true)
-      }
-    }
-  }, [node])
-
   return (
     <Wrapper {...restProps}>
       <Icon>{icon}</Icon>
       <Title>{title}</Title>
-      <MessageWrapper
-        maxHeight={maxHeight}
-        onClick={() => {
-          if (togglerActive) {
-            setShowAll(!showAll)
-          } else {
-            return
-          }
-        }}
-        showAll={showAll}
-        togglerActive={togglerActive}
-      >
+      <MessageWrapper>
         <Text>{text}</Text>
       </MessageWrapper>
     </Wrapper>

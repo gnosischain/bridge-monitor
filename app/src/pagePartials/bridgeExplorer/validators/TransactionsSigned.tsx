@@ -188,7 +188,7 @@ const BaseChart: React.FC<{ timePeriod: number; bridge: string; theme: any }> = 
           >
             <XAxis dataKey="value" dy={5} type="number" {...commonAxesStyles} />
             <YAxis dataKey="name" dx={-20} type="category" width={130} {...commonAxesStyles} />
-            <CartesianGrid horizontal={false} stroke={'rgba(240, 235, 222, 0.08)'} />
+            <CartesianGrid horizontal={false} stroke={'rgba(62, 105, 87, 0.08)'} />
             <Bar barSize={12} dataKey="value" fill={theme.colors.white} radius={[6, 6, 6, 6]}>
               {data?.map((entry, index) => (
                 <Cell fill={colors[index % 20]} key={`cell-${index}`} />
