@@ -40,7 +40,7 @@ const color_029 = `rgba(210, 200, 173, 0.30)`
 const color_030 = `rgba(62, 105, 87, 0.6)`
 const color_031 = `rgba(13, 2, 2, 0.65)`
 const color_032 = '#000'
-const color_033 = 'rgba(0, 0, 0, 0.8)'
+const color_033 = 'rgba(210, 200, 173, 0.70)'
 const color_034 = 'rgba(0, 0, 0, 0.7)'
 const color_035 = `rgba(62, 105, 87, 0.5)`
 const color_036 = `rgba(62, 105, 87, 0.2)`
@@ -49,7 +49,7 @@ const color_038 = `#4b886e`
 
 // Gradients
 const primaryGradient = `linear-gradient(180deg, ${color_006} 0%, ${color_002} 100%)`
-const grayGradient = `linear-gradient(180deg, ${color_019} 0%, ${color_011} 100%)`
+const grayGradient = `linear-gradient(180deg, ${color_001} 0%, ${color_005} 100%)`
 
 // Named colors
 export const theme = {
@@ -199,11 +199,6 @@ export const theme = {
   },
   mainMenu: {
     color: color_002,
-  },
-  mobileMenu: {
-    color: color_002,
-    backgroundColor: color_032,
-    borderColor: color_008,
   },
   modal: {
     overlayColor: color_033,

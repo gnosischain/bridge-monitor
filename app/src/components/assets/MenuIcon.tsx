@@ -1,14 +1,18 @@
 import { HTMLAttributes } from 'react'
 import styled from 'styled-components'
 
-const Wrapper = styled.svg``
+const Wrapper = styled.svg`
+  color: ${({ theme: { colors } }) => colors.primary};
+  display: block;
+  flex-shrink: 0;
+`
 
 export const MenuIcon: React.FC<HTMLAttributes<SVGElement>> = (props) => {
   const { className, ...restProps } = props
 
   return (
     <Wrapper
-      className={`CirclesLogo ${className}`}
+      className={`menuIcon ${className}`}
       fill="none"
       height="15"
       viewBox="0 0 24 15"
