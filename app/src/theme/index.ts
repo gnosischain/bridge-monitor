@@ -45,6 +45,7 @@ const color_034 = 'rgba(0, 0, 0, 0.7)'
 const color_035 = `rgba(62, 105, 87, 0.5)`
 const color_036 = `rgba(62, 105, 87, 0.2)`
 const color_037 = `rgba(248, 245, 237, 0.5)`
+const color_038 = `#4b886e`
 
 // Gradients
 const primaryGradient = `linear-gradient(180deg, ${color_006} 0%, ${color_002} 100%)`
@@ -56,11 +57,11 @@ export const theme = {
     black: color_007,
     borderColor: color_008,
     cream: color_001,
-    cream_50: color_037,
     creamDark: color_005,
     creamDarker: color_028,
     creamDarkest: color_029,
     creamLight: color_009,
+    cream_50: color_037,
     darkGreen: color_002,
     darkGrey: color_011,
     darkSecondary: color_012,
@@ -74,10 +75,11 @@ export const theme = {
     lightYellow: color_020,
     mainBodyBackground: color_014,
     primary: color_002,
+    primaryDark: color_003,
+    primaryLight: color_038,
     primary_20: color_036,
     primary_50: color_035,
     primary_60: color_030,
-    primaryDark: color_003,
     secondary: color_021,
     success: color_022,
     successDark: color_023,
@@ -213,8 +215,8 @@ export const theme = {
     sidebarBackgroundColor: color_015,
   },
   toast: {
-    backgroundColor: color_002,
-    borderColor: color_002,
+    backgroundColor: color_009,
+    borderColor: color_009,
     boxShadow: commonBoxShadow,
   },
 }
