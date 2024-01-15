@@ -39,7 +39,6 @@ const color_028 = `rgba(221, 212, 190, 0.50)`
 const color_029 = `rgba(210, 200, 173, 0.30)`
 const color_030 = `rgba(62, 105, 87, 0.6)`
 const color_031 = `rgba(13, 2, 2, 0.65)`
-const color_032 = '#000'
 const color_033 = 'rgba(210, 200, 173, 0.70)'
 const color_034 = 'rgba(0, 0, 0, 0.7)'
 const color_035 = `rgba(62, 105, 87, 0.5)`
@@ -204,10 +203,10 @@ export const theme = {
     overlayColor: color_033,
   },
   onBoard: {
-    backgroundColor: color_011,
+    backgroundColor: color_001,
     borderColor: 'transparent',
     color: color_002,
-    sidebarBackgroundColor: color_015,
+    sidebarBackgroundColor: color_005,
   },
   toast: {
     backgroundColor: color_009,
