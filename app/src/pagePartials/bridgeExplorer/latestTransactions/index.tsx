@@ -16,7 +16,7 @@ import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
 import { getEndOfDay, getStartOfDay } from '@/src/utils/date'
 import { useRouter } from 'next/router'
 import { isSameString } from '@/src/utils/tools'
-import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { genericSuspense } from '@/src/components/safeSuspense'
 import { ValidatorsProvider } from '@/src/providers/validatorsProvider'
 import { latestTransactionsBaseURL } from '@/src/constants/sections'
 

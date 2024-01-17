@@ -1,8 +1,14 @@
-import { css } from 'styled-components'
+import styled from 'styled-components'
 
-export const ContainerPadding = css`
+export const InnerContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  margin: 0 auto;
+  max-width: 100%;
   padding-left: ${({ theme }) => theme.layout.horizontalPaddingMobile};
   padding-right: ${({ theme }) => theme.layout.horizontalPaddingMobile};
+  width: ${({ theme }) => theme.layout.maxWidth};
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
     padding-left: ${({ theme }) => theme.layout.horizontalPaddingTabletPortraitStart};

@@ -3,7 +3,7 @@ import {
   Transaction,
   TransactionSkeletonLoading,
 } from '@/src/pagePartials/bridgeExplorer/transaction'
-import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { genericSuspense } from '@/src/components/safeSuspense'
 import { ValidatorsProvider } from '@/src/providers/validatorsProvider'
 import dynamic from 'next/dynamic'
 import NextHead from 'next/head'

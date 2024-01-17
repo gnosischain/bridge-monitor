@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components'
 import { BigNumberish } from 'ethers'
 import { ChainToken } from '@/src/pagePartials/bridgeExplorer/validators/ChainToken'
 import { useLookupBridgedToken } from '@/src/hooks/useLookupBridgedToken'
-import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { genericSuspense } from '@/src/components/safeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import dynamic from 'next/dynamic'
 

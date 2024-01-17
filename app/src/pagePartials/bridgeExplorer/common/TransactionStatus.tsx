@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components'
 
-import { StatusColors } from '@/src/components/helpers/StatusColors'
+import { StatusColors } from '@/src/pagePartials/bridgeExplorer/common/StatusColors'
 import { TransactionStatus as TxStatusEnum } from '@/types/generated/subgraph'
 
 const Wrapper = styled.div<{ status: TxStatusEnum }>`

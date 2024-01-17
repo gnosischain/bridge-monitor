@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components'
 
 import { ButtonDropdown } from '@/src/components/buttons/ButtonDropdown'
 import { Dropdown as BaseDropdown, DropdownItem } from '@/src/components/dropdown'
-import { StatusColors } from '@/src/components/helpers/StatusColors'
+import { StatusColors } from '@/src/pagePartials/bridgeExplorer/common/StatusColors'
 import { TransactionStatus } from '@/types/generated/subgraph'
 
 const Dropdown = styled(BaseDropdown)`

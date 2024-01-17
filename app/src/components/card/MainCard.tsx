@@ -7,7 +7,6 @@ export const MainCard = styled.div<{ backgroundOpacity?: string }>`
     0px 25.819px 20.925px 0px rgba(0, 0, 0, 0.02), 0px 51px 48px 0px rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
-  margin: calc(var(--theme-common-space) * 5) 0 0;
   padding: calc(var(--theme-common-space) * 3) calc(var(--theme-common-space) * 2)
     calc(var(--theme-common-space) * 3);
   row-gap: calc(var(--theme-common-space) * 3);

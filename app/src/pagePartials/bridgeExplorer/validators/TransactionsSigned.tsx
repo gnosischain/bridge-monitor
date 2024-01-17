@@ -14,7 +14,7 @@ import {
 import { useFetchValidatorsSignatures } from '@/src/hooks/subgraph/useValidators'
 import { ChevronDown } from '@/src/components/assets/ChevronDown'
 import { Dropdown as BaseDropdown, DropdownItem, DropdownPosition } from '@/src/components/dropdown'
-import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { genericSuspense } from '@/src/components/safeSuspense'
 import { InnerCard } from '@/src/components/card/InnerCard'
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { get1DayBeforeInSeconds, get7DaysBeforeInSeconds } from '@/src/utils/date'

@@ -19,20 +19,13 @@ import { notify } from '@/src/components/toast'
 import { ToastStates } from '@/src/constants/types'
 import { Loading } from '@/src/components/loading'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
+import { MainCard } from '@/src/components/card/MainCard'
 
 const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
   ssr: false,
 })
 
-const Wrapper = styled.div`
-  display: flex;
-  align-items: center;
-  flex-grow: 1;
-  padding: 20px;
-  border-radius: 10px;
-  background-color: ${({ theme: { colors } }) => colors.darkGrey};
-  justify-content: center;
-`
+const Wrapper = styled(MainCard)``
 
 const Dropdown = styled(BaseDropdown)`
   button {
@@ -45,14 +38,7 @@ const Dropdown = styled(BaseDropdown)`
   }
 `
 
-const FormWrapper = styled.div`
-  background: ${({ theme: { colors } }) => colors.lightGrey};
-  border-radius: 10px;
-  padding: 20px;
-  max-width: 50%;
-  min-width: 400px;
-  margin: 0 auto;
-`
+const FormWrapper = styled.div``
 
 type FormState = {
   fromChainId: ChainsValues

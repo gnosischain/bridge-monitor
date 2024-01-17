@@ -125,7 +125,11 @@ const NavLink = styled(BaseNavLink)`
 `
 
 const UserMenu = styled.div`
-  background: ${({ theme: { gradients } }) => gradients.gray};
+  background: linear-gradient(
+    180deg,
+    ${({ theme: { colors } }) => colors.cream} 0%,
+    ${({ theme: { colors } }) => colors.creamDark} 100%
+  );
   border-radius: 8px;
   display: flex;
   flex-direction: column;

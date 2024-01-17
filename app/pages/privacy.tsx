@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 
-import { MainWrapper as Wrapper } from '@/src/components/layout/MainWrapper'
+import { MainCard as Wrapper } from '@/src/components/card/MainCard'
 import { MainTitle } from '@/src/components/text/MainTitle'
 import { BaseParagraph } from '@/src/components/text/BaseParagraph'
 

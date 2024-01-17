@@ -5,15 +5,16 @@ import dynamic from 'next/dynamic'
 import { ReactElement, ReactNode, useEffect } from 'react'
 import { GoogleAnalytics } from 'nextjs-google-analytics'
 import { SWRConfig } from 'swr'
-import SafeSuspense from '@/src/components/helpers/SafeSuspense'
-import { SingleColumnLayout } from '@/src/components/layout/SingleColumnLayout'
-import { Layout } from '@/src/components/layout'
+import SafeSuspense from '@/src/components/safeSuspense'
+import { SingleColumnLayout } from '@/src/components/singleColumnLayout'
 import Toast from '@/src/components/toast'
 import { Head } from '@/src/pagePartials/common/Head'
 import { TransactionNotificationProvider } from '@/src/providers/transactionNotificationProvider'
 import ThemeProvider from '@/src/providers/themeProvider'
 import TooltipConfig from '@/src/components/tooltip/TooltipConfig'
 import { useRef } from 'react'
+import { Header } from '@/src/components/header'
+import { Footer } from '@/src/components/footer'
 
 import 'sanitize.css'
 import 'react-tooltip/dist/react-tooltip.css'
@@ -99,15 +100,15 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       >
         <Web3ConnectionProvider>
           <ThemeProvider>
-            <Layout>
-              <SafeSuspense>
-                <TransactionNotificationProvider>
-                  {getLayout(<Component {...pageProps} />)}
-                  <Toast />
-                </TransactionNotificationProvider>
-              </SafeSuspense>
-              <TooltipConfig />
-            </Layout>
+            <Header />
+            <SafeSuspense>
+              <TransactionNotificationProvider>
+                {getLayout(<Component {...pageProps} />)}
+                <Toast />
+              </TransactionNotificationProvider>
+            </SafeSuspense>
+            <TooltipConfig />
+            <Footer />
           </ThemeProvider>
         </Web3ConnectionProvider>
       </SWRConfig>

@@ -2,7 +2,7 @@ import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
 import { motion } from 'framer-motion'
-import { InnerContainer } from '@/src/components/helpers/InnerContainer'
+import { InnerContainer } from '@/src/components/innerContainer'
 
 const Wrapper = styled(InnerContainer)`
   flex-grow: 1;

@@ -5,87 +5,62 @@ const radioAndCheckDimensions = '14px'
 const componentPadding = '16px 24px'
 const space = 8
 
-const commonBoxShadow =
-  '0 27px 80px rgba(0, 0, 0, 0.07), 0 10.4px 25.4815px rgba(0, 0, 0, 0.0425185), 0 2.2px 6.51852px rgba(0, 0, 0, 0.0274815)'
-
 // Colors, generic names. Do not export these, use to build the theme with specific names.
 const color_001 = '#F0EBDE'
 const color_002 = '#3E6957'
 const color_003 = '#133629'
 const color_004 = '#FBF9F3'
 const color_005 = '#DDD4BE'
-const color_006 = '#3E6655'
-const color_007 = '#0A0C0B'
-const color_008 = 'rgba(250,250,250,0.2)'
-const color_009 = '#F8F5ED'
-const color_010 = 'rgb(10, 25, 50)'
-const color_011 = '#252F2B'
-const color_012 = '#8799C7'
-const color_013 = '#1E2723'
-const color_014 = '#161D1A'
-const color_015 = '#101513'
-const color_016 = '#DD7143'
-const color_017 = '#63b090'
-const color_018 = '#59927a'
-const color_019 = '#323D38'
-const color_020 = '#EEFB9E'
-const color_021 = '#A6BCF5'
-const color_022 = '#439B2D'
-const color_023 = '#32AF7B'
-const color_024 = '#A6CFD5'
-const color_025 = '#FAB754'
-const color_026 = '#D39435'
-const color_028 = `rgba(221, 212, 190, 0.50)`
-const color_029 = `rgba(210, 200, 173, 0.30)`
-const color_030 = `rgba(62, 105, 87, 0.6)`
-const color_031 = `rgba(13, 2, 2, 0.65)`
-const color_033 = 'rgba(210, 200, 173, 0.70)'
-const color_034 = 'rgba(0, 0, 0, 0.7)'
-const color_035 = `rgba(62, 105, 87, 0.5)`
-const color_036 = `rgba(62, 105, 87, 0.2)`
-const color_037 = `rgba(248, 245, 237, 0.5)`
-const color_038 = `#4b886e`
-
-// Gradients
-const primaryGradient = `linear-gradient(180deg, ${color_006} 0%, ${color_002} 100%)`
-const grayGradient = `linear-gradient(180deg, ${color_001} 0%, ${color_005} 100%)`
+const color_006 = '#0A0C0B'
+const color_007 = 'rgba(250,250,250,0.2)'
+const color_008 = '#F8F5ED'
+const color_009 = 'rgb(10, 25, 50)'
+const color_010 = '#252F2B'
+const color_011 = '#8799C7'
+const color_012 = '#1E2723'
+const color_013 = '#161D1A'
+const color_014 = '#DD7143'
+const color_015 = '#323D38'
+const color_016 = '#A6BCF5'
+const color_017 = '#439B2D'
+const color_018 = '#FAB754'
+const color_019 = `rgba(221, 212, 190, 0.50)`
+const color_020 = `rgba(210, 200, 173, 0.30)`
+const color_021 = `rgba(62, 105, 87, 0.6)`
+const color_022 = `rgba(13, 2, 2, 0.65)`
+const color_023 = 'rgba(210, 200, 173, 0.70)'
+const color_024 = 'rgba(0, 0, 0, 0.7)'
+const color_025 = `rgba(62, 105, 87, 0.5)`
+const color_026 = `rgba(248, 245, 237, 0.5)`
+const color_027 = `#4b886e`
 
 // Named colors
 export const theme = {
   colors: {
-    black: color_007,
-    borderColor: color_008,
+    black: color_006,
+    borderColor: color_007,
     cream: color_001,
     creamDark: color_005,
-    creamDarker: color_028,
-    creamDarkest: color_029,
-    creamLight: color_009,
-    cream_50: color_037,
+    creamDarker: color_019,
+    creamDarkest: color_020,
+    creamLight: color_008,
+    cream_50: color_026,
     darkGreen: color_002,
-    darkGrey: color_011,
-    darkSecondary: color_012,
-    darkerGrey: color_013,
-    darkestGrey2: color_015,
-    darkestGrey: color_014,
-    error: color_016,
-    green_1: color_017,
-    green_2: color_018,
-    lightGrey: color_019,
-    lightYellow: color_020,
-    mainBodyBackground: color_014,
+    darkGrey: color_010,
+    darkSecondary: color_011,
+    darkerGrey: color_012,
+    darkestGrey: color_013,
+    error: color_014,
+    lightGrey: color_015,
     primary: color_002,
     primaryDark: color_003,
-    primaryLight: color_038,
-    primary_20: color_036,
-    primary_50: color_035,
-    primary_60: color_030,
-    secondary: color_021,
-    success: color_022,
-    successDark: color_023,
-    tertiary: color_024,
+    primaryLight: color_027,
+    primary_50: color_025,
+    primary_60: color_021,
+    secondary: color_016,
+    success: color_017,
     textColor: color_002,
-    warning: color_025,
-    warningDark: color_026,
+    warning: color_018,
     white: color_004,
   },
   body: {
@@ -102,15 +77,15 @@ export const theme = {
   },
   checkBox: {
     dimensions: radioAndCheckDimensions,
-    backgroundColorActive: color_021,
-    backgroundColor: color_010,
-    borderColor: color_008,
+    backgroundColorActive: color_016,
+    backgroundColor: color_009,
+    borderColor: color_007,
   },
   radioButton: {
     dimensions: radioAndCheckDimensions,
-    backgroundColorActive: color_021,
-    backgroundColor: color_010,
-    borderColor: color_008,
+    backgroundColorActive: color_016,
+    backgroundColor: color_009,
+    borderColor: color_007,
   },
   dropdown: {
     borderRadius: '8px',
@@ -121,22 +96,22 @@ export const theme = {
     item: {
       backgroundColor: 'transparent',
       backgroundColorHover: color_001,
-      backgroundColorActive: color_028,
+      backgroundColorActive: color_019,
       borderColor: 'transparent',
       color: color_002,
       colorActive: color_002,
     },
   },
   header: {
-    backgroundColor: color_034,
+    backgroundColor: color_024,
     color: color_002,
   },
   layout: {
-    horizontalPaddingDesktopStart: space * 3 + 'px',
-    horizontalPaddingDesktopWideStart: space * 5 + 'px',
-    horizontalPaddingMobile: space + 'px',
-    horizontalPaddingTabletLandscapeStart: space * 2 + 'px',
-    horizontalPaddingTabletPortraitStart: space * 2 + 'px',
+    horizontalPaddingDesktopStart: `${space * 3}px`,
+    horizontalPaddingDesktopWideStart: `${space * 5}px`,
+    horizontalPaddingMobile: `${space}px`,
+    horizontalPaddingTabletLandscapeStart: `${space * 2}px`,
+    horizontalPaddingTabletPortraitStart: `${space * 2}px`,
     maxWidth: '1400px',
   },
   breakPoints: {
@@ -146,8 +121,8 @@ export const theme = {
     tabletPortraitStart: '481px',
   },
   card: {
-    backgroundColor: color_031,
-    borderColor: color_008,
+    backgroundColor: color_022,
+    borderColor: color_007,
     borderRadius: borderRadius,
     padding: componentPadding,
   },
@@ -156,7 +131,7 @@ export const theme = {
     backgroundColorHover: color_004,
     borderColor: color_001,
     borderColorHover: color_004,
-    color: color_030,
+    color: color_021,
     colorHover: color_002,
   },
   buttonPrimary: {
@@ -168,24 +143,20 @@ export const theme = {
     colorHover: color_004,
   },
   buttonSecondary: {
-    backgroundColor: color_011,
-    backgroundColorHover: color_013,
-    borderColor: color_011,
-    borderColorHover: color_013,
+    backgroundColor: color_010,
+    backgroundColorHover: color_012,
+    borderColor: color_010,
+    borderColorHover: color_012,
     color: color_001,
     colorHover: color_001,
-  },
-  gradients: {
-    primary: primaryGradient,
-    gray: grayGradient,
   },
   textField: {
     backgroundColor: color_001,
     borderColor: color_001,
     color: color_002,
-    errorColor: color_016,
+    errorColor: color_014,
     height: '42px',
-    successColor: color_022,
+    successColor: color_017,
     active: {
       backgroundColor: color_004,
       borderColor: color_004,
@@ -193,14 +164,14 @@ export const theme = {
       color: color_002,
     },
     placeholder: {
-      color: color_030,
+      color: color_021,
     },
   },
   mainMenu: {
     color: color_002,
   },
   modal: {
-    overlayColor: color_033,
+    overlayColor: color_023,
   },
   onBoard: {
     backgroundColor: color_001,
@@ -209,8 +180,9 @@ export const theme = {
     sidebarBackgroundColor: color_005,
   },
   toast: {
-    backgroundColor: color_009,
-    borderColor: color_009,
-    boxShadow: commonBoxShadow,
+    backgroundColor: color_008,
+    borderColor: color_008,
+    boxShadow:
+      '0 27px 80px rgba(0, 0, 0, 0.07), 0 10.4px 25.4815px rgba(0, 0, 0, 0.0425185), 0 2.2px 6.51852px rgba(0, 0, 0, 0.0274815)',
   },
 }

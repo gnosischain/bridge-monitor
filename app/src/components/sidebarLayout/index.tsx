@@ -1,51 +1,48 @@
 import styled from 'styled-components'
 
-import { MainWrapper } from '@/src/components/layout/MainWrapper'
-import { Sidebar as BaseSidebar } from '@/src/components/layout/Sidebar'
-import { InnerContainer } from '@/src/components/helpers/InnerContainer'
+import { Sidebar as BaseSidebar } from '@/src/components/sidebarLayout/Sidebar'
+import { InnerContainer } from '@/src/components/innerContainer'
 
-export type SidebarPlacement = 'right' | 'left' | undefined
+type SidebarPlacement = 'right' | 'left' | undefined
 
-interface Props {
-  sidebarPlacement?: SidebarPlacement
-}
-
-const Wrapper = styled(InnerContainer)<Props>`
+const Wrapper = styled(InnerContainer)<{ sidebarPlacement?: SidebarPlacement }>`
   --sidebar-width: 456px;
 
   display: grid;
-  row-gap: 20px;
-  padding-bottom: var(--theme-layout-vertical-padding);
-  padding-top: var(--theme-layout-vertical-padding);
+  row-gap: calc(var(--theme-common-space) * 2);
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    column-gap: 16px;
+    column-gap: calc(var(--theme-common-space) * 2);
     flex-grow: 1;
     grid-template-columns: ${({ sidebarPlacement }) =>
       sidebarPlacement === 'left' ? 'var(--sidebar-width) 1fr' : '1fr var(--sidebar-width)'};
   }
 `
 
-const Sidebar = styled(BaseSidebar)<Props>`
+const Sidebar = styled(BaseSidebar)<{ sidebarPlacement?: SidebarPlacement }>`
   order: 1;
-  padding: 0;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     order: ${({ sidebarPlacement }) => (sidebarPlacement === 'left' ? '0' : '1')};
   }
 `
 
-const Main = styled(MainWrapper)<Props>`
+const Main = styled.div<{ sidebarPlacement?: SidebarPlacement }>`
   order: 0;
-  padding: 0;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     order: ${({ sidebarPlacement }) => (sidebarPlacement === 'left' ? '1' : '0')};
   }
 `
 
+interface Props {
+  sidebarContents: React.ReactNode
+  sidebarPlacement?: SidebarPlacement
+}
+
 export const SidebarLayout: React.FC<Props> = ({
   children,
+  sidebarContents,
   sidebarPlacement = 'right',
   ...restProps
 }) => (
@@ -53,6 +50,6 @@ export const SidebarLayout: React.FC<Props> = ({
     <Main as="main" sidebarPlacement={sidebarPlacement}>
       {children}
     </Main>
-    <Sidebar sidebarPlacement={sidebarPlacement} />
+    <Sidebar sidebarPlacement={sidebarPlacement}>{sidebarContents}</Sidebar>
   </Wrapper>
 )

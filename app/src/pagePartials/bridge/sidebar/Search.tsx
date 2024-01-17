@@ -1,31 +1,26 @@
 import styled from 'styled-components'
 import { bridgeExplorerBaseURL, myTransactionsFullURL } from '@/src/constants/sections'
-import { NavLink } from '@/src/components/navigation/NavLink'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { DebounceInput } from 'react-debounce-input'
 import { TextfieldCSS } from '@/src/components/form/Textfield'
 import { DEBOUNCE_TIME } from '@/src/constants/misc'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
+import { MyTransactions } from '@/src/components/assets/MyTransactions'
 import { TextfieldStatus } from '@/src/components/form/Textfield'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
+import { SCLink, SCText, SCTitle, SidebarCard } from '@/src/components/card/SidebarCard'
+import Link from 'next/link'
 
-const Wrapper = styled.div`
-  align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.darkGrey};
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 20px;
-  width: 100%;
+const Wrapper = styled(SidebarCard)`
+  padding-top: calc(var(--theme-common-space) * 8);
 `
 
 const SearchWrapper = styled.div`
   --border-radius: 8px;
 
   border-radius: var(--border-radius);
-  margin: 0 0 20px;
+  margin: 0 0 calc(var(--theme-common-space) * 3);
   position: relative;
   width: 100%;
 `
@@ -38,26 +33,24 @@ const Textfield: any = styled(DebounceInput)`
   --textfield-border-radius: var(--border-radius);
   --textfield-font-weight: 400;
   --textfield-height: 100%;
-  --textfield-padding: 12px 36px 12px 12px;
+  --textfield-padding: 0 calc(20px + var(--theme-common-space) * 4) 0
+    calc(var(--theme-common-space) * 2);
   --textfield-background-color: ${({ theme: { colors } }) => colors.cream};
-  --textfield-border-color: ${({ theme: { colors } }) => colors.white};
-  --textfield-border-color-error: ${({ theme: { colors } }) => colors.darkerGrey};
+  --textfield-border-color: ${({ theme: { colors } }) => colors.cream};
+  --textfield-border-color-error: ${({ theme: { colors } }) => colors.error};
   --textfield-color: ${({ theme: { colors } }) => colors.darkestGrey};
 
   background-color: var(--textfield-background-color);
-  border-width: 2px;
+  border-width: 0;
   border-style: solid;
   border-color: ${({ status }) =>
     status === TextfieldStatus.error
       ? 'var(--textfield-border-color-error)'
       : 'var(--textfield-border-color)'};
-  box-shadow: 0 38.51852px 25.48148px 0 rgba(0, 0, 0, 0.12), 0 100px 80px 0 rgba(0, 0, 0, 0.2),
-    0 4px 4px 0 rgba(0, 0, 0, 0.25);
   color: var(--textfield-color);
-  font-family: ${({ theme: { fonts } }) => fonts.family};
   font-size: var(--texfield-font-size);
   font-weight: 400;
-  height: auto;
+  height: 64px;
   position: relative;
   transition: border-color 0.15s linear;
   width: 100%;
@@ -121,15 +114,6 @@ const Textfield: any = styled(DebounceInput)`
   &::-webkit-search-decoration {
     -webkit-appearance: none;
   }
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    --textfield-padding: 12px 48px 12px 12px;
-    --texfield-font-size: 1.6rem;
-  }
-
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    --texfield-font-size: 1.8rem;
-  }
 `
 
 const Magnifier = styled(BaseMagnifier)`
@@ -137,7 +121,7 @@ const Magnifier = styled(BaseMagnifier)`
 
   display: block;
   height: var(--magnifier-size);
-  right: 14px;
+  right: calc(var(--theme-common-space) * 2);
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -149,21 +133,41 @@ const Magnifier = styled(BaseMagnifier)`
   }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    right: 24px;
+    right: calc(var(--theme-common-space) * 2);
   }
 `
 
-const Link = styled(NavLink)`
-  color: #fff;
+const PlaceholderLink = styled(SCLink)`
+  font-size: 1.8rem;
 `
 
-export const BridgeSidebar: React.FC = ({ ...restProps }) => {
-  const { address } = useWeb3Connection()
+PlaceholderLink.defaultProps = {
+  target: undefined,
+  rel: undefined,
+}
+
+const NextLink = styled(Link)`
+  font-size: 1.8rem;
+`
+
+const Transactions = styled(MyTransactions)`
+  .fill {
+    fill: ${({ theme: { colors } }) => colors.primary};
+  }
+`
+
+export const Search: React.FC = ({ ...restProps }) => {
+  const { address, connectWallet, isWalletConnected } = useWeb3Connection()
   const [value, setValue] = useState('')
   const router = useRouter()
 
   return (
     <Wrapper {...restProps}>
+      <SCTitle>Bridge Explorer</SCTitle>
+      <SCText>
+        Check real time transaction status
+        <br /> and claim your tokens.
+      </SCText>
       <SearchWrapper>
         <Textfield
           autoComplete="off"
@@ -182,7 +186,17 @@ export const BridgeSidebar: React.FC = ({ ...restProps }) => {
         />
         <Magnifier />
       </SearchWrapper>
-      {address && <Link href={`${myTransactionsFullURL}${address}`}>My Transactions</Link>}
+      {isWalletConnected && address ? (
+        <NextLink as={SCLink} href={`${myTransactionsFullURL}${address}`}>
+          <Transactions />
+          My Transactions
+        </NextLink>
+      ) : (
+        <PlaceholderLink as="span" onClick={connectWallet}>
+          <Transactions />
+          My Transactions
+        </PlaceholderLink>
+      )}
     </Wrapper>
   )
 }

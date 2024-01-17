@@ -3,12 +3,12 @@ import styled, { css } from 'styled-components'
 import NextLink from 'next/link'
 
 import { GnosisChain } from '@/src/components/assets/GnosisChain'
-import { InnerContainer as BaseInnerContainer } from '@/src/components/helpers/InnerContainer'
+import { InnerContainer as BaseInnerContainer } from '@/src/components/innerContainer'
 
 const Wrapper = styled.footer`
   color: ${({ theme: { colors } }) => colors.primary};
   margin-top: var(--theme-common-space);
-  padding: calc(var(--theme-common-space) * 5) 0;
+  padding: 0 0 calc(var(--theme-common-space) * 5);
   width: 100%;
 `
 

@@ -17,7 +17,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   flex-grow: 1;
   justify-content: center;
-  margin: calc(var(--theme-common-space) * 7) auto;
+  margin: auto;
   max-width: 100%;
   width: var(--wrapper-width);
 `

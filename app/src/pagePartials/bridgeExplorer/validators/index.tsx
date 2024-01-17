@@ -6,7 +6,7 @@ import {
   useFetchValidatorsExecutions,
   useFetchValidatorsSignatures,
 } from '@/src/hooks/subgraph/useValidators'
-import { genericSuspense } from '@/src/components/helpers/SafeSuspense'
+import { genericSuspense } from '@/src/components/safeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { get1DayBeforeInSeconds } from '@/src/utils/date'
 import { isSameString } from '@/src/utils/tools'
