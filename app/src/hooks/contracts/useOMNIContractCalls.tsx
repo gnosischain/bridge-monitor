@@ -121,16 +121,6 @@ export const useForeignOMNIBridgeLimits = (token: Token, currentDay: BigNumberis
   const [totalSpentPerDay = 0, totalExecutedPerDay = 0] =
     foreignOMNITotals?.map(tokenAmountToNumber) ?? []
 
-  const t = [
-    'dailyLimit',
-    'executionDailyLimit',
-    'minPerTx',
-    'maxPerTx',
-    'executionMaxPerTx',
-    'totalSpentPerDay',
-    'totalExecutedPerDay',
-  ]
-
   return {
     foreignOmniInformation: {
       isTokenRegistered,

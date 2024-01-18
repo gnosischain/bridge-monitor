@@ -13,6 +13,7 @@ import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import dynamic from 'next/dynamic'
+import orderBy from 'lodash/orderBy'
 
 const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
   ssr: false,
@@ -164,6 +165,8 @@ const Dropdown: React.FC<Props> = ({
   onChange,
   ...restProps
 }) => {
+  const [isOpened, setIsOpened] = useState(false)
+  const [searchInputRef, setSearchInputInputRef] = useState<HTMLInputElement | null>(null)
   const [token, setToken] = useState<Token | undefined>(defaultToken)
   const { ambTokensByNetwork } = useBridgedTokens()
   const tokens = useMemo(() => {
@@ -184,29 +187,40 @@ const Dropdown: React.FC<Props> = ({
     if (defaultToken && defaultToken.address.toLowerCase() !== token?.address.toLowerCase()) {
       setToken(defaultToken)
     }
-  }, [defaultToken, token?.address])
+    if (!defaultToken && token) {
+      setToken(undefined)
+    }
+  }, [defaultToken, token])
 
   useEffect(() => {
     if (value.length === 0) {
       setTokensList(tokens)
     } else {
       if (isAddress(value)) {
-        setTokensList(
-          tokens?.filter((item) => item.address.toLowerCase().indexOf(value.toLowerCase()) !== -1),
-        )
+        setTokensList(tokens?.filter((item) => item.address.toLowerCase() === value.toLowerCase()))
       } else {
-        setTokensList(
-          tokens?.filter((item) => item.symbol.toLowerCase().indexOf(value.toLowerCase()) !== -1),
+        // Sort the tokens so that exact matches are at the top
+        const sortedTokens = orderBy(
+          tokens?.filter((item) => item.symbol.toLowerCase().includes(value.toLowerCase())),
+          (token) => token?.symbol.toLowerCase() !== value.toLowerCase(),
+          ['asc'],
         )
+        setTokensList(sortedTokens)
       }
     }
   }, [tokens, value])
+
+  useEffect(() => {
+    if (isOpened && searchInputRef) {
+      searchInputRef.focus()
+    }
+  }, [searchInputRef, isOpened])
 
   return (
     <Wrapper
       disabled={disabled}
       dropdownButton={
-        <Button type="button">
+        <Button onClick={() => setIsOpened(!isOpened)} type="button">
           {token && <TokenIcon dimensions={18} iconSource={token.logoURI} symbol={token.symbol} />}
           <ButtonText>{token ? token.symbol : 'Select token...'}</ButtonText>
           {!disabled && <ChevronDown />}
@@ -219,6 +233,7 @@ const Dropdown: React.FC<Props> = ({
             <Magnifier />
             <Textfield
               debounceTimeout={300}
+              inputRef={setSearchInputInputRef}
               onChange={(e: { target: { value: string } }) => setValue(e.target.value)}
               placeholder="Search asset"
               type="search"
@@ -242,6 +257,7 @@ const Dropdown: React.FC<Props> = ({
         </Items>,
         tokensList?.length === 0 ? <NoResults closeOnClick={false}>Not found.</NoResults> : <></>,
       ]}
+      onClose={() => setIsOpened(false)}
       {...restProps}
     />
   )

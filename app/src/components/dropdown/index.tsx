@@ -215,6 +215,7 @@ interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivEle
   fullWidth?: boolean
   items: Array<unknown>
   activeItemIndex?: number | undefined
+  onClose?: () => void
 }
 
 export const Dropdown: React.FC<Props> = (props) => {
@@ -228,6 +229,7 @@ export const Dropdown: React.FC<Props> = (props) => {
     dropdownPosition,
     fullWidth,
     items,
+    onClose,
     ...restProps
   } = props
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -255,6 +257,7 @@ export const Dropdown: React.FC<Props> = (props) => {
         return
       }
       setIsOpen(false)
+      onClose && onClose()
     }
 
     document.addEventListener('mousedown', handleClick)
@@ -262,7 +265,7 @@ export const Dropdown: React.FC<Props> = (props) => {
     return () => {
       document.removeEventListener('mousedown', handleClick)
     }
-  }, [node])
+  }, [node, onClose])
 
   useEffect(() => {
     setActiveItem(itemActiveIndex)
@@ -299,6 +302,7 @@ export const Dropdown: React.FC<Props> = (props) => {
 
                 if (item.props.closeOnClick) {
                   setIsOpen(false)
+                  onClose && onClose()
                 }
 
                 if (!item.props.onClick) {

@@ -17,11 +17,7 @@ import walletConnectModule from '@web3-onboard/walletconnect'
 import nullthrows from 'nullthrows'
 
 import { INITIAL_APP_CHAIN_ID, chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
-import {
-  WALLET_CONNECT_DAPP_URL,
-  WALLET_CONNECT_PROJECT_ID,
-  appName,
-} from '@/src/constants/config/common'
+import { WALLET_CONNECT_DAPP_URL, WALLET_CONNECT_PROJECT_ID } from '@/src/constants/config/common'
 import { ChainConfig, Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 import {
   recoverLocalStorageKey,

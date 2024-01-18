@@ -50,6 +50,10 @@ export const Button = styled(BaseButton)`
   ${DisabledButtonCSS}
 `
 
+Button.defaultProps = {
+  type: 'button',
+}
+
 export const ButtonPrimaryCSS = css`
   background-color: ${({ theme: { buttonPrimary } }) => buttonPrimary.backgroundColor};
   border-color: ${({ theme: { buttonPrimary } }) => buttonPrimary.borderColor};
@@ -98,9 +102,14 @@ export const ButtonPrimary = styled(BaseButton)`
   ${ButtonPrimaryCSS}
 `
 
+ButtonPrimary.defaultProps = {
+  type: 'button',
+}
+
 export const LinkButton = styled(BaseLink)`
   ${ButtonPrimaryCSS}
 `
+
 export const LinkSecondaryButton = styled(BaseLink)`
   ${ButtonSecondaryCSS}
 `

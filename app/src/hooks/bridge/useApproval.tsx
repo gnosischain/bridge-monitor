@@ -24,7 +24,7 @@ export const useApproval = () => {
     async ({ amount, spenderAddress = address, tokenAddress }: Approval) => {
       const erc20 = ERC20__factory.connect(tokenAddress, signer)
       const approve = () => erc20.approve(spenderAddress, amount)
-      await sendTx(approve)
+      return sendTx(approve)
     },
     [address, sendTx, signer],
   )

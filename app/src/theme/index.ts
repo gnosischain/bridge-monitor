@@ -33,6 +33,7 @@ const color_024 = 'rgba(0, 0, 0, 0.7)'
 const color_025 = `rgba(62, 105, 87, 0.5)`
 const color_026 = `rgba(248, 245, 237, 0.5)`
 const color_027 = `#4b886e`
+const color_028 = `rgba(251, 249, 243, 0.50)`
 
 // Named colors
 export const theme = {
@@ -62,6 +63,7 @@ export const theme = {
     textColor: color_002,
     warning: color_018,
     white: color_004,
+    white_50: color_028,
   },
   body: {
     backgroundColor: color_001,

@@ -3,6 +3,7 @@ import { SWRHook } from 'swr'
 
 // This is a SWR middleware for keeping the data even if key changes.
 export function laggy(useSWRNext: SWRHook) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (key: any, fetcher: any, config: any) => {
     // Use a ref to store previous returned data.
     const laggyDataRef = useRef()
