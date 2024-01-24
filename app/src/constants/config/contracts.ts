@@ -7,11 +7,13 @@ import ForeignAMB_abi from '@/src/abis/ForeignAMB.json'
 import HomeAMB_abi from '@/src/abis/HomeAMB.json'
 import OMNI_FEE_MANAGER_abi from '@/src/abis/OmniBridgeFeeManager.json'
 import AMBBridgeHelper_abi from '@/src/abis/AMBBridgeHelper.json'
+import NativeOmniBridgeMediator_abi from '@/src/abis/NativeOmniBridgeMediator.json'
 import { Chains } from '@/src/constants/config/types'
 
 export enum BridgeContractKey {
   HomeOmniBridge = 'homeOmniBridge',
   ForeignOmniBridge = 'foreignOmniBridge',
+  NativeOmniBridge = 'nativeOmniBridge',
   HomeXdaiBridge = 'homeXdaiBridge',
   ForeignXdaiBridge = 'foreignXdaiBridge',
 }
@@ -53,13 +55,13 @@ export const contracts = {
     },
     abi: ForeignOMNI_abi,
   },
-  nativeOmniBridgeMediator: {
+  nativeOmniBridge: {
     address: {
       [Chains.mainnet]: '0xa6439ca0fcba1d0f80df0be6a17220fed9c9038a',
       [Chains.chiado]: '',
       [Chains.gnosis]: '',
     },
-    abi: [],
+    abi: NativeOmniBridgeMediator_abi,
   },
   omnibridgeFeeManager: {
     address: {

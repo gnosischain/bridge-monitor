@@ -1,6 +1,6 @@
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { useBridgeInfo } from '@/src/hooks/bridge/useBridgeInfo'
-import { useWeb3ConnectedApp, useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { parseUnits } from 'ethers/lib/utils'
 import dynamic from 'next/dynamic'
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
@@ -24,7 +24,8 @@ import { MainCard } from '@/src/components/card/MainCard'
 import { Configuration } from '@/src/pagePartials/bridge/Configuration'
 import { InnerCard } from '@/src/pagePartials/bridge/InnerCard'
 import { TransactionInfo } from '@/src/pagePartials/bridge/TransactionInfo'
-import { formatUnits } from '@/src/utils/numberFormat'
+import { fromBN } from '@/src/utils/bigNumber'
+import { ZERO_ADDRESS } from '@/src/constants/misc'
 
 const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
   ssr: false,
@@ -141,16 +142,102 @@ const initialState: FormState = {
   recipient: '',
   receiveNativeToken: false,
 }
+type BridgeButtonProps = {
+  canBridge: boolean
+  isApproving: boolean
+  isBridging: boolean
+  isLoading: boolean
+  shouldApprove: boolean
+  bridgeTx?: () => void
+  approvalTx?: () => void
+}
+const BridgeButton = ({
+  approvalTx,
+  bridgeTx,
+  canBridge,
+  isApproving,
+  isBridging,
+  isLoading,
+  shouldApprove,
+}: BridgeButtonProps) => {
+  const {
+    appChainId,
+    connectWallet,
+    connectingWallet,
+    isOnboardChangingChain,
+    isWalletConnected,
+    isWalletNetworkSupported,
+    pushNetwork,
+  } = useWeb3Connection()
+
+  const appChainConfig = getNetworkConfig(appChainId)
+
+  if (!isWalletConnected) {
+    return (
+      <ButtonPrimary
+        disabled={connectingWallet}
+        onClick={connectWallet}
+        style={{ margin: '0 auto' }}
+        type="button"
+      >
+        {connectingWallet ? 'Connecting wallet...' : 'Connect Wallet'}
+      </ButtonPrimary>
+    )
+  }
+
+  if (isWalletConnected && !isWalletNetworkSupported) {
+    return (
+      <ButtonPrimary
+        disabled={isOnboardChangingChain}
+        onClick={() => pushNetwork({ chainId: appChainConfig.chainIdHex })}
+        style={{ margin: '0 auto' }}
+        type="button"
+      >
+        {isOnboardChangingChain
+          ? `Switching to ${appChainConfig.name}...`
+          : `Switch to ${appChainConfig.name}`}
+      </ButtonPrimary>
+    )
+  }
+
+  if (shouldApprove) {
+    return (
+      <ButtonPrimary
+        disabled={isApproving}
+        onClick={approvalTx}
+        style={{ margin: '0 auto' }}
+        type="button"
+      >
+        Approve
+      </ButtonPrimary>
+    )
+  }
+
+  return (
+    <ButtonPrimary
+      disabled={!canBridge || isLoading || isBridging}
+      onClick={bridgeTx}
+      style={{ margin: '0 auto' }}
+      type="button"
+    >
+      Bridge
+    </ButtonPrimary>
+  )
+}
+
+const getToChainId = (fromChainId: ChainsValues) =>
+  fromChainId === Chains.mainnet ? Chains.gnosis : Chains.mainnet
 
 const BridgeForm: React.FC = () => {
-  const { address, appChainId, isOnboardChangingChain, pushNetwork } = useWeb3ConnectedApp()
+  const { address, appChainId, pushNetwork } = useWeb3Connection()
   const { tokensByNetwork } = useBridgedTokens()
   const approve = useApproval()
   const sendTx = useTransaction()
 
-  const currentChainConfig = getNetworkConfig(appChainId)
+  const appChainConfig = getNetworkConfig(appChainId)
 
   const [isBridging, setIsBridging] = useState(false)
+  const [isApproving, setIsApproving] = useState(false)
   const [userChecked, setUserChecked] = useState(false)
 
   const chainsItems = [
@@ -158,22 +245,17 @@ const BridgeForm: React.FC = () => {
     { label: 'Gnosis', value: Chains.gnosis },
   ]
 
-  const formInitialState = useMemo(
-    () => ({
-      ...initialState,
-      account: address,
-      fromChainId: appChainId,
-      toChainId: appChainId === Chains.mainnet ? Chains.gnosis : Chains.mainnet,
-    }),
-    [address, appChainId],
-  )
-
   const [formState, dispatch] = useReducer(
     (data: FormState, partial: Partial<FormState>): FormState => ({
       ...data,
       ...partial,
     }),
-    formInitialState,
+    {
+      ...initialState,
+      account: address || ZERO_ADDRESS,
+      fromChainId: appChainId,
+      toChainId: getToChainId(appChainId),
+    },
   )
 
   const bridgeInfo = useBridgeInfo({
@@ -209,14 +291,35 @@ const BridgeForm: React.FC = () => {
     )
   }, [bridgeInfo.tokenOutAddress, formState.toChainId, tokensByNetwork])
 
-  const handleFromChainIdChange = async (chainId: ChainsValues) => {
-    const fromChainId = chainId
+  const handleResetForm = useCallback(() => {
+    setUserChecked(false)
+    dispatch({
+      ...initialState,
+      token: formState.token,
+      account: address || ZERO_ADDRESS,
+      fromChainId: appChainId,
+      toChainId: getToChainId(appChainId),
+    })
+  }, [address, appChainId, formState.token])
+
+  // dispatch formInitialState when user change network or wallet
+  useEffect(() => {
+    handleResetForm()
+  }, [handleResetForm])
+
+  const handleFromChainIdChange = async (fromChainId: ChainsValues) => {
     const chainConfig = getNetworkConfig(fromChainId)
 
     try {
       const isSwitchedSuccess = await pushNetwork({ chainId: chainConfig.chainIdHex })
       if (isSwitchedSuccess) {
-        dispatch(formInitialState)
+        dispatch({
+          ...initialState,
+          token: formState.token,
+          account: address || ZERO_ADDRESS,
+          fromChainId: appChainId,
+          toChainId: getToChainId(appChainId),
+        })
       } else {
         throw new Error('Failed to switch network')
       }
@@ -242,33 +345,22 @@ const BridgeForm: React.FC = () => {
     if (!formState.token || !bridgeInfo.fromBridgeAddress) {
       return
     }
-
+    setIsApproving(true)
     const parsedAmount = parseUnits(formState.amount, formState.token.decimals)
 
     const fromTokenAddress = formState.token.address
     const spender = bridgeInfo.fromBridgeAddress
 
-    try {
-      const tx = await approve({
-        amount: parsedAmount,
-        spenderAddress: spender,
-        tokenAddress: fromTokenAddress,
-      })
-      if (tx) {
-        bridgeInfo.refreshBalance()
-      }
-    } catch (error) {
-      notify({
-        title: 'Failed to approve',
-        type: ToastStates.failed,
-      })
+    const tx = await approve({
+      amount: parsedAmount,
+      spenderAddress: spender,
+      tokenAddress: fromTokenAddress,
+    })
+    if (tx) {
+      bridgeInfo.refreshBalance()
     }
+    setIsApproving(false)
   }, [formState.token, formState.amount, bridgeInfo, approve])
-
-  const handleResetForm = useCallback(() => {
-    setUserChecked(false)
-    dispatch({ ...formInitialState, token: formState.token })
-  }, [formInitialState, formState.token])
 
   const handleBridgeTx = useCallback(async () => {
     if (!bridgeInfo.tx) {
@@ -292,150 +384,124 @@ const BridgeForm: React.FC = () => {
 
   return (
     <>
-      {isOnboardChangingChain ? (
-        <>
-          <Loading text="Switching to a different chain..." />
-        </>
-      ) : (
-        <Form>
-          <FormCards>
-            <InnerCard>
-              <SubTitle>
-                From
-                <Balance>Balance: 0.00</Balance>
-              </SubTitle>
-              <ChainDropdown
-                activeItemHighlight
-                activeItemIndex={chainsItems.findIndex(
-                  ({ value }) => value === formState.fromChainId,
-                )}
-                dropdownButton={
-                  <ButtonPrimary>
-                    {formState.fromChainId === Chains.mainnet ? 'Mainnet' : 'Gnosis'}
-                    <ChevronDown />
-                  </ButtonPrimary>
-                }
-                items={chainsItems.map((chainItem) => (
-                  <DropdownItem
-                    key={chainItem.value}
-                    onClick={() => handleFromChainIdChange(chainItem.value)}
-                  >
-                    {chainItem.label}
-                  </DropdownItem>
-                ))}
-              />
-              <FromAmountWrapper>
-                <FromTokenDropdown
-                  chainId={formState.fromChainId}
-                  defaultToken={formState.token}
-                  key={'tokenIn'}
-                  onChange={handleTokenChange}
-                />
-                <AmountTokenInput
-                  max={
-                    bridgeInfo.balance.gt(0)
-                      ? formatUnits({
-                          value: bridgeInfo.balance,
-                          decimals: formState.token?.decimals || 18,
-                        })
-                      : undefined
-                  }
-                  onChange={(value) => dispatch({ ...formState, amount: value })}
-                  placeholder="0.00"
-                  value={formState.amount}
-                />
-              </FromAmountWrapper>
-            </InnerCard>
-            <InnerCard>
-              <SubTitle>To</SubTitle>
-              <Textfield
-                id="toChainId"
-                readOnly
-                type="text"
-                value={formState.toChainId == 100 ? 'gnosis' : 'mainnet'}
-              />
-              <TokenDropdown
-                chainId={formState.toChainId}
-                defaultToken={tokenOut}
-                disabled
-                key={'tokenOut'}
-              />
-              <div>
-                <label htmlFor="receiveNativeToken">Receive Native Token: </label>
-                <input
-                  checked={formState.receiveNativeToken}
-                  disabled={!bridgeInfo.canReceiveNativeToken}
-                  id="receiveNativeToken"
-                  onChange={handleReceiveNativeTokenToggle}
-                  type="checkbox"
-                />
-              </div>
-              <div>
-                <label htmlFor="amount">Send to different wallet:</label>
-                <Textfield
-                  onChange={(event) => dispatch({ ...formState, recipient: event.target.value })}
-                  type="text"
-                  value={formState.recipient}
-                />
-              </div>
-            </InnerCard>
-            <TransactionInfo>
-              {bridgeInfo.isLoadingInfo ? (
-                <Loading text="Loading..." />
-              ) : (
-                <>
-                  <div>
-                    You will receive: {bridgeInfo.toAmount.toString()} {tokenOut?.symbol}
-                  </div>
-                  <div>Estimated time: 5 mins</div>
-                  <div>
-                    Estimated total gas:{' '}
-                    {formatUnits({
-                      value: bridgeInfo.gasLimit.mul(bridgeInfo.gasPrice),
-                      decimals: currentChainConfig.tokenDecimals,
-                      symbolPosition: 'after',
-                      symbol: currentChainConfig.token,
-                    })}
-                  </div>
-                  <div>
-                    Estimated total fee:{' '}
-                    {formatUnits({
-                      value: bridgeInfo.fee,
-                      decimals: formState.token?.decimals || 18,
-                      symbolPosition: 'after',
-                      symbol: formState.token?.symbol,
-                    })}
-                  </div>
-                </>
+      <Form>
+        <FormCards>
+          <InnerCard>
+            <SubTitle>
+              From
+              <Balance>Balance: {fromBN(bridgeInfo.balance, formState.token?.decimals)}</Balance>
+            </SubTitle>
+            <ChainDropdown
+              activeItemHighlight
+              activeItemIndex={chainsItems.findIndex(
+                ({ value }) => value === formState.fromChainId,
               )}
-            </TransactionInfo>
-          </FormCards>
-          {bridgeInfo.errorMessage && <ErrorComponent>{bridgeInfo.errorMessage}</ErrorComponent>}
-          <div>
-            {bridgeInfo.shouldApprove ? (
-              <ButtonPrimary onClick={handleApprove} style={{ margin: '0 auto' }} type="button">
-                Approve
-              </ButtonPrimary>
+              dropdownButton={
+                <ButtonPrimary>
+                  {formState.fromChainId === Chains.mainnet ? 'Mainnet' : 'Gnosis'}
+                  <ChevronDown />
+                </ButtonPrimary>
+              }
+              items={chainsItems.map((chainItem) => (
+                <DropdownItem
+                  key={chainItem.value}
+                  onClick={() => handleFromChainIdChange(chainItem.value)}
+                >
+                  {chainItem.label}
+                </DropdownItem>
+              ))}
+            />
+            <FromAmountWrapper>
+              <FromTokenDropdown
+                chainId={formState.fromChainId}
+                defaultToken={formState.token}
+                key={'tokenIn'}
+                onChange={handleTokenChange}
+              />
+              <AmountTokenInput
+                max={fromBN(bridgeInfo.balance, formState.token?.decimals)}
+                onChange={(value) => dispatch({ ...formState, amount: value })}
+                placeholder="0.00"
+                value={formState.amount}
+              />
+            </FromAmountWrapper>
+          </InnerCard>
+          <InnerCard>
+            <SubTitle>To</SubTitle>
+            <Textfield
+              id="toChainId"
+              readOnly
+              type="text"
+              value={formState.toChainId == 100 ? 'gnosis' : 'mainnet'}
+            />
+            <TokenDropdown
+              chainId={formState.toChainId}
+              defaultToken={tokenOut}
+              disabled
+              key={'tokenOut'}
+            />
+            <div>
+              <label htmlFor="receiveNativeToken">Receive Native Token: </label>
+              <input
+                checked={formState.receiveNativeToken}
+                disabled={!bridgeInfo.canReceiveNativeToken}
+                id="receiveNativeToken"
+                onChange={handleReceiveNativeTokenToggle}
+                type="checkbox"
+              />
+            </div>
+            <div>
+              <label htmlFor="amount">Send to different wallet:</label>
+              <Textfield
+                onChange={(event) => dispatch({ ...formState, recipient: event.target.value })}
+                type="text"
+                value={formState.recipient}
+              />
+            </div>
+          </InnerCard>
+          <TransactionInfo>
+            {bridgeInfo.isLoadingInfo ? (
+              <Loading text="Loading..." />
             ) : (
-              <ButtonPrimary
-                disabled={!bridgeInfo.canBridge || isBridging}
-                onClick={handleBridgeTx}
-                style={{ margin: '0 auto' }}
-                type="button"
-              >
-                Bridge
-              </ButtonPrimary>
+              <>
+                <div>
+                  You will receive: {bridgeInfo.toAmount} {tokenOut?.symbol}
+                </div>
+                <div>Estimated time: 5 mins</div>
+                <div>
+                  Estimated total gas:{' '}
+                  {fromBN(
+                    bridgeInfo.gasLimit.mul(bridgeInfo.gasPrice),
+                    appChainConfig.tokenDecimals,
+                  )}{' '}
+                  {appChainConfig.token}
+                </div>
+                <div>
+                  Estimated total fee: {fromBN(bridgeInfo.fee, appChainConfig.tokenDecimals)}{' '}
+                  {formState.token?.symbol}
+                </div>
+              </>
             )}
-          </div>
-        </Form>
-      )}
+          </TransactionInfo>
+        </FormCards>
+        {bridgeInfo.errorMessage && <ErrorComponent>{bridgeInfo.errorMessage}</ErrorComponent>}
+        <div>
+          <BridgeButton
+            approvalTx={handleApprove}
+            bridgeTx={handleBridgeTx}
+            canBridge={bridgeInfo.canBridge}
+            isApproving={isApproving}
+            isBridging={isBridging}
+            isLoading={bridgeInfo.isLoadingInfo}
+            shouldApprove={bridgeInfo.shouldApprove}
+          />
+        </div>
+      </Form>
     </>
   )
 }
 
 export const BridgeIndex: React.FC = ({ ...restProps }) => {
-  const { isAppConnected } = useWeb3Connection()
-
   return (
     <Wrapper {...restProps}>
       <InnerWrapper>
@@ -446,16 +512,9 @@ export const BridgeIndex: React.FC = ({ ...restProps }) => {
           </HeaderInner>
           <Configuration />
         </Header>
-        {isAppConnected ? (
-          <TokenListProvider>
-            <BridgeForm />
-          </TokenListProvider>
-        ) : (
-          <>
-            Form should be here even if the user didn't connect their wallet.
-            <ButtonPrimary>Connect</ButtonPrimary>
-          </>
-        )}
+        <TokenListProvider>
+          <BridgeForm />
+        </TokenListProvider>
       </InnerWrapper>
     </Wrapper>
   )

@@ -46,11 +46,12 @@ const walletConnect = walletConnectModule({
 })
 
 const chainsForOnboard = Object.values(chainsConfig).map(
-  ({ chainIdHex, name, rpcUrl, token }: ChainConfig) => ({
+  ({ blockExplorerUrls, chainIdHex, name, rpcUrl, token }: ChainConfig) => ({
     id: chainIdHex,
     label: name,
     token,
     rpcUrl,
+    blockExplorerUrl: blockExplorerUrls[0],
   }),
 )
 

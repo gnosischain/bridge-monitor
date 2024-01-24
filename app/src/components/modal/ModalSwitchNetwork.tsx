@@ -4,6 +4,7 @@ import { Modal } from '@/src/components/modal'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { Button, ButtonPrimaryCSS } from '@/src/components/buttons/Button'
 import { getSupportedNetworks } from '@/src/utils/getSupportedNetworks'
+import { ChainConfig } from '@/src/constants/config/types'
 
 const NetworkButtons = styled.div`
   align-items: center;
@@ -30,18 +31,19 @@ export const ModalSwitchNetwork: React.FC<{ onClose: () => void }> = ({
   const { pushNetwork, setAppChainId } = useWeb3Connection()
   const chainOptions = getSupportedNetworks()
 
+  const handleChangeNetwork = async (chainConfig: ChainConfig) => {
+    const isSwitchedSuccess = await pushNetwork({ chainId: chainConfig.chainIdHex })
+    if (isSwitchedSuccess) {
+      setAppChainId(chainConfig.chainId)
+      onClose()
+    }
+  }
+
   return (
     <Modal onClose={onClose} size="sm" title="Choose a network" {...restProps}>
       <NetworkButtons>
         {chainOptions.map((item, index) => (
-          <NetworkButton
-            key={`${item.chainId}_${index}`}
-            onClick={() => {
-              setAppChainId(item.chainId)
-              pushNetwork({ chainId: item.chainIdHex })
-              onClose()
-            }}
-          >
+          <NetworkButton key={`${item.chainId}_${index}`} onClick={() => handleChangeNetwork(item)}>
             {item.name}
           </NetworkButton>
         ))}
