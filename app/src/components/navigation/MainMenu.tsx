@@ -6,10 +6,11 @@ import { mainMenuSections } from '@/src/constants/sections'
 const Wrapper = styled.nav`
   display: none;
   height: 100%;
-
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     align-items: center;
     column-gap: calc(var(--theme-common-space) * 5);
+  }
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeWideStart}) {
     display: flex;
   }
 `

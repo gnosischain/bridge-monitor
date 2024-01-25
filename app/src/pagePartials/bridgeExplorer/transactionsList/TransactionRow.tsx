@@ -23,7 +23,7 @@ const MobileLabel = styled.span`
   text-transform: uppercase;
   white-space: nowrap;
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     display: none;
   }
 `
@@ -35,7 +35,7 @@ const TokenAddress = styled(BaseAddress)`
 const TDArrow = styled(TD)`
   display: none;
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     align-items: center;
     display: flex;
     margin: auto;
@@ -47,7 +47,7 @@ const TDLastMobile = styled(TD)`
   flex-direction: row;
   justify-content: space-between;
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     align-items: flex-start;
   }
 `
@@ -56,9 +56,9 @@ const ViewMore = styled.span`
   color: ${({ theme: { colors } }) => colors.primary};
   font-size: 1.2rem;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 22px;
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     display: none;
   }
 `
@@ -72,7 +72,7 @@ const StatusWrapper = styled.div`
     display: none;
   }
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     align-items: center;
     column-gap: var(--theme-common-space);
     display: flex;

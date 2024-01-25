@@ -15,7 +15,7 @@ const Wrapper = styled.div`
   height: 16px;
   justify-content: flex-start;
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     justify-content: center;
   }
 `

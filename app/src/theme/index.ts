@@ -119,6 +119,7 @@ export const theme = {
   breakPoints: {
     desktopStart: '1025px',
     desktopWideStart: '1281px',
+    tabletLandscapeWideStart: '869px',
     tabletLandscapeStart: '769px',
     tabletPortraitStart: '481px',
   },

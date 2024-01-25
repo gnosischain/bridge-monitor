@@ -13,7 +13,10 @@ import { SCLink, SCText, SCTitle, SidebarCard } from '@/src/components/card/Side
 import Link from 'next/link'
 
 const Wrapper = styled(SidebarCard)`
-  padding-top: calc(var(--theme-common-space) * 8);
+  padding-top: calc(var(--theme-common-space) * 5);
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    padding-top: calc(var(--theme-common-space) * 8);
+  }
 `
 
 const SearchWrapper = styled.div`

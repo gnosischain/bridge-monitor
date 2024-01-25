@@ -42,7 +42,9 @@ const Columns = styled.div`
   gap: calc(var(--theme-common-space) * 2);
   grid-template-columns: 1fr;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    display: grid;
+    gap: calc(var(--theme-common-space) * 2);
     grid-template-columns: 1fr 1fr;
   }
 
@@ -69,7 +71,7 @@ const TitleNote = styled.span`
 `
 
 const ChartCSS = css`
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
     grid-column: 1 / 3;
   }
 `

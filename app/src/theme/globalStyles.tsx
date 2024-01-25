@@ -29,6 +29,7 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
     background-color: ${({ theme: { body } }) => body.backgroundColor};
+    background-size: 1000px auto;
     background-image: url('/images/bg-body.jpg');
     color: ${({ theme: { colors } }) => colors.textColor};
     font-family: ${({ theme: { fonts } }) => fonts.family};

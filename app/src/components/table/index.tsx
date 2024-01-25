@@ -17,9 +17,14 @@ export const Table = styled.div`
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     grid-template-columns: 1fr 1fr 1fr;
+    column-gap: var(--theme-common-space);
+    row-gap: var(--theme-common-space);
   }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     column-gap: 0;
     grid-template-columns: 1fr;
     padding-left: var(--table-padding-common);
@@ -49,7 +54,7 @@ export const TR = styled.div<{ compact?: boolean }>`
     opacity: 0.5;
   }
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     background-color: transparent;
     border-left: none;
     border-right: none;
@@ -61,7 +66,7 @@ export const TR = styled.div<{ compact?: boolean }>`
     grid-template-columns: ${({ compact }) => {
       const addressWidth = 'minmax(185px, 1fr)'
       const bridgeDirectionWidth = 'minmax(155px, 1fr)'
-      const statusWidth = 'minmax(140px, 1fr)'
+      const statusWidth = 'minmax(100px, 1fr)'
       const baseTemplate = `${addressWidth} ${bridgeDirectionWidth} ${addressWidth} 10px ${addressWidth}`
 
       return compact ? `${baseTemplate} ${statusWidth}` : `${baseTemplate} 1fr ${statusWidth}`
@@ -80,7 +85,7 @@ export const THead = styled(TR)`
   display: none;
   cursor: default;
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     display: grid;
 
     &:hover,
@@ -97,7 +102,7 @@ export const TD = styled.div`
   flex-grow: 1;
   justify-content: flex-start;
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     padding-bottom: var(--table-padding-vertical);
     padding-top: var(--table-padding-vertical);
   }

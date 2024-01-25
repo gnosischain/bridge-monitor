@@ -226,7 +226,7 @@ const Dropdown: React.FC<Props> = ({
           {!disabled && <ChevronDown />}
         </Button>
       }
-      dropdownPosition={DropdownPosition.right}
+      dropdownPosition={DropdownPosition.left}
       items={[
         <TextfieldContainer closeOnClick={false} key="tokenSearchInput">
           <TextFieldWrapper>

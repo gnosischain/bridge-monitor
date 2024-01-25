@@ -11,18 +11,24 @@ export const SidebarCard = Wrapper
 
 export const SCTitle = styled.h2`
   color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 2.4rem;
+  font-size: 2.1rem;
   font-weight: 500;
   line-height: 1.2;
   margin: 0 0 calc(var(--theme-common-space) * 2);
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    font-size: 2.4rem;
+  }
 `
 
 export const SCText = styled.p`
   color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 400;
   line-height: 1.2;
   margin: 0 0 calc(var(--theme-common-space) * 4);
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    font-size: 1.8rem;
+  }
 `
 
 export const SCLink = styled.a`

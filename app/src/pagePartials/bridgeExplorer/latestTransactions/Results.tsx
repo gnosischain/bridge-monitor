@@ -34,7 +34,13 @@ const TransactionsWrapper = styled.div`
   margin: 0 2px 2px 2px;
   padding: calc(var(--theme-common-space) / 2);
 
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    padding: calc(var(--theme-common-space) * 1);
+  }
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    padding: calc(var(--theme-common-space) * 2);
+  }
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     padding: var(--theme-common-space) 0 calc(var(--theme-common-space) * 5);
   }
 `

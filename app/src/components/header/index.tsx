@@ -55,7 +55,7 @@ const MenuButton = styled.button`
     color: ${({ theme: { colors } }) => colors.secondary};
   }
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeWideStart}) {
     display: none;
   }
 `

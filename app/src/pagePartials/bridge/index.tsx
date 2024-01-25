@@ -33,7 +33,10 @@ const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvide
 
 const Wrapper = styled(MainCard)`
   align-items: center;
-  padding-top: calc(var(--theme-common-space) * 8);
+  padding-top: calc(var(--theme-common-space) * 5);
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    padding-top: calc(var(--theme-common-space) * 8);
+  }
 `
 
 const InnerWrapper = styled.div`
@@ -42,7 +45,8 @@ const InnerWrapper = styled.div`
   justify-content: space-between;
   max-width: 100%;
   row-gap: calc(var(--theme-common-space) * 3);
-  width: 644px;
+  width: 100%;
+  max-width: 644px;
 `
 
 const Header = styled.div`
@@ -61,10 +65,13 @@ const HeaderInner = styled.div`
 
 const Title = styled.h2`
   color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 3.2rem;
+  font-size: 2.8rem;
   font-weight: 500;
   line-height: 1.2;
   margin: 0;
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    font-size: 3.2rem;
+  }
 `
 
 const Text = styled.p`
@@ -93,12 +100,15 @@ const SubTitle = styled.h2`
   align-items: center;
   color: ${({ theme: { colors } }) => colors.primary};
   display: flex;
-  font-size: 2.4rem;
+  font-size: 2.1rem;
   font-weight: 500;
   justify-content: space-between;
   line-height: 1.2;
   margin: 0;
   width: 100%;
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    font-size: 2.4rem;
+  }
 `
 
 const Balance = styled.span`
