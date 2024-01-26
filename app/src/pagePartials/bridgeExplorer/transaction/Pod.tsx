@@ -10,8 +10,10 @@ const Wrapper = styled(InnerCard)`
   border-radius: 8px;
   flex: 1 1 0;
   justify-content: space-between;
-  row-gap: calc(var(--theme-common-space) * 3);
-
+  row-gap: calc(var(--theme-common-space) * 2);
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
+    row-gap: calc(var(--theme-common-space) * 3);
+  }
   > div {
     min-height: 24px;
   }

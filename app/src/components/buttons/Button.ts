@@ -19,7 +19,7 @@ export const ButtonCSS = css`
   border-radius: 30px;
   border-style: solid;
   border-width: 1px;
-  column-gap: 10px;
+  column-gap: 16px;
   cursor: pointer;
   display: flex;
   font-family: ${({ theme: { fonts } }) => fonts.family};
@@ -75,6 +75,18 @@ export const ButtonPrimaryCSS = css`
     color: ${({ theme: { buttonPrimary } }) => buttonPrimary.color};
   }
 `
+export const ButtonFullPrimaryCSS = css`
+  ${ButtonPrimaryCSS}
+  height: 70px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  border-radius: 16px;
+  width: 100%;
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    font-size: 2.1rem;
+    height: 80px;
+  }
+`
 
 export const ButtonSecondaryCSS = css`
   background-color: ${({ theme: { buttonSecondary } }) => buttonSecondary.backgroundColor};
@@ -101,13 +113,21 @@ export const ButtonSecondaryCSS = css`
 export const ButtonPrimary = styled(BaseButton)`
   ${ButtonPrimaryCSS}
 `
-
 ButtonPrimary.defaultProps = {
+  type: 'button',
+}
+export const ButtonFullPrimary = styled(BaseButton)`
+  ${ButtonFullPrimaryCSS}
+`
+ButtonFullPrimary.defaultProps = {
   type: 'button',
 }
 
 export const LinkButton = styled(BaseLink)`
   ${ButtonPrimaryCSS}
+`
+export const LinkFullPrimary = styled(BaseLink)`
+  ${ButtonFullPrimaryCSS}
 `
 
 export const LinkSecondaryButton = styled(BaseLink)`

@@ -19,25 +19,45 @@ const Wrapper = styled.div`
   column-gap: calc(var(--theme-common-space) * 2);
   display: flex;
   flex-direction: column;
-  row-gap: calc(var(--theme-common-space) * 2);
+  row-gap: calc(var(--theme-common-space) * 1);
   width: 100%;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     display: grid;
+    grid-template-columns: 1fr 1fr;
+    row-gap: calc(var(--theme-common-space) * 2);
+  }
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    display: grid;
     grid-template-columns: 1fr 1fr 1fr;
   }
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    grid-template-columns: 0.85fr 0.85fr 0.85fr 1.225fr 1.225fr;
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
+    grid-template-columns: 0.85fr 0.85fr 0.85fr 1.225fr 1.125fr;
+  }
+`
+const PodBridge = styled(Pod)`
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    grid-column: auto / span 2;
+  }
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    grid-column: auto / span 1;
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
+    grid-column: auto / span 1;
   }
 `
 
 const PodAmount = styled(Pod)`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    grid-column: auto / span 1;
+  }
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     grid-column: auto / span 2;
   }
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     grid-column: auto / span 1;
   }
 
@@ -136,7 +156,7 @@ export const Summary: React.FC<Props> = ({
 }) => {
   return (
     <Wrapper {...restProps}>
-      <Pod subTitle={bridgeName === 'AMB' ? 'Omnibridge' : bridgeName} title="Bridge">
+      <PodBridge subTitle={bridgeName === 'AMB' ? 'Omnibridge' : bridgeName} title="Bridge">
         <ChainsInitiatorReceiver
           chainIconInitiator={initiatorNetworkIcon}
           chainIconReceiver={receiverNetworkIcon}
@@ -144,7 +164,7 @@ export const Summary: React.FC<Props> = ({
           chainReceiver={receiverNetwork}
           showName
         />
-      </Pod>
+      </PodBridge>
       <Pod title="Initiator">
         <Address
           address={initiator}
