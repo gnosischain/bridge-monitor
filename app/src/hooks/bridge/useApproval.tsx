@@ -24,8 +24,7 @@ export const useApproval = () => {
       const erc20 = ERC20__factory.connect(tokenAddress, signer)
       const approve = () => erc20.approve(spenderAddress, amount)
       try {
-        const tx = await sendTx(approve)
-        return tx?.wait()
+        return sendTx(approve)
       } catch (e) {
         console.error(e)
       }

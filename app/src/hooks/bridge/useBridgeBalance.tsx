@@ -4,27 +4,33 @@ import { Token } from '@/types/token'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { MAX_UINT_256 } from '@/src/constants/misc'
 import { ERC20__factory } from '@/types/typechain'
+import { ChainsValues } from '@/src/constants/config/types'
+import { getNetworkConfig } from '@/src/constants/config/chains'
+import { JsonRpcBatchProvider } from '@ethersproject/providers'
 
 export const useBridgeBalance = ({
   fromBridgeAddress,
-  isERC20,
+  fromChainId,
+  isNativeToken,
+  toChainId,
   token,
 }: {
-  isERC20: boolean
+  isNativeToken: boolean
   fromBridgeAddress?: string
+  fromChainId: ChainsValues
+  toChainId: ChainsValues
   token?: Token
 }) => {
-  const { address, readOnlyAppBatchProvider, web3Provider } = useWeb3Connection()
-  const shouldFetch = address && token && fromBridgeAddress && web3Provider
+  const { address } = useWeb3Connection()
+  const shouldFetch = address && token && fromBridgeAddress
 
   return useSWR(
-    shouldFetch
-      ? [address, token, isERC20, fromBridgeAddress, web3Provider, 'bridgeBalance']
-      : null,
-    async ([_account, _token, _isERC20, _fromBridgeAddress, _web3Provider]) => {
+    shouldFetch ? [address, token, isNativeToken, fromBridgeAddress, 'bridgeBalance'] : null,
+    async ([_account, _token, _isNativeToken, _fromBridgeAddress]) => {
+      const fromRpcProvider = new JsonRpcBatchProvider(getNetworkConfig(fromChainId).rpcUrl)
       try {
-        if (_isERC20) {
-          const erc20 = ERC20__factory.connect(_token.address, readOnlyAppBatchProvider)
+        if (!_isNativeToken) {
+          const erc20 = ERC20__factory.connect(_token.address, fromRpcProvider)
 
           const balances = await Promise.all([
             erc20.balanceOf(_account),
@@ -38,11 +44,7 @@ export const useBridgeBalance = ({
             allowance,
           }
         } else {
-          if (!_web3Provider) {
-            throw new Error('No signer found')
-          }
-          const signer = await _web3Provider.getSigner()
-          const nativeBalance = await signer.getBalance()
+          const nativeBalance = await fromRpcProvider.getBalance(_account)
 
           return {
             balance: nativeBalance,

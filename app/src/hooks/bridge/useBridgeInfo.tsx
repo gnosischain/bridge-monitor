@@ -13,6 +13,7 @@ import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
 import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactionInfo'
 import { useBridgeValidations } from '@/src/hooks/bridge/useBridgeValidations'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
+import { useTokenMode } from '@/src/hooks/bridge/useTokenMode'
 
 // CONSTANTS
 export const foreignToHomeFeeKey =
@@ -41,20 +42,13 @@ export const useBridgeInfo = ({
   allowance?: BigNumber
   recipient?: string
 }) => {
-  const {
-    foreignChainId,
-    isDAI,
-    isERC20,
-    isFromForeign,
-    isFromHome,
-    isNativeBridge,
-    isNativeToken,
-  } = getBridgeCommonInfo({
-    fromChainId,
-    toChainId,
-    tokenAddress: token?.address || '',
-    receiveNativeToken,
-  })
+  const { foreignChainId, isDAI, isFromForeign, isFromHome, isNativeBridge, isNativeToken } =
+    getBridgeCommonInfo({
+      fromChainId,
+      toChainId,
+      tokenAddress: token?.address || '',
+      receiveNativeToken,
+    })
 
   const { bridgeContracts, getFromBridgeAddress } = useBridgeContracts(foreignChainId)
 
@@ -72,12 +66,22 @@ export const useBridgeInfo = ({
     }
   }, [amount, token])
 
+  const { data: tokenMode, isLoading: isLoadingTokenMode } = useTokenMode(
+    isFromHome,
+    foreignChainId,
+    isNativeBridge,
+    isNativeToken,
+    token,
+  )
+
   const {
     data: bridgeBalanceInfo,
     isLoading: isLoadingBalanceInfo,
     mutate: refreshBalance,
   } = useBridgeBalance({
-    isERC20: isERC20,
+    fromChainId,
+    toChainId,
+    isNativeToken,
     fromBridgeAddress,
     token,
   })
@@ -110,6 +114,7 @@ export const useBridgeInfo = ({
     accountBalance: bridgeBalanceInfo?.balance || ZERO_BN,
     amount: amountBN,
     allowance: bridgeBalanceInfo?.allowance,
+    tokenMode,
     recipient,
     token,
   })
@@ -121,16 +126,28 @@ export const useBridgeInfo = ({
       amount: amountBN,
       foreignChainId,
       isFromHome,
+      receiveNativeToken,
       isNativeBridge,
       isNativeToken,
+      tokenMode,
       recipient,
       token,
     })
 
   const isLoadingInfo = useMemo(
     () =>
-      isLoadingBalanceInfo || isLoadingTokenOutInfo || isLoadingFeeInfo || isLoadingTransactionInfo,
-    [isLoadingBalanceInfo, isLoadingFeeInfo, isLoadingTokenOutInfo, isLoadingTransactionInfo],
+      isLoadingBalanceInfo ||
+      isLoadingTokenOutInfo ||
+      isLoadingFeeInfo ||
+      isLoadingTransactionInfo ||
+      isLoadingTokenMode,
+    [
+      isLoadingBalanceInfo,
+      isLoadingFeeInfo,
+      isLoadingTokenMode,
+      isLoadingTokenOutInfo,
+      isLoadingTransactionInfo,
+    ],
   )
 
   return {

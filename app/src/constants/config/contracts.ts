@@ -10,14 +10,6 @@ import AMBBridgeHelper_abi from '@/src/abis/AMBBridgeHelper.json'
 import NativeOmniBridgeMediator_abi from '@/src/abis/NativeOmniBridgeMediator.json'
 import { Chains } from '@/src/constants/config/types'
 
-export enum BridgeContractKey {
-  HomeOmniBridge = 'homeOmniBridge',
-  ForeignOmniBridge = 'foreignOmniBridge',
-  NativeOmniBridge = 'nativeOmniBridge',
-  HomeXdaiBridge = 'homeXdaiBridge',
-  ForeignXdaiBridge = 'foreignXdaiBridge',
-}
-
 export const contracts = {
   // XDAI Bridge on Gnosis contract
   homeXdaiBridge: {
@@ -28,7 +20,7 @@ export const contracts = {
     },
     abi: HomeXDAI_abi,
   },
-  // XDAI Bridge on Mainnet contract
+  // XDAI Bridge on Foreign contract
   foreignXdaiBridge: {
     address: {
       [Chains.mainnet]: '0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016',
@@ -46,7 +38,7 @@ export const contracts = {
     },
     abi: HomeOMNI_abi,
   },
-  // Omni Bridge on mainnet contract
+  // Omni Bridge on foreign contract
   foreignOmniBridge: {
     address: {
       [Chains.mainnet]: '0x88ad09518695c6c3712AC10a214bE5109a655671',
@@ -55,6 +47,7 @@ export const contracts = {
     },
     abi: ForeignOMNI_abi,
   },
+  // Native Omni Bridge on foreign contract (ETH -> WETH)
   nativeOmniBridge: {
     address: {
       [Chains.mainnet]: '0xa6439ca0fcba1d0f80df0be6a17220fed9c9038a',

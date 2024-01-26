@@ -1,7 +1,6 @@
 import { ChainsValues } from '@/src/constants/config/types'
 import { ZERO_ADDRESS } from '@/src/constants/misc'
 import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
-import { isNativeToken as isNativeTokenDefault } from '@/src/utils/tools'
 import { Token } from '@/types/token'
 import useSWR from 'swr/immutable'
 
@@ -15,11 +14,11 @@ export const useTokenMode = (
   isFromHome: boolean,
   foreignChainId: ChainsValues,
   isNativeBridge: boolean,
+  isNativeToken: boolean,
   token?: Token,
 ) => {
   const { bridgeContracts } = useBridgeContracts(foreignChainId)
 
-  const isNativeToken = isNativeTokenDefault(token?.address || '')
   const shouldFetch = !isNativeToken && token?.address && foreignChainId && !isNativeBridge
 
   // TODO: maybe we need the overrides here. Check in omni-ui/packages/dapp/src/lib/overrides.js
@@ -44,5 +43,5 @@ export const useTokenMode = (
     { suspense: false },
   )
 
-  return { data: data || 'ERC20', error, mutate, isLoading }
+  return { data: data, error, mutate, isLoading }
 }

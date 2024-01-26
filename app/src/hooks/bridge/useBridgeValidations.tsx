@@ -1,8 +1,9 @@
 import { BigNumber } from 'ethers'
 import { Token } from '@/types/token'
 import { isAddress } from 'ethers/lib/utils'
-import { useEffect, useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { MAX_PER_TX, MIN_PER_TX } from '@/src/hooks/bridge/useBridgeInfo'
+import { TOKEN_MODE } from '@/src/hooks/bridge/useTokenMode'
 
 export const useBridgeValidations = ({
   accountBalance,
@@ -10,9 +11,11 @@ export const useBridgeValidations = ({
   amount,
   recipient,
   token,
+  tokenMode,
 }: {
   accountBalance: BigNumber
   amount: BigNumber
+  tokenMode?: TOKEN_MODE
   recipient?: string
   allowance?: BigNumber
   token?: Token
@@ -26,7 +29,12 @@ export const useBridgeValidations = ({
   const isValidToken = !!token
 
   const shouldApprove =
-    (allowance && amount && allowance.lt(amount) && !amountIsGreaterThanBalance) || false
+    (tokenMode === 'ERC20' &&
+      allowance &&
+      amount &&
+      allowance.lt(amount) &&
+      !amountIsGreaterThanBalance) ||
+    false
 
   const isValidRecipient = !!recipient && isAddress(recipient)
 

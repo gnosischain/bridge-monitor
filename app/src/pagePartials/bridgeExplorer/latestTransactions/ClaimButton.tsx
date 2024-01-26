@@ -1,5 +1,5 @@
 import { notify } from '@/src/components/toast'
-import { chainsConfig } from '@/src/constants/config/chains'
+import { chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
 import { contracts } from '@/src/constants/config/contracts'
 import { Chains } from '@/src/constants/config/types'
 import { ToastStates } from '@/src/constants/types'
@@ -63,7 +63,7 @@ export const ClaimButton = ({
   updateInMemoryTransaction,
   ...restProps
 }: ClaimButtonProps) => {
-  const { connectWallet, isWalletConnected, isWalletNetworkSupported, pushNetwork } =
+  const { appChainId, connectWallet, isWalletConnected, isWalletNetworkSupported, pushNetwork } =
     useWeb3Connection()
   const [isWorking, setIsWorking] = useState(false)
 
@@ -104,8 +104,13 @@ export const ClaimButton = ({
       }
     }
 
+    const currentAppChain = getNetworkConfig(appChainId)
+
     // if not on the right network, show a modal to switch
-    if (!isWalletNetworkSupported) {
+    if (
+      !isWalletNetworkSupported ||
+      transaction.receiverNetwork !== currentAppChain.shortName.toLowerCase()
+    ) {
       const networkSwitched = await pushNetwork({
         chainId: chainsConfig[Chains.mainnet].chainIdHex,
       })
@@ -150,7 +155,7 @@ export const ClaimButton = ({
       ])
 
       // build claim tx
-      const address = contracts.homeXdaiBridge.address[Chains.mainnet]
+      const address = contracts.foreignXdaiBridge.address[Chains.mainnet]
       const foreignXDAI = ForeignBridgeErcToNative__factory.connect(address, provider.getSigner())
       claim = () => foreignXDAI.executeSignatures(message, signatures)
     } else {

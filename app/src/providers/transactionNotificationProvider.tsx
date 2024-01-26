@@ -4,10 +4,11 @@ import { TransactionResponse } from '@ethersproject/providers'
 import toast from 'react-hot-toast'
 
 import { notify } from '@/src/components/toast'
-import { ChainsValues } from '@/src/constants/config/types'
+import { ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 import { ToastStates } from '@/src/constants/types'
 import { usePersistedState } from '@/src/hooks/usePersistedState'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+import { getNetworkConfig } from '@/src/constants/config/chains'
 
 type TransactionStorageItem = {
   chainId: ChainsValues
@@ -30,6 +31,8 @@ const TRANSACTIONS_STORE = 'pending-transactions'
 export const TransactionNotificationProvider: React.FC = ({ children }) => {
   const { address, appChainId, getExplorerUrl, readOnlyAppProvider } = useWeb3Connection()
   const [isRan, setIsRan] = useState(false)
+
+  const chainKey = getNetworkConfig(appChainId).shortName.toLowerCase() as ChainsKeys
 
   const initialState: TransactionStorageItem[] = []
 
@@ -69,7 +72,7 @@ export const TransactionNotificationProvider: React.FC = ({ children }) => {
 
     notify({
       type: ToastStates.waiting,
-      explorerUrl: getExplorerUrl(txHash),
+      explorerUrl: getExplorerUrl(txHash, chainKey),
       id: txHash,
     })
   }
@@ -79,7 +82,7 @@ export const TransactionNotificationProvider: React.FC = ({ children }) => {
       if (isSuccess) {
         notify({
           type: ToastStates.success,
-          explorerUrl: getExplorerUrl(txHash),
+          explorerUrl: getExplorerUrl(txHash, chainKey),
           id: txHash,
         })
 
@@ -87,14 +90,14 @@ export const TransactionNotificationProvider: React.FC = ({ children }) => {
       } else {
         notify({
           type: ToastStates.failed,
-          explorerUrl: getExplorerUrl(txHash),
+          explorerUrl: getExplorerUrl(txHash, chainKey),
           id: txHash,
         })
 
         removeTxFromStorage(txHash)
       }
     },
-    [getExplorerUrl, removeTxFromStorage],
+    [chainKey, getExplorerUrl, removeTxFromStorage],
   )
 
   // Check if there are previous tx on the storage

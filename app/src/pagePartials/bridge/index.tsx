@@ -160,11 +160,13 @@ type BridgeButtonProps = {
   shouldApprove: boolean
   bridgeTx?: () => void
   approvalTx?: () => void
+  fromChainId: ChainsValues
 }
 const BridgeButton = ({
   approvalTx,
   bridgeTx,
   canBridge,
+  fromChainId,
   isApproving,
   isBridging,
   isLoading,
@@ -180,44 +182,39 @@ const BridgeButton = ({
     pushNetwork,
   } = useWeb3Connection()
 
-  const appChainConfig = getNetworkConfig(appChainId)
+  const appChainConfig = getNetworkConfig(fromChainId)
+
+  if (isLoading || isOnboardChangingChain || connectingWallet || isApproving || isBridging) {
+    return (
+      <ButtonPrimary disabled style={{ margin: '0 auto' }}>
+        Loading...
+      </ButtonPrimary>
+    )
+  }
 
   if (!isWalletConnected) {
     return (
-      <ButtonPrimary
-        disabled={connectingWallet}
-        onClick={connectWallet}
-        style={{ margin: '0 auto' }}
-        type="button"
-      >
+      <ButtonPrimary onClick={connectWallet} style={{ margin: '0 auto' }} type="button">
         {connectingWallet ? 'Connecting wallet...' : 'Connect Wallet'}
       </ButtonPrimary>
     )
   }
 
-  if (isWalletConnected && !isWalletNetworkSupported) {
+  if ((isWalletConnected && !isWalletNetworkSupported) || fromChainId !== appChainId) {
     return (
       <ButtonPrimary
-        disabled={isOnboardChangingChain}
         onClick={() => pushNetwork({ chainId: appChainConfig.chainIdHex })}
         style={{ margin: '0 auto' }}
         type="button"
       >
-        {isOnboardChangingChain
-          ? `Switching to ${appChainConfig.name}...`
-          : `Switch to ${appChainConfig.name}`}
+        {`Switch to ${appChainConfig.name}`}
       </ButtonPrimary>
     )
   }
 
   if (shouldApprove) {
     return (
-      <ButtonPrimary
-        disabled={isApproving}
-        onClick={approvalTx}
-        style={{ margin: '0 auto' }}
-        type="button"
-      >
+      <ButtonPrimary onClick={approvalTx} style={{ margin: '0 auto' }} type="button">
         Approve
       </ButtonPrimary>
     )
@@ -225,7 +222,7 @@ const BridgeButton = ({
 
   return (
     <ButtonPrimary
-      disabled={!canBridge || isLoading || isBridging}
+      disabled={!canBridge}
       onClick={bridgeTx}
       style={{ margin: '0 auto' }}
       type="button"
@@ -239,7 +236,7 @@ const getToChainId = (fromChainId: ChainsValues) =>
   fromChainId === Chains.mainnet ? Chains.gnosis : Chains.mainnet
 
 const BridgeForm: React.FC = () => {
-  const { address, appChainId, pushNetwork } = useWeb3Connection()
+  const { address, appChainId } = useWeb3Connection()
   const { tokensByNetwork } = useBridgedTokens()
   const approve = useApproval()
   const sendTx = useTransaction()
@@ -305,41 +302,19 @@ const BridgeForm: React.FC = () => {
     setUserChecked(false)
     dispatch({
       ...initialState,
-      token: formState.token,
       account: address || ZERO_ADDRESS,
       fromChainId: appChainId,
       toChainId: getToChainId(appChainId),
     })
-  }, [address, appChainId, formState.token])
-
-  // dispatch formInitialState when user change network or wallet
-  useEffect(() => {
-    handleResetForm()
-  }, [handleResetForm])
+  }, [address, appChainId])
 
   const handleFromChainIdChange = async (fromChainId: ChainsValues) => {
-    const chainConfig = getNetworkConfig(fromChainId)
-
-    try {
-      const isSwitchedSuccess = await pushNetwork({ chainId: chainConfig.chainIdHex })
-      if (isSwitchedSuccess) {
-        dispatch({
-          ...initialState,
-          token: formState.token,
-          account: address || ZERO_ADDRESS,
-          fromChainId: appChainId,
-          toChainId: getToChainId(appChainId),
-        })
-      } else {
-        throw new Error('Failed to switch network')
-      }
-    } catch (error) {
-      notify({
-        title: 'Failed to switch network',
-        message: `Your wallet must be connected in ${chainConfig.name} network if you want to bridge tokens from this network`,
-        type: ToastStates.failed,
-      })
-    }
+    dispatch({
+      ...initialState,
+      account: address || ZERO_ADDRESS,
+      fromChainId: fromChainId,
+      toChainId: getToChainId(fromChainId),
+    })
   }
 
   const handleTokenChange = (token: Token) => {
@@ -355,6 +330,7 @@ const BridgeForm: React.FC = () => {
     if (!formState.token || !bridgeInfo.fromBridgeAddress) {
       return
     }
+
     setIsApproving(true)
     const parsedAmount = parseUnits(formState.amount, formState.token.decimals)
 
@@ -367,9 +343,12 @@ const BridgeForm: React.FC = () => {
       tokenAddress: fromTokenAddress,
     })
     if (tx) {
-      bridgeInfo.refreshBalance()
+      await tx.wait()
+      await bridgeInfo.refreshBalance()
+      setIsApproving(false)
+    } else {
+      setIsApproving(false)
     }
-    setIsApproving(false)
   }, [formState.token, formState.amount, bridgeInfo, approve])
 
   const handleBridgeTx = useCallback(async () => {
@@ -380,8 +359,9 @@ const BridgeForm: React.FC = () => {
     try {
       const tx = await sendTx(bridgeInfo.tx)
       if (tx) {
+        await tx.wait()
         handleResetForm()
-        bridgeInfo.refreshBalance()
+        await bridgeInfo.refreshBalance()
         setIsBridging(false)
       } else {
         throw new Error('Failed to bridge')
@@ -500,6 +480,7 @@ const BridgeForm: React.FC = () => {
             approvalTx={handleApprove}
             bridgeTx={handleBridgeTx}
             canBridge={bridgeInfo.canBridge}
+            fromChainId={formState.fromChainId}
             isApproving={isApproving}
             isBridging={isBridging}
             isLoading={bridgeInfo.isLoadingInfo}
