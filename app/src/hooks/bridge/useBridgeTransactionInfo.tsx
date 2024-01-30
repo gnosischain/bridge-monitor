@@ -196,20 +196,15 @@ const handleERC20TokenFromHome = async (
     : ERC20__factory.connect(tokenAddress, signer)
 
   const signerAddress = await signer.getAddress()
+  console.log(foreignChainId)
 
   // byteData info in: https://docs.tokenbridge.net/eth-xdai-amb-bridge/multi-token-extension/transfer-weth-from-xdai-to-eth-on-mainnet
   const bytesData = receiveNativeToken
-    ? `${contracts.nativeOmniBridge.address[1]}${(recipient || signerAddress).replace('0x', '')}`
+    ? `${contracts.nativeOmniBridge.address[foreignChainId]}${(recipient || signerAddress).replace(
+        '0x',
+        '',
+      )}`
     : recipient || signerAddress
-
-  console.log('DATA to CHECK ===>>>', {
-    receiver: recipient || signerAddress,
-    tokenAddress,
-    amount,
-    receiveNativeToken,
-    bytesData,
-    foreignChainId,
-  })
 
   const gasLimit = isERC677
     ? await (tokenContract as ERC677).estimateGas.transferAndCall(
@@ -308,7 +303,7 @@ export const getBridgeTx = async ({
         foreignChainId,
         recipient,
         receiveNativeToken,
-        tokenMode === 'ERC677', // TODO isERC677
+        tokenMode === 'ERC677', // isERC677
       )
     : await handleERC20TokenFromForeign(
         bridgeContract as ForeignOmniMediator,

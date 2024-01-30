@@ -43,5 +43,5 @@ export const useTokenMode = (
     { suspense: false },
   )
 
-  return { data: data, error, mutate, isLoading }
+  return { data: data || 'ERC20', error, mutate, isLoading }
 }
