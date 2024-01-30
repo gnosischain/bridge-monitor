@@ -3,7 +3,7 @@ import { useBridgeInfo } from '@/src/hooks/bridge/useBridgeInfo'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { parseUnits } from 'ethers/lib/utils'
 import dynamic from 'next/dynamic'
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
+import { useCallback, useMemo, useReducer, useState } from 'react'
 import { TokenDropdown } from '@/src/pagePartials/bridgeExplorer/bridges/TokenDropdown'
 import { Token } from '@/types/token'
 import styled from 'styled-components'
@@ -12,9 +12,7 @@ import { Textfield } from '@/src/components/form/Textfield'
 import { Dropdown, DropdownItem } from '@/src/components/dropdown'
 import { ButtonPrimary } from '@/src/components/buttons/Button'
 import { ChevronDown } from '@/src/components/assets/ChevronDown'
-import { getNetworkConfig } from '@/src/constants/config/chains'
-import { notify } from '@/src/components/toast'
-import { ToastStates } from '@/src/constants/types'
+import { chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
 import { Loading } from '@/src/components/loading'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
 import useTransaction from '@/src/hooks/useTransaction'
@@ -236,17 +234,15 @@ const getToChainId = (fromChainId: ChainsValues) =>
   fromChainId === Chains.mainnet ? Chains.gnosis : Chains.mainnet
 
 const BridgeForm: React.FC = () => {
+  const [isBridging, setIsBridging] = useState(false)
+  const [isApproving, setIsApproving] = useState(false)
+
   const { address, appChainId } = useWeb3Connection()
   const { tokensByNetwork } = useBridgedTokens()
   const approve = useApproval()
   const sendTx = useTransaction()
 
   const appChainConfig = getNetworkConfig(appChainId)
-
-  const [isBridging, setIsBridging] = useState(false)
-  const [isApproving, setIsApproving] = useState(false)
-  const [userChecked, setUserChecked] = useState(false)
-
   const chainsItems = [
     { label: 'Mainnet', value: Chains.mainnet },
     { label: 'Gnosis', value: Chains.gnosis },
@@ -274,19 +270,6 @@ const BridgeForm: React.FC = () => {
     recipient: formState.recipient,
   })
 
-  useEffect(() => {
-    // Automatically check receive native token if isDAI and isFromForeign
-    if (
-      !userChecked &&
-      bridgeInfo.isDAI &&
-      bridgeInfo.isFromForeign &&
-      !formState.receiveNativeToken
-    ) {
-      dispatch({ ...formState, receiveNativeToken: true })
-      setUserChecked(false)
-    }
-  }, [address, bridgeInfo.isDAI, bridgeInfo.isFromForeign, formState, userChecked])
-
   const tokenOut = useMemo(() => {
     const tokenOutAddress = bridgeInfo.tokenOutAddress
     if (!tokenOutAddress) {
@@ -299,7 +282,6 @@ const BridgeForm: React.FC = () => {
   }, [bridgeInfo.tokenOutAddress, formState.toChainId, tokensByNetwork])
 
   const handleResetForm = useCallback(() => {
-    setUserChecked(false)
     dispatch({
       ...initialState,
       account: address || ZERO_ADDRESS,
@@ -322,7 +304,6 @@ const BridgeForm: React.FC = () => {
   }
 
   const handleReceiveNativeTokenToggle = () => {
-    setUserChecked(true)
     dispatch({ ...formState, receiveNativeToken: !formState.receiveNativeToken })
   }
 
@@ -333,7 +314,6 @@ const BridgeForm: React.FC = () => {
 
     setIsApproving(true)
     const parsedAmount = parseUnits(formState.amount, formState.token.decimals)
-
     const fromTokenAddress = formState.token.address
     const spender = bridgeInfo.fromBridgeAddress
 
@@ -422,7 +402,7 @@ const BridgeForm: React.FC = () => {
               id="toChainId"
               readOnly
               type="text"
-              value={formState.toChainId == 100 ? 'gnosis' : 'mainnet'}
+              value={formState.toChainId == Chains.gnosis ? 'gnosis' : 'mainnet'}
             />
             <TokenDropdown
               chainId={formState.toChainId}
@@ -430,16 +410,18 @@ const BridgeForm: React.FC = () => {
               disabled
               key={'tokenOut'}
             />
-            <div>
-              <label htmlFor="receiveNativeToken">Receive Native Token: </label>
-              <input
-                checked={formState.receiveNativeToken}
-                disabled={!bridgeInfo.canReceiveNativeToken}
-                id="receiveNativeToken"
-                onChange={handleReceiveNativeTokenToggle}
-                type="checkbox"
-              />
-            </div>
+            {formState.fromChainId == Chains.gnosis &&
+              formState.token?.address == chainsConfig[Chains.gnosis].bridge.wForeignNative && (
+                <div>
+                  <label htmlFor="receiveNativeToken">Receive Native Token: </label>
+                  <input
+                    checked={formState.receiveNativeToken}
+                    id="receiveNativeToken"
+                    onChange={handleReceiveNativeTokenToggle}
+                    type="checkbox"
+                  />
+                </div>
+              )}
             <div>
               <label htmlFor="amount">Send to different wallet:</label>
               <Textfield
@@ -458,6 +440,7 @@ const BridgeForm: React.FC = () => {
                   You will receive: {bridgeInfo.toAmount} {tokenOut?.symbol}
                 </div>
                 <div>Estimated time: 5 mins</div>
+                {/* TODO */}
                 <div>
                   Estimated total gas:{' '}
                   {fromBN(

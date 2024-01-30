@@ -247,6 +247,7 @@ const Dropdown: React.FC<Props> = ({
             <DropdownItem
               key={index}
               onClick={() => {
+                setValue('')
                 onSelectToken(item)
               }}
             >

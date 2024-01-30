@@ -40,28 +40,27 @@ export const getReceivedTokenInfo = async ({
   // foreign > Gnosis
   //---------------
 
-  // DAI (foreign) > DAI (home) or xDAI (native token)
-  if (isFromForeign && isDAI) {
-    return {
-      tokenOutAddress: receiveNativeToken
-        ? NATIVE_TOKEN_ADDRESS
-        : chainsConfig[Chains.gnosis].bridge.DAI,
-      canReceiveNativeToken: true,
-    }
-  }
-
-  // Native (form example ETH)
-  // we use this one to detect that the token on the other side is WETH.
-  if (isFromForeign && isNativeToken) {
-    return {
-      tokenOutAddress: chainsConfig[Chains.gnosis].bridge.wForeignNative,
-    }
-  }
-
-  // default to ERC20
   if (isFromForeign) {
+    if (isDAI) {
+      return {
+        tokenOutAddress: NATIVE_TOKEN_ADDRESS,
+        canReceiveNativeToken: false,
+      }
+    }
+
+    // Native (form example ETH)
+    // we use this one to detect that the token on the other side is WETH.
+    if (isNativeToken) {
+      return {
+        tokenOutAddress: chainsConfig[Chains.gnosis].bridge.wForeignNative,
+        canReceiveNativeToken: true,
+      }
+    }
+
+    // default to ERC20
     return {
       tokenOutAddress: await homeOmni.homeTokenAddress(tokenAddress),
+      canReceiveNativeToken: false,
     }
   }
 
@@ -69,27 +68,29 @@ export const getReceivedTokenInfo = async ({
   // Gnosis > foreign
   //---------------
 
-  // xDAI -> DAI
-  if (isFromHome && isNativeToken) {
-    return {
-      tokenOutAddress: chainsConfig[toChainId].bridge.DAI,
-    }
-  }
-
-  // WETH > ETH or WETH
-  if (isFromHome && isSameString(chainsConfig[Chains.gnosis].bridge.wForeignNative, tokenAddress)) {
-    return {
-      tokenOutAddress: receiveNativeToken
-        ? NATIVE_TOKEN_ADDRESS
-        : chainsConfig[toChainId].bridge.wForeignNative,
-      canReceiveNativeToken: true,
-    }
-  }
-
-  // default to ERC20
   if (isFromHome) {
+    // xDAI -> DAI
+    if (isNativeToken) {
+      return {
+        tokenOutAddress: chainsConfig[toChainId].bridge.DAI,
+        canReceiveNativeToken: false,
+      }
+    }
+
+    // WETH > ETH or WETH
+    if (isSameString(chainsConfig[Chains.gnosis].bridge.wForeignNative, tokenAddress)) {
+      return {
+        tokenOutAddress: receiveNativeToken
+          ? NATIVE_TOKEN_ADDRESS
+          : chainsConfig[toChainId].bridge.wForeignNative,
+        canReceiveNativeToken: false,
+      }
+    }
+
+    // default to ERC20
     return {
       tokenOutAddress: await homeOmni.foreignTokenAddress(tokenAddress),
+      canReceiveNativeToken: false,
     }
   }
 

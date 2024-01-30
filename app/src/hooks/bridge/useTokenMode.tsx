@@ -6,7 +6,7 @@ import useSWR from 'swr/immutable'
 
 // This hook is used to determine what kind of token is being used in the bridge.
 // Depends on the result we can detect what method we should use to transfer the token to the bridge contract.
-// is the token is ERC677/ERC827 we should use the transferAndCall method (we don't need approve here).
+// if the token is ERC677/ERC827 we should use the transferAndCall method (we don't need approve here).
 // we need this only for omni bridge.
 export type TOKEN_MODE = 'ERC20' | 'ERC677'
 

@@ -134,27 +134,17 @@ export const useBridgeInfo = ({
       token,
     })
 
-  const isLoadingInfo = useMemo(
-    () =>
-      isLoadingBalanceInfo ||
-      isLoadingTokenOutInfo ||
-      isLoadingFeeInfo ||
-      isLoadingTransactionInfo ||
-      isLoadingTokenMode,
-    [
-      isLoadingBalanceInfo,
-      isLoadingFeeInfo,
-      isLoadingTokenMode,
-      isLoadingTokenOutInfo,
-      isLoadingTransactionInfo,
-    ],
-  )
+  const isLoadingInfo =
+    isLoadingBalanceInfo ||
+    isLoadingTokenOutInfo ||
+    isLoadingFeeInfo ||
+    isLoadingTransactionInfo ||
+    isLoadingTokenMode
 
   return {
     ...(bridgeBalanceInfo || { balance: ZERO_BN, allowance: ZERO_BN }),
     ...(bridgeTokenOutInfo || {
       tokenOutAddress: undefined,
-      canReceiveNativeToken: false,
     }),
     ...(bridgeTransactionInfo || {
       gasLimit: ZERO_BN,

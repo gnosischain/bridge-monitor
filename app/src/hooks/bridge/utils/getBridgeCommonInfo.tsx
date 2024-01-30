@@ -24,7 +24,7 @@ export const getBridgeCommonInfo = ({
   const isFromHome = fromChainId === Chains.gnosis
   const isFromForeign = !isFromHome
   const isNativeToken = defaultIsNativeToken(tokenAddress)
-  const isDAI = isSameString(chainsConfig[fromChainId].bridge.DAI, tokenAddress) // assumes fromChain is foreign.
+  const isDAI = isSameString(chainsConfig[fromChainId].bridge.DAI, tokenAddress)
 
   const isNativeBridge =
     !!(isFromHome && isNativeToken) || !!(isFromForeign && isDAI && receiveNativeToken) // native bridge == xDAI bridge
