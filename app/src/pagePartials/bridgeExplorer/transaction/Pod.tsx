@@ -7,7 +7,7 @@ import { Transaction } from '@/src/utils/transactions'
 import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
 const Wrapper = styled(InnerCard)`
-  border-radius: 8px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   flex: 1 1 0;
   justify-content: space-between;
   row-gap: calc(var(--theme-common-space) * 2);

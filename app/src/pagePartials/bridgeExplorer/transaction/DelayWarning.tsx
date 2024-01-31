@@ -5,7 +5,7 @@ import { txTime } from '@/src/utils/txTime'
 const Wrapper = styled.div`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.creamDark};
-  border-radius: 8px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   color: ${({ theme: { colors } }) => colors.primary};
   column-gap: calc(var(--theme-common-space) * 2);
   display: flex;

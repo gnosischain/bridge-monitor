@@ -52,7 +52,7 @@ const Dropdown = styled(BaseDropdown)``
 const DropdownButton = styled.button`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.creamLight};
-  border-radius: 4px;
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
   border: none;
   color: ${({ theme: { colors } }) => colors.primary};
   column-gap: 30px;
@@ -85,7 +85,7 @@ const Spinner = styled(Loading)`
 
 const TooltipWrapper = styled.div`
   background-color: ${({ theme: { colors } }) => colors.primaryDark};
-  border-radius: 8px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   border: none;
   color: ${({ theme: { colors } }) => colors.cream};
   font-family: ${({ theme: { fonts } }) => fonts.family};

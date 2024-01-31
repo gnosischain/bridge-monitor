@@ -4,7 +4,7 @@ export const tooltipCSS = css`
   :root {
     .customTooltip {
       background-color: ${({ theme: { colors } }) => colors.primaryDark};
-      border-radius: 8px;
+      border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
       color: ${({ theme: { colors } }) => colors.cream};
       font-size: 1.4rem;
       font-weight: 400;

@@ -5,12 +5,49 @@ import styled from 'styled-components'
 
 const Wrapper = styled.div`
   align-items: center;
-  column-gap: calc(var(--theme-common-space) * 2);
+  column-gap: var(--theme-common-space);
   display: flex;
   flex-grow: 1;
+  height: 100%;
 
   > input {
     flex-grow: 1;
+  }
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    column-gap: calc(var(--theme-common-space) * 2);
+  }
+`
+const TextfieldAmount = styled(Textfield)`
+  height: 100%;
+  font-size: 1.5rem;
+  font-weight: 500;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
+  &:active,
+  &:focus {
+    background: ${({ theme: { colors } }) => colors.creamLight};
+  }
+  &::placeholder {
+    font-size: 1.5rem;
+  }
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    font-size: 1.6rem;
+    font-weight: 600;
+    &::placeholder {
+      font-size: 1.6rem;
+    }
+  }
+`
+const MaxButton = styled.button`
+  font-size: 1.4rem;
+  border: 1px solid ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.primary};
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
+  background-color: transparent;
+  padding: 4px var(--theme-common-space);
+  cursor: pointer;
+  &:hover {
+    background-color: ${({ theme: { colors } }) => colors.primary};
+    color: ${({ theme: { colors } }) => colors.white};
   }
 `
 
@@ -40,7 +77,7 @@ export const AmountTokenInput = ({
     <Wrapper {...restProps}>
       <NumericFormat
         allowNegative={false}
-        customInput={Textfield}
+        customInput={TextfieldAmount}
         defaultValue={value}
         max={max}
         onValueChange={handleChange}
@@ -49,9 +86,9 @@ export const AmountTokenInput = ({
         value={value}
       />
       {max && (
-        <button onClick={() => onChange(max)} type="button">
+        <MaxButton onClick={() => onChange(max)} type="button">
           Max
-        </button>
+        </MaxButton>
       )}
     </Wrapper>
   )

@@ -3,7 +3,7 @@ import styled from 'styled-components'
 export const MiniCard = styled.div<{ darkBackground?: boolean }>`
   background-color: ${({ darkBackground, theme: { colors } }) =>
     darkBackground ? colors.cream : colors.white};
-  border-radius: 8px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   border: 1px solid ${({ theme: { colors } }) => colors.cream};
   column-gap: calc(var(--theme-common-space) * 2);
   display: flex;

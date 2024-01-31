@@ -82,7 +82,7 @@ const Chart = styled(TransactionsSigned)`
 
 const ChartPlaceholder = styled(SkeletonLoading)`
   ${ChartCSS};
-  border-radius: 4px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiu};
   height: var(--validator-item-min-height);
 `
 

@@ -74,7 +74,7 @@ const ExternalURL = styled.a`
 const TokenWrapper = styled.div`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.cream};
-  border-radius: 8px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   column-gap: var(--theme-common-space);
   display: flex;
   height: 34px;

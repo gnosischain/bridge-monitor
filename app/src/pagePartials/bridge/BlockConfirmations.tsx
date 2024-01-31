@@ -4,7 +4,7 @@ import { shortenAddress } from '@/src/utils/tools'
 
 const Wrapper = styled.div`
   background-color: ${({ theme: { colors } }) => colors.creamLight};
-  border-radius: 16px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
   box-shadow: 0px 2.231px 2.775px 0px rgba(0, 0, 0, 0.01), 0px 10.2px 7.8px 0px rgba(0, 0, 0, 0.01),
     0px 25.819px 20.925px 0px rgba(0, 0, 0, 0.02), 0px 51px 48px 0px rgba(0, 0, 0, 0.03);
   display: flex;
@@ -49,12 +49,12 @@ const BlocksCounter = styled.div`
 `
 const LoadBar = styled.div<{ percentage: number }>`
   background-color: ${({ theme: { colors } }) => colors.cream};
-  border-radius: 16px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
   span {
     transition: all 1s ease-in-out;
     width: ${(props) => props.percentage}%;
     display: block;
-    border-radius: 16px;
+    border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
     height: 16px;
     background-color: ${(props) =>
       props.percentage <= 50

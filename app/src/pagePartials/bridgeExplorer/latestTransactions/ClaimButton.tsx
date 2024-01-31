@@ -25,7 +25,7 @@ import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 const Wrapper = styled.button`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.primary};
-  border-radius: 4px;
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
   border: none;
   color: ${({ theme: { colors } }) => colors.cream};
   column-gap: 6px;

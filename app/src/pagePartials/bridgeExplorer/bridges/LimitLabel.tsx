@@ -4,7 +4,7 @@ import { HealthStatusTypes } from '@/src/constants/types'
 
 const Wrapper = styled.div<{ status?: string }>`
   padding: calc(var(--theme-common-space) / 2) var(--theme-common-space);
-  border-radius: 4px;
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
   display: inline-block;
   background-color: ${({ theme }) => theme.colors.warning};
   background-color: rgba(0, 0, 0, 0.2);

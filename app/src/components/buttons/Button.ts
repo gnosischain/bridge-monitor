@@ -80,7 +80,7 @@ export const ButtonFullPrimaryCSS = css`
   height: 70px;
   font-size: 1.8rem;
   font-weight: 700;
-  border-radius: 16px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
   width: 100%;
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     font-size: 2.1rem;

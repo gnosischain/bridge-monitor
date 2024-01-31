@@ -6,7 +6,11 @@ import { DebounceInput } from 'react-debounce-input'
 
 import { ChevronDown as BaseChevronDown } from '@/src/components/assets/ChevronDown'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
-import { Dropdown as BaseDropdown, DropdownPosition } from '@/src/components/dropdown'
+import {
+  Dropdown as BaseDropdown,
+  DropdownBridgeItem,
+  DropdownPosition,
+} from '@/src/components/dropdown'
 import { TextfieldCSS } from '@/src/components/form/Textfield'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
@@ -20,12 +24,15 @@ const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvide
 })
 
 const Wrapper = styled(BaseDropdown)`
-  --inner-padding: calc(var(--theme-common-space) / 2);
-
+  --inner-padding: calc(var(--theme-common-space) * 2);
+  flex-shrink: 0;
   .dropdownItems {
-    max-height: 300px;
-    max-width: 250px;
+    max-height: 350px;
+    width: 300px;
     overflow: auto;
+    @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+      width: 440px;
+    }
   }
 
   &[disabled] {
@@ -35,7 +42,7 @@ const Wrapper = styled(BaseDropdown)`
 
 const TextfieldContainer = styled.div<{ closeOnClick?: boolean }>`
   background-color: ${({ theme: { dropdown } }) => dropdown.background};
-  padding: calc(var(--theme-common-space) / 2) calc(var(--theme-common-space) / 2) 0;
+  padding: calc(var(--theme-common-space) * 2);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -47,16 +54,21 @@ const TextFieldWrapper = styled.div`
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Textfield: any = styled(DebounceInput)`
-  --texfield-font-size: 1.4rem;
+  --texfield-font-size: 1.6rem;
 
   ${TextfieldCSS};
 
-  border-radius: 4px;
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
+  padding: calc(var(--theme-common-space) * 2) var(--theme-common-space)
+    calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 5);
   flex-shrink: 0;
-  height: 42px;
+  height: auto;
   max-width: 100%;
-  padding: 0 10px 0 38px;
-  width: auto;
+  width: 100%;
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 2)
+      calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 5);
+  }
 `
 
 const Magnifier = styled(BaseMagnifier)`
@@ -66,58 +78,28 @@ const Magnifier = styled(BaseMagnifier)`
   transform: translateY(-50%);
 `
 
-const Info = styled.p`
-  color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 1.3rem;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 1.3;
-  margin: 0;
-  padding: var(--theme-common-space) calc(var(--theme-common-space) / 2);
-  white-space: normal;
-`
-
 const Items = styled.div<{ closeOnClick?: boolean }>`
   background-color: ${({ theme: { dropdown } }) => dropdown.background};
-  padding: 0 calc(var(--theme-common-space) / 2) calc(var(--theme-common-space) / 2);
+  padding: 0 0 calc(var(--theme-common-space) / 2);
 `
 
-const DropdownItem = styled.div`
-  align-items: center;
-  border-bottom: 1px solid ${({ theme: { colors } }) => colors.creamDark};
-  color: ${({ theme: { dropdown } }) => dropdown.item.color};
-  column-gap: calc(var(--theme-common-space) / 4);
-  cursor: pointer;
+const DropdownItem2 = styled.div``
+const TokenInfo = styled.div`
   display: flex;
-  font-size: 1.3rem;
-  font-weight: 500;
-  line-height: 1.4;
-  min-height: 34px;
-  overflow: hidden;
-  padding: 0 cvar(--inner-padding);
-  text-decoration: none;
-  transition: background-color 0.15s linear;
-  user-select: none;
-  white-space: normal;
-
-  &:hover {
-    background-color: ${({ theme: { dropdown } }) => dropdown.item.backgroundColorHover};
-  }
-
-  &:first-child {
-    border-top: 1px solid ${({ theme: { colors } }) => colors.creamDark};
-  }
-
-  &:last-child {
-    border-bottom: none;
+  flex-direction: column;
+  font-size: 1.2rem;
+  font-weight: 400;
+  line-height: normal;
+  strong {
+    font-size: 1.8rem;
+    font-weight: 500;
   }
 `
-
 const NoResults = styled.div<{ closeOnClick?: boolean }>`
   align-items: center;
   color: ${({ theme: { colors } }) => colors.primary};
   display: flex;
-  font-size: 1.3rem;
+  font-size: 1.6rem;
   font-weight: 500;
   height: 80px;
   justify-content: center;
@@ -128,19 +110,24 @@ const NoResults = styled.div<{ closeOnClick?: boolean }>`
 const Button = styled.button`
   align-items: center;
   background: ${({ theme: { colors } }) => colors.creamLight};
-  border-radius: 6px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   border: none;
   color: ${({ theme: { colors } }) => colors.primary};
   column-gap: var(--theme-common-space);
   cursor: pointer;
   display: flex;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   height: 34px;
   justify-content: space-between;
   line-height: 1.2;
   margin: 0;
   padding: 0 8px;
-  text-transform: uppercase;
+  small {
+    font-size: 1.4rem;
+  }
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    font-size: 1.6rem;
+  }
 `
 
 const ButtonText = styled.span``
@@ -221,8 +208,8 @@ const Dropdown: React.FC<Props> = ({
       disabled={disabled}
       dropdownButton={
         <Button onClick={() => setIsOpened(!isOpened)} type="button">
-          {token && <TokenIcon dimensions={18} iconSource={token.logoURI} symbol={token.symbol} />}
-          <ButtonText>{token ? token.symbol : 'Select token...'}</ButtonText>
+          {token && <TokenIcon dimensions={24} iconSource={token.logoURI} symbol={token.symbol} />}
+          <ButtonText>{token ? token.symbol : <small>Select token...</small>}</ButtonText>
           {!disabled && <ChevronDown />}
         </Button>
       }
@@ -240,20 +227,22 @@ const Dropdown: React.FC<Props> = ({
               value={value}
             />
           </TextFieldWrapper>
-          <Info>Search among hundreds of available tokens</Info>
         </TextfieldContainer>,
         <Items closeOnClick key="items">
           {tokensList?.map((item, index) => (
-            <DropdownItem
+            <DropdownBridgeItem
               key={index}
               onClick={() => {
                 setValue('')
                 onSelectToken(item)
               }}
             >
-              <TokenIcon dimensions={18} iconSource={item.logoURI} symbol={item.symbol} />
-              {item.symbol}
-            </DropdownItem>
+              <TokenIcon dimensions={32} iconSource={item.logoURI} symbol={item.symbol} />
+              <TokenInfo>
+                <strong>{item.name}</strong>
+                {item.symbol}
+              </TokenInfo>
+            </DropdownBridgeItem>
           ))}
         </Items>,
         tokensList?.length === 0 ? <NoResults closeOnClick={false}>Not found.</NoResults> : <></>,

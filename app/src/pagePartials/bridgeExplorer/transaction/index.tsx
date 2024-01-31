@@ -70,7 +70,7 @@ const Information = styled.article`
 
 const StatusList = styled.div`
   background-color: ${({ theme: { colors } }) => colors.cream};
-  border-radius: 8px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   display: flex;
   flex-direction: column;
   padding: calc(var(--theme-common-space) * 3) calc(var(--theme-common-space) * 2)

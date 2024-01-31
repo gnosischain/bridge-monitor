@@ -22,7 +22,7 @@ const Icon = styled(ShareIcon)`
 const Wrapper = styled.button`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.primary};
-  border-radius: 8px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   border: none;
   color: ${({ theme: { colors } }) => colors.cream};
   cursor: pointer;

@@ -36,7 +36,7 @@ export const SCLink = styled.a`
   align-items: center;
   background-position: calc(100% - var(--theme-common-space) * 2) 50%;
   background-repeat: no-repeat;
-  border-radius: 4px;
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
   color: ${({ theme: { colors } }) => colors.primary};
   column-gap: calc(var(--theme-common-space) * 2);
   cursor: pointer;

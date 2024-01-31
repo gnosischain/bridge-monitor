@@ -55,7 +55,7 @@ const BackLink = styled.a`
 `
 const MessageWrapper = styled.div`
   background-color: ${({ theme: { colors } }) => colors.white};
-  border-radius: 16px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
   padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 1);
   margin-top: calc(var(--theme-common-space) * -2);
   position: relative;

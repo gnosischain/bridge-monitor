@@ -149,7 +149,7 @@ export const DropdownItemCSS = css<DropdownItemProps>`
   display: flex;
   font-size: 1.4rem;
   font-weight: 400;
-  gap: 10px;
+  gap: 8px;
   justify-content: ${({ justifyContent }) => justifyContent};
   line-height: 1.4;
   min-height: 36px;
@@ -159,7 +159,9 @@ export const DropdownItemCSS = css<DropdownItemProps>`
   transition: background-color 0.15s linear;
   user-select: none;
   white-space: normal;
-
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    gap: 16px;
+  }
   &:first-child {
     border-top-left-radius: ${({ theme: { dropdown } }) => dropdown.borderRadius};
     border-top-right-radius: ${({ theme: { dropdown } }) => dropdown.borderRadius};
@@ -196,6 +198,11 @@ export const DropdownItemCSS = css<DropdownItemProps>`
 
 export const DropdownItem = styled.div<DropdownItemProps>`
   ${DropdownItemCSS}
+`
+export const DropdownBridgeItem = styled.div<DropdownItemProps>`
+  --inner-padding: calc(var(--theme-common-space) * 2);
+  ${DropdownItemCSS}
+  padding: var(--inner-padding);
 `
 
 DropdownItem.defaultProps = {

@@ -114,7 +114,7 @@ const Link = styled.a`
 
 const Code = styled.blockquote`
   background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 4px;
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
   color: #222;
   cursor: pointer;
   display: flex;

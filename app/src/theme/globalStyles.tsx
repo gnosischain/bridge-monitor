@@ -70,6 +70,10 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
     transition: all 0.15s ease-in-out;
   }
 
+  button{
+    font-family: ${({ theme: { fonts } }) => fonts.family};
+  }
+
   h1, h2, h3, h4 {
     line-height: 1.2;
   }

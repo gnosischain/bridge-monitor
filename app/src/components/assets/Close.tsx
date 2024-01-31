@@ -1,4 +1,3 @@
-import { HTMLAttributes } from 'react'
 import styled from 'styled-components'
 
 const Wrapper = styled.svg`
@@ -6,13 +5,19 @@ const Wrapper = styled.svg`
     fill: ${({ theme: { colors } }) => colors.textColor};
   }
 `
+interface Props {
+  className?: string
+  height?: number
+  width?: number
+}
 
-export const Close: React.FC<HTMLAttributes<SVGElement>> = ({ className, ...restProps }) => (
+export const Close: React.FC<Props> = ({ className, height = 9, width = 9, ...restProps }) => (
   <Wrapper
     className={`close ${className}`}
     fill="none"
-    height="9"
-    width="9"
+    height={height}
+    viewBox="0 0 9 9"
+    width={width}
     xmlns="http://www.w3.org/2000/svg"
     {...restProps}
   >

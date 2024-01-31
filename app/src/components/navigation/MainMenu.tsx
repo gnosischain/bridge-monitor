@@ -8,9 +8,13 @@ const Wrapper = styled.nav`
   height: 100%;
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     align-items: center;
-    column-gap: calc(var(--theme-common-space) * 5);
   }
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeWideStart}) {
+    column-gap: calc(var(--theme-common-space) * 3);
+    display: flex;
+  }
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    column-gap: calc(var(--theme-common-space) * 5);
     display: flex;
   }
 `

@@ -37,7 +37,7 @@ const Spinner = styled(Loading)`
 
 const InfoWrapper = styled.div`
   background-color: ${({ theme: { colors } }) => colors.cream};
-  border-radius: 16px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
   display: flex;
   flex-direction: column;
   justify-content: flex-start;

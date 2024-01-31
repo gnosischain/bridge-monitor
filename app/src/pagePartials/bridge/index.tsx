@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { useBridgeInfo } from '@/src/hooks/bridge/useBridgeInfo'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
@@ -6,24 +7,32 @@ import dynamic from 'next/dynamic'
 import { useCallback, useMemo, useReducer, useState } from 'react'
 import { TokenDropdown } from '@/src/pagePartials/bridgeExplorer/bridges/TokenDropdown'
 import { Token } from '@/types/token'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { Textfield } from '@/src/components/form/Textfield'
-import { Dropdown, DropdownItem } from '@/src/components/dropdown'
-import { ButtonPrimary } from '@/src/components/buttons/Button'
-import { ChevronDown } from '@/src/components/assets/ChevronDown'
+import { Dropdown, DropdownBridgeItem } from '@/src/components/dropdown'
+import { ButtonFullPrimary } from '@/src/components/buttons/Button'
 import { chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
 import { Loading } from '@/src/components/loading'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
 import useTransaction from '@/src/hooks/useTransaction'
 import { AmountTokenInput } from '@/src/components/form/AmountTokenInput'
-import { Error as ErrorComponent } from '@/src/components/error/Error'
 import { MainCard } from '@/src/components/card/MainCard'
-import { Configuration } from '@/src/pagePartials/bridge/Configuration'
 import { InnerCard } from '@/src/pagePartials/bridge/InnerCard'
 import { TransactionInfo } from '@/src/pagePartials/bridge/TransactionInfo'
 import { fromBN } from '@/src/utils/bigNumber'
 import { ZERO_ADDRESS } from '@/src/constants/misc'
+import { Connect } from '@/src/components/assets/Connect'
+import { Tooltip } from '@/src/components/tooltip'
+import { AlertMessage } from '@/src/components/error/AlertMessage'
+import { TokenIcon } from '@/src/components/token/TokenIcon'
+import { ButtonDropdown } from '@/src/components/buttons/ButtonDropdown'
+import { useIcon } from '@/src/hooks/useIcon'
+import { SwitcherArrows } from '@/src/components/assets/SwitcherArrows'
+import { ToggleSwitch } from '@/src/components/form/ToggleSwitch'
+import { AnimatePresence, motion } from 'framer-motion'
+import { formatNumber } from '@/src/utils/format'
+import { ChevronDown } from '@/src/components/assets/ChevronDown'
 
 const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
   ssr: false,
@@ -93,7 +102,33 @@ const FormCards = styled.div`
   row-gap: var(--theme-common-space);
   width: 100%;
 `
-
+const InnerCardFrom = styled(InnerCard)`
+  position: relative;
+  padding-bottom: calc(var(--theme-common-space) * 5);
+`
+const Switch = styled.button`
+  border-radius: 50%;
+  height: 50px;
+  width: 50px;
+  cursor: pointer;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 4px auto 0;
+  transform: translateY(29px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${({ theme: { colors } }) => colors.white};
+  color: ${({ theme: { colors } }) => colors.primary};
+  border: 1px solid ${({ theme: { colors } }) => colors.cream};
+  box-shadow: 0px 2.231px 2.775px 0px rgba(0, 0, 0, 0.01), 0px 10.2px 7.8px 0px rgba(0, 0, 0, 0.01),
+    0px 25.819px 20.925px 0px rgba(0, 0, 0, 0.02), 0px 51px 48px 0px rgba(0, 0, 0, 0.03);
+  &:hover {
+    color: ${({ theme: { colors } }) => colors.primaryLight};
+  }
+`
 const SubTitle = styled.h2`
   align-items: center;
   color: ${({ theme: { colors } }) => colors.primary};
@@ -113,7 +148,13 @@ const Balance = styled.span`
   color: ${({ theme: { colors } }) => colors.primary};
   line-height: 1.2;
   font-size: 1.6rem;
-  font-weight: 300;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  span {
+    font-weight: 300;
+    opacity: 0.7;
+  }
 `
 
 const ChainDropdown = styled(Dropdown)``
@@ -122,14 +163,122 @@ const FromAmountWrapper = styled.div`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.cream};
   height: 54px;
-  border-radius: 8px;
-  column-gap: calc(var(--theme-common-space) * 2);
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
+  column-gap: calc(var(--theme-common-space) / 2);
   display: flex;
-  padding: var(--theme-common-space) calc(var(--theme-common-space) * 2) var(--theme-common-space)
-    var(--theme-common-space);
+  padding: calc(var(--theme-common-space) / 2) var(--theme-common-space)
+    calc(var(--theme-common-space) / 2) var(--theme-common-space);
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    padding: calc(var(--theme-common-space) / 2) calc(var(--theme-common-space) * 2)
+      calc(var(--theme-common-space) / 2) var(--theme-common-space);
+  }
 `
 
-const FromTokenDropdown = styled(TokenDropdown)``
+const FromTokenDropdown = styled(TokenDropdown)`
+  height: 100%;
+  & > div:first-child,
+  button {
+    height: 100%;
+  }
+`
+
+const BridgeInfoUl = styled.ul`
+  margin: 0;
+  padding: 0;
+  font-size: 1.4rem;
+  li {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--theme-common-space) 0 0;
+    &:not(:last-child) {
+      padding: var(--theme-common-space) 0;
+      border-bottom: 1px solid ${({ theme: { colors } }) => colors.cream};
+    }
+
+    span {
+      display: flex;
+      gap: var(--theme-common-space);
+      align-items: center;
+    }
+  }
+`
+const Chain = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`
+const ChainTokenInformation = styled.div`
+  background-color: ${({ theme: { colors } }) => colors.creamLight};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
+  padding: var(--theme-common-space) calc(var(--theme-common-space) * 2);
+  height: 54px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`
+const IconWrapper = styled.span`
+  border-radius: 50%;
+  height: 24px;
+  width: 24px;
+  overflow: hidden;
+`
+const ToggleSwitchWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`
+const DifferentWalletWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--theme-common-space) * 2);
+`
+const DifferentWalletButton = styled.button<{ isOpen: boolean }>`
+  border: none;
+  background-color: transparent;
+  color: var(--Forest, #3e6957);
+  text-align: right;
+  font-size: 1.4rem;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--theme-common-space);
+  margin-left: auto;
+  padding: 0 var(--theme-common-space);
+  cursor: pointer;
+  svg {
+    width: 12px;
+    ${({ isOpen }) =>
+      isOpen &&
+      css`
+        transform: rotate(180deg);
+      `}
+  }
+`
+
+const RecipientAddress = styled(motion.div)`
+  border-radius: var(--theme-common-space);
+  border: 1px solid var(--Cream, #f0ebde);
+  display: flex;
+  padding: calc(var(--theme-common-space) * 2) var(--theme-common-space);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: ${({ theme: { common } }) => common.borderRadiusBig};
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    padding: calc(var(--theme-common-space) * 2);
+  }
+`
+const RecipientAddressHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+`
 
 type FormState = {
   fromChainId: ChainsValues
@@ -184,49 +333,55 @@ const BridgeButton = ({
 
   if (isLoading || isOnboardChangingChain || connectingWallet || isApproving || isBridging) {
     return (
-      <ButtonPrimary disabled style={{ margin: '0 auto' }}>
+      <ButtonFullPrimary disabled style={{ margin: '0 auto' }}>
         Loading...
-      </ButtonPrimary>
+      </ButtonFullPrimary>
     )
   }
 
   if (!isWalletConnected) {
     return (
-      <ButtonPrimary onClick={connectWallet} style={{ margin: '0 auto' }} type="button">
-        {connectingWallet ? 'Connecting wallet...' : 'Connect Wallet'}
-      </ButtonPrimary>
+      <ButtonFullPrimary onClick={connectWallet} style={{ margin: '0 auto' }} type="button">
+        {connectingWallet ? (
+          'Connecting wallet...'
+        ) : (
+          <>
+            <Connect /> Connect Wallet
+          </>
+        )}
+      </ButtonFullPrimary>
     )
   }
 
   if ((isWalletConnected && !isWalletNetworkSupported) || fromChainId !== appChainId) {
     return (
-      <ButtonPrimary
+      <ButtonFullPrimary
         onClick={() => pushNetwork({ chainId: appChainConfig.chainIdHex })}
         style={{ margin: '0 auto' }}
         type="button"
       >
         {`Switch to ${appChainConfig.name}`}
-      </ButtonPrimary>
+      </ButtonFullPrimary>
     )
   }
 
   if (shouldApprove) {
     return (
-      <ButtonPrimary onClick={approvalTx} style={{ margin: '0 auto' }} type="button">
+      <ButtonFullPrimary onClick={approvalTx} style={{ margin: '0 auto' }} type="button">
         Approve
-      </ButtonPrimary>
+      </ButtonFullPrimary>
     )
   }
 
   return (
-    <ButtonPrimary
+    <ButtonFullPrimary
       disabled={!canBridge}
       onClick={bridgeTx}
       style={{ margin: '0 auto' }}
       type="button"
     >
       Bridge
-    </ButtonPrimary>
+    </ButtonFullPrimary>
   )
 }
 
@@ -352,14 +507,29 @@ const BridgeForm: React.FC = () => {
     }
   }, [bridgeInfo, handleResetForm, sendTx])
 
+  const IconPathURL = (label: string) => {
+    return useIcon(label).iconPath
+  }
+  const [isDifferentWalletOpen, setIsDifferentWalletOpen] = useState(false)
+
   return (
     <>
       <Form>
         <FormCards>
-          <InnerCard>
+          <InnerCardFrom>
             <SubTitle>
               From
-              <Balance>Balance: {fromBN(bridgeInfo.balance, formState.token?.decimals)}</Balance>
+              <Balance>
+                <span>Balance:</span>{' '}
+                {formState.token && (
+                  <TokenIcon
+                    dimensions={16}
+                    iconSource={formState.token?.logoURI}
+                    symbol={formState.token?.symbol}
+                  />
+                )}{' '}
+                {formatNumber(Number(fromBN(bridgeInfo.balance, formState.token?.decimals)))}
+              </Balance>
             </SubTitle>
             <ChainDropdown
               activeItemHighlight
@@ -367,18 +537,38 @@ const BridgeForm: React.FC = () => {
                 ({ value }) => value === formState.fromChainId,
               )}
               dropdownButton={
-                <ButtonPrimary>
-                  {formState.fromChainId === Chains.mainnet ? 'Mainnet' : 'Gnosis'}
-                  <ChevronDown />
-                </ButtonPrimary>
+                <ButtonDropdown>
+                  <Chain>
+                    <IconWrapper>
+                      <Image
+                        alt={formState.fromChainId === Chains.mainnet ? 'Mainnet' : 'Gnosis'}
+                        height={24}
+                        objectFit="cover"
+                        src={IconPathURL(
+                          formState.fromChainId === Chains.mainnet ? 'MainnetBig' : 'GnosisBig',
+                        )}
+                        width={24}
+                      />
+                    </IconWrapper>
+                    {formState.fromChainId === Chains.mainnet ? 'Mainnet' : 'Gnosis'}
+                  </Chain>
+                </ButtonDropdown>
               }
               items={chainsItems.map((chainItem) => (
-                <DropdownItem
+                <DropdownBridgeItem
+                  closeOnClick
                   key={chainItem.value}
                   onClick={() => handleFromChainIdChange(chainItem.value)}
                 >
+                  <Image
+                    alt={chainItem.label}
+                    height={24}
+                    objectFit="cover"
+                    src={IconPathURL(chainItem.label)}
+                    width={24}
+                  />
                   {chainItem.label}
-                </DropdownItem>
+                </DropdownBridgeItem>
               ))}
             />
             <FromAmountWrapper>
@@ -395,81 +585,147 @@ const BridgeForm: React.FC = () => {
                 value={formState.amount}
               />
             </FromAmountWrapper>
-          </InnerCard>
+            <Switch
+              onClick={() => handleFromChainIdChange(formState.toChainId === 100 ? 100 : 1)}
+              type="button"
+            >
+              <SwitcherArrows />
+            </Switch>
+          </InnerCardFrom>
           <InnerCard>
             <SubTitle>To</SubTitle>
-            <Textfield
-              id="toChainId"
-              readOnly
-              type="text"
-              value={formState.toChainId == Chains.gnosis ? 'gnosis' : 'mainnet'}
-            />
-            <TokenDropdown
-              chainId={formState.toChainId}
-              defaultToken={tokenOut}
-              disabled
-              key={'tokenOut'}
-            />
+            <ChainTokenInformation>
+              <Image
+                alt={formState.fromChainId === Chains.gnosis ? 'Gnosis' : 'Mainnet'}
+                height={24}
+                objectFit="cover"
+                src={IconPathURL(
+                  formState.fromChainId === Chains.gnosis ? 'MainnetBig' : 'GnosisBig',
+                )}
+                width={24}
+              />
+              {formState.toChainId === 100 ? 'Gnosis' : 'Mainnet'}
+            </ChainTokenInformation>
+
+            <ChainTokenInformation>
+              {tokenOut ? (
+                <>
+                  <TokenIcon
+                    dimensions={24}
+                    iconSource={tokenOut.logoURI}
+                    symbol={tokenOut.symbol}
+                  />
+                  {tokenOut.symbol}{' '}
+                </>
+              ) : (
+                'Please select an origin token'
+              )}
+            </ChainTokenInformation>
+
             {formState.fromChainId == Chains.gnosis &&
               formState.token?.address == chainsConfig[Chains.gnosis].bridge.wForeignNative && (
-                <div>
-                  <label htmlFor="receiveNativeToken">Receive Native Token: </label>
-                  <input
+                <ToggleSwitchWrapper>
+                  <label htmlFor="receiveNativeToken">Receive Native Token </label>
+                  <ToggleSwitch
                     checked={formState.receiveNativeToken}
                     id="receiveNativeToken"
                     onChange={handleReceiveNativeTokenToggle}
-                    type="checkbox"
                   />
-                </div>
+                </ToggleSwitchWrapper>
               )}
-            <div>
-              <label htmlFor="amount">Send to different wallet:</label>
-              <Textfield
-                onChange={(event) => dispatch({ ...formState, recipient: event.target.value })}
-                type="text"
-                value={formState.recipient}
-              />
-            </div>
+            <DifferentWalletWrapper>
+              <DifferentWalletButton
+                isOpen={isDifferentWalletOpen}
+                onClick={() =>
+                  setIsDifferentWalletOpen((isDifferentWalletOpen) => !isDifferentWalletOpen)
+                }
+                type="button"
+              >
+                Send to different wallet <ChevronDown />
+              </DifferentWalletButton>
+              <AnimatePresence initial={false}>
+                {isDifferentWalletOpen && (
+                  <RecipientAddress
+                    animate={{ height: 'auto', y: 0, opacity: 1 }}
+                    exit={{ height: 0, y: '-10%', opacity: 0 }}
+                    initial={{ height: 0, y: '-10%', opacity: 0 }}
+                    key="wallet"
+                    transition={{
+                      type: 'tween',
+                      duration: 0.15,
+                      ease: 'easeInOut',
+                    }}
+                  >
+                    <RecipientAddressHeader>Recipient Address </RecipientAddressHeader>
+                    <Textfield
+                      onChange={(event) =>
+                        dispatch({ ...formState, recipient: event.target.value })
+                      }
+                      type="text"
+                      value={formState.recipient}
+                    />
+                  </RecipientAddress>
+                )}
+              </AnimatePresence>
+            </DifferentWalletWrapper>
           </InnerCard>
-          <TransactionInfo>
-            {bridgeInfo.isLoadingInfo ? (
-              <Loading text="Loading..." />
-            ) : (
-              <>
-                <div>
-                  You will receive: {bridgeInfo.toAmount} {tokenOut?.symbol}
-                </div>
-                <div>Estimated time: 5 mins</div>
-                {/* TODO */}
-                <div>
-                  Estimated total gas:{' '}
-                  {fromBN(
-                    bridgeInfo.gasLimit.mul(bridgeInfo.gasPrice),
-                    appChainConfig.tokenDecimals,
-                  )}{' '}
-                  {appChainConfig.token}
-                </div>
-                <div>
-                  Estimated total fee: {fromBN(bridgeInfo.fee, appChainConfig.tokenDecimals)}{' '}
-                  {formState.token?.symbol}
-                </div>
-              </>
-            )}
-          </TransactionInfo>
+          {formState.amount && formState.token && (
+            <TransactionInfo>
+              {bridgeInfo.isLoadingInfo ? (
+                <Loading text="Loading..." />
+              ) : (
+                <BridgeInfoUl>
+                  <li>
+                    You will receive{' '}
+                    <span>
+                      {formatNumber(Number(bridgeInfo.toAmount))} {tokenOut?.symbol}{' '}
+                      <Tooltip content="Estimated output" />
+                    </span>
+                  </li>
+                  <li>
+                    Estimated time
+                    <span>
+                      5 mins <Tooltip content="Estimated execution time" />
+                    </span>
+                    {/* TODO */}
+                  </li>
+                  <li>
+                    Estimated total gas
+                    <span>
+                      {fromBN(
+                        bridgeInfo.gasLimit.mul(bridgeInfo.gasPrice),
+                        appChainConfig.tokenDecimals,
+                      )}{' '}
+                      {appChainConfig.token}
+                      <Tooltip content="Estimated gas fee" />
+                    </span>
+                  </li>
+                  <li>
+                    Estimated total fee
+                    <span>
+                      {fromBN(bridgeInfo.fee, appChainConfig.tokenDecimals)}{' '}
+                      {formState.token?.symbol}
+                      <Tooltip content="Estimated bridge fees" />
+                    </span>
+                  </li>
+                </BridgeInfoUl>
+              )}
+            </TransactionInfo>
+          )}
+
+          {bridgeInfo.errorMessage && <AlertMessage text={bridgeInfo.errorMessage} />}
         </FormCards>
-        {bridgeInfo.errorMessage && <ErrorComponent>{bridgeInfo.errorMessage}</ErrorComponent>}
-        <div>
-          <BridgeButton
-            approvalTx={handleApprove}
-            bridgeTx={handleBridgeTx}
-            canBridge={bridgeInfo.canBridge}
-            fromChainId={formState.fromChainId}
-            isApproving={isApproving}
-            isBridging={isBridging}
-            isLoading={bridgeInfo.isLoadingInfo}
-            shouldApprove={bridgeInfo.shouldApprove}
-          />
-        </div>
+
+        <BridgeButton
+          approvalTx={handleApprove}
+          bridgeTx={handleBridgeTx}
+          canBridge={bridgeInfo.canBridge}
+          fromChainId={formState.fromChainId}
+          isApproving={isApproving}
+          isBridging={isBridging}
+          isLoading={bridgeInfo.isLoadingInfo}
+          shouldApprove={bridgeInfo.shouldApprove}
+        />
       </Form>
     </>
   )
@@ -484,7 +740,6 @@ export const BridgeIndex: React.FC = ({ ...restProps }) => {
             <Title>Bridge</Title>
             <Text>Transfer assets between Ethereum and Gnosis Chain. </Text>
           </HeaderInner>
-          <Configuration />
         </Header>
         <TokenListProvider>
           <BridgeForm />

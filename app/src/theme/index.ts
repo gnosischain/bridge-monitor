@@ -1,6 +1,8 @@
 /* Theme */
 
 const borderRadius = '4px'
+const borderRadiusBig = '8px'
+const borderRadiusBigger = '16px'
 const radioAndCheckDimensions = '14px'
 const componentPadding = '16px 24px'
 const space = 8
@@ -70,6 +72,8 @@ export const theme = {
   },
   common: {
     borderRadius: borderRadius,
+    borderRadiusBig: borderRadiusBig,
+    borderRadiusBigger: borderRadiusBigger,
     space: `${space}px`,
   },
   fonts: {
@@ -131,10 +135,10 @@ export const theme = {
   },
   buttonDropdown: {
     backgroundColor: color_001,
-    backgroundColorHover: color_004,
+    backgroundColorHover: color_008,
     borderColor: color_001,
-    borderColorHover: color_004,
-    color: color_021,
+    borderColorHover: color_001,
+    color: color_002,
     colorHover: color_002,
   },
   buttonPrimary: {
@@ -158,11 +162,11 @@ export const theme = {
     borderColor: color_001,
     color: color_002,
     errorColor: color_014,
-    height: '42px',
+    height: '54px',
     successColor: color_017,
     active: {
-      backgroundColor: color_004,
-      borderColor: color_004,
+      backgroundColor: color_008,
+      borderColor: color_001,
       boxShadow: 'none',
       color: color_002,
     },

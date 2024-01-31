@@ -21,8 +21,8 @@ const Wrapper = styled.div`
 `
 
 const Card = styled(BaseCard)<{ size?: modalSize }>`
-  //background-color: ${({ theme: { colors } }) => colors.lightGrey};
-  border-color: ${({ theme: { colors } }) => colors.darkGrey};
+  background-color: ${({ theme: { colors } }) => colors.creamLight};
+  border-color: ${({ theme: { colors } }) => colors.creamLight};
   display: flex;
   flex-direction: column;
   margin: auto;
@@ -44,14 +44,18 @@ const Title = styled.h1`
   width: 100%;
 `
 
-const Close = styled(BaseClose)`
+const CloseButton = styled.button`
+  background: transparent;
+  border: none;
   cursor: pointer;
   position: absolute;
   right: 15px;
   top: 15px;
   z-index: 10;
-
-  &:active {
+`
+const Close = styled(BaseClose)`
+  &:active,
+  &:hover {
     opacity: 0.7;
   }
 `
@@ -125,7 +129,9 @@ export const Modal: React.FC<Props> = ({
           size={size}
         >
           {title && <Title>{title}</Title>}
-          <Close onClick={close} />
+          <CloseButton onClick={close}>
+            <Close height={12} width={12} />
+          </CloseButton>
           <Contents>{children}</Contents>
         </Card>
       </Wrapper>,

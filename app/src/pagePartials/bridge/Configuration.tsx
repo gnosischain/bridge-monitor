@@ -34,7 +34,7 @@ Button.defaultProps = {
 
 const ConfigurationOptions = styled.div`
   background: ${({ theme: { colors } }) => colors.white};
-  border-radius: 16px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
   box-shadow: 0px 2.231px 2.775px 0px rgba(0, 0, 0, 0.01), 0px 10.2px 7.8px 0px rgba(0, 0, 0, 0.01),
     0px 25.819px 20.925px 0px rgba(0, 0, 0, 0.02), 0px 51px 48px 0px rgba(0, 0, 0, 0.03);
   display: flex;

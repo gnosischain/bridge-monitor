@@ -26,7 +26,7 @@ const Wrapper = styled.div`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     &::after {
       background-color: ${({ theme: { colors } }) => colors.creamDarker};
-      border-radius: 8px;
+      border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
       content: '';
       height: calc(100% - var(--line-gap) - var(--status-height));
       left: calc(var(--wrapper-width) / 2);
@@ -44,7 +44,7 @@ const Wrapper = styled.div`
 const StatusWrapper = styled.div`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.creamDarker};
-  border-radius: 8px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   column-gap: var(--theme-common-space);
   display: flex;
   height: var(--status-height);

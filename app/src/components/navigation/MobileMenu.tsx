@@ -130,7 +130,7 @@ const UserMenu = styled.div`
     ${({ theme: { colors } }) => colors.cream} 0%,
     ${({ theme: { colors } }) => colors.creamDark} 100%
   );
-  border-radius: 8px;
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
   display: flex;
   flex-direction: column;
   margin-top: auto;

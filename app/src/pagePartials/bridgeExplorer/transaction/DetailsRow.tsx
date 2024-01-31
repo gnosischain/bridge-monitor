@@ -8,7 +8,7 @@ import { IconLink } from '@/src/components/assets/IconLink'
 const Wrapper = styled.div`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.cream_50};
-  border-radius: 8px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   color: ${({ theme: { colors } }) => colors.primary};
   display: flex;
   flex-wrap: wrap;
