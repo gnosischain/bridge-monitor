@@ -1,9 +1,11 @@
 import { BigNumber } from 'ethers'
 import { Token } from '@/types/token'
+import useSWR from 'swr'
 import { isAddress } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 import { MAX_PER_TX, MIN_PER_TX } from '@/src/hooks/bridge/useBridgeInfo'
 import { TOKEN_MODE } from '@/src/hooks/bridge/useTokenMode'
+import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 
 export const useBridgeValidations = ({
   accountBalance,
@@ -20,6 +22,11 @@ export const useBridgeValidations = ({
   allowance?: BigNumber
   token?: Token
 }) => {
+  const { address, readOnlyAppProvider } = useWeb3Connection()
+  const isSCWallet = useSWR(
+    address && readOnlyAppProvider ? [`isSCWallet-${address}`, address, readOnlyAppProvider] : null,
+    ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
+  )
   // TODO Missing validations here
   const amountIsGreaterThanBalance = amount.gt(accountBalance)
   const amountisLessThanMinPerTx = amount.lt(MIN_PER_TX)
@@ -38,10 +45,7 @@ export const useBridgeValidations = ({
 
   const isValidRecipient = !!recipient && isAddress(recipient)
 
-  const shouldShowErrorMessage = useMemo(
-    () => isValidAmount && isValidToken,
-    [isValidAmount, isValidToken],
-  )
+  const shouldShowErrorMessage = isValidAmount && isValidToken
 
   const errorMessage = useMemo(() => {
     try {
@@ -49,9 +53,14 @@ export const useBridgeValidations = ({
       if (!shouldShowErrorMessage) {
         return false
       }
-      if (!isValidAmount) {
-        throw Error('Please specify amount')
+      // is the wallet is a smart contract wallet, we need to request a recipient
+      if (isSCWallet !== undefined && isSCWallet.data && !recipient) {
+        throw Error('Please specify a recipient address')
       }
+      if (address)
+        if (!isValidAmount) {
+          throw Error('Please specify amount')
+        }
       if (recipient && !isValidRecipient) {
         throw Error('Please specify a valid recipient address')
       }
@@ -73,6 +82,8 @@ export const useBridgeValidations = ({
       return (error as Error).message
     }
   }, [
+    address,
+    isSCWallet,
     shouldShowErrorMessage,
     isValidAmount,
     recipient,
@@ -85,6 +96,7 @@ export const useBridgeValidations = ({
   const isValidToSend = !errorMessage && isValidAmount && isValidToken
 
   return {
+    isSCWallet: isSCWallet?.data,
     errorMessage,
     shouldApprove,
     isValidToSend,

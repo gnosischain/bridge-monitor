@@ -108,6 +108,7 @@ export const useBridgeInfo = ({
 
   const {
     errorMessage,
+    isSCWallet,
     isValidToSend: isValidToBridge,
     shouldApprove,
   } = useBridgeValidations({
@@ -155,6 +156,7 @@ export const useBridgeInfo = ({
     fromBridgeAddress: fromBridgeAddress,
     fee: bridgeFeeInfo || ZERO_BN,
     shouldApprove,
+    isSCWallet,
     canBridge: isValidToBridge,
     errorMessage,
     isLoadingInfo,

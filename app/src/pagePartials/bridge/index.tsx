@@ -384,10 +384,6 @@ const BridgeForm: React.FC = () => {
   const sendTx = useTransaction()
 
   const appChainConfig = getNetworkConfig(appChainId)
-  const chainsItems = [
-    { label: 'Mainnet', value: Chains.mainnet },
-    { label: 'Gnosis', value: Chains.gnosis },
-  ]
 
   const [formState, dispatch] = useReducer(
     (data: FormState, partial: Partial<FormState>): FormState => ({
@@ -529,7 +525,7 @@ const BridgeForm: React.FC = () => {
               />
               {formState.toChainId === 100 ? 'Mainnet' : 'Gnosis'}
             </ChainTokenInformation>
-            
+
             <FromAmountWrapper>
               <FromTokenDropdown
                 chainId={formState.fromChainId}
@@ -593,6 +589,12 @@ const BridgeForm: React.FC = () => {
                 </ToggleSwitchWrapper>
               )}
             <DifferentWalletWrapper>
+              {bridgeInfo.isSCWallet && (
+                <label htmlFor="recipient">
+                  A recipient address is required when using a smart contract wallet. Be sure you
+                  control the recipient address on the destination chain
+                </label>
+              )}
               <DifferentWalletButton
                 isOpen={isDifferentWalletOpen}
                 onClick={() =>
