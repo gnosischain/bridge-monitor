@@ -10,7 +10,6 @@ import { Token } from '@/types/token'
 import styled, { css } from 'styled-components'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { Textfield } from '@/src/components/form/Textfield'
-import { Dropdown, DropdownBridgeItem } from '@/src/components/dropdown'
 import { ButtonFullPrimary } from '@/src/components/buttons/Button'
 import { chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
 import { Loading } from '@/src/components/loading'
@@ -26,7 +25,6 @@ import { Connect } from '@/src/components/assets/Connect'
 import { Tooltip } from '@/src/components/tooltip'
 import { AlertMessage } from '@/src/components/error/AlertMessage'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
-import { ButtonDropdown } from '@/src/components/buttons/ButtonDropdown'
 import { useIcon } from '@/src/hooks/useIcon'
 import { SwitcherArrows } from '@/src/components/assets/SwitcherArrows'
 import { ToggleSwitch } from '@/src/components/form/ToggleSwitch'
@@ -157,8 +155,6 @@ const Balance = styled.span`
   }
 `
 
-const ChainDropdown = styled(Dropdown)``
-
 const FromAmountWrapper = styled.div`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.cream};
@@ -204,11 +200,7 @@ const BridgeInfoUl = styled.ul`
     }
   }
 `
-const Chain = styled.span`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`
+
 const ChainTokenInformation = styled.div`
   background-color: ${({ theme: { colors } }) => colors.creamLight};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
@@ -217,12 +209,6 @@ const ChainTokenInformation = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-`
-const IconWrapper = styled.span`
-  border-radius: 50%;
-  height: 24px;
-  width: 24px;
-  overflow: hidden;
 `
 const ToggleSwitchWrapper = styled.div`
   display: flex;
@@ -531,46 +517,19 @@ const BridgeForm: React.FC = () => {
                 {formatNumber(Number(fromBN(bridgeInfo.balance, formState.token?.decimals)))}
               </Balance>
             </SubTitle>
-            <ChainDropdown
-              activeItemHighlight
-              activeItemIndex={chainsItems.findIndex(
-                ({ value }) => value === formState.fromChainId,
-              )}
-              dropdownButton={
-                <ButtonDropdown>
-                  <Chain>
-                    <IconWrapper>
-                      <Image
-                        alt={formState.fromChainId === Chains.mainnet ? 'Mainnet' : 'Gnosis'}
-                        height={24}
-                        objectFit="cover"
-                        src={IconPathURL(
-                          formState.fromChainId === Chains.mainnet ? 'MainnetBig' : 'GnosisBig',
-                        )}
-                        width={24}
-                      />
-                    </IconWrapper>
-                    {formState.fromChainId === Chains.mainnet ? 'Mainnet' : 'Gnosis'}
-                  </Chain>
-                </ButtonDropdown>
-              }
-              items={chainsItems.map((chainItem) => (
-                <DropdownBridgeItem
-                  closeOnClick
-                  key={chainItem.value}
-                  onClick={() => handleFromChainIdChange(chainItem.value)}
-                >
-                  <Image
-                    alt={chainItem.label}
-                    height={24}
-                    objectFit="cover"
-                    src={IconPathURL(chainItem.label)}
-                    width={24}
-                  />
-                  {chainItem.label}
-                </DropdownBridgeItem>
-              ))}
-            />
+            <ChainTokenInformation>
+              <Image
+                alt={formState.fromChainId === Chains.mainnet ? 'MainnetBig' : 'GnosisBig'}
+                height={24}
+                objectFit="cover"
+                src={IconPathURL(
+                  formState.fromChainId === Chains.mainnet ? 'MainnetBig' : 'GnosisBig',
+                )}
+                width={24}
+              />
+              {formState.toChainId === 100 ? 'Mainnet' : 'Gnosis'}
+            </ChainTokenInformation>
+            
             <FromAmountWrapper>
               <FromTokenDropdown
                 chainId={formState.fromChainId}
@@ -596,7 +555,7 @@ const BridgeForm: React.FC = () => {
             <SubTitle>To</SubTitle>
             <ChainTokenInformation>
               <Image
-                alt={formState.fromChainId === Chains.gnosis ? 'Gnosis' : 'Mainnet'}
+                alt={formState.fromChainId === Chains.gnosis ? 'Mainnet' : 'Gnosis'}
                 height={24}
                 objectFit="cover"
                 src={IconPathURL(
