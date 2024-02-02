@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers'
 
 import { ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
-import { MAX_UINT_256, ZERO_BN } from '@/src/constants/misc'
+import { ZERO_BN } from '@/src/constants/misc'
 import { parseUnits } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 import { fromBN } from '@/src/utils/bigNumber'
@@ -14,17 +14,6 @@ import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactio
 import { useBridgeValidations } from '@/src/hooks/bridge/useBridgeValidations'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { useTokenMode } from '@/src/hooks/bridge/useTokenMode'
-
-// CONSTANTS
-export const foreignToHomeFeeKey =
-  '0x03be2b2875cb41e0e77355e802a16769bb8dfcf825061cde185c73bf94f12625'
-export const homeToForeignFeeKey =
-  '0x741ede137d0537e88e0ea0ff25b1f22d837903dbbee8980b4a06e8523247ee26'
-export const MIN_PER_TX = 0 // TODO: set this latter
-export const MAX_PER_TX = MAX_UINT_256 // TODO: set this latter
-
-// TODO: add to the readme the steps to support a new foreign chain.
-// TODO: what should we do with WXDAI? Should we ban it?
 
 export const useBridgeInfo = ({
   amount,
@@ -112,9 +101,10 @@ export const useBridgeInfo = ({
     isValidToSend: isValidToBridge,
     shouldApprove,
   } = useBridgeValidations({
+    fromChainId,
     accountBalance: bridgeBalanceInfo?.balance || ZERO_BN,
     amount: amountBN,
-    allowance: bridgeBalanceInfo?.allowance,
+    allowance: bridgeBalanceInfo?.allowance || ZERO_BN,
     tokenMode,
     recipient,
     token,

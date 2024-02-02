@@ -398,6 +398,10 @@ const BridgeForm: React.FC = () => {
     },
   )
 
+  // TODO: REFACTOR having this one big unified hook is not a good idea.
+  // It tries to get all the data, even when it's not needed.
+  // The best approach is to call the hooks on the components that are required
+  // and have the possibility to conditionally render these components.
   const bridgeInfo = useBridgeInfo({
     fromChainId: formState.fromChainId as ChainsValues,
     toChainId: formState.toChainId as ChainsValues,
@@ -444,7 +448,7 @@ const BridgeForm: React.FC = () => {
     dispatch({ ...formState, receiveNativeToken: !formState.receiveNativeToken })
   }
 
-  const handleApprove = useCallback(async () => {
+  const handleApprove = async () => {
     if (!formState.token || !bridgeInfo.fromBridgeAddress) {
       return
     }
@@ -459,6 +463,7 @@ const BridgeForm: React.FC = () => {
       spenderAddress: spender,
       tokenAddress: fromTokenAddress,
     })
+
     if (tx) {
       await tx.wait()
       await bridgeInfo.refreshBalance()
@@ -466,9 +471,9 @@ const BridgeForm: React.FC = () => {
     } else {
       setIsApproving(false)
     }
-  }, [formState.token, formState.amount, bridgeInfo, approve])
+  }
 
-  const handleBridgeTx = useCallback(async () => {
+  const handleBridgeTx = async () => {
     if (!bridgeInfo.tx) {
       return
     }
@@ -487,7 +492,7 @@ const BridgeForm: React.FC = () => {
       console.log(error)
       setIsBridging(false)
     }
-  }, [bridgeInfo, handleResetForm, sendTx])
+  }
 
   const IconPathURL = (label: string) => {
     return useIcon(label).iconPath

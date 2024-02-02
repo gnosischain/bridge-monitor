@@ -11,7 +11,26 @@ import NativeOmniBridgeMediator_abi from '@/src/abis/NativeOmniBridgeMediator.js
 import { Chains } from '@/src/constants/config/types'
 
 export const contracts = {
-  // XDAI Bridge on Gnosis contract
+  // TODO: We need to rollback the change that split the XDAI and Omni bridge into two separated keys.
+  // meanwhile I'm bringing back the old keys.
+  XDAIBridge: {
+    address: {
+      [Chains.mainnet]: '0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016',
+      [Chains.chiado]: '',
+      [Chains.gnosis]: '0x7301CFA0e1756B71869E93d4e4Dca5c7d0eb0AA6',
+    },
+    abi: HomeXDAI_abi,
+  },
+  OmniBridge: {
+    address: {
+      [Chains.mainnet]: '0x88ad09518695c6c3712AC10a214bE5109a655671',
+      [Chains.chiado]: '',
+      [Chains.gnosis]: '0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d',
+    },
+    abi: HomeOMNI_abi,
+  },
+
+  // TODO: remove
   homeXdaiBridge: {
     address: {
       [Chains.mainnet]: '',
@@ -20,7 +39,6 @@ export const contracts = {
     },
     abi: HomeXDAI_abi,
   },
-  // XDAI Bridge on Foreign contract
   foreignXdaiBridge: {
     address: {
       [Chains.mainnet]: '0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016',
@@ -29,7 +47,6 @@ export const contracts = {
     },
     abi: ForeignXDAI_abi,
   },
-  // Omni Bridge on gnosis contract
   homeOmniBridge: {
     address: {
       [Chains.mainnet]: '',
@@ -38,7 +55,6 @@ export const contracts = {
     },
     abi: HomeOMNI_abi,
   },
-  // Omni Bridge on foreign contract
   foreignOmniBridge: {
     address: {
       [Chains.mainnet]: '0x88ad09518695c6c3712AC10a214bE5109a655671',
@@ -47,6 +63,8 @@ export const contracts = {
     },
     abi: ForeignOMNI_abi,
   },
+  // END TODO.
+
   // Native Omni Bridge on foreign contract (ETH -> WETH)
   nativeOmniBridge: {
     address: {

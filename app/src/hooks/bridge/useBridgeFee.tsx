@@ -3,7 +3,11 @@ import { ChainsValues } from '@/src/constants/config/types'
 import useSWR from 'swr'
 import { Token } from '@/types/token'
 import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
-import { foreignToHomeFeeKey, homeToForeignFeeKey } from '@/src/hooks/bridge/useBridgeInfo'
+
+export const foreignToHomeFeeKey =
+  '0x03be2b2875cb41e0e77355e802a16769bb8dfcf825061cde185c73bf94f12625'
+export const homeToForeignFeeKey =
+  '0x741ede137d0537e88e0ea0ff25b1f22d837903dbbee8980b4a06e8523247ee26'
 
 export const useBridgeFee = ({
   amount,
