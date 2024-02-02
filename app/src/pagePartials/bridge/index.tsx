@@ -597,7 +597,7 @@ const BridgeForm: React.FC = () => {
               {bridgeInfo.isSCWallet && (
                 <label htmlFor="recipient">
                   A recipient address is required when using a smart contract wallet. Be sure you
-                  control the recipient address on the destination chain
+                  control the recipient address on the destination chain.
                 </label>
               )}
               <DifferentWalletButton
