@@ -27,10 +27,10 @@ import { AlertMessage } from '@/src/components/error/AlertMessage'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { useIcon } from '@/src/hooks/useIcon'
 import { SwitcherArrows } from '@/src/components/assets/SwitcherArrows'
-import { ToggleSwitch } from '@/src/components/form/ToggleSwitch'
 import { AnimatePresence, motion } from 'framer-motion'
 import { formatNumber } from '@/src/utils/format'
 import { ChevronDown } from '@/src/components/assets/ChevronDown'
+import { CustomRadioButtonGroup } from '@/src/components/form/CustomRadioButtonGroup'
 
 const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
   ssr: false,
@@ -210,11 +210,6 @@ const ChainTokenInformation = styled.div`
   align-items: center;
   gap: 8px;
 `
-const ToggleSwitchWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 16px;
-`
 const DifferentWalletWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -228,12 +223,11 @@ const DifferentWalletButton = styled.button<{ isOpen: boolean }>`
   font-size: 1.4rem;
   font-weight: 500;
   line-height: 1;
-  padding: 0;
   display: flex;
   align-items: center;
   gap: var(--theme-common-space);
   margin-left: auto;
-  padding: 0 var(--theme-common-space);
+  padding: var(--theme-common-space);
   cursor: pointer;
   svg {
     width: 12px;
@@ -444,10 +438,6 @@ const BridgeForm: React.FC = () => {
     dispatch({ ...formState, token, receiveNativeToken: false, amount: '' })
   }
 
-  const handleReceiveNativeTokenToggle = () => {
-    dispatch({ ...formState, receiveNativeToken: !formState.receiveNativeToken })
-  }
-
   const handleApprove = async () => {
     if (!formState.token || !bridgeInfo.fromBridgeAddress) {
       return
@@ -498,6 +488,27 @@ const BridgeForm: React.FC = () => {
     return useIcon(label).iconPath
   }
   const [isDifferentWalletOpen, setIsDifferentWalletOpen] = useState(false)
+
+  const wethOptions = [
+    {
+      icon: '/images/icons/wethToken.svg',
+      label: 'WETH',
+      name: 'eth-types',
+    },
+    {
+      icon: '/images/icons/ethToken.svg',
+      label: 'ETH',
+      name: 'eth-types',
+    },
+  ]
+
+  const radioGroupHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.value === 'WETH') {
+      dispatch({ ...formState, receiveNativeToken: !formState.receiveNativeToken })
+    } else {
+      dispatch({ ...formState, receiveNativeToken: !formState.receiveNativeToken })
+    }
+  }
 
   return (
     <>
@@ -567,32 +578,29 @@ const BridgeForm: React.FC = () => {
               {formState.toChainId === 100 ? 'Gnosis' : 'Mainnet'}
             </ChainTokenInformation>
 
-            <ChainTokenInformation>
-              {tokenOut ? (
-                <>
-                  <TokenIcon
-                    dimensions={24}
-                    iconSource={tokenOut.logoURI}
-                    symbol={tokenOut.symbol}
-                  />
-                  {tokenOut.symbol}{' '}
-                </>
-              ) : (
-                'Please select an origin token'
-              )}
-            </ChainTokenInformation>
-
             {formState.fromChainId == Chains.gnosis &&
-              formState.token?.address == chainsConfig[Chains.gnosis].bridge.wForeignNative && (
-                <ToggleSwitchWrapper>
-                  <label htmlFor="receiveNativeToken">Receive Native Token </label>
-                  <ToggleSwitch
-                    checked={formState.receiveNativeToken}
-                    id="receiveNativeToken"
-                    onChange={handleReceiveNativeTokenToggle}
-                  />
-                </ToggleSwitchWrapper>
-              )}
+            formState.token?.address == chainsConfig[Chains.gnosis].bridge.wForeignNative ? (
+              <CustomRadioButtonGroup
+                onChange={radioGroupHandler}
+                options={wethOptions}
+                optionsId="ethOptions"
+              />
+            ) : (
+              <ChainTokenInformation>
+                {tokenOut ? (
+                  <>
+                    <TokenIcon
+                      dimensions={24}
+                      iconSource={tokenOut.logoURI}
+                      symbol={tokenOut.symbol}
+                    />
+                    {tokenOut.symbol}{' '}
+                  </>
+                ) : (
+                  'Please select an origin token'
+                )}
+              </ChainTokenInformation>
+            )}
             <DifferentWalletWrapper>
               {bridgeInfo.isSCWallet && (
                 <label htmlFor="recipient">
