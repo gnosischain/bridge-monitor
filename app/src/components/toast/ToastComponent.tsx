@@ -29,7 +29,8 @@ const Wrapper = styled.div<{ type?: ToastStates; autoWidth?: boolean }>`
   box-shadow: ${({ theme: { toast } }) => toast.boxShadow};
   max-width: 350px;
   min-width: ${({ autoWidth }) => (autoWidth ? '0' : '200px')};
-  padding: 10px 24px 10px 10px;
+  padding: var(--theme-common-space) calc(var(--theme-common-space) * 3) var(--theme-common-space)
+    var(--theme-common-space);
   position: relative;
 
   ${({ type }) =>
@@ -42,8 +43,8 @@ const Wrapper = styled.div<{ type?: ToastStates; autoWidth?: boolean }>`
   ${({ type }) =>
     type === ToastStates.failed &&
     css`
-      background-color: ${({ theme: { colors } }) => colors.error};
-      border-color: ${({ theme: { colors } }) => colors.error};
+      background-color: ${({ theme: { colors } }) => colors.creamDark};
+      border-color: ${({ theme: { colors } }) => colors.creamDark};
     `}
 `
 
@@ -81,7 +82,7 @@ const TextContainer = styled.div`
 `
 
 const Title = styled.h4`
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 500;
   line-height: 1.2;
   margin: 0 0 3px;
@@ -89,7 +90,7 @@ const Title = styled.h4`
 
 const TextCSS = css`
   color: ${({ theme: { colors } }) => colors.textColor};
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   line-height: 1.4;
 `
 
@@ -113,12 +114,12 @@ const Link = styled.a`
 
 const Code = styled.blockquote`
   background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 4px;
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
   color: #222;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-style: italic;
   line-height: 1.4;
   padding: 6px 10px;

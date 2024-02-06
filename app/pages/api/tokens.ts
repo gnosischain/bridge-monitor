@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { isSameString } from '@/src/utils/tools'
 import { Token as BaseToken } from '@/types/token'
-import bridgedTokens from '@/src/providers/bridged_tokens.json'
+import bridgedTokens from '@/src/constants/bridged_tokens.json'
 
 type Token = Omit<BaseToken, 'extensions'> & {
   extensions: {

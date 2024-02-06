@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components'
 import { IconCheck } from '@/src/components/assets/IconCheck'
 
 const NotRequired = css`
-  border: 1px solid ${({ theme: { colors } }) => colors.cream};
+  border: 1px solid ${({ theme: { colors } }) => colors.primnary_50};
   opacity: 0.2;
 
   svg {
@@ -19,14 +19,14 @@ const ValidatorStyles = {
   // signed and executed
   executed: css`
     background-color: ${({ theme: { colors } }) => colors.success};
-    color: ${({ theme: { colors } }) => colors.darkestGrey};
+    color: ${({ theme: { colors } }) => colors.cream};
   `,
   // not required and default are visually the same
   notRequired: NotRequired,
   default: NotRequired,
   // deprecated
   pending: css`
-    background-color: ${({ theme: { colors } }) => colors.cream};
+    background-color: ${({ theme: { colors } }) => colors.primary};
     opacity: 0.1;
 
     svg {

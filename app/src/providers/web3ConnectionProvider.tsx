@@ -9,7 +9,7 @@ import {
   useState,
 } from 'react'
 
-import { JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
+import { JsonRpcBatchProvider, JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
 import { OnboardAPI, WalletState } from '@web3-onboard/core'
 import injectedModule from '@web3-onboard/injected-wallets'
 import { init, useConnectWallet, useSetChain, useWallets } from '@web3-onboard/react'
@@ -17,11 +17,7 @@ import walletConnectModule from '@web3-onboard/walletconnect'
 import nullthrows from 'nullthrows'
 
 import { INITIAL_APP_CHAIN_ID, chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
-import {
-  WALLET_CONNECT_DAPP_URL,
-  WALLET_CONNECT_PROJECT_ID,
-  appName,
-} from '@/src/constants/config/common'
+import { WALLET_CONNECT_DAPP_URL, WALLET_CONNECT_PROJECT_ID } from '@/src/constants/config/common'
 import { ChainConfig, Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 import {
   recoverLocalStorageKey,
@@ -50,11 +46,12 @@ const walletConnect = walletConnectModule({
 })
 
 const chainsForOnboard = Object.values(chainsConfig).map(
-  ({ chainIdHex, name, rpcUrl, token }: ChainConfig) => ({
+  ({ blockExplorerUrls, chainIdHex, name, rpcUrl, token }: ChainConfig) => ({
     id: chainIdHex,
     label: name,
     token,
     rpcUrl,
+    blockExplorerUrl: blockExplorerUrls[0],
   }),
 )
 
@@ -107,6 +104,7 @@ export type Web3Context = {
   isWalletNetworkSupported: boolean
   pushNetwork: (options: SetChainOptions) => Promise<boolean>
   readOnlyAppProvider: JsonRpcProvider
+  readOnlyAppBatchProvider: JsonRpcBatchProvider
   setAppChainId: Dispatch<SetStateAction<ChainsValues>>
   wallet: WalletState | null
   walletChainId: number | null
@@ -157,6 +155,11 @@ export default function Web3ConnectionProvider({ children }: Props) {
 
   const readOnlyAppProvider = useMemo(
     () => new JsonRpcProvider(getNetworkConfig(appChainId)?.rpcUrl, appChainId),
+    [appChainId],
+  )
+
+  const readOnlyAppBatchProvider = useMemo(
+    () => new JsonRpcBatchProvider(getNetworkConfig(appChainId)?.rpcUrl, appChainId),
     [appChainId],
   )
 
@@ -251,6 +254,7 @@ export default function Web3ConnectionProvider({ children }: Props) {
     isWalletNetworkSupported,
     pushNetwork: setChain,
     readOnlyAppProvider,
+    readOnlyAppBatchProvider,
     setAppChainId,
     settingChain,
     wallet,

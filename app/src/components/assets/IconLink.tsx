@@ -3,6 +3,7 @@ import { HTMLAttributes } from 'react'
 
 const Wrapper = styled.svg`
   display: block;
+  flex-shrink: 0;
 `
 
 interface Props extends HTMLAttributes<SVGElement> {

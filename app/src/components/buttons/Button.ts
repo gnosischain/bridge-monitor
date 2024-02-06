@@ -19,7 +19,7 @@ export const ButtonCSS = css`
   border-radius: 30px;
   border-style: solid;
   border-width: 1px;
-  column-gap: 10px;
+  column-gap: 16px;
   cursor: pointer;
   display: flex;
   font-family: ${({ theme: { fonts } }) => fonts.family};
@@ -28,8 +28,7 @@ export const ButtonCSS = css`
   justify-content: center;
   line-height: 1;
   outline: none;
-  padding: ${({ theme: { common } }) => common.space * 2}px
-    ${({ theme: { common } }) => common.space * 4}px;
+  padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 4);
   text-align: center;
   text-decoration: none;
   transition: all 0.15s ease-out;
@@ -51,6 +50,10 @@ export const Button = styled(BaseButton)`
   ${DisabledButtonCSS}
 `
 
+Button.defaultProps = {
+  type: 'button',
+}
+
 export const ButtonPrimaryCSS = css`
   background-color: ${({ theme: { buttonPrimary } }) => buttonPrimary.backgroundColor};
   border-color: ${({ theme: { buttonPrimary } }) => buttonPrimary.borderColor};
@@ -70,6 +73,18 @@ export const ButtonPrimaryCSS = css`
     background-color: ${({ theme: { buttonPrimary } }) => buttonPrimary.backgroundColor};
     border-color: ${({ theme: { buttonPrimary } }) => buttonPrimary.borderColor};
     color: ${({ theme: { buttonPrimary } }) => buttonPrimary.color};
+  }
+`
+export const ButtonFullPrimaryCSS = css`
+  ${ButtonPrimaryCSS}
+  height: 70px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
+  width: 100%;
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    font-size: 2.1rem;
+    height: 80px;
   }
 `
 
@@ -98,10 +113,23 @@ export const ButtonSecondaryCSS = css`
 export const ButtonPrimary = styled(BaseButton)`
   ${ButtonPrimaryCSS}
 `
+ButtonPrimary.defaultProps = {
+  type: 'button',
+}
+export const ButtonFullPrimary = styled(BaseButton)`
+  ${ButtonFullPrimaryCSS}
+`
+ButtonFullPrimary.defaultProps = {
+  type: 'button',
+}
 
 export const LinkButton = styled(BaseLink)`
   ${ButtonPrimaryCSS}
 `
+export const LinkFullPrimary = styled(BaseLink)`
+  ${ButtonFullPrimaryCSS}
+`
+
 export const LinkSecondaryButton = styled(BaseLink)`
   ${ButtonSecondaryCSS}
 `

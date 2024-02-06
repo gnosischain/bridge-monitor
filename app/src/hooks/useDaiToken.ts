@@ -1,5 +1,5 @@
 import { Chains } from '@/src/constants/config/types'
-import { useBridgedTokens } from '@/src/providers/TokenListProvider'
+import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 
 export const useDaiToken = () => {
   const { nativeTokensByNetwork, tokensByAddress } = useBridgedTokens()

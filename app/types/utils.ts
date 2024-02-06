@@ -36,3 +36,6 @@ export type TupleParametersType<
 export const isFulfilled = <T>(
   input: PromiseSettledResult<T>,
 ): input is PromiseFulfilledResult<T> => input.status === 'fulfilled'
+
+export type Nullable<T> = T | null
+export type Nullish<T> = Nullable<T> | undefined

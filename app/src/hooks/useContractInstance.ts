@@ -8,6 +8,7 @@ import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import * as typechainImports from '@/types/typechain'
 import { ObjectValues } from '@/types/utils'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GetFactories<T> = T extends { connect: (...args: any) => any } ? T : never
 
 type AppFactories = GetFactories<ObjectValues<typeof typechainImports>>

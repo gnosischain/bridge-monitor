@@ -14,9 +14,10 @@ const IconWrapper = styled.span`
 
 const Placeholder = styled.div<{ dimensions: string }>`
   align-items: center;
-  background-color: #cacaca;
+  background-color: ${({ theme: { colors } }) => colors.creamDark};
+  flex-shrink: 0;
   border-radius: 50%;
-  color: #000;
+  color: ${({ theme: { colors } }) => colors.primary};
   display: flex;
   font-size: 80%;
   font-weight: 700;

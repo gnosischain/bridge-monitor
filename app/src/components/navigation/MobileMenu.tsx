@@ -1,19 +1,16 @@
-import Image from 'next/image'
 import styled, { css } from 'styled-components'
-
 import { motion } from 'framer-motion'
-
 import { NavLink as BaseNavLink } from '@/src/components/navigation/NavLink'
-import { sections } from '@/src/constants/sections'
+import { mainMenuSections, myTransactionsFullURL } from '@/src/constants/sections'
 import { Disconnect } from '@/src/components/assets/Disconnect'
 import { SwitchNetwork } from '@/src/components/assets/SwitchNetwork'
-import { ModalSwitchNetwork } from '@/src/components/helpers/ModalSwitchNetwork'
+import { ModalSwitchNetwork } from '@/src/components/modal/ModalSwitchNetwork'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { useRouter } from 'next/router'
 import { ButtonPrimary } from '@/src/components/buttons/Button'
 import { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
-import { Address } from '@/src/components/token/Address'
+import { TokenAddress } from '@/src/components/token/TokenAddress'
 import { MyTransactions } from '@/src/components/assets/MyTransactions'
 
 const Wrapper = styled.div`
@@ -26,7 +23,7 @@ const Wrapper = styled.div`
 `
 
 const MenuBackground = styled.div`
-  background-color: ${({ theme: { colors } }) => colors.black};
+  background-color: ${({ theme: { modal } }) => modal.overlayColor};
   cursor: pointer;
   height: 100%;
   left: 0;
@@ -37,41 +34,32 @@ const MenuBackground = styled.div`
 `
 
 const MenuWrapper = styled.div`
-  background-color: ${({ theme: { colors } }) => colors.darkestGrey};
-  box-shadow: 59.8671px 3.99114px 121px rgba(0, 0, 0, 0.07),
-    30.3077px 2.02051px 52.7484px rgba(0, 0, 0, 0.04725),
-    11.9734px 0.798228px 19.6625px rgba(0, 0, 0, 0.035),
-    2.61919px 0.174612px 6.99531px rgba(0, 0, 0, 0.02275);
+  background-color: ${({ theme: { colors } }) => colors.creamLight};
+  box-shadow: -10px 0 30px 5px rgba(0, 0, 0, 0.07);
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow-y: auto;
-  padding: 0 ${({ theme: { common } }) => common.space * 2}px
-    ${({ theme: { common } }) => common.space * 4}px;
+  padding: calc(var(--theme-common-space) * 4) calc(var(--theme-common-space) * 3);
   max-width: 94%;
   position: absolute;
   right: 0;
   top: 0;
   width: 660px;
   z-index: 20;
-
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    padding: 0 ${({ theme: { common } }) => common.space * 4}px
-      ${({ theme: { common } }) => common.space * 4}px;
-  }
 `
 
 const MenuHeader = styled.div`
   align-items: center;
-  border-bottom: 1px solid rgba(256, 256, 256, 0.1);
+  border-bottom: 1px solid ${({ theme: { colors } }) => colors.primary_50};
   display: flex;
   justify-content: space-between;
-  margin-bottom: ${({ theme: { common } }) => common.space * 4}px;
-  min-height: 100px;
+  margin-bottom: calc(var(--theme-common-space) * 4);
+  padding-bottom: calc(var(--theme-common-space) * 2);
   width: 100%;
 `
 
-const H2 = styled.h2`
+const Title = styled.h2`
   font-weight: 400;
   margin: 0;
 `
@@ -79,6 +67,7 @@ const H2 = styled.h2`
 const CloseButton = styled.button`
   background-color: transparent;
   border: none;
+  color: ${({ theme: { colors } }) => colors.primary};
   cursor: pointer;
   display: block;
   padding: 0;
@@ -89,46 +78,68 @@ const CloseButton = styled.button`
 const Nav = styled.nav`
   display: flex;
   flex-direction: column;
-  row-gap: ${({ theme: { common } }) => common.space}px;
+  row-gap: var(--theme-common-space);
   width: 100%;
 `
 
 const ButtonCSS = css`
+  align-items: center;
+  background-color: ${({ theme: { colors } }) => colors.cream};
   border-radius: ${({ theme: { common } }) => common.borderRadius};
-  color: ${({ theme: { colors } }) => colors.white};
+  color: ${({ theme: { colors } }) => colors.primary};
   display: flex;
-  padding: ${({ theme: { common } }) => common.space}px
-    ${({ theme: { common } }) => common.space * 2}px;
+  min-height: 40px;
+  padding: var(--theme-common-space) calc(var(--theme-common-space) * 2);
   text-decoration: none;
 
+  svg {
+    .fill,
+    path {
+      fill: ${({ theme: { colors } }) => colors.primary};
+    }
+  }
+
   &.active {
-    background-color: ${({ theme: { colors } }) => colors.primary};
+    background-color: ${({ theme: { colors } }) => colors.creamDark};
   }
 
   &:hover {
-    background-color: ${({ theme: { colors } }) => colors.primary};
+    background-color: ${({ theme: { colors } }) => colors.creamDark};
     color: ${({ theme: { colors } }) => colors.white};
+
+    svg {
+      .fill,
+      path {
+        fill: ${({ theme: { colors } }) => colors.white};
+      }
+    }
   }
 `
 
 const NavLink = styled(BaseNavLink)`
-  background-color: ${({ theme: { colors } }) => colors.darkGrey};
-  font-size: 1.6rem;
   ${ButtonCSS}
+
+  background-color: ${({ theme: { colors } }) => colors.cream};
+  font-size: 1.6rem;
+  font-weight: 500;
 `
 
 const UserMenu = styled.div`
-  background: ${({ theme: { gradients } }) => gradients.gray};
+  background: linear-gradient(
+    180deg,
+    ${({ theme: { colors } }) => colors.cream} 0%,
+    ${({ theme: { colors } }) => colors.creamDark} 100%
+  );
   border-radius: ${({ theme: { common } }) => common.borderRadius};
   display: flex;
   flex-direction: column;
   margin-top: auto;
-  padding: ${({ theme: { common } }) => common.space * 2}px;
-  row-gap: ${({ theme: { common } }) => common.space}px;
+  padding: calc(var(--theme-common-space) * 2);
+  row-gap: var(--theme-common-space);
 `
 
 const Connected = styled.div`
-  color: ${({ theme: { colors } }) => colors.white};
+  color: ${({ theme: { colors } }) => colors.primary};
   display: flex;
   flex-direction: column;
   padding-bottom: 10px;
@@ -143,7 +154,7 @@ const ConnectedTitle = styled.div`
 
 const ConnectedText = styled.div`
   align-items: center;
-  color: ${({ theme: { colors } }) => colors.white};
+  color: ${({ theme: { colors } }) => colors.primary};
   column-gap: 10px;
   display: flex;
   font-size: 1.4rem;
@@ -151,13 +162,14 @@ const ConnectedText = styled.div`
 `
 
 const UserButton = styled.button`
+  ${ButtonCSS}
+
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.darkerGrey};
+  background-color: ${({ theme: { colors } }) => colors.cream};
   border: none;
   column-gap: 6px;
   font-size: 1.5rem;
   justify-content: space-between;
-  ${ButtonCSS}
 `
 
 const ButtonConnect = styled(ButtonPrimary)`
@@ -181,10 +193,6 @@ const UnsupportedNetworkLabel = styled.span`
   color: ${({ theme: { colors } }) => colors.error};
   column-gap: 8px;
   display: flex;
-`
-
-const LogoutLabel = styled.div`
-  color: ${({ theme: { colors } }) => colors.warning};
 `
 
 interface Props {
@@ -222,7 +230,7 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
     <AnimatePresence>
       <Wrapper {...restProps}>
         <MenuBackground
-          animate={{ opacity: 0.6 }}
+          animate={{ opacity: 1 }}
           as={motion.div}
           exit={{ opacity: 0 }}
           initial={{ opacity: 0 }}
@@ -237,13 +245,29 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
           transition={{ duration: 0.1, type: 'spring', stiffness: 1000, damping: 100 }}
         >
           <MenuHeader>
-            <H2>Menu</H2>
+            <Title>Menu</Title>
             <CloseButton onClick={() => closeMenu()}>
-              <Image alt="Alerts" height={24} src="/images/icon-close.svg" width={24} />
+              <svg
+                fill="none"
+                height="24"
+                viewBox="0 0 25 24"
+                width="25"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                >
+                  <path d="m18.6285 6-11.99996 12" />
+                  <path d="m6.62854 6 11.99996 12" />
+                </g>
+              </svg>
             </CloseButton>
           </MenuHeader>
           <Nav>
-            {sections.map(({ href, section }, index) => (
+            {mainMenuSections.map(({ href, section }, index) => (
               <NavLink href={href} key={`links_${index}`} onClick={() => closeMenu()}>
                 {section}
               </NavLink>
@@ -255,7 +279,12 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
                 <ConnectedTitle>Connected wallet</ConnectedTitle>
                 <ConnectedText>
                   {address && (
-                    <Address address={address} characters={4} copy link={getExplorerUrl(address)} />
+                    <TokenAddress
+                      address={address}
+                      characters={4}
+                      copy
+                      href={getExplorerUrl(address)}
+                    />
                   )}
                 </ConnectedText>
               </Connected>
@@ -271,7 +300,7 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
               </UserButton>
               <UserButton
                 onClick={() => {
-                  router.push(`/my-transactions/?hash=${address}`)
+                  router.push(`${myTransactionsFullURL}${address}`)
                   closeMenu()
                 }}
               >
@@ -279,7 +308,7 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
                 <MyTransactions />
               </UserButton>
               <UserButton onClick={handleLogout}>
-                <LogoutLabel>Log Out</LogoutLabel>
+                Log Out
                 <Disconnect />
               </UserButton>
             </UserMenu>

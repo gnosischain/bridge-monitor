@@ -77,10 +77,11 @@ export const TexfieldPartsCSS = css<TexfieldCSSProps>`
 `
 
 export const TextfieldCSS = css<TexfieldCSSProps>`
-  --textfield-border-radius: ${({ theme: { common } }) => common.borderRadius};
+  --textfield-border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   --texfield-font-size: 1.3rem;
-  --textfield-padding: 0 ${({ theme: { common } }) => common.space * 2}px;
-  --textfield-height: var(--input-height);
+  --textfield-padding: 0 calc(var(--theme-common-space) * 2);
+  --textfield-padding-phones: 0 var(--theme-common-space);
+  --textfield-height: ${({ theme: { textField } }) => textField.height};
   --textfield-font-weight: 400;
 
   background-color: ${({ theme: { textField } }) => textField.backgroundColor};
@@ -100,7 +101,7 @@ export const TextfieldCSS = css<TexfieldCSSProps>`
   height: var(--textfield-height);
   outline: none;
   overflow: hidden;
-  padding: var(--textfield-padding);
+  padding: var(--textfield-padding-phones);
   text-overflow: ellipsis;
   transition: border-color 0.15s linear, background-color 0.15s linear;
   white-space: nowrap;
@@ -108,6 +109,7 @@ export const TextfieldCSS = css<TexfieldCSSProps>`
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
     --texfield-font-size: 1.4rem;
+    padding: var(--textfield-padding);
   }
 `
 
