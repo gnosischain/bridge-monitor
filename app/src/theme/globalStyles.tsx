@@ -39,7 +39,8 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
     scroll-behavior: smooth;
 
     @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-      background-size: contain;
+      background-attachment: fixed;
+      background-size: cover;
     }
   }
 

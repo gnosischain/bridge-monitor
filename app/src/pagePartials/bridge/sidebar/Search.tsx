@@ -36,8 +36,7 @@ const Textfield: any = styled(DebounceInput)`
   --textfield-border-radius: var(--border-radius);
   --textfield-font-weight: 400;
   --textfield-height: 100%;
-  --textfield-padding: 0 calc(20px + var(--theme-common-space) * 4) 0
-    calc(var(--theme-common-space) * 2);
+  --textfield-padding: 0 calc(20px + var(--theme-common-space) * 3) 0 var(--theme-common-space);
   --textfield-background-color: ${({ theme: { colors } }) => colors.cream};
   --textfield-border-color: ${({ theme: { colors } }) => colors.cream};
   --textfield-border-color-error: ${({ theme: { colors } }) => colors.error};
@@ -58,6 +57,11 @@ const Textfield: any = styled(DebounceInput)`
   transition: border-color 0.15s linear;
   width: 100%;
   z-index: 1;
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    --textfield-padding: 0 calc(20px + var(--theme-common-space) * 4) 0
+      calc(var(--theme-common-space) * 2);
+  }
 
   &:active,
   &:focus,
