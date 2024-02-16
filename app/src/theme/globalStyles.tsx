@@ -17,7 +17,6 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
       --theme-layout-vertical-padding-xl: calc(var(--theme-layout-vertical-padding) * 2);
       --theme-layout-vertical-padding-xxl: calc(var(--theme-layout-vertical-padding) * 3);
       --theme-common-space: ${({ theme: { common } }) => common.space};
-      --theme-header-margin: calc(var(--theme-common-space) * 5);
   }
 
   html {

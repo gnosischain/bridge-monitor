@@ -1,125 +1,121 @@
 import styled from 'styled-components'
-import { MainCard } from '@/src/components/card/MainCard'
 import { ArrowLeft } from '@/src/components/assets/ArrowLeft'
 import { MainTitle } from '@/src/components/text/MainTitle'
 import Link from 'next/link'
 import { Ok } from '@/src/components/assets/Ok'
-import { LinkFullPrimary } from '@/src/components/buttons/Button'
-import { BlockConfirmations } from '@/src/pagePartials/bridge/BlockConfirmations'
+import { ButtonFull } from '@/src/components/buttons/Button'
+import { BlockConfirmations } from '@/src/pagePartials/common/BlockConfirmations'
 import { transactionBaseURL } from '@/src/constants/sections'
 
-const Wrapper = styled(MainCard)`
-  align-items: center;
-  padding-top: calc(var(--theme-common-space) * 5);
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    padding-top: calc(var(--theme-common-space) * 8);
-  }
-`
-
-const InnerWrapper = styled.div`
-  max-width: 100%;
-  width: 100%;
+const Wrapper = styled.div`
   max-width: 644px;
+  width: 100%;
 `
 
 const Header = styled.div`
   align-items: center;
-  display: flex;
-  column-gap: calc(var(--theme-common-space) * 2);
-  width: 100%;
-`
-
-const HeaderInner = styled.div`
+  background-color: ${({ theme: { colors } }) => colors.darkGreen};
+  border-radius: 16px 16px 0 0;
+  color: ${({ theme: { colors } }) => colors.cream};
   display: flex;
   flex-direction: row;
-  row-gap: var(--theme-common-space);
   flex-grow: 1;
-  align-items: center;
   justify-content: space-between;
-  background-color: ${({ theme: { colors } }) => colors.darkGreen};
-  color: ${({ theme: { colors } }) => colors.cream};
-  padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 2)
-    calc(var(--theme-common-space) * 4);
-  border-radius: 16px 16px 0px 0px;
+  padding: calc(var(--theme-common-space) * 2);
+  row-gap: var(--theme-common-space);
+  width: 100%;
+
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3)
-      calc(var(--theme-common-space) * 4);
+    padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3);
   }
 `
 
-const BackLink = styled.a`
+const GoBack = styled.span`
   color: ${({ theme: { colors } }) => colors.cream};
-  &:hover {
-    color: ${({ theme: { colors } }) => colors.white};
+  cursor: pointer;
+
+  &:active {
+    opacity: 0.7;
   }
 `
-const MessageWrapper = styled.div`
+
+const Contents = styled.div`
   background-color: ${({ theme: { colors } }) => colors.white};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
   padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 1);
-  margin-top: calc(var(--theme-common-space) * -2);
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--theme-common-space) * 2);
+
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     padding: calc(var(--theme-common-space) * 4) calc(var(--theme-common-space) * 3)
       calc(var(--theme-common-space) * 3);
   }
 `
-const Message = styled.div`
+
+const Inner = styled.div`
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
+  border: 1px solid ${({ theme: { colors } }) => colors.cream};
   display: flex;
-  gap: calc(var(--theme-common-space) * 2);
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: calc(var(--theme-common-space) * 4) 0;
+  gap: calc(var(--theme-common-space) * 2);
+  padding: calc(var(--theme-common-space) * 3);
 `
-const Icon = styled.div`
-  border-radius: 50%;
-  height: 80px;
-  width: 80px;
+
+const Message = styled.div`
+  align-items: center;
   display: flex;
+  flex-direction: column;
+  gap: calc(var(--theme-common-space) * 2);
   justify-content: center;
-  align-items: center;
-  border: 1px solid ${({ theme: { colors } }) => colors.creamDark};
+  padding: calc(var(--theme-common-space) * 6) 0 calc(var(--theme-common-space) * 4);
 `
+
+const Icon = styled.div`
+  --size: 80px;
+
+  align-items: center;
+  border-radius: 50%;
+  border: 1px solid ${({ theme: { colors } }) => colors.creamDark};
+  display: flex;
+  height: var(--size);
+  justify-content: center;
+  width: var(--size);
+`
+
 const StatusTitle = styled.h2`
-  margin: 0;
   font-size: 2.4rem;
   font-weight: 700;
   line-height: 100%;
+  margin: 0;
+
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     font-size: 2.8rem;
   }
 `
+
 const MessageText = styled.p`
   font-size: 1.6rem;
   font-weight: 400;
   line-height: 1.2;
+  margin: 0;
   max-width: 418px;
   text-align: center;
-  margin: 0;
+
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     font-size: 1.8rem;
   }
 `
 
-export const Success: React.FC = ({ ...restProps }) => {
+export const Success: React.FC<{ onGoBack: () => void }> = ({ onGoBack, ...restProps }) => {
   return (
     <Wrapper {...restProps}>
-      <InnerWrapper>
-        <Header>
-          <HeaderInner>
-            <MainTitle>Bridge</MainTitle>
-            <Link href="/" passHref>
-              <BackLink>
-                <ArrowLeft />
-              </BackLink>
-            </Link>
-          </HeaderInner>
-        </Header>
-        <MessageWrapper>
+      <Header>
+        <MainTitle>Bridge</MainTitle>
+        <GoBack onClick={onGoBack}>
+          <ArrowLeft />
+        </GoBack>
+      </Header>
+      <Contents>
+        <Inner>
           <Message>
             <Icon>
               <Ok />
@@ -142,10 +138,10 @@ export const Success: React.FC = ({ ...restProps }) => {
             href={`${transactionBaseURL}/0x0635a3731fcbf6aeeb3370814f5dcaa1b83b6dd26ecf433c81ac7838b6c43bea`}
             passHref
           >
-            <LinkFullPrimary>Explore transaction</LinkFullPrimary>
+            <ButtonFull as="a">Explore transaction</ButtonFull>
           </Link>
-        </MessageWrapper>
-      </InnerWrapper>
+        </Inner>
+      </Contents>
     </Wrapper>
   )
 }

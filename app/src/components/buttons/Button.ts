@@ -113,19 +113,23 @@ export const ButtonSecondaryCSS = css`
 export const ButtonPrimary = styled(BaseButton)`
   ${ButtonPrimaryCSS}
 `
+
 ButtonPrimary.defaultProps = {
   type: 'button',
 }
-export const ButtonFullPrimary = styled(BaseButton)`
+
+export const ButtonFull = styled(BaseButton)`
   ${ButtonFullPrimaryCSS}
 `
-ButtonFullPrimary.defaultProps = {
+
+ButtonFull.defaultProps = {
   type: 'button',
 }
 
 export const LinkButton = styled(BaseLink)`
   ${ButtonPrimaryCSS}
 `
+
 export const LinkFullPrimary = styled(BaseLink)`
   ${ButtonFullPrimaryCSS}
 `

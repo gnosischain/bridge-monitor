@@ -6,9 +6,10 @@ export const InnerCard = styled.div`
   border: 1px solid ${({ theme: { colors } }) => colors.cream};
   display: flex;
   flex-direction: column;
-  padding: calc(var(--theme-common-space) * 2) var(--theme-common-space);
+  padding: calc(var(--theme-common-space) * 2);
   row-gap: calc(var(--theme-common-space) * 2);
   width: 100%;
+
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     padding: calc(var(--theme-common-space) * 3);
   }

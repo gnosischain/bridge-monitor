@@ -37,3 +37,6 @@ export const isTransactionHash = (hash: string) => isHexString(hash) && hash.len
 export const isNativeToken = (address: string) => {
   return isSameString(address, NATIVE_TOKEN_ADDRESS || ZERO_ADDRESS)
 }
+
+export const getToChainId = (fromChainId: ChainsValues) =>
+  fromChainId === Chains.mainnet ? Chains.gnosis : Chains.mainnet

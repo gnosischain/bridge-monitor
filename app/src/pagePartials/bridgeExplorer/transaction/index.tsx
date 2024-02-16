@@ -20,6 +20,7 @@ import { BridgesValues } from '@/src/constants/config/bridges'
 import { MainCard } from '@/src/components/card/MainCard'
 import { ButtonGoBack } from '@/src/pagePartials/bridgeExplorer/transaction/ButtonGoBack'
 import { GenericError } from '@/src/components/error/GenericError'
+import { BlockConfirmations } from '@/src/pagePartials/common/BlockConfirmations'
 
 const Wrapper = styled(MainCard)`
   padding-top: calc(var(--theme-common-space) * 4);
@@ -86,6 +87,12 @@ const ClaimButton = styled(BaseClaimButton)`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     display: inline-block;
   }
+`
+
+const TxInitiatedWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: calc(var(--theme-common-space) * 2);
 `
 
 export const TransactionSkeletonLoading: React.FC = ({ ...restProps }) => (
@@ -216,17 +223,26 @@ export const Transaction: React.FC = ({ ...restProps }) => {
             title="Bridging initiated"
             transactionStatus={TransactionStatus.Initiated}
           >
-            <DetailsRow
-              network={currentTx.initiatorNetwork}
-              title="Initiated by user"
-              transaction={currentTx}
-            />
-            {!hasMinimumConsensus && (
-              <DelayWarning
-                initiatorNetwork={currentTx.initiatorNetwork}
-                receiverNetwork={currentTx.receiverNetwork}
+            <TxInitiatedWrapper>
+              <DetailsRow
+                network={currentTx.initiatorNetwork}
+                title="Initiated by user"
+                transaction={currentTx}
               />
-            )}
+              {!hasMinimumConsensus && (
+                <>
+                  <DelayWarning
+                    initiatorNetwork={currentTx.initiatorNetwork}
+                    receiverNetwork={currentTx.receiverNetwork}
+                  />
+                  <BlockConfirmations
+                    address="0x0635a3731fcbf6aeeb3370814f5dcaa1b83b6dd26ecf433c81ac7838b6c43bea"
+                    percentage={80}
+                    time="30 min"
+                  />
+                </>
+              )}
+            </TxInitiatedWrapper>
           </StatusDetails>
           {hasMinimumConsensus && (
             <StatusDetails

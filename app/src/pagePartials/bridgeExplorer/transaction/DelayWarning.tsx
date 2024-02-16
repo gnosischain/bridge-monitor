@@ -1,19 +1,27 @@
 import styled from 'styled-components'
-import { Warning } from '@/src/components/assets/Warning'
+import { Alert } from '@/src/components/assets/Alert'
 import { txTime } from '@/src/utils/txTime'
 
 const Wrapper = styled.div`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.creamDark};
+  background-color: ${({ theme: { colors } }) => colors.creamLight};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   color: ${({ theme: { colors } }) => colors.primary};
   column-gap: calc(var(--theme-common-space) * 2);
   display: flex;
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 400;
   line-height: 1.2;
-  margin-top: calc(var(--theme-common-space) * 2);
-  padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3);
+  padding: calc(var(--theme-common-space) * 3);
+`
+
+const Icon = styled(Alert)`
+  height: 24px;
+  width: 24px;
+
+  .fill {
+    fill: ${({ theme: { colors } }) => colors.warning};
+  }
 `
 
 const Network = styled.span`
@@ -31,7 +39,7 @@ export const DelayWarning: React.FC<{ initiatorNetwork: string; receiverNetwork:
 }) => {
   return (
     <Wrapper {...restProps}>
-      <Warning />
+      <Icon />
       <span>
         Transactions from <Network>{initiatorNetwork}</Network> to{' '}
         <Network>{receiverNetwork}</Network> can take up to{' '}
