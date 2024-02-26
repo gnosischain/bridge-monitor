@@ -11,6 +11,7 @@ import {
   TokensByNetwork,
 } from '@/types/token'
 import { isFulfilled } from '@/types/utils'
+import { ZERO_ADDRESS } from '@/src/constants/misc'
 
 type TokenListQueryReturn = {
   tokens: Array<Token>
@@ -46,7 +47,8 @@ const addLogoUriByTokenList = (tokenList: Token[]) => (token: Token) => {
   if (!token.logoURI) {
     // if the chain is gnosis, look for the token in the token list of the foreign chain
     if (token.chainId === 100) {
-      const foreignTokenAddress = token.extensions.bridgeInfo[1].tokenAddress
+      const foreignTokenAddress = token.extensions.bridgeInfo[1]?.tokenAddress
+      if (!foreignTokenAddress) throw new Error('Foreign token address not found')
 
       const logoUriFromTokenList = tokenList.find(({ address }) =>
         isSameString(address, foreignTokenAddress),
@@ -137,8 +139,9 @@ const useTokenListQuery = () => {
         )
 
         const isBridgedToNative = isNativeToken(
-          token.extensions.bridgeInfo[1]?.tokenAddress ??
-            token.extensions.bridgeInfo[100]?.tokenAddress,
+          (token.extensions.bridgeInfo[1]?.tokenAddress ??
+            token.extensions.bridgeInfo[100]?.tokenAddress) ||
+            ZERO_ADDRESS,
         )
 
         if (!isBridgedToNative) {

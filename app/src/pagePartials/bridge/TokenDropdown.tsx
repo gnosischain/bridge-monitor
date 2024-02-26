@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import styled from 'styled-components'
+import { JsonRpcBatchProvider } from '@ethersproject/providers'
 
 import { isAddress } from '@ethersproject/address'
 import { DebounceInput } from 'react-debounce-input'
@@ -18,6 +19,11 @@ import { Token } from '@/types/token'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import dynamic from 'next/dynamic'
 import orderBy from 'lodash/orderBy'
+import { ERC165__factory, HomeOmniMediator__factory } from '@/types/typechain'
+import { contracts } from '@/src/constants/config/contracts'
+import { getNetworkConfig } from '@/src/constants/config/chains'
+import { isSameString } from '@/src/utils/tools'
+import { Spinner } from '@/src/components/loading/Spinner'
 
 const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
   ssr: false,
@@ -146,64 +152,99 @@ const ChevronDown = styled(BaseChevronDown)`
 `
 
 interface Props {
-  chainId: ChainsValues
+  fromChainId: ChainsValues
+  toChainId: ChainsValues
   defaultToken?: Token
   disabled?: boolean
   onChange?: (token: Token) => void
 }
 
 const Dropdown: React.FC<Props> = ({
-  chainId,
   defaultToken,
   disabled = false,
+  fromChainId,
   onChange,
+  toChainId,
   ...restProps
 }) => {
   const [isOpened, setIsOpened] = useState(false)
   const [searchInputRef, setSearchInputInputRef] = useState<HTMLInputElement | null>(null)
-  const [token, setToken] = useState<Token | undefined>(defaultToken)
   const { ambTokensByNetwork } = useBridgedTokens()
-  const tokens = useMemo(() => {
-    if (([Chains.mainnet, Chains.gnosis] as Array<number>).includes(chainId)) {
-      return ambTokensByNetwork[chainId] ?? []
-    }
-  }, [chainId, ambTokensByNetwork])
-
-  const [tokensList, setTokensList] = useState(tokens)
+  const [allTokens, setAllTokens] = useState(ambTokensByNetwork[fromChainId])
   const [value, setValue] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+
+  const filteredTokens = orderBy(
+    value
+      ? allTokens?.filter((item) =>
+          isAddress(value)
+            ? isSameString(item.address, value)
+            : item.symbol.toLowerCase().includes(value.toLowerCase()),
+        )
+      : allTokens,
+    ['symbol', 'name'],
+  )
 
   const onSelectToken = (token: Token) => {
-    setToken(token)
     if (typeof onChange !== 'undefined') onChange(token)
   }
 
+  // if the value is an address and there is not token match
+  // we try a search on-chain.
   useEffect(() => {
-    if (defaultToken && defaultToken.address.toLowerCase() !== token?.address.toLowerCase()) {
-      setToken(defaultToken)
-    }
-    if (!defaultToken && token) {
-      setToken(undefined)
-    }
-  }, [defaultToken, token])
+    if (value && isAddress(value.toLowerCase()) && !filteredTokens.length) {
+      setIsLoading(true)
 
+      const isFromGnosis = fromChainId == Chains.gnosis
+      const erc20 = ERC165__factory.connect(
+        value,
+        new JsonRpcBatchProvider(getNetworkConfig(fromChainId)?.rpcUrl),
+      )
+      const omni = HomeOmniMediator__factory.connect(
+        contracts.OmniBridge.address[Chains.gnosis],
+        new JsonRpcBatchProvider(getNetworkConfig(Chains.gnosis)?.rpcUrl),
+      )
+
+      Promise.all([
+        erc20.name(),
+        erc20.symbol(),
+        erc20.decimals(),
+        isFromGnosis ? omni.foreignTokenAddress(value) : omni.homeTokenAddress(value),
+      ])
+        .then(([name, symbol, decimals, _address]) => {
+          if (!name || !symbol || !decimals || !_address) return
+
+          setAllTokens((_allTokens) => [
+            {
+              chainId: fromChainId,
+              address: value,
+              decimals,
+              logoURI: '',
+              name,
+              symbol,
+              extensions: {
+                bridgeInfo: {
+                  [toChainId]: {
+                    tokenAddress: _address,
+                  },
+                },
+              },
+            },
+            ...(_allTokens || []),
+          ])
+        })
+        .finally(() => setIsLoading(false))
+    }
+  }, [filteredTokens.length, fromChainId, toChainId, value])
+
+  // Focus the search input when the dropdown is opened
   useEffect(() => {
-    if (value.length === 0) {
-      setTokensList(tokens)
-    } else {
-      if (isAddress(value)) {
-        setTokensList(tokens?.filter((item) => item.address.toLowerCase() === value.toLowerCase()))
-      } else {
-        // Sort the tokens so that exact matches are at the top
-        const sortedTokens = orderBy(
-          tokens?.filter((item) => item.symbol.toLowerCase().includes(value.toLowerCase())),
-          (token) => token?.symbol.toLowerCase() !== value.toLowerCase(),
-          ['asc'],
-        )
-        setTokensList(sortedTokens)
-      }
+    if (isOpened && searchInputRef) {
+      searchInputRef.focus()
     }
-  }, [tokens, value])
+  }, [searchInputRef, isOpened])
 
+  // Focus the search input when the dropdown is opened
   useEffect(() => {
     if (isOpened && searchInputRef) {
       searchInputRef.focus()
@@ -215,8 +256,16 @@ const Dropdown: React.FC<Props> = ({
       disabled={disabled}
       dropdownButton={
         <Button onClick={() => setIsOpened(!isOpened)} type="button">
-          {token && <TokenIcon dimensions={24} iconSource={token.logoURI} symbol={token.symbol} />}
-          <ButtonText>{token ? token.symbol : <small>Select token...</small>}</ButtonText>
+          {defaultToken && (
+            <TokenIcon
+              dimensions={24}
+              iconSource={defaultToken.logoURI}
+              symbol={defaultToken.symbol}
+            />
+          )}
+          <ButtonText>
+            {defaultToken ? defaultToken.symbol : <small>Select token...</small>}
+          </ButtonText>
           {!disabled && <ChevronDown />}
         </Button>
       }
@@ -235,24 +284,29 @@ const Dropdown: React.FC<Props> = ({
             />
           </TextFieldWrapper>
         </TextfieldContainer>,
-        <Items closeOnClick key="items">
-          {tokensList?.map((item, index) => (
-            <DropdownBridgeItem
-              key={index}
-              onClick={() => {
-                setValue('')
-                onSelectToken(item)
-              }}
-            >
-              <TokenIcon dimensions={32} iconSource={item.logoURI} symbol={item.symbol} />
-              <TokenInfo>
-                <strong>{item.name}</strong>
-                {item.symbol}
-              </TokenInfo>
-            </DropdownBridgeItem>
-          ))}
-        </Items>,
-        tokensList?.length === 0 ? <NoResults closeOnClick={false}>Not found.</NoResults> : <></>,
+        isLoading ? (
+          <Spinner />
+        ) : filteredTokens.length ? (
+          <Items closeOnClick key="items">
+            {filteredTokens?.map((item, index) => (
+              <DropdownBridgeItem
+                key={index}
+                onClick={() => {
+                  setValue('')
+                  onSelectToken(item)
+                }}
+              >
+                <TokenIcon dimensions={32} iconSource={item.logoURI} symbol={item.symbol} />
+                <TokenInfo>
+                  <strong>{item.name}</strong>
+                  {item.symbol}
+                </TokenInfo>
+              </DropdownBridgeItem>
+            ))}
+          </Items>
+        ) : (
+          <NoResults closeOnClick={false}>Not found.</NoResults>
+        ),
       ]}
       onClose={() => setIsOpened(false)}
       {...restProps}

@@ -227,8 +227,9 @@ const Limits: React.FC = () => {
   const onChangeToken = (token: Token) => {
     // the list of tokens used are those of Mainnet (foreign network)
     const mainnetToGnosisChain = token
-    const gnosisChainToMainnet =
-      tokensByAddress[token.extensions.bridgeInfo[Chains.gnosis].tokenAddress.toLowerCase()]
+    const otherSideAddress = token.extensions.bridgeInfo[Chains.gnosis]?.tokenAddress.toLowerCase()
+    if (!otherSideAddress) throw new Error('Token address not found')
+    const gnosisChainToMainnet = tokensByAddress[otherSideAddress]
 
     const isSelectedTokenValid = mainnetToGnosisChain && gnosisChainToMainnet
 

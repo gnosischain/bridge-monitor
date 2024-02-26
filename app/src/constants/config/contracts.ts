@@ -8,9 +8,18 @@ import HomeAMB_abi from '@/src/abis/HomeAMB.json'
 import OMNI_FEE_MANAGER_abi from '@/src/abis/OmniBridgeFeeManager.json'
 import AMBBridgeHelper_abi from '@/src/abis/AMBBridgeHelper.json'
 import NativeOmniBridgeMediator_abi from '@/src/abis/NativeOmniBridgeMediator.json'
+import ERC20_abi from '@/src/abis/ERC20.json'
 import { Chains } from '@/src/constants/config/types'
 
 export const contracts = {
+  ERC20: {
+    address: {
+      [Chains.mainnet]: '',
+      [Chains.chiado]: '',
+      [Chains.gnosis]: '',
+    },
+    abi: ERC20_abi,
+  },
   // TODO: We need to rollback the change that split the XDAI and Omni bridge into two separated keys.
   // meanwhile I'm bringing back the old keys.
   XDAIBridge: {

@@ -375,10 +375,11 @@ const BridgeForm: React.FC = genericSuspense(
                 </ChainTokenInformation>
                 <FromAmountWrapper>
                   <FromTokenDropdown
-                    chainId={formState.fromChainId}
                     defaultToken={formState.token}
+                    fromChainId={formState.fromChainId}
                     key={'tokenIn'}
                     onChange={handleTokenChange}
+                    toChainId={formState.toChainId}
                   />
                   <AmountTokenInput
                     max={fromBN(bridgeInfo.balance, formState.token?.decimals)}
