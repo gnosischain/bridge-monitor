@@ -19,11 +19,13 @@ import { Token } from '@/types/token'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import dynamic from 'next/dynamic'
 import orderBy from 'lodash/orderBy'
-import { ERC165__factory, HomeOmniMediator__factory } from '@/types/typechain'
+import { HomeOmniMediator__factory } from '@/types/typechain'
 import { contracts } from '@/src/constants/config/contracts'
 import { getNetworkConfig } from '@/src/constants/config/chains'
 import { isSameString } from '@/src/utils/tools'
 import { Spinner } from '@/src/components/loading/Spinner'
+import { ERC165__factory } from '@/types/typechain/factories/ERC165__factory'
+import { ZERO_ADDRESS } from '@/src/constants/misc'
 
 const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
   ssr: false,
@@ -170,24 +172,33 @@ const Dropdown: React.FC<Props> = ({
   const [isOpened, setIsOpened] = useState(false)
   const [searchInputRef, setSearchInputInputRef] = useState<HTMLInputElement | null>(null)
   const { ambTokensByNetwork } = useBridgedTokens()
-  const [allTokens, setAllTokens] = useState(ambTokensByNetwork[fromChainId])
+  const [manualTokens, setManualTokens] = useState<Token[]>([])
+  const [filteredTokens, setFilteredTokens] = useState<Token[]>([])
   const [value, setValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-
-  const filteredTokens = orderBy(
-    value
-      ? allTokens?.filter((item) =>
-          isAddress(value)
-            ? isSameString(item.address, value)
-            : item.symbol.toLowerCase().includes(value.toLowerCase()),
-        )
-      : allTokens,
-    ['symbol', 'name'],
-  )
 
   const onSelectToken = (token: Token) => {
     if (typeof onChange !== 'undefined') onChange(token)
   }
+
+  // When the chain changes, we update the tokens list
+  useEffect(() => {
+    const allTokens = ambTokensByNetwork[fromChainId]
+      .concat(manualTokens.filter((item) => item.chainId === fromChainId))
+      .filter((item) => item.address !== ZERO_ADDRESS)
+    const _filteredTokens = orderBy(
+      value
+        ? allTokens?.filter((item) =>
+            isAddress(value)
+              ? isSameString(item.address, value)
+              : item.symbol.toLowerCase().includes(value.toLowerCase()),
+          )
+        : allTokens,
+      ['symbol', 'name'],
+    )
+
+    setFilteredTokens(_filteredTokens)
+  }, [ambTokensByNetwork, fromChainId, manualTokens, value])
 
   // if the value is an address and there is not token match
   // we try a search on-chain.
@@ -214,7 +225,7 @@ const Dropdown: React.FC<Props> = ({
         .then(([name, symbol, decimals, _address]) => {
           if (!name || !symbol || !decimals || !_address) return
 
-          setAllTokens((_allTokens) => [
+          setManualTokens((_manualTokens) => [
             {
               chainId: fromChainId,
               address: value,
@@ -230,19 +241,12 @@ const Dropdown: React.FC<Props> = ({
                 },
               },
             },
-            ...(_allTokens || []),
+            ...(_manualTokens || []),
           ])
         })
         .finally(() => setIsLoading(false))
     }
   }, [filteredTokens.length, fromChainId, toChainId, value])
-
-  // Focus the search input when the dropdown is opened
-  useEffect(() => {
-    if (isOpened && searchInputRef) {
-      searchInputRef.focus()
-    }
-  }, [searchInputRef, isOpened])
 
   // Focus the search input when the dropdown is opened
   useEffect(() => {
