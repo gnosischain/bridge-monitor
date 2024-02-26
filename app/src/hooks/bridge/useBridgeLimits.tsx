@@ -24,7 +24,6 @@ const useBridgeLimits = (
       ? [`bridgeLimits-${auxTokenAddress}-${fromChainId}`, auxTokenAddress, fromChainId]
       : null,
     async ([, _tokenAddress]) => {
-      console.log('useBridgeLimits', _tokenAddress)
       const rpcUrl = new JsonRpcBatchProvider(chainsConfig[fromChainId].rpcUrl)
 
       if (
@@ -32,9 +31,6 @@ const useBridgeLimits = (
         (fromChainId != Chains.gnosis &&
           isSameString(_tokenAddress, chainsConfig[fromChainId].bridge.DAI))
       ) {
-        console.log('CHAIN', fromChainId)
-        console.log('ADDRESS', _tokenAddress)
-
         const contract = HomeBridgeErcToNative__factory.connect(
           contracts.XDAIBridge.address[fromChainId],
           rpcUrl,
@@ -67,6 +63,9 @@ const useBridgeLimits = (
 
         return { dailyLimit, minPerTx, maxPerTx, totalSpentPerDay }
       }
+    },
+    {
+      suspense: false,
     },
   )
 }

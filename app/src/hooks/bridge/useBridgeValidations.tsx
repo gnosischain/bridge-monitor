@@ -30,14 +30,17 @@ export const useBridgeValidations = ({
   const isSCWallet = useSWR(
     address && readOnlyAppProvider ? [`isSCWallet-${address}`, address, readOnlyAppProvider] : null,
     ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
+    {
+      suspense: false,
+    },
   )
-  const { data: bridgeLimits } = useBridgeLimits(fromChainId, token?.address)
+  const { data: bridgeLimits, isLoading } = useBridgeLimits(fromChainId, token?.address)
 
   // if (!bridgeLimits) throw Error('Was not possible to fetch bridge limits.')
 
   const isValidToken = token !== undefined
   const isValidAmount = amount.gt(0)
-  const approvalNeeded = amount.gt(allowance)
+  const approvalNeeded = amount.gt(allowance) && amount.lte(accountBalance)
   const minAmountError = amount.lt(bridgeLimits?.minPerTx || ZERO_BN)
   const maxAmountError = amount.gt(bridgeLimits?.maxPerTx || ZERO_BN)
   const dailyLimitReached = amount.gt(
@@ -113,5 +116,6 @@ export const useBridgeValidations = ({
     amountIsGreaterThanBalance: approvalNeeded,
     amountisLessThanMinPerTx: minAmountError,
     amountisGreaterThanMaxPerTx: maxAmountError,
+    isLoading,
   }
 }

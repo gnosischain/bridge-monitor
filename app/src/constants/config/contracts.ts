@@ -1,10 +1,7 @@
-import HomeXDAI_abi from '@/src/abis/HomeBridgeErcToNative.json'
-import ForeignXDAI_abi from '@/src/abis/ForeignBridgeErcToNative.json'
-import HomeOMNI_abi from '@/src/abis/HomeOmniMediator.json'
-import ForeignOMNI_abi from '@/src/abis/ForeignOmniMediator.json'
+import XDAI_abi from '@/src/abis/HomeBridgeErcToNative.json' // TODO: maybe we can unified the names of the ABI files too.
+import OMNI_abi from '@/src/abis/HomeOmniMediator.json' // TODO: maybe we can unified the names of the ABI files too.
 import BridgeHelper_abi from '@/src/abis/Erc20ToNativeBridgeHelper.json'
-import ForeignAMB_abi from '@/src/abis/ForeignAMB.json'
-import HomeAMB_abi from '@/src/abis/HomeAMB.json'
+import AMB_abi from '@/src/abis/HomeAMB.json' // TODO: maybe we can unified the names of the ABI files too.
 import OMNI_FEE_MANAGER_abi from '@/src/abis/OmniBridgeFeeManager.json'
 import AMBBridgeHelper_abi from '@/src/abis/AMBBridgeHelper.json'
 import NativeOmniBridgeMediator_abi from '@/src/abis/NativeOmniBridgeMediator.json'
@@ -24,64 +21,37 @@ export const contracts = {
   // meanwhile I'm bringing back the old keys.
   XDAIBridge: {
     address: {
-      [Chains.mainnet]: '0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016',
+      [Chains.mainnet]: '0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', // foreignXdaiBridge
       [Chains.chiado]: '',
-      [Chains.gnosis]: '0x7301CFA0e1756B71869E93d4e4Dca5c7d0eb0AA6',
+      [Chains.gnosis]: '0x7301CFA0e1756B71869E93d4e4Dca5c7d0eb0AA6', // homeXdaiBridge
     },
-    abi: HomeXDAI_abi,
+    abi: XDAI_abi,
   },
   OmniBridge: {
     address: {
-      [Chains.mainnet]: '0x88ad09518695c6c3712AC10a214bE5109a655671',
+      [Chains.mainnet]: '0x88ad09518695c6c3712AC10a214bE5109a655671', // foreignOmniBridge
       [Chains.chiado]: '',
-      [Chains.gnosis]: '0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d',
+      [Chains.gnosis]: '0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d', // homeOmniBridge
     },
-    abi: HomeOMNI_abi,
+    abi: OMNI_abi,
   },
-
-  // TODO: remove
-  homeXdaiBridge: {
-    address: {
-      [Chains.mainnet]: '',
-      [Chains.chiado]: '',
-      [Chains.gnosis]: '0x7301CFA0e1756B71869E93d4e4Dca5c7d0eb0AA6',
-    },
-    abi: HomeXDAI_abi,
-  },
-  foreignXdaiBridge: {
-    address: {
-      [Chains.mainnet]: '0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016',
-      [Chains.chiado]: '',
-      [Chains.gnosis]: '',
-    },
-    abi: ForeignXDAI_abi,
-  },
-  homeOmniBridge: {
-    address: {
-      [Chains.mainnet]: '',
-      [Chains.chiado]: '',
-      [Chains.gnosis]: '0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d',
-    },
-    abi: HomeOMNI_abi,
-  },
-  foreignOmniBridge: {
-    address: {
-      [Chains.mainnet]: '0x88ad09518695c6c3712AC10a214bE5109a655671',
-      [Chains.chiado]: '',
-      [Chains.gnosis]: '',
-    },
-    abi: ForeignOMNI_abi,
-  },
-  // END TODO.
-
-  // Native Omni Bridge on foreign contract (ETH -> WETH)
-  nativeOmniBridge: {
+  // native tokens omnibridge mediator.
+  // Used to wrap and relay native tokens from foreign chain to home. Example: ETH > WETH
+  omniBridgeNativeToken: {
     address: {
       [Chains.mainnet]: '0xa6439ca0fcba1d0f80df0be6a17220fed9c9038a',
       [Chains.chiado]: '',
       [Chains.gnosis]: '',
     },
     abi: NativeOmniBridgeMediator_abi,
+  },
+  AMB: {
+    address: {
+      [Chains.mainnet]: '0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e',
+      [Chains.chiado]: '',
+      [Chains.gnosis]: '0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59',
+    },
+    abi: AMB_abi,
   },
   omnibridgeFeeManager: {
     address: {
@@ -98,22 +68,6 @@ export const contracts = {
       [Chains.gnosis]: '0x2D51EAa266eafcb59bB36dD3c7E99C515e58113A',
     },
     abi: BridgeHelper_abi,
-  },
-  AMB: {
-    address: {
-      [Chains.mainnet]: '0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e',
-      [Chains.chiado]: '',
-      [Chains.gnosis]: '',
-    },
-    abi: ForeignAMB_abi,
-  },
-  HomeAMB: {
-    address: {
-      [Chains.mainnet]: '',
-      [Chains.chiado]: '',
-      [Chains.gnosis]: '0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59',
-    },
-    abi: HomeAMB_abi,
   },
   AMBBridgeHelper: {
     address: {

@@ -44,7 +44,6 @@ export const getReceivedTokenInfo = async ({
     if (isDAI) {
       return {
         tokenOutAddress: NATIVE_TOKEN_ADDRESS,
-        canReceiveNativeToken: false,
       }
     }
 

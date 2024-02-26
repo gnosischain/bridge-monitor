@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
 
-import { ChainsValues } from '@/src/constants/config/types'
+import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { ZERO_BN } from '@/src/constants/misc'
 import { parseUnits } from 'ethers/lib/utils'
@@ -14,6 +14,7 @@ import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactio
 import { useBridgeValidations } from '@/src/hooks/bridge/useBridgeValidations'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { useTokenMode } from '@/src/hooks/bridge/useTokenMode'
+import { HomeOmniMediator } from '@/types/typechain'
 
 export const useBridgeInfo = ({
   amount,
@@ -39,9 +40,13 @@ export const useBridgeInfo = ({
       receiveNativeToken,
     })
 
-  const { bridgeContracts, getFromBridgeAddress } = useBridgeContracts(foreignChainId)
+  const { bridgeContracts, getFromBridgeWithSigner } = useBridgeContracts()
 
-  const fromBridgeAddress = getFromBridgeAddress(isFromHome, isNativeBridge, isNativeToken)
+  const fromBridgeAddress = getFromBridgeWithSigner(
+    fromChainId,
+    isNativeBridge,
+    isNativeToken,
+  ).address
 
   const amountBN = useMemo(() => {
     if (!amount || !token) {
@@ -77,7 +82,7 @@ export const useBridgeInfo = ({
 
   const { data: bridgeTokenOutInfo, isLoading: isLoadingTokenOutInfo } = useBridgeTokenOutInfo({
     fromChainId,
-    homeOmni: bridgeContracts.homeOmniBridge,
+    homeOmni: bridgeContracts(Chains.gnosis).OmniBridge as HomeOmniMediator,
     isDAI,
     isFromForeign,
     isFromHome,
@@ -97,6 +102,7 @@ export const useBridgeInfo = ({
 
   const {
     errorMessage,
+    isLoading: isLoadingValidations,
     isSCWallet,
     isValidToSend: isValidToBridge,
     shouldApprove,
@@ -130,7 +136,8 @@ export const useBridgeInfo = ({
     isLoadingTokenOutInfo ||
     isLoadingFeeInfo ||
     isLoadingTransactionInfo ||
-    isLoadingTokenMode
+    isLoadingTokenMode ||
+    isLoadingValidations
 
   return {
     ...(bridgeBalanceInfo || { balance: ZERO_BN, allowance: ZERO_BN }),

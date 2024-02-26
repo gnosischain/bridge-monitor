@@ -1,5 +1,5 @@
 import { BigNumber, Signer } from 'ethers'
-import { ChainsValues } from '@/src/constants/config/types'
+import { Chains, ChainsValues } from '@/src/constants/config/types'
 import useSWR from 'swr'
 import { Token } from '@/types/token'
 import { ZERO_BN } from '@/src/constants/misc'
@@ -128,7 +128,7 @@ const handleERC20TokenFromForeign = async (
 
     const gasLimit = recipient
       ? await (bridgeContract as ForeignBridgeErcToNative).estimateGas.relayTokens(
-          recipient,
+          recipient.toLowerCase(),
           amount,
         )
       : await tokenContract.estimateGas.transfer(bridgeContract.address, amount)
@@ -196,14 +196,12 @@ const handleERC20TokenFromHome = async (
     : ERC20__factory.connect(tokenAddress, signer)
 
   const signerAddress = await signer.getAddress()
-  console.log(foreignChainId)
 
   // byteData info in: https://docs.tokenbridge.net/eth-xdai-amb-bridge/multi-token-extension/transfer-weth-from-xdai-to-eth-on-mainnet
   const bytesData = receiveNativeToken
-    ? `${contracts.nativeOmniBridge.address[foreignChainId]}${(recipient || signerAddress).replace(
-        '0x',
-        '',
-      )}`
+    ? `${contracts.omniBridgeNativeToken.address[foreignChainId]}${(
+        recipient || signerAddress
+      ).replace('0x', '')}`
     : recipient || signerAddress
 
   const gasLimit = isERC677
@@ -214,8 +212,8 @@ const handleERC20TokenFromHome = async (
       )
     : recipient
     ? await bridgeContract.estimateGas['relayTokens(address,address,uint256)'](
-        recipient,
         tokenAddress,
+        recipient,
         amount,
       )
     : await tokenContract.estimateGas.transfer(bridgeContract.address, amount)
@@ -228,7 +226,7 @@ const handleERC20TokenFromHome = async (
             gasLimit,
           })
         : recipient
-        ? bridgeContract['relayTokens(address,address,uint256)'](recipient, tokenAddress, amount, {
+        ? bridgeContract['relayTokens(address,address,uint256)'](tokenAddress, recipient, amount, {
             gasLimit,
           })
         : tokenContract.transfer(bridgeContract.address, amount, {
@@ -347,7 +345,7 @@ export const useBridgeTransactionInfo = ({
   token?: Token
 }) => {
   const { address } = useWeb3Connection()
-  const { getFromBridgeWithSigner } = useBridgeContracts(foreignChainId)
+  const { getFromBridgeWithSigner } = useBridgeContracts()
 
   const shouldFetch = token && amount.gt(0) && isValid && !shouldApprove && tokenMode
 
@@ -379,7 +377,7 @@ export const useBridgeTransactionInfo = ({
       _foreignChainId,
     ]) => {
       const bridgeContractWithSigner = getFromBridgeWithSigner(
-        _isFromHome,
+        _isFromHome ? Chains.gnosis : _foreignChainId,
         _isNativeBridge,
         _isNativeToken,
       )

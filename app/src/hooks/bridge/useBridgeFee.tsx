@@ -1,8 +1,9 @@
 import { BigNumberish } from 'ethers'
-import { ChainsValues } from '@/src/constants/config/types'
+import { Chains, ChainsValues } from '@/src/constants/config/types'
 import useSWR from 'swr'
 import { Token } from '@/types/token'
 import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
+import { HomeBridgeErcToNative } from '@/types/typechain'
 
 export const foreignToHomeFeeKey =
   '0x03be2b2875cb41e0e77355e802a16769bb8dfcf825061cde185c73bf94f12625'
@@ -22,28 +23,21 @@ export const useBridgeFee = ({
   isNativeBridge: boolean
   token?: Token
 }) => {
-  const { bridgeContracts } = useBridgeContracts(foreignChainId)
+  const { bridgeContracts } = useBridgeContracts()
   const shouldFetch = token && foreignChainId && amount
 
   return useSWR(
     shouldFetch ? [token, amount, 'bridgeFee'] : null,
     async ([_token, _amount]) => {
       if (isNativeBridge) {
-        return isFromHome
-          ? bridgeContracts.homeNativeBridge.getHomeFee()
-          : bridgeContracts.homeNativeBridge.getForeignFee()
+        const contract = bridgeContracts(Chains.gnosis).XDAIBridge as HomeBridgeErcToNative
+        return isFromHome ? contract.getHomeFee() : contract.getForeignFee()
       } else {
-        return isFromHome
-          ? bridgeContracts.omniFeeManager.calculateFee(
-              homeToForeignFeeKey,
-              _token.address,
-              _amount,
-            )
-          : bridgeContracts.omniFeeManager.calculateFee(
-              foreignToHomeFeeKey,
-              _token.address,
-              _amount,
-            )
+        return bridgeContracts(Chains.gnosis).omniFeeManager.calculateFee(
+          isFromHome ? homeToForeignFeeKey : foreignToHomeFeeKey,
+          _token.address,
+          _amount,
+        )
       }
     },
     { suspense: false },

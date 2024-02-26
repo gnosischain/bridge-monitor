@@ -1,4 +1,4 @@
-import { ChainsValues } from '@/src/constants/config/types'
+import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { ZERO_ADDRESS } from '@/src/constants/misc'
 import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
 import { Token } from '@/types/token'
@@ -17,7 +17,7 @@ export const useTokenMode = (
   isNativeToken: boolean,
   token?: Token,
 ) => {
-  const { bridgeContracts } = useBridgeContracts(foreignChainId)
+  const { bridgeContracts } = useBridgeContracts()
 
   const shouldFetch = !isNativeToken && token?.address && foreignChainId && !isNativeBridge
 
@@ -26,9 +26,9 @@ export const useTokenMode = (
     shouldFetch ? [isFromHome, token, 'tokenMode'] : null,
     async ([_isFromHome, _token]) => {
       try {
-        const nativeTokenAddress = _isFromHome
-          ? await bridgeContracts.homeOmniBridge.nativeTokenAddress(_token.address)
-          : await bridgeContracts.foreignOmniBridge.nativeTokenAddress(_token.address)
+        const nativeTokenAddress = await bridgeContracts(
+          _isFromHome ? Chains.gnosis : foreignChainId,
+        ).OmniBridge.nativeTokenAddress(_token.address)
 
         if (nativeTokenAddress !== ZERO_ADDRESS) {
           return 'ERC677'
