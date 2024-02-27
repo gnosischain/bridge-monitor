@@ -18,19 +18,24 @@ const Wrapper = styled(InnerContainer)<{ sidebarPlacement?: SidebarPlacement }>`
     grid-template-columns: ${({ sidebarPlacement }) =>
       sidebarPlacement === 'left' ? 'var(--sidebar-width) 1fr' : '1fr var(--sidebar-width-tablet)'};
   }
+
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     grid-template-columns: ${({ sidebarPlacement }) =>
       sidebarPlacement === 'left' ? 'var(--sidebar-width) 1fr' : '1fr var(--sidebar-width)'};
   }
 `
 
-const Sidebar = styled(BaseSidebar)<{ sidebarPlacement?: SidebarPlacement }>`
+const Sidebar = styled(BaseSidebar)<{ sidebarPlacement?: SidebarPlacement; className?: string }>`
   order: 1;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeWideStart}) {
     order: ${({ sidebarPlacement }) => (sidebarPlacement === 'left' ? '0' : '1')};
   }
 `
+
+Sidebar.defaultProps = {
+  className: 'sidebar',
+}
 
 const Main = styled.div<{ sidebarPlacement?: SidebarPlacement }>`
   order: 0;
@@ -39,6 +44,10 @@ const Main = styled.div<{ sidebarPlacement?: SidebarPlacement }>`
     order: ${({ sidebarPlacement }) => (sidebarPlacement === 'left' ? '1' : '0')};
   }
 `
+
+Main.defaultProps = {
+  className: 'main',
+}
 
 interface Props {
   sidebarContents: React.ReactNode
