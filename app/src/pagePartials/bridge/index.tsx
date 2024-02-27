@@ -208,8 +208,8 @@ const BridgeForm: React.FC = genericSuspense(
       {
         ...initialState,
         account: address || ZERO_ADDRESS,
-        fromChainId: appChainId,
-        toChainId: getToChainId(appChainId),
+        //fromChainId: appChainId,
+        // toChainId: getToChainId(appChainId),
       },
     )
 
