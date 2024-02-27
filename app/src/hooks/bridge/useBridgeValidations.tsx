@@ -1,13 +1,14 @@
 import { BigNumber } from 'ethers'
 import { Token } from '@/types/token'
 import useSWR from 'swr'
-import { isAddress } from 'ethers/lib/utils'
+import { formatUnits, isAddress } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 import { TOKEN_MODE } from '@/src/hooks/bridge/useTokenMode'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { ChainsValues } from '@/src/constants/config/types'
 import useBridgeLimits from '@/src/hooks/bridge/useBridgeLimits'
 import { ZERO_BN } from '@/src/constants/misc'
+import { formatNumber } from '@/src/utils/format'
 
 export const useBridgeValidations = ({
   accountBalance,
@@ -46,6 +47,12 @@ export const useBridgeValidations = ({
   const dailyLimitReached = amount.gt(
     bridgeLimits?.dailyLimit.sub(bridgeLimits?.totalSpentPerDay || ZERO_BN) || ZERO_BN,
   )
+  const minPerTxInNumber = Number(
+    formatUnits(bridgeLimits?.minPerTx || ZERO_BN, token?.decimals || 18),
+  )
+  const maxPerTxInNumber = Number(
+    formatUnits(bridgeLimits?.maxPerTx || ZERO_BN, token?.decimals || 18),
+  )
 
   const errorMessage = useMemo(() => {
     try {
@@ -67,13 +74,15 @@ export const useBridgeValidations = ({
 
       if (minAmountError) {
         throw Error(
-          `The least you can transfer in one transaction is ${bridgeLimits?.minPerTx.toString()}`,
+          `The least you can transfer in one transaction is ${formatNumber(minPerTxInNumber)} ${
+            token.symbol
+          }`,
         )
       }
 
       if (maxAmountError) {
         throw Error(
-          `The most you can transfer in one transaction is ${bridgeLimits?.maxPerTx.toString()}`,
+          `The most you can transfer in one transaction is ${formatNumber(maxPerTxInNumber)}`,
         )
       }
 
@@ -93,15 +102,16 @@ export const useBridgeValidations = ({
     address,
     isValidAmount,
     isValidToken,
-    amount,
-    accountBalance,
     isSCWallet,
     recipient,
     minAmountError,
     maxAmountError,
     dailyLimitReached,
-    bridgeLimits?.minPerTx,
-    bridgeLimits?.maxPerTx,
+    amount,
+    accountBalance,
+    minPerTxInNumber,
+    token,
+    maxPerTxInNumber,
   ])
 
   const isValidToSend = !errorMessage && isValidAmount && isValidToken
