@@ -34,6 +34,7 @@ import React, { useCallback, useMemo, useReducer, useState } from 'react'
 import { useIcon } from '@/src/hooks/useIcon'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { getToChainId } from '@/src/utils/tools'
+import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 
 const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
   ssr: false,
@@ -93,24 +94,29 @@ const SubTitle = styled.h2`
   }
 `
 
-const FromAmountWrapper = styled.div`
+const Chain = styled.div`
+  align-items: center;
+  background-color: ${({ theme: { colors } }) => colors.creamLight};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
+  display: flex;
+  column-gap: var(--theme-common-space);
+  height: 54px;
+  padding: var(--theme-common-space) calc(var(--theme-common-space) * 2);
+`
+
+const BridgedToken = styled.div`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.cream};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  column-gap: calc(var(--theme-common-space) / 2);
+  column-gap: var(--theme-common-space);
   display: flex;
   height: 54px;
-  padding: calc(var(--theme-common-space) / 2) var(--theme-common-space)
-    calc(var(--theme-common-space) / 2) var(--theme-common-space);
-
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    padding: calc(var(--theme-common-space) / 2) calc(var(--theme-common-space) * 2)
-      calc(var(--theme-common-space) / 2) var(--theme-common-space);
-  }
+  padding: var(--theme-common-space) calc(var(--theme-common-space) * 2);
 `
 
 const FromTokenDropdown = styled(TokenDropdown)`
   height: 100%;
+  margin-left: calc(var(--theme-common-space) * -1);
 
   & > div:first-child,
   button {
@@ -118,14 +124,8 @@ const FromTokenDropdown = styled(TokenDropdown)`
   }
 `
 
-const ChainTokenInformation = styled.div`
-  align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.creamLight};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  display: flex;
-  gap: 8px;
-  height: 54px;
-  padding: var(--theme-common-space) calc(var(--theme-common-space) * 2);
+const TokenInpput = styled(AmountTokenInput)`
+  margin-right: calc(var(--theme-common-space) * -1);
 `
 
 const DifferentWalletWrapper = styled.div`
@@ -155,6 +155,22 @@ const RecipientAddressHeader = styled.div`
   gap: 8px;
   justify-content: space-between;
   width: 100%;
+`
+
+const TokenOutValue = styled.span`
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-left: auto;
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    font-size: 1.6rem;
+    font-weight: 600;
+  }
+`
+
+const NoTokenSelected = styled.span`
+  font-size: 1.5rem;
+  opacity: 0.8;
 `
 
 const SkeletonCommon: React.FC = () => (
@@ -351,17 +367,14 @@ const BridgeForm: React.FC = genericSuspense(
               <InnerCardFrom>
                 <SubTitle>
                   From
-                  {formState.token && (
-                    <Balance
-                      logoURI={formState.token?.logoURI}
-                      symbol={formState.token?.symbol}
-                      value={formatNumber(
-                        Number(fromBN(bridgeInfo.balance, formState.token?.decimals)),
-                      )}
-                    />
-                  )}
+                  <Balance
+                    token={formState.token}
+                    value={formatNumber(
+                      Number(fromBN(bridgeInfo.balance, formState.token?.decimals)),
+                    )}
+                  />
                 </SubTitle>
-                <ChainTokenInformation>
+                <Chain>
                   <Image
                     alt={formState.fromChainId === Chains.mainnet ? 'MainnetBig' : 'GnosisBig'}
                     height={24}
@@ -372,8 +385,8 @@ const BridgeForm: React.FC = genericSuspense(
                     width={24}
                   />
                   {formState.toChainId === 100 ? 'Mainnet' : 'Gnosis'}
-                </ChainTokenInformation>
-                <FromAmountWrapper>
+                </Chain>
+                <BridgedToken>
                   <FromTokenDropdown
                     defaultToken={formState.token}
                     fromChainId={formState.fromChainId}
@@ -381,20 +394,21 @@ const BridgeForm: React.FC = genericSuspense(
                     onChange={handleTokenChange}
                     toChainId={formState.toChainId}
                   />
-                  <AmountTokenInput
+                  <TokenInpput
+                    disabled={bridgeInfo.balance.isZero()}
                     max={fromBN(bridgeInfo.balance, formState.token?.decimals)}
                     onChange={(value) => dispatch({ ...formState, amount: value })}
                     placeholder="0.00"
                     value={formState.amount}
                   />
-                </FromAmountWrapper>
+                </BridgedToken>
                 <Switch
                   onClick={() => handleFromChainIdChange(formState.toChainId === 100 ? 100 : 1)}
                 />
               </InnerCardFrom>
               <InnerCard>
                 <SubTitle>To</SubTitle>
-                <ChainTokenInformation>
+                <Chain>
                   <Image
                     alt={formState.fromChainId === Chains.gnosis ? 'Mainnet' : 'Gnosis'}
                     height={24}
@@ -405,7 +419,7 @@ const BridgeForm: React.FC = genericSuspense(
                     width={24}
                   />
                   {formState.toChainId === 100 ? 'Gnosis' : 'Mainnet'}
-                </ChainTokenInformation>
+                </Chain>
                 {formState.fromChainId == Chains.gnosis &&
                 formState.token?.address == chainsConfig[Chains.gnosis].bridge.wForeignNative ? (
                   <CustomRadioButtonGroup
@@ -414,7 +428,7 @@ const BridgeForm: React.FC = genericSuspense(
                     optionsId="ethOptions"
                   />
                 ) : (
-                  <ChainTokenInformation>
+                  <BridgedToken>
                     {tokenOut ? (
                       <>
                         <TokenIcon
@@ -423,11 +437,29 @@ const BridgeForm: React.FC = genericSuspense(
                           symbol={tokenOut.symbol}
                         />
                         {tokenOut.symbol}
+                        <TokenOutValue>
+                          {bridgeInfo.toAmount === '0'
+                            ? '0.00'
+                            : formatNumber(Number(bridgeInfo.toAmount))}
+                        </TokenOutValue>
                       </>
                     ) : (
-                      'Please select an origin token'
+                      <>
+                        <SkeletonLoading
+                          animate={false}
+                          style={{
+                            backgroundColor: '#DDD4BE',
+                            borderRadius: '50%',
+                            height: '24px',
+                            width: '24px',
+                            minWidth: '0',
+                          }}
+                        />
+                        <NoTokenSelected>No token selected</NoTokenSelected>
+                        <TokenOutValue>0.00</TokenOutValue>
+                      </>
                     )}
-                  </ChainTokenInformation>
+                  </BridgedToken>
                 )}
                 <DifferentWalletWrapper>
                   {bridgeInfo.isSCWallet && (

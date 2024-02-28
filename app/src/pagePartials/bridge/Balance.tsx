@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { Token } from '@/types/token'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 
 const Wrapper = styled.div`
@@ -19,15 +20,15 @@ const Value = styled.span`
   font-weight: 400;
 `
 
-export const Balance: React.FC<{ logoURI: string | undefined; symbol: string; value: string }> = ({
-  logoURI,
-  symbol,
+export const Balance: React.FC<{ token: Token | undefined; value: string }> = ({
+  token,
   value,
 }) => {
   return (
     <Wrapper>
-      <Title>Balance:</Title> <TokenIcon dimensions={16} iconSource={logoURI} symbol={symbol} />
-      <Value>{value}</Value>
+      <Title>Balance:</Title>{' '}
+      {token && <TokenIcon dimensions={16} iconSource={token?.logoURI} symbol={token.symbol} />}
+      {<Value>{value && value !== '0' ? value : '-'}</Value>}
     </Wrapper>
   )
 }

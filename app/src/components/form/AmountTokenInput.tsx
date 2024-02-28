@@ -4,61 +4,76 @@ import debounce from 'lodash/debounce'
 import styled from 'styled-components'
 
 const Wrapper = styled.div`
-  align-items: center;
-  column-gap: var(--theme-common-space);
-  display: flex;
   flex-grow: 1;
   height: 100%;
-
-  > input {
-    flex-grow: 1;
-  }
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    column-gap: calc(var(--theme-common-space) * 2);
-  }
+  position: relative;
 `
 const TextfieldAmount = styled(Textfield)`
-  height: 100%;
+  background: ${({ theme: { colors } }) => colors.creamLight};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   font-size: 1.5rem;
   font-weight: 500;
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  &:active,
-  &:focus {
-    background: ${({ theme: { colors } }) => colors.creamLight};
-  }
+  height: 100%;
+  padding-left: var(--theme-common-space);
+  padding-right: var(--theme-common-space);
+  position: relative;
+  text-align: right;
+  z-index: 1;
+
   &::placeholder {
     font-size: 1.5rem;
   }
+
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
     font-size: 1.6rem;
     font-weight: 600;
+
     &::placeholder {
       font-size: 1.6rem;
     }
   }
 `
 const MaxButton = styled.button`
-  font-size: 1.4rem;
+  background-color: transparent;
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
   border: 1px solid ${({ theme: { colors } }) => colors.primary};
   color: ${({ theme: { colors } }) => colors.primary};
-  border-radius: ${({ theme: { common } }) => common.borderRadius};
-  background-color: transparent;
-  padding: 4px var(--theme-common-space);
   cursor: pointer;
+  font-size: 1.4rem;
+  padding: 2px var(--theme-common-space);
+  position: absolute;
+  left: var(--theme-common-space);
+  z-index: 10;
+  top: 50%;
+  transform: translateY(-50%);
+
   &:hover {
     background-color: ${({ theme: { colors } }) => colors.primary};
     color: ${({ theme: { colors } }) => colors.white};
   }
+
+  &:disabled {
+    &,
+    &:hover {
+      background-color: transparent;
+      border: 1px solid ${({ theme: { colors } }) => colors.primary};
+      color: ${({ theme: { colors } }) => colors.primary};
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
 `
 
 type TokenInputProps = {
-  value: string
+  disabled?: boolean
+  max?: string
   onChange: (value: string) => void
   placeholder?: string
-  max?: string
+  value: string
 }
 
 export const AmountTokenInput = ({
+  disabled,
   max,
   onChange,
   placeholder,
@@ -75,6 +90,11 @@ export const AmountTokenInput = ({
 
   return (
     <Wrapper {...restProps}>
+      {max && (
+        <MaxButton disabled={disabled} onClick={() => onChange(max)} type="button">
+          Max
+        </MaxButton>
+      )}
       <NumericFormat
         allowNegative={false}
         customInput={TextfieldAmount}
@@ -85,11 +105,6 @@ export const AmountTokenInput = ({
         thousandSeparator={false}
         value={value}
       />
-      {max && (
-        <MaxButton onClick={() => onChange(max)} type="button">
-          Max
-        </MaxButton>
-      )}
     </Wrapper>
   )
 }

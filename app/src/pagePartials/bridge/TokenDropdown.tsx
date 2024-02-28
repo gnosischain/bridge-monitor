@@ -131,10 +131,11 @@ const Button = styled.button`
   display: flex;
   font-size: 1.4rem;
   height: 34px;
-  justify-content: space-between;
+  justify-content: start;
   line-height: 1.2;
   margin: 0;
-  padding: 0 8px;
+  min-width: 130px;
+  padding: 0 var(--theme-common-space);
 
   small {
     font-size: 1.4rem;
@@ -148,6 +149,7 @@ const Button = styled.button`
 const ButtonText = styled.span``
 
 const ChevronDown = styled(BaseChevronDown)`
+  margin-left: auto;
   .fill {
     fill: ${({ theme: { colors } }) => colors.primary};
   }

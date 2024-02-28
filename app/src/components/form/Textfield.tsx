@@ -95,6 +95,7 @@ export const TextfieldCSS = css<TexfieldCSSProps>`
   border-width: 0.5px;
   color: ${({ status, theme: { textField } }) =>
     status === TextfieldStatus.error ? textField.errorColor : textField.color};
+  font-family: ${({ theme: { fonts } }) => fonts.family};
   font-size: var(--texfield-font-size);
   font-weight: var(--textfield-font-weight);
   height: var(--textfield-height);
