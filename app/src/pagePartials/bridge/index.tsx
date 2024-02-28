@@ -470,7 +470,7 @@ const BridgeForm: React.FC = genericSuspense(
               </InnerCard>
               {formState.amount && formState.token && (
                 <TxPreview
-                  estimatedTime={`5 mins`}
+                  estimatedTime={bridgeInfo.estimatedTimeInSeconds || 0}
                   estimatedTotalFee={`${fromBN(bridgeInfo.fee, appChainConfig.tokenDecimals)} ${
                     formState.token?.symbol
                   }`}

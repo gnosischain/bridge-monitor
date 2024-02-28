@@ -17,8 +17,6 @@ export const contracts = {
     },
     abi: ERC20_abi,
   },
-  // TODO: We need to rollback the change that split the XDAI and Omni bridge into two separated keys.
-  // meanwhile I'm bringing back the old keys.
   XDAIBridge: {
     address: {
       [Chains.mainnet]: '0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', // foreignXdaiBridge

@@ -19,6 +19,7 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     blockExplorerUrls: ['https://etherscan.io/'],
     token: 'ETH',
     tokenDecimals: 18,
+    blocksFrequencyInSeconds: 12,
     bridge: {
       DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
       wForeignNative: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // WETH
@@ -34,6 +35,7 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     blockExplorerUrls: ['https://gnosis-chiado.blockscout.com/'],
     token: 'Testnet xDai on Chiado',
     tokenDecimals: 18,
+    blocksFrequencyInSeconds: 5,
     bridge: {
       DAI: '',
       wForeignNative: '', // WETH
@@ -44,6 +46,7 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     name: 'Gnosis Chain',
     shortName: 'Gnosis',
     chainId: Chains.gnosis,
+    blocksFrequencyInSeconds: 5,
     chainIdHex: '0x64',
     rpcUrl: getProviderUrl(Chains.gnosis),
     blockExplorerUrls: ['https://gnosisscan.io/'],

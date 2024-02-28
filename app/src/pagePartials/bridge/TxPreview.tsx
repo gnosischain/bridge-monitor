@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 import { Tooltip } from '@/src/components/tooltip'
 import { Loading } from '@/src/components/loading'
+import formatDistance from 'date-fns/formatDistance'
 
 const Wrapper = styled.ul`
   background: ${({ theme: { colors } }) => colors.white_50};
@@ -39,7 +40,7 @@ const Value = styled.span`
 `
 
 export const TxPreview: React.FC<{
-  estimatedTime: string
+  estimatedTime: number
   estimatedTotalFee: string
   estimatedTotalGas: string
   receivedAmount: string
@@ -61,7 +62,7 @@ export const TxPreview: React.FC<{
           <Item>
             Estimated time
             <Value>
-              {estimatedTime}
+              {formatDistance(0, estimatedTime * 1000, { includeSeconds: true })}
               <Tooltip content="Estimated execution time" />
             </Value>
           </Item>

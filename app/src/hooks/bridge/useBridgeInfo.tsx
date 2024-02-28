@@ -14,6 +14,7 @@ import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactio
 import { useBridgeValidations } from '@/src/hooks/bridge/useBridgeValidations'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { useTokenMode } from '@/src/hooks/bridge/useTokenMode'
+import { useBridgeEstimatedTime } from '@/src/hooks/bridge/useBridgeEstimatedTime'
 import { HomeOmniMediator } from '@/types/typechain'
 
 export const useBridgeInfo = ({
@@ -131,12 +132,16 @@ export const useBridgeInfo = ({
       token,
     })
 
+  const { data: estimatedTimeInSeconds, isLoading: isLoadingEstimatedTime } =
+    useBridgeEstimatedTime(fromChainId, isNativeBridge)
+
   const isLoadingInfo =
     isLoadingBalanceInfo ||
     isLoadingTokenOutInfo ||
     isLoadingFeeInfo ||
     isLoadingTransactionInfo ||
     isLoadingTokenMode ||
+    isLoadingEstimatedTime ||
     isLoadingValidations
 
   return {
@@ -160,5 +165,6 @@ export const useBridgeInfo = ({
     isDAI,
     isFromForeign,
     refreshBalance,
+    estimatedTimeInSeconds,
   }
 }
