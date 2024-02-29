@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useReducer, useState } from 'react'
+import { useCallback, useReducer, useState } from 'react'
 import styled from 'styled-components'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
@@ -21,7 +21,7 @@ import { Token } from '@/types/token'
 import { TokenDropdown } from '@/src/pagePartials/bridge/TokenDropdown'
 import { TokenOut } from '@/src/pagePartials/bridge/TokenOut'
 import { TxPreview } from '@/src/pagePartials/bridge/TxPreview'
-import { ZERO_ADDRESS } from '@/src/constants/misc'
+import { ZERO_ADDRESS, ZERO_BN } from '@/src/constants/misc'
 import { chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
 import { formatNumber } from '@/src/utils/format'
 import { fromBN } from '@/src/utils/bigNumber'
@@ -33,6 +33,7 @@ import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { useIcon } from '@/src/hooks/useIcon'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { getToChainId } from '@/src/utils/tools'
+import { Loading } from '@/src/components/loading'
 import { Balance } from '@/src/pagePartials/bridge/Balance'
 
 const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
@@ -235,16 +236,7 @@ const BridgeForm: React.FC = genericSuspense(
       recipient: formState.recipient,
     })
 
-    const tokenOut = useMemo(() => {
-      const tokenOutAddress = bridgeInfo.tokenOutAddress
-      if (!tokenOutAddress) {
-        return undefined
-      }
-
-      return tokensByNetwork[formState.toChainId].find(
-        ({ address }) => address.toLowerCase() === tokenOutAddress.toLowerCase(),
-      )
-    }, [bridgeInfo.tokenOutAddress, formState.toChainId, tokensByNetwork])
+    const tokenOut = bridgeInfo.receivedToken
 
     const handleResetForm = useCallback(() => {
       dispatch({
@@ -376,23 +368,25 @@ const BridgeForm: React.FC = genericSuspense(
                     {formState.toChainId === 100 ? 'Mainnet' : 'Gnosis'}
                   </Chain>
                 </SubTitle>
-                <BalanceWrapper>
-                  <MaxButton
-                    disabled={bridgeInfo.balance.isZero()}
-                    onClick={() =>
-                      dispatch({
-                        ...formState,
-                        amount: fromBN(bridgeInfo.balance, formState.token?.decimals),
-                      })
-                    }
-                  />
-                  <Balance
-                    token={formState.token}
-                    value={formatNumber(
-                      Number(fromBN(bridgeInfo.balance, formState.token?.decimals)),
-                    )}
-                  />
-                </BalanceWrapper>
+                {address && formState.token && (
+                  <BalanceWrapper>
+                    <MaxButton
+                      disabled={bridgeInfo.balance.isZero()}
+                      onClick={() =>
+                        dispatch({
+                          ...formState,
+                          amount: fromBN(bridgeInfo.balance, formState.token?.decimals),
+                        })
+                      }
+                    />
+                    <Balance
+                      token={formState.token}
+                      value={formatNumber(
+                        Number(fromBN(bridgeInfo.balance, formState.token?.decimals)),
+                      )}
+                    />
+                  </BalanceWrapper>
+                )}
                 <BridgedToken>
                   <FromTokenDropdown
                     defaultToken={formState.token}
@@ -427,6 +421,22 @@ const BridgeForm: React.FC = genericSuspense(
                     {formState.toChainId === 100 ? 'Gnosis' : 'Mainnet'}
                   </Chain>
                 </SubTitle>
+                {bridgeInfo.isLoadingTokenOutInfo && <Loading />}
+                {address && bridgeInfo.receivedToken && (
+                  <BalanceWrapper>
+                    <Balance
+                      token={bridgeInfo.receivedToken}
+                      value={formatNumber(
+                        Number(
+                          fromBN(
+                            bridgeInfo.userBalanceInDestination || ZERO_BN,
+                            bridgeInfo.receivedToken.decimals,
+                          ),
+                        ),
+                      )}
+                    />
+                  </BalanceWrapper>
+                )}
                 <BridgedToken>
                   {formState.fromChainId == Chains.gnosis &&
                   formState.token?.address == chainsConfig[Chains.gnosis].bridge.wForeignNative ? (

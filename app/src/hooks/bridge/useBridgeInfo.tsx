@@ -145,10 +145,14 @@ export const useBridgeInfo = ({
     isLoadingValidations
 
   return {
-    ...(bridgeBalanceInfo || { balance: ZERO_BN, allowance: ZERO_BN }),
-    ...(bridgeTokenOutInfo || {
+    // TODO, this is kinda a mess, we should refactor this
+    ...{ balance: ZERO_BN, allowance: ZERO_BN },
+    ...bridgeBalanceInfo,
+    ...{
       tokenOutAddress: undefined,
-    }),
+    },
+    ...bridgeTokenOutInfo,
+    isLoadingTokenOutInfo,
     ...(bridgeTransactionInfo || {
       gasLimit: ZERO_BN,
       gasPrice: ZERO_BN,
