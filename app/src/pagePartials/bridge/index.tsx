@@ -21,7 +21,7 @@ import { Token } from '@/types/token'
 import { TokenDropdown } from '@/src/pagePartials/bridge/TokenDropdown'
 import { TokenOut } from '@/src/pagePartials/bridge/TokenOut'
 import { TxPreview } from '@/src/pagePartials/bridge/TxPreview'
-import { ZERO_ADDRESS, ZERO_BN } from '@/src/constants/misc'
+import { WXDAI_GNOSIS, ZERO_ADDRESS, ZERO_BN, sDAI_GNOSIS } from '@/src/constants/misc'
 import { chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
 import { formatNumber } from '@/src/utils/format'
 import { fromBN } from '@/src/utils/bigNumber'
@@ -30,9 +30,10 @@ import { parseUnits } from 'ethers/lib/utils'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
 import { useBridgeInfo } from '@/src/hooks/bridge/useBridgeInfo'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
-import { useIcon } from '@/src/hooks/useIcon'
+import { getToChainId, isSameString } from '@/src/utils/tools'
+import { getIcon } from '@/src/utils/icons'
+import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { getToChainId } from '@/src/utils/tools'
 import { Loading } from '@/src/components/loading'
 import { Balance } from '@/src/pagePartials/bridge/Balance'
 
@@ -314,10 +315,6 @@ const BridgeForm: React.FC = genericSuspense(
       }
     }
 
-    const IconPathURL = (label: string) => {
-      return useIcon(label).iconPath
-    }
-
     const [isDifferentWalletOpen, setIsDifferentWalletOpen] = useState(false)
 
     const wethOptions = [
@@ -341,12 +338,16 @@ const BridgeForm: React.FC = genericSuspense(
       }
     }
 
-    const tokenOutValue =
-      bridgeInfo.toAmount === '0' ? '0.00' : formatNumber(Number(bridgeInfo.toAmount))
+    const unwrapFirst =
+      formState.fromChainId == Chains.gnosis &&
+      (isSameString(formState.token?.address || '', WXDAI_GNOSIS) ||
+        isSameString(formState.token?.address || '', sDAI_GNOSIS))
+
+    const tokenOutValue = formatNumber(Number(bridgeInfo.userBalanceInDestination || 0))
 
     return (
       <>
-        {/* Shitty logic, sorry. This needs a refactoring (start with the big fucking hook at the beggining of this component...) */}
+        {/* This needs a refactoring (start with the big hook at the beginning of this component...) */}
         {showSuccess && <Success onGoBack={onGoBack} />}
         <InnerWrapper hidden={showSuccess}>
           <Header />
@@ -360,7 +361,7 @@ const BridgeForm: React.FC = genericSuspense(
                       alt={formState.fromChainId === Chains.mainnet ? 'MainnetBig' : 'GnosisBig'}
                       height={24}
                       objectFit="cover"
-                      src={IconPathURL(
+                      src={getIcon(
                         formState.fromChainId === Chains.mainnet ? 'MainnetBig' : 'GnosisBig',
                       )}
                       width={24}
@@ -405,120 +406,114 @@ const BridgeForm: React.FC = genericSuspense(
                   onClick={() => handleFromChainIdChange(formState.toChainId === 100 ? 100 : 1)}
                 />
               </InnerCardFrom>
-              <InnerCard>
-                <SubTitle>
-                  To
-                  <Chain>
-                    <Image
-                      alt={formState.fromChainId === Chains.gnosis ? 'Mainnet' : 'Gnosis'}
-                      height={24}
-                      objectFit="cover"
-                      src={IconPathURL(
-                        formState.fromChainId === Chains.gnosis ? 'MainnetBig' : 'GnosisBig',
-                      )}
-                      width={24}
-                    />
-                    {formState.toChainId === 100 ? 'Gnosis' : 'Mainnet'}
-                  </Chain>
-                </SubTitle>
-                {bridgeInfo.isLoadingTokenOutInfo && <Loading />}
-                {address && bridgeInfo.receivedToken && (
-                  <BalanceWrapper>
-                    <Balance
-                      token={bridgeInfo.receivedToken}
-                      value={formatNumber(
-                        Number(
-                          fromBN(
-                            bridgeInfo.userBalanceInDestination || ZERO_BN,
-                            bridgeInfo.receivedToken.decimals,
-                          ),
-                        ),
-                      )}
-                    />
-                  </BalanceWrapper>
-                )}
-                <BridgedToken>
-                  {formState.fromChainId == Chains.gnosis &&
-                  formState.token?.address == chainsConfig[Chains.gnosis].bridge.wForeignNative ? (
-                    <TokenSelect
-                      onChange={radioGroupHandler}
-                      options={wethOptions}
-                      optionsId="ethOptions"
-                      value={tokenOutValue}
-                    />
-                  ) : (
-                    <TokenOut tokenOut={tokenOut} value={tokenOutValue} />
-                  )}
-                </BridgedToken>
-                <DifferentWalletWrapper>
-                  {bridgeInfo.isSCWallet && (
-                    <label htmlFor="recipient">
-                      A recipient address is required when using a smart contract wallet. Be sure
-                      you control the recipient address on the destination chain.
-                    </label>
-                  )}
-                  <SendToDifferentWallet
-                    isOpen={isDifferentWalletOpen}
-                    onClick={() =>
-                      setIsDifferentWalletOpen((isDifferentWalletOpen) => !isDifferentWalletOpen)
-                    }
-                  />
-                  <AnimatePresence initial={false}>
-                    {isDifferentWalletOpen && (
-                      <RecipientAddress
-                        animate={{ height: 'auto', y: 0, opacity: 1 }}
-                        exit={{ height: 0, y: '-10%', opacity: 0 }}
-                        initial={{ height: 0, y: '-10%', opacity: 0 }}
-                        key="wallet"
-                        transition={{
-                          type: 'tween',
-                          duration: 0.15,
-                          ease: 'easeInOut',
-                        }}
-                      >
-                        <RecipientAddressHeader>Recipient Address</RecipientAddressHeader>
-                        <Textfield
-                          onChange={(event) =>
-                            dispatch({ ...formState, recipient: event.target.value })
-                          }
-                          type="text"
-                          value={formState.recipient}
+              {unwrapFirst && (
+                <InnerCard>
+                  <p>
+                    wxDAI and sDAI need to be unwrapped to xDAI first before bridging to Ethereum.
+                    You can do this{' '}
+                    <a
+                      href={`https://swap.cow.fi/#/100/swap/${formState.token?.symbol}/xDAI`}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      here
+                    </a>
+                    .
+                  </p>
+                </InnerCard>
+              )}
+              {!unwrapFirst && (
+                <>
+                  <InnerCard>
+                    <SubTitle>
+                      To
+                      <Chain>
+                        <Image
+                          alt={formState.fromChainId === Chains.gnosis ? 'Mainnet' : 'Gnosis'}
+                          height={24}
+                          objectFit="cover"
+                          src={getIcon(
+                            formState.fromChainId === Chains.gnosis ? 'MainnetBig' : 'GnosisBig',
+                          )}
+                          width={24}
                         />
-                      </RecipientAddress>
+                        {formState.toChainId === 100 ? 'Gnosis' : 'Mainnet'}
+                      </Chain>
+                    </SubTitle>
+                    {bridgeInfo.isLoadingTokenOutInfo && <Loading />}
+                    {address && bridgeInfo.receivedToken && (
+                      <BalanceWrapper>
+                        <Balance
+                          token={bridgeInfo.receivedToken}
+                          value={formatNumber(
+                            Number(
+                              fromBN(
+                                bridgeInfo.userBalanceInDestination || ZERO_BN,
+                                bridgeInfo.receivedToken.decimals,
+                              ),
+                            ),
+                          )}
+                        />
+                      </BalanceWrapper>
+                    )}
+                    <BridgedToken>
+                      {formState.fromChainId == Chains.gnosis &&
+                      formState.token?.address ==
+                        chainsConfig[Chains.gnosis].bridge.wForeignNative ? (
+                        <TokenSelect
+                          onChange={radioGroupHandler}
+                          options={wethOptions}
+                          optionsId="ethOptions"
+                          value={tokenOutValue}
+                        />
+                      ) : (
+                        <TokenOut tokenOut={tokenOut} value={tokenOutValue} />
+                      )}
+                    </BridgedToken>
+                    <DifferentWalletWrapper>
+                      {bridgeInfo.isSCWallet && (
+                        <label htmlFor="recipient">
+                          A recipient address is required when using a smart contract wallet. Be
+                          sure you control the recipient address on the destination chain.
+                        </label>
+                      )}
+                    </DifferentWalletWrapper>
+                  </InnerCard>
+                  <AnimatePresence initial={false}>
+                    {formState.amount && formState.token && (
+                      <TxPreview
+                        estimatedTime={bridgeInfo.estimatedTimeInSeconds || 0}
+                        estimatedTotalFee={`${fromBN(
+                          bridgeInfo.fee,
+                          appChainConfig.tokenDecimals,
+                        )} ${formState.token?.symbol}`}
+                        estimatedTotalGas={`${fromBN(
+                          bridgeInfo.gasLimit.mul(bridgeInfo.gasPrice),
+                          appChainConfig.tokenDecimals,
+                        )} ${appChainConfig.token}`}
+                        isLoading={bridgeInfo.isLoadingInfo}
+                        receivedAmount={`${formatNumber(Number(bridgeInfo.toAmount))} ${
+                          tokenOut?.symbol
+                        }`}
+                      />
                     )}
                   </AnimatePresence>
-                </DifferentWalletWrapper>
-              </InnerCard>
-              <AnimatePresence initial={false}>
-                {formState.amount && formState.token && (
-                  <TxPreview
-                    estimatedTime={bridgeInfo.estimatedTimeInSeconds || 0}
-                    estimatedTotalFee={`${fromBN(bridgeInfo.fee, appChainConfig.tokenDecimals)} ${
-                      formState.token?.symbol
-                    }`}
-                    estimatedTotalGas={`${fromBN(
-                      bridgeInfo.gasLimit.mul(bridgeInfo.gasPrice),
-                      appChainConfig.tokenDecimals,
-                    )} ${appChainConfig.token}`}
-                    isLoading={bridgeInfo.isLoadingInfo}
-                    receivedAmount={`${formatNumber(Number(bridgeInfo.toAmount))} ${
-                      tokenOut?.symbol
-                    }`}
-                  />
-                )}
-              </AnimatePresence>
-              {bridgeInfo.errorMessage && <AlertMessage text={bridgeInfo.errorMessage} />}
+                  {bridgeInfo.errorMessage && <AlertMessage text={bridgeInfo.errorMessage} />}
+                </>
+              )}
             </FormCards>
-            <BridgeButton
-              approvalTx={handleApprove}
-              bridgeTx={handleBridgeTx}
-              canBridge={bridgeInfo.canBridge}
-              fromChainId={formState.fromChainId}
-              isApproving={isApproving}
-              isBridging={isBridging}
-              isLoading={bridgeInfo.isLoadingInfo}
-              shouldApprove={bridgeInfo.shouldApprove}
-            />
+            {!unwrapFirst && (
+              <BridgeButton
+                approvalTx={handleApprove}
+                bridgeTx={handleBridgeTx}
+                canBridge={bridgeInfo.canBridge}
+                fromChainId={formState.fromChainId}
+                isApproving={isApproving}
+                isBridging={isBridging}
+                isLoading={bridgeInfo.isLoadingInfo}
+                shouldApprove={bridgeInfo.shouldApprove}
+              />
+            )}
           </Form>
         </InnerWrapper>
       </>

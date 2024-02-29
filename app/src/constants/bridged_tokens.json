@@ -2,6 +2,38 @@
   "items": [
     {
       "bridge_type": "omni",
+      "foreign_address": "0x0001A500A6B18995B03f44bb040A5fFc28E45CB0",
+      "origin_chain_id": "1",
+      "address": "0xcE11e14225575945b8E6Dc0D4F2dD4C570f79d9f",
+      "circulating_market_cap": "314548214.5766137",
+      "decimals": "18",
+      "exchange_rate": "6.45",
+      "holders": "679",
+      "icon_url": "https://assets.coingecko.com/coins/images/31099/small/OLAS-token.png?1696529930",
+      "is_bridged": null,
+      "name": "Autonolas from Mainnet",
+      "symbol": "OLAS",
+      "total_supply": "2861684670392544387976743",
+      "type": "ERC-20"
+    },
+    {
+      "bridge_type": "omni",
+      "foreign_address": "0x0000000000000000000000000000000000000000",
+      "origin_chain_id": "1",
+      "address": "0xaf204776c7245bF4147c2612BF6e5972Ee483701",
+      "circulating_market_cap": "0.0",
+      "decimals": "18",
+      "exchange_rate": "1.05",
+      "holders": "16828",
+      "icon_url": "https://assets.coingecko.com/coins/images/32066/small/sDAI_Logo_%281%29.png?1696530863",
+      "is_bridged": false,
+      "name": "Savings xDAI",
+      "symbol": "sDAI",
+      "total_supply": "49228383104033915330724653",
+      "type": "ERC-20"
+    },
+    {
+      "bridge_type": "omni",
       "foreign_address": "0x0000000000000000000000000000000000000000",
       "origin_chain_id": "1",
       "address": "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",

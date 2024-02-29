@@ -3,8 +3,7 @@ import styled from 'styled-components'
 
 import { ChainToken } from '@/src/pagePartials/bridgeExplorer/validators/ChainToken'
 import { BalanceType } from '@/src/constants/types'
-import { useIcon } from '@/src/hooks/useIcon'
-import { getChainIconName } from '@/src/utils/icons'
+import { getChainIconName, getIcon } from '@/src/utils/icons'
 
 const Chain = styled.div`
   align-items: center;
@@ -29,7 +28,7 @@ interface Props {
 }
 
 export const Balance: React.FC<Props> = ({ balanceType }) => {
-  const { iconPath } = useIcon(getChainIconName(balanceType?.chain))
+  const iconPath = getIcon(getChainIconName(balanceType?.chain))
 
   return (
     <>
