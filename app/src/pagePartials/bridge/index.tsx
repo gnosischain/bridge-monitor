@@ -29,10 +29,8 @@ import { genericSuspense } from '@/src/components/safeSuspense'
 import { parseUnits } from 'ethers/lib/utils'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
 import { useBridgeInfo } from '@/src/hooks/bridge/useBridgeInfo'
-import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { getToChainId, isSameString } from '@/src/utils/tools'
 import { getIcon } from '@/src/utils/icons'
-import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { Loading } from '@/src/components/loading'
 import { Balance } from '@/src/pagePartials/bridge/Balance'
@@ -207,7 +205,6 @@ const BridgeForm: React.FC = genericSuspense(
     const [isApproving, setIsApproving] = useState(false)
     const [showSuccess, setShowSuccess] = useState(false)
     const { address, appChainId } = useWeb3Connection()
-    const { tokensByNetwork } = useBridgedTokens()
     const approve = useApproval()
     const sendTx = useTransaction()
 
@@ -477,6 +474,38 @@ const BridgeForm: React.FC = genericSuspense(
                           sure you control the recipient address on the destination chain.
                         </label>
                       )}
+                      <SendToDifferentWallet
+                        isOpen={isDifferentWalletOpen}
+                        onClick={() =>
+                          setIsDifferentWalletOpen(
+                            (isDifferentWalletOpen) => !isDifferentWalletOpen,
+                          )
+                        }
+                      />
+                      <AnimatePresence initial={false}>
+                        {isDifferentWalletOpen && (
+                          <RecipientAddress
+                            animate={{ height: 'auto', y: 0, opacity: 1 }}
+                            exit={{ height: 0, y: '-10%', opacity: 0 }}
+                            initial={{ height: 0, y: '-10%', opacity: 0 }}
+                            key="wallet"
+                            transition={{
+                              type: 'tween',
+                              duration: 0.15,
+                              ease: 'easeInOut',
+                            }}
+                          >
+                            <RecipientAddressHeader>Recipient Address</RecipientAddressHeader>
+                            <Textfield
+                              onChange={(event) =>
+                                dispatch({ ...formState, recipient: event.target.value })
+                              }
+                              type="text"
+                              value={formState.recipient}
+                            />
+                          </RecipientAddress>
+                        )}
+                      </AnimatePresence>
                     </DifferentWalletWrapper>
                   </InnerCard>
                   <AnimatePresence initial={false}>
