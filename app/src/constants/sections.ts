@@ -23,7 +23,7 @@ export const bridgeExplorerSections = [
     href: `${latestTransactionsBaseURL}`,
   },
   {
-    section: 'Bridges',
+    section: 'Bridges Info',
     href: `${bridgeExplorerBaseURL}/bridges`,
   },
   {
