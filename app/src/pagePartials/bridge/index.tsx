@@ -129,8 +129,7 @@ const FromTokenDropdown = styled(TokenDropdown)`
   height: 100%;
   margin-left: calc(var(--theme-common-space) * -1);
 
-  & > div:first-child,
-  button {
+  .dropdownButton {
     height: 100%;
   }
 `
@@ -340,7 +339,7 @@ const BridgeForm: React.FC = genericSuspense(
       (isSameString(formState.token?.address || '', WXDAI_GNOSIS) ||
         isSameString(formState.token?.address || '', sDAI_GNOSIS))
 
-    const tokenOutValue = formatNumber(Number(bridgeInfo.userBalanceInDestination || 0))
+    const tokenOutValue = formatNumber(Number(bridgeInfo.toAmount))
 
     return (
       <>
@@ -366,25 +365,23 @@ const BridgeForm: React.FC = genericSuspense(
                     {formState.toChainId === 100 ? 'Mainnet' : 'Gnosis'}
                   </Chain>
                 </SubTitle>
-                {address && formState.token && (
-                  <BalanceWrapper>
-                    <MaxButton
-                      disabled={bridgeInfo.balance.isZero()}
-                      onClick={() =>
-                        dispatch({
-                          ...formState,
-                          amount: fromBN(bridgeInfo.balance, formState.token?.decimals),
-                        })
-                      }
-                    />
-                    <Balance
-                      token={formState.token}
-                      value={formatNumber(
-                        Number(fromBN(bridgeInfo.balance, formState.token?.decimals)),
-                      )}
-                    />
-                  </BalanceWrapper>
-                )}
+                <BalanceWrapper>
+                  <MaxButton
+                    disabled={bridgeInfo.balance.isZero()}
+                    onClick={() =>
+                      dispatch({
+                        ...formState,
+                        amount: fromBN(bridgeInfo.balance, formState.token?.decimals),
+                      })
+                    }
+                  />
+                  <Balance
+                    token={formState.token}
+                    value={formatNumber(
+                      Number(fromBN(bridgeInfo.balance, formState.token?.decimals)),
+                    )}
+                  />
+                </BalanceWrapper>
                 <BridgedToken>
                   <FromTokenDropdown
                     defaultToken={formState.token}
@@ -438,21 +435,23 @@ const BridgeForm: React.FC = genericSuspense(
                       </Chain>
                     </SubTitle>
                     {bridgeInfo.isLoadingTokenOutInfo && <Loading />}
-                    {address && bridgeInfo.receivedToken && (
-                      <BalanceWrapper>
-                        <Balance
-                          token={bridgeInfo.receivedToken}
-                          value={formatNumber(
-                            Number(
-                              fromBN(
-                                bridgeInfo.userBalanceInDestination || ZERO_BN,
-                                bridgeInfo.receivedToken.decimals,
-                              ),
-                            ),
-                          )}
-                        />
-                      </BalanceWrapper>
-                    )}
+                    <BalanceWrapper>
+                      <Balance
+                        token={bridgeInfo.receivedToken}
+                        value={
+                          bridgeInfo.receivedToken
+                            ? formatNumber(
+                                Number(
+                                  fromBN(
+                                    bridgeInfo.userBalanceInDestination || ZERO_BN,
+                                    bridgeInfo.receivedToken.decimals,
+                                  ),
+                                ),
+                              )
+                            : ''
+                        }
+                      />
+                    </BalanceWrapper>
                     <BridgedToken>
                       {formState.fromChainId == Chains.gnosis &&
                       formState.token?.address ==
@@ -521,9 +520,7 @@ const BridgeForm: React.FC = genericSuspense(
                           appChainConfig.tokenDecimals,
                         )} ${appChainConfig.token}`}
                         isLoading={bridgeInfo.isLoadingInfo}
-                        receivedAmount={`${formatNumber(Number(bridgeInfo.toAmount))} ${
-                          tokenOut?.symbol
-                        }`}
+                        receivedAmount={`${tokenOutValue} ${tokenOut?.symbol}`}
                       />
                     )}
                   </AnimatePresence>

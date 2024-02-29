@@ -7,11 +7,7 @@ import { DebounceInput } from 'react-debounce-input'
 
 import { ChevronDown as BaseChevronDown } from '@/src/components/assets/ChevronDown'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
-import {
-  Dropdown as BaseDropdown,
-  DropdownBridgeItem,
-  DropdownPosition,
-} from '@/src/components/dropdown'
+import { Dropdown as BaseDropdown, DropdownItem, DropdownPosition } from '@/src/components/dropdown'
 import { TextfieldCSS } from '@/src/components/form/Textfield'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
@@ -95,6 +91,16 @@ const Items = styled.div<{ closeOnClick?: boolean }>`
   padding: 0 0 calc(var(--theme-common-space) / 2);
 `
 
+const DropdownBridgeItem = styled(DropdownItem)`
+  --inner-padding: calc(var(--theme-common-space) * 2);
+
+  &:first-child {
+    border-radius: 0;
+  }
+
+  padding: var(--inner-padding);
+`
+
 const TokenInfo = styled.div`
   display: flex;
   flex-direction: column;
@@ -134,6 +140,7 @@ const Button = styled.button`
   justify-content: start;
   line-height: 1.2;
   margin: 0;
+  min-height: 100%;
   min-width: 130px;
   padding: 0 calc(var(--theme-common-space) * 2);
 
@@ -150,6 +157,57 @@ const ChevronDown = styled(BaseChevronDown)`
   .fill {
     fill: ${({ theme: { colors } }) => colors.primary};
   }
+`
+
+const TopTokens = styled.div<{ closeOnClick?: boolean }>`
+  align-items: center;
+  border-bottom: 1px solid ${({ theme: { colors } }) => colors.cream};
+  column-gap: calc(var(--theme-common-space) / 2);
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 var(--inner-padding) var(--inner-padding) var(--inner-padding);
+  row-gap: var(--theme-common-space);
+`
+
+const TopToken = styled.button`
+  --top-token-height: 32px;
+
+  align-items: center;
+  background-color: ${({ theme: { colors } }) => colors.cream};
+  border-radius: calc(var(--top-token-height) - 10px);
+  border: none;
+  column-gap: calc(var(--theme-common-space) / 2);
+  cursor: pointer;
+  display: flex;
+  flex-shrink: 0;
+  font-family: ${({ theme: { fonts } }) => fonts.fontFamily};
+  height: var(--top-token-height);
+  padding: 0 var(--theme-common-space) 0 calc(var(--theme-common-space) / 2);
+  transition: none;
+
+  &:hover {
+    background-color: ${({ theme: { colors } }) => colors.creamDarker};
+  }
+
+  &:active {
+    opacity: 0.7;
+  }
+`
+
+TopToken.defaultProps = {
+  type: 'button',
+}
+
+const TopTokenName = styled.span`
+  color: ${({ theme: { colors } }) => colors.primary};
+  font-size: 1.4rem;
+  font-weight: 500;
+  line-height: 1;
+  overflow: hidden;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
 `
 
 interface Props {
@@ -173,6 +231,7 @@ const Dropdown: React.FC<Props> = ({
   const { ambTokensByNetwork } = useBridgedTokens()
   const [manualTokens, setManualTokens] = useState<Token[]>([])
   const [filteredTokens, setFilteredTokens] = useState<Token[]>([])
+  const [topTokens, setTopTokens] = useState<Token[]>([])
   const [value, setValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -185,6 +244,7 @@ const Dropdown: React.FC<Props> = ({
     const allTokens = ambTokensByNetwork[fromChainId]
       .concat(manualTokens.filter((item) => item.chainId === fromChainId))
       .filter((item) => item.address !== ZERO_ADDRESS)
+
     const _filteredTokens = orderBy(
       value
         ? allTokens?.filter((item) =>
@@ -198,6 +258,38 @@ const Dropdown: React.FC<Props> = ({
 
     setFilteredTokens(_filteredTokens)
   }, [ambTokensByNetwork, fromChainId, manualTokens, value])
+
+  // Get the top tokens (Mainnet / Gnosis Chain)
+  // ETH / DAI / XDAI / WETH / GNO / USDC / USDT / WBTC / OLAS / HOPR
+  useEffect(() => {
+    const topTokenAddresses = [
+      '0x6b175474e89094c44da98b954eedeac495271d0f',
+      '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+      '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+      '0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1',
+      '0x6810e776880c02933d47db1b9fc05908e5386b96',
+      '0x9c58bacc331c9aa871afd802db6379a98e80cedb',
+      '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      '0xddafbb505ad214d7b80b1f830fccc89b60fb7a83',
+      '0xdac17f958d2ee523a2206206994597c13d831ec7',
+      '0x4ecaba5870353805a9f068101a40e0f32ed605c6',
+      '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+      '0x8e5bbbb09ed1ebde8674cda39a0c169401db4252',
+      '0x0001a500a6b18995b03f44bb040a5ffc28e45cb0',
+      '0xce11e14225575945b8e6dc0d4f2dd4c570f79d9f',
+      '0xf5581dfefd8fb0e4aec526be659cfab1f8c781da',
+      '0xd057604a14982fe8d88c5fc25aac3267ea142a08',
+    ]
+    const allTokens = ambTokensByNetwork[fromChainId]
+      .concat(manualTokens.filter((item) => item.chainId === fromChainId))
+      .filter((item) => item.address !== ZERO_ADDRESS)
+
+    const _topTokens = allTokens?.filter((item) => {
+      return topTokenAddresses.includes(item.address) || item.name.toLowerCase() === 'eth'
+    })
+
+    setTopTokens(_topTokens)
+  }, [ambTokensByNetwork, fromChainId, manualTokens])
 
   // if the value is an address and there is not token match
   // we try a search on-chain.
@@ -285,6 +377,20 @@ const Dropdown: React.FC<Props> = ({
             />
           </TextFieldWrapper>
         </TextfieldContainer>,
+        <TopTokens closeOnClick key="topTokens">
+          {topTokens.map((item, index) => (
+            <TopToken
+              key={index}
+              onClick={() => {
+                setValue('')
+                onSelectToken(item)
+              }}
+            >
+              <TokenIcon dimensions={22} iconSource={item.logoURI} symbol={item.symbol} />
+              <TopTokenName>{item.symbol}</TopTokenName>
+            </TopToken>
+          ))}
+        </TopTokens>,
         isLoading ? (
           <Spinner />
         ) : filteredTokens.length ? (
