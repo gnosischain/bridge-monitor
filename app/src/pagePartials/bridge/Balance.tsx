@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import { Token } from '@/types/token'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
+import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -28,7 +29,7 @@ export const Balance: React.FC<{ token: Token | undefined; value: string }> = ({
     <Wrapper>
       <Title>Balance:</Title>{' '}
       {token && <TokenIcon dimensions={16} iconSource={token?.logoURI} symbol={token.symbol} />}
-      {<Value>{value && value !== '0' ? value : '-'}</Value>}
+      {<Value>{!value || value === '0' ? '0.00' : value}</Value>}
     </Wrapper>
   )
 }

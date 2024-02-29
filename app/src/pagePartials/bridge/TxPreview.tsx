@@ -4,14 +4,16 @@ import styled from 'styled-components'
 import { Tooltip } from '@/src/components/tooltip'
 import { Loading } from '@/src/components/loading'
 import formatDistance from 'date-fns/formatDistance'
+import { motion } from 'framer-motion'
 
-const Wrapper = styled.ul`
+const Wrapper = styled(motion.ul)`
   background: ${({ theme: { colors } }) => colors.white_50};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   border: 1px solid ${({ theme: { colors } }) => colors.cream};
   display: flex;
   flex-direction: column;
   margin: 0;
+  min-height: 224px;
   padding: calc(var(--theme-common-space) * 3);
   row-gap: calc(var(--theme-common-space) * 2);
   width: 100%;
@@ -45,9 +47,27 @@ export const TxPreview: React.FC<{
   estimatedTotalGas: string
   receivedAmount: string
   isLoading: boolean
-}> = ({ estimatedTime, estimatedTotalFee, estimatedTotalGas, isLoading, receivedAmount }) => {
+}> = ({
+  estimatedTime,
+  estimatedTotalFee,
+  estimatedTotalGas,
+  isLoading,
+  receivedAmount,
+  ...restProps
+}) => {
   return (
-    <Wrapper>
+    <Wrapper
+      animate={{ height: 'auto', y: 0, opacity: 1 }}
+      exit={{ height: 0, y: '-10%', opacity: 0 }}
+      initial={{ height: 0, y: '-10%', opacity: 0 }}
+      key="wallet"
+      transition={{
+        type: 'tween',
+        duration: 0.15,
+        ease: 'easeInOut',
+      }}
+      {...restProps}
+    >
       {isLoading ? (
         <Loading text="Loading..." />
       ) : (

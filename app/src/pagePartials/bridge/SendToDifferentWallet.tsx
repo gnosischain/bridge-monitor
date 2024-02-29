@@ -37,6 +37,6 @@ export const SendToDifferentWallet: React.FC<{ isOpen: boolean; onClick: () => v
   ...restProps
 }) => (
   <Wrapper isOpen={isOpen} onClick={onClick} {...restProps}>
-    Send to different wallet <ChevronDown />
+    Send to a different wallet <ChevronDown />
   </Wrapper>
 )

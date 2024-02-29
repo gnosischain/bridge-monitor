@@ -2,23 +2,26 @@ import { NumberFormatValues, NumericFormat } from 'react-number-format'
 import { Textfield } from '@/src/components/form/Textfield'
 import debounce from 'lodash/debounce'
 import styled from 'styled-components'
+// import { Balance } from '@/src/pagePartials/bridge/Balance'
+import { Token } from '@/types/token'
 
 const Wrapper = styled.div`
   flex-grow: 1;
   height: 100%;
-  position: relative;
 `
 const TextfieldAmount = styled(Textfield)`
-  background: ${({ theme: { colors } }) => colors.creamLight};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   font-size: 1.5rem;
   font-weight: 500;
   height: 100%;
   padding-left: var(--theme-common-space);
   padding-right: var(--theme-common-space);
-  position: relative;
   text-align: right;
-  z-index: 1;
+
+  &:active,
+  &:focus {
+    background: ${({ theme: { colors } }) => colors.creamLight};
+  }
 
   &::placeholder {
     font-size: 1.5rem;
@@ -33,19 +36,14 @@ const TextfieldAmount = styled(Textfield)`
     }
   }
 `
-const MaxButton = styled.button`
+const Max = styled.button`
   background-color: transparent;
   border-radius: ${({ theme: { common } }) => common.borderRadius};
   border: 1px solid ${({ theme: { colors } }) => colors.primary};
   color: ${({ theme: { colors } }) => colors.primary};
   cursor: pointer;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   padding: 2px var(--theme-common-space);
-  position: absolute;
-  left: var(--theme-common-space);
-  z-index: 10;
-  top: 50%;
-  transform: translateY(-50%);
 
   &:hover {
     background-color: ${({ theme: { colors } }) => colors.primary};
@@ -62,7 +60,26 @@ const MaxButton = styled.button`
       opacity: 0.5;
     }
   }
+
+  &:active {
+    opacity: 0.7;
+  }
 `
+
+Max.defaultProps = {
+  type: 'button',
+}
+
+export const MaxButton: React.FC<{ onClick: () => void; disabled?: boolean }> = ({
+  disabled,
+  onClick,
+}) => {
+  return (
+    <Max disabled={disabled} onClick={onClick}>
+      Max
+    </Max>
+  )
+}
 
 type TokenInputProps = {
   disabled?: boolean
@@ -73,8 +90,6 @@ type TokenInputProps = {
 }
 
 export const AmountTokenInput = ({
-  disabled,
-  max,
   onChange,
   placeholder,
   value,
@@ -89,22 +104,18 @@ export const AmountTokenInput = ({
   }, 500)
 
   return (
-    <Wrapper {...restProps}>
-      {max && (
-        <MaxButton disabled={disabled} onClick={() => onChange(max)} type="button">
-          Max
-        </MaxButton>
-      )}
-      <NumericFormat
-        allowNegative={false}
-        customInput={TextfieldAmount}
-        defaultValue={value}
-        max={max}
-        onValueChange={handleChange}
-        placeholder={placeholder}
-        thousandSeparator={false}
-        value={value}
-      />
-    </Wrapper>
+    <>
+      <Wrapper {...restProps}>
+        <NumericFormat
+          allowNegative={false}
+          customInput={TextfieldAmount}
+          defaultValue={value}
+          onValueChange={handleChange}
+          placeholder={placeholder}
+          thousandSeparator={false}
+          value={value}
+        />
+      </Wrapper>
+    </>
   )
 }

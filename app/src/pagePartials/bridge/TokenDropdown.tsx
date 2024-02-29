@@ -135,11 +135,7 @@ const Button = styled.button`
   line-height: 1.2;
   margin: 0;
   min-width: 130px;
-  padding: 0 var(--theme-common-space);
-
-  small {
-    font-size: 1.4rem;
-  }
+  padding: 0 calc(var(--theme-common-space) * 2);
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     font-size: 1.6rem;
@@ -150,6 +146,7 @@ const ButtonText = styled.span``
 
 const ChevronDown = styled(BaseChevronDown)`
   margin-left: auto;
+
   .fill {
     fill: ${({ theme: { colors } }) => colors.primary};
   }
@@ -269,9 +266,7 @@ const Dropdown: React.FC<Props> = ({
               symbol={defaultToken.symbol}
             />
           )}
-          <ButtonText>
-            {defaultToken ? defaultToken.symbol : <small>Select token...</small>}
-          </ButtonText>
+          <ButtonText>{defaultToken ? defaultToken.symbol : <>Select token</>}</ButtonText>
           {!disabled && <ChevronDown />}
         </Button>
       }
