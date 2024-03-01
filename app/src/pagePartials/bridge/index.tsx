@@ -32,7 +32,6 @@ import { useBridgeInfo } from '@/src/hooks/bridge/useBridgeInfo'
 import { getToChainId, isSameString } from '@/src/utils/tools'
 import { getIcon } from '@/src/utils/icons'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { Loading } from '@/src/components/loading'
 import { Balance } from '@/src/pagePartials/bridge/Balance'
 
 const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
@@ -376,6 +375,7 @@ const BridgeForm: React.FC = genericSuspense(
                     }
                   />
                   <Balance
+                    loading={bridgeInfo.isLoadingInfo}
                     token={formState.token}
                     value={formatNumber(
                       Number(fromBN(bridgeInfo.balance, formState.token?.decimals)),
@@ -434,9 +434,9 @@ const BridgeForm: React.FC = genericSuspense(
                         {formState.toChainId === 100 ? 'Gnosis' : 'Mainnet'}
                       </Chain>
                     </SubTitle>
-                    {bridgeInfo.isLoadingTokenOutInfo && <Loading />}
                     <BalanceWrapper>
                       <Balance
+                        loading={bridgeInfo.isLoadingTokenOutInfo}
                         token={bridgeInfo.receivedToken}
                         value={
                           bridgeInfo.receivedToken
@@ -463,7 +463,11 @@ const BridgeForm: React.FC = genericSuspense(
                           value={tokenOutValue}
                         />
                       ) : (
-                        <TokenOut tokenOut={tokenOut} value={tokenOutValue} />
+                        <TokenOut
+                          loading={bridgeInfo.isLoadingTokenOutInfo}
+                          tokenOut={tokenOut}
+                          value={tokenOutValue}
+                        />
                       )}
                     </BridgedToken>
                     <DifferentWalletWrapper>

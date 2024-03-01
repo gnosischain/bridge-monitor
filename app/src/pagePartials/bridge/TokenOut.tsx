@@ -20,7 +20,11 @@ const TokenOutValue = styled.span<{ disabled?: boolean }>`
   }
 `
 
-export const TokenOut: React.FC<{ tokenOut?: Token; value?: string }> = ({ tokenOut, value }) => (
+export const TokenOut: React.FC<{ tokenOut?: Token; value?: string; loading?: boolean }> = ({
+  loading,
+  tokenOut,
+  value,
+}) => (
   <>
     {tokenOut ? (
       <>
@@ -39,7 +43,7 @@ export const TokenOut: React.FC<{ tokenOut?: Token; value?: string }> = ({ token
             minWidth: '0',
           }}
         />
-        <NoTokenSelected>No token selected</NoTokenSelected>
+        <NoTokenSelected>{loading ? 'Loading...' : 'No token selected'}</NoTokenSelected>
         <TokenOutValue disabled>0.00</TokenOutValue>
       </>
     )}
