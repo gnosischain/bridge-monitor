@@ -12,8 +12,8 @@ import { CardPlaceholder } from '@/src/pagePartials/bridge/CardPlaceholder'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { TokenSelect } from '@/src/pagePartials/bridge/TokenSelect'
 import { Header } from '@/src/pagePartials/bridge/Header'
-
 import { InnerCard } from '@/src/pagePartials/bridge/InnerCard'
+import { ButtonUnwrapFirst, UnwrapFirst } from '@/src/pagePartials/bridge/UnwrapFirst'
 import { MainCard } from '@/src/components/card/MainCard'
 import { Success } from '@/src/pagePartials/bridge/Success'
 import { Switch } from '@/src/pagePartials/bridge/Switch'
@@ -376,40 +376,26 @@ const BridgeForm: React.FC = genericSuspense(
                   onClick={() => handleFromChainIdChange(formState.toChainId === 100 ? 100 : 1)}
                 />
               </InnerCardFrom>
-              {unwrapFirst && (
-                <InnerCard>
-                  <p>
-                    wxDAI and sDAI need to be unwrapped to xDAI first before bridging to Ethereum.
-                    You can do this{' '}
-                    <a
-                      href={`https://swap.cow.fi/#/100/swap/${formState.token?.symbol}/xDAI`}
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      here
-                    </a>
-                    .
-                  </p>
-                </InnerCard>
-              )}
-              {!unwrapFirst && (
-                <>
-                  <InnerCard>
-                    <SubTitle>
-                      To
-                      <Chain>
-                        <Image
-                          alt={formState.fromChainId === Chains.gnosis ? 'Mainnet' : 'Gnosis'}
-                          height={24}
-                          objectFit="cover"
-                          src={getIcon(
-                            formState.fromChainId === Chains.gnosis ? 'MainnetBig' : 'GnosisBig',
-                          )}
-                          width={24}
-                        />
-                        {formState.toChainId === 100 ? 'Gnosis' : 'Mainnet'}
-                      </Chain>
-                    </SubTitle>
+              <InnerCard>
+                <SubTitle>
+                  To
+                  <Chain>
+                    <Image
+                      alt={formState.fromChainId === Chains.gnosis ? 'Mainnet' : 'Gnosis'}
+                      height={24}
+                      objectFit="cover"
+                      src={getIcon(
+                        formState.fromChainId === Chains.gnosis ? 'MainnetBig' : 'GnosisBig',
+                      )}
+                      width={24}
+                    />
+                    {formState.toChainId === 100 ? 'Gnosis' : 'Mainnet'}
+                  </Chain>
+                </SubTitle>
+                {unwrapFirst ? (
+                  <UnwrapFirst />
+                ) : (
+                  <>
                     <BalanceWrapper>
                       <Balance
                         loading={bridgeInfo.isLoadingTokenOutInfo}
@@ -454,31 +440,32 @@ const BridgeForm: React.FC = genericSuspense(
                         recipient={formState.recipient}
                       />
                     </DifferentWalletWrapper>
-                  </InnerCard>
-                  {!bridgeInfo.errorMessage && (
-                    <AnimatePresence initial={false}>
-                      {formState.amount && formState.token && (
-                        <TxPreview
-                          estimatedTime={bridgeInfo.estimatedTimeInSeconds || 0}
-                          estimatedTotalFee={`${fromBN(
-                            bridgeInfo.fee,
-                            appChainConfig.tokenDecimals,
-                          )} ${formState.token?.symbol}`}
-                          estimatedTotalGas={`${fromBN(
-                            bridgeInfo.gasLimit.mul(bridgeInfo.gasPrice),
-                            appChainConfig.tokenDecimals,
-                          )} ${appChainConfig.token}`}
-                          isLoading={bridgeInfo.isLoadingInfo}
-                          receivedAmount={`${tokenOutValue} ${tokenOut?.symbol}`}
-                        />
-                      )}
-                    </AnimatePresence>
+                  </>
+                )}
+              </InnerCard>
+              {!bridgeInfo.errorMessage && (
+                <AnimatePresence initial={false}>
+                  {formState.amount && formState.token && (
+                    <TxPreview
+                      estimatedTime={bridgeInfo.estimatedTimeInSeconds || 0}
+                      estimatedTotalFee={`${fromBN(bridgeInfo.fee, appChainConfig.tokenDecimals)} ${
+                        formState.token?.symbol
+                      }`}
+                      estimatedTotalGas={`${fromBN(
+                        bridgeInfo.gasLimit.mul(bridgeInfo.gasPrice),
+                        appChainConfig.tokenDecimals,
+                      )} ${appChainConfig.token}`}
+                      isLoading={bridgeInfo.isLoadingInfo}
+                      receivedAmount={`${tokenOutValue} ${tokenOut?.symbol}`}
+                    />
                   )}
-                  {bridgeInfo.errorMessage && <AlertMessage text={bridgeInfo.errorMessage} />}
-                </>
+                </AnimatePresence>
               )}
+              {bridgeInfo.errorMessage && <AlertMessage text={bridgeInfo.errorMessage} />}
             </FormCards>
-            {!unwrapFirst && (
+            {unwrapFirst ? (
+              <ButtonUnwrapFirst symbol={formState.token?.symbol} />
+            ) : (
               <BridgeButton
                 approvalTx={handleApprove}
                 bridgeTx={handleBridgeTx}
