@@ -361,7 +361,7 @@ const BridgeForm: React.FC = genericSuspense(
                       )}
                       width={24}
                     />
-                    {formState.toChainId === 100 ? 'Mainnet' : 'Gnosis'}
+                    {chainsConfig[formState.fromChainId].name}
                   </Chain>
                 </SubTitle>
                 <BalanceWrapper>
@@ -431,7 +431,7 @@ const BridgeForm: React.FC = genericSuspense(
                           )}
                           width={24}
                         />
-                        {formState.toChainId === 100 ? 'Gnosis' : 'Mainnet'}
+                        {chainsConfig[formState.toChainId].name}
                       </Chain>
                     </SubTitle>
                     <BalanceWrapper>

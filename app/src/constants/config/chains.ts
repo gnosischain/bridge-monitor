@@ -11,8 +11,8 @@ export const INITIAL_APP_CHAIN_ID = Number(
 export const chainsConfig: Record<ChainsValues, ChainConfig> = {
   [Chains.mainnet]: {
     id: Chains.mainnet,
-    name: 'Mainnet',
-    shortName: 'Mainnet',
+    name: 'Ethereum',
+    shortName: 'Ethereum',
     chainId: Chains.mainnet,
     chainIdHex: '0x1',
     rpcUrl: getProviderUrl(Chains.mainnet),
