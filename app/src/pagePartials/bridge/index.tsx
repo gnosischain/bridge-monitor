@@ -511,23 +511,25 @@ const BridgeForm: React.FC = genericSuspense(
                       </AnimatePresence>
                     </DifferentWalletWrapper>
                   </InnerCard>
-                  <AnimatePresence initial={false}>
-                    {formState.amount && formState.token && (
-                      <TxPreview
-                        estimatedTime={bridgeInfo.estimatedTimeInSeconds || 0}
-                        estimatedTotalFee={`${fromBN(
-                          bridgeInfo.fee,
-                          appChainConfig.tokenDecimals,
-                        )} ${formState.token?.symbol}`}
-                        estimatedTotalGas={`${fromBN(
-                          bridgeInfo.gasLimit.mul(bridgeInfo.gasPrice),
-                          appChainConfig.tokenDecimals,
-                        )} ${appChainConfig.token}`}
-                        isLoading={bridgeInfo.isLoadingInfo}
-                        receivedAmount={`${tokenOutValue} ${tokenOut?.symbol}`}
-                      />
-                    )}
-                  </AnimatePresence>
+                  {!bridgeInfo.errorMessage && (
+                    <AnimatePresence initial={false}>
+                      {formState.amount && formState.token && (
+                        <TxPreview
+                          estimatedTime={bridgeInfo.estimatedTimeInSeconds || 0}
+                          estimatedTotalFee={`${fromBN(
+                            bridgeInfo.fee,
+                            appChainConfig.tokenDecimals,
+                          )} ${formState.token?.symbol}`}
+                          estimatedTotalGas={`${fromBN(
+                            bridgeInfo.gasLimit.mul(bridgeInfo.gasPrice),
+                            appChainConfig.tokenDecimals,
+                          )} ${appChainConfig.token}`}
+                          isLoading={bridgeInfo.isLoadingInfo}
+                          receivedAmount={`${tokenOutValue} ${tokenOut?.symbol}`}
+                        />
+                      )}
+                    </AnimatePresence>
+                  )}
                   {bridgeInfo.errorMessage && <AlertMessage text={bridgeInfo.errorMessage} />}
                 </>
               )}
