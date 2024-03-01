@@ -5,18 +5,18 @@ import dynamic from 'next/dynamic'
 import useTransaction from '@/src/hooks/useTransaction'
 import { AlertMessage } from '@/src/components/error/AlertMessage'
 import { AmountTokenInput, MaxButton } from '@/src/pagePartials/bridge/AmountTokenInput'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 import { BridgeButton, ButtonPlaceholder } from '@/src/pagePartials/bridge/BridgeButton'
+import { RecipientAddress } from '@/src/pagePartials/bridge/RecipientAddress'
 import { CardPlaceholder } from '@/src/pagePartials/bridge/CardPlaceholder'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { TokenSelect } from '@/src/pagePartials/bridge/TokenSelect'
 import { Header } from '@/src/pagePartials/bridge/Header'
-import { SendToDifferentWallet } from '@/src/pagePartials/bridge/SendToDifferentWallet'
+
 import { InnerCard } from '@/src/pagePartials/bridge/InnerCard'
 import { MainCard } from '@/src/components/card/MainCard'
 import { Success } from '@/src/pagePartials/bridge/Success'
 import { Switch } from '@/src/pagePartials/bridge/Switch'
-import { Textfield } from '@/src/components/form/Textfield'
 import { Token } from '@/types/token'
 import { TokenDropdown } from '@/src/pagePartials/bridge/TokenDropdown'
 import { TokenOut } from '@/src/pagePartials/bridge/TokenOut'
@@ -143,29 +143,6 @@ const DifferentWalletWrapper = styled.div`
   gap: calc(var(--theme-common-space) * 2);
 `
 
-const RecipientAddress = styled(motion.div)`
-  align-items: flex-start;
-  border-radius: var(--theme-common-space);
-  border: 1px solid ${({ theme: { colors } }) => colors.cream};
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme: { common } }) => common.borderRadiusBig};
-  padding: calc(var(--theme-common-space) * 2) var(--theme-common-space);
-
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    padding: calc(var(--theme-common-space) * 2);
-  }
-`
-
-const RecipientAddressHeader = styled.div`
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  justify-content: space-between;
-  width: 100%;
-`
-
 const SkeletonCommon: React.FC = () => (
   <>
     <Header />
@@ -262,6 +239,7 @@ const BridgeForm: React.FC = genericSuspense(
       }
 
       setIsApproving(true)
+
       const parsedAmount = parseUnits(formState.amount, formState.token.decimals)
       const fromTokenAddress = formState.token.address
       const spender = bridgeInfo.fromBridgeAddress
@@ -309,8 +287,6 @@ const BridgeForm: React.FC = genericSuspense(
         setIsBridging(false)
       }
     }
-
-    const [isDifferentWalletOpen, setIsDifferentWalletOpen] = useState(false)
 
     const wethOptions = [
       {
@@ -361,7 +337,7 @@ const BridgeForm: React.FC = genericSuspense(
                       )}
                       width={24}
                     />
-                    {chainsConfig[formState.fromChainId].name}
+                    {formState.toChainId === 100 ? 'Mainnet' : 'Gnosis'}
                   </Chain>
                 </SubTitle>
                 <BalanceWrapper>
@@ -431,7 +407,7 @@ const BridgeForm: React.FC = genericSuspense(
                           )}
                           width={24}
                         />
-                        {chainsConfig[formState.toChainId].name}
+                        {formState.toChainId === 100 ? 'Gnosis' : 'Mainnet'}
                       </Chain>
                     </SubTitle>
                     <BalanceWrapper>
@@ -471,44 +447,12 @@ const BridgeForm: React.FC = genericSuspense(
                       )}
                     </BridgedToken>
                     <DifferentWalletWrapper>
-                      {bridgeInfo.isSCWallet && (
-                        <label htmlFor="recipient">
-                          A recipient address is required when using a smart contract wallet. Be
-                          sure you control the recipient address on the destination chain.
-                        </label>
-                      )}
-                      <SendToDifferentWallet
-                        isOpen={isDifferentWalletOpen}
-                        onClick={() =>
-                          setIsDifferentWalletOpen(
-                            (isDifferentWalletOpen) => !isDifferentWalletOpen,
-                          )
+                      <RecipientAddress
+                        onChange={(event) =>
+                          dispatch({ ...formState, recipient: event.target.value })
                         }
+                        recipient={formState.recipient}
                       />
-                      <AnimatePresence initial={false}>
-                        {isDifferentWalletOpen && (
-                          <RecipientAddress
-                            animate={{ height: 'auto', y: 0, opacity: 1 }}
-                            exit={{ height: 0, y: '-10%', opacity: 0 }}
-                            initial={{ height: 0, y: '-10%', opacity: 0 }}
-                            key="wallet"
-                            transition={{
-                              type: 'tween',
-                              duration: 0.15,
-                              ease: 'easeInOut',
-                            }}
-                          >
-                            <RecipientAddressHeader>Recipient Address</RecipientAddressHeader>
-                            <Textfield
-                              onChange={(event) =>
-                                dispatch({ ...formState, recipient: event.target.value })
-                              }
-                              type="text"
-                              value={formState.recipient}
-                            />
-                          </RecipientAddress>
-                        )}
-                      </AnimatePresence>
                     </DifferentWalletWrapper>
                   </InnerCard>
                   {!bridgeInfo.errorMessage && (

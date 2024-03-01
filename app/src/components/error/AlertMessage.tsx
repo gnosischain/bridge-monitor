@@ -3,31 +3,40 @@ import styled from 'styled-components'
 
 import { Warning } from '@/src/components/assets/Warning'
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ mode?: 'error' | 'warning' | 'success' }>`
   align-items: center;
-  border: 1px solid ${({ theme: { colors } }) => colors.cream};
   background-color: ${({ theme: { colors } }) => colors.white};
   border-radius: ${({ theme: { common } }) => common.borderRadius};
-  color: ${({ theme: { colors } }) => colors.error};
-  gap: calc(var(--theme-common-space) * 2);
+  border: 1px solid ${({ theme: { colors } }) => colors.cream};
+  color: ${({ mode, theme: { colors } }) =>
+    mode === 'error' ? colors.error : mode === 'warning' ? colors.warning : colors.success};
   display: flex;
   font-size: 1.6rem;
   line-height: 1.2;
+  gap: calc(var(--theme-common-space) * 2);
   padding: calc(var(--theme-common-space) * 3);
   width: 100%;
-  span {
-    color: ${({ theme: { colors } }) => colors.error};
-  }
 `
 
+Wrapper.defaultProps = {
+  mode: 'error',
+}
+
+const Text = styled.span``
+
+Text.defaultProps = {
+  className: 'text',
+}
+
 export const AlertMessage: React.FC<{
-  text?: string | React.ReactNode
   icon?: React.ReactNode
-}> = ({ icon = <Warning />, text = 'Something went wrong.', ...restProps }) => {
+  mode?: 'error' | 'warning' | 'success'
+  text?: string | React.ReactNode
+}> = ({ icon = <Warning />, text = 'Something went wrong.', mode, ...restProps }) => {
   return (
-    <Wrapper {...restProps}>
-      <span>{icon}</span>
-      {text}
+    <Wrapper mode={mode} {...restProps}>
+      {icon}
+      <Text>{text}</Text>
     </Wrapper>
   )
 }
