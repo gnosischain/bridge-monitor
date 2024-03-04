@@ -3,7 +3,7 @@ import { BigNumber } from 'ethers'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { ZERO_BN } from '@/src/constants/misc'
-import { parseUnits } from 'ethers/lib/utils'
+import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 import { fromBN } from '@/src/utils/bigNumber'
 import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
@@ -160,7 +160,7 @@ export const useBridgeInfo = ({
       gasPrice: ZERO_BN,
       tx: null,
     }),
-    toAmount: fromBN(amountBN.sub(bridgeFeeInfo || ZERO_BN), token?.decimals) || '0',
+    toAmount: formatUnits(amountBN.sub(bridgeFeeInfo || ZERO_BN), token?.decimals) || '0',
     fromBridgeAddress: fromBridgeAddress,
     fee: bridgeFeeInfo || ZERO_BN,
     shouldApprove,

@@ -22,7 +22,7 @@ import { TokenOut } from '@/src/pagePartials/bridge/TokenOut'
 import { TxPreview } from '@/src/pagePartials/bridge/TxPreview'
 import { WXDAI_GNOSIS, ZERO_ADDRESS, ZERO_BN, sDAI_GNOSIS } from '@/src/constants/misc'
 import { chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
-import { formatNumber } from '@/src/utils/format'
+import { NumberType, formatNumber } from '@/src/utils/format'
 import { fromBN } from '@/src/utils/bigNumber'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { parseUnits } from 'ethers/lib/utils'
@@ -305,7 +305,7 @@ const BridgeForm: React.FC = genericSuspense(
       (isSameString(formState.token?.address || '', WXDAI_GNOSIS) ||
         isSameString(formState.token?.address || '', sDAI_GNOSIS))
 
-    const tokenOutValue = formatNumber(Number(bridgeInfo.toAmount))
+    const tokenOutValue = bridgeInfo.toAmount
 
     return (
       <>
