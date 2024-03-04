@@ -7,10 +7,12 @@ import { DEBOUNCE_TIME } from '@/src/constants/misc'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { MyTransactions } from '@/src/components/assets/MyTransactions'
 import { TextfieldStatus } from '@/src/components/form/Textfield'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { SCLink, SCText, SCTitle, SidebarCard } from '@/src/components/card/SidebarCard'
 import Link from 'next/link'
+import { isTransactionHash } from '@/src/utils/tools'
+import { isAddress } from 'ethers/lib/utils'
 
 const Wrapper = styled(SidebarCard)`
   padding-top: calc(var(--theme-common-space) * 5);
@@ -166,7 +168,25 @@ const Transactions = styled(MyTransactions)`
 export const Search: React.FC = ({ ...restProps }) => {
   const { address, connectWallet, isWalletConnected } = useWeb3Connection()
   const [value, setValue] = useState('')
+  const [error, setError] = useState('')
   const router = useRouter()
+
+  useEffect(() => {
+    const _value = value.toLowerCase()
+    const isValidHash = isTransactionHash(_value) || isAddress(_value)
+
+    if (!_value.length) {
+      setError('')
+      return
+    }
+
+    if (!isValidHash) {
+      setError('Invalid address or transaction hash.')
+      return
+    }
+
+    router.push(`${bridgeExplorerBaseURL}?hash=${value}`)
+  }, [value, router])
 
   return (
     <Wrapper {...restProps}>
@@ -182,17 +202,13 @@ export const Search: React.FC = ({ ...restProps }) => {
           id="sidebarSearch"
           minLength={3}
           onChange={(e: { target: { value: string } }) => setValue(e.target.value)}
-          onKeyDown={(e: { key: string }) => {
-            if (e.key === 'Enter' && value) {
-              router.push(`${bridgeExplorerBaseURL}?hash=${value}`)
-            }
-          }}
           placeholder={'Search by Address / Tx Hash'}
           type="search"
           value={value}
         />
         <Magnifier />
       </SearchWrapper>
+      {error && <SCText error>{error}</SCText>}
       {isWalletConnected && address ? (
         <NextLink as={SCLink} href={`${myTransactionsFullURL}${address}`}>
           <Transactions />
