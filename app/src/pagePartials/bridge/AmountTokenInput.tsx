@@ -1,9 +1,6 @@
 import { NumberFormatValues, NumericFormat } from 'react-number-format'
 import { Textfield } from '@/src/components/form/Textfield'
-import debounce from 'lodash/debounce'
 import styled from 'styled-components'
-// import { Balance } from '@/src/pagePartials/bridge/Balance'
-import { Token } from '@/types/token'
 
 const Wrapper = styled.div`
   flex-grow: 1;
@@ -82,6 +79,7 @@ export const MaxButton: React.FC<{ onClick: () => void; disabled?: boolean }> = 
 }
 
 type TokenInputProps = {
+  decimals: number
   disabled?: boolean
   max?: string
   onChange: (value: string) => void
@@ -90,18 +88,19 @@ type TokenInputProps = {
 }
 
 export const AmountTokenInput = ({
+  decimals,
   onChange,
   placeholder,
   value,
   ...restProps
 }: TokenInputProps) => {
-  const handleChange = debounce(({ floatValue, formattedValue, value }: NumberFormatValues) => {
+  const handleChange = ({ floatValue, formattedValue, value }: NumberFormatValues) => {
     try {
       onChange(value || '')
     } catch (error) {
       console.log(error, floatValue, formattedValue, value)
     }
-  }, 500)
+  }
 
   return (
     <>
@@ -110,6 +109,11 @@ export const AmountTokenInput = ({
           allowNegative={false}
           customInput={TextfieldAmount}
           defaultValue={value}
+          isAllowed={({ value }) => {
+            const [, _decimals] = value.toString().split('.')
+            if (!_decimals) return true
+            return decimals > _decimals?.length
+          }}
           onValueChange={handleChange}
           placeholder={placeholder}
           thousandSeparator={false}

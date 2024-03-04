@@ -33,7 +33,8 @@ import { getIcon } from '@/src/utils/icons'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { Balance } from '@/src/pagePartials/bridge/Balance'
 import { useRouter } from 'next/router'
-import { bridgeExplorerBaseURL, bridgeProgressBaseURL } from '@/src/constants/sections'
+import { bridgeProgressBaseURL } from '@/src/constants/sections'
+import { useDebounce } from 'use-debounce'
 
 const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
   ssr: false,
@@ -144,6 +145,19 @@ const DifferentWalletWrapper = styled.div`
   gap: calc(var(--theme-common-space) * 2);
 `
 
+const wethOptions = [
+  {
+    icon: '/images/icons/wethToken.svg',
+    label: 'WETH',
+    name: 'eth-types',
+  },
+  {
+    icon: '/images/icons/ethToken.svg',
+    label: 'ETH',
+    name: 'eth-types',
+  },
+]
+
 const SkeletonCommon: React.FC = () => (
   <>
     <Header />
@@ -196,6 +210,7 @@ const BridgeForm: React.FC = genericSuspense(
         account: address || ZERO_ADDRESS,
       },
     )
+    const [debouncedAmount] = useDebounce(formState.amount, 500)
 
     // TODO: REFACTOR having this one big unified hook is not a good idea.
     // It tries to get all the data, even when it's not needed.
@@ -206,7 +221,7 @@ const BridgeForm: React.FC = genericSuspense(
       toChainId: formState.toChainId as ChainsValues,
       token: formState.token,
       receiveNativeToken: formState.receiveNativeToken,
-      amount: formState.amount,
+      amount: debouncedAmount,
       recipient: formState.recipient,
     })
 
@@ -279,19 +294,6 @@ const BridgeForm: React.FC = genericSuspense(
       }
     }
 
-    const wethOptions = [
-      {
-        icon: '/images/icons/wethToken.svg',
-        label: 'WETH',
-        name: 'eth-types',
-      },
-      {
-        icon: '/images/icons/ethToken.svg',
-        label: 'ETH',
-        name: 'eth-types',
-      },
-    ]
-
     const radioGroupHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (event.target.value === 'WETH') {
         dispatch({ ...formState, receiveNativeToken: !formState.receiveNativeToken })
@@ -340,7 +342,7 @@ const BridgeForm: React.FC = genericSuspense(
                     }
                   />
                   <Balance
-                    loading={bridgeInfo.isLoadingInfo}
+                    loading={bridgeInfo.isLoadingBalanceInfo}
                     token={formState.token}
                     value={formatNumber(
                       Number(fromBN(bridgeInfo.balance, formState.token?.decimals)),
@@ -356,6 +358,7 @@ const BridgeForm: React.FC = genericSuspense(
                     toChainId={formState.toChainId}
                   />
                   <TokenInput
+                    decimals={formState.token?.decimals || 18}
                     onChange={(value) => dispatch({ ...formState, amount: value })}
                     placeholder="0.00"
                     value={formState.amount}

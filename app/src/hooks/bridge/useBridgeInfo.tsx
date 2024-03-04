@@ -49,17 +49,7 @@ export const useBridgeInfo = ({
     isNativeToken,
   ).address
 
-  const amountBN = useMemo(() => {
-    if (!amount || !token) {
-      return ZERO_BN
-    }
-    try {
-      return parseUnits(amount, token.decimals)
-    } catch (error) {
-      console.log(error)
-      return ZERO_BN
-    }
-  }, [amount, token])
+  const amountBN = useMemo(() => parseUnits(amount || '0', token?.decimals), [amount, token])
 
   const { data: tokenMode, isLoading: isLoadingTokenMode } = useTokenMode(
     isFromHome,
@@ -149,6 +139,7 @@ export const useBridgeInfo = ({
   return {
     // TODO, this is kinda a mess, we should refactor this
     ...{ balance: ZERO_BN, allowance: ZERO_BN },
+    isLoadingBalanceInfo,
     ...bridgeBalanceInfo,
     ...{
       tokenOutAddress: undefined,

@@ -1,4 +1,4 @@
-import { BigNumberish } from 'ethers'
+import { BigNumber } from 'ethers'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import useSWR from 'swr'
 import { Token } from '@/types/token'
@@ -17,14 +17,14 @@ export const useBridgeFee = ({
   isNativeBridge,
   token,
 }: {
-  amount: BigNumberish
+  amount: BigNumber
   foreignChainId: ChainsValues
   isFromHome: boolean
   isNativeBridge: boolean
   token?: Token
 }) => {
   const { bridgeContracts } = useBridgeContracts()
-  const shouldFetch = token && foreignChainId && amount
+  const shouldFetch = token && foreignChainId && amount && amount.gt(0)
 
   return useSWR(
     shouldFetch ? [token, amount, 'bridgeFee'] : null,
