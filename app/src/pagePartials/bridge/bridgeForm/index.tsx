@@ -4,25 +4,25 @@ import Image from 'next/image'
 import dynamic from 'next/dynamic'
 import useTransaction from '@/src/hooks/useTransaction'
 import { AlertMessage } from '@/src/components/error/AlertMessage'
-import { AmountTokenInput, MaxButton } from '@/src/pagePartials/bridge/AmountTokenInput'
+import { AmountTokenInput, MaxButton } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
 import { AnimatePresence } from 'framer-motion'
-import { BridgeButton, ButtonPlaceholder } from '@/src/pagePartials/bridge/BridgeButton'
-import { RecipientAddress } from '@/src/pagePartials/bridge/RecipientAddress'
-import { CardPlaceholder } from '@/src/pagePartials/bridge/CardPlaceholder'
+import { BridgeButton, ButtonPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/BridgeButton'
+import { RecipientAddress } from '@/src/pagePartials/bridge/bridgeForm/RecipientAddress'
+import { CardPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/CardPlaceholder'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
-import { TokenSelect } from '@/src/pagePartials/bridge/TokenSelect'
-import { Header } from '@/src/pagePartials/bridge/Header'
-import { InnerCard } from '@/src/pagePartials/bridge/InnerCard'
-import { ButtonUnwrapFirst, UnwrapFirst } from '@/src/pagePartials/bridge/UnwrapFirst'
-import { MainCard } from '@/src/components/card/MainCard'
-import { Switch } from '@/src/pagePartials/bridge/Switch'
+import { TokenSelect } from '@/src/pagePartials/bridge/bridgeForm/TokenSelect'
+import { Header } from '@/src/pagePartials/bridge/bridgeForm/Header'
+import { InnerCard } from '@/src/pagePartials/bridge/bridgeForm/InnerCard'
+import { ButtonUnwrapFirst, UnwrapFirst } from '@/src/pagePartials/bridge/bridgeForm/UnwrapFirst'
+import { Switch } from '@/src/pagePartials/bridge/bridgeForm/Switch'
+import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
 import { Token } from '@/types/token'
-import { TokenDropdown } from '@/src/pagePartials/bridge/TokenDropdown'
-import { TokenOut } from '@/src/pagePartials/bridge/TokenOut'
-import { TxPreview } from '@/src/pagePartials/bridge/TxPreview'
+import { TokenDropdown } from '@/src/pagePartials/bridge/bridgeForm/TokenDropdown'
+import { TokenOut } from '@/src/pagePartials/bridge/bridgeForm/TokenOut'
+import { TxPreview } from '@/src/pagePartials/bridge/bridgeForm/TxPreview'
 import { WXDAI_GNOSIS, ZERO_ADDRESS, ZERO_BN, sDAI_GNOSIS } from '@/src/constants/misc'
 import { chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
-import { NumberType, formatNumber } from '@/src/utils/format'
+import { formatNumber } from '@/src/utils/format'
 import { fromBN } from '@/src/utils/bigNumber'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { parseUnits } from 'ethers/lib/utils'
@@ -31,23 +31,14 @@ import { useBridgeInfo } from '@/src/hooks/bridge/useBridgeInfo'
 import { getToChainId, isSameString } from '@/src/utils/tools'
 import { getIcon } from '@/src/utils/icons'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { Balance } from '@/src/pagePartials/bridge/Balance'
+import { Balance } from '@/src/pagePartials/bridge/bridgeForm/Balance'
 import { useRouter } from 'next/router'
-import { bridgeProgressBaseURL } from '@/src/constants/sections'
+import { bridgePagesBaseURL } from '@/src/constants/sections'
 import { useDebounce } from 'use-debounce'
 
 const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
   ssr: false,
 })
-
-const Wrapper = styled(MainCard)`
-  align-items: center;
-  padding-top: calc(var(--theme-common-space) * 5);
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    padding-top: calc(var(--theme-common-space) * 8);
-  }
-`
 
 const InnerWrapper = styled.div<{ hidden?: boolean }>`
   display: ${({ hidden }) => (hidden ? 'none' : 'flex')};
@@ -279,11 +270,11 @@ const BridgeForm: React.FC = genericSuspense(
 
         if (tx) {
           router.push(
-            `${bridgeProgressBaseURL}/${tx.hash}?fromChainId=${
-              formState.fromChainId
-            }&isNativeBridge=${bridgeInfo.isNativeBridge ? 1 : 0}&tokenAddress=${
-              formState.token?.address
-            }&amount=${formState.amount}&toChainId=${formState.toChainId}`,
+            `${bridgePagesBaseURL}/${tx.hash}?fromChainId=${formState.fromChainId}&isNativeBridge=${
+              bridgeInfo.isNativeBridge ? 1 : 0
+            }&tokenAddress=${formState.token?.address}&amount=${formState.amount}&toChainId=${
+              formState.toChainId
+            }`,
           )
         } else {
           throw new Error('Failed to bridge')

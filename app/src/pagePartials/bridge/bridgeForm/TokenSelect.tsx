@@ -1,4 +1,4 @@
-import { TokenSelectButton } from '@/src/pagePartials/bridge/TokenSelectButton'
+import { TokenSelectButton } from '@/src/pagePartials/bridge/bridgeForm/TokenSelectButton'
 import styled from 'styled-components'
 
 const Wrapper = styled.div`

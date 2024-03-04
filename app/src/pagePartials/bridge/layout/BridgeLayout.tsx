@@ -1,19 +1,9 @@
 import { SidebarLayout } from '@/src/components/sidebarLayout'
-import { Success } from '@/src/pagePartials/bridge/Success'
 import { Search } from '@/src/pagePartials/bridge/sidebar/Search'
 import { ExternalLinks } from '@/src/pagePartials/bridge/sidebar/ExternalLinks'
-import { ReactElement } from 'react'
-import TokenListProvider from '@/src/providers/tokenListProvider'
+import { PropsWithChildren } from 'react'
 
-const BridgeProgressPage = () => {
-  return (
-    <TokenListProvider>
-      <Success />
-    </TokenListProvider>
-  )
-}
-
-BridgeProgressPage.getLayout = function getLayout(page: ReactElement) {
+export const BridgeLayout: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
   return (
     <SidebarLayout
       sidebarContents={
@@ -24,9 +14,7 @@ BridgeProgressPage.getLayout = function getLayout(page: ReactElement) {
       }
       sidebarPlacement="right"
     >
-      {page}
+      {children}
     </SidebarLayout>
   )
 }
-
-export default BridgeProgressPage

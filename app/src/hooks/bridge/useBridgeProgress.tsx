@@ -11,11 +11,8 @@ export const useBridgeProgress = (
   transactionId?: string,
 ) => {
   const chainConfig = getNetworkConfig(chainId)
-
   const provider = useMemo(() => new JsonRpcProvider(chainConfig.rpcUrl), [chainConfig])
-
   const [shouldPolling, setShouldPolling] = useState(true)
-
   const { data: bridgeBlockInfo, isLoading: isLoadingBlockInfo } = useBridgeRequiredBlocks(
     chainId,
     isNativeBridge,

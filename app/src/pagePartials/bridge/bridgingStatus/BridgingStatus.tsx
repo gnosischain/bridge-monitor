@@ -1,22 +1,23 @@
-import styled from 'styled-components'
-import { MainTitle } from '@/src/components/text/MainTitle'
 import Link from 'next/link'
-import { Ok } from '@/src/components/assets/Ok'
-import { ButtonFull } from '@/src/components/buttons/Button'
-import { BlockConfirmations } from '@/src/pagePartials/common/BlockConfirmations'
-import { transactionBaseURL } from '@/src/constants/sections'
-import { useRouter } from 'next/router'
-import { useEffect } from 'react'
-import { useBridgedTokens } from '@/src/providers/tokenListProvider'
-import { getNetworkConfig } from '@/src/constants/config/chains'
-import { Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
-import useBridgeProgress from '@/src/hooks/bridge/useBridgeProgress'
 import nullthrows from 'nullthrows'
-import { Loading } from '@/src/components/loading'
+import styled from 'styled-components'
+import useBridgeProgress from '@/src/hooks/bridge/useBridgeProgress'
+import { BlockConfirmations } from '@/src/pagePartials/common/BlockConfirmations'
+import { ButtonFull } from '@/src/components/buttons/Button'
+import { Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 import { GenericError } from '@/src/components/error/GenericError'
+import { MainTitle } from '@/src/components/text/MainTitle'
+import { Ok } from '@/src/components/assets/Ok'
+import { getNetworkConfig } from '@/src/constants/config/chains'
+import { transactionBaseURL } from '@/src/constants/sections'
+import { useBridgedTokens } from '@/src/providers/tokenListProvider'
+import { useEffect } from 'react'
 import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
+import { useRouter } from 'next/router'
+import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
+import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
 
-const Wrapper = styled.div`
+const InnerWrapper = styled.div`
   max-width: 644px;
   width: 100%;
 `
@@ -36,15 +37,6 @@ const Header = styled.div`
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3);
-  }
-`
-
-const GoBack = styled.span`
-  color: ${({ theme: { colors } }) => colors.cream};
-  cursor: pointer;
-
-  &:active {
-    opacity: 0.7;
   }
 `
 
@@ -114,6 +106,45 @@ const MessageText = styled.p`
   }
 `
 
+export const Loading: React.FC = () => (
+  <>
+    <SkeletonLoading
+      style={{
+        borderRadius: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '786px',
+        padding: '96px 24px 24px 24px',
+        rowGap: '16px',
+        maxWidth: '644px',
+        width: '100%',
+      }}
+    >
+      <SkeletonLoading
+        animate={false}
+        style={{
+          borderRadius: '8px',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '666px',
+          padding: '290px 24px 24px 24px',
+          rowGap: '16px',
+        }}
+      >
+        <SkeletonLoading
+          style={{
+            borderRadius: '8px',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '263px',
+          }}
+        />
+        <ButtonFull disabled>Loading...</ButtonFull>
+      </SkeletonLoading>
+    </SkeletonLoading>
+  </>
+)
+
 // function to get ChainKey from chainId
 const getChainKey = (chainId: number) => {
   const key = Object.keys(Chains).find((key) => Chains[key as keyof typeof Chains] === chainId)
@@ -136,7 +167,6 @@ const ButtonExploreTransaction = ({
   )
 
   const tx = transactions.length ? transactions[0] : null
-
   const isWaitingForIndexing = !tx || isLoading
 
   useEffect(() => {
@@ -165,7 +195,7 @@ const ButtonExploreTransaction = ({
   )
 }
 
-export const Success: React.FC = ({ ...restProps }) => {
+export const BridgingStatus: React.FC = ({ ...restProps }) => {
   const router = useRouter()
   const { tokensByAddress } = useBridgedTokens()
 
@@ -188,68 +218,64 @@ export const Success: React.FC = ({ ...restProps }) => {
     transactionHash,
   )
 
-  if (isLoading) {
-    return <Loading text="Loading transaction" />
-  }
-
-  if (!progressData) {
-    return (
-      <GenericError
-        text={
-          <>
-            Sorry, but the transaction you're looking for doesn't seem to exist. Maybe there's an
-            error in the transaction's hash, or the system is still processing it.
-            <br />
-            <br />
-            Please double-check the URL for any typos or try searching the transaction again from{' '}
-            <Link href="/">the homepage</Link>.
-          </>
-        }
-        title="Transaction Not Found"
-      />
-    )
-  }
-
-  const isBridgeComplete = progressData.progress === 100
+  const isBridgeComplete = progressData?.progress === 100
 
   return (
     <Wrapper {...restProps}>
-      <Header>
-        <MainTitle>Bridge</MainTitle>
-      </Header>
-      <Contents>
-        <Inner>
-          <Message>
-            <Icon>
-              <Ok />
-            </Icon>
-            <StatusTitle>Bridge {isBridgeComplete ? 'completed' : 'initiated'}</StatusTitle>
-            <MessageText>
-              {!isBridgeComplete && (
-                <>
-                  {progressData?.isMined
-                    ? 'Waiting for confirmation.'
-                    : 'Waiting for transaction to be mined.'}
-                  <br />
-                </>
-              )}
-              {isBridgeComplete ? 'Sent' : 'Sending'} {amount} {tokenBridged.symbol} to{' '}
-              {destinationChain}.
-            </MessageText>
-          </Message>
-          {!isBridgeComplete && (
-            <BlockConfirmations
-              isNativeBridge={isNativeBridge}
-              network={initiatorChain}
-              transactionHash={transactionHash}
-            />
-          )}
-          <ButtonExploreTransaction
-            isMined={progressData.isMined || false}
-            transactionHash={transactionHash}
-          />
-        </Inner>
-      </Contents>
+      {isLoading ? (
+        <Loading />
+      ) : !progressData ? (
+        <GenericError
+          text={
+            <>
+              Sorry, but the transaction you're looking for doesn't seem to exist. Maybe there's an
+              error in the transaction's hash, or the system is still processing it.
+              <br />
+              <br />
+              Please double-check the URL for any typos or try searching the transaction again from{' '}
+              <Link href="/">the homepage</Link>.
+            </>
+          }
+          title="Transaction Not Found"
+        />
+      ) : (
+        <InnerWrapper>
+          <Header>
+            <MainTitle>Bridge</MainTitle>
+          </Header>
+          <Contents>
+            <Inner>
+              <Message>
+                <Icon>
+                  <Ok />
+                </Icon>
+                <StatusTitle>Bridge {isBridgeComplete ? 'completed' : 'initiated'}</StatusTitle>
+                <MessageText>
+                  {!isBridgeComplete && (
+                    <>
+                      {progressData?.isMined
+                        ? 'Waiting for confirmation.'
+                        : 'Waiting for transaction to be mined.'}
+                      <br />
+                    </>
+                  )}
+                  {isBridgeComplete ? 'Sent' : 'Sending'} {amount} {tokenBridged.symbol} to{' '}
+                  {destinationChain}.
+                </MessageText>
+              </Message>
+              <BlockConfirmations
+                isNativeBridge={isNativeBridge}
+                network={initiatorChain}
+                transactionHash={transactionHash}
+              />
+              <ButtonExploreTransaction
+                isMined={progressData.isMined || false}
+                transactionHash={transactionHash}
+              />
+            </Inner>
+          </Contents>
+        </InnerWrapper>
+      )}
     </Wrapper>
   )
 }
