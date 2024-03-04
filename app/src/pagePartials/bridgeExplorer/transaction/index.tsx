@@ -21,6 +21,7 @@ import { MainCard } from '@/src/components/card/MainCard'
 import { ButtonGoBack } from '@/src/pagePartials/bridgeExplorer/transaction/ButtonGoBack'
 import { GenericError } from '@/src/components/error/GenericError'
 import { BlockConfirmations } from '@/src/pagePartials/common/BlockConfirmations'
+import { ChainsKeys } from '@/src/constants/config/types'
 
 const Wrapper = styled(MainCard)`
   padding-top: calc(var(--theme-common-space) * 4);
@@ -236,9 +237,9 @@ export const Transaction: React.FC = ({ ...restProps }) => {
                     receiverNetwork={currentTx.receiverNetwork}
                   />
                   <BlockConfirmations
-                    address="0x0635a3731fcbf6aeeb3370814f5dcaa1b83b6dd26ecf433c81ac7838b6c43bea"
-                    percentage={80}
-                    time="30 min"
+                    isNativeBridge={currentTx.bridgeName === 'XDAI'}
+                    network={currentTx.initiatorNetwork as ChainsKeys}
+                    transactionHash={currentTx.transactionHash}
                   />
                 </>
               )}

@@ -1,5 +1,5 @@
 import { ChainsValues } from '@/src/constants/config/types'
-import useSWR from 'swr'
+import useSWR from 'swr/immutable'
 import { HomeBridgeErcToNative__factory } from '@/types/typechain'
 import { contracts } from '@/src/constants/config/contracts'
 import { getNetworkConfig } from '@/src/constants/config/chains'
@@ -7,7 +7,7 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import { BigNumber } from 'ethers'
 import { AMB__factory } from '@/types/typechain/factories/AMB__factory'
 
-export const useBridgeEstimatedTime = (chainId: ChainsValues, isNativeBridge: boolean) =>
+export const useBridgeRequiredBlocks = (chainId: ChainsValues, isNativeBridge: boolean) =>
   useSWR(
     ['estimatedBridgeTime', chainId, isNativeBridge],
     async ([, _chainId, _isNativeBridge]) => {
@@ -28,7 +28,10 @@ export const useBridgeEstimatedTime = (chainId: ChainsValues, isNativeBridge: bo
         blocks = await omni.requiredBlockConfirmations()
       }
 
-      return blocks.mul(chainConfig.blocksFrequencyInSeconds).toNumber()
+      return {
+        requiredBlocks: blocks.toNumber(),
+        estimatedTimeInSeconds: blocks.mul(chainConfig.blocksFrequencyInSeconds).toNumber(),
+      }
     },
     { suspense: false },
   )

@@ -1,5 +1,6 @@
 export const bridgeBaseURL = '/'
 export const bridgeExplorerBaseURL = '/bridge-explorer'
+export const bridgeProgressBaseURL = `/bridge-progress`
 export const transactionBaseURL = `${bridgeExplorerBaseURL}/transaction`
 export const latestTransactionsBaseURL = `${bridgeExplorerBaseURL}/latest-transactions`
 export const myTransactionsBaseURL = `${bridgeExplorerBaseURL}/my-transactions`

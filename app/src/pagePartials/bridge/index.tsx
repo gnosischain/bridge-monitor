@@ -1,4 +1,4 @@
-import { useCallback, useReducer, useState } from 'react'
+import { useReducer, useState } from 'react'
 import styled from 'styled-components'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
@@ -15,7 +15,6 @@ import { Header } from '@/src/pagePartials/bridge/Header'
 import { InnerCard } from '@/src/pagePartials/bridge/InnerCard'
 import { ButtonUnwrapFirst, UnwrapFirst } from '@/src/pagePartials/bridge/UnwrapFirst'
 import { MainCard } from '@/src/components/card/MainCard'
-import { Success } from '@/src/pagePartials/bridge/Success'
 import { Switch } from '@/src/pagePartials/bridge/Switch'
 import { Token } from '@/types/token'
 import { TokenDropdown } from '@/src/pagePartials/bridge/TokenDropdown'
@@ -33,6 +32,8 @@ import { getToChainId, isSameString } from '@/src/utils/tools'
 import { getIcon } from '@/src/utils/icons'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { Balance } from '@/src/pagePartials/bridge/Balance'
+import { useRouter } from 'next/router'
+import { bridgeExplorerBaseURL, bridgeProgressBaseURL } from '@/src/constants/sections'
 
 const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
   ssr: false,
@@ -178,10 +179,10 @@ const BridgeForm: React.FC = genericSuspense(
   () => {
     const [isBridging, setIsBridging] = useState(false)
     const [isApproving, setIsApproving] = useState(false)
-    const [showSuccess, setShowSuccess] = useState(false)
     const { address, appChainId } = useWeb3Connection()
     const approve = useApproval()
     const sendTx = useTransaction()
+    const router = useRouter()
 
     const appChainConfig = getNetworkConfig(appChainId)
 
@@ -210,15 +211,6 @@ const BridgeForm: React.FC = genericSuspense(
     })
 
     const tokenOut = bridgeInfo.receivedToken
-
-    const handleResetForm = useCallback(() => {
-      dispatch({
-        ...initialState,
-        account: address || ZERO_ADDRESS,
-        fromChainId: appChainId,
-        toChainId: getToChainId(appChainId),
-      })
-    }, [address, appChainId])
 
     const handleFromChainIdChange = async (fromChainId: ChainsValues) => {
       dispatch({
@@ -252,15 +244,12 @@ const BridgeForm: React.FC = genericSuspense(
 
       if (tx) {
         await tx.wait()
+
         await bridgeInfo.refreshBalance()
         setIsApproving(false)
       } else {
         setIsApproving(false)
       }
-    }
-
-    const onGoBack = () => {
-      setShowSuccess(false)
     }
 
     const handleBridgeTx = async () => {
@@ -272,13 +261,15 @@ const BridgeForm: React.FC = genericSuspense(
 
       try {
         const tx = await sendTx(bridgeInfo.tx)
-        setShowSuccess(true)
 
         if (tx) {
-          await tx.wait()
-          handleResetForm()
-          await bridgeInfo.refreshBalance()
-          setIsBridging(false)
+          router.push(
+            `${bridgeProgressBaseURL}/${tx.hash}?fromChainId=${
+              formState.fromChainId
+            }&isNativeBridge=${bridgeInfo.isNativeBridge ? 1 : 0}&tokenAddress=${
+              formState.token?.address
+            }&amount=${formState.amount}&toChainId=${formState.toChainId}`,
+          )
         } else {
           throw new Error('Failed to bridge')
         }
@@ -318,9 +309,7 @@ const BridgeForm: React.FC = genericSuspense(
 
     return (
       <>
-        {/* This needs a refactoring (start with the big hook at the beginning of this component...) */}
-        {showSuccess && <Success onGoBack={onGoBack} />}
-        <InnerWrapper hidden={showSuccess}>
+        <InnerWrapper>
           <Header />
           <Form>
             <FormCards>

@@ -1,11 +1,20 @@
 import styled from 'styled-components'
-import { ArrowLeft } from '@/src/components/assets/ArrowLeft'
 import { MainTitle } from '@/src/components/text/MainTitle'
 import Link from 'next/link'
 import { Ok } from '@/src/components/assets/Ok'
 import { ButtonFull } from '@/src/components/buttons/Button'
 import { BlockConfirmations } from '@/src/pagePartials/common/BlockConfirmations'
 import { transactionBaseURL } from '@/src/constants/sections'
+import { useRouter } from 'next/router'
+import { useEffect } from 'react'
+import { useBridgedTokens } from '@/src/providers/tokenListProvider'
+import { getNetworkConfig } from '@/src/constants/config/chains'
+import { Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
+import useBridgeProgress from '@/src/hooks/bridge/useBridgeProgress'
+import nullthrows from 'nullthrows'
+import { Loading } from '@/src/components/loading'
+import { GenericError } from '@/src/components/error/GenericError'
+import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
 
 const Wrapper = styled.div`
   max-width: 644px;
@@ -105,14 +114,108 @@ const MessageText = styled.p`
   }
 `
 
-export const Success: React.FC<{ onGoBack: () => void }> = ({ onGoBack, ...restProps }) => {
+// function to get ChainKey from chainId
+const getChainKey = (chainId: number) => {
+  const key = Object.keys(Chains).find((key) => Chains[key as keyof typeof Chains] === chainId)
+  return nullthrows(key, 'Chain not found') as ChainsKeys
+}
+
+const ButtonExploreTransaction = ({
+  isMined,
+  transactionHash,
+}: {
+  isMined: boolean
+  transactionHash: string
+}) => {
+  const router = useRouter()
+  const { isLoading, transactions, updateInMemoryTransaction } = useFetchTransactions(
+    {},
+    {
+      where: { transactionHash },
+    },
+  )
+
+  const tx = transactions.length ? transactions[0] : null
+
+  const isWaitingForIndexing = !tx || isLoading
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout
+
+    if (!transactions.length) {
+      intervalId = setInterval(() => {
+        updateInMemoryTransaction()
+      }, 5000) // Call updateInMemoryTransaction every 5 seconds if the transaction is not found
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId) // Clear the interval when the component unmounts or the dependencies change
+      }
+    }
+  }, [isMined, transactions, updateInMemoryTransaction])
+
+  return (
+    <ButtonFull
+      disabled={!tx || isLoading}
+      onClick={() => router.push(`${transactionBaseURL}/${tx?.id}`)}
+    >
+      {isWaitingForIndexing ? 'Loading transaction link...' : 'Explore transaction'}
+    </ButtonFull>
+  )
+}
+
+export const Success: React.FC = ({ ...restProps }) => {
+  const router = useRouter()
+  const { tokensByAddress } = useBridgedTokens()
+
+  const [transactionHash, fromChainId, toChainId, isNativeBridge, tokenAddress, amount] = [
+    String(router.query?.transaction),
+    Number(router.query?.fromChainId) as ChainsValues,
+    Number(router.query?.toChainId) as ChainsValues,
+    Boolean(Number(router.query?.isNativeBridge)),
+    String(router.query?.tokenAddress),
+    String(router.query?.amount),
+  ]
+
+  const tokenBridged = tokensByAddress[tokenAddress]
+  const initiatorChain = getChainKey(fromChainId)
+  const destinationChain = getNetworkConfig(toChainId).name
+
+  const { isLoading, progressData } = useBridgeProgress(
+    fromChainId,
+    isNativeBridge,
+    transactionHash,
+  )
+
+  if (isLoading) {
+    return <Loading text="Loading transaction" />
+  }
+
+  if (!progressData) {
+    return (
+      <GenericError
+        text={
+          <>
+            Sorry, but the transaction you're looking for doesn't seem to exist. Maybe there's an
+            error in the transaction's hash, or the system is still processing it.
+            <br />
+            <br />
+            Please double-check the URL for any typos or try searching the transaction again from{' '}
+            <Link href="/">the homepage</Link>.
+          </>
+        }
+        title="Transaction Not Found"
+      />
+    )
+  }
+
+  const isBridgeComplete = progressData.progress === 100
+
   return (
     <Wrapper {...restProps}>
       <Header>
         <MainTitle>Bridge</MainTitle>
-        <GoBack onClick={onGoBack}>
-          <ArrowLeft />
-        </GoBack>
       </Header>
       <Contents>
         <Inner>
@@ -120,26 +223,31 @@ export const Success: React.FC<{ onGoBack: () => void }> = ({ onGoBack, ...restP
             <Icon>
               <Ok />
             </Icon>
-            <StatusTitle>Bridge initiated</StatusTitle>
+            <StatusTitle>Bridge {isBridgeComplete ? 'completed' : 'initiated'}</StatusTitle>
             <MessageText>
-              {/*TODO: Replace with real data */}
-              Waiting for confirmation. <br />
-              Sending 500 xDAI to Gnosis Chain.
+              {!isBridgeComplete && (
+                <>
+                  {progressData?.isMined
+                    ? 'Waiting for confirmation.'
+                    : 'Waiting for transaction to be mined.'}
+                  <br />
+                </>
+              )}
+              {isBridgeComplete ? 'Sent' : 'Sending'} {amount} {tokenBridged.symbol} to{' '}
+              {destinationChain}.
             </MessageText>
           </Message>
-          {/*TODO: Replace with real data */}
-          <BlockConfirmations
-            address="0x0635a3731fcbf6aeeb3370814f5dcaa1b83b6dd26ecf433c81ac7838b6c43bea"
-            percentage={80}
-            time="30 min"
+          {!isBridgeComplete && (
+            <BlockConfirmations
+              isNativeBridge={isNativeBridge}
+              network={initiatorChain}
+              transactionHash={transactionHash}
+            />
+          )}
+          <ButtonExploreTransaction
+            isMined={progressData.isMined || false}
+            transactionHash={transactionHash}
           />
-          {/*TODO: Replace with real link */}
-          <Link
-            href={`${transactionBaseURL}/0x0635a3731fcbf6aeeb3370814f5dcaa1b83b6dd26ecf433c81ac7838b6c43bea`}
-            passHref
-          >
-            <ButtonFull as="a">Explore transaction</ButtonFull>
-          </Link>
         </Inner>
       </Contents>
     </Wrapper>

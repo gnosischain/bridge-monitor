@@ -1,6 +1,11 @@
 import styled from 'styled-components'
 import { Magnifier } from '@/src/components/assets/Magnifier'
 import { shortenAddress } from '@/src/utils/tools'
+import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+import { Chains, ChainsKeys } from '@/src/constants/config/types'
+import useBridgeProgress from '@/src/hooks/bridge/useBridgeProgress'
+import formatDistance from 'date-fns/formatDistance'
+import { getNetworkConfig } from '@/src/constants/config/chains'
 
 const Wrapper = styled.div`
   background-color: ${({ theme: { colors } }) => colors.creamLight};
@@ -101,36 +106,56 @@ const MonitorBlocksLink = styled.a`
   }
 `
 interface Props {
-  address: string
-  time: string
-  percentage: number
+  transactionHash: string
+  network: ChainsKeys
+  isNativeBridge: boolean
 }
 
 export const BlockConfirmations: React.FC<Props> = ({
-  address,
-  percentage,
-  time,
+  isNativeBridge,
+  network,
+  transactionHash,
   ...restProps
 }) => {
+  const { getExplorerUrl } = useWeb3Connection()
+  const chainId = Chains[network]
+  const { progressData } = useBridgeProgress(chainId, isNativeBridge, transactionHash)
+  const percentage = progressData?.progress || 0
+  const estimatedTimeInSeconds = progressData?.estimatedTimeInSeconds || 0
+  const requiredBlocks = progressData?.requiredBlocks || 0
+  const confirmations = progressData?.confirmations || 0
+
+  const { blockExplorerName } = getNetworkConfig(chainId)
+
   return (
     <Wrapper {...restProps}>
-      <Title>Waiting for block confirmations</Title>
+      <Title>Waiting for block confirmation</Title>
       <BlocksCounter>
         <BlocksInformation>
           <Completed>
             <strong>{percentage}%</strong> complete
           </Completed>
-          <span>{percentage}/100</span>
+          <span>
+            {confirmations}/{requiredBlocks} blocks
+          </span>
         </BlocksInformation>
-        <LoadBar percentage={percentage}>
+        <LoadBar percentage={percentage || 0}>
           <span></span>
         </LoadBar>
       </BlocksCounter>
       <Information>
-        <span>Estimated time {time}</span>
-        {/*TODO: we should link the user to the correspondent blockscan. Etherscan if Mainnet, GnosisScan if Gnosis Chain.  */}
-        <MonitorBlocksLink href="/" rel="noopener noreferrer" target="_blank">
-          <Magnifier /> Monitor at GnosisScan {shortenAddress(address)}
+        <span>
+          Estimated time{' '}
+          {formatDistance(0, estimatedTimeInSeconds * 1000, {
+            includeSeconds: true,
+          })}
+        </span>
+        <MonitorBlocksLink
+          href={getExplorerUrl(transactionHash, network)}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <Magnifier /> Monitor at {blockExplorerName} {shortenAddress(transactionHash)}
         </MonitorBlocksLink>
       </Information>
     </Wrapper>

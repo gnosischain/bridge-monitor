@@ -17,6 +17,7 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     chainIdHex: '0x1',
     rpcUrl: getProviderUrl(Chains.mainnet),
     blockExplorerUrls: ['https://etherscan.io/'],
+    blockExplorerName: 'EtherScan',
     token: 'ETH',
     tokenDecimals: 18,
     blocksFrequencyInSeconds: 12,
@@ -33,6 +34,7 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     chainIdHex: '0x27d8',
     rpcUrl: getProviderUrl(Chains.chiado),
     blockExplorerUrls: ['https://gnosis-chiado.blockscout.com/'],
+    blockExplorerName: 'Chiado Blockscout',
     token: 'Testnet xDai on Chiado',
     tokenDecimals: 18,
     blocksFrequencyInSeconds: 5,
@@ -50,6 +52,7 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     chainIdHex: '0x64',
     rpcUrl: getProviderUrl(Chains.gnosis),
     blockExplorerUrls: ['https://gnosisscan.io/'],
+    blockExplorerName: 'GnosisScan',
     token: 'xDAI',
     tokenDecimals: 18,
     bridge: {
