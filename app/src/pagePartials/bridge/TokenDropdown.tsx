@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { JsonRpcBatchProvider } from '@ethersproject/providers'
-
+import get from 'lodash/get'
 import { isAddress } from '@ethersproject/address'
 import { DebounceInput } from 'react-debounce-input'
 
@@ -22,6 +22,7 @@ import { isSameString } from '@/src/utils/tools'
 import { Spinner } from '@/src/components/loading/Spinner'
 import { ERC165__factory } from '@/types/typechain/factories/ERC165__factory'
 import { ZERO_ADDRESS } from '@/src/constants/misc'
+import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 
 const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
   ssr: false,
@@ -259,37 +260,40 @@ const Dropdown: React.FC<Props> = ({
     setFilteredTokens(_filteredTokens)
   }, [ambTokensByNetwork, fromChainId, manualTokens, value])
 
-  // Get the top tokens (Mainnet / Gnosis Chain)
-  // ETH / DAI / XDAI / WETH / GNO / USDC / USDT / WBTC / OLAS / HOPR
   useEffect(() => {
-    const topTokenAddresses = [
-      '0x6b175474e89094c44da98b954eedeac495271d0f',
-      '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-      '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-      '0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1',
-      '0x6810e776880c02933d47db1b9fc05908e5386b96',
-      '0x9c58bacc331c9aa871afd802db6379a98e80cedb',
-      '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-      '0xddafbb505ad214d7b80b1f830fccc89b60fb7a83',
-      '0xdac17f958d2ee523a2206206994597c13d831ec7',
-      '0x4ecaba5870353805a9f068101a40e0f32ed605c6',
-      '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
-      '0x8e5bbbb09ed1ebde8674cda39a0c169401db4252',
-      '0x0001a500a6b18995b03f44bb040a5ffc28e45cb0',
-      '0xce11e14225575945b8e6dc0d4f2dd4c570f79d9f',
-      '0xf5581dfefd8fb0e4aec526be659cfab1f8c781da',
-      '0xd057604a14982fe8d88c5fc25aac3267ea142a08',
+    // Define the symbols array with the desired order
+    const _tokens = [
+      { symbol: 'GNO', address: '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb' },
+      { symbol: 'WSTETH', address: '0x6C76971f98945AE98dD7d4DFcA8711ebea946eA6' },
+      { symbol: 'WETH', address: '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1' },
+      { symbol: 'WBTC', address: '0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252' },
+      { symbol: 'USDC', address: '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83' },
+      { symbol: 'COW', address: '0x177127622c4A00F3d409B75571e12cB3c8973d3c' },
+      { symbol: 'USDT', address: '0x4ECaBa5870353805a9F068101A40E0f32ed605C6' },
+      { symbol: 'OLAS', address: '0xcE11e14225575945b8E6Dc0D4F2dD4C570f79d9f' },
+      { symbol: 'HOPR', address: '0xD057604A14982FE8D88c5fC25Aac3267eA142a08' },
     ]
-    const allTokens = ambTokensByNetwork[fromChainId]
-      .concat(manualTokens.filter((item) => item.chainId === fromChainId))
-      .filter((item) => item.address !== ZERO_ADDRESS)
 
-    const _topTokens = allTokens?.filter((item) => {
-      return topTokenAddresses.includes(item.address) || item.name.toLowerCase() === 'eth'
-    })
+    const symbols = ['ETH', 'XDAI', ..._tokens.map((item) => item.symbol)]
+    const isFromHome = fromChainId == Chains.gnosis
+    const key = isFromHome ? 'address' : `extensions.bridgeInfo.${toChainId}.tokenAddress`
+    const tokensByChain = ambTokensByNetwork[fromChainId]
 
-    setTopTokens(_topTokens)
-  }, [ambTokensByNetwork, fromChainId, manualTokens])
+    // Filter the tokens based on the desired symbols array
+    const filteredTokens = Object.values(_tokens)
+      .map((token) => tokensByChain.find((item) => isSameString(get(item, key), token.address)))
+      .filter((item): item is Token => !!item)
+      .concat(
+        tokensByChain.find((item) => isSameString(item.address, NATIVE_TOKEN_ADDRESS)) as Token,
+      )
+
+    // Sort the filtered tokens according to their position in the _tokens array
+    const orderedTokens = filteredTokens.sort(
+      (a, b) => symbols.indexOf(a.symbol.toUpperCase()) - symbols.indexOf(b.symbol.toUpperCase()),
+    )
+
+    setTopTokens(orderedTokens)
+  }, [ambTokensByNetwork, fromChainId, toChainId])
 
   // if the value is an address and there is not token match
   // we try a search on-chain.
@@ -377,20 +381,24 @@ const Dropdown: React.FC<Props> = ({
             />
           </TextFieldWrapper>
         </TextfieldContainer>,
-        <TopTokens closeOnClick key="topTokens">
-          {topTokens.map((item, index) => (
-            <TopToken
-              key={index}
-              onClick={() => {
-                setValue('')
-                onSelectToken(item)
-              }}
-            >
-              <TokenIcon dimensions={22} iconSource={item.logoURI} symbol={item.symbol} />
-              <TopTokenName>{item.symbol}</TopTokenName>
-            </TopToken>
-          ))}
-        </TopTokens>,
+        value.length ? (
+          <></>
+        ) : (
+          <TopTokens closeOnClick key="topTokens">
+            {topTokens.map((item, index) => (
+              <TopToken
+                key={index}
+                onClick={() => {
+                  setValue('')
+                  onSelectToken(item)
+                }}
+              >
+                <TokenIcon dimensions={22} iconSource={item.logoURI} symbol={item.symbol} />
+                <TopTokenName>{item.symbol}</TopTokenName>
+              </TopToken>
+            ))}
+          </TopTokens>
+        ),
         isLoading ? (
           <Spinner />
         ) : filteredTokens.length ? (

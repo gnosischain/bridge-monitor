@@ -104,11 +104,15 @@ const removeSpecialCharactersInName = (token: Token) => ({
  */
 const useTokenListQuery = () => {
   return useSWR(['token-list'], async () => {
+    // fetch all token from the constant TokenLists
     const tokenListPromises = Object.values(TokensLists).map(async (url) => fetch(url))
 
+    // filter out the promises that are not fulfilled
     const fulfilledResults = await Promise.allSettled(tokenListPromises).then((results) =>
       results.filter(isFulfilled),
     )
+
+    // fetch all token lists
     const tokenLists: TokenListResponse[] = await Promise.all(
       fulfilledResults.map((fulfilledResult) => {
         if (fulfilledResult.value.ok) {
@@ -118,10 +122,13 @@ const useTokenListQuery = () => {
         return Promise.resolve({ tokens: [] })
       }),
     )
-    const tokenList = tokenLists.flatMap((tokenList) => tokenList.tokens)
 
-    const bridgedTokens = await fetchBridgedTokens()
+    // Unify all tokens from all token lists
+    const tokenList = tokenLists.flatMap((tokenList) => tokenList.tokens)
     const addLogoUri = addLogoUriByTokenList(tokenList)
+
+    // fetch tokens from the bridge
+    const bridgedTokens = await fetchBridgedTokens()
 
     return {
       ...bridgedTokens.reduce((acc: TokenListQueryReturn, token: Token) => {
