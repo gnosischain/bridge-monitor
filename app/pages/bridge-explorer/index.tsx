@@ -1,6 +1,8 @@
 import type { NextPage } from 'next'
 import { Search } from '@/src/pagePartials/bridgeExplorer/search'
 import NextHead from 'next/head'
+import { Token } from 'graphql'
+import TokenListProvider from '@/src/providers/tokenListProvider'
 
 const BridgeExplorer: NextPage = () => {
   const title = 'Search - Gnosis Bridge Explorer'
@@ -17,7 +19,9 @@ const BridgeExplorer: NextPage = () => {
         <meta content={description} property="og:description" />
         <meta content={title} name="twitter:site" />
       </NextHead>
-      <Search />
+      <TokenListProvider>
+        <Search />
+      </TokenListProvider>
     </>
   )
 }

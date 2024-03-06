@@ -171,6 +171,5 @@ export const useBridgeTokenOutInfo = ({
 
       return { ...tokenOutInfo, receivedToken, userBalanceInDestination }
     },
-    { suspense: false },
   )
 }

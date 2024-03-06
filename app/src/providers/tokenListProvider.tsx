@@ -178,5 +178,9 @@ export const TokenListProvider: FC<PropsWithChildren<unknown>> = ({ children }) 
 export default TokenListProvider
 
 export function useBridgedTokens(): TokenListQueryReturn {
+  const context = useContext(TokenListContext)
+  if (context === undefined) {
+    throw new Error('useBridgedTokens must be used within a TokenListProvider')
+  }
   return useContext<TokenListQueryReturn>(TokenListContext)
 }

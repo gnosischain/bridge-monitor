@@ -1,9 +1,8 @@
 import { BigNumber, Signer } from 'ethers'
-import { Chains, ChainsValues } from '@/src/constants/config/types'
+import { ChainsValues } from '@/src/constants/config/types'
 import useSWR from 'swr'
 import { Token } from '@/types/token'
 import { ZERO_BN } from '@/src/constants/misc'
-import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
 import {
   ERC20__factory,
@@ -16,7 +15,9 @@ import {
   NativeOmniBridgeMediator,
 } from '@/types/typechain'
 import { contracts } from '@/src/constants/config/contracts'
-import { TOKEN_MODE } from '@/src/hooks/bridge/useTokenMode'
+import { TOKEN_MODE, useTokenMode } from '@/src/hooks/bridge/useTokenMode'
+import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
+import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 
 /**
  * isNativeToken && isFromForeign: use wrapAndRelayTokens (nativeOmniBridgeMediator) (no need approve: infinite approve) -> ETH -> WETH
@@ -120,18 +121,32 @@ const handleERC20TokenFromForeign = async (
   signer: Signer,
   amount: BigNumber,
   tokenAddress: string,
+  allowance: BigNumber,
   isDAI?: boolean,
   recipient?: string,
 ) => {
-  if (isDAI) {
-    const tokenContract = ERC20__factory.connect(tokenAddress, signer)
+  // Quick fix to avoid useBridgeValidations to error when an approval is needed.
+  // If an approval is needed the gasLimit should be calculated for the approval operation and not for the bridge operation.
+  // If that not happens the estimateGas will fail because the allowance is not enough.
+  //
+  // TODO: If an approval is needed, "gasLimit" will be set with the value the approval operation will take.
+  // But "tx" will have the bridge operation. It would be good to solve this inconsistency.
+  // And then remove the useApproval hook and call the approve using the tx function returned by this function.
 
-    const gasLimit = recipient
-      ? await (bridgeContract as ForeignBridgeErcToNative).estimateGas.relayTokens(
-          recipient.toLowerCase(),
-          amount,
-        )
-      : await tokenContract.estimateGas.transfer(bridgeContract.address, amount)
+  const tokenContract = ERC20__factory.connect(tokenAddress, signer)
+  let gasLimit: BigNumber
+
+  if (isDAI) {
+    if (amount.gt(allowance)) {
+      gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount)
+    } else {
+      gasLimit = recipient
+        ? await (bridgeContract as ForeignBridgeErcToNative).estimateGas.relayTokens(
+            recipient.toLowerCase(),
+            amount,
+          )
+        : await tokenContract.estimateGas.transfer(bridgeContract.address, amount)
+    }
 
     return {
       gasLimit,
@@ -147,11 +162,16 @@ const handleERC20TokenFromForeign = async (
     }
   } else {
     const signerAddress = await signer.getAddress()
-    // Never use transfer in this case. Always use relayTokens.
-    // Can we use transferAndCall here if the token is compatible with ERC677/ERC827???
-    const gasLimit = await (bridgeContract as ForeignOmniMediator).estimateGas[
-      'relayTokens(address,address,uint256)'
-    ](tokenAddress, recipient || signer.getAddress(), amount)
+
+    if (amount.gt(allowance)) {
+      gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount)
+    } else {
+      // Never use transfer in this case. Always use relayTokens.
+      // Can we use transferAndCall here if the token is compatible with ERC677/ERC827???
+      gasLimit = await (bridgeContract as ForeignOmniMediator).estimateGas[
+        'relayTokens(address,address,uint256)'
+      ](tokenAddress, recipient || signer.getAddress(), amount)
+    }
 
     return {
       gasLimit,
@@ -238,6 +258,7 @@ const handleERC20TokenFromHome = async (
 
 export const getBridgeTx = async ({
   account,
+  allowance,
   amount,
   bridgeContract,
   foreignChainId,
@@ -251,6 +272,7 @@ export const getBridgeTx = async ({
 }: {
   account: string
   amount: BigNumber
+  allowance: BigNumber
   bridgeContract:
     | HomeBridgeErcToNative
     | ForeignBridgeErcToNative
@@ -308,6 +330,7 @@ export const getBridgeTx = async ({
         signer,
         amount,
         tokenAddress,
+        allowance,
         isNativeBridge, // use nativeBridge for DAI
         recipient,
       )
@@ -321,101 +344,87 @@ export const getBridgeTx = async ({
 
 export const useBridgeTransactionInfo = ({
   amount,
-  foreignChainId,
-  isFromHome,
-  isNativeBridge,
-  isNativeToken,
-  isValid,
+  fromChainId,
   receiveNativeToken,
   recipient,
-  shouldApprove,
+  toChainId,
   token,
-  tokenMode,
+  userAddress,
 }: {
+  userAddress: string
+  fromChainId: ChainsValues
+  toChainId: ChainsValues
   amount: BigNumber
-  isFromHome: boolean
-  isNativeBridge: boolean
-  isNativeToken: boolean
-  foreignChainId: ChainsValues
-  isValid: boolean
-  shouldApprove: boolean
-  tokenMode?: TOKEN_MODE
-  receiveNativeToken?: boolean
+  receiveNativeToken: boolean
   recipient?: string
-  token?: Token
+  token: Token
 }) => {
-  const { address } = useWeb3Connection()
   const { getFromBridgeWithSigner } = useBridgeContracts()
-
-  const shouldFetch = token && amount.gt(0) && isValid && !shouldApprove && tokenMode
+  const { foreignChainId, isFromHome, isNativeBridge, isNativeToken } = getBridgeCommonInfo({
+    fromChainId,
+    toChainId,
+    tokenAddress: token?.address || '',
+  })
+  const { data: tokenMode } = useTokenMode(fromChainId, toChainId, token)
+  const { data: userBalancesData } = useUserTokenBalances({
+    userAddress: userAddress,
+    allowanceAddress: getFromBridgeWithSigner(fromChainId, toChainId, token?.address || '').address,
+    chainId: fromChainId,
+    tokenAddress: token.address,
+  })
+  if (!userBalancesData) throw new Error('User balances are not available')
 
   return useSWR(
-    shouldFetch
-      ? [
-          token,
-          amount,
-          recipient,
-          isNativeToken,
-          isNativeBridge,
-          isFromHome,
-          tokenMode,
-          receiveNativeToken,
-          foreignChainId,
-          'transactionInfo',
-        ]
-      : null,
-
+    [
+      'transactionInfo',
+      token,
+      amount,
+      recipient,
+      isFromHome,
+      tokenMode,
+      receiveNativeToken,
+      foreignChainId,
+    ],
     async ([
+      ,
       _token,
       _amount,
       _recipient,
-      _isNativeToken,
-      _isNativeBridge,
       _isFromHome,
       _tokenMode,
       _receiveNativeToken,
       _foreignChainId,
     ]) => {
       const bridgeContractWithSigner = getFromBridgeWithSigner(
-        _isFromHome ? Chains.gnosis : _foreignChainId,
-        _isNativeBridge,
-        _isNativeToken,
+        fromChainId,
+        toChainId,
+        token?.address || '',
       )
 
-      if (!address) {
+      if (!userAddress) {
         throw Error('No account found')
       }
 
-      try {
-        const { gasLimit, gasPrice, tx } = await getBridgeTx({
-          isNativeToken,
-          account: address,
-          amount: _amount,
-          isNativeBridge: isNativeBridge,
-          bridgeContract: bridgeContractWithSigner,
-          tokenAddress: _token.address,
-          recipient: _recipient,
-          tokenMode: _tokenMode,
-          isFromHome: _isFromHome,
-          foreignChainId: _foreignChainId,
-          receiveNativeToken: _receiveNativeToken,
-        })
+      const { gasLimit, gasPrice, tx } = await getBridgeTx({
+        isNativeToken,
+        account: userAddress,
+        amount: _amount,
+        isNativeBridge: isNativeBridge,
+        bridgeContract: bridgeContractWithSigner,
+        tokenAddress: _token.address,
+        recipient: _recipient,
+        tokenMode: _tokenMode,
+        isFromHome: _isFromHome,
+        foreignChainId: _foreignChainId,
+        receiveNativeToken: _receiveNativeToken,
+        allowance: userBalancesData.allowance,
+      })
 
-        return {
-          gasLimit,
-          gasPrice,
-          tx,
-        }
-      } catch (error) {
-        console.error(error)
-
-        return {
-          gasLimit: ZERO_BN,
-          gasPrice: ZERO_BN,
-          tx: null,
-        }
+      return {
+        gasLimit,
+        gasPrice,
+        tx,
       }
     },
-    { suspense: false },
   )
 }

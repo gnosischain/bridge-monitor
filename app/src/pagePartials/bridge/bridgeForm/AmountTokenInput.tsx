@@ -8,6 +8,7 @@ const Wrapper = styled.div`
 `
 const TextfieldAmount = styled(Textfield)`
   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
+  color: ${({ theme: { colors } }) => colors.textColor};
   font-size: 1.5rem;
   font-weight: 500;
   height: 100%;
@@ -21,7 +22,9 @@ const TextfieldAmount = styled(Textfield)`
   }
 
   &::placeholder {
+    color: ${({ theme: { textField } }) => textField.color};
     font-size: 1.5rem;
+    font-weight: 500;
   }
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
@@ -30,6 +33,7 @@ const TextfieldAmount = styled(Textfield)`
 
     &::placeholder {
       font-size: 1.6rem;
+      font-weight: 600;
     }
   }
 `
@@ -112,7 +116,7 @@ export const AmountTokenInput = ({
           isAllowed={({ value }) => {
             const [, _decimals] = value.toString().split('.')
             if (!_decimals) return true
-            return decimals > _decimals?.length
+            return decimals >= _decimals?.length
           }}
           onValueChange={handleChange}
           placeholder={placeholder}

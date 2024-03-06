@@ -8,11 +8,7 @@ import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { ZERO_ADDRESS } from '@/src/constants/misc'
 import { isSameString } from '@/src/utils/tools'
 
-const useBridgeLimits = (
-  fromChainId: ChainsValues,
-  tokenAddress: string | undefined,
-  // bridgeType: BridgeType,
-) => {
+const useBridgeLimits = (fromChainId: ChainsValues, tokenAddress: string | undefined) => {
   // Hardcoded condition
   // For Mainnet ETH, the address comes as 0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
   // and we need to use 0x.
@@ -63,9 +59,6 @@ const useBridgeLimits = (
 
         return { dailyLimit, minPerTx, maxPerTx, totalSpentPerDay }
       }
-    },
-    {
-      suspense: false,
     },
   )
 }

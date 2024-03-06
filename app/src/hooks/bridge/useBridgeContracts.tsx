@@ -13,6 +13,7 @@ import {
   OmniBridgeFeeManager__factory,
 } from '@/types/typechain'
 import { useCallback } from 'react'
+import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 
 export const useBridgeContracts = () => {
   const { readOnlyAppProvider, web3Provider } = useWeb3Connection()
@@ -52,21 +53,28 @@ export const useBridgeContracts = () => {
   }, [])
 
   const getFromBridgeWithSigner = useCallback(
-    (chainId: ChainsValues, isNativeBridge: boolean, isNativeToken: boolean) => {
+    (fromChainId: ChainsValues, toChainId: ChainsValues, tokenAddress: string) => {
       const signer = web3Provider?.getSigner() || readOnlyAppProvider
-      const isHome = chainId === Chains.gnosis
+      const isHome = fromChainId === Chains.gnosis
+
+      const { isNativeBridge, isNativeToken } = getBridgeCommonInfo({
+        fromChainId,
+        toChainId,
+        tokenAddress,
+      })
+
       if (isNativeBridge) {
         return (
           isHome ? HomeBridgeErcToNative__factory : ForeignBridgeErcToNative__factory
-        ).connect(contracts.XDAIBridge.address[chainId], signer)
-      } else if (chainId !== Chains.gnosis && isNativeToken) {
+        ).connect(contracts.XDAIBridge.address[fromChainId], signer)
+      } else if (fromChainId !== Chains.gnosis && isNativeToken) {
         return NativeOmniBridgeMediator__factory.connect(
-          contracts.omniBridgeNativeToken.address[chainId],
+          contracts.omniBridgeNativeToken.address[fromChainId],
           signer,
         )
       } else {
         return (isHome ? HomeOmniMediator__factory : ForeignOmniMediator__factory).connect(
-          contracts.OmniBridge.address[chainId],
+          contracts.OmniBridge.address[fromChainId],
           signer,
         )
       }

@@ -35,10 +35,14 @@ interface Props {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   options: IOption[]
   optionsId: string
-  value?: string | undefined
 }
 
-export const TokenSelect = ({ onChange, options, optionsId, value, ...restProps }: Props) => {
+export const ReceiveNativeTokenSwitcher = ({
+  onChange,
+  options,
+  optionsId,
+  ...restProps
+}: Props) => {
   return (
     <Wrapper {...restProps}>
       {options.map(({ disabled, icon, label, name }, index) => (
@@ -54,7 +58,6 @@ export const TokenSelect = ({ onChange, options, optionsId, value, ...restProps 
           value={label}
         />
       ))}
-      <Value disabled={!value || value === '0' || value === '0.00'}>{value}</Value>
     </Wrapper>
   )
 }

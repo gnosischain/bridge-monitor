@@ -3,45 +3,57 @@ import { Token } from '@/types/token'
 import useSWR from 'swr'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
 import { useMemo } from 'react'
-import { TOKEN_MODE } from '@/src/hooks/bridge/useTokenMode'
+import { useTokenMode } from '@/src/hooks/bridge/useTokenMode'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { ChainsValues } from '@/src/constants/config/types'
 import useBridgeLimits from '@/src/hooks/bridge/useBridgeLimits'
 import { ZERO_BN } from '@/src/constants/misc'
 import { formatNumber } from '@/src/utils/format'
+import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
+import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 
 export const useBridgeValidations = ({
-  accountBalance,
-  allowance,
   amount,
   fromChainId,
   recipient,
+  toChainId,
   token,
-  tokenMode,
+  userAddress,
 }: {
+  userAddress: string
   fromChainId: ChainsValues
-  accountBalance: BigNumber
+  toChainId: ChainsValues
   amount: BigNumber
-  tokenMode?: TOKEN_MODE
   recipient?: string
-  allowance: BigNumber
-  token?: Token
+  token: Token
 }) => {
-  const { address, readOnlyAppProvider } = useWeb3Connection()
+  const { readOnlyAppProvider } = useWeb3Connection()
+
   const isSCWallet = useSWR(
-    address && readOnlyAppProvider ? [`isSCWallet-${address}`, address, readOnlyAppProvider] : null,
+    userAddress && readOnlyAppProvider
+      ? [`isSCWallet-${userAddress}`, userAddress, readOnlyAppProvider]
+      : null,
     ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
-    {
-      suspense: false,
-    },
   )
   const { data: bridgeLimits, isLoading } = useBridgeLimits(fromChainId, token?.address)
+  if (!bridgeLimits) throw Error('Was not possible to fetch bridge limits.')
 
-  // if (!bridgeLimits) throw Error('Was not possible to fetch bridge limits.')
+  const { data: tokenMode } = useTokenMode(fromChainId, toChainId, token)
+
+  const { getFromBridgeWithSigner } = useBridgeContracts()
+  const fromBridgeAddress = getFromBridgeWithSigner(fromChainId, toChainId, token.address).address
+
+  const { data: userBalanceData } = useUserTokenBalances({
+    userAddress,
+    chainId: fromChainId,
+    allowanceAddress: fromBridgeAddress,
+    tokenAddress: token.address,
+  })
+  if (!userBalanceData) throw new Error('User balance data is not available')
 
   const isValidToken = token !== undefined
   const isValidAmount = amount.gt(0)
-  const approvalNeeded = amount.gt(allowance) && amount.lte(accountBalance)
+  const approvalNeeded = amount.gt(userBalanceData.allowance) && amount.lte(userBalanceData.balance)
   const minAmountError = amount.lt(bridgeLimits?.minPerTx || ZERO_BN)
   const maxAmountError = amount.gt(bridgeLimits?.maxPerTx || ZERO_BN)
   const dailyLimitReached = amount.gt(
@@ -56,7 +68,7 @@ export const useBridgeValidations = ({
 
   const errorMessage = useMemo(() => {
     try {
-      if (!address || !isValidAmount || !isValidToken) {
+      if (!userAddress || !isValidAmount || !isValidToken) {
         return false
       }
 
@@ -90,7 +102,7 @@ export const useBridgeValidations = ({
         throw Error(`We've reached the daily bridge limit amount.`)
       }
 
-      if (amount.gt(accountBalance)) {
+      if (amount.gt(userBalanceData.balance)) {
         throw Error('Insufficient balance')
       }
 
@@ -99,7 +111,7 @@ export const useBridgeValidations = ({
       return (error as Error).message
     }
   }, [
-    address,
+    userAddress,
     isValidAmount,
     isValidToken,
     isSCWallet,
@@ -108,9 +120,9 @@ export const useBridgeValidations = ({
     maxAmountError,
     dailyLimitReached,
     amount,
-    accountBalance,
+    userBalanceData.balance,
     minPerTxInNumber,
-    token,
+    token.symbol,
     maxPerTxInNumber,
   ])
 
@@ -119,7 +131,7 @@ export const useBridgeValidations = ({
   return {
     isSCWallet: isSCWallet?.data,
     errorMessage,
-    shouldApprove: tokenMode === 'ERC20' && allowance && amount && approvalNeeded,
+    shouldApprove: tokenMode === 'ERC20' && userBalanceData.allowance && amount && approvalNeeded,
     isValidToSend,
     isValidAmount,
     isValidToken,

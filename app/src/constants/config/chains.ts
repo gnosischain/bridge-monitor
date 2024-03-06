@@ -26,23 +26,23 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
       wForeignNative: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // WETH
     },
   },
-  [Chains.chiado]: {
-    id: Chains.chiado,
-    name: 'Gnosis Chiado Testnet',
-    shortName: 'Chiado',
-    chainId: Chains.chiado,
-    chainIdHex: '0x27d8',
-    rpcUrl: getProviderUrl(Chains.chiado),
-    blockExplorerUrls: ['https://gnosis-chiado.blockscout.com/'],
-    blockExplorerName: 'Chiado Blockscout',
-    token: 'Testnet xDai on Chiado',
-    tokenDecimals: 18,
-    blocksFrequencyInSeconds: 5,
-    bridge: {
-      DAI: '',
-      wForeignNative: '', // WETH
-    },
-  },
+  // [Chains.chiado]: {
+  //   id: Chains.chiado,
+  //   name: 'Gnosis Chiado Testnet',
+  //   shortName: 'Chiado',
+  //   chainId: Chains.chiado,
+  //   chainIdHex: '0x27d8',
+  //   rpcUrl: getProviderUrl(Chains.chiado),
+  //   blockExplorerUrls: ['https://gnosis-chiado.blockscout.com/'],
+  //   blockExplorerName: 'Chiado Blockscout',
+  //   token: 'Testnet xDai on Chiado',
+  //   tokenDecimals: 18,
+  //   blocksFrequencyInSeconds: 5,
+  //   bridge: {
+  //     DAI: '',
+  //     wForeignNative: '', // WETH
+  //   },
+  // },
   [Chains.gnosis]: {
     id: Chains.gnosis,
     name: 'Gnosis Chain',

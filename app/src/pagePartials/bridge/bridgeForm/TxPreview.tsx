@@ -1,12 +1,22 @@
 import React from 'react'
 import styled from 'styled-components'
-
 import { Tooltip } from '@/src/components/tooltip'
-import { Loading } from '@/src/components/loading'
 import formatDistance from 'date-fns/formatDistance'
-import { motion } from 'framer-motion'
+import { useBridgeFee } from '@/src/hooks/bridge/useBridgeFee'
+import { useBridgeRequiredBlocks } from '@/src/hooks/bridge/useBridgeRequiredBlocks'
+import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactionInfo'
+import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
+import { formatUnits } from 'ethers/lib/utils'
+import { ChainsValues } from '@/src/constants/config/types'
+import { BigNumber } from 'ethers'
+import { Token } from '@/types/token'
+import { ZERO_BN } from '@/src/constants/misc'
+import { fromBN } from '@/src/utils/bigNumber'
+import { getNetworkConfig } from '@/src/constants/config/chains'
+import { Loading } from '@/src/components/loading'
+import { genericSuspense } from '@/src/components/safeSuspense'
 
-const Wrapper = styled(motion.ul)`
+const Wrapper = styled.ul`
   background: ${({ theme: { colors } }) => colors.white_50};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   border: 1px solid ${({ theme: { colors } }) => colors.cream};
@@ -41,67 +51,106 @@ const Value = styled.span`
   gap: var(--theme-common-space);
 `
 
-export const TxPreview: React.FC<{
-  estimatedTime: number
-  estimatedTotalFee: string
-  estimatedTotalGas: string
-  receivedAmount: string
-  isLoading: boolean
-}> = ({
-  estimatedTime,
-  estimatedTotalFee,
-  estimatedTotalGas,
-  isLoading,
-  receivedAmount,
-  ...restProps
-}) => {
+export const TxPreviewLoading: React.FC = ({ ...restProps }) => {
   return (
-    <Wrapper
-      animate={{ height: 'auto', y: 0, opacity: 1 }}
-      exit={{ height: 0, y: '-10%', opacity: 0 }}
-      initial={{ height: 0, y: '-10%', opacity: 0 }}
-      key="wallet"
-      transition={{
-        type: 'tween',
-        duration: 0.15,
-        ease: 'easeInOut',
-      }}
-      {...restProps}
-    >
-      {isLoading ? (
-        <Loading text="Loading..." />
-      ) : (
-        <>
-          <Item>
-            You will receive
-            <Value>
-              {receivedAmount}
-              <Tooltip content="Estimated output" />
-            </Value>
-          </Item>
-          <Item>
-            Estimated time
-            <Value>
-              {formatDistance(0, estimatedTime * 1000, { includeSeconds: true })}
-              <Tooltip content="Estimated execution time" />
-            </Value>
-          </Item>
-          <Item>
-            Estimated total gas
-            <Value>
-              {estimatedTotalGas}
-              <Tooltip content="Estimated gas fee" />
-            </Value>
-          </Item>
-          <Item>
-            Estimated total fee
-            <Value>
-              {estimatedTotalFee}
-              <Tooltip content="Estimated bridge fees" />
-            </Value>
-          </Item>
-        </>
-      )}
+    <Wrapper as="div" {...restProps}>
+      <Loading />
     </Wrapper>
   )
 }
+
+export const TxPreview: React.FC<{
+  userAddress: string
+  fromChainId: ChainsValues
+  toChainId: ChainsValues
+  token: Token
+  amount: BigNumber
+  receiveNativeToken: boolean
+  recipient: string
+  tokenOut: Token
+}> = genericSuspense(
+  ({
+    amount,
+    fromChainId,
+    receiveNativeToken,
+    recipient,
+    toChainId,
+    token,
+    tokenOut,
+    userAddress,
+    ...restProps
+  }) => {
+    const appChainConfig = getNetworkConfig(fromChainId)
+    const { isFromHome, isNativeBridge } = getBridgeCommonInfo({
+      fromChainId,
+      toChainId,
+      tokenAddress: token.address || '',
+    })
+
+    const { data: requiredBlocks } = useBridgeRequiredBlocks(fromChainId, isNativeBridge)
+    if (!requiredBlocks) throw new Error('Required blocks are not available')
+
+    const { data: feeInfo } = useBridgeFee({
+      amount,
+      isFromHome,
+      isNativeBridge,
+      token,
+    })
+
+    const { data: transactionData } = useBridgeTransactionInfo({
+      userAddress,
+      amount,
+      fromChainId,
+      receiveNativeToken,
+      recipient,
+      toChainId,
+      token,
+    })
+
+    if (!transactionData) throw new Error('Transaction data is not available')
+
+    const tokenOutAmount = formatUnits(amount.sub(feeInfo || ZERO_BN), tokenOut?.decimals)
+    const estimatedTime = requiredBlocks.estimatedTimeInSeconds || 0
+    const estimatedTotalGas = `${fromBN(
+      transactionData.gasLimit.mul(transactionData.gasPrice),
+      appChainConfig.tokenDecimals,
+    )} ${appChainConfig.token}`
+    const estimatedTotalFee = `${fromBN(feeInfo, appChainConfig.tokenDecimals)} ${
+      appChainConfig.token
+    }`
+
+    return (
+      <Wrapper {...restProps}>
+        <Item>
+          You will receive
+          <Value>
+            {`${tokenOutAmount} ${tokenOut?.symbol}`}
+            <Tooltip content="Estimated output" />
+          </Value>
+        </Item>
+        <Item>
+          Estimated time
+          <Value>
+            {formatDistance(0, estimatedTime * 1000, { includeSeconds: true })}
+            <Tooltip content="Estimated execution time" />
+          </Value>
+        </Item>
+        <Item>
+          Estimated total gas
+          <Value>
+            {estimatedTotalGas}
+            <Tooltip content="Estimated gas fee" />
+          </Value>
+        </Item>
+        <Item>
+          Estimated total fee
+          <Value>
+            {estimatedTotalFee}
+            <Tooltip content="Estimated bridge fees" />
+          </Value>
+        </Item>
+      </Wrapper>
+    )
+  },
+  ({ ...restProps }) => <TxPreviewLoading {...restProps} />,
+)

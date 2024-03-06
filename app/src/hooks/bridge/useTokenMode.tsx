@@ -1,6 +1,7 @@
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { ZERO_ADDRESS } from '@/src/constants/misc'
 import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
+import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { Token } from '@/types/token'
 import useSWR from 'swr/immutable'
 
@@ -10,14 +11,13 @@ import useSWR from 'swr/immutable'
 // we need this only for omni bridge.
 export type TOKEN_MODE = 'ERC20' | 'ERC677'
 
-export const useTokenMode = (
-  isFromHome: boolean,
-  foreignChainId: ChainsValues,
-  isNativeBridge: boolean,
-  isNativeToken: boolean,
-  token?: Token,
-) => {
+export const useTokenMode = (fromChainId: ChainsValues, toChainId: ChainsValues, token: Token) => {
   const { bridgeContracts } = useBridgeContracts()
+  const { foreignChainId, isFromHome, isNativeBridge, isNativeToken } = getBridgeCommonInfo({
+    fromChainId,
+    toChainId,
+    tokenAddress: token?.address || '',
+  })
 
   const shouldFetch = !isNativeToken && token?.address && foreignChainId && !isNativeBridge
 
@@ -40,7 +40,6 @@ export const useTokenMode = (
         return 'ERC20'
       }
     },
-    { suspense: false },
   )
 
   return { data: data || 'ERC20', error, mutate, isLoading }

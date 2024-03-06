@@ -16,6 +16,8 @@ import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
 import { useRouter } from 'next/router'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
+import { formatNumber } from '@/src/utils/format'
+import { formatUnits } from 'ethers/lib/utils'
 
 const InnerWrapper = styled.div`
   max-width: 644px;
@@ -218,6 +220,8 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
     transactionHash,
   )
 
+  const formattedAmount = Number(formatUnits(amount, tokenBridged.decimals))
+
   const isBridgeComplete = progressData?.progress === 100
 
   return (
@@ -259,8 +263,8 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
                       <br />
                     </>
                   )}
-                  {isBridgeComplete ? 'Sent' : 'Sending'} {amount} {tokenBridged.symbol} to{' '}
-                  {destinationChain}.
+                  {isBridgeComplete ? 'Sent' : 'Sending'} {formatNumber(formattedAmount)}{' '}
+                  {tokenBridged.symbol} to {destinationChain}.
                 </MessageText>
               </Message>
               <BlockConfirmations

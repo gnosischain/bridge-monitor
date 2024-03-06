@@ -22,11 +22,6 @@ import { InnerCard } from '@/src/components/card/InnerCard'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { ArrowRight } from '@/src/components/assets/ArrowRight'
-import dynamic from 'next/dynamic'
-
-const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
-  ssr: false,
-})
 
 const Columns = styled.div`
   display: grid;
@@ -294,11 +289,7 @@ const Limits: React.FC = () => {
 
 export const DailyBridgeLimits: React.FC = genericSuspense(
   () => {
-    return (
-      <TokenListProvider>
-        <Limits />
-      </TokenListProvider>
-    )
+    return <Limits />
   },
   () => (
     <>

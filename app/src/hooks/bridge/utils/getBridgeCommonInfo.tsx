@@ -12,14 +12,12 @@ import { isNativeToken as defaultIsNativeToken, isSameString } from '@/src/utils
  */
 export const getBridgeCommonInfo = ({
   fromChainId,
-  receiveNativeToken,
   toChainId,
   tokenAddress,
 }: {
   fromChainId: ChainsValues
   toChainId: ChainsValues
   tokenAddress: string
-  receiveNativeToken?: boolean
 }) => {
   const isFromHome = fromChainId === Chains.gnosis
   const isFromForeign = !isFromHome

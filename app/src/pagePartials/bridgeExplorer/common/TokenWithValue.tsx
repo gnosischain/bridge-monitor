@@ -5,11 +5,7 @@ import { ChainToken } from '@/src/pagePartials/bridgeExplorer/validators/ChainTo
 import { useLookupBridgedToken } from '@/src/hooks/useLookupBridgedToken'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
-import dynamic from 'next/dynamic'
-
-const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
-  ssr: false,
-})
+import TokenListProvider from '@/src/providers/tokenListProvider'
 
 const tokenSize = 16
 
@@ -159,19 +155,11 @@ const ReceiverToken: React.FC<Props> = ({
 }
 
 export const Initiator: React.FC<Props> = genericSuspense(
-  ({ ...restProps }) => (
-    <TokenListProvider>
-      <InitiatorToken {...restProps} />
-    </TokenListProvider>
-  ),
+  ({ ...restProps }) => <InitiatorToken {...restProps} />,
   () => <Loading label={sentLabel} />,
 )
 
 export const Receiver: React.FC<Props> = genericSuspense(
-  ({ ...restProps }) => (
-    <TokenListProvider>
-      <ReceiverToken {...restProps} />
-    </TokenListProvider>
-  ),
+  ({ ...restProps }) => <ReceiverToken {...restProps} />,
   () => <Loading label={receivedLabel} />,
 )

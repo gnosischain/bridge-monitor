@@ -12,11 +12,6 @@ import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
-import dynamic from 'next/dynamic'
-
-const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
-  ssr: false,
-})
 
 const Wrapper = styled(BaseDropdown)`
   --inner-padding: calc(var(--theme-common-space) / 2);
@@ -248,9 +243,5 @@ const Dropdown: React.FC<Props> = ({
 }
 
 export const TokenDropdown: React.FC<Props> = ({ ...restProps }) => {
-  return (
-    <TokenListProvider>
-      <Dropdown {...restProps} />
-    </TokenListProvider>
-  )
+  return <Dropdown {...restProps} />
 }

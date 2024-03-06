@@ -33,5 +33,4 @@ export const useBridgeRequiredBlocks = (chainId: ChainsValues, isNativeBridge: b
         estimatedTimeInSeconds: blocks.mul(chainConfig.blocksFrequencyInSeconds).toNumber(),
       }
     },
-    { suspense: false },
   )

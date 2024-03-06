@@ -4,8 +4,6 @@ import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import get from 'lodash/get'
 import { isAddress } from '@ethersproject/address'
 import { DebounceInput } from 'react-debounce-input'
-
-import { ChevronDown as BaseChevronDown } from '@/src/components/assets/ChevronDown'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown as BaseDropdown, DropdownItem, DropdownPosition } from '@/src/components/dropdown'
 import { TextfieldCSS } from '@/src/components/form/Textfield'
@@ -13,7 +11,6 @@ import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
-import dynamic from 'next/dynamic'
 import orderBy from 'lodash/orderBy'
 import { HomeOmniMediator__factory } from '@/types/typechain'
 import { contracts } from '@/src/constants/config/contracts'
@@ -24,9 +21,21 @@ import { ERC165__factory } from '@/types/typechain/factories/ERC165__factory'
 import { ZERO_ADDRESS } from '@/src/constants/misc'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 
-const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
-  ssr: false,
-})
+const BaseChevronDown = ({ ...restProps }) => (
+  <svg
+    fill="none"
+    height="7"
+    viewBox="0 0 12 7"
+    width="12"
+    xmlns="http://www.w3.org/2000/svg"
+    {...restProps}
+  >
+    <path
+      d="M11.2654 1.26492L6.26541 6.26492C6.1951 6.33515 6.09979 6.37459 6.00041 6.37459C5.90104 6.37459 5.80572 6.33515 5.73541 6.26492L0.735411 1.26492C0.669171 1.19384 0.63311 1.09981 0.634824 1.00266C0.636538 0.905512 0.675894 0.812819 0.744601 0.744113C0.813307 0.675406 0.906 0.63605 1.00315 0.634336C1.1003 0.632622 1.19432 0.668684 1.26541 0.734924L6.00041 5.4693L10.7354 0.734924C10.8065 0.668684 10.9005 0.632622 10.9977 0.634336C11.0948 0.63605 11.1875 0.675406 11.2562 0.744113C11.3249 0.812819 11.3643 0.905512 11.366 1.00266C11.3677 1.09981 11.3317 1.19384 11.2654 1.26492Z"
+      fill="#3E6957"
+    />
+  </svg>
+)
 
 const Wrapper = styled(BaseDropdown)`
   --inner-padding: calc(var(--theme-common-space) * 2);
@@ -129,7 +138,7 @@ const NoResults = styled.div<{ closeOnClick?: boolean }>`
 
 const Button = styled.button`
   align-items: center;
-  background: ${({ theme: { colors } }) => colors.creamLight};
+  background-color: ${({ theme: { colors } }) => colors.white};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   border: none;
   color: ${({ theme: { colors } }) => colors.primary};
@@ -143,7 +152,7 @@ const Button = styled.button`
   margin: 0;
   min-height: 100%;
   min-width: 130px;
-  padding: 0 calc(var(--theme-common-space) * 2);
+  padding: 0 var(--theme-common-space);
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     font-size: 1.6rem;
@@ -263,6 +272,7 @@ const Dropdown: React.FC<Props> = ({
   useEffect(() => {
     // Define the symbols array with the desired order
     const _tokens = [
+      { symbol: 'DAI', address: '0x44fA8E6f47987339850636F88629646662444217' },
       { symbol: 'GNO', address: '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb' },
       { symbol: 'WSTETH', address: '0x6C76971f98945AE98dD7d4DFcA8711ebea946eA6' },
       { symbol: 'WETH', address: '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1' },
@@ -272,25 +282,28 @@ const Dropdown: React.FC<Props> = ({
       { symbol: 'USDT', address: '0x4ECaBa5870353805a9F068101A40E0f32ed605C6' },
       { symbol: 'OLAS', address: '0xcE11e14225575945b8E6Dc0D4F2dD4C570f79d9f' },
       { symbol: 'HOPR', address: '0xD057604A14982FE8D88c5fC25Aac3267eA142a08' },
-    ]
+    ].filter((item) => (fromChainId == Chains.mainnet ? true : item.symbol !== 'DAI'))
 
-    const symbols = ['ETH', 'XDAI', ..._tokens.map((item) => item.symbol)]
+    const symbols = ['XDAI', 'DAI', 'ETH', ..._tokens.map((item) => item.symbol)]
     const isFromHome = fromChainId == Chains.gnosis
     const key = isFromHome ? 'address' : `extensions.bridgeInfo.${toChainId}.tokenAddress`
     const tokensByChain = ambTokensByNetwork[fromChainId]
 
-    // Filter the tokens based on the desired symbols array
+    // Get the tokens from the ambTokensByNetwork and the native token
+    // based on the _tokens array
     const filteredTokens = Object.values(_tokens)
-      .map((token) => tokensByChain.find((item) => isSameString(get(item, key), token.address)))
-      .filter((item): item is Token => !!item)
+      .map((_t) => tokensByChain.find((token) => isSameString(get(token, key), _t.address)))
+      .filter((token): token is Token => !!token)
       .concat(
         tokensByChain.find((item) => isSameString(item.address, NATIVE_TOKEN_ADDRESS)) as Token,
       )
 
     // Sort the filtered tokens according to their position in the _tokens array
-    const orderedTokens = filteredTokens.sort(
-      (a, b) => symbols.indexOf(a.symbol.toUpperCase()) - symbols.indexOf(b.symbol.toUpperCase()),
-    )
+    const orderedTokens = filteredTokens
+      .sort(
+        (a, b) => symbols.indexOf(a.symbol.toUpperCase()) - symbols.indexOf(b.symbol.toUpperCase()),
+      )
+      .slice(0, 10)
 
     setTopTokens(orderedTokens)
   }, [ambTokensByNetwork, fromChainId, toChainId])
@@ -430,9 +443,5 @@ const Dropdown: React.FC<Props> = ({
 }
 
 export const TokenDropdown: React.FC<Props> = ({ ...restProps }) => {
-  return (
-    <TokenListProvider>
-      <Dropdown {...restProps} />
-    </TokenListProvider>
-  )
+  return <Dropdown {...restProps} />
 }

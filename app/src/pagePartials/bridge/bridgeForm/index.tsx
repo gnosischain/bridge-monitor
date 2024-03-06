@@ -1,16 +1,14 @@
-import { useReducer, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import styled from 'styled-components'
-import Image from 'next/image'
-import dynamic from 'next/dynamic'
-import useTransaction from '@/src/hooks/useTransaction'
-import { AlertMessage } from '@/src/components/error/AlertMessage'
-import { AmountTokenInput, MaxButton } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
-import { AnimatePresence } from 'framer-motion'
-import { BridgeButton, ButtonPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/BridgeButton'
+import { AmountTokenInput } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
+import {
+  BridgeButton,
+  ButtonPlaceholder,
+  DisabledBridgeButton,
+} from '@/src/pagePartials/bridge/bridgeForm/BridgeButton'
 import { RecipientAddress } from '@/src/pagePartials/bridge/bridgeForm/RecipientAddress'
 import { CardPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/CardPlaceholder'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
-import { TokenSelect } from '@/src/pagePartials/bridge/bridgeForm/TokenSelect'
 import { Header } from '@/src/pagePartials/bridge/bridgeForm/Header'
 import { InnerCard } from '@/src/pagePartials/bridge/bridgeForm/InnerCard'
 import { ButtonUnwrapFirst, UnwrapFirst } from '@/src/pagePartials/bridge/bridgeForm/UnwrapFirst'
@@ -18,29 +16,34 @@ import { Switch } from '@/src/pagePartials/bridge/bridgeForm/Switch'
 import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
 import { Token } from '@/types/token'
 import { TokenDropdown } from '@/src/pagePartials/bridge/bridgeForm/TokenDropdown'
-import { TokenOut } from '@/src/pagePartials/bridge/bridgeForm/TokenOut'
-import { TxPreview } from '@/src/pagePartials/bridge/bridgeForm/TxPreview'
-import { WXDAI_GNOSIS, ZERO_ADDRESS, ZERO_BN, sDAI_GNOSIS } from '@/src/constants/misc'
-import { chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
-import { formatNumber } from '@/src/utils/format'
-import { fromBN } from '@/src/utils/bigNumber'
-import { genericSuspense } from '@/src/components/safeSuspense'
+import { WXDAI_GNOSIS, ZERO_ADDRESS, sDAI_GNOSIS } from '@/src/constants/misc'
+import { chainsConfig } from '@/src/constants/config/chains'
+import SafeSuspense, { genericSuspense } from '@/src/components/safeSuspense'
 import { parseUnits } from 'ethers/lib/utils'
-import { useApproval } from '@/src/hooks/bridge/useApproval'
-import { useBridgeInfo } from '@/src/hooks/bridge/useBridgeInfo'
 import { getToChainId, isSameString } from '@/src/utils/tools'
-import { getIcon } from '@/src/utils/icons'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { Balance } from '@/src/pagePartials/bridge/bridgeForm/Balance'
-import { useRouter } from 'next/router'
-import { bridgePagesBaseURL } from '@/src/constants/sections'
 import { useDebounce } from 'use-debounce'
+import TokenListProvider, { useBridgedTokens } from '@/src/providers/tokenListProvider'
+import { BridgeFormState } from '@/src/pagePartials/bridge/bridgeForm/types'
+import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
+import { Chain } from '@/src/pagePartials/bridge/bridgeForm/Chain'
+import { UserBalance } from '@/src/pagePartials/bridge/bridgeForm/UserBalance'
+import { BridgeSummary } from '@/src/pagePartials/bridge/bridgeForm/BridgeSummary'
+import { ReceivedTokenInfo } from '@/src/pagePartials/bridge/bridgeForm/ReceivedTokenInfo'
 
-const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
-  ssr: false,
-})
+const Title = styled.h2`
+  align-items: center;
+  color: ${({ theme: { colors } }) => colors.primary};
+  display: flex;
+  font-size: 1.4rem;
+  font-weight: 500;
+  justify-content: space-between;
+  line-height: 1.2;
+  margin: 0;
+  width: 100%;
+`
 
-const InnerWrapper = styled.div<{ hidden?: boolean }>`
+export const FormWrapper = styled.div<{ hidden?: boolean }>`
   display: ${({ hidden }) => (hidden ? 'none' : 'flex')};
   flex-direction: column;
   justify-content: space-between;
@@ -69,42 +72,12 @@ const InnerCardFrom = styled(InnerCard)`
   position: relative;
 `
 
-const SubTitle = styled.h2`
+const OnChainInfo = styled.div`
   align-items: center;
-  color: ${({ theme: { colors } }) => colors.primary};
   display: flex;
-  font-size: 2.1rem;
-  font-weight: 500;
   justify-content: space-between;
-  line-height: 1.2;
-  margin: 0;
-  padding-bottom: calc(var(--theme-common-space) * 3);
+  margin-bottom: calc(var(--theme-common-space) * -1);
   width: 100%;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    font-size: 2.4rem;
-  }
-`
-
-const Chain = styled.div`
-  --chain-height: 44px;
-
-  align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.creamLight};
-  border-radius: var(--chain-height);
-  display: flex;
-  column-gap: var(--theme-common-space);
-  height: var(--chain-height);
-  padding: var(--theme-common-space);
-  font-size: 1.8rem;
-  font-weight: 500;
-`
-
-const BalanceWrapper = styled.div`
-  align-items: center;
-  column-gap: calc(var(--theme-common-space) * 2);
-  display: flex;
-  margin-left: auto;
 `
 
 const BridgedToken = styled.div`
@@ -126,367 +99,248 @@ const FromTokenDropdown = styled(TokenDropdown)`
   }
 `
 
-const TokenInput = styled(AmountTokenInput)`
+const AmountInput = styled(AmountTokenInput)`
   margin-right: calc(var(--theme-common-space) * -1);
 `
 
-const DifferentWalletWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--theme-common-space) * 2);
-`
-
-const wethOptions = [
-  {
-    icon: '/images/icons/wethToken.svg',
-    label: 'WETH',
-    name: 'eth-types',
-  },
-  {
-    icon: '/images/icons/ethToken.svg',
-    label: 'ETH',
-    name: 'eth-types',
-  },
-]
-
 const SkeletonCommon: React.FC = () => (
-  <>
-    <Header />
-    <FormCards>
-      <CardPlaceholder />
-      <CardPlaceholder height="266px" />
-    </FormCards>
-    <ButtonPlaceholder />
-  </>
+  <Wrapper>
+    <FormWrapper>
+      <Header />
+      <Form as="div">
+        <FormCards>
+          <CardPlaceholder />
+          <CardPlaceholder height="266px" />
+        </FormCards>
+        <ButtonPlaceholder />
+      </Form>
+    </FormWrapper>
+  </Wrapper>
 )
 
-type FormState = {
-  fromChainId: ChainsValues
-  toChainId: ChainsValues
-  amount: string
-  recipient: string
-  receiveNativeToken: boolean
-  account: string
-  token?: Token
-}
-
-const initialState: FormState = {
-  fromChainId: Chains.mainnet,
-  toChainId: Chains.gnosis,
+const initialState: BridgeFormState = {
   account: '',
-  token: undefined,
   amount: '',
-  recipient: '',
+  fromChainId: Chains.mainnet,
   receiveNativeToken: false,
+  recipient: '',
+  toChainId: Chains.gnosis,
+  token: undefined,
 }
 
-const BridgeForm: React.FC = genericSuspense(
-  () => {
-    const [isBridging, setIsBridging] = useState(false)
-    const [isApproving, setIsApproving] = useState(false)
-    const { address, appChainId } = useWeb3Connection()
-    const approve = useApproval()
-    const sendTx = useTransaction()
-    const router = useRouter()
+const Main = () => {
+  const { address } = useWeb3Connection()
+  const { tokensByNetwork } = useBridgedTokens()
+  const [tokenOut, setTokenOut] = useState<Token | undefined>()
+  const [formState, dispatch] = useReducer(
+    (data: BridgeFormState, partial: Partial<BridgeFormState>): BridgeFormState => ({
+      ...data,
+      ...partial,
+    }),
+    {
+      ...initialState,
+      account: address || ZERO_ADDRESS,
+    },
+  )
+  const [debouncedAmount] = useDebounce(formState.amount, 500)
+  const amountBN = parseUnits(debouncedAmount || '0', formState.token?.decimals)
 
-    const appChainConfig = getNetworkConfig(appChainId)
+  const handleFromChainIdChange = async () => {
+    const newFromChainId = formState.toChainId === 100 ? 100 : 1
 
-    const [formState, dispatch] = useReducer(
-      (data: FormState, partial: Partial<FormState>): FormState => ({
-        ...data,
-        ...partial,
-      }),
-      {
-        ...initialState,
-        account: address || ZERO_ADDRESS,
-      },
+    let otherSideToken =
+      formState.token?.extensions.bridgeInfo[formState.toChainId]?.tokenAddress || ''
+
+    if (
+      formState.fromChainId === Chains.mainnet &&
+      isSameString(formState.token?.address, chainsConfig[Chains.mainnet].bridge.DAI)
+    ) {
+      otherSideToken = NATIVE_TOKEN_ADDRESS
+    }
+
+    const token = tokensByNetwork[formState.toChainId].find((token) =>
+      isSameString(token.address, otherSideToken),
     )
-    const [debouncedAmount] = useDebounce(formState.amount, 500)
 
-    // TODO: REFACTOR having this one big unified hook is not a good idea.
-    // It tries to get all the data, even when it's not needed.
-    // The best approach is to call the hooks on the components that are required
-    // and have the possibility to conditionally render these components.
-    const bridgeInfo = useBridgeInfo({
-      fromChainId: formState.fromChainId as ChainsValues,
-      toChainId: formState.toChainId as ChainsValues,
-      token: formState.token,
-      receiveNativeToken: formState.receiveNativeToken,
-      amount: debouncedAmount,
-      recipient: formState.recipient,
+    dispatch({
+      ...initialState,
+      account: address || ZERO_ADDRESS,
+      fromChainId: newFromChainId,
+      toChainId: getToChainId(newFromChainId),
+      token,
     })
+  }
 
-    const tokenOut = bridgeInfo.receivedToken
+  const unwrapFirst =
+    formState.fromChainId == Chains.gnosis &&
+    (isSameString(formState.token?.address || '', WXDAI_GNOSIS) ||
+      isSameString(formState.token?.address || '', sDAI_GNOSIS))
 
-    const handleFromChainIdChange = async (fromChainId: ChainsValues) => {
-      dispatch({
-        ...initialState,
-        account: address || ZERO_ADDRESS,
-        fromChainId: fromChainId,
-        toChainId: getToChainId(fromChainId),
-      })
+  // set tokenOut
+  useEffect(() => {
+    if (!formState.token) return
+
+    // if user selects DAI on mainnet, token out has to be xDAI on gnosis
+    if (
+      formState.fromChainId == Chains.mainnet &&
+      isSameString(formState.token.address, chainsConfig[Chains.mainnet].bridge.DAI)
+    ) {
+      setTokenOut(
+        tokensByNetwork[Chains.gnosis].find((item) =>
+          isSameString(item.address, NATIVE_TOKEN_ADDRESS),
+        ),
+      )
+      return
     }
 
-    const handleTokenChange = (token: Token) => {
-      dispatch({ ...formState, token, receiveNativeToken: false, amount: '' })
+    // If the user is sending native tokens to the mainnet, we need to set the tokenOut to the native token
+    // when receiveNativeToken is false, we use WETH
+    if (
+      formState.toChainId == Chains.mainnet &&
+      isSameString(
+        formState.token?.address || '',
+        chainsConfig[Chains.gnosis].bridge.wForeignNative,
+      ) &&
+      formState.receiveNativeToken
+    ) {
+      const _tokenOut = tokensByNetwork[formState.toChainId].find((item) =>
+        isSameString(item.address, NATIVE_TOKEN_ADDRESS),
+      )
+      setTokenOut(_tokenOut)
+      return
     }
 
-    const handleApprove = async () => {
-      if (!formState.token || !bridgeInfo.fromBridgeAddress) {
-        return
-      }
+    // default case, we set tokenOut from the token extension bridgeInfo
+    const toTokenAddress = formState.token?.extensions.bridgeInfo[formState.toChainId]?.tokenAddress
+    const toToken = toTokenAddress
+      ? tokensByNetwork[formState.toChainId].find((token) =>
+          isSameString(token.address, toTokenAddress),
+        )
+      : undefined
+    setTokenOut(toToken)
+  }, [
+    formState.fromChainId,
+    formState.receiveNativeToken,
+    formState.toChainId,
+    formState.token,
+    formState.token?.extensions.bridgeInfo,
+    tokensByNetwork,
+  ])
 
-      setIsApproving(true)
-
-      const parsedAmount = parseUnits(formState.amount, formState.token.decimals)
-      const fromTokenAddress = formState.token.address
-      const spender = bridgeInfo.fromBridgeAddress
-
-      const tx = await approve({
-        amount: parsedAmount,
-        spenderAddress: spender,
-        tokenAddress: fromTokenAddress,
-      })
-
-      if (tx) {
-        await tx.wait()
-
-        await bridgeInfo.refreshBalance()
-        setIsApproving(false)
-      } else {
-        setIsApproving(false)
-      }
-    }
-
-    const handleBridgeTx = async () => {
-      if (!bridgeInfo.tx) {
-        return
-      }
-
-      setIsBridging(true)
-
-      try {
-        const tx = await sendTx(bridgeInfo.tx)
-
-        if (tx) {
-          router.push(
-            `${bridgePagesBaseURL}/${tx.hash}?fromChainId=${formState.fromChainId}&isNativeBridge=${
-              bridgeInfo.isNativeBridge ? 1 : 0
-            }&tokenAddress=${formState.token?.address}&amount=${formState.amount}&toChainId=${
-              formState.toChainId
-            }`,
-          )
-        } else {
-          throw new Error('Failed to bridge')
-        }
-      } catch (error) {
-        console.error(error)
-        setIsBridging(false)
-      }
-    }
-
-    const radioGroupHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (event.target.value === 'WETH') {
-        dispatch({ ...formState, receiveNativeToken: !formState.receiveNativeToken })
-      } else {
-        dispatch({ ...formState, receiveNativeToken: !formState.receiveNativeToken })
-      }
-    }
-
-    const unwrapFirst =
-      formState.fromChainId == Chains.gnosis &&
-      (isSameString(formState.token?.address || '', WXDAI_GNOSIS) ||
-        isSameString(formState.token?.address || '', sDAI_GNOSIS))
-
-    const tokenOutValue = bridgeInfo.toAmount
-
-    return (
-      <>
-        <InnerWrapper>
-          <Header />
-          <Form>
-            <FormCards>
-              <InnerCardFrom>
-                <SubTitle>
-                  From
-                  <Chain>
-                    <Image
-                      alt={formState.fromChainId === Chains.mainnet ? 'MainnetBig' : 'GnosisBig'}
-                      height={24}
-                      objectFit="cover"
-                      src={getIcon(
-                        formState.fromChainId === Chains.mainnet ? 'MainnetBig' : 'GnosisBig',
-                      )}
-                      width={24}
-                    />
-                    {formState.toChainId === 100 ? 'Mainnet' : 'Gnosis'}
-                  </Chain>
-                </SubTitle>
-                <BalanceWrapper>
-                  <MaxButton
-                    disabled={bridgeInfo.balance.isZero()}
-                    onClick={() =>
-                      dispatch({
-                        ...formState,
-                        amount: fromBN(bridgeInfo.balance, formState.token?.decimals),
-                      })
-                    }
-                  />
-                  <Balance
-                    loading={bridgeInfo.isLoadingBalanceInfo}
-                    token={formState.token}
-                    value={formatNumber(
-                      Number(fromBN(bridgeInfo.balance, formState.token?.decimals)),
-                    )}
-                  />
-                </BalanceWrapper>
-                <BridgedToken>
-                  <FromTokenDropdown
-                    defaultToken={formState.token}
-                    fromChainId={formState.fromChainId}
-                    key={'tokenIn'}
-                    onChange={handleTokenChange}
-                    toChainId={formState.toChainId}
-                  />
-                  <TokenInput
-                    decimals={formState.token?.decimals || 18}
-                    onChange={(value) => dispatch({ ...formState, amount: value })}
-                    placeholder="0.00"
-                    value={formState.amount}
-                  />
-                </BridgedToken>
-                <Switch
-                  onClick={() => handleFromChainIdChange(formState.toChainId === 100 ? 100 : 1)}
+  return (
+    <Wrapper>
+      <FormWrapper>
+        <Header />
+        <Form>
+          <FormCards>
+            <InnerCardFrom>
+              <Title>Transfer from</Title>
+              <OnChainInfo>
+                <Chain chainKey={formState.fromChainId === Chains.mainnet ? 'mainnet' : 'gnosis'} />
+                <UserBalance
+                  address={address}
+                  fromChainId={formState.fromChainId}
+                  onMax={(value) => dispatch({ ...formState, amount: value })}
+                  toChainId={formState.toChainId}
+                  token={formState.token}
                 />
-              </InnerCardFrom>
-              <InnerCard>
-                <SubTitle>
-                  To
-                  <Chain>
-                    <Image
-                      alt={formState.fromChainId === Chains.gnosis ? 'Mainnet' : 'Gnosis'}
-                      height={24}
-                      objectFit="cover"
-                      src={getIcon(
-                        formState.fromChainId === Chains.gnosis ? 'MainnetBig' : 'GnosisBig',
-                      )}
-                      width={24}
+              </OnChainInfo>
+              <BridgedToken>
+                <FromTokenDropdown
+                  defaultToken={formState.token}
+                  fromChainId={formState.fromChainId}
+                  key={'tokenIn'}
+                  onChange={(token: Token) => {
+                    dispatch({ ...formState, token, receiveNativeToken: false, amount: '' })
+                  }}
+                  toChainId={formState.toChainId}
+                />
+                <AmountInput
+                  decimals={formState.token?.decimals || 18}
+                  onChange={(value) => dispatch({ ...formState, amount: value })}
+                  placeholder="0.00"
+                  value={formState.amount}
+                />
+              </BridgedToken>
+              <Switch onClick={() => handleFromChainIdChange()} />
+            </InnerCardFrom>
+            <InnerCard>
+              <Title>Transfer to</Title>
+              {unwrapFirst ? (
+                <UnwrapFirst />
+              ) : (
+                <>
+                  <OnChainInfo>
+                    <Chain
+                      chainKey={formState.toChainId === Chains.mainnet ? 'mainnet' : 'gnosis'}
                     />
-                    {formState.toChainId === 100 ? 'Gnosis' : 'Mainnet'}
-                  </Chain>
-                </SubTitle>
-                {unwrapFirst ? (
-                  <UnwrapFirst />
-                ) : (
-                  <>
-                    <BalanceWrapper>
-                      <Balance
-                        loading={bridgeInfo.isLoadingTokenOutInfo}
-                        token={bridgeInfo.receivedToken}
-                        value={
-                          bridgeInfo.receivedToken
-                            ? formatNumber(
-                                Number(
-                                  fromBN(
-                                    bridgeInfo.userBalanceInDestination || ZERO_BN,
-                                    bridgeInfo.receivedToken.decimals,
-                                  ),
-                                ),
-                              )
-                            : ''
-                        }
-                      />
-                    </BalanceWrapper>
-                    <BridgedToken>
-                      {formState.fromChainId == Chains.gnosis &&
-                      formState.token?.address ==
-                        chainsConfig[Chains.gnosis].bridge.wForeignNative ? (
-                        <TokenSelect
-                          onChange={radioGroupHandler}
-                          options={wethOptions}
-                          optionsId="ethOptions"
-                          value={tokenOutValue}
-                        />
-                      ) : (
-                        <TokenOut
-                          loading={bridgeInfo.isLoadingTokenOutInfo}
-                          tokenOut={tokenOut}
-                          value={tokenOutValue}
-                        />
-                      )}
-                    </BridgedToken>
-                    <DifferentWalletWrapper>
-                      <RecipientAddress
-                        onChange={(event) =>
-                          dispatch({ ...formState, recipient: event.target.value })
-                        }
-                        recipient={formState.recipient}
-                      />
-                    </DifferentWalletWrapper>
-                  </>
-                )}
-              </InnerCard>
-              {!bridgeInfo.errorMessage && (
-                <AnimatePresence initial={false}>
-                  {formState.amount && formState.token && (
-                    <TxPreview
-                      estimatedTime={bridgeInfo.estimatedTimeInSeconds || 0}
-                      estimatedTotalFee={`${fromBN(bridgeInfo.fee, appChainConfig.tokenDecimals)} ${
-                        formState.token?.symbol
-                      }`}
-                      estimatedTotalGas={`${fromBN(
-                        bridgeInfo.gasLimit.mul(bridgeInfo.gasPrice),
-                        appChainConfig.tokenDecimals,
-                      )} ${appChainConfig.token}`}
-                      isLoading={bridgeInfo.isLoadingInfo}
-                      receivedAmount={`${tokenOutValue} ${tokenOut?.symbol}`}
+                    <UserBalance
+                      address={address}
+                      /* Inverted values as we need to get the values from the other side of the chain */
+                      fromChainId={formState.toChainId}
+                      toChainId={formState.fromChainId}
+                      token={tokenOut}
                     />
-                  )}
-                </AnimatePresence>
+                  </OnChainInfo>
+                  <BridgedToken>
+                    <ReceivedTokenInfo
+                      amountBN={amountBN}
+                      fromChainId={formState.fromChainId}
+                      setReceiveNativeToken={(receiveNative: boolean) => {
+                        dispatch({ ...formState, receiveNativeToken: receiveNative })
+                      }}
+                      toChainId={formState.toChainId}
+                      token={formState.token}
+                      tokenOut={tokenOut}
+                    />
+                  </BridgedToken>
+                  <RecipientAddress
+                    onChange={(event) => dispatch({ ...formState, recipient: event.target.value })}
+                    recipient={formState.recipient}
+                  />
+                </>
               )}
-              {bridgeInfo.errorMessage && <AlertMessage text={bridgeInfo.errorMessage} />}
-            </FormCards>
-            {unwrapFirst ? (
-              <ButtonUnwrapFirst symbol={formState.token?.symbol} />
-            ) : (
-              <BridgeButton
-                approvalTx={handleApprove}
-                bridgeTx={handleBridgeTx}
-                canBridge={bridgeInfo.canBridge}
+            </InnerCard>
+            {amountBN.gt(0) && formState.token && tokenOut && address && (
+              <BridgeSummary
+                amount={amountBN}
                 fromChainId={formState.fromChainId}
-                isApproving={isApproving}
-                isBridging={isBridging}
-                isLoading={bridgeInfo.isLoadingInfo}
-                shouldApprove={bridgeInfo.shouldApprove}
+                receiveNativeToken={formState.receiveNativeToken}
+                recipient={formState.recipient}
+                toChainId={formState.toChainId}
+                token={formState.token}
+                tokenOut={tokenOut}
+                userAddress={address}
               />
             )}
-          </Form>
-        </InnerWrapper>
-      </>
-    )
-  },
-  () => {
-    return <SkeletonCommon />
-  },
-)
+          </FormCards>
+          {unwrapFirst ? (
+            <ButtonUnwrapFirst symbol={formState.token?.symbol} />
+          ) : !formState.token || !address || amountBN.eq(0) ? (
+            <DisabledBridgeButton />
+          ) : (
+            <SafeSuspense fallback={<ButtonPlaceholder />}>
+              <BridgeButton
+                amount={amountBN}
+                fromChainId={formState.fromChainId}
+                receiveNativeToken={formState.receiveNativeToken}
+                recipient={formState.recipient}
+                toChainId={formState.toChainId}
+                token={formState.token}
+                userAddress={address}
+              />
+            </SafeSuspense>
+          )}
+        </Form>
+      </FormWrapper>
+    </Wrapper>
+  )
+}
 
-export const BridgeIndex: React.FC = genericSuspense(
-  ({ ...restProps }) => {
-    return (
-      <Wrapper {...restProps}>
-        <TokenListProvider>
-          <BridgeForm />
-        </TokenListProvider>
-      </Wrapper>
-    )
-  },
-  ({ ...restProps }) => {
-    return (
-      <Wrapper {...restProps}>
-        <InnerWrapper>
-          <SkeletonCommon />
-        </InnerWrapper>
-      </Wrapper>
-    )
-  },
+export const BridgeFormIndex: React.FC = () => (
+  <SafeSuspense fallback={<SkeletonCommon />}>
+    <TokenListProvider>
+      <Main />
+    </TokenListProvider>
+  </SafeSuspense>
 )

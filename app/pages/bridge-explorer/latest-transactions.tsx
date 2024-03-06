@@ -1,6 +1,8 @@
 import type { NextPage } from 'next'
 import NextHead from 'next/head'
 import { LatestTransactions } from '@/src/pagePartials/bridgeExplorer/latestTransactions'
+import { Token } from 'graphql'
+import TokenListProvider from '@/src/providers/tokenListProvider'
 
 const LatestTransactionsPage: NextPage = () => {
   const title = 'Latest Transactions - Gnosis Bridge Explorer'
@@ -17,7 +19,9 @@ const LatestTransactionsPage: NextPage = () => {
         <meta content={description} property="og:description" />
         <meta content={title} name="twitter:site" />
       </NextHead>
-      <LatestTransactions />
+      <TokenListProvider>
+        <LatestTransactions />
+      </TokenListProvider>
     </>
   )
 }

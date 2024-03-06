@@ -12,7 +12,6 @@ export const contracts = {
   ERC20: {
     address: {
       [Chains.mainnet]: '',
-      [Chains.chiado]: '',
       [Chains.gnosis]: '',
     },
     abi: ERC20_abi,
@@ -20,7 +19,6 @@ export const contracts = {
   XDAIBridge: {
     address: {
       [Chains.mainnet]: '0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', // foreignXdaiBridge
-      [Chains.chiado]: '',
       [Chains.gnosis]: '0x7301CFA0e1756B71869E93d4e4Dca5c7d0eb0AA6', // homeXdaiBridge
     },
     abi: XDAI_abi,
@@ -28,7 +26,6 @@ export const contracts = {
   OmniBridge: {
     address: {
       [Chains.mainnet]: '0x88ad09518695c6c3712AC10a214bE5109a655671', // foreignOmniBridge
-      [Chains.chiado]: '',
       [Chains.gnosis]: '0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d', // homeOmniBridge
     },
     abi: OMNI_abi,
@@ -38,7 +35,6 @@ export const contracts = {
   omniBridgeNativeToken: {
     address: {
       [Chains.mainnet]: '0xa6439ca0fcba1d0f80df0be6a17220fed9c9038a',
-      [Chains.chiado]: '',
       [Chains.gnosis]: '',
     },
     abi: NativeOmniBridgeMediator_abi,
@@ -46,7 +42,6 @@ export const contracts = {
   AMB: {
     address: {
       [Chains.mainnet]: '0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e',
-      [Chains.chiado]: '',
       [Chains.gnosis]: '0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59',
     },
     abi: AMB_abi,
@@ -54,7 +49,6 @@ export const contracts = {
   omnibridgeFeeManager: {
     address: {
       [Chains.mainnet]: '',
-      [Chains.chiado]: '',
       [Chains.gnosis]: '0x5dbc897aef6b18394d845a922bf107fa98e3ac55',
     },
     abi: OMNI_FEE_MANAGER_abi,
@@ -62,7 +56,6 @@ export const contracts = {
   BridgeHelper: {
     address: {
       [Chains.mainnet]: '',
-      [Chains.chiado]: '',
       [Chains.gnosis]: '0x2D51EAa266eafcb59bB36dD3c7E99C515e58113A',
     },
     abi: BridgeHelper_abi,
@@ -70,7 +63,6 @@ export const contracts = {
   AMBBridgeHelper: {
     address: {
       [Chains.mainnet]: '',
-      [Chains.chiado]: '',
       [Chains.gnosis]: '0x7d94ece17e81355326e3359115D4B02411825EdD',
     },
     abi: AMBBridgeHelper_abi,
