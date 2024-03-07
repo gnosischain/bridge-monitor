@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from 'react'
+import { useReducer } from 'react'
 import styled from 'styled-components'
 import { AmountTokenInput } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
 import {
@@ -8,7 +8,7 @@ import {
 } from '@/src/pagePartials/bridge/bridgeForm/BridgeButton'
 import { RecipientAddress } from '@/src/pagePartials/bridge/bridgeForm/RecipientAddress'
 import { CardPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/CardPlaceholder'
-import { Chains, ChainsValues } from '@/src/constants/config/types'
+import { Chains } from '@/src/constants/config/types'
 import { Header } from '@/src/pagePartials/bridge/bridgeForm/Header'
 import { InnerCard } from '@/src/pagePartials/bridge/bridgeForm/InnerCard'
 import { ButtonUnwrapFirst, UnwrapFirst } from '@/src/pagePartials/bridge/bridgeForm/UnwrapFirst'
@@ -18,7 +18,7 @@ import { Token } from '@/types/token'
 import { TokenDropdown } from '@/src/pagePartials/bridge/bridgeForm/TokenDropdown'
 import { WXDAI_GNOSIS, ZERO_ADDRESS, sDAI_GNOSIS } from '@/src/constants/misc'
 import { chainsConfig } from '@/src/constants/config/chains'
-import SafeSuspense, { genericSuspense } from '@/src/components/safeSuspense'
+import SafeSuspense from '@/src/components/safeSuspense'
 import { parseUnits } from 'ethers/lib/utils'
 import { getToChainId, isSameString } from '@/src/utils/tools'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
@@ -30,6 +30,8 @@ import { Chain } from '@/src/pagePartials/bridge/bridgeForm/Chain'
 import { UserBalance } from '@/src/pagePartials/bridge/bridgeForm/UserBalance'
 import { BridgeSummary } from '@/src/pagePartials/bridge/bridgeForm/BridgeSummary'
 import { ReceivedTokenInfo } from '@/src/pagePartials/bridge/bridgeForm/ReceivedTokenInfo'
+import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
+import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
 
 const Title = styled.h2`
   align-items: center;
@@ -131,7 +133,6 @@ const initialState: BridgeFormState = {
 const Main = () => {
   const { address } = useWeb3Connection()
   const { tokensByNetwork } = useBridgedTokens()
-  const [tokenOut, setTokenOut] = useState<Token | undefined>()
   const [formState, dispatch] = useReducer(
     (data: BridgeFormState, partial: Partial<BridgeFormState>): BridgeFormState => ({
       ...data,
@@ -176,56 +177,20 @@ const Main = () => {
     (isSameString(formState.token?.address || '', WXDAI_GNOSIS) ||
       isSameString(formState.token?.address || '', sDAI_GNOSIS))
 
-  // set tokenOut
-  useEffect(() => {
-    if (!formState.token) return
+  const { getFromBridgeWithSigner } = useBridgeContracts()
 
-    // if user selects DAI on mainnet, token out has to be xDAI on gnosis
-    if (
-      formState.fromChainId == Chains.mainnet &&
-      isSameString(formState.token.address, chainsConfig[Chains.mainnet].bridge.DAI)
-    ) {
-      setTokenOut(
-        tokensByNetwork[Chains.gnosis].find((item) =>
-          isSameString(item.address, NATIVE_TOKEN_ADDRESS),
-        ),
-      )
-      return
-    }
-
-    // If the user is sending native tokens to the mainnet, we need to set the tokenOut to the native token
-    // when receiveNativeToken is false, we use WETH
-    if (
-      formState.toChainId == Chains.mainnet &&
-      isSameString(
-        formState.token?.address || '',
-        chainsConfig[Chains.gnosis].bridge.wForeignNative,
-      ) &&
-      formState.receiveNativeToken
-    ) {
-      const _tokenOut = tokensByNetwork[formState.toChainId].find((item) =>
-        isSameString(item.address, NATIVE_TOKEN_ADDRESS),
-      )
-      setTokenOut(_tokenOut)
-      return
-    }
-
-    // default case, we set tokenOut from the token extension bridgeInfo
-    const toTokenAddress = formState.token?.extensions.bridgeInfo[formState.toChainId]?.tokenAddress
-    const toToken = toTokenAddress
-      ? tokensByNetwork[formState.toChainId].find((token) =>
-          isSameString(token.address, toTokenAddress),
-        )
-      : undefined
-    setTokenOut(toToken)
-  }, [
+  const fromBridgeAddress = getFromBridgeWithSigner(
     formState.fromChainId,
-    formState.receiveNativeToken,
     formState.toChainId,
-    formState.token,
-    formState.token?.extensions.bridgeInfo,
-    tokensByNetwork,
-  ])
+    formState.token?.address || '',
+  ).address
+
+  const tokenOut = useBridgeTokenOutInfo({
+    fromChainId: formState.fromChainId,
+    receiveNativeToken: formState.receiveNativeToken,
+    toChainId: formState.toChainId,
+    token: formState.token,
+  })
 
   return (
     <Wrapper>
@@ -239,9 +204,9 @@ const Main = () => {
                 <Chain chainKey={formState.fromChainId === Chains.mainnet ? 'mainnet' : 'gnosis'} />
                 <UserBalance
                   address={address}
-                  fromChainId={formState.fromChainId}
+                  allowanceAddress={fromBridgeAddress}
+                  chainId={formState.fromChainId}
                   onMax={(value) => dispatch({ ...formState, amount: value })}
-                  toChainId={formState.toChainId}
                   token={formState.token}
                 />
               </OnChainInfo>
@@ -277,8 +242,7 @@ const Main = () => {
                     <UserBalance
                       address={address}
                       /* Inverted values as we need to get the values from the other side of the chain */
-                      fromChainId={formState.toChainId}
-                      toChainId={formState.fromChainId}
+                      chainId={formState.toChainId}
                       token={tokenOut}
                     />
                   </OnChainInfo>
@@ -323,10 +287,11 @@ const Main = () => {
               <BridgeButton
                 amount={amountBN}
                 fromChainId={formState.fromChainId}
+                fromToken={formState.token}
                 receiveNativeToken={formState.receiveNativeToken}
                 recipient={formState.recipient}
                 toChainId={formState.toChainId}
-                token={formState.token}
+                toToken={tokenOut}
                 userAddress={address}
               />
             </SafeSuspense>

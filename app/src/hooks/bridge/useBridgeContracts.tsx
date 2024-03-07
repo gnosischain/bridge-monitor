@@ -14,6 +14,7 @@ import {
 } from '@/types/typechain'
 import { useCallback } from 'react'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
+import { getOverridden, isMediatorOverridden } from '@/src/utils/token-overrides'
 
 export const useBridgeContracts = () => {
   const { readOnlyAppProvider, web3Provider } = useWeb3Connection()
@@ -74,7 +75,9 @@ export const useBridgeContracts = () => {
         )
       } else {
         return (isHome ? HomeOmniMediator__factory : ForeignOmniMediator__factory).connect(
-          contracts.OmniBridge.address[fromChainId],
+          isMediatorOverridden(tokenAddress, fromChainId)
+            ? getOverridden(tokenAddress).mediator // use the overridden mediator
+            : contracts.OmniBridge.address[fromChainId],
           signer,
         )
       }

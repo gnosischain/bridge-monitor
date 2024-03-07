@@ -2,6 +2,7 @@ import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { ZERO_ADDRESS } from '@/src/constants/misc'
 import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
+import { getOverridden, isOverridden } from '@/src/utils/token-overrides'
 import { Token } from '@/types/token'
 import useSWR from 'swr/immutable'
 
@@ -9,7 +10,7 @@ import useSWR from 'swr/immutable'
 // Depends on the result we can detect what method we should use to transfer the token to the bridge contract.
 // if the token is ERC677/ERC827 we should use the transferAndCall method (we don't need approve here).
 // we need this only for omni bridge.
-export type TOKEN_MODE = 'ERC20' | 'ERC677'
+export type TOKEN_MODE = 'ERC20' | 'ERC677' | 'D-ERC20'
 
 export const useTokenMode = (fromChainId: ChainsValues, toChainId: ChainsValues, token: Token) => {
   const { bridgeContracts } = useBridgeContracts()
@@ -29,6 +30,11 @@ export const useTokenMode = (fromChainId: ChainsValues, toChainId: ChainsValues,
         const nativeTokenAddress = await bridgeContracts(
           _isFromHome ? Chains.gnosis : foreignChainId,
         ).OmniBridge.nativeTokenAddress(_token.address)
+
+        // override token mode
+        if (isOverridden(_token.address)) {
+          return getOverridden(_token.address).mode
+        }
 
         if (nativeTokenAddress !== ZERO_ADDRESS) {
           return 'ERC677'

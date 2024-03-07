@@ -142,10 +142,20 @@ export const BridgeButton: React.FC<{
   toChainId: ChainsValues
   amount: BigNumber
   recipient: string
-  token: Token
+  fromToken: Token
   userAddress: string
+  toToken?: Token
   receiveNativeToken: boolean
-}> = ({ amount, fromChainId, receiveNativeToken, recipient, toChainId, token, userAddress }) => {
+}> = ({
+  amount,
+  fromChainId,
+  fromToken,
+  receiveNativeToken,
+  recipient,
+  toChainId,
+  toToken,
+  userAddress,
+}) => {
   const {
     appChainId,
     connectWallet,
@@ -164,7 +174,8 @@ export const BridgeButton: React.FC<{
     userAddress,
     amount,
     recipient,
-    token,
+    fromToken,
+    toToken,
   })
 
   const hasToSwitchNetwork =
@@ -206,7 +217,7 @@ export const BridgeButton: React.FC<{
         amount={amount}
         fromChainId={fromChainId}
         toChainId={toChainId}
-        token={token}
+        token={fromToken}
         userAddress={userAddress}
       />
     )
@@ -219,7 +230,7 @@ export const BridgeButton: React.FC<{
       receiveNativeToken={receiveNativeToken}
       recipient={recipient}
       toChainId={toChainId}
-      token={token}
+      token={fromToken}
       userAddress={userAddress}
     />
   )

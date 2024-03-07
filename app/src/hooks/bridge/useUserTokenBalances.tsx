@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import { MAX_UINT_256 } from '@/src/constants/misc'
+import { MAX_UINT_256, ZERO_BN } from '@/src/constants/misc'
 import { ERC20__factory } from '@/types/typechain'
 import { ChainsValues } from '@/src/constants/config/types'
 import { getNetworkConfig } from '@/src/constants/config/chains'
@@ -13,36 +13,57 @@ export const useUserTokenBalances = ({
   userAddress,
 }: {
   userAddress: string
-  allowanceAddress: string
   chainId: ChainsValues
-  tokenAddress: string
+  allowanceAddress?: string
+  tokenAddress?: string
 }) => {
   return useSWR(
-    ['tokenUserBalance', userAddress, tokenAddress, allowanceAddress, chainId],
+    tokenAddress
+      ? ['tokenUserBalance', userAddress, tokenAddress, allowanceAddress, chainId]
+      : null,
     async ([, _address, _tokenAddress, _allowanceAddress, _chainId]) => {
       const _isNativeToken = isNativeToken(_tokenAddress)
 
       const fromRpcProvider = new JsonRpcBatchProvider(getNetworkConfig(_chainId).rpcUrl)
 
-      if (!_isNativeToken) {
-        const erc20 = ERC20__factory.connect(_tokenAddress, fromRpcProvider)
+      try {
+        if (!_isNativeToken) {
+          const erc20 = ERC20__factory.connect(_tokenAddress, fromRpcProvider)
 
-        const balances = await Promise.all([
-          erc20.balanceOf(_address),
-          erc20.allowance(_address, _allowanceAddress),
-        ])
+          if (_allowanceAddress) {
+            const [balance, allowance] = await Promise.all([
+              erc20.balanceOf(_address),
+              erc20.allowance(_address, _allowanceAddress),
+            ])
+            return {
+              balance,
+              allowance,
+            }
+          } else {
+            const balance = await erc20.balanceOf(_address)
+            return {
+              balance,
+              allowance: MAX_UINT_256,
+            }
+          }
+        } else {
+          const nativeBalance = await fromRpcProvider.getBalance(_address)
 
-        const [balance, allowance] = balances
-
-        return {
-          balance,
-          allowance,
+          return {
+            balance: nativeBalance,
+            allowance: MAX_UINT_256,
+          }
         }
-      } else {
-        const nativeBalance = await fromRpcProvider.getBalance(_address)
-
+      } catch (error) {
+        console.log('Error fetching user token balances', error)
+        console.log('Params with error', {
+          allowanceAddress,
+          chainId,
+          tokenAddress,
+          userAddress,
+        })
         return {
-          balance: nativeBalance,
+          balance: ZERO_BN,
           allowance: MAX_UINT_256,
         }
       }

@@ -15,17 +15,19 @@ import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 export const useBridgeValidations = ({
   amount,
   fromChainId,
+  fromToken,
   recipient,
   toChainId,
-  token,
+  toToken,
   userAddress,
 }: {
   userAddress: string
   fromChainId: ChainsValues
   toChainId: ChainsValues
   amount: BigNumber
+  fromToken: Token
+  toToken?: Token
   recipient?: string
-  token: Token
 }) => {
   const { readOnlyAppProvider } = useWeb3Connection()
 
@@ -35,23 +37,32 @@ export const useBridgeValidations = ({
       : null,
     ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
   )
-  const { data: bridgeLimits, isLoading } = useBridgeLimits(fromChainId, token?.address)
+  const { data: bridgeLimits, isLoading } = useBridgeLimits(
+    fromChainId,
+    toChainId,
+    fromToken,
+    toToken,
+  )
   if (!bridgeLimits) throw Error('Was not possible to fetch bridge limits.')
 
-  const { data: tokenMode } = useTokenMode(fromChainId, toChainId, token)
+  const { data: tokenMode } = useTokenMode(fromChainId, toChainId, fromToken)
 
   const { getFromBridgeWithSigner } = useBridgeContracts()
-  const fromBridgeAddress = getFromBridgeWithSigner(fromChainId, toChainId, token.address).address
+  const fromBridgeAddress = getFromBridgeWithSigner(
+    fromChainId,
+    toChainId,
+    fromToken.address,
+  ).address
 
   const { data: userBalanceData } = useUserTokenBalances({
     userAddress,
     chainId: fromChainId,
     allowanceAddress: fromBridgeAddress,
-    tokenAddress: token.address,
+    tokenAddress: fromToken.address,
   })
   if (!userBalanceData) throw new Error('User balance data is not available')
 
-  const isValidToken = token !== undefined
+  const isValidToken = fromToken !== undefined
   const isValidAmount = amount.gt(0)
   const approvalNeeded = amount.gt(userBalanceData.allowance) && amount.lte(userBalanceData.balance)
   const minAmountError = amount.lt(bridgeLimits?.minPerTx || ZERO_BN)
@@ -60,10 +71,10 @@ export const useBridgeValidations = ({
     bridgeLimits?.dailyLimit.sub(bridgeLimits?.totalSpentPerDay || ZERO_BN) || ZERO_BN,
   )
   const minPerTxInNumber = Number(
-    formatUnits(bridgeLimits?.minPerTx || ZERO_BN, token?.decimals || 18),
+    formatUnits(bridgeLimits?.minPerTx || ZERO_BN, fromToken?.decimals || 18),
   )
   const maxPerTxInNumber = Number(
-    formatUnits(bridgeLimits?.maxPerTx || ZERO_BN, token?.decimals || 18),
+    formatUnits(bridgeLimits?.maxPerTx || ZERO_BN, fromToken?.decimals || 18),
   )
 
   const errorMessage = useMemo(() => {
@@ -87,7 +98,7 @@ export const useBridgeValidations = ({
       if (minAmountError) {
         throw Error(
           `The least you can transfer in one transaction is ${formatNumber(minPerTxInNumber)} ${
-            token.symbol
+            fromToken.symbol
           }`,
         )
       }
@@ -122,7 +133,7 @@ export const useBridgeValidations = ({
     amount,
     userBalanceData.balance,
     minPerTxInNumber,
-    token.symbol,
+    fromToken.symbol,
     maxPerTxInNumber,
   ])
 
@@ -131,7 +142,7 @@ export const useBridgeValidations = ({
   return {
     isSCWallet: isSCWallet?.data,
     errorMessage,
-    shouldApprove: tokenMode === 'ERC20' && userBalanceData.allowance && amount && approvalNeeded,
+    shouldApprove: tokenMode !== 'ERC677' && userBalanceData.allowance && amount && approvalNeeded,
     isValidToSend,
     isValidAmount,
     isValidToken,

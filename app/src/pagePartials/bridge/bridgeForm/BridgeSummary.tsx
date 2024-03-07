@@ -45,7 +45,7 @@ export const BridgeSummary: React.FC<{
       fromChainId,
       recipient,
       toChainId,
-      token,
+      fromToken: token,
       userAddress,
     })
 
