@@ -30,8 +30,10 @@ import { Chain } from '@/src/pagePartials/bridge/bridgeForm/Chain'
 import { UserBalance } from '@/src/pagePartials/bridge/bridgeForm/UserBalance'
 import { BridgeSummary } from '@/src/pagePartials/bridge/bridgeForm/BridgeSummary'
 import { ReceivedTokenInfo } from '@/src/pagePartials/bridge/bridgeForm/ReceivedTokenInfo'
+import { BigNumber } from 'ethers'
 import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
 import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
+
 
 const Title = styled.h2`
   align-items: center;
@@ -144,7 +146,10 @@ const Main = () => {
     },
   )
   const [debouncedAmount] = useDebounce(formState.amount, 500)
-  const amountBN = parseUnits(debouncedAmount || '0', formState.token?.decimals)
+  const amountBN =
+    debouncedAmount == '.'
+      ? BigNumber.from(0)
+      : parseUnits(debouncedAmount || '0', formState.token?.decimals)
 
   const handleFromChainIdChange = async () => {
     const newFromChainId = formState.toChainId === 100 ? 100 : 1
