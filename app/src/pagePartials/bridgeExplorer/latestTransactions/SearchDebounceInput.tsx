@@ -68,13 +68,15 @@ export const SearchDebounceInput: React.FC<Props> = ({
   return (
     <Wrapper {...restProps}>
       <Textfield
-        autoComplete="off"
+        autocomplete="off"
+        autocorrect="off"
         className="textfield"
         debounceTimeout={DEBOUNCE_TIME}
         id="search"
         minLength={3}
         onChange={(e: { target: { value: SetStateAction<string> } }) => setValue(e.target.value)}
         placeholder={placeholder}
+        spellcheck="false"
         status={status}
         type="search"
         value={value}

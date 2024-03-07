@@ -1,7 +1,7 @@
 import NextHead from 'next/head'
 import type { NextPageWithLayout } from '@/pages/_app'
-import { Questions } from '@/src/components/faq/Questions'
-import { FAQContents } from '@/src/components/faq/FAQContents'
+import { Questions } from '@/src/pagePartials/faq/Questions'
+import { FAQContents } from '@/src/pagePartials/faq/FAQContents'
 import { ReactElement } from 'react'
 import { SidebarLayout } from '@/src/components/sidebarLayout'
 

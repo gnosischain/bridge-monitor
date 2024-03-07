@@ -187,6 +187,7 @@ export const SimpleSearch: React.FC<Props> = ({
         minLength={3}
         onChange={(e: { target: { value: string } }) => onChange(e.target.value)}
         placeholder={placeholder}
+        spellcheck="false"
         status={status}
         type="search"
         value={value}

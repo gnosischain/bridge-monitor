@@ -44,8 +44,8 @@ const Wrapper = styled(BaseDropdown)`
 
   .dropdownItems {
     max-height: 350px;
-    width: 300px;
     overflow: auto;
+    width: 300px;
 
     @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
       width: 440px;
@@ -220,6 +220,14 @@ const TopTokenName = styled.span`
   white-space: nowrap;
 `
 
+const Loading = styled.div`
+  align-items: center;
+  display: flex;
+  height: 175px;
+  justify-content: center;
+  width: 100%;
+`
+
 interface Props {
   fromChainId: ChainsValues
   toChainId: ChainsValues
@@ -385,10 +393,13 @@ const Dropdown: React.FC<Props> = ({
           <TextFieldWrapper>
             <Magnifier />
             <Textfield
+              autocomplete="off"
+              autocorrect="off"
               debounceTimeout={300}
               inputRef={setSearchInputInputRef}
               onChange={(e: { target: { value: string } }) => setValue(e.target.value)}
               placeholder="Search asset"
+              spellcheck="false"
               type="search"
               value={value}
             />
@@ -413,7 +424,9 @@ const Dropdown: React.FC<Props> = ({
           </TopTokens>
         ),
         isLoading ? (
-          <Spinner />
+          <Loading>
+            <Spinner />
+          </Loading>
         ) : filteredTokens.length ? (
           <Items closeOnClick key="items">
             {filteredTokens?.map((item, index) => (
