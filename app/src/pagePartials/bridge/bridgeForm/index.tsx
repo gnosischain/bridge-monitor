@@ -19,7 +19,6 @@ import { TokenDropdown } from '@/src/pagePartials/bridge/bridgeForm/TokenDropdow
 import { WXDAI_GNOSIS, ZERO_ADDRESS, sDAI_GNOSIS } from '@/src/constants/misc'
 import { chainsConfig } from '@/src/constants/config/chains'
 import SafeSuspense from '@/src/components/safeSuspense'
-import { parseUnits } from 'ethers/lib/utils'
 import { getToChainId, isSameString } from '@/src/utils/tools'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { useDebounce } from 'use-debounce'
@@ -30,9 +29,8 @@ import { Chain } from '@/src/pagePartials/bridge/bridgeForm/Chain'
 import { UserBalance } from '@/src/pagePartials/bridge/bridgeForm/UserBalance'
 import { BridgeSummary } from '@/src/pagePartials/bridge/bridgeForm/BridgeSummary'
 import { ReceivedTokenInfo } from '@/src/pagePartials/bridge/bridgeForm/ReceivedTokenInfo'
-import { BigNumber } from 'ethers'
 import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
-
+import { toBN } from '@/src/utils/bigNumber'
 
 const Title = styled.h2`
   align-items: center;
@@ -106,6 +104,14 @@ const AmountInput = styled(AmountTokenInput)`
   margin-right: calc(var(--theme-common-space) * -1);
 `
 
+const sanitizeAmount = (amount: string, decimals: number) => {
+  if (!amount.includes('.')) return amount
+
+  const parts = amount.split('.')
+  const decimalPart = parts[1].slice(0, decimals) // Keep only allowed decimal places
+  return `${parts[0]}.${decimalPart}`
+}
+
 const SkeletonCommon: React.FC = () => (
   <Wrapper>
     <FormWrapper>
@@ -146,10 +152,8 @@ const Main = () => {
     },
   )
   const [debouncedAmount] = useDebounce(formState.amount, 500)
-  const amountBN =
-    debouncedAmount == '.'
-      ? BigNumber.from(0)
-      : parseUnits(debouncedAmount || '0', formState.token?.decimals)
+
+  const amountBN = toBN(debouncedAmount || '0', formState.token?.decimals || 0)
 
   const handleFromChainIdChange = async () => {
     const newFromChainId = formState.toChainId === 100 ? 100 : 1
