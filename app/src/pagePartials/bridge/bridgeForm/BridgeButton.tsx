@@ -14,8 +14,8 @@ import { Token } from '@/types/token'
 import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactionInfo'
 import { bridgePagesBaseURL } from '@/src/constants/sections'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
-import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
+import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
 
 const Button = styled(ButtonFull)`
   margin: 0 auto;
@@ -34,13 +34,14 @@ const ApproveButton: React.FC<{
   const [isSending, setIsSending] = useState(false)
 
   const approve = useApproval()
-  const { getFromBridgeWithSigner } = useBridgeContracts()
-  const fromBridgeAddress = getFromBridgeWithSigner(fromChainId, toChainId, token.address).address
+
+  const bridgeContract = getBridgeContract(fromChainId, toChainId, token.address)
+  const bridgeAddress = bridgeContract.address
 
   const { mutate: refreshBalance } = useUserTokenBalances({
     userAddress,
     chainId: fromChainId,
-    allowanceAddress: fromBridgeAddress,
+    allowanceAddress: bridgeAddress,
     tokenAddress: token.address,
   })
 
@@ -49,7 +50,7 @@ const ApproveButton: React.FC<{
 
     const tx = await approve({
       amount,
-      spenderAddress: fromBridgeAddress,
+      spenderAddress: bridgeAddress,
       tokenAddress: token.address,
     })
 
@@ -157,13 +158,13 @@ export const BridgeButton: React.FC<{
   userAddress,
 }) => {
   const {
-    appChainId,
     connectWallet,
     connectingWallet,
     isOnboardChangingChain,
     isWalletConnected,
     isWalletNetworkSupported,
     pushNetwork,
+    walletChainId,
   } = useWeb3Connection()
 
   const appChainConfig = getNetworkConfig(fromChainId)
@@ -179,7 +180,7 @@ export const BridgeButton: React.FC<{
   })
 
   const hasToSwitchNetwork =
-    (isWalletConnected && !isWalletNetworkSupported) || fromChainId !== appChainId
+    (isWalletConnected && !isWalletNetworkSupported) || fromChainId !== walletChainId
 
   if (isOnboardChangingChain) {
     return <ButtonPlaceholder />

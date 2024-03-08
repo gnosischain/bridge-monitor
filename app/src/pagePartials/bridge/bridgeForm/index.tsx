@@ -1,4 +1,4 @@
-import { useReducer } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import styled from 'styled-components'
 import { AmountTokenInput } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
 import {
@@ -32,7 +32,6 @@ import { BridgeSummary } from '@/src/pagePartials/bridge/bridgeForm/BridgeSummar
 import { ReceivedTokenInfo } from '@/src/pagePartials/bridge/bridgeForm/ReceivedTokenInfo'
 import { BigNumber } from 'ethers'
 import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
-import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
 
 
 const Title = styled.h2`
@@ -133,7 +132,8 @@ const initialState: BridgeFormState = {
 }
 
 const Main = () => {
-  const { address } = useWeb3Connection()
+  const { address, walletChainId, web3Provider } = useWeb3Connection()
+  const [isSignerReady, setIsSignerReady] = useState(false)
   const { tokensByNetwork } = useBridgedTokens()
   const [formState, dispatch] = useReducer(
     (data: BridgeFormState, partial: Partial<BridgeFormState>): BridgeFormState => ({
@@ -182,20 +182,19 @@ const Main = () => {
     (isSameString(formState.token?.address || '', WXDAI_GNOSIS) ||
       isSameString(formState.token?.address || '', sDAI_GNOSIS))
 
-  const { getFromBridgeWithSigner } = useBridgeContracts()
-
-  const fromBridgeAddress = getFromBridgeWithSigner(
-    formState.fromChainId,
-    formState.toChainId,
-    formState.token?.address || '',
-  ).address
-
   const tokenOut = useBridgeTokenOutInfo({
     fromChainId: formState.fromChainId,
     receiveNativeToken: formState.receiveNativeToken,
     toChainId: formState.toChainId,
     token: formState.token,
   })
+
+  useEffect(() => {
+    web3Provider
+      ?.getSigner()
+      .getAddress()
+      .then(() => setIsSignerReady(true))
+  }, [web3Provider])
 
   return (
     <Wrapper>
@@ -209,9 +208,9 @@ const Main = () => {
                 <Chain chainKey={formState.fromChainId === Chains.mainnet ? 'mainnet' : 'gnosis'} />
                 <UserBalance
                   address={address}
-                  allowanceAddress={fromBridgeAddress}
-                  chainId={formState.fromChainId}
+                  fromChainId={formState.fromChainId}
                   onMax={(value) => dispatch({ ...formState, amount: value })}
+                  toChainId={formState.toChainId}
                   token={formState.token}
                 />
               </OnChainInfo>
@@ -247,7 +246,8 @@ const Main = () => {
                     <UserBalance
                       address={address}
                       /* Inverted values as we need to get the values from the other side of the chain */
-                      chainId={formState.toChainId}
+                      fromChainId={formState.toChainId}
+                      toChainId={formState.fromChainId}
                       token={tokenOut}
                     />
                   </OnChainInfo>
@@ -270,18 +270,23 @@ const Main = () => {
                 </>
               )}
             </InnerCard>
-            {amountBN.gt(0) && formState.token && tokenOut && address && (
-              <BridgeSummary
-                amount={amountBN}
-                fromChainId={formState.fromChainId}
-                receiveNativeToken={formState.receiveNativeToken}
-                recipient={formState.recipient}
-                toChainId={formState.toChainId}
-                token={formState.token}
-                tokenOut={tokenOut}
-                userAddress={address}
-              />
-            )}
+            {amountBN.gt(0) &&
+              formState.token &&
+              tokenOut &&
+              address &&
+              walletChainId == formState.fromChainId &&
+              isSignerReady && (
+                <BridgeSummary
+                  amount={amountBN}
+                  fromChainId={formState.fromChainId}
+                  receiveNativeToken={formState.receiveNativeToken}
+                  recipient={formState.recipient}
+                  toChainId={formState.toChainId}
+                  token={formState.token}
+                  tokenOut={tokenOut}
+                  userAddress={address}
+                />
+              )}
           </FormCards>
           {unwrapFirst ? (
             <ButtonUnwrapFirst symbol={formState.token?.symbol} />

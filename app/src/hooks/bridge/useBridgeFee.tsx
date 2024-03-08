@@ -2,8 +2,10 @@ import { BigNumber } from 'ethers'
 import { Chains } from '@/src/constants/config/types'
 import useSWR from 'swr'
 import { Token } from '@/types/token'
-import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
-import { HomeBridgeErcToNative } from '@/types/typechain'
+import { HomeBridgeErcToNative__factory, OmniBridgeFeeManager__factory } from '@/types/typechain'
+import { contracts } from '@/src/constants/config/contracts'
+import { JsonRpcBatchProvider } from '@ethersproject/providers'
+import { chainsConfig } from '@/src/constants/config/chains'
 
 export const foreignToHomeFeeKey =
   '0x03be2b2875cb41e0e77355e802a16769bb8dfcf825061cde185c73bf94f12625'
@@ -21,14 +23,23 @@ export const useBridgeFee = ({
   isNativeBridge: boolean
   token: Token
 }) => {
-  const { bridgeContracts } = useBridgeContracts()
-
   return useSWR(['bridgeFee', token, amount], async ([, _token, _amount]) => {
+    const gnosisRpc = new JsonRpcBatchProvider(chainsConfig[Chains.gnosis].rpcUrl)
+
     if (isNativeBridge) {
-      const contract = bridgeContracts(Chains.gnosis).XDAIBridge as HomeBridgeErcToNative
+      const contract = HomeBridgeErcToNative__factory.connect(
+        contracts.XDAIBridge.address[Chains.gnosis],
+        gnosisRpc,
+      )
+
       return isFromHome ? contract.getHomeFee() : contract.getForeignFee()
     } else {
-      return bridgeContracts(Chains.gnosis).omniFeeManager.calculateFee(
+      const omniFeeManager = OmniBridgeFeeManager__factory.connect(
+        contracts.omnibridgeFeeManager.address[Chains.gnosis],
+        gnosisRpc,
+      )
+
+      return omniFeeManager.calculateFee(
         isFromHome ? homeToForeignFeeKey : foreignToHomeFeeKey,
         _token.address,
         _amount,

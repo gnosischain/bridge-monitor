@@ -1,10 +1,13 @@
-import { Chains, ChainsValues } from '@/src/constants/config/types'
+import { chainsConfig } from '@/src/constants/config/chains'
+import { ChainsValues } from '@/src/constants/config/types'
 import { ZERO_ADDRESS } from '@/src/constants/misc'
-import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { getOverridden, isOverridden } from '@/src/utils/token-overrides'
 import { Token } from '@/types/token'
+import { HomeOmniMediator__factory } from '@/types/typechain'
 import useSWR from 'swr/immutable'
+import { JsonRpcBatchProvider } from '@ethersproject/providers'
+import { contracts } from '@/src/constants/config/contracts'
 
 // This hook is used to determine what kind of token is being used in the bridge.
 // Depends on the result we can detect what method we should use to transfer the token to the bridge contract.
@@ -13,8 +16,7 @@ import useSWR from 'swr/immutable'
 export type TOKEN_MODE = 'ERC20' | 'ERC677' | 'D-ERC20'
 
 export const useTokenMode = (fromChainId: ChainsValues, toChainId: ChainsValues, token: Token) => {
-  const { bridgeContracts } = useBridgeContracts()
-  const { foreignChainId, isFromHome, isNativeBridge, isNativeToken } = getBridgeCommonInfo({
+  const { foreignChainId, isNativeBridge, isNativeToken } = getBridgeCommonInfo({
     fromChainId,
     toChainId,
     tokenAddress: token?.address || '',
@@ -24,12 +26,15 @@ export const useTokenMode = (fromChainId: ChainsValues, toChainId: ChainsValues,
 
   // TODO: maybe we need the overrides here. Check in omni-ui/packages/dapp/src/lib/overrides.js
   const { data, error, isLoading, mutate } = useSWR<TOKEN_MODE>(
-    shouldFetch ? [isFromHome, token, 'tokenMode'] : null,
-    async ([_isFromHome, _token]) => {
+    shouldFetch ? ['tokenMode', token] : null,
+    async ([, _token]) => {
       try {
-        const nativeTokenAddress = await bridgeContracts(
-          _isFromHome ? Chains.gnosis : foreignChainId,
-        ).OmniBridge.nativeTokenAddress(_token.address)
+        const omniBridge = HomeOmniMediator__factory.connect(
+          contracts.OmniBridge.address[fromChainId],
+          new JsonRpcBatchProvider(chainsConfig[fromChainId].rpcUrl),
+        )
+
+        const nativeTokenAddress = await omniBridge.nativeTokenAddress(_token.address)
 
         // override token mode
         if (isOverridden(_token.address)) {

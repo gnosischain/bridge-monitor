@@ -1,6 +1,5 @@
 import { AlertMessage } from '@/src/components/error/AlertMessage'
 import { ChainsValues } from '@/src/constants/config/types'
-import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
 import { useBridgeValidations } from '@/src/hooks/bridge/useBridgeValidations'
 import { TxPreview, TxPreviewLoading } from '@/src/pagePartials/bridge/bridgeForm/TxPreview'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
@@ -8,6 +7,7 @@ import { Token } from '@/types/token'
 import { BigNumber } from 'ethers'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import React from 'react'
+import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
 
 export const BridgeSummary: React.FC<{
   receiveNativeToken: boolean
@@ -29,12 +29,12 @@ export const BridgeSummary: React.FC<{
     tokenOut,
     userAddress,
   }) => {
-    const { getFromBridgeWithSigner } = useBridgeContracts()
-    const fromBridgeAddress = getFromBridgeWithSigner(fromChainId, toChainId, token.address).address
+    const bridgeContract = getBridgeContract(fromChainId, toChainId, token.address)
+    const bridgeAddress = bridgeContract.address
 
     const { data: addressBalances } = useUserTokenBalances({
       userAddress,
-      allowanceAddress: fromBridgeAddress,
+      allowanceAddress: bridgeAddress,
       chainId: fromChainId,
       tokenAddress: token.address,
     })
@@ -46,6 +46,7 @@ export const BridgeSummary: React.FC<{
       recipient,
       toChainId,
       fromToken: token,
+      toToken: tokenOut,
       userAddress,
     })
 

@@ -141,18 +141,21 @@ const useBridgeLimits = (
           fromChainId,
         ]
       : null,
-    async ([, _fromTokenAddress, _toTokenAddress]) => {
-      const rpcUrl = new JsonRpcBatchProvider(chainsConfig[fromChainId].rpcUrl)
+    async ([, _fromTokenAddress, _toTokenAddress, _fromChainId]) => {
+      const rpcUrl = new JsonRpcBatchProvider(chainsConfig[_fromChainId].rpcUrl)
 
-      if (
-        (fromChainId == Chains.gnosis && isSameString(_fromTokenAddress, ZERO_ADDRESS)) ||
-        (fromChainId != Chains.gnosis &&
-          isSameString(_fromTokenAddress, chainsConfig[fromChainId].bridge.DAI)) ||
-        isMediatorOverridden(_fromTokenAddress, fromChainId) // mediator overrides uses the same methods than "HomeBridgeErcToNative" to get the limits
-      ) {
-        const contractAddress = isMediatorOverridden(_fromTokenAddress, fromChainId)
+      // mediator overrides uses the same methods than "HomeBridgeErcToNative" to get the limits
+      const overwrittenMediator = isMediatorOverridden(_fromTokenAddress, _fromChainId)
+      const isGnosisXDai =
+        _fromChainId == Chains.gnosis && isSameString(_fromTokenAddress, ZERO_ADDRESS)
+      const isForeignDAI =
+        _fromChainId != Chains.gnosis &&
+        isSameString(_fromTokenAddress, chainsConfig[_fromChainId].bridge.DAI)
+
+      if (isGnosisXDai || isForeignDAI || overwrittenMediator) {
+        const contractAddress = overwrittenMediator
           ? getOverridden(_fromTokenAddress).mediator // use the overridden mediator address.
-          : contracts.XDAIBridge.address[fromChainId]
+          : contracts.XDAIBridge.address[_fromChainId]
 
         const contract = HomeBridgeErcToNative__factory.connect(contractAddress, rpcUrl)
 
@@ -164,7 +167,7 @@ const useBridgeLimits = (
         return { dailyLimit, minPerTx, maxPerTx, totalSpentPerDay }
       } else if (_toTokenAddress) {
         const contract = HomeOmniMediator__factory.connect(
-          contracts.OmniBridge.address[fromChainId],
+          contracts.OmniBridge.address[_fromChainId],
           rpcUrl,
         )
 
@@ -176,7 +179,9 @@ const useBridgeLimits = (
         return { dailyLimit, minPerTx, maxPerTx, totalSpentPerDay }
       }
 
-      return getDefaultTokenLimits(fromToken?.decimals || 18, fromChainId, toChainId)
+      // This branch is used when the destination token does not exist.
+      // It's the first time a tokens is bridged.
+      return getDefaultTokenLimits(fromToken?.decimals || 18, _fromChainId, toChainId)
     },
   )
 }

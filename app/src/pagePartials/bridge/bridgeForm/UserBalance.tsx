@@ -9,6 +9,7 @@ import { formatUnits } from 'ethers/lib/utils'
 import styled from 'styled-components'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
+import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -93,35 +94,42 @@ const Balance: React.FC<{
 )
 
 export const UserBalance: React.FC<{
-  chainId: ChainsValues
+  fromChainId: ChainsValues
+  toChainId: ChainsValues
   allowanceAddress?: string
   address?: string | null
   onMax?: (value: string) => void
   token?: Token | undefined
-}> = ({ address, allowanceAddress, chainId, onMax, token, ...restProps }) => {
+}> = ({ address, fromChainId, onMax, toChainId, token, ...restProps }) => {
   // If the user clicks the Switch network many times
   // we need to check  if token.chainId !== fromChainId
   // As it might be the case the token and fromChainId are not in sync
-  return !token || !address || token.chainId !== chainId ? (
-    <Wrapper {...restProps}>
-      <BalanceWrapper>
-        <BalanceTitle />
-        <Value>0.00</Value>
-      </BalanceWrapper>
-      {onMax && (
-        <MaxButton
-          disabled
-          onClick={() => {
-            return false
-          }}
-        />
-      )}
-    </Wrapper>
-  ) : (
+  if (!token || !address || token.chainId !== fromChainId) {
+    return (
+      <Wrapper {...restProps}>
+        <BalanceWrapper>
+          <BalanceTitle />
+          <Value>0.00</Value>
+        </BalanceWrapper>
+        {onMax && (
+          <MaxButton
+            disabled
+            onClick={() => {
+              return false
+            }}
+          />
+        )}
+      </Wrapper>
+    )
+  }
+
+  const bridgeContract = getBridgeContract(fromChainId, toChainId, token.address)
+
+  return (
     <Balance
       address={address}
-      allowanceAddress={allowanceAddress}
-      chainId={chainId}
+      allowanceAddress={bridgeContract.address}
+      chainId={fromChainId}
       onMax={onMax}
       token={token}
       {...restProps}

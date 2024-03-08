@@ -9,8 +9,8 @@ import { ChainsValues } from '@/src/constants/config/types'
 import useBridgeLimits from '@/src/hooks/bridge/useBridgeLimits'
 import { ZERO_BN } from '@/src/constants/misc'
 import { formatNumber } from '@/src/utils/format'
-import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
+import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
 
 export const useBridgeValidations = ({
   amount,
@@ -26,7 +26,7 @@ export const useBridgeValidations = ({
   toChainId: ChainsValues
   amount: BigNumber
   fromToken: Token
-  toToken?: Token
+  toToken: Token | undefined
   recipient?: string
 }) => {
   const { readOnlyAppProvider } = useWeb3Connection()
@@ -47,17 +47,13 @@ export const useBridgeValidations = ({
 
   const { data: tokenMode } = useTokenMode(fromChainId, toChainId, fromToken)
 
-  const { getFromBridgeWithSigner } = useBridgeContracts()
-  const fromBridgeAddress = getFromBridgeWithSigner(
-    fromChainId,
-    toChainId,
-    fromToken.address,
-  ).address
+  const bridgeContract = getBridgeContract(fromChainId, toChainId, fromToken.address)
+  const bridgeAddress = bridgeContract.address
 
   const { data: userBalanceData } = useUserTokenBalances({
     userAddress,
     chainId: fromChainId,
-    allowanceAddress: fromBridgeAddress,
+    allowanceAddress: bridgeAddress,
     tokenAddress: fromToken.address,
   })
   if (!userBalanceData) throw new Error('User balance data is not available')
