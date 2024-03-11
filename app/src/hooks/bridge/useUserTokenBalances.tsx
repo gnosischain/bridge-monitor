@@ -5,6 +5,7 @@ import { ChainsValues } from '@/src/constants/config/types'
 import { getNetworkConfig } from '@/src/constants/config/chains'
 import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { isNativeToken } from '@/src/utils/tools'
+import { BigNumber } from 'ethers'
 
 export const useUserTokenBalances = ({
   allowanceAddress,
@@ -47,10 +48,15 @@ export const useUserTokenBalances = ({
             }
           }
         } else {
+          const gasPrice = await fromRpcProvider.getGasPrice()
+          const conservativeGasLimit = BigNumber.from('21000') // Adjust based on expected transaction complexity
+
           const nativeBalance = await fromRpcProvider.getBalance(_address)
+          // Calculate the max sendable amount by subtracting the gas cost buffer from the balance
+          const maxSendableAmount = nativeBalance.sub(conservativeGasLimit.mul(gasPrice))
 
           return {
-            balance: nativeBalance,
+            balance: maxSendableAmount.gt(ZERO_BN) ? maxSendableAmount : ZERO_BN,
             allowance: MAX_UINT_256,
           }
         }

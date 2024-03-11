@@ -19,7 +19,6 @@ import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInf
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { parseEther, parseUnits } from 'ethers/lib/utils'
 
 /**
  * isNativeToken && isFromForeign: use wrapAndRelayTokens (nativeOmniBridgeMediator) (no need approve: infinite approve) -> ETH -> WETH
@@ -47,9 +46,7 @@ import { parseEther, parseUnits } from 'ethers/lib/utils'
  */
 const handleNativeTokenFromForeign = async ({
   amount,
-  balance,
   bridgeContract,
-  gasPrice,
   signer,
   walletAddress,
 }: {
@@ -57,21 +54,15 @@ const handleNativeTokenFromForeign = async ({
   signer: Signer
   amount: BigNumber
   walletAddress: string
-  balance: BigNumber
-  gasPrice: BigNumber
 }) => {
   // Using the default estimateGas calculation using the minimum ETH amount (0.000000000000000001) to avoid crash when the user tries to bridge all the balance of the native tokens
   // TODO: There should be a better way to handle this.
   const gasLimit = await bridgeContract.estimateGas['wrapAndRelayTokens(address)'](
     walletAddress || signer.getAddress(),
     {
-      value: amount.eq(balance) ? parseEther('0.000000000000000001') : amount.toString(),
+      value: amount.toString(),
     },
   )
-
-  if (amount.eq(balance)) {
-    amount = balance.sub(gasLimit.mul(gasPrice))
-  }
 
   return {
     gasLimit,
@@ -95,9 +86,7 @@ const handleNativeTokenFromForeign = async ({
  */
 const handleNativeTokenFromHome = async ({
   amount,
-  balance,
   bridgeContract,
-  gasPrice,
   recipient,
   signer,
   userAddress,
@@ -106,25 +95,19 @@ const handleNativeTokenFromHome = async ({
   signer: Signer
   amount: BigNumber
   userAddress: string
-  balance: BigNumber
-  gasPrice: BigNumber
   recipient?: string
 }) => {
   // Using the default estimateGas calculation using the minimum xDAI amount (10) to avoid crash when the user tries to bridge all the balance of the native tokens
   // TODO: There should be a better way to handle this.
   const gasLimit = recipient
     ? await bridgeContract.estimateGas.relayTokens(recipient, {
-        value: amount.eq(balance) ? parseUnits('10', 18) : amount.toString(),
+        value: amount.toString(),
       })
     : await signer.estimateGas({
         to: bridgeContract.address,
         from: userAddress,
-        value: amount.eq(balance) ? parseUnits('10', 18) : amount.toString(),
+        value: amount.toString(),
       })
-
-  if (amount.eq(balance)) {
-    amount = balance.sub(gasLimit.mul(gasPrice))
-  }
 
   return {
     gasLimit,
@@ -415,16 +398,12 @@ export const getBridgeTx = async ({
           amount,
           recipient,
           userAddress: account,
-          balance,
-          gasPrice,
         })
       : await handleNativeTokenFromForeign({
           bridgeContract: bridgeContract as NativeOmniBridgeMediator,
           signer,
           amount,
           walletAddress: recipient || account,
-          balance,
-          gasPrice,
         })
     : isFromHome
     ? await handleERC20TokenFromHome({
