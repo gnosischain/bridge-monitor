@@ -182,12 +182,13 @@ export const SimpleSearch: React.FC<Props> = ({
     <Wrapper {...restProps}>
       <Textfield
         autoComplete="off"
+        autoCorrect="off"
         debounceTimeout={DEBOUNCE_TIME}
         id="search"
         minLength={3}
         onChange={(e: { target: { value: string } }) => onChange(e.target.value)}
         placeholder={placeholder}
-        spellcheck="false"
+        spellCheck="false"
         status={status}
         type="search"
         value={value}

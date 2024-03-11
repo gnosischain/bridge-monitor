@@ -198,11 +198,13 @@ export const Search: React.FC = ({ ...restProps }) => {
       <SearchWrapper>
         <Textfield
           autoComplete="off"
+          autoCorrect="off"
           debounceTimeout={DEBOUNCE_TIME}
           id="sidebarSearch"
           minLength={3}
           onChange={(e: { target: { value: string } }) => setValue(e.target.value)}
           placeholder={'Search by Address / Tx Hash'}
+          spellCheck="false"
           type="search"
           value={value}
         />

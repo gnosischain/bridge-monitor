@@ -213,12 +213,12 @@ const Dropdown: React.FC<Props> = ({
           <TextFieldWrapper>
             <Magnifier />
             <Textfield
-              autocomplete="off"
-              autocorrect="off"
+              autoComplete="off"
+              autoCorrect="off"
               debounceTimeout={300}
               onChange={(e: { target: { value: string } }) => setValue(e.target.value)}
               placeholder="Search asset"
-              spellcheck="false"
+              spellCheck="false"
               type="search"
               value={value}
             />
