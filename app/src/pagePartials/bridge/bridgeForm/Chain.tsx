@@ -1,4 +1,5 @@
-import { ChainsKeys } from '@/src/constants/config/types'
+import { getChainKey, getNetworkConfig } from '@/src/constants/config/chains'
+import { ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 import { getIcon } from '@/src/utils/icons'
 import Image from 'next/image'
 import styled from 'styled-components'
@@ -16,9 +17,10 @@ const Wrapper = styled.div`
   text-transform: capitalize;
 `
 
-export const Chain = ({ chainKey }: { chainKey: ChainsKeys }) => {
+export const Chain = ({ chainId }: { chainId: ChainsValues }) => {
   const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
-
+  const chainConfig = getNetworkConfig(chainId)
+  const chainKey = getChainKey(chainId)
   return (
     <Wrapper>
       <Image
@@ -28,7 +30,7 @@ export const Chain = ({ chainKey }: { chainKey: ChainsKeys }) => {
         src={getIcon(`${capitalize(chainKey)}Big`)}
         width={24}
       />
-      {chainKey}
+      {chainConfig.shortName}
     </Wrapper>
   )
 }

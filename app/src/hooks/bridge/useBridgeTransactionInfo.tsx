@@ -405,11 +405,6 @@ export const useBridgeTransactionInfo = ({
   const signer = web3Provider.getSigner()
   if (walletChainId !== fromChainId) throw new Error('Invalid chain')
 
-  const { foreignChainId, isFromHome, isNativeBridge, isNativeToken } = getBridgeCommonInfo({
-    fromChainId,
-    toChainId,
-    tokenAddress: token?.address || '',
-  })
   const { data: tokenMode } = useTokenMode(fromChainId, toChainId, token)
   const { data: userBalancesData } = useUserTokenBalances({
     userAddress: userAddress,
@@ -427,10 +422,8 @@ export const useBridgeTransactionInfo = ({
       toChainId,
       amount,
       recipient,
-      isFromHome,
       tokenMode,
       receiveNativeToken,
-      foreignChainId,
     ],
     async ([
       ,
@@ -439,15 +432,14 @@ export const useBridgeTransactionInfo = ({
       _toChainId,
       _amount,
       _recipient,
-      _isFromHome,
       _tokenMode,
       _receiveNativeToken,
-      _foreignChainId,
     ]) => {
-      if (!userAddress) {
-        throw Error('No account found')
-      }
-
+      const { isFromHome, isNativeBridge, isNativeToken } = getBridgeCommonInfo({
+        fromChainId: _fromChainId,
+        toChainId: _toChainId,
+        tokenAddress: token?.address || '',
+      })
       const { gasLimit, gasPrice, tx } = await getBridgeTx({
         isNativeToken,
         account: userAddress,
@@ -459,8 +451,8 @@ export const useBridgeTransactionInfo = ({
         tokenAddress: _token.address,
         recipient: _recipient,
         tokenMode: _tokenMode,
-        isFromHome: _isFromHome,
-        foreignChainId: _foreignChainId,
+        isFromHome: isFromHome,
+        foreignChainId: _toChainId,
         receiveNativeToken: _receiveNativeToken,
         allowance: userBalancesData.allowance,
       })

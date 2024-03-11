@@ -1,16 +1,14 @@
 import Link from 'next/link'
-import nullthrows from 'nullthrows'
 import styled from 'styled-components'
 import useBridgeProgress from '@/src/hooks/bridge/useBridgeProgress'
 import { BlockConfirmations } from '@/src/pagePartials/common/BlockConfirmations'
 import { ButtonFull } from '@/src/components/buttons/Button'
-import { Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
+import { ChainsValues } from '@/src/constants/config/types'
 import { GenericError } from '@/src/components/error/GenericError'
 import { MainTitle } from '@/src/components/text/MainTitle'
 import { Ok } from '@/src/components/assets/Ok'
-import { getNetworkConfig } from '@/src/constants/config/chains'
+import { getChainKey, getNetworkConfig } from '@/src/constants/config/chains'
 import { transactionBaseURL } from '@/src/constants/sections'
-import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { useEffect } from 'react'
 import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
 import { useRouter } from 'next/router'
@@ -18,6 +16,7 @@ import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
 import { formatNumber } from '@/src/utils/format'
 import { formatUnits } from 'ethers/lib/utils'
+import { useTokenInfo } from '@/src/hooks/bridge/useTokenInfo'
 
 const InnerWrapper = styled.div`
   max-width: 644px;
@@ -147,12 +146,6 @@ export const Loading: React.FC = () => (
   </>
 )
 
-// function to get ChainKey from chainId
-const getChainKey = (chainId: number) => {
-  const key = Object.keys(Chains).find((key) => Chains[key as keyof typeof Chains] === chainId)
-  return nullthrows(key, 'Chain not found') as ChainsKeys
-}
-
 const ButtonExploreTransaction = ({
   isMined,
   transactionHash,
@@ -199,7 +192,6 @@ const ButtonExploreTransaction = ({
 
 export const BridgingStatus: React.FC = ({ ...restProps }) => {
   const router = useRouter()
-  const { tokensByAddress } = useBridgedTokens()
 
   const [transactionHash, fromChainId, toChainId, isNativeBridge, tokenAddress, amount] = [
     String(router.query?.transaction),
@@ -210,7 +202,8 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
     String(router.query?.amount),
   ]
 
-  const tokenBridged = tokensByAddress[tokenAddress]
+  const { data: tokenBridged } = useTokenInfo(tokenAddress, fromChainId)
+
   const initiatorChain = getChainKey(fromChainId)
   const destinationChain = getNetworkConfig(toChainId).name
 
@@ -220,7 +213,7 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
     transactionHash,
   )
 
-  const formattedAmount = Number(formatUnits(amount, tokenBridged.decimals))
+  const formattedAmount = Number(formatUnits(amount, tokenBridged?.decimals))
 
   const isBridgeComplete = progressData?.progress === 100
 
@@ -264,7 +257,7 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
                     </>
                   )}
                   {isBridgeComplete ? 'Sent' : 'Sending'} {formatNumber(formattedAmount)}{' '}
-                  {tokenBridged.symbol} to {destinationChain}.
+                  {tokenBridged?.symbol} to {destinationChain}.
                 </MessageText>
               </Message>
               <BlockConfirmations

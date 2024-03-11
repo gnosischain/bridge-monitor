@@ -14,7 +14,7 @@ import { ZERO_ADDRESS, ZERO_BN } from '@/src/constants/misc'
 import { isSameString } from '@/src/utils/tools'
 import { Token } from '@/types/token'
 import { BigNumber } from 'ethers'
-import { getOverridden, isMediatorOverridden } from '@/src/utils/token-overrides'
+import { TokenOverrideManager } from '@/src/utils/token-overrides'
 
 /**
  * Retrieves the default token limits for a bridge transaction.
@@ -145,7 +145,10 @@ const useBridgeLimits = (
       const rpcUrl = new JsonRpcBatchProvider(chainsConfig[_fromChainId].rpcUrl)
 
       // mediator overrides uses the same methods than "HomeBridgeErcToNative" to get the limits
-      const overwrittenMediator = isMediatorOverridden(_fromTokenAddress, _fromChainId)
+      const overwrittenMediator = TokenOverrideManager.isMediatorOverridden(
+        _fromTokenAddress,
+        _fromChainId,
+      )
       const isGnosisXDai =
         _fromChainId == Chains.gnosis && isSameString(_fromTokenAddress, ZERO_ADDRESS)
       const isForeignDAI =
@@ -154,7 +157,7 @@ const useBridgeLimits = (
 
       if (isGnosisXDai || isForeignDAI || overwrittenMediator) {
         const contractAddress = overwrittenMediator
-          ? getOverridden(_fromTokenAddress).mediator // use the overridden mediator address.
+          ? TokenOverrideManager.getOverride(_fromTokenAddress).mediator // use the overridden mediator address.
           : contracts.XDAIBridge.address[_fromChainId]
 
         const contract = HomeBridgeErcToNative__factory.connect(contractAddress, rpcUrl)

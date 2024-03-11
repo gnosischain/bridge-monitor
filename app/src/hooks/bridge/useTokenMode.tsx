@@ -2,7 +2,7 @@ import { chainsConfig } from '@/src/constants/config/chains'
 import { ChainsValues } from '@/src/constants/config/types'
 import { ZERO_ADDRESS } from '@/src/constants/misc'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
-import { getOverridden, isOverridden } from '@/src/utils/token-overrides'
+import { TokenOverrideManager } from '@/src/utils/token-overrides'
 import { Token } from '@/types/token'
 import { HomeOmniMediator__factory } from '@/types/typechain'
 import useSWR from 'swr/immutable'
@@ -37,8 +37,8 @@ export const useTokenMode = (fromChainId: ChainsValues, toChainId: ChainsValues,
         const nativeTokenAddress = await omniBridge.nativeTokenAddress(_token.address)
 
         // override token mode
-        if (isOverridden(_token.address)) {
-          return getOverridden(_token.address).mode
+        if (TokenOverrideManager.isOverridden(_token.address)) {
+          return TokenOverrideManager.getOverride(_token.address).mode
         }
 
         if (nativeTokenAddress !== ZERO_ADDRESS) {

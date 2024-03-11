@@ -1,7 +1,7 @@
 import nullthrows from 'nullthrows'
 
 import { getProviderUrl } from '@/src/constants/config/rpc-providers'
-import { ChainConfig, Chains, ChainsValues } from '@/src/constants/config/types'
+import { ChainConfig, Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 
 // Default chain id from env var
 export const INITIAL_APP_CHAIN_ID = Number(
@@ -60,6 +60,12 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
       wForeignNative: '0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1', // WETH
     },
   },
+}
+
+// function to get ChainKey by chainId
+export const getChainKey = (chainId: number) => {
+  const key = Object.keys(Chains).find((key) => Chains[key as keyof typeof Chains] === chainId)
+  return nullthrows(key, 'Chain not found') as ChainsKeys
 }
 
 export function getNetworkConfig(chainId: ChainsValues): ChainConfig {

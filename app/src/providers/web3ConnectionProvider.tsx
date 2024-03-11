@@ -182,7 +182,7 @@ export default function Web3ConnectionProvider({ children }: Props) {
 
   // Set user address when connect wallet
   useEffect(() => {
-    if (wallet) {
+    if (wallet?.accounts.length) {
       setAddress(wallet.accounts[0].address)
     } else {
       setAddress(null)
@@ -245,7 +245,7 @@ export default function Web3ConnectionProvider({ children }: Props) {
   const value = {
     address,
     appChainId,
-    balance: wallet?.accounts[0].balance,
+    balance: wallet?.accounts[0]?.balance,
     connectWallet: handleConnectWallet,
     connectedChain,
     connectingWallet,

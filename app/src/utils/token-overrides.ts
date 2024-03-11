@@ -2,8 +2,16 @@ import { contracts } from '@/src/constants/config/contracts'
 import { ChainsValues } from '@/src/constants/config/types'
 import { TOKEN_MODE } from '@/src/hooks/bridge/useTokenMode'
 
+interface TokenOverride {
+  tokenOutAddress: string
+  mediator: string
+  mode: TOKEN_MODE
+}
+
+type TokenOverrides = Record<string, TokenOverride>
+
 // NOTE: All the keys and values in the tokenOverrides object must be in lowercase.
-const tokenOverrides: Record<
+const TOKEN_OVERRIDES: Record<
   string,
   { tokenOutAddress: string; mediator: string; mode: TOKEN_MODE }
 > = {
@@ -129,25 +137,84 @@ const tokenOverrides: Record<
   },
 }
 
-export const isOverridden = (tokenAddress: string) => {
-  return tokenAddress.toLowerCase() in tokenOverrides
+// Utility function for normalizing token addresses.
+function normalizeTokenAddress(tokenAddress: string): string | null {
+  if (typeof tokenAddress !== 'string' || !tokenAddress.trim()) {
+    console.warn('Invalid token address provided.')
+    return null
+  }
+  return tokenAddress.toLowerCase()
 }
 
-export const getOverridden = (tokenAddress: string) => {
-  return tokenOverrides[tokenAddress.toLowerCase()]
+/**
+ * Manages token overrides for the bridge monitor.
+ */
+class TokenOverrideManager {
+  private overrides: TokenOverrides
+
+  constructor(overrides: TokenOverrides) {
+    this.overrides = overrides
+  }
+
+  /**
+   * Checks if a token address is overridden.
+   * @param tokenAddress - The token address to check.
+   * @returns A boolean indicating if the token address is overridden.
+   */
+  isOverridden(tokenAddress: string): boolean {
+    const normalizedAddress = normalizeTokenAddress(tokenAddress)
+    if (!normalizedAddress) {
+      return false
+    }
+    return normalizedAddress in this.overrides
+  }
+
+  /**
+   * Gets the override for a token address.
+   * @param tokenAddress - The token address to get the override for.
+   * @returns The token override, if it exists.
+   */
+  getOverride(tokenAddress: string): TokenOverride {
+    const normalizedAddress = normalizeTokenAddress(tokenAddress)
+    if (!normalizedAddress) {
+      throw new Error('Invalid token address provided.')
+    }
+    return this.overrides[normalizedAddress] ?? undefined
+  }
+
+  /**
+   * Checks if a mediator is overridden for a token address and chain ID.
+   * @param tokenAddress - The token address.
+   * @param fromChainId - The chain ID.
+   * @returns A boolean indicating if the mediator is overridden.
+   */
+  isMediatorOverridden(tokenAddress?: string, fromChainId?: ChainsValues): boolean {
+    if (!tokenAddress || !fromChainId) return false
+    const override = this.getOverride(tokenAddress)
+    if (!override) return false
+
+    const overriddenMediator = override.mediator.toLowerCase()
+    const commonMediatorsAddresses = this.getCommonMediatorsAddresses(fromChainId)
+
+    return !commonMediatorsAddresses.includes(overriddenMediator)
+  }
+
+  /**
+   * Gets the common mediators addresses for the given chain.
+   * @param fromChainId - The chain ID.
+   * @returns An array of common mediators addresses.
+   */
+  private getCommonMediatorsAddresses(fromChainId: ChainsValues): string[] {
+    return [
+      contracts.XDAIBridge.address[fromChainId],
+      contracts.OmniBridge.address[fromChainId],
+      contracts.omniBridgeNativeToken.address[fromChainId],
+    ]
+      .map((address) => address?.toLowerCase())
+      .filter(Boolean) as string[]
+  }
 }
 
-export const isMediatorOverridden = (tokenAddress: string, fromChainId: ChainsValues) => {
-  const commonMediatorsAddress = [
-    contracts.XDAIBridge.address[fromChainId].toLowerCase(),
-    contracts.OmniBridge.address[fromChainId].toLowerCase(),
-    contracts.omniBridgeNativeToken.address[fromChainId].toLowerCase(),
-  ] as string[]
+const overrideManager = new TokenOverrideManager(TOKEN_OVERRIDES)
 
-  const overriddenMediator = tokenOverrides[tokenAddress.toLowerCase()]?.mediator
-
-  const isMediatorOverridden =
-    overriddenMediator && !commonMediatorsAddress.includes(overriddenMediator.toLowerCase())
-
-  return isOverridden(tokenAddress) && isMediatorOverridden
-}
+export { overrideManager as TokenOverrideManager }

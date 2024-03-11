@@ -1,32 +1,32 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { ChainsValues } from '@/src/constants/config/types'
 import useSWR from 'swr'
-import { getNetworkConfig } from '@/src/constants/config/chains'
+import { chainsConfig } from '@/src/constants/config/chains'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { useBridgeRequiredBlocks } from '@/src/hooks/bridge/useBridgeRequiredBlocks'
 
 export const useBridgeProgress = (
   chainId: ChainsValues,
   isNativeBridge: boolean,
-  transactionId?: string,
+  transactionId: string,
 ) => {
-  const chainConfig = getNetworkConfig(chainId)
-  const provider = useMemo(() => new JsonRpcProvider(chainConfig.rpcUrl), [chainConfig])
+  const provider = new JsonRpcProvider(chainsConfig[chainId].rpcUrl)
   const [shouldPolling, setShouldPolling] = useState(true)
+
   const { data: bridgeBlockInfo, isLoading: isLoadingBlockInfo } = useBridgeRequiredBlocks(
     chainId,
     isNativeBridge,
   )
 
-  const shouldFetch = transactionId && bridgeBlockInfo
-
+  // get the progress of the transaction. It will be updated every 5 seconds
+  // to run this fetcher, the bridgeBlockInfo must be defined
   const {
     data: progressData,
     isLoading,
     mutate,
   } = useSWR(
-    shouldFetch ? [transactionId, bridgeBlockInfo, 'transactionBlock'] : null,
-    async ([_transactionId, _bridgeBlockInfo]) => {
+    bridgeBlockInfo ? ['bridgeProgress', transactionId, bridgeBlockInfo] : null,
+    async ([, _transactionId, _bridgeBlockInfo]) => {
       let tx
       try {
         tx = await provider.getTransaction(_transactionId)
@@ -36,7 +36,6 @@ export const useBridgeProgress = (
 
       const currentBlock = await provider.getBlockNumber()
       const { estimatedTimeInSeconds, requiredBlocks } = _bridgeBlockInfo
-
       // blocks since the transaction was mined
       // confirmations always >= 0
       let confirmations = 0

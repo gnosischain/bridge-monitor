@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from 'react'
+import { useReducer } from 'react'
 import styled from 'styled-components'
 import { AmountTokenInput } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
 import {
@@ -139,7 +139,6 @@ const initialState: BridgeFormState = {
 
 const Main = () => {
   const { address, walletChainId, web3Provider } = useWeb3Connection()
-  const [isSignerReady, setIsSignerReady] = useState(false)
   const { tokensByNetwork } = useBridgedTokens()
   const [formState, dispatch] = useReducer(
     (data: BridgeFormState, partial: Partial<BridgeFormState>): BridgeFormState => ({
@@ -193,13 +192,6 @@ const Main = () => {
     token: formState.token,
   })
 
-  useEffect(() => {
-    web3Provider
-      ?.getSigner()
-      .getAddress()
-      .then(() => setIsSignerReady(true))
-  }, [web3Provider])
-
   return (
     <Wrapper>
       <FormWrapper>
@@ -209,7 +201,7 @@ const Main = () => {
             <InnerCardFrom>
               <Title>Transfer from</Title>
               <OnChainInfo>
-                <Chain chainKey={formState.fromChainId === Chains.mainnet ? 'mainnet' : 'gnosis'} />
+                <Chain chainId={formState.fromChainId} />
                 <UserBalance
                   address={address}
                   fromChainId={formState.fromChainId}
@@ -244,9 +236,7 @@ const Main = () => {
               ) : (
                 <>
                   <OnChainInfo>
-                    <Chain
-                      chainKey={formState.toChainId === Chains.mainnet ? 'mainnet' : 'gnosis'}
-                    />
+                    <Chain chainId={formState.toChainId} />
                     <UserBalance
                       address={address}
                       /* Inverted values as we need to get the values from the other side of the chain */
@@ -278,8 +268,7 @@ const Main = () => {
               formState.token &&
               tokenOut &&
               address &&
-              walletChainId == formState.fromChainId &&
-              isSignerReady && (
+              walletChainId == formState.fromChainId && (
                 <BridgeSummary
                   amount={amountBN}
                   fromChainId={formState.fromChainId}

@@ -12,7 +12,7 @@ import {
 } from '@/types/typechain'
 
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
-import { getOverridden, isMediatorOverridden } from '@/src/utils/token-overrides'
+import { TokenOverrideManager } from '@/src/utils/token-overrides'
 
 export const getBridgeContract = (
   fromChainId: ChainsValues,
@@ -40,8 +40,8 @@ export const getBridgeContract = (
     )
   } else {
     return (isHome ? HomeOmniMediator__factory : ForeignOmniMediator__factory).connect(
-      isMediatorOverridden(tokenAddress, fromChainId)
-        ? getOverridden(tokenAddress).mediator // use the overridden mediator
+      TokenOverrideManager.isMediatorOverridden(tokenAddress, fromChainId)
+        ? TokenOverrideManager.getOverride(tokenAddress).mediator // use the overridden mediator
         : contracts.OmniBridge.address[fromChainId],
       provider,
     )

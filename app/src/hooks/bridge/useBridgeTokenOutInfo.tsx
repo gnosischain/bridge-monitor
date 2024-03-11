@@ -7,7 +7,7 @@ import { HomeOmniMediator, HomeOmniMediator__factory } from '@/types/typechain'
 import useSWR from 'swr/immutable'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { Token } from '@/types/token'
-import { getOverridden, isOverridden } from '@/src/utils/token-overrides'
+import { TokenOverrideManager } from '@/src/utils/token-overrides'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { contracts } from '@/src/constants/config/contracts'
 import { ZERO_ADDRESS } from '@/src/constants/misc'
@@ -43,9 +43,9 @@ const getReceivedTokenInfo = async ({
   //---------------
   // Overrides
   //---------------
-  if (isOverridden(tokenAddress)) {
+  if (TokenOverrideManager.isOverridden(tokenAddress)) {
     return {
-      tokenOutAddress: getOverridden(tokenAddress).tokenOutAddress,
+      tokenOutAddress: TokenOverrideManager.getOverride(tokenAddress).tokenOutAddress,
     }
   }
 

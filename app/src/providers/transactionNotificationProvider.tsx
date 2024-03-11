@@ -8,7 +8,7 @@ import { ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 import { ToastStates } from '@/src/constants/types'
 import { usePersistedState } from '@/src/hooks/usePersistedState'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { getNetworkConfig } from '@/src/constants/config/chains'
+import { getChainKey, getNetworkConfig } from '@/src/constants/config/chains'
 
 type TransactionStorageItem = {
   chainId: ChainsValues
@@ -32,7 +32,7 @@ export const TransactionNotificationProvider: React.FC = ({ children }) => {
   const { address, appChainId, getExplorerUrl, readOnlyAppProvider } = useWeb3Connection()
   const [isRan, setIsRan] = useState(false)
 
-  const chainKey = getNetworkConfig(appChainId).shortName.toLowerCase() as ChainsKeys
+  const chainKey = getChainKey(appChainId)
 
   const initialState: TransactionStorageItem[] = []
 
