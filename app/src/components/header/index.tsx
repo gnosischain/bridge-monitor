@@ -29,6 +29,7 @@ const InnerContainer = styled(BaseInnerContainer)`
 const Logo = styled(GnosisChainLogo)`
   cursor: pointer;
   height: 36px;
+  margin-right: 2.5rem;
 
   &:active {
     opacity: 0.7;

@@ -20,6 +20,7 @@ const Title = styled.h2`
   font-weight: 500;
   line-height: 1.2;
   margin: 0;
+  font-family: ${({ theme: { fonts } }) => fonts.familyHeading};
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     font-size: 3.2rem;

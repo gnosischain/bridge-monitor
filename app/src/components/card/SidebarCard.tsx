@@ -15,6 +15,8 @@ export const SCTitle = styled.h2`
   font-weight: 500;
   line-height: 1.2;
   margin: 0 0 calc(var(--theme-common-space) * 2);
+  font-family: ${({ theme: { fonts } }) => fonts.familyHeading};
+
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     font-size: 2.4rem;
   }

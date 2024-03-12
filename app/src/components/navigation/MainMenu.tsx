@@ -27,6 +27,7 @@ const NavLink = styled(BaseNavLink)`
   justify-content: center;
   text-decoration: none;
   transition: text-shadow 0.25s ease-in-out;
+  text-align: center;
 
   @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
     font-size: 1.6rem;

@@ -72,10 +72,11 @@ const SearchBox = styled.div`
 const Title = styled.h1`
   color: ${({ theme: { colors } }) => colors.cream};
   font-size: 3rem;
-  font-weight: 800;
+  font-weight: 500;
   line-height: 1.1;
   margin: 0 0 16px;
   text-align: center;
+  font-family: ${({ theme: { fonts } }) => fonts.familyHeading};
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     font-size: 4.2rem;
