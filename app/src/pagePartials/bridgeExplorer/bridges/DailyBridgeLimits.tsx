@@ -22,11 +22,6 @@ import { InnerCard } from '@/src/components/card/InnerCard'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { ArrowRight } from '@/src/components/assets/ArrowRight'
-import dynamic from 'next/dynamic'
-
-const TokenListProvider = dynamic(() => import('@/src/providers/tokenListProvider'), {
-  ssr: false,
-})
 
 const Columns = styled.div`
   display: grid;
@@ -227,8 +222,9 @@ const Limits: React.FC = () => {
   const onChangeToken = (token: Token) => {
     // the list of tokens used are those of Mainnet (foreign network)
     const mainnetToGnosisChain = token
-    const gnosisChainToMainnet =
-      tokensByAddress[token.extensions.bridgeInfo[Chains.gnosis].tokenAddress.toLowerCase()]
+    const otherSideAddress = token.extensions.bridgeInfo[Chains.gnosis]?.tokenAddress.toLowerCase()
+    if (!otherSideAddress) throw new Error('Token address not found')
+    const gnosisChainToMainnet = tokensByAddress[otherSideAddress]
 
     const isSelectedTokenValid = mainnetToGnosisChain && gnosisChainToMainnet
 
@@ -293,11 +289,7 @@ const Limits: React.FC = () => {
 
 export const DailyBridgeLimits: React.FC = genericSuspense(
   () => {
-    return (
-      <TokenListProvider>
-        <Limits />
-      </TokenListProvider>
-    )
+    return <Limits />
   },
   () => (
     <>

@@ -1,6 +1,6 @@
+import { getIcon } from '@/src/utils/icons'
 import Image from 'next/image'
 import styled from 'styled-components'
-import { useIcon } from '@/src/hooks/useIcon'
 
 const Wrapper = styled.div`
   --height: 22px;
@@ -67,7 +67,7 @@ const Bridge: React.FC<{ chain: string; iconName?: string }> = ({
   iconName,
   ...restProps
 }) => {
-  const { iconPath } = useIcon(iconName)
+  const iconPath = getIcon(iconName)
 
   return iconPath ? (
     <Chain chain={chain.toLowerCase()} {...restProps}>

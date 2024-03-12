@@ -2,7 +2,7 @@ import { ObjectValues } from '@/types/utils'
 
 export const Chains = {
   mainnet: 1,
-  chiado: 10200,
+  //chiado: 10200,
   gnosis: 100,
 } as const
 
@@ -16,6 +16,8 @@ export type ChainConfig = {
   blockExplorerUrls: string[]
   token: string
   tokenDecimals: number
+  blocksFrequencyInSeconds: number
+  blockExplorerName: string
   bridge: {
     DAI: string
     wForeignNative: string

@@ -1,10 +1,9 @@
-import type { NextPage } from 'next'
 import { SidebarLayout } from '@/src/components/sidebarLayout'
-import { Success } from '@/src/pagePartials/bridge/Success'
 import { Search } from '@/src/pagePartials/bridge/sidebar/Search'
 import { ExternalLinks } from '@/src/pagePartials/bridge/sidebar/ExternalLinks'
+import { PropsWithChildren } from 'react'
 
-const SuccessPage: NextPage = () => {
+export const BridgeLayout: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
   return (
     <SidebarLayout
       sidebarContents={
@@ -15,9 +14,7 @@ const SuccessPage: NextPage = () => {
       }
       sidebarPlacement="right"
     >
-      <Success />
+      {children}
     </SidebarLayout>
   )
 }
-
-export default SuccessPage

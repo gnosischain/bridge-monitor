@@ -4,14 +4,15 @@ import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { isSameString } from '@/src/utils/tools'
 import { Token as BaseToken } from '@/types/token'
 import bridgedTokens from '@/src/constants/bridged_tokens.json'
+import { ZERO_ADDRESS } from '@/src/constants/misc'
 
 type Token = Omit<BaseToken, 'extensions'> & {
   extensions: {
-    bridgeInfo: {
-      [key in 1 | 100]?: {
+    bridgeInfo: Partial<{
+      [key in 1 | 100]: {
         tokenAddress: string
       }
-    }
+    }>
   }
 }
 
@@ -137,7 +138,7 @@ export default function handler(_: NextApiRequest, res: NextApiResponse<Array<To
           },
         },
       },
-      ...extraTokens,
+      ...extraTokens.filter((token) => token.address !== ZERO_ADDRESS),
     ]
   })
 

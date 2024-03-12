@@ -3,8 +3,6 @@ import { ChainsValues } from '@/src/constants/config/types'
 import useSWR from 'swr'
 import { Token } from '@/types/token'
 import { ZERO_BN } from '@/src/constants/misc'
-import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { useBridgeContracts } from '@/src/hooks/bridge/useBridgeContracts'
 import {
   ERC20__factory,
   ERC677,
@@ -16,7 +14,11 @@ import {
   NativeOmniBridgeMediator,
 } from '@/types/typechain'
 import { contracts } from '@/src/constants/config/contracts'
-import { TOKEN_MODE } from '@/src/hooks/bridge/useTokenMode'
+import { TOKEN_MODE, useTokenMode } from '@/src/hooks/bridge/useTokenMode'
+import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
+import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
+import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
+import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 
 /**
  * isNativeToken && isFromForeign: use wrapAndRelayTokens (nativeOmniBridgeMediator) (no need approve: infinite approve) -> ETH -> WETH
@@ -39,27 +41,34 @@ import { TOKEN_MODE } from '@/src/hooks/bridge/useTokenMode'
  * @param bridgeContract - NativeOmniBridgeMediator (Native Omni Bridge)
  * @param signer - The signer object used for signing transactions.
  * @param amount - The amount of tokens to be wrapped and relayed.
- * @param recipient - (Optional) The recipient address on the home chain. If not provided, the signer's address will be used.
+ * @param walletAddress - (Optional) The recipient address on the home chain. If not provided, the signer's address will be used.
  * @returns An object containing the gas limit and a transaction function.
  */
-const handleNativeTokenFromForeign = async (
-  bridgeContract: NativeOmniBridgeMediator,
-  signer: Signer,
-  amount: BigNumber,
-  recipient?: string,
-) => {
+const handleNativeTokenFromForeign = async ({
+  amount,
+  bridgeContract,
+  signer,
+  walletAddress,
+}: {
+  bridgeContract: NativeOmniBridgeMediator
+  signer: Signer
+  amount: BigNumber
+  walletAddress: string
+}) => {
+  // Using the default estimateGas calculation using the minimum ETH amount (0.000000000000000001) to avoid crash when the user tries to bridge all the balance of the native tokens
+  // TODO: There should be a better way to handle this.
   const gasLimit = await bridgeContract.estimateGas['wrapAndRelayTokens(address)'](
-    recipient || signer.getAddress(),
+    walletAddress || signer.getAddress(),
     {
-      value: amount,
+      value: amount.toString(),
     },
   )
 
   return {
     gasLimit,
     tx: async function () {
-      return bridgeContract['wrapAndRelayTokens(address)'](recipient || signer.getAddress(), {
-        value: amount,
+      return bridgeContract['wrapAndRelayTokens(address)'](walletAddress || signer.getAddress(), {
+        value: amount.toString(),
         gasLimit,
       })
     },
@@ -75,30 +84,41 @@ const handleNativeTokenFromForeign = async (
  * @param recipient - Optional recipient address for the transfer.
  * @returns An object containing the gas limit and a transaction function.
  */
-const handleNativeTokenFromHome = async (
-  bridgeContract: HomeBridgeErcToNative,
-  signer: Signer,
-  amount: BigNumber,
-  recipient?: string,
-) => {
+const handleNativeTokenFromHome = async ({
+  amount,
+  bridgeContract,
+  recipient,
+  signer,
+  userAddress,
+}: {
+  bridgeContract: HomeBridgeErcToNative
+  signer: Signer
+  amount: BigNumber
+  userAddress: string
+  recipient?: string
+}) => {
+  // Using the default estimateGas calculation using the minimum xDAI amount (10) to avoid crash when the user tries to bridge all the balance of the native tokens
+  // TODO: There should be a better way to handle this.
   const gasLimit = recipient
     ? await bridgeContract.estimateGas.relayTokens(recipient, {
-        value: amount,
+        value: amount.toString(),
       })
-    : await signer.estimateGas({ to: bridgeContract.address, value: amount })
+    : await signer.estimateGas({
+        to: bridgeContract.address,
+        from: userAddress,
+        value: amount.toString(),
+      })
 
   return {
     gasLimit,
     tx: async function () {
       return recipient
         ? bridgeContract.relayTokens(recipient, {
-            value: amount,
-            gasLimit,
+            value: amount.toString(),
           })
         : signer.sendTransaction({
             to: bridgeContract.address,
-            value: amount,
-            gasLimit,
+            value: amount.toString(),
           })
     },
   }
@@ -115,57 +135,113 @@ const handleNativeTokenFromHome = async (
  * @param recipient Optional. The recipient address.
  * @returns An object containing the gas limit and a transaction function.
  */
-const handleERC20TokenFromForeign = async (
-  bridgeContract: ForeignOmniMediator | ForeignBridgeErcToNative,
-  signer: Signer,
-  amount: BigNumber,
-  tokenAddress: string,
-  isDAI?: boolean,
-  recipient?: string,
-) => {
-  if (isDAI) {
-    const tokenContract = ERC20__factory.connect(tokenAddress, signer)
+const handleERC20TokenFromForeign = async ({
+  allowance,
+  amount,
+  bridgeContract,
+  isDAI,
+  recipient,
+  signer,
+  tokenAddress,
+  tokenMode,
+  userAddress,
+}: {
+  bridgeContract: ForeignOmniMediator | ForeignBridgeErcToNative
+  signer: Signer
+  amount: BigNumber
+  tokenAddress: string
+  allowance: BigNumber
+  tokenMode: TOKEN_MODE
+  recipient: string | undefined
+  userAddress: string
+  isDAI?: boolean
+}) => {
+  // Quick fix to avoid useBridgeValidations to error when an approval is needed.
+  // If an approval is needed the gasLimit should be calculated for the approval operation and not for the bridge operation.
+  // If that not happens the estimateGas will fail because the allowance is not enough.
+  //
+  // TODO: If an approval is needed, "gasLimit" will be set with the value the approval operation will take.
+  // But "tx" will have the bridge operation. It would be good to solve this inconsistency.
+  // And then remove the useApproval hook and call the approve using the tx function returned by this function.
 
-    const gasLimit = recipient
-      ? await (bridgeContract as ForeignBridgeErcToNative).estimateGas.relayTokens(
-          recipient,
-          amount,
-        )
-      : await tokenContract.estimateGas.transfer(bridgeContract.address, amount)
+  const walletAddress = recipient || userAddress
+  const isDedicatedERC20 = tokenMode === 'D-ERC20'
+  const isERC677 = tokenMode === 'ERC677'
+  const tokenContract = isERC677
+    ? ERC677__factory.connect(tokenAddress, signer)
+    : ERC20__factory.connect(tokenAddress, signer)
+
+  let gasLimit: BigNumber
+  if (isDAI) {
+    if (amount.gt(allowance)) {
+      gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
+    } else {
+      gasLimit = recipient
+        ? await (bridgeContract as ForeignBridgeErcToNative).estimateGas.relayTokens(
+            recipient.toLowerCase(),
+            amount.toString(),
+          )
+        : await tokenContract.estimateGas.transfer(bridgeContract.address, amount.toString())
+    }
 
     return {
       gasLimit,
       tx: async function () {
         return recipient
-          ? (bridgeContract as ForeignBridgeErcToNative).relayTokens(recipient, amount, {
+          ? (bridgeContract as ForeignBridgeErcToNative).relayTokens(recipient, amount.toString(), {
               gasLimit,
             })
-          : tokenContract.transfer(bridgeContract.address, amount, {
+          : tokenContract.transfer(bridgeContract.address, amount.toString(), {
               gasLimit,
             })
       },
     }
+  }
+
+  if (!isERC677 && amount.gt(allowance)) {
+    gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
   } else {
-    const signerAddress = await signer.getAddress()
     // Never use transfer in this case. Always use relayTokens.
     // Can we use transferAndCall here if the token is compatible with ERC677/ERC827???
-    const gasLimit = await (bridgeContract as ForeignOmniMediator).estimateGas[
-      'relayTokens(address,address,uint256)'
-    ](tokenAddress, recipient || signer.getAddress(), amount)
-
-    return {
-      gasLimit,
-      tx: async function () {
-        return (bridgeContract as ForeignOmniMediator)['relayTokens(address,address,uint256)'](
-          tokenAddress,
-          recipient || signerAddress,
-          amount,
-          {
-            gasLimit,
-          },
-        )
-      },
+    // For Dedicated ERC20 (D-ERC20), we need to use relayTokens(address,address) method instead of relayTokens(address,address,uint256)
+    if (isERC677) {
+      gasLimit = await (tokenContract as ERC677).estimateGas.transferAndCall(
+        bridgeContract.address,
+        amount.toString(),
+        walletAddress,
+      )
+    } else {
+      gasLimit = isDedicatedERC20
+        ? await (bridgeContract as ForeignOmniMediator).estimateGas['relayTokens(address,uint256)'](
+            walletAddress,
+            amount.toString(),
+          )
+        : await (bridgeContract as ForeignOmniMediator).estimateGas[
+            'relayTokens(address,address,uint256)'
+          ](tokenAddress, walletAddress, amount.toString())
     }
+  }
+
+  return {
+    gasLimit,
+    tx: async function () {
+      return isDedicatedERC20
+        ? (bridgeContract as ForeignOmniMediator)['relayTokens(address,uint256)'](
+            walletAddress,
+            amount.toString(),
+          )
+        : isERC677
+        ? (tokenContract as ERC677).transferAndCall(
+            bridgeContract.address,
+            amount.toString(),
+            walletAddress,
+          )
+        : (bridgeContract as ForeignOmniMediator)['relayTokens(address,address,uint256)'](
+            tokenAddress,
+            walletAddress,
+            amount.toString(),
+          )
+    },
   }
 }
 
@@ -176,99 +252,128 @@ const handleERC20TokenFromForeign = async (
  * @param signer The signer object used for signing transactions.
  * @param amount The amount of tokens to transfer.
  * @param tokenAddress The address of the token contract.
- * @param recipient Optional. The address of the recipient. If not provided, the tokens will be transferred to the bridge contract.
+ * @param walletAddress Optional. The address of the recipient. If not provided, the tokens will be transferred to the bridge contract.
  * @param isERC677 Optional. Specifies whether the token is ERC677 compatible. Defaults to false.
  * @returns An object containing the gas limit and a transaction function.
  */
-const handleERC20TokenFromHome = async (
-  bridgeContract: HomeOmniMediator,
-  signer: Signer,
-  amount: BigNumber,
-  tokenAddress: string,
-  foreignChainId: ChainsValues,
-  recipient?: string,
-  receiveNativeToken?: boolean,
-  isERC677?: boolean,
-) => {
+const handleERC20TokenFromHome = async ({
+  amount,
+  bridgeContract,
+  receiveNativeToken,
+  recipient,
+  signer,
+  toChainId,
+  tokenAddress,
+  tokenMode,
+  userAddress,
+}: {
+  bridgeContract: HomeOmniMediator
+  signer: Signer
+  amount: BigNumber
+  tokenAddress: string
+  tokenMode: TOKEN_MODE
+  userAddress: string
+  toChainId: ChainsValues
+  recipient?: string
+  receiveNativeToken?: boolean
+}) => {
   // Here we have two cases. If the token is compatible with ERC677/ERC827 we should use transferAndCall method and avoid the approve step.
+  const isERC677 = tokenMode === 'ERC677'
+  const isDedicatedERC20 = tokenMode === 'D-ERC20'
+
   const tokenContract = isERC677
     ? ERC677__factory.connect(tokenAddress, signer)
     : ERC20__factory.connect(tokenAddress, signer)
 
-  const signerAddress = await signer.getAddress()
-  console.log(foreignChainId)
+  const walletAddress = recipient || userAddress
 
   // byteData info in: https://docs.tokenbridge.net/eth-xdai-amb-bridge/multi-token-extension/transfer-weth-from-xdai-to-eth-on-mainnet
   const bytesData = receiveNativeToken
-    ? `${contracts.nativeOmniBridge.address[foreignChainId]}${(recipient || signerAddress).replace(
-        '0x',
-        '',
-      )}`
-    : recipient || signerAddress
+    ? `${contracts.omniBridgeNativeToken.address[toChainId]}${walletAddress.replace('0x', '')}`
+    : walletAddress
 
-  const gasLimit = isERC677
-    ? await (tokenContract as ERC677).estimateGas.transferAndCall(
+  // ERC20 => tokenAddress.approve(mediator, amount) => mediator.relayTokens(received, amount)
+  // ERC677 =>  tokenAddress.transferAndCall(mediator)
+  // dedicatedErc20 => mediator.relayTokens(received, amount)
+
+  //
+  if (isERC677) {
+    return {
+      gasLimit: await (tokenContract as ERC677).estimateGas.transferAndCall(
         bridgeContract.address,
-        amount,
+        amount.toString(),
         bytesData,
-      )
-    : recipient
-    ? await bridgeContract.estimateGas['relayTokens(address,address,uint256)'](
-        recipient,
-        tokenAddress,
-        amount,
-      )
-    : await tokenContract.estimateGas.transfer(bridgeContract.address, amount)
+      ),
+      tx: async function () {
+        return (tokenContract as ERC677).transferAndCall(
+          bridgeContract.address,
+          amount.toString(),
+          bytesData,
+        )
+      },
+    }
+  }
+
+  if (isDedicatedERC20) {
+    return {
+      gasLimit: await (bridgeContract as HomeOmniMediator).estimateGas[
+        'relayTokens(address,uint256)'
+      ](walletAddress, amount.toString()),
+      tx: async function () {
+        return (bridgeContract as HomeOmniMediator)['relayTokens(address,uint256)'](
+          walletAddress,
+          amount.toString(),
+        )
+      },
+    }
+  }
 
   return {
-    gasLimit,
+    gasLimit: recipient
+      ? await bridgeContract.estimateGas['relayTokens(address,address,uint256)'](
+          tokenAddress,
+          recipient,
+          amount.toString(),
+        )
+      : await tokenContract.estimateGas.transfer(bridgeContract.address, amount.toString()),
     tx: async function () {
-      return isERC677
-        ? (tokenContract as ERC677).transferAndCall(bridgeContract.address, amount, bytesData, {
-            gasLimit,
-          })
-        : recipient
-        ? bridgeContract['relayTokens(address,address,uint256)'](recipient, tokenAddress, amount, {
-            gasLimit,
-          })
-        : tokenContract.transfer(bridgeContract.address, amount, {
-            gasLimit,
-          })
+      return recipient
+        ? bridgeContract['relayTokens(address,address,uint256)'](
+            tokenAddress,
+            recipient,
+            amount.toString(),
+          )
+        : tokenContract.transfer(bridgeContract.address, amount.toString())
     },
   }
 }
 
 export const getBridgeTx = async ({
   account,
+  allowance,
   amount,
-  bridgeContract,
-  foreignChainId,
-  isFromHome,
-  isNativeBridge,
-  isNativeToken,
+  balance,
+  fromChainId,
   receiveNativeToken,
   recipient,
+  signer,
+  toChainId,
   tokenAddress,
   tokenMode,
 }: {
+  signer: Signer
   account: string
   amount: BigNumber
-  bridgeContract:
-    | HomeBridgeErcToNative
-    | ForeignBridgeErcToNative
-    | NativeOmniBridgeMediator
-    | HomeOmniMediator
-    | ForeignOmniMediator
+  allowance: BigNumber
+  fromChainId: ChainsValues
+  toChainId: ChainsValues
   tokenAddress: string
-  isNativeToken: boolean
-  isNativeBridge: boolean
-  isFromHome: boolean
-  foreignChainId: ChainsValues
-  tokenMode?: TOKEN_MODE
+  tokenMode: TOKEN_MODE
+  balance: BigNumber
   receiveNativeToken?: boolean
   recipient?: string
 }) => {
-  const signer = bridgeContract.signer
+  const bridgeContract = getBridgeContract(fromChainId, toChainId, tokenAddress).connect(signer)
 
   if (amount.lte(0) || !account) {
     return {
@@ -278,41 +383,51 @@ export const getBridgeTx = async ({
     }
   }
 
-  const gasPrice = await signer.getGasPrice()
+  const { isFromHome, isNativeBridge, isNativeToken } = getBridgeCommonInfo({
+    fromChainId,
+    toChainId,
+    tokenAddress,
+  })
 
+  const gasPrice = await bridgeContract.provider.getGasPrice()
   const { gasLimit, tx } = isNativeToken
     ? isFromHome
-      ? await handleNativeTokenFromHome(
-          bridgeContract as HomeBridgeErcToNative,
+      ? await handleNativeTokenFromHome({
+          bridgeContract: bridgeContract as HomeBridgeErcToNative,
           signer,
           amount,
           recipient,
-        )
-      : await handleNativeTokenFromForeign(
-          bridgeContract as NativeOmniBridgeMediator,
+          userAddress: account,
+        })
+      : await handleNativeTokenFromForeign({
+          bridgeContract: bridgeContract as NativeOmniBridgeMediator,
           signer,
           amount,
-          recipient,
-        )
+          walletAddress: recipient || account,
+        })
     : isFromHome
-    ? await handleERC20TokenFromHome(
-        bridgeContract as HomeOmniMediator,
+    ? await handleERC20TokenFromHome({
+        bridgeContract: bridgeContract as HomeOmniMediator,
         signer,
         amount,
         tokenAddress,
-        foreignChainId,
+        toChainId,
+        tokenMode,
+        userAddress: account,
         recipient,
         receiveNativeToken,
-        tokenMode === 'ERC677', // isERC677
-      )
-    : await handleERC20TokenFromForeign(
-        bridgeContract as ForeignOmniMediator,
+      })
+    : await handleERC20TokenFromForeign({
+        bridgeContract: bridgeContract as ForeignOmniMediator,
         signer,
         amount,
         tokenAddress,
-        isNativeBridge, // use nativeBridge for DAI
+        allowance,
+        tokenMode,
         recipient,
-      )
+        userAddress: account,
+        isDAI: isNativeBridge, // use nativeBridge for DAI
+      })
 
   return {
     gasLimit,
@@ -323,101 +438,75 @@ export const getBridgeTx = async ({
 
 export const useBridgeTransactionInfo = ({
   amount,
-  foreignChainId,
-  isFromHome,
-  isNativeBridge,
-  isNativeToken,
-  isValid,
+  fromChainId,
   receiveNativeToken,
   recipient,
-  shouldApprove,
+  toChainId,
   token,
-  tokenMode,
+  userAddress,
 }: {
+  userAddress: string
+  fromChainId: ChainsValues
+  toChainId: ChainsValues
   amount: BigNumber
-  isFromHome: boolean
-  isNativeBridge: boolean
-  isNativeToken: boolean
-  foreignChainId: ChainsValues
-  isValid: boolean
-  shouldApprove: boolean
-  tokenMode?: TOKEN_MODE
-  receiveNativeToken?: boolean
+  receiveNativeToken: boolean
   recipient?: string
-  token?: Token
+  token: Token
 }) => {
-  const { address } = useWeb3Connection()
-  const { getFromBridgeWithSigner } = useBridgeContracts(foreignChainId)
+  const { walletChainId, web3Provider } = useWeb3Connection()
+  if (!web3Provider) throw new Error('No web3 provider available')
+  const signer = web3Provider.getSigner()
+  if (walletChainId !== fromChainId) throw new Error('Invalid chain')
 
-  const shouldFetch = token && amount.gt(0) && isValid && !shouldApprove && tokenMode
+  const { data: tokenMode } = useTokenMode(fromChainId, toChainId, token)
+  const { data: userBalancesData } = useUserTokenBalances({
+    userAddress: userAddress,
+    allowanceAddress: getBridgeContract(fromChainId, toChainId, token.address).address,
+    chainId: fromChainId,
+    tokenAddress: token.address,
+  })
+  if (!userBalancesData) throw new Error('User balances are not available')
 
   return useSWR(
-    shouldFetch
-      ? [
-          token,
-          amount,
-          recipient,
-          isNativeToken,
-          isNativeBridge,
-          isFromHome,
-          tokenMode,
-          receiveNativeToken,
-          foreignChainId,
-          'transactionInfo',
-        ]
-      : null,
-
+    [
+      'transactionInfo',
+      token,
+      fromChainId,
+      toChainId,
+      amount,
+      recipient,
+      tokenMode,
+      receiveNativeToken,
+    ],
     async ([
+      ,
       _token,
+      _fromChainId,
+      _toChainId,
       _amount,
       _recipient,
-      _isNativeToken,
-      _isNativeBridge,
-      _isFromHome,
       _tokenMode,
       _receiveNativeToken,
-      _foreignChainId,
     ]) => {
-      const bridgeContractWithSigner = getFromBridgeWithSigner(
-        _isFromHome,
-        _isNativeBridge,
-        _isNativeToken,
-      )
+      const { gasLimit, gasPrice, tx } = await getBridgeTx({
+        account: userAddress,
+        amount: _amount,
+        fromChainId: _fromChainId,
+        signer,
+        toChainId: _toChainId,
+        tokenAddress: _token.address,
+        recipient: _recipient,
+        tokenMode: _tokenMode,
+        receiveNativeToken: _receiveNativeToken,
+        allowance: userBalancesData.allowance,
+        balance: userBalancesData.balance,
+      })
 
-      if (!address) {
-        throw Error('No account found')
-      }
-
-      try {
-        const { gasLimit, gasPrice, tx } = await getBridgeTx({
-          isNativeToken,
-          account: address,
-          amount: _amount,
-          isNativeBridge: isNativeBridge,
-          bridgeContract: bridgeContractWithSigner,
-          tokenAddress: _token.address,
-          recipient: _recipient,
-          tokenMode: _tokenMode,
-          isFromHome: _isFromHome,
-          foreignChainId: _foreignChainId,
-          receiveNativeToken: _receiveNativeToken,
-        })
-
-        return {
-          gasLimit,
-          gasPrice,
-          tx,
-        }
-      } catch (error) {
-        console.error(error)
-
-        return {
-          gasLimit: ZERO_BN,
-          gasPrice: ZERO_BN,
-          tx: null,
-        }
+      return {
+        gasLimit,
+        gasPrice,
+        tx,
       }
     },
-    { suspense: false },
   )
 }

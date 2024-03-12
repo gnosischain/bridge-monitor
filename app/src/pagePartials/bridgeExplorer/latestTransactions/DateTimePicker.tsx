@@ -30,8 +30,10 @@ export const DateTimePicker: React.FC<Props> = ({
   ...restProps
 }) => {
   const onChange = (date: Date) => {
-    onStartDateChange(startOfDay(date))
-    onEndDateChange(endOfDay(date))
+    const _date = !date ? startDate : date
+
+    onStartDateChange(startOfDay(_date))
+    onEndDateChange(endOfDay(_date))
   }
 
   return <Wrapper maxDate={new Date()} onChange={onChange} selected={startDate} {...restProps} />

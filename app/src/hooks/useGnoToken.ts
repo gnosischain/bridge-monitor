@@ -4,6 +4,7 @@ import { Chains } from '@/src/constants/config/types'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { isSameString } from '@/src/utils/tools'
 import { Token } from '@/types/token'
+import { ZERO_ADDRESS } from '@/src/constants/misc'
 
 export const useGnoToken = () => {
   const { tokensByNetwork } = useBridgedTokens()
@@ -17,7 +18,7 @@ export const useGnoToken = () => {
       tokensByNetwork[Chains.gnosis].find((token) =>
         isSameString(
           token.address,
-          mainnetGnoToken.extensions.bridgeInfo[Chains.gnosis].tokenAddress,
+          mainnetGnoToken.extensions.bridgeInfo[Chains.gnosis]?.tokenAddress ?? ZERO_ADDRESS,
         ),
       ),
     [tokensByNetwork, mainnetGnoToken],

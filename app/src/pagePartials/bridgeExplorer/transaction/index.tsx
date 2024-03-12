@@ -20,6 +20,8 @@ import { BridgesValues } from '@/src/constants/config/bridges'
 import { MainCard } from '@/src/components/card/MainCard'
 import { ButtonGoBack } from '@/src/pagePartials/bridgeExplorer/transaction/ButtonGoBack'
 import { GenericError } from '@/src/components/error/GenericError'
+import { BlockConfirmations } from '@/src/pagePartials/common/BlockConfirmations'
+import { ChainsKeys } from '@/src/constants/config/types'
 
 const Wrapper = styled(MainCard)`
   padding-top: calc(var(--theme-common-space) * 4);
@@ -86,6 +88,12 @@ const ClaimButton = styled(BaseClaimButton)`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     display: inline-block;
   }
+`
+
+const TxInitiatedWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: calc(var(--theme-common-space) * 2);
 `
 
 export const TransactionSkeletonLoading: React.FC = ({ ...restProps }) => (
@@ -216,17 +224,26 @@ export const Transaction: React.FC = ({ ...restProps }) => {
             title="Bridging initiated"
             transactionStatus={TransactionStatus.Initiated}
           >
-            <DetailsRow
-              network={currentTx.initiatorNetwork}
-              title="Initiated by user"
-              transaction={currentTx}
-            />
-            {!hasMinimumConsensus && (
-              <DelayWarning
-                initiatorNetwork={currentTx.initiatorNetwork}
-                receiverNetwork={currentTx.receiverNetwork}
+            <TxInitiatedWrapper>
+              <DetailsRow
+                network={currentTx.initiatorNetwork}
+                title="Initiated by user"
+                transaction={currentTx}
               />
-            )}
+              {!hasMinimumConsensus && (
+                <>
+                  <DelayWarning
+                    initiatorNetwork={currentTx.initiatorNetwork}
+                    receiverNetwork={currentTx.receiverNetwork}
+                  />
+                  <BlockConfirmations
+                    isNativeBridge={currentTx.bridgeName === 'XDAI'}
+                    network={currentTx.initiatorNetwork as ChainsKeys}
+                    transactionHash={currentTx.transactionHash}
+                  />
+                </>
+              )}
+            </TxInitiatedWrapper>
           </StatusDetails>
           {hasMinimumConsensus && (
             <StatusDetails

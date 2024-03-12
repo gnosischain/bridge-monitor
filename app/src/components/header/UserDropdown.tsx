@@ -45,7 +45,7 @@ const Wrapper = styled(Dropdown)`
     box-shadow: 0 38.519px 25.481px 0 rgba(0, 0, 0, 0.12), 0 100px 80px 0 rgba(0, 0, 0, 0.2);
     flex-direction: column;
     max-height: none;
-    width: 365px;
+    width: 400px;
     overflow: hidden;
     padding: 0;
     top: calc(100% + 10px);
@@ -162,7 +162,7 @@ const ChainIconWrapper = styled.div`
 `
 
 const ChainIcon = styled.img`
-  --size: 16px;
+  --size: 24px;
 
   border-radius: 50%;
   display: block;
@@ -202,6 +202,8 @@ const NetworkName = styled.span`
 
 const UnsupportedNetwork = styled.span<{ small?: boolean | undefined }>`
   color: ${({ theme: { colors } }) => colors.error};
+  font-weight: 700;
+  letter-spacing: -0.5px;
 
   ${({ small }) =>
     small &&
@@ -222,7 +224,7 @@ const SwitchNetworkButton = styled.span`
   font-weight: 400;
   height: 32px;
   line-height: 1.2;
-  padding: 0 calc(var(--theme-common-space) * 2);
+  padding: 0 calc(var(--theme-common-space) * 1.5);
 `
 
 const Button = styled(ButtonConnect)`
@@ -276,9 +278,9 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
                   alt={currentNetwork ? currentNetwork.name : ''}
                   src={
                     currentNetwork?.chainId === 100
-                      ? '/images/icons/gnosis.png'
+                      ? '/images/icons/gnosis.svg'
                       : currentNetwork?.chainId === 1
-                      ? '/images/icons/eth.png'
+                      ? '/images/icons/ethToken.svg'
                       : '/images/icons/empty-token.png'
                   }
                 />

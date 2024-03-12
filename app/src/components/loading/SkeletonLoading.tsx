@@ -35,7 +35,7 @@ const AnimationCSS = css<SkeletonProps>`
 export const SkeletonLoading = styled.div<SkeletonProps>`
   ${({ animate }) => animate && AnimationCSS}
   background-color: ${({ animate, theme: { colors } }) =>
-    animate ? colors.mainDark1 : 'var(--background-color-start)'};
+    animate ? 'var(--background-color-start)' : colors.creamDark};
   border-radius: 10px;
   min-height: 20px;
   min-width: 50px;

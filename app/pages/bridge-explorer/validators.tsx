@@ -4,6 +4,7 @@ import { Validators, ValidatorsSkeleton } from '@/src/pagePartials/bridgeExplore
 import { ValidatorsProvider } from '@/src/providers/validatorsProvider'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import NextHead from 'next/head'
+import TokenListProvider from '@/src/providers/tokenListProvider'
 
 const ValidatorsPage: NextPage = genericSuspense(
   () => {
@@ -20,9 +21,11 @@ const ValidatorsPage: NextPage = genericSuspense(
           <meta content={description} property="og:description" />
           <meta content={title} name="twitter:site" />
         </NextHead>
-        <ValidatorsProvider>
-          <Validators />
-        </ValidatorsProvider>
+        <TokenListProvider>
+          <ValidatorsProvider>
+            <Validators />
+          </ValidatorsProvider>
+        </TokenListProvider>
       </>
     )
   },

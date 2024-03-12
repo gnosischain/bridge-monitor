@@ -17,7 +17,7 @@ const Button = styled(ButtonPrimary)`
 const Code = styled.blockquote`
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: ${({ theme: { common } }) => common.borderRadius};
-  color: #fff;
+  color: ${({ theme: { colors } }) => colors.textColor};
   cursor: pointer;
   display: flex;
   flex-direction: column;

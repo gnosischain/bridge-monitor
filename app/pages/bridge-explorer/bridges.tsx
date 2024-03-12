@@ -1,6 +1,7 @@
 import type { NextPage } from 'next'
 import { Bridges } from '@/src/pagePartials/bridgeExplorer/bridges'
 import NextHead from 'next/head'
+import TokenListProvider from '@/src/providers/tokenListProvider'
 
 const BridgesPage: NextPage = () => {
   const title = 'Bridges - Gnosis Bridge Explorer'
@@ -16,7 +17,9 @@ const BridgesPage: NextPage = () => {
         <meta content={description} property="og:description" />
         <meta content={title} name="twitter:site" />
       </NextHead>
-      <Bridges />
+      <TokenListProvider>
+        <Bridges />
+      </TokenListProvider>
     </>
   )
 }

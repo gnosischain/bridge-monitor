@@ -14,6 +14,7 @@ import {
   ForeignAMB__factory,
   ForeignBridgeErcToNative,
   ForeignBridgeErcToNative__factory,
+  HomeAMB__factory,
 } from '@/types/typechain'
 import { Interface } from '@ethersproject/abi'
 import { JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
@@ -155,7 +156,7 @@ export const ClaimButton = ({
       ])
 
       // build claim tx
-      const address = contracts.foreignXdaiBridge.address[Chains.mainnet]
+      const address = contracts.XDAIBridge.address[Chains.mainnet]
       const foreignXDAI = ForeignBridgeErcToNative__factory.connect(address, provider.getSigner())
       claim = () => foreignXDAI.executeSignatures(message, signatures)
     } else {
@@ -163,7 +164,7 @@ export const ClaimButton = ({
       // recover message and signatures
       const gnosisProvider = new JsonRpcProvider(chainsConfig[Chains.gnosis].rpcUrl, Chains.gnosis)
       const initialTx = await gnosisProvider.getTransactionReceipt(transaction.transactionHash)
-      const homeAMBInterface = new Interface(contracts.HomeAMB.abi)
+      const AMBInterface = new Interface(contracts.AMB.abi)
       const USER_REQUEST_FOR_SIGNATURE_TOPIC0 =
         '0x520d2afde79cbd5db58755ac9480f81bc658e5c517fcae7365a3d832590b0183'
       const userRequestForSignatureEvent = initialTx.logs.find(
@@ -184,7 +185,7 @@ export const ClaimButton = ({
         return
       }
 
-      const message = homeAMBInterface.parseLog(userRequestForSignatureEvent).args.encodedData
+      const message = AMBInterface.parseLog(userRequestForSignatureEvent).args.encodedData
       const signatures = await ambBridgeHelper.getSignatures(message)
 
       // build claim tx

@@ -1,9 +1,16 @@
 import { chainsConfig } from '@/src/constants/config/chains'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
+import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { isSameString } from '@/src/utils/tools'
-import { HomeOmniMediator } from '@/types/typechain'
-import useSWR from 'swr'
+import { HomeOmniMediator, HomeOmniMediator__factory } from '@/types/typechain'
+import useSWR from 'swr/immutable'
+import { JsonRpcProvider } from '@ethersproject/providers'
+import { Token } from '@/types/token'
+import { TokenOverrideManager } from '@/src/utils/token-overrides'
+import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
+import { contracts } from '@/src/constants/config/contracts'
+import { ZERO_ADDRESS } from '@/src/constants/misc'
 
 /**
  * Retrieves information about the received token based on the provided parameters.
@@ -12,30 +19,36 @@ import useSWR from 'swr'
  * @param receiveNativeToken A boolean indicating whether the token is received as a native token.
  * @param toChainId The ID of the chain where the token is being sent to.
  * @param tokenAddress The address of the token.
- * @returns A promise that resolves to an object containing the tokenOutAddress, fee, and canReceiveNativeToken (optional).
+ * @returns tokenOutAddress, fee, and canReceiveNativeToken (optional).
  * @throws Error if the parameters are invalid.
  */
-export const getReceivedTokenInfo = async ({
+const getReceivedTokenInfo = async ({
   fromChainId,
-  homeOmni,
-  isDAI,
-  isFromForeign,
-  isFromHome,
-  isNativeToken,
+  omniBridgeInstance,
   receiveNativeToken,
   toChainId,
   tokenAddress,
 }: {
-  receiveNativeToken: boolean
   toChainId: ChainsValues
   fromChainId: ChainsValues
   tokenAddress: string
-  isDAI: boolean
-  isFromForeign: boolean
-  isFromHome: boolean
-  isNativeToken: boolean
-  homeOmni: HomeOmniMediator
+  omniBridgeInstance: HomeOmniMediator
+  receiveNativeToken: boolean
 }): Promise<{ tokenOutAddress: string; canReceiveNativeToken?: boolean }> => {
+  const { isDAI, isFromForeign, isFromHome, isNativeToken } = getBridgeCommonInfo({
+    fromChainId,
+    toChainId,
+    tokenAddress,
+  })
+  //---------------
+  // Overrides
+  //---------------
+  if (TokenOverrideManager.isOverridden(tokenAddress)) {
+    return {
+      tokenOutAddress: TokenOverrideManager.getOverride(tokenAddress).tokenOutAddress,
+    }
+  }
+
   //---------------
   // foreign > Gnosis
   //---------------
@@ -44,7 +57,6 @@ export const getReceivedTokenInfo = async ({
     if (isDAI) {
       return {
         tokenOutAddress: NATIVE_TOKEN_ADDRESS,
-        canReceiveNativeToken: false,
       }
     }
 
@@ -59,7 +71,7 @@ export const getReceivedTokenInfo = async ({
 
     // default to ERC20
     return {
-      tokenOutAddress: await homeOmni.homeTokenAddress(tokenAddress),
+      tokenOutAddress: await omniBridgeInstance.homeTokenAddress(tokenAddress),
       canReceiveNativeToken: false,
     }
   }
@@ -89,7 +101,7 @@ export const getReceivedTokenInfo = async ({
 
     // default to ERC20
     return {
-      tokenOutAddress: await homeOmni.foreignTokenAddress(tokenAddress),
+      tokenOutAddress: await omniBridgeInstance.foreignTokenAddress(tokenAddress),
       canReceiveNativeToken: false,
     }
   }
@@ -99,44 +111,70 @@ export const getReceivedTokenInfo = async ({
 
 export const useBridgeTokenOutInfo = ({
   fromChainId,
-  homeOmni,
-  isDAI,
-  isFromForeign,
-  isFromHome,
-  isNativeToken,
   receiveNativeToken,
   toChainId,
-  tokenAddress,
+  token,
 }: {
   receiveNativeToken: boolean
   toChainId: ChainsValues
-  isDAI: boolean
-  isFromForeign: boolean
-  isFromHome: boolean
-  isNativeToken: boolean
-  homeOmni: HomeOmniMediator
   fromChainId: ChainsValues
-  tokenAddress?: string
+  token?: Token
 }) => {
-  const shouldFetch = tokenAddress && fromChainId && toChainId
+  const { tokensByNetwork } = useBridgedTokens()
+  const toTokensList = tokensByNetwork[toChainId]
 
-  return useSWR(
-    shouldFetch
-      ? [tokenAddress, fromChainId, toChainId, receiveNativeToken, 'bridgeTokenOut']
-      : null,
-    async ([_tokenAddress, _fromChainId, _toChainId, _receiveNativeToken]) => {
-      return getReceivedTokenInfo({
-        homeOmni,
-        isDAI,
-        isFromForeign,
-        isFromHome,
-        isNativeToken,
-        receiveNativeToken: _receiveNativeToken,
-        toChainId: _toChainId,
-        tokenAddress: _tokenAddress,
-        fromChainId: _fromChainId,
-      })
+  const shouldFetch = !!(token && fromChainId && toChainId)
+
+  const { data } = useSWR(
+    shouldFetch ? [token, fromChainId, toChainId, receiveNativeToken, 'bridgeTokenOut'] : null,
+    async ([_token, _fromChainId, _toChainId, _receiveNativeToken]) => {
+      try {
+        const omniBridgeInstance = HomeOmniMediator__factory.connect(
+          contracts.OmniBridge.address[Chains.gnosis],
+          new JsonRpcProvider(chainsConfig[Chains.gnosis].rpcUrl),
+        )
+
+        const tokenOutInfo = await getReceivedTokenInfo({
+          omniBridgeInstance,
+          toChainId: _toChainId,
+          tokenAddress: _token.address,
+          fromChainId: _fromChainId,
+          receiveNativeToken: _receiveNativeToken,
+        })
+
+        // if tokenOutInfo address is ZERO_ADDRESS is a new token on the other chain and we need to handle it
+        if (tokenOutInfo.tokenOutAddress === ZERO_ADDRESS) {
+          return {
+            ...token,
+            address: undefined,
+            chainId: _toChainId,
+          }
+        }
+
+        // get the token  from the list if it exists
+        const receivedToken = toTokensList.find((t) =>
+          isSameString(t.address, tokenOutInfo?.tokenOutAddress),
+        )
+
+        if (receivedToken) {
+          return receivedToken
+        }
+
+        // if the token is not in the list we return the token with the new address
+        return {
+          ...token,
+          address: tokenOutInfo.tokenOutAddress,
+          chainId: _toChainId,
+        }
+      } catch (error) {
+        console.error('Error fetching token out info', error)
+        return null
+      }
     },
-    { suspense: false },
+    {
+      suspense: false,
+    },
   )
+
+  return data as Token | undefined
 }

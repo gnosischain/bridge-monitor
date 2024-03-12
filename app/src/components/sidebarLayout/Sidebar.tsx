@@ -12,3 +12,7 @@ const Wrapper = styled.div`
 export const Sidebar: React.FC = ({ children, ...restProps }) => {
   return <Wrapper {...restProps}>{children}</Wrapper>
 }
+
+Sidebar.defaultProps = {
+  className: 'sidebar',
+}

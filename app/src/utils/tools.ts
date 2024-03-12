@@ -24,7 +24,8 @@ export const shortenAddress = (address: string, first = 6, last = 4): string => 
   return address ? `${address.slice(0, first)}...${address.slice(-last)}` : address
 }
 
-export function isSameString(a: string, b: string): boolean {
+export function isSameString(a: string | undefined, b: string | undefined): boolean {
+  if (!a || !b) return false
   return a.toLowerCase() == b.toLowerCase()
 }
 
@@ -37,3 +38,6 @@ export const isTransactionHash = (hash: string) => isHexString(hash) && hash.len
 export const isNativeToken = (address: string) => {
   return isSameString(address, NATIVE_TOKEN_ADDRESS || ZERO_ADDRESS)
 }
+
+export const getToChainId = (fromChainId: ChainsValues) =>
+  fromChainId === Chains.mainnet ? Chains.gnosis : Chains.mainnet

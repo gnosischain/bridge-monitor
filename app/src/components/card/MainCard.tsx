@@ -7,14 +7,15 @@ export const MainCard = styled.div<{ backgroundOpacity?: string }>`
     0px 25.819px 20.925px 0px rgba(0, 0, 0, 0.02), 0px 51px 48px 0px rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
-
   padding: calc(var(--theme-common-space) * 2) var(--theme-common-space);
   row-gap: calc(var(--theme-common-space) * 3);
   width: 100%;
+
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     padding: calc(var(--theme-common-space) * 3) calc(var(--theme-common-space) * 2)
       calc(var(--theme-common-space) * 3);
   }
+
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     padding: calc(var(--theme-common-space) * 5) calc(var(--theme-common-space) * 3)
       calc(var(--theme-common-space) * 3);

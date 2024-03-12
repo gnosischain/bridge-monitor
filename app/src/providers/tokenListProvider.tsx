@@ -11,6 +11,7 @@ import {
   TokensByNetwork,
 } from '@/types/token'
 import { isFulfilled } from '@/types/utils'
+import { ZERO_ADDRESS } from '@/src/constants/misc'
 
 type TokenListQueryReturn = {
   tokens: Array<Token>
@@ -46,7 +47,8 @@ const addLogoUriByTokenList = (tokenList: Token[]) => (token: Token) => {
   if (!token.logoURI) {
     // if the chain is gnosis, look for the token in the token list of the foreign chain
     if (token.chainId === 100) {
-      const foreignTokenAddress = token.extensions.bridgeInfo[1].tokenAddress
+      const foreignTokenAddress = token.extensions.bridgeInfo[1]?.tokenAddress
+      if (!foreignTokenAddress) throw new Error('Foreign token address not found')
 
       const logoUriFromTokenList = tokenList.find(({ address }) =>
         isSameString(address, foreignTokenAddress),
@@ -102,11 +104,15 @@ const removeSpecialCharactersInName = (token: Token) => ({
  */
 const useTokenListQuery = () => {
   return useSWR(['token-list'], async () => {
+    // fetch all token from the constant TokenLists
     const tokenListPromises = Object.values(TokensLists).map(async (url) => fetch(url))
 
+    // filter out the promises that are not fulfilled
     const fulfilledResults = await Promise.allSettled(tokenListPromises).then((results) =>
       results.filter(isFulfilled),
     )
+
+    // fetch all token lists
     const tokenLists: TokenListResponse[] = await Promise.all(
       fulfilledResults.map((fulfilledResult) => {
         if (fulfilledResult.value.ok) {
@@ -116,10 +122,13 @@ const useTokenListQuery = () => {
         return Promise.resolve({ tokens: [] })
       }),
     )
-    const tokenList = tokenLists.flatMap((tokenList) => tokenList.tokens)
 
-    const bridgedTokens = await fetchBridgedTokens()
+    // Unify all tokens from all token lists
+    const tokenList = tokenLists.flatMap((tokenList) => tokenList.tokens)
     const addLogoUri = addLogoUriByTokenList(tokenList)
+
+    // fetch tokens from the bridge
+    const bridgedTokens = await fetchBridgedTokens()
 
     return {
       ...bridgedTokens.reduce((acc: TokenListQueryReturn, token: Token) => {
@@ -137,8 +146,9 @@ const useTokenListQuery = () => {
         )
 
         const isBridgedToNative = isNativeToken(
-          token.extensions.bridgeInfo[1]?.tokenAddress ??
-            token.extensions.bridgeInfo[100]?.tokenAddress,
+          (token.extensions.bridgeInfo[1]?.tokenAddress ??
+            token.extensions.bridgeInfo[100]?.tokenAddress) ||
+            ZERO_ADDRESS,
         )
 
         if (!isBridgedToNative) {
@@ -168,5 +178,9 @@ export const TokenListProvider: FC<PropsWithChildren<unknown>> = ({ children }) 
 export default TokenListProvider
 
 export function useBridgedTokens(): TokenListQueryReturn {
+  const context = useContext(TokenListContext)
+  if (context === undefined) {
+    throw new Error('useBridgedTokens must be used within a TokenListProvider')
+  }
   return useContext<TokenListQueryReturn>(TokenListContext)
 }

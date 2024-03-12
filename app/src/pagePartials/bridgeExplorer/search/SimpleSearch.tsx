@@ -33,6 +33,8 @@ const Textfield: any = styled(DebounceInput)`
   --textfield-font-weight: 400;
   --textfield-height: 100%;
   --textfield-padding: 0 36px 0 14px;
+  --textfield-padding: 0 calc(var(--theme-common-space) * 4 + var(--theme-common-space) / 2) 0
+    calc(var(--theme-common-space) + var(--theme-common-space) / 2);
   --textfield-background-color: ${({ theme: { colors } }) => colors.cream};
   --textfield-border-color: ${({ theme: { colors } }) => colors.white};
   --textfield-border-color-error: ${({ theme: { colors } }) => colors.darkerGrey};
@@ -55,6 +57,15 @@ const Textfield: any = styled(DebounceInput)`
   transition: border-color 0.15s linear;
   width: 100%;
   z-index: 1;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    --textfield-padding: 0 calc(var(--theme-common-space) * 6) 0 calc(var(--theme-common-space) * 3);
+    --texfield-font-size: 1.6rem;
+  }
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    --texfield-font-size: 1.8rem;
+  }
 
   &:active,
   &:focus,
@@ -114,15 +125,6 @@ const Textfield: any = styled(DebounceInput)`
   &::-webkit-search-decoration {
     -webkit-appearance: none;
   }
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    --textfield-padding: 0 48px 0 24px;
-    --texfield-font-size: 1.6rem;
-  }
-
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    --texfield-font-size: 1.8rem;
-  }
 `
 
 const Magnifier = styled(BaseMagnifier)`
@@ -180,11 +182,13 @@ export const SimpleSearch: React.FC<Props> = ({
     <Wrapper {...restProps}>
       <Textfield
         autoComplete="off"
+        autoCorrect="off"
         debounceTimeout={DEBOUNCE_TIME}
         id="search"
         minLength={3}
         onChange={(e: { target: { value: string } }) => onChange(e.target.value)}
         placeholder={placeholder}
+        spellCheck="false"
         status={status}
         type="search"
         value={value}

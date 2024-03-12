@@ -7,10 +7,12 @@ import { DEBOUNCE_TIME } from '@/src/constants/misc'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { MyTransactions } from '@/src/components/assets/MyTransactions'
 import { TextfieldStatus } from '@/src/components/form/Textfield'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { SCLink, SCText, SCTitle, SidebarCard } from '@/src/components/card/SidebarCard'
 import Link from 'next/link'
+import { isTransactionHash } from '@/src/utils/tools'
+import { isAddress } from 'ethers/lib/utils'
 
 const Wrapper = styled(SidebarCard)`
   padding-top: calc(var(--theme-common-space) * 5);
@@ -36,8 +38,7 @@ const Textfield: any = styled(DebounceInput)`
   --textfield-border-radius: var(--border-radius);
   --textfield-font-weight: 400;
   --textfield-height: 100%;
-  --textfield-padding: 0 calc(20px + var(--theme-common-space) * 4) 0
-    calc(var(--theme-common-space) * 2);
+  --textfield-padding: 0 calc(20px + var(--theme-common-space) * 3) 0 var(--theme-common-space);
   --textfield-background-color: ${({ theme: { colors } }) => colors.cream};
   --textfield-border-color: ${({ theme: { colors } }) => colors.cream};
   --textfield-border-color-error: ${({ theme: { colors } }) => colors.error};
@@ -58,6 +59,11 @@ const Textfield: any = styled(DebounceInput)`
   transition: border-color 0.15s linear;
   width: 100%;
   z-index: 1;
+
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    --textfield-padding: 0 calc(20px + var(--theme-common-space) * 4) 0
+      calc(var(--theme-common-space) * 2);
+  }
 
   &:active,
   &:focus,
@@ -162,7 +168,25 @@ const Transactions = styled(MyTransactions)`
 export const Search: React.FC = ({ ...restProps }) => {
   const { address, connectWallet, isWalletConnected } = useWeb3Connection()
   const [value, setValue] = useState('')
+  const [error, setError] = useState('')
   const router = useRouter()
+
+  useEffect(() => {
+    const _value = value.toLowerCase()
+    const isValidHash = isTransactionHash(_value) || isAddress(_value)
+
+    if (!_value.length) {
+      setError('')
+      return
+    }
+
+    if (!isValidHash) {
+      setError('Invalid address or transaction hash.')
+      return
+    }
+
+    router.push(`${bridgeExplorerBaseURL}?hash=${value}`)
+  }, [value, router])
 
   return (
     <Wrapper {...restProps}>
@@ -174,21 +198,19 @@ export const Search: React.FC = ({ ...restProps }) => {
       <SearchWrapper>
         <Textfield
           autoComplete="off"
+          autoCorrect="off"
           debounceTimeout={DEBOUNCE_TIME}
           id="sidebarSearch"
           minLength={3}
           onChange={(e: { target: { value: string } }) => setValue(e.target.value)}
-          onKeyDown={(e: { key: string }) => {
-            if (e.key === 'Enter' && value) {
-              router.push(`${bridgeExplorerBaseURL}?hash=${value}`)
-            }
-          }}
           placeholder={'Search by Address / Tx Hash'}
+          spellCheck="false"
           type="search"
           value={value}
         />
         <Magnifier />
       </SearchWrapper>
+      {error && <SCText error>{error}</SCText>}
       {isWalletConnected && address ? (
         <NextLink as={SCLink} href={`${myTransactionsFullURL}${address}`}>
           <Transactions />

@@ -199,11 +199,6 @@ export const DropdownItemCSS = css<DropdownItemProps>`
 export const DropdownItem = styled.div<DropdownItemProps>`
   ${DropdownItemCSS}
 `
-export const DropdownBridgeItem = styled.div<DropdownItemProps>`
-  --inner-padding: calc(var(--theme-common-space) * 2);
-  ${DropdownItemCSS}
-  padding: var(--inner-padding);
-`
 
 DropdownItem.defaultProps = {
   className: 'dropdownItem',

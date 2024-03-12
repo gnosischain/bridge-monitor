@@ -1,7 +1,6 @@
 import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router'
-import dynamic from 'next/dynamic'
 import { ReactElement, ReactNode, useEffect } from 'react'
 import { GoogleAnalytics } from 'nextjs-google-analytics'
 import { SWRConfig } from 'swr'
@@ -16,13 +15,15 @@ import { useRef } from 'react'
 import { Header } from '@/src/components/header'
 import { Footer } from '@/src/components/footer'
 
-import 'sanitize.css'
-import 'react-tooltip/dist/react-tooltip.css'
-import 'react-datepicker/dist/react-datepicker.css'
+import dynamic from 'next/dynamic'
 
 const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3ConnectionProvider'), {
   ssr: false,
 })
+
+import 'sanitize.css'
+import 'react-tooltip/dist/react-tooltip.css'
+import 'react-datepicker/dist/react-datepicker.css'
 
 export type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode

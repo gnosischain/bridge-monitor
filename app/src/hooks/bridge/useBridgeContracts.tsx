@@ -1,7 +1,6 @@
-import { getNetworkConfig } from '@/src/constants/config/chains'
+import { chainsConfig } from '@/src/constants/config/chains'
 import { contracts } from '@/src/constants/config/contracts'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
-import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { JsonRpcBatchProvider } from '@ethersproject/providers'
 
 import {
@@ -10,99 +9,41 @@ import {
   HomeBridgeErcToNative__factory,
   HomeOmniMediator__factory,
   NativeOmniBridgeMediator__factory,
-  OmniBridgeFeeManager__factory,
 } from '@/types/typechain'
-import { useCallback, useMemo } from 'react'
 
-export const useBridgeContracts = (foreignChainId: ChainsValues) => {
-  const { web3Provider } = useWeb3Connection()
+import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
+import { TokenOverrideManager } from '@/src/utils/token-overrides'
 
-  const bridgeContracts = useMemo(() => {
-    const homeChainConfig = getNetworkConfig(Chains.gnosis)
-    const homeRpcProvider = new JsonRpcBatchProvider(homeChainConfig.rpcUrl)
-    const foreignChainConfig = getNetworkConfig(foreignChainId)
-    const foreignRpcProvider = new JsonRpcBatchProvider(foreignChainConfig.rpcUrl)
+export const getBridgeContract = (
+  fromChainId: ChainsValues,
+  toChainId: ChainsValues,
+  tokenAddress: string,
+) => {
+  const isHome = fromChainId === Chains.gnosis
+  const provider = new JsonRpcBatchProvider(chainsConfig[fromChainId].rpcUrl)
 
-    return {
-      // xDAIBrdige
-      homeNativeBridge: HomeBridgeErcToNative__factory.connect(
-        contracts.homeXdaiBridge.address[homeChainConfig.chainId],
-        homeRpcProvider,
-      ),
-      foreignNativeBridge: ForeignBridgeErcToNative__factory.connect(
-        contracts.foreignXdaiBridge.address[foreignChainConfig.chainId],
-        foreignRpcProvider,
-      ),
-      // OmniBridge
-      homeOmniBridge: HomeOmniMediator__factory.connect(
-        contracts.homeOmniBridge.address[homeChainConfig.chainId],
-        homeRpcProvider,
-      ),
-      foreignOmniBridge: ForeignOmniMediator__factory.connect(
-        contracts.foreignOmniBridge.address[foreignChainConfig.chainId],
-        foreignRpcProvider,
-      ),
-      nativeOmniBridge: NativeOmniBridgeMediator__factory.connect(
-        contracts.nativeOmniBridge.address[foreignChainConfig.chainId],
-        foreignRpcProvider,
-      ),
-      // Fee Manager
-      omniFeeManager: OmniBridgeFeeManager__factory.connect(
-        contracts.omnibridgeFeeManager.address[homeChainConfig.chainId],
-        homeRpcProvider,
-      ),
-    }
-  }, [foreignChainId])
+  const { isNativeBridge, isNativeToken } = getBridgeCommonInfo({
+    fromChainId,
+    toChainId,
+    tokenAddress,
+  })
 
-  const getFromBridgeAddress = useCallback(
-    (isFromHome: boolean, isNativeBridge: boolean, isNativeToken: boolean) => {
-      const {
-        foreignNativeBridge,
-        foreignOmniBridge,
-        homeNativeBridge,
-        homeOmniBridge,
-        nativeOmniBridge,
-      } = bridgeContracts
-
-      let address
-
-      // home -> foreign
-      if (isFromHome) {
-        if (isNativeBridge) address = homeNativeBridge.address // xDAI -> DAI
-        else address = homeOmniBridge.address // ERC20/ERC677 -> ERC20
-      } else {
-        // foreign -> home
-        if (isNativeBridge) address = foreignNativeBridge.address // DAI -> xDAI
-        else if (isNativeToken) address = nativeOmniBridge.address // ETH -> WETH
-        else address = foreignOmniBridge.address // ERC20 -> ERC20/ERC677
-      }
-
-      return address
-    },
-    [bridgeContracts],
-  )
-
-  const getFromBridgeWithSigner = useCallback(
-    (isFromHome: boolean, isNativeBridge: boolean, isNativeToken: boolean) => {
-      if (!web3Provider) {
-        throw new Error('No web3 provider found')
-      }
-
-      const signer = web3Provider.getSigner()
-      const fromBridgeAddress = getFromBridgeAddress(isFromHome, isNativeBridge, isNativeToken)
-
-      return isFromHome
-        ? isNativeBridge
-          ? HomeBridgeErcToNative__factory.connect(fromBridgeAddress, signer)
-          : HomeOmniMediator__factory.connect(fromBridgeAddress, signer)
-        : isNativeBridge
-        ? ForeignBridgeErcToNative__factory.connect(fromBridgeAddress, signer)
-        : isNativeToken
-        ? NativeOmniBridgeMediator__factory.connect(fromBridgeAddress, signer)
-        : ForeignOmniMediator__factory.connect(fromBridgeAddress, signer)
-    },
-    [getFromBridgeAddress, web3Provider],
-  )
-
-  return { bridgeContracts, getFromBridgeAddress, getFromBridgeWithSigner }
+  if (isNativeBridge) {
+    return (isHome ? HomeBridgeErcToNative__factory : ForeignBridgeErcToNative__factory).connect(
+      contracts.XDAIBridge.address[fromChainId],
+      provider,
+    )
+  } else if (fromChainId !== Chains.gnosis && isNativeToken) {
+    return NativeOmniBridgeMediator__factory.connect(
+      contracts.omniBridgeNativeToken.address[fromChainId],
+      provider,
+    )
+  } else {
+    return (isHome ? HomeOmniMediator__factory : ForeignOmniMediator__factory).connect(
+      TokenOverrideManager.isMediatorOverridden(tokenAddress, fromChainId)
+        ? TokenOverrideManager.getOverride(tokenAddress).mediator // use the overridden mediator
+        : contracts.OmniBridge.address[fromChainId],
+      provider,
+    )
+  }
 }

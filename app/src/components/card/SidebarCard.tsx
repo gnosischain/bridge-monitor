@@ -20,8 +20,8 @@ export const SCTitle = styled.h2`
   }
 `
 
-export const SCText = styled.p`
-  color: ${({ theme: { colors } }) => colors.primary};
+export const SCText = styled.p<{ error?: boolean }>`
+  color: ${({ error, theme: { colors } }) => (error ? colors.error : colors.primary)};
   font-size: 1.6rem;
   font-weight: 400;
   line-height: 1.2;
