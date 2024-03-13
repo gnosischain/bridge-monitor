@@ -15,6 +15,7 @@ export const common = {
     defaultSize: '1.6rem',
     family: `'Karla', 'Helvetica Neue', 'Arial', 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'`,
     familyCode: `'JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', 'Courier New', 'monospace'`,
+    familyHeading: `'Lora', 'Times New Roman', Times, serif, 'Georgia', 'Garamond', 'Cambria', 'PT Serif', 'Merriweather', 'Book Antiqua', Palatino, 'Palatino Linotype', 'American Typewriter', 'serif'`,
   },
   checkBox: {
     dimensions: radioAndCheckDimensions,
