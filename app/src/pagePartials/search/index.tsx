@@ -59,7 +59,8 @@ const Title = styled.h1`
   font-family: ${({ theme: { fonts } }) => fonts.familyHeading};
   font-size: 3.2rem;
   font-weight: 500;
-  line-height: 1.2;
+  line-height: 1.3;
+  letter-spacing: -0.5px;
   margin: 0 0 16px;
   text-align: center;
 
