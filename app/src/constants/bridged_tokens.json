@@ -9727,6 +9727,22 @@
       "symbol": "FSW",
       "total_supply": "355003088743538678693",
       "type": "ERC-20"
+    },
+    {
+      "bridge_type": "omni",
+      "foreign_address": "0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c",
+      "origin_chain_id": "1",
+      "address": "0x54E4cB2a4Fa0ee46E3d9A98D13Bea119666E09f6",
+      "circulating_market_cap": null,
+      "decimals": "6",
+      "exchange_rate": null,
+      "holders": "",
+      "icon_url": null,
+      "is_bridged": true,
+      "name": "Bridged EURC (Gnosis)",
+      "symbol": "EURC.e",
+      "total_supply": "100",
+      "type": "ERC-20"
     }
   ]
 }
