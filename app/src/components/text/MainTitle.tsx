@@ -6,6 +6,7 @@ export const MainTitle = styled.h1`
   margin: 0;
   line-height: 1;
   font-family: ${({ theme: { fonts } }) => fonts.familyHeading};
+  letter-spacing: -0.5px;
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
     font-size: 3rem;
