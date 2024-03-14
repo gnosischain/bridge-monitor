@@ -8,7 +8,7 @@ export const myTransactionsFullURL = `${myTransactionsBaseURL}?hash=`
 
 export const bridgeSections = [
   {
-    section: 'Bridging Assets',
+    section: 'Bridge',
     href: `${bridgeBaseURL}`,
   },
 ] as const
