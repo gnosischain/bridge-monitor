@@ -9,7 +9,7 @@ import { Validator } from "../../generated/schema";
  */
 
 export const AMB_telepathyAddress =
-  "0xfdbf5711f77b97ea7f1f812832884c7328a682ec";
+  "0x456c255A8BC1F33778603A2a48Eb6B0C69F4d48E";
 
 export function mockAMBValidators(): void {
   // we can assume if one of the validators is loaded, all of them are loaded
@@ -130,12 +130,12 @@ export function mockAMBValidators(): void {
 
   // telepathy
   const telepathy = new Validator(
-    "0xfdbf5711f77b97ea7f1f812832884c7328a682ec-AMB"
+    "0x456c255A8BC1F33778603A2a48Eb6B0C69F4d48E-AMB"
   );
   telepathy.name = "Telepathy";
   telepathy.bridgeType = "AMB";
   telepathy.address = Bytes.fromHexString(
-    "0xfdbf5711f77b97ea7f1f812832884c7328a682ec"
+    "0x456c255A8BC1F33778603A2a48Eb6B0C69F4d48E"
   );
   telepathy.lastActivity = BigInt.fromI32(1694109355);
   telepathy.hashAdded =

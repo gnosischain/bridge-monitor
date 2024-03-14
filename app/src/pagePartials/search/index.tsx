@@ -56,10 +56,11 @@ const Title = styled.h1`
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-family: ${({ theme: { fonts } }) => fonts.family};
+  font-family: ${({ theme: { fonts } }) => fonts.familyHeading};
   font-size: 3.2rem;
-  font-weight: 800;
-  line-height: 1.2;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.5px;
   margin: 0 0 16px;
   text-align: center;
 
