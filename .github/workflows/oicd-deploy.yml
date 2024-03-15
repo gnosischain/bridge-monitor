@@ -122,6 +122,7 @@ jobs:
     
   Get_images_and_restart_deployments:
     needs: Build_and_push_image_to_ECR
+    if: ( github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/staging' )
     runs-on: ubuntu-latest
     steps:
       - name: configure aws credentials
