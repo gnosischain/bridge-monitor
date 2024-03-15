@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import styled, { css } from 'styled-components'
-// import NextLink from 'next/link'
+import NextLink from 'next/link'
 
 import { GnosisChain } from '@/src/components/assets/GnosisChain'
 import { InnerContainer as BaseInnerContainer } from '@/src/components/innerContainer'
@@ -63,29 +63,29 @@ const ExternalLink = styled.a`
   }
 `
 
-// const End = styled.div`
-//   align-items: center;
-//   column-gap: calc(var(--theme-common-space) * 5);
-//   display: flex;
-// `
+const End = styled.div`
+  align-items: center;
+  column-gap: calc(var(--theme-common-space) * 5);
+  display: flex;
+`
 
-// const Link = styled.a`
-//   ${TextCSS}
+const Link = styled.a`
+  ${TextCSS}
 
-//   align-items: center;
-//   column-gap: var(--theme-common-space);
-//   display: flex;
-//   font-size: 1.2rem;
-//   text-decoration: none;
+  align-items: center;
+  column-gap: var(--theme-common-space);
+  display: flex;
+  font-size: 1.2rem;
+  text-decoration: none;
 
-//   &:hover {
-//     text-decoration: underline;
-//   }
+  &:hover {
+    text-decoration: underline;
+  }
 
-//   &:active {
-//     opacity: 0.8;
-//   }
-// `
+  &:active {
+    opacity: 0.8;
+  }
+`
 
 export const Footer: React.FC = (props) => {
   const year = new Date().getFullYear()
@@ -105,17 +105,17 @@ export const Footer: React.FC = (props) => {
             Built by <Image alt="BootNode logo" height={15} src="/images/bn.svg" width={19} />
           </ExternalLink>
         </Start>
-        {/* <End>
+        <End>
           <NextLink href="/faq" passHref>
             <Link>FAQ</Link>
           </NextLink>
-          <NextLink href="/privacy" passHref>
+          {/* <NextLink href="/privacy" passHref>
             <Link>Privacy Policy</Link>
           </NextLink>
           <NextLink href="/terms" passHref>
             <Link>Terms &amp; Conditions</Link>
-          </NextLink>
-        </End> */}
+          </NextLink> */}
+        </End>
       </InnerContainer>
     </Wrapper>
   )

@@ -24,35 +24,37 @@ const Text = styled(SCText)`
 export const Questions: React.FC = ({ ...restProps }) => {
   return (
     <Wrapper {...restProps}>
-      <Title>General</Title>
+      <Title>Bridging Operations</Title>
       <Text as="a" href="#q_1a">
-        What is blockchain?
+        How do I bridge ERC20 tokens from Ethereum to Gnosis Chain?
       </Text>
       <Text as="a" href="#q_1b">
-        What is ethereum?
+        How long is the transfer time from Ethereum to Gnosis Chain?
       </Text>
       <Text as="a" href="#q_1c">
-        What is the difference between Bitcoin and Ethereum?
+        What if I'm not coming from Ethereum? Are there alternative bridges to Gnosis Chain?
       </Text>
-      <Title>General 2</Title>
+      <Text as="a" href="#q_1d">
+        How do I bridge from Gnosis to Ethereum?
+      </Text>
+
+      <Title>Monitoring and Limits</Title>
       <Text as="a" href="#q_2a">
-        What is blockchain 2?
+        How can I monitor my bridge transactions?
       </Text>
       <Text as="a" href="#q_2b">
-        What is ethereum 2?
+        Are there limits to how much I can bridge?
       </Text>
-      <Text as="a" href="#q_2c">
-        What is the difference between Bitcoin and Ethereum 2?
-      </Text>
-      <Title>General 3</Title>
+
+      <Title>Troubleshooting and Additional Resources</Title>
       <Text as="a" href="#q_3a">
-        What is blockchain 3?
+        What does each bridge transaction status mean?
       </Text>
       <Text as="a" href="#q_3b">
-        What is ethereum 3?
+        Where can I find technical documentation?
       </Text>
       <Text as="a" href="#q_3c">
-        What is the difference between Bitcoin and Ethereum 3?
+        What if I need further assistance?
       </Text>
     </Wrapper>
   )
