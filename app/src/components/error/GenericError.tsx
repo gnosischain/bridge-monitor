@@ -12,6 +12,7 @@ const Wrapper = styled(MainCard)`
   padding-bottom: calc(var(--theme-common-space) * 5);
   row-gap: calc(var(--theme-common-space) * 5);
   width: 100%;
+  z-index: 300;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     max-width: 400px;
