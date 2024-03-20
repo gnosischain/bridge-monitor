@@ -28,10 +28,10 @@ export const SCText = styled.p<{ error?: boolean }>`
   font-weight: 400;
   line-height: 1.2;
   margin: 0 0 calc(var(--theme-common-space) * 4);
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    font-size: 1.8rem;
-  }
 `
+//   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+//     font-size: 1.8rem;
+//   }
 
 export const SCLink = styled.a`
   background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTE1Ljg1MyAxMC4zNTRsLTQuNSA0LjVhLjUuNSAwIDAxLS43MDctLjcwOGwzLjY0Ny0zLjY0Nkg0LjVhLjUuNSAwIDAxMC0xaDkuNzkzbC0zLjY0Ny0zLjY0NmEuNS41IDAgMDEuNzA3LS43MDdsNC41IDQuNWEuNTAyLjUwMiAwIDAxMCAuNzA3eiIgZmlsbD0iIzNFNjk1NyIvPjwvc3ZnPg==');

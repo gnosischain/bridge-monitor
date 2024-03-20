@@ -15,4 +15,9 @@ export const BaseParagraph = styled.p`
   a {
     color: ${({ theme: { colors } }) => colors.primary};
   }
+
+  ul {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
 `

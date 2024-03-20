@@ -19,7 +19,7 @@ const Title = styled(MainTitle)`
 
 const Subtitle = styled(BaseSubTitle)`
   &:not(:first-of-type) {
-    margin-top: calc(var(--theme-common-space) * 5);
+    margin-top: calc(var(--theme-common-space) * 6);
   }
 `
 
@@ -93,17 +93,19 @@ export const FAQContents: React.FC = () => {
         and bridge configuration on the "Validators" and "Bridges Info" tabs respectively.
         <br /> More details here:{' '}
         <a
-          href="https://docs.gnosischain.com/bridges/bridge-explorer"
+          href="https://docs.gnosischain.com/bridges/Bridge%20Explorer"
           rel="noreferrer"
           target="_blank"
         >
-          https://docs.gnosischain.com/bridges/bridge-explorer
+          https://docs.gnosischain.com/bridges/Bridge Explorer
         </a>
       </Paragraph>
       <EmphasizedTitle id="q_2b">Are there limits to how much I can bridge?</EmphasizedTitle>
       <Paragraph>
-        Gnosis bridges have certain limits. You can check the status by clicking the “Bridges Info”
-        tab.
+        Gnosis bridges have certain limits. These include a daily maximum limit, as well as minimum
+        and maximum deposit limits per transaction.
+        <br /> To check the current limits and the status of these bridges, click on the “Bridges
+        Info” tab.
         <br /> If you are bridging funds that exceed the daily limit, your transaction will be
         delayed until the next bridge limits reset (every 24 hours).
       </Paragraph>
