@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import useBridgeProgress from '@/src/hooks/bridge/useBridgeProgress'
 import { BlockConfirmations } from '@/src/pagePartials/common/BlockConfirmations'
 import { ButtonFull } from '@/src/components/buttons/Button'
-import { ChainsValues } from '@/src/constants/config/types'
+import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { GenericError } from '@/src/components/error/GenericError'
 import { MainTitle } from '@/src/components/text/MainTitle'
 import { Ok } from '@/src/components/assets/Ok'
@@ -105,6 +105,14 @@ const MessageText = styled.p`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     font-size: 1.8rem;
   }
+`
+
+const BottomInfo = styled.p`
+  font-size: 1.4rem;
+  font-weight: 300;
+  line-height: 1.2;
+  margin: 0;
+  text-align: center;
 `
 
 export const Loading: React.FC = () => (
@@ -269,6 +277,9 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
                 isMined={progressData.isMined || false}
                 transactionHash={transactionHash}
               />
+              {isBridgeComplete && toChainId === Chains.mainnet && (
+                <BottomInfo>Claim to unlock your tokens</BottomInfo>
+              )}
             </Inner>
           </Contents>
         </InnerWrapper>
