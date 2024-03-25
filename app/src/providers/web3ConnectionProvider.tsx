@@ -75,9 +75,9 @@ export function initOnboard() {
       enabled: false,
     },
     appMetadata: {
-      name: 'Gnosis Bridge Explorer',
+      name: 'Gnosis Bridge',
       icon: '<svg><svg/>', // brand icon
-      description: 'Gnosis Bridge Explorer',
+      description: 'Gnosis Bridge',
     },
     // Account center put an interactive menu in the UI to manage your account.
     accountCenter: {
