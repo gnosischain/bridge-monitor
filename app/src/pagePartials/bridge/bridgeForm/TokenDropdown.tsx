@@ -20,6 +20,10 @@ import { Spinner } from '@/src/components/loading/Spinner'
 import { ERC165__factory } from '@/types/typechain/factories/ERC165__factory'
 import { ZERO_ADDRESS } from '@/src/constants/misc'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
+import { useUserTokenListBalances } from '@/src/hooks/bridge/useUserTokenListBalances'
+import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+import { fromBN } from '@/src/utils/bigNumber'
+import { formatNumber } from '@/src/utils/format'
 
 const BaseChevronDown = ({ ...restProps }) => (
   <svg
@@ -220,6 +224,18 @@ const TopTokenName = styled.span`
   white-space: nowrap;
 `
 
+const TopTokenBalance = styled.span`
+  color: ${({ theme: { colors } }) => colors.primary};
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1;
+  overflow: hidden;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+`
+
 const Loading = styled.div`
   align-items: center;
   display: flex;
@@ -364,6 +380,13 @@ const Dropdown: React.FC<Props> = ({
     }
   }, [filteredTokens.length, fromChainId, toChainId, value])
 
+  const { address } = useWeb3Connection()
+  const { data: balances } = useUserTokenListBalances({
+    userAddress: address,
+    chainId: fromChainId,
+    tokenList: topTokens,
+  })
+
   // Focus the search input when the dropdown is opened
   useEffect(() => {
     if (isOpened && searchInputRef) {
@@ -419,6 +442,9 @@ const Dropdown: React.FC<Props> = ({
               >
                 <TokenIcon dimensions={22} iconSource={item.logoURI} symbol={item.symbol} />
                 <TopTokenName>{item.symbol}</TopTokenName>
+                <TopTokenBalance>
+                  {balances && formatNumber(Number(fromBN(balances[item.address], item?.decimals)))}
+                </TopTokenBalance>
               </TopToken>
             ))}
           </TopTokens>
