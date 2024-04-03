@@ -10,6 +10,7 @@ export enum SubgraphName {
 
 // TODO: fix this, the TS compiler (v4.6.2) complains when we pass allowArbitraryExtensions flag no enable .d.json.ts
 // therefore types are not loaded, for now we cast it to any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const subgraphEndpointsJson: any = subgraphEndpoints
 
 const getSubgraphEnvVariables = (chainPair: string) => {
@@ -68,6 +69,7 @@ const getEndpointsByChain = (chainsPair: string) => {
 
   const endpointsArray = Object.entries(subgraphEndpointsJson[chainsPair]).map(
     ([bridgeSideName, environments]) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const endpoint = (environments as any)[ENVIRONMENT].replace(
         '{{accessId}}',
         ACCESS_ID,

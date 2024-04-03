@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { Chains, getNetworkConfig } from '@/src/constants/config/chains'
 import { useDaiToken } from '@/src/hooks/useDaiToken'
-import { useBridgedTokens } from '@/src/providers/TokenListProvider'
+import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { formatNumber } from '@/src/utils/format'
 import { isSameString } from '@/src/utils/tools'
 import { ERC20__factory } from '@/types/typechain'

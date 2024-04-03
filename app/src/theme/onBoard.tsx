@@ -2,6 +2,10 @@ import { css } from 'styled-components'
 
 export const onBoardCSS = css`
   :root {
+    // background
+    --onboard-modal-backdrop: ${({ theme: { modal } }) => modal.overlayColor};
+    --modal-backdrop: ${({ theme: { modal } }) => modal.overlayColor};
+
     // colors
     --onboard-colors-error: ${({ theme: { colors } }) => colors.error};
     --onboard-text-color: ${({ theme: { colors } }) => colors.textColor};
@@ -26,9 +30,6 @@ export const onBoardCSS = css`
     --account-select-modal-font-size-7: var(--font-size-md);
     --account-select-modal-font-line-height-1: 1.4;
 
-    // modal overlay
-    --onboard-modal-backdrop: ${({ theme: { modal } }) => modal.overlayColor};
-
     // modal main
     --onboard-connect-content-width: 420px;
     --onboard-modal-border-radius: 16px;
@@ -48,16 +49,15 @@ export const onBoardCSS = css`
     // buttons
     --onboard-wallet-button-border-radius: 12px;
     --onboard-wallet-button-background: ${({ theme: { colors } }) => colors.darkGreen};
-    --onboard-wallet-button-background-hover: ${({ theme: { colors } }) =>
-      colors.darkGreenDarkened};
+    --onboard-wallet-button-background-hover: ${({ theme: { colors } }) => colors.primary_60};
     --onboard-wallet-button-border-color: transparent;
-    --onboard-wallet-button-color: ${({ theme: { colors } }) => colors.textColor};
-    --onboard-wallet-button-color-hover: ${({ theme: { colors } }) => colors.textColor};
+    --onboard-wallet-button-color: ${({ theme: { colors } }) => colors.cream};
+    --onboard-wallet-button-color-hover: ${({ theme: { colors } }) => colors.cream};
     --onboard-wallet-app-icon-border-color: transparent;
 
     // progress
     --onboard-connect-sidebar-progress-color: ${({ theme: { colors } }) => colors.primary};
-    --onboard-connect-sidebar-progress-background: #fff;
+    --onboard-connect-sidebar-progress-background: ${({ theme: { colors } }) => colors.white};
 
     // close button
     --onboard-close-button-background-color: ${({ theme: { colors } }) => colors.primary};
@@ -319,16 +319,16 @@ export const ModalCSS = `
   @media (min-width: 768px) {
     /* Sidebar */
     .fixed .modal .sidebar {
-      border-bottom-left-radius: var(--onboard-modal-border-radius);
-      border-top-left-radius: var(--onboard-modal-border-radius);
+      border-bottom-left-radius: 0;
+      border-top-left-radius: 0;
       max-width: 50%;
       width: 345px;
     }
 
     /* Content */
     .fixed .modal .content {
-      border-bottom-right-radius: var(--onboard-modal-border-radius);
-      border-top-right-radius: var(--onboard-modal-border-radius);
+      border-bottom-right-radius: 0;
+      border-top-right-radius: 0;
       width: var(--onboard-connect-content-width);
     }
 

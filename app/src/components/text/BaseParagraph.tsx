@@ -5,10 +5,19 @@ export const BaseParagraph = styled.p`
   font-size: 1.5rem;
   font-weight: normal;
   line-height: 1.6;
-  margin: 0 0 20px;
+  margin: 0 0 calc(var(--theme-common-space) * 2);
   max-width: 100%;
 
   &:last-child {
+    margin-bottom: 0;
+  }
+
+  a {
+    color: ${({ theme: { colors } }) => colors.primary};
+  }
+
+  ul {
+    margin-top: 0;
     margin-bottom: 0;
   }
 `

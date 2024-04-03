@@ -1,28 +1,29 @@
 import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router'
-import dynamic from 'next/dynamic'
 import { ReactElement, ReactNode, useEffect } from 'react'
 import { GoogleAnalytics } from 'nextjs-google-analytics'
 import { SWRConfig } from 'swr'
-import SafeSuspense from '@/src/components/helpers/SafeSuspense'
-import { Layout } from '@/src/components/layout'
-import { Footer } from '@/src/components/layout/Footer'
-import { Header } from '@/src/components/header'
-import Toast from '@/src/components/toast/Toast'
-import { Head } from '@/src/pagePartials/index/Head'
-import { TransactionNotificationProvider } from '@/src/providers/TransactionNotificationProvider'
+import SafeSuspense from '@/src/components/safeSuspense'
+import { SingleColumnLayout } from '@/src/components/singleColumnLayout'
+import Toast from '@/src/components/toast'
+import { Head } from '@/src/pagePartials/common/Head'
+import { TransactionNotificationProvider } from '@/src/providers/transactionNotificationProvider'
 import ThemeProvider from '@/src/providers/themeProvider'
 import TooltipConfig from '@/src/components/tooltip/TooltipConfig'
 import { useRef } from 'react'
+import { Header } from '@/src/components/header'
+import { Footer } from '@/src/components/footer'
 
-import 'sanitize.css'
-import 'react-tooltip/dist/react-tooltip.css'
-import 'react-datepicker/dist/react-datepicker.css'
+import dynamic from 'next/dynamic'
 
 const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3ConnectionProvider'), {
   ssr: false,
 })
+
+import 'sanitize.css'
+import 'react-tooltip/dist/react-tooltip.css'
+import 'react-datepicker/dist/react-datepicker.css'
 
 export type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode
@@ -34,7 +35,8 @@ type AppPropsWithLayout = AppProps & {
 
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
   // Black magic explained here https://nextjs.org/docs/basic-features/layouts
-  const getLayout = Component.getLayout ?? ((page) => <Layout>{page}</Layout>)
+  const getLayout =
+    Component.getLayout ?? ((page) => <SingleColumnLayout>{page}</SingleColumnLayout>)
   const router = useRouter()
 
   const scrollCache = useRef<Record<string, [number, number]>>({})

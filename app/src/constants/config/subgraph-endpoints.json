@@ -8,5 +8,6 @@
       "development": "https://api.studio.thegraph.com/query/{{accessId}}/gbc-bridge-mainnet/{{resourceId}}",
       "production": "https://gateway-arbitrum.network.thegraph.com/api/{{accessId}}/subgraphs/id/{{resourceId}}"
     }
-  }
+  },
+  "1:100": {}
 }
