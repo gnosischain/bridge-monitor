@@ -4,6 +4,10 @@ import styled from 'styled-components'
 const Wrapper = styled.svg`
   display: block;
   flex-shrink: 0;
+
+  .stroke {
+    stroke: ${({ theme: { colors } }) => colors.primary};
+  }
 `
 
 export const Magnifier: React.FC<HTMLAttributes<SVGElement>> = ({ className, ...restProps }) => (
@@ -17,15 +21,15 @@ export const Magnifier: React.FC<HTMLAttributes<SVGElement>> = ({ className, ...
     {...restProps}
   >
     <path
+      className="stroke"
       d="M9.16667 15.8333C12.8486 15.8333 15.8333 12.8486 15.8333 9.16667C15.8333 5.48477 12.8486 2.5 9.16667 2.5C5.48477 2.5 2.5 5.48477 2.5 9.16667C2.5 12.8486 5.48477 15.8333 9.16667 15.8333Z"
-      stroke="#F0EBDE"
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth="2"
     />
     <path
+      className="stroke"
       d="M17.5 17.5L13.875 13.875"
-      stroke="#F0EBDE"
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth="2"

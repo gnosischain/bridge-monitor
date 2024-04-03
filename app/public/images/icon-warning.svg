@@ -1,1 +1,17 @@
-<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><g stroke="#161d1a" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="m11.9927 7v6"/><path d="m11.9927 17h.015"/></g></svg>
+<svg
+  fill="none"
+  height="24"
+  viewBox="0 0 24 24"
+  width="24"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <g
+    stroke="#3E6957"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="2"
+  >
+    <path d="m11.9927 7v6" />
+    <path d="m11.9927 17h.015" />
+  </g>
+</svg>

@@ -3,8 +3,8 @@ import styled from 'styled-components'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import Link from 'next/link'
 import { MenuIcon } from '@/src/components/assets/MenuIcon'
-import { GnosisChainLogo } from '@/src/components/common/Logo'
-import { InnerContainer as BaseInnerContainer } from '@/src/components/helpers/InnerContainer'
+import { GnosisChainLogo } from '@/src/components/assets/GnosisChainLogo'
+import { InnerContainer as BaseInnerContainer } from '@/src/components/innerContainer'
 import { UserControls } from '@/src/components/header/UserControls'
 import { MainMenu } from '@/src/components/navigation/MainMenu'
 import { MobileMenu } from '@/src/components/navigation/MobileMenu'
@@ -14,7 +14,7 @@ const Wrapper = styled.header`
   display: flex;
   flex-grow: 0;
   max-width: 100%;
-  padding: ${({ theme: { common } }) => common.space * 4}px 0 0 0;
+  padding: calc(var(--theme-common-space) * 4) 0 0 0;
   position: relative;
 `
 
@@ -29,6 +29,7 @@ const InnerContainer = styled(BaseInnerContainer)`
 const Logo = styled(GnosisChainLogo)`
   cursor: pointer;
   height: 36px;
+  margin-right: 2.5rem;
 
   &:active {
     opacity: 0.7;
@@ -55,7 +56,7 @@ const MenuButton = styled.button`
     color: ${({ theme: { colors } }) => colors.secondary};
   }
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeWideStart}) {
     display: none;
   }
 `

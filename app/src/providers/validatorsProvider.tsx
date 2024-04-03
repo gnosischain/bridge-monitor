@@ -33,8 +33,10 @@ const fetcher = async () => {
   const validatorsData = await fetchHomeValidators()
 
   const validatorsPromises = validatorsData
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     .filter((v) => getValidatorByAddress(v.address, v.bridgeType!))
     .map(async (v) => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const val = getValidatorByAddress(v.address, v.bridgeType!)
       if (!val) throw new Error('Validator not found')
 

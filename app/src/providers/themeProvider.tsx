@@ -1,47 +1,16 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext } from 'react'
 import { ThemeProvider } from 'styled-components'
-
-import { merge } from 'lodash'
-
-import { ThemeType } from '@/src/constants/types'
-import { usePersistedState } from '@/src/hooks/usePersistedState'
-import { common } from '@/src/theme/common'
-import { dark } from '@/src/theme/dark'
+import { theme } from '@/src/theme'
 import { GlobalStyles } from '@/src/theme/globalStyles'
-import { light } from '@/src/theme/light'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ThemeContext = createContext({} as any)
 
 const ThemeContextProvider: React.FC = ({ children }) => {
-  const DEFAULT_THEME = ThemeType.dark
-
-  const [currentThemeName, setCurrentThemeName] = usePersistedState(
-    'stored-theme-name',
-    DEFAULT_THEME,
-  )
-
-  const isLightTheme = useMemo(() => currentThemeName === ThemeType.light, [currentThemeName])
-
-  const [currentThemeJSON, setCurrentThemeJSON] = useState(
-    isLightTheme ? merge({}, common, light) : merge({}, common, dark),
-  )
-
-  const switchTheme = useCallback(() => {
-    setCurrentThemeName(isLightTheme ? ThemeType.dark : ThemeType.light)
-  }, [isLightTheme, setCurrentThemeName])
-
-  useEffect(() => {
-    setCurrentThemeJSON(isLightTheme ? merge({}, common, light) : merge({}, common, dark))
-  }, [isLightTheme])
-
-  const values = {
-    switchTheme,
-    currentThemeName,
-  }
+  const currentThemeJSON = theme
 
   return (
-    <ThemeContext.Provider value={values}>
+    <ThemeContext.Provider value={{}}>
       <ThemeProvider theme={currentThemeJSON}>
         <GlobalStyles />
         {children}

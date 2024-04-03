@@ -1,0 +1,269 @@
+import styled from 'styled-components'
+import { ButtonFull } from '@/src/components/buttons/Button'
+import { Connect } from '@/src/components/assets/Connect'
+import { ChainsValues } from '@/src/constants/config/types'
+import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+import { getNetworkConfig } from '@/src/constants/config/chains'
+import { useState } from 'react'
+import { useApproval } from '@/src/hooks/bridge/useApproval'
+import useTransaction from '@/src/hooks/useTransaction'
+import { useRouter } from 'next/router'
+import { useBridgeValidations } from '@/src/hooks/bridge/useBridgeValidations'
+import { BigNumber } from 'ethers'
+import { Token } from '@/types/token'
+import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactionInfo'
+import { bridgePagesBaseURL } from '@/src/constants/sections'
+import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
+import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
+import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
+import useSWR from 'swr'
+
+const Button = styled(ButtonFull)`
+  margin: 0 auto;
+  width: 100%;
+`
+
+const BottomInfo = styled.p`
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0;
+  text-align: center;
+  color: rgb(221, 113, 67);
+`
+
+export const ButtonPlaceholder: React.FC = () => <Button disabled>Loading...</Button>
+
+export const ButtonPlaceholderWithWarning: React.FC = () => {
+  const { address, readOnlyAppProvider } = useWeb3Connection()
+  const isSCWallet = useSWR(
+    address && readOnlyAppProvider ? [`isSCWallet-${address}`, address, readOnlyAppProvider] : null,
+    ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
+  ).data
+  const myTxsLink = `/bridge-explorer/my-transactions?hash=${address}`
+
+  return (
+    <>
+      <ButtonPlaceholder />
+      {isSCWallet && (
+        <BottomInfo>
+          When using a smart contract wallet, if transaction is executed but the bridging status
+          remains unchanged, go to <a href={myTxsLink}>My Transactions</a> page.
+        </BottomInfo>
+      )}
+    </>
+  )
+}
+
+const ApproveButton: React.FC<{
+  userAddress: string
+  fromChainId: ChainsValues
+  toChainId: ChainsValues
+  token: Token
+  amount: BigNumber
+}> = ({ amount, fromChainId, toChainId, token, userAddress }) => {
+  const [isSending, setIsSending] = useState(false)
+
+  const approve = useApproval()
+
+  const bridgeContract = getBridgeContract(fromChainId, toChainId, token.address)
+  const bridgeAddress = bridgeContract.address
+
+  const { mutate: refreshBalance } = useUserTokenBalances({
+    userAddress,
+    chainId: fromChainId,
+    allowanceAddress: bridgeAddress,
+    tokenAddress: token.address,
+  })
+
+  const handleApprove = async () => {
+    setIsSending(true)
+
+    const tx = await approve({
+      amount,
+      spenderAddress: bridgeAddress,
+      tokenAddress: token.address,
+    })
+
+    if (tx) {
+      await tx.wait()
+      await refreshBalance()
+    }
+
+    setIsSending(false)
+  }
+
+  if (isSending) {
+    return <ButtonPlaceholderWithWarning />
+  }
+
+  return <Button onClick={handleApprove}>Approve</Button>
+}
+
+const TriggerBridgeButton: React.FC<{
+  userAddress: string
+  fromChainId: ChainsValues
+  toChainId: ChainsValues
+  token: Token
+  amount: BigNumber
+  recipient: string
+  receiveNativeToken: boolean
+}> = ({ amount, fromChainId, receiveNativeToken, recipient, toChainId, token, userAddress }) => {
+  const [isSending, setIsSending] = useState(false)
+
+  const sendTx = useTransaction()
+  const router = useRouter()
+
+  const { data: transactionData } = useBridgeTransactionInfo({
+    receiveNativeToken,
+    userAddress,
+    fromChainId,
+    toChainId,
+    amount,
+    recipient,
+    token,
+  })
+  if (!transactionData) throw new Error('Transaction data is not available')
+
+  const { isNativeBridge } = getBridgeCommonInfo({
+    fromChainId,
+    toChainId,
+    tokenAddress: token.address,
+  })
+
+  const handleBridgeTx = async () => {
+    setIsSending(true)
+
+    if (!transactionData.tx) {
+      console.error('No transactionData.tx')
+      return
+    }
+
+    try {
+      const tx = await sendTx(transactionData.tx)
+      if (tx) {
+        router.push(
+          `${bridgePagesBaseURL}/${tx.hash}?fromChainId=${fromChainId}&isNativeBridge=${
+            isNativeBridge ? 1 : 0
+          }&tokenAddress=${token?.address}&amount=${amount}&toChainId=${toChainId}`,
+        )
+      } else {
+        throw new Error('Failed to bridge')
+      }
+    } catch (error) {
+      console.error(error)
+      setIsSending(false)
+    }
+  }
+
+  if (isSending) {
+    return <ButtonPlaceholderWithWarning />
+  }
+
+  return <Button onClick={handleBridgeTx}>Bridge</Button>
+}
+
+export const DisabledBridgeButton = () => (
+  <Button disabled={true} onClick={() => undefined}>
+    Bridge
+  </Button>
+)
+
+export const BridgeButton: React.FC<{
+  fromChainId: ChainsValues
+  toChainId: ChainsValues
+  amount: BigNumber
+  recipient: string
+  fromToken: Token
+  userAddress: string
+  toToken?: Token
+  receiveNativeToken: boolean
+}> = ({
+  amount,
+  fromChainId,
+  fromToken,
+  receiveNativeToken,
+  recipient,
+  toChainId,
+  toToken,
+  userAddress,
+}) => {
+  const {
+    connectWallet,
+    connectingWallet,
+    isOnboardChangingChain,
+    isWalletConnected,
+    isWalletNetworkSupported,
+    pushNetwork,
+    walletChainId,
+  } = useWeb3Connection()
+
+  const appChainConfig = getNetworkConfig(fromChainId)
+
+  const { isValidToSend: canBridge, shouldApprove } = useBridgeValidations({
+    fromChainId,
+    toChainId,
+    userAddress,
+    amount,
+    recipient,
+    fromToken,
+    toToken,
+  })
+
+  const hasToSwitchNetwork =
+    (isWalletConnected && !isWalletNetworkSupported) || fromChainId !== walletChainId
+
+  if (isOnboardChangingChain) {
+    return <ButtonPlaceholder />
+  }
+
+  if (!isWalletConnected) {
+    return (
+      <Button onClick={connectWallet}>
+        {connectingWallet ? (
+          'Connecting wallet...'
+        ) : (
+          <>
+            <Connect /> Connect Wallet
+          </>
+        )}
+      </Button>
+    )
+  }
+
+  if (hasToSwitchNetwork) {
+    return (
+      <Button onClick={() => pushNetwork({ chainId: appChainConfig.chainIdHex })}>
+        {`Switch to ${appChainConfig.name}`}
+      </Button>
+    )
+  }
+
+  if (!canBridge) {
+    return <DisabledBridgeButton />
+  }
+
+  if (shouldApprove) {
+    return (
+      <ApproveButton
+        amount={amount}
+        fromChainId={fromChainId}
+        toChainId={toChainId}
+        token={fromToken}
+        userAddress={userAddress}
+      />
+    )
+  }
+
+  return (
+    <TriggerBridgeButton
+      amount={amount}
+      fromChainId={fromChainId}
+      receiveNativeToken={receiveNativeToken}
+      recipient={recipient}
+      toChainId={toChainId}
+      token={fromToken}
+      userAddress={userAddress}
+    />
+  )
+}

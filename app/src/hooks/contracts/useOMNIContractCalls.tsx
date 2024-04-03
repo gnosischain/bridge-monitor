@@ -14,7 +14,7 @@ import { BigNumberish } from 'ethers'
 export const useHomeOMNIBridgeLimits = (token: Token, currentDay: BigNumberish = '0') => {
   const tokenAddress = token.address
   const tokenAmountToNumber = toNumber(token.decimals)
-  const homeOMNI = useContractInstance(HomeOmniMediator__factory, 'homeOmniBridge', Chains.gnosis)
+  const homeOMNI = useContractInstance(HomeOmniMediator__factory, 'OmniBridge', Chains.gnosis)
 
   const contextCalls = [homeOMNI.getCurrentDay, homeOMNI.isTokenRegistered] as const
   const [{ data: homeOMNIContext }] = useContractCall<HomeOmniMediator, typeof contextCalls>(
@@ -76,7 +76,7 @@ export const useForeignOMNIBridgeLimits = (token: Token, currentDay: BigNumberis
   const tokenAmountToNumber = toNumber(token.decimals)
   const foreignOMNI = useContractInstance(
     ForeignOmniMediator__factory,
-    'homeOmniBridge',
+    'OmniBridge',
     Chains.mainnet,
   )
 
@@ -120,16 +120,6 @@ export const useForeignOMNIBridgeLimits = (token: Token, currentDay: BigNumberis
   )
   const [totalSpentPerDay = 0, totalExecutedPerDay = 0] =
     foreignOMNITotals?.map(tokenAmountToNumber) ?? []
-
-  const t = [
-    'dailyLimit',
-    'executionDailyLimit',
-    'minPerTx',
-    'maxPerTx',
-    'executionMaxPerTx',
-    'totalSpentPerDay',
-    'totalExecutedPerDay',
-  ]
 
   return {
     foreignOmniInformation: {

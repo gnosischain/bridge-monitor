@@ -57,6 +57,7 @@ export const msToSeconds = (milliseconds: number) => {
   return Math.floor(milliseconds / 1000)
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fromSubgraphTimestamp = (timestamp: any) => parseInt(timestamp ?? '0') * 1000
 
 export const DateFormated = (date: Date) => {

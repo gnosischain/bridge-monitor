@@ -1,4 +1,3 @@
-import { getForeignTransactions } from '@/src/utils/localTransactions'
 import { fromSubgraphTimestamp } from '@/src/utils/date'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { Chains } from '@/src/constants/config/types'

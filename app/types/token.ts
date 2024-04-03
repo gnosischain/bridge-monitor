@@ -2,11 +2,11 @@ import type { TokenInfo, TokenList } from '@uniswap/token-lists'
 
 export type Token = Omit<TokenInfo, 'extensions'> & {
   extensions: {
-    bridgeInfo: {
+    bridgeInfo: Partial<{
       [key in 1 | 100]: {
         tokenAddress: string
       }
-    }
+    }>
   }
 }
 

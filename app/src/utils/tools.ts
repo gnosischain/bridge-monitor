@@ -1,5 +1,6 @@
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
+import { ZERO_ADDRESS } from '@/src/constants/misc'
 import { isHexString } from '@ethersproject/bytes'
 
 export const truncateStringInTheMiddle = (
@@ -23,7 +24,8 @@ export const shortenAddress = (address: string, first = 6, last = 4): string => 
   return address ? `${address.slice(0, first)}...${address.slice(-last)}` : address
 }
 
-export function isSameString(a: string, b: string): boolean {
+export function isSameString(a: string | undefined, b: string | undefined): boolean {
+  if (!a || !b) return false
   return a.toLowerCase() == b.toLowerCase()
 }
 
@@ -34,5 +36,8 @@ export function isValidChain(chain?: ChainsValues | number): chain is ChainsValu
 export const isTransactionHash = (hash: string) => isHexString(hash) && hash.length === 66
 
 export const isNativeToken = (address: string) => {
-  return isSameString(address, NATIVE_TOKEN_ADDRESS)
+  return isSameString(address, NATIVE_TOKEN_ADDRESS || ZERO_ADDRESS)
 }
+
+export const getToChainId = (fromChainId: ChainsValues) =>
+  fromChainId === Chains.mainnet ? Chains.gnosis : Chains.mainnet
