@@ -121,11 +121,17 @@ const TokenInfo = styled.div`
   font-size: 1.2rem;
   font-weight: 400;
   line-height: normal;
+  flex: 1;
 
   strong {
     font-size: 1.8rem;
     font-weight: 500;
   }
+`
+
+const TokenAmount = styled.div`
+  font-size: 1.8rem;
+  font-weight: 500;
 `
 
 const NoResults = styled.div<{ closeOnClick?: boolean }>`
@@ -224,18 +230,6 @@ const TopTokenName = styled.span`
   white-space: nowrap;
 `
 
-const TopTokenBalance = styled.span`
-  color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 1.4rem;
-  font-weight: 400;
-  line-height: 1;
-  overflow: hidden;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-  white-space: nowrap;
-`
-
 const Loading = styled.div`
   align-items: center;
   display: flex;
@@ -269,6 +263,12 @@ const Dropdown: React.FC<Props> = ({
   const [value, setValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  const { address } = useWeb3Connection()
+  const { data: balances } = useUserTokenListBalances({
+    userAddress: address,
+    chainId: fromChainId,
+  })
+
   const onSelectToken = (token: Token) => {
     if (typeof onChange !== 'undefined') onChange(token)
   }
@@ -290,8 +290,23 @@ const Dropdown: React.FC<Props> = ({
       ['symbol', 'name'],
     )
 
+    if (balances) {
+      _filteredTokens.sort((a, b) => {
+        const aHasBalance = balances[a.address]
+        const bHasBalance = balances[b.address]
+
+        if (aHasBalance && !bHasBalance) {
+          return -1
+        } else if (!aHasBalance && bHasBalance) {
+          return 1
+        } else {
+          return 0
+        }
+      })
+    }
+
     setFilteredTokens(_filteredTokens)
-  }, [ambTokensByNetwork, fromChainId, manualTokens, value])
+  }, [ambTokensByNetwork, fromChainId, manualTokens, value, balances])
 
   useEffect(() => {
     // Define the symbols array with the desired order
@@ -380,13 +395,6 @@ const Dropdown: React.FC<Props> = ({
     }
   }, [filteredTokens.length, fromChainId, toChainId, value])
 
-  const { address } = useWeb3Connection()
-  const { data: balances } = useUserTokenListBalances({
-    userAddress: address,
-    chainId: fromChainId,
-    tokenList: topTokens,
-  })
-
   // Focus the search input when the dropdown is opened
   useEffect(() => {
     if (isOpened && searchInputRef) {
@@ -442,9 +450,6 @@ const Dropdown: React.FC<Props> = ({
               >
                 <TokenIcon dimensions={22} iconSource={item.logoURI} symbol={item.symbol} />
                 <TopTokenName>{item.symbol}</TopTokenName>
-                <TopTokenBalance>
-                  {balances && formatNumber(Number(fromBN(balances[item.address], item?.decimals)))}
-                </TopTokenBalance>
               </TopToken>
             ))}
           </TopTokens>
@@ -468,6 +473,11 @@ const Dropdown: React.FC<Props> = ({
                   <strong>{item.name}</strong>
                   {item.symbol}
                 </TokenInfo>
+                {balances && balances[item.address] && (
+                  <TokenAmount>
+                    {formatNumber(Number(fromBN(balances[item.address], item?.decimals)))}
+                  </TokenAmount>
+                )}
               </DropdownBridgeItem>
             ))}
           </Items>
