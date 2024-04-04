@@ -10,9 +10,7 @@ on:
       - staging
     tags:
       - '*'
-permissions:
-  contents: write
-  
+
 env:
   AWS_REGION : "eu-central-1" 
   DEPLOYMENT_DEV: "bridge-explorer-develop"
@@ -112,14 +110,32 @@ jobs:
         run: echo "tag=$(git describe --abbrev=0 --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_OUTPUT
 
       - name: Create Release
-        uses: ncipollo/release-action@v1
+        uses: actions/github-script@v6
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ steps.release_tag.outputs.tag }}
-          tag: ${{ steps.release_tag.outputs.tag }}
-          skipIfReleaseExists: true
-          generateReleaseNotes: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            if (!${{ steps.release_tag.outputs.tag }}) {
+              core.setFailed("RELEASE_TAG is not defined.")
+  
+              return;
+            }
+            try {
+              const response = await github.rest.repos.createRelease({
+                name: ${{ steps.release_tag.outputs.tag }},
+                tag_name: ${{ steps.release_tag.outputs.tag }},
+                draft: false,
+                generate_release_notes: true,
+                owner: context.repo.owner,
+                prerelease: false,
+                repo: context.repo.repo,
+              });
+
+              core.exportVariable('RELEASE_ID', response.data.id);
+              core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
+            } catch (error) {
+              core.setFailed(error.message);
+            }
         
       - name: Build, tag, and push PROD to Amazon ECR
         if: startsWith(github.ref, 'refs/tags/')
