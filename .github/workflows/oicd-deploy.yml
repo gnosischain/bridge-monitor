@@ -10,6 +10,9 @@ on:
       - staging
     tags:
       - '*'
+permissions:
+  contents: write
+  
 env:
   AWS_REGION : "eu-central-1" 
   DEPLOYMENT_DEV: "bridge-explorer-develop"
