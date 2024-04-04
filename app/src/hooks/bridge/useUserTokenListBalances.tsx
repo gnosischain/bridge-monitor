@@ -13,9 +13,9 @@ export const useUserTokenListBalances = ({
 }) => {
   return useSWR(userAddress ? ['tokenUserBalances', userAddress, chainId] : null, async () => {
     try {
-      const client = new CovalentClient(COVALENT_API_KEY)
-      if (!userAddress) return {} as Record<string, BigNumber>
+      if (!userAddress || !COVALENT_API_KEY) return {} as Record<string, BigNumber>
 
+      const client = new CovalentClient(COVALENT_API_KEY)
       const resp = await client.BalanceService.getTokenBalancesForWalletAddress(
         chainId as ChainID,
         userAddress,
@@ -41,6 +41,7 @@ export const useUserTokenListBalances = ({
         chainId,
         userAddress,
       })
+      return {} as Record<string, BigNumber>
     }
   })
 }
