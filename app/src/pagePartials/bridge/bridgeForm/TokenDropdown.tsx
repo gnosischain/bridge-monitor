@@ -269,8 +269,6 @@ const Dropdown: React.FC<Props> = ({
     chainId: fromChainId,
   })
 
-  console.log('balances', balances)
-
   const onSelectToken = (token: Token) => {
     if (typeof onChange !== 'undefined') onChange(token)
   }

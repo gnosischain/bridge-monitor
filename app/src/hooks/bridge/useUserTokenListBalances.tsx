@@ -13,19 +13,13 @@ export const useUserTokenListBalances = ({
 }) => {
   return useSWR(userAddress ? ['tokenUserBalances', userAddress, chainId] : null, async () => {
     try {
-      console.log('Try to fetch balances via Covalent...', { COVALENT_API_KEY })
-
       if (!userAddress || !COVALENT_API_KEY) return {} as Record<string, BigNumber>
-
-      console.log(userAddress)
 
       const client = new CovalentClient(COVALENT_API_KEY)
       const resp = await client.BalanceService.getTokenBalancesForWalletAddress(
         chainId as ChainID,
         userAddress,
       )
-
-      console.log('Covalent response', resp)
 
       if (resp.error) {
         console.log(resp.error_message)
