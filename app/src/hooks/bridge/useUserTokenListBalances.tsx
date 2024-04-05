@@ -28,6 +28,8 @@ export const useUserTokenListBalances = ({
 
       const balances = resp.data.items.reduce<Record<string, BigNumber>>(
         (acc, item: BalanceItem) => {
+          const balance = BigNumber.from(item.balance)
+          if (balance.eq(0)) return acc
           acc[item.contract_address] = BigNumber.from(item.balance)
           return acc
         },
