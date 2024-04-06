@@ -16,7 +16,13 @@ import { Switch } from '@/src/pagePartials/bridge/bridgeForm/Switch'
 import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
 import { Token } from '@/types/token'
 import { TokenDropdown } from '@/src/pagePartials/bridge/bridgeForm/TokenDropdown'
-import { WXDAI_GNOSIS, ZERO_ADDRESS, sDAI_GNOSIS } from '@/src/constants/misc'
+import {
+  EURe_ETHEREUM,
+  EURe_GNOSIS,
+  WXDAI_GNOSIS,
+  ZERO_ADDRESS,
+  sDAI_GNOSIS,
+} from '@/src/constants/misc'
 import { chainsConfig } from '@/src/constants/config/chains'
 import SafeSuspense from '@/src/components/safeSuspense'
 import { getToChainId, isSameString } from '@/src/utils/tools'
@@ -31,6 +37,7 @@ import { BridgeSummary } from '@/src/pagePartials/bridge/bridgeForm/BridgeSummar
 import { ReceivedTokenInfo } from '@/src/pagePartials/bridge/bridgeForm/ReceivedTokenInfo'
 import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
 import { toBN } from '@/src/utils/bigNumber'
+import { MoneriumWarning } from './MoneriumWarning'
 
 const Title = styled.h2`
   align-items: center;
@@ -185,6 +192,10 @@ const Main = () => {
     (isSameString(formState.token?.address || '', WXDAI_GNOSIS) ||
       isSameString(formState.token?.address || '', sDAI_GNOSIS))
 
+  const isEURe =
+    isSameString(formState.token?.address || '', EURe_GNOSIS) ||
+    isSameString(formState.token?.address || '', EURe_ETHEREUM)
+
   const tokenOut = useBridgeTokenOutInfo({
     fromChainId: formState.fromChainId,
     receiveNativeToken: formState.receiveNativeToken,
@@ -231,9 +242,10 @@ const Main = () => {
             </InnerCardFrom>
             <InnerCard>
               <Title>Transfer to</Title>
-              {unwrapFirst ? (
-                <UnwrapFirst />
-              ) : (
+              {unwrapFirst && <UnwrapFirst />}
+              {isEURe && <MoneriumWarning />}
+
+              {!unwrapFirst && !isEURe && (
                 <>
                   <OnChainInfo>
                     <Chain chainId={formState.toChainId} />
@@ -283,7 +295,7 @@ const Main = () => {
           </FormCards>
           {unwrapFirst ? (
             <ButtonUnwrapFirst symbol={formState.token?.symbol} />
-          ) : !formState.token || !address || amountBN.eq(0) ? (
+          ) : !formState.token || !address || amountBN.eq(0) || isEURe ? (
             <DisabledBridgeButton />
           ) : (
             <SafeSuspense fallback={<ButtonPlaceholder />}>
