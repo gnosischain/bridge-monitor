@@ -38,6 +38,7 @@ import { ReceivedTokenInfo } from '@/src/pagePartials/bridge/bridgeForm/Received
 import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
 import { toBN } from '@/src/utils/bigNumber'
 import { MoneriumWarning } from './MoneriumWarning'
+import { NotBridgetERC20Warning } from './NotBridgedERC20Warning'
 
 const Title = styled.h2`
   align-items: center;
@@ -203,6 +204,11 @@ const Main = () => {
     token: formState.token,
   })
 
+  const isNotBridgedErc20 =
+    tokenOut?.chainId === 1 && tokenOut.extensions.bridgeInfo[1]?.tokenAddress === ZERO_ADDRESS
+      ? true
+      : false
+
   return (
     <Wrapper>
       <FormWrapper>
@@ -233,6 +239,7 @@ const Main = () => {
                 />
                 <AmountInput
                   decimals={formState.token?.decimals || 18}
+                  disabled={isNotBridgedErc20}
                   onChange={(value) => dispatch({ ...formState, amount: value })}
                   placeholder="0.00"
                   value={formState.amount}
@@ -244,8 +251,9 @@ const Main = () => {
               <Title>Transfer to</Title>
               {unwrapFirst && <UnwrapFirst />}
               {isEURe && <MoneriumWarning />}
+              {isNotBridgedErc20 && <NotBridgetERC20Warning />}
 
-              {!unwrapFirst && !isEURe && (
+              {!unwrapFirst && !isEURe && !isNotBridgedErc20 && (
                 <>
                   <OnChainInfo>
                     <Chain chainId={formState.toChainId} />
@@ -295,7 +303,7 @@ const Main = () => {
           </FormCards>
           {unwrapFirst ? (
             <ButtonUnwrapFirst symbol={formState.token?.symbol} />
-          ) : !formState.token || !address || amountBN.eq(0) || isEURe ? (
+          ) : !formState.token || !address || amountBN.eq(0) || isEURe || isNotBridgedErc20 ? (
             <DisabledBridgeButton />
           ) : (
             <SafeSuspense fallback={<ButtonPlaceholder />}>
