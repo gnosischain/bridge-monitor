@@ -9,7 +9,7 @@ RUN npm version
 WORKDIR /app
 
 # Copy .env file if it exists for local tests
-# COPY .env* ./
+# COPY .env* ./.env
 
 ARG NEXT_PUBLIC_APP_NAME
 ARG NEXT_PUBLIC_DEFAULT_THEME
@@ -28,7 +28,7 @@ ARG NEXT_PUBLIC_COVALENT_API_KEY
 
 COPY package.json yarn.lock subgraph-config.js ./
 COPY /src ./src
-RUN  yarn install --frozen-lockfile
+RUN  yarn install 
 RUN  yarn postinstall
 
 FROM base AS builder
