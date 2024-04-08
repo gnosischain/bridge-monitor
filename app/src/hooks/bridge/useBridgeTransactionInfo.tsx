@@ -329,21 +329,17 @@ const handleERC20TokenFromHome = async ({
   }
 
   return {
-    gasLimit: recipient
-      ? await bridgeContract.estimateGas['relayTokens(address,address,uint256)'](
-          tokenAddress,
-          recipient,
-          amount.toString(),
-        )
-      : await tokenContract.estimateGas.transfer(bridgeContract.address, amount.toString()),
+    gasLimit: await bridgeContract.estimateGas['relayTokens(address,address,uint256)'](
+      tokenAddress,
+      recipient || walletAddress,
+      amount.toString(),
+    ),
     tx: async function () {
-      return recipient
-        ? bridgeContract['relayTokens(address,address,uint256)'](
-            tokenAddress,
-            recipient,
-            amount.toString(),
-          )
-        : tokenContract.transfer(bridgeContract.address, amount.toString())
+      return bridgeContract['relayTokens(address,address,uint256)'](
+        tokenAddress,
+        recipient || walletAddress,
+        amount.toString(),
+      )
     },
   }
 }

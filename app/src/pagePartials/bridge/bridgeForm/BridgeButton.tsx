@@ -243,6 +243,8 @@ export const BridgeButton: React.FC<{
     return <DisabledBridgeButton />
   }
 
+  console.log(fromChainId)
+
   if (shouldApprove) {
     return (
       <ApproveButton
