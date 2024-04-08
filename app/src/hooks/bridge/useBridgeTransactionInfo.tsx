@@ -335,7 +335,7 @@ const handleERC20TokenFromHome = async ({
       amount.toString(),
     ),
     tx: async function () {
-      bridgeContract['relayTokens(address,address,uint256)'](
+      return bridgeContract['relayTokens(address,address,uint256)'](
         tokenAddress,
         recipient || walletAddress,
         amount.toString(),
