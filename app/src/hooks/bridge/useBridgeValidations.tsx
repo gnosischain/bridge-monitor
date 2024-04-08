@@ -79,6 +79,10 @@ export const useBridgeValidations = ({
         return false
       }
 
+      if (fromChainId === 100 && tokenMode === 'ERC20') {
+        throw Error('This token currently is not supported on the Gnosis Bridge')
+      }
+
       // is the wallet is a smart contract wallet, we need to request a recipient
       if (isSCWallet !== undefined && isSCWallet.data && !recipient) {
         throw Error('Please specify a recipient address')
@@ -121,6 +125,8 @@ export const useBridgeValidations = ({
     userAddress,
     isValidAmount,
     isValidToken,
+    fromChainId,
+    tokenMode,
     isSCWallet,
     recipient,
     minAmountError,
@@ -133,7 +139,11 @@ export const useBridgeValidations = ({
     maxPerTxInNumber,
   ])
 
-  const isValidToSend = !errorMessage && isValidAmount && isValidToken
+  const isValidToSend =
+    !errorMessage &&
+    isValidAmount &&
+    isValidToken &&
+    !(fromChainId === 100 && tokenMode === 'ERC20')
 
   return {
     isSCWallet: isSCWallet?.data,
