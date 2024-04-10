@@ -30,6 +30,10 @@ const BottomInfo = styled.p`
   margin: 0;
   text-align: center;
   color: rgb(221, 113, 67);
+
+  a {
+    color: rgb(221, 113, 67);
+  }
 `
 
 export const ButtonPlaceholder: React.FC = () => <Button disabled>Loading...</Button>
@@ -242,8 +246,6 @@ export const BridgeButton: React.FC<{
   if (!canBridge) {
     return <DisabledBridgeButton />
   }
-
-  console.log(fromChainId)
 
   if (shouldApprove) {
     return (

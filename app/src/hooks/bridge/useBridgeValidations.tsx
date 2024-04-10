@@ -11,6 +11,7 @@ import { ZERO_BN } from '@/src/constants/misc'
 import { formatNumber } from '@/src/utils/format'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
+import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 
 export const useBridgeValidations = ({
   amount,
@@ -73,13 +74,18 @@ export const useBridgeValidations = ({
     formatUnits(bridgeLimits?.maxPerTx || ZERO_BN, fromToken?.decimals || 18),
   )
 
+  const isCustomERC20Home =
+    fromChainId === 100 &&
+    tokenMode === 'ERC20' &&
+    fromToken.address !== NATIVE_TOKEN_ADDRESS.toLowerCase()
+
   const errorMessage = useMemo(() => {
     try {
       if (!userAddress || !isValidAmount || !isValidToken) {
         return false
       }
 
-      if (fromChainId === 100 && tokenMode === 'ERC20') {
+      if (isCustomERC20Home) {
         throw Error('This token currently is not supported on the Gnosis Bridge')
       }
 
@@ -125,8 +131,7 @@ export const useBridgeValidations = ({
     userAddress,
     isValidAmount,
     isValidToken,
-    fromChainId,
-    tokenMode,
+    isCustomERC20Home,
     isSCWallet,
     recipient,
     minAmountError,
@@ -139,11 +144,7 @@ export const useBridgeValidations = ({
     maxPerTxInNumber,
   ])
 
-  const isValidToSend =
-    !errorMessage &&
-    isValidAmount &&
-    isValidToken &&
-    !(fromChainId === 100 && tokenMode === 'ERC20')
+  const isValidToSend = !errorMessage && isValidAmount && isValidToken && !isCustomERC20Home
 
   return {
     isSCWallet: isSCWallet?.data,
