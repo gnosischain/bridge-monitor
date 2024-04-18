@@ -12,6 +12,7 @@ import { formatNumber } from '@/src/utils/format'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
+import { isValidDomainName } from '@/src/utils/isValidDomainName'
 
 export const useBridgeValidations = ({
   amount,
@@ -97,7 +98,7 @@ export const useBridgeValidations = ({
         throw Error('Please specify amount')
       }
 
-      if (recipient && !isAddress(recipient)) {
+      if (recipient && !isAddress(recipient) && !isValidDomainName(recipient)) {
         throw Error('Please specify a valid recipient address')
       }
 
