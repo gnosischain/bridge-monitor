@@ -101,8 +101,9 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       >
         <Web3ConnectionProvider>
           <ThemeProvider>
-            <Header />
             <SafeSuspense>
+              <Header />
+              {/* <SafeSuspense> */}
               <TransactionNotificationProvider>
                 {getLayout(<Component {...pageProps} />)}
                 <Toast />

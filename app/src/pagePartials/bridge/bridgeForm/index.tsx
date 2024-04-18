@@ -112,13 +112,13 @@ const AmountInput = styled(AmountTokenInput)`
   margin-right: calc(var(--theme-common-space) * -1);
 `
 
-const sanitizeAmount = (amount: string, decimals: number) => {
-  if (!amount.includes('.')) return amount
+// const sanitizeAmount = (amount: string, decimals: number) => {
+//   if (!amount.includes('.')) return amount
 
-  const parts = amount.split('.')
-  const decimalPart = parts[1].slice(0, decimals) // Keep only allowed decimal places
-  return `${parts[0]}.${decimalPart}`
-}
+//   const parts = amount.split('.')
+//   const decimalPart = parts[1].slice(0, decimals) // Keep only allowed decimal places
+//   return `${parts[0]}.${decimalPart}`
+// }
 
 const SkeletonCommon: React.FC = () => (
   <Wrapper>
@@ -146,7 +146,7 @@ const initialState: BridgeFormState = {
 }
 
 const Main = () => {
-  const { address, walletChainId, web3Provider } = useWeb3Connection()
+  const { address, walletChainId } = useWeb3Connection()
   const { tokensByNetwork } = useBridgedTokens()
   const [formState, dispatch] = useReducer(
     (data: BridgeFormState, partial: Partial<BridgeFormState>): BridgeFormState => ({

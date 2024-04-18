@@ -1,9 +1,11 @@
+'use client'
 import styled, { css } from 'styled-components'
 
 import { IconCopy } from '@/src/components/assets/IconCopy'
 import { IconLink } from '@/src/components/assets/IconLink'
 import { shortenAddress } from '@/src/utils/tools'
 import { useCopyToast } from '@/src/hooks/useCopyToast'
+import useWeb3Name from '@/src/hooks/useWeb3Name'
 
 const CommonCSS = css`
   transition: color 0.15s ease-in-out;
@@ -58,6 +60,7 @@ interface Props {
   characters?: number
   copy?: boolean
   href?: string
+  useDomain?: boolean
 }
 
 export const TokenAddress: React.FC<Props> = ({
@@ -66,9 +69,12 @@ export const TokenAddress: React.FC<Props> = ({
   characters = 4,
   copy = false,
   href,
+  useDomain,
   ...restProps
 }) => {
   const { copy: copyToClipboard } = useCopyToast()
+
+  const { resolvedName: domainName } = useWeb3Name({ address: useDomain ? address : undefined })
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const openLink = (e: any, href: string) => {
@@ -81,10 +87,16 @@ export const TokenAddress: React.FC<Props> = ({
   return (
     <Wrapper {...restProps}>
       <AddressText>
-        {address ? (
-          shortenAddress(address, characters + 2, characters)
+        {domainName ? (
+          <>{domainName}</>
         ) : (
-          <Error>Fetching address...</Error>
+          <>
+            {address ? (
+              shortenAddress(address, characters + 2, characters)
+            ) : (
+              <Error>Fetching address...</Error>
+            )}
+          </>
         )}
       </AddressText>
       {address && copy && (

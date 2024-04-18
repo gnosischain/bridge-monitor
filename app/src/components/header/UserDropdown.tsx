@@ -16,6 +16,7 @@ import { chainsConfig } from '@/src/constants/config/chains'
 import { myTransactionsFullURL } from '@/src/constants/sections'
 import { useRouter } from 'next/router'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
+import useWeb3Name from '@/src/hooks/useWeb3Name'
 
 const Wrapper = styled(Dropdown)`
   display: none;
@@ -246,6 +247,10 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
   const [showNetworkModal, setShowNetworkModal] = useState(false)
   const router = useRouter()
 
+  const { resolvedName: domainName } = useWeb3Name({
+    address: address ?? undefined,
+  })
+
   return (
     <>
       <Wrapper
@@ -254,7 +259,11 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
             <Wallet>
               <UserWallet />
               {address ? (
-                truncateStringInTheMiddle(address, 6, 4)
+                domainName ? (
+                  <>{domainName}</>
+                ) : (
+                  truncateStringInTheMiddle(address, 6, 4)
+                )
               ) : (
                 <SkeletonLoading style={{ width: '93px', height: '18px', minHeight: '0' }} />
               )}
@@ -268,7 +277,13 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
           <Item closeOnClick={false} flexDirection="column" key="userDropdown_item_0">
             <Title>Connected with {wallet?.label}</Title>
             {address && (
-              <WalletAddress address={address} characters={6} copy href={getExplorerUrl(address)} />
+              <WalletAddress
+                address={address}
+                characters={6}
+                copy
+                href={getExplorerUrl(address)}
+                useDomain
+              />
             )}
           </Item>,
           <ClickableItem border key="userDropdown_item_1" onClick={() => setShowNetworkModal(true)}>
