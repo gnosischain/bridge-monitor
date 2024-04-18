@@ -20,6 +20,8 @@ import { isTransactionHash } from '@/src/utils/tools'
 import differenceInDays from 'date-fns/differenceInDays'
 import { MAX_DAYS_TO_FILTER } from '@/src/constants/misc'
 import { getForeignTransactions, setForeignTransaction } from '@/src/utils/localTransactions'
+import useWeb3Name from '../useWeb3Name'
+import { isValidDomainName } from '@/src/utils/isValidDomainName'
 
 export type UpdateInMemoryTx = (transaction?: Transaction) => void
 
@@ -91,6 +93,10 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
     query,
   )
 
+  const { resolvedAddress } = useWeb3Name({
+    name: isValidDomainName(filters.hash) ? filters.hash : undefined,
+  })
+
   useEffect(() => {
     const _where: Transaction_Filter = {
       and: [],
@@ -110,8 +116,9 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
     }
 
     if (filters.hash) {
-      const isTxHash = isTransactionHash(filters.hash)
-      const text = filters.hash.toLowerCase()
+      const hash = resolvedAddress ?? filters.hash
+      const isTxHash = isTransactionHash(hash)
+      const text = hash.toLowerCase()
       if (isTxHash) {
         _where.and?.push({ transactionHash: text })
       } else if (isAddress(text)) {
@@ -188,6 +195,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
     filters.executedBy,
     filters.startTimestamp,
     filters.endTimestamp,
+    resolvedAddress,
   ])
 
   /**

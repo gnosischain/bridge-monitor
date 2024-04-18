@@ -27,7 +27,11 @@ const useWeb3Name = ({ address, name }: UseWeb3NameProps) => {
     () => (address ? fetchName(address) : null),
     {
       shouldRetryOnError: true,
+      errorRetryCount: 3,
+      errorRetryInterval: 1000,
       revalidateOnFocus: false,
+      revalidateOnMount: false,
+      revalidateOnReconnect: false,
     },
   )
 

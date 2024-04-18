@@ -13,6 +13,22 @@ import { ERC20__factory } from '@/types/typechain'
 
 const lookupToken = memoize(
   async (tokenAddress: string, isMainnetToken: boolean, tokenList: Array<UniswapToken>) => {
+    // First, try to find the token in the provided tokenList
+    const tokenData = tokenList.find(
+      (token) => token.address.toLowerCase() === tokenAddress.toLowerCase(),
+    )
+
+    if (tokenData) {
+      return {
+        address: tokenAddress,
+        chainId: isMainnetToken ? 1 : 100,
+        decimals: tokenData.decimals,
+        name: tokenData.name,
+        symbol: tokenData.symbol,
+        logoURI: tokenData.logoURI,
+      }
+    }
+
     const readOnlyProvider = new JsonRpcProvider(
       getNetworkConfig(Chains[isMainnetToken ? 'mainnet' : 'gnosis']).rpcUrl,
       Chains[isMainnetToken ? 'mainnet' : 'gnosis'],
