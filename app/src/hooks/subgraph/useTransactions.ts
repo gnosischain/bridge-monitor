@@ -93,8 +93,9 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
     query,
   )
 
+  const isDomainName = isValidDomainName(filters.hash ?? '')
   const { resolvedAddress } = useWeb3Name({
-    name: isValidDomainName(filters.hash) ? filters.hash : undefined,
+    name: isDomainName && filters.hash ? filters.hash : undefined,
   })
 
   useEffect(() => {
@@ -116,12 +117,12 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
     }
 
     if (filters.hash) {
-      const hash = resolvedAddress ?? filters.hash
+      const hash = resolvedAddress ?? filters.hash // check
       const isTxHash = isTransactionHash(hash)
       const text = hash.toLowerCase()
       if (isTxHash) {
         _where.and?.push({ transactionHash: text })
-      } else if (isAddress(text)) {
+      } else if (isAddress(text) || isDomainName) {
         _where.and?.push({ or: [{ initiator: text }, { receiver: text }] })
       }
       updated = true
@@ -196,6 +197,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
     filters.startTimestamp,
     filters.endTimestamp,
     resolvedAddress,
+    isDomainName,
   ])
 
   /**

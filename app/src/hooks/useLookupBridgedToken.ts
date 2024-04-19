@@ -29,6 +29,8 @@ const lookupToken = memoize(
       }
     }
 
+    // console.log('token not found in the token list', tokenAddress)
+
     const readOnlyProvider = new JsonRpcProvider(
       getNetworkConfig(Chains[isMainnetToken ? 'mainnet' : 'gnosis']).rpcUrl,
       Chains[isMainnetToken ? 'mainnet' : 'gnosis'],
