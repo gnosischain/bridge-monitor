@@ -14,6 +14,10 @@ export const ExternalLinks: React.FC = ({ ...restProps }) => {
       name: 'dln.trade',
       url: 'https://dln.trade/',
     },
+    {
+      name: 'shapeshift.com',
+      url: 'https://app.shapeshift.com/#/trade',
+    },
   ]
 
   return (

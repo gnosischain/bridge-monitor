@@ -157,6 +157,7 @@ export const TransactionRow: React.FC<Props> = ({
             characters={addressCharacters}
             copy
             href={initiatorScanUrl}
+            useDomain
           />
           <Initiator
             bridgeName={bridgeName}
@@ -175,6 +176,7 @@ export const TransactionRow: React.FC<Props> = ({
             characters={addressCharacters}
             copy
             href={receiverScanUrl}
+            useDomain
           />
           <Receiver
             bridgeName={bridgeName}

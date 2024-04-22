@@ -17,6 +17,8 @@ import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInf
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
 import useSWR from 'swr'
+import useWeb3Name from '@/src/hooks/useWeb3Name'
+import { isValidDomainName } from '@/src/utils/isValidDomainName'
 
 const Button = styled(ButtonFull)`
   margin: 0 auto;
@@ -204,12 +206,17 @@ export const BridgeButton: React.FC<{
 
   const appChainConfig = getNetworkConfig(fromChainId)
 
+  const { resolvedAddress } = useWeb3Name({
+    name: isValidDomainName(recipient) ? recipient : undefined,
+  })
+  const recipientAddress = resolvedAddress ?? recipient
+
   const { isValidToSend: canBridge, shouldApprove } = useBridgeValidations({
     fromChainId,
     toChainId,
     userAddress,
     amount,
-    recipient,
+    recipient: recipientAddress,
     fromToken,
     toToken,
   })
@@ -264,7 +271,7 @@ export const BridgeButton: React.FC<{
       amount={amount}
       fromChainId={fromChainId}
       receiveNativeToken={receiveNativeToken}
-      recipient={recipient}
+      recipient={recipientAddress}
       toChainId={toChainId}
       token={fromToken}
       userAddress={userAddress}

@@ -13,6 +13,7 @@ import { SCLink, SCText, SCTitle, SidebarCard } from '@/src/components/card/Side
 import Link from 'next/link'
 import { isTransactionHash } from '@/src/utils/tools'
 import { isAddress } from 'ethers/lib/utils'
+import { isValidDomainName } from '@/src/utils/isValidDomainName'
 
 const Wrapper = styled(SidebarCard)`
   padding-top: calc(var(--theme-common-space) * 5);
@@ -173,7 +174,7 @@ export const Search: React.FC = ({ ...restProps }) => {
 
   useEffect(() => {
     const _value = value.toLowerCase()
-    const isValidHash = isTransactionHash(_value) || isAddress(_value)
+    const isValidHash = isTransactionHash(_value) || isAddress(_value) || isValidDomainName(_value)
 
     if (!_value.length) {
       setError('')

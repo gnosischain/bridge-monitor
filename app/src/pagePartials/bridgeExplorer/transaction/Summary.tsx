@@ -171,6 +171,7 @@ export const Summary: React.FC<Props> = ({
           characters={6}
           copy
           href={getAddressScanUrl(initiator, initiatorNetwork)}
+          useDomain
         />
       </Pod>
       <Pod title="Receiver">
@@ -179,6 +180,7 @@ export const Summary: React.FC<Props> = ({
           characters={6}
           copy
           href={getAddressScanUrl(receiver, receiverNetwork)}
+          useDomain
         />
       </Pod>
       <PodAmount title="Amount">
