@@ -76,6 +76,11 @@ export const FAQContents: React.FC = () => {
               DLN
             </a>
           </li>
+          <li>
+            <a href="https://app.shapeshift.com/#/trade" rel="noreferrer" target="_blank">
+              shapeshift.com
+            </a>
+          </li>
         </ul>
       </Paragraph>
       <EmphasizedTitle id="q_1d">How do I bridge from Gnosis to Ethereum?</EmphasizedTitle>
