@@ -211,6 +211,11 @@ export const ModalCSS = `
     width: 100%;
   }
 
+   .fixed .modal .content .wallet-button-container-inner div div svg {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
   /* Wallet icon */
   .fixed .modal .content .wallet-button-container-inner > div:first-child {
     align-items: center !important;
