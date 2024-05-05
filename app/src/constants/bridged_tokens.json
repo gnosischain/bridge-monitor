@@ -9743,6 +9743,22 @@
       "symbol": "EURC.e",
       "total_supply": "100",
       "type": "ERC-20"
+    },
+    {
+      "bridge_type": "omni",
+      "foreign_address": "0x5aFE3855358E112B5647B952709E6165e1c1eEEe",
+      "origin_chain_id": "1",
+      "address": "0x4d18815D14fe5c3304e87B3FA18318baa5c23820",
+      "circulating_market_cap": null,
+      "decimals": "18",
+      "exchange_rate": null,
+      "holders": "10704",
+      "icon_url": null,
+      "is_bridged": true,
+      "name": "SAFE",
+      "symbol": "SAFE",
+      "total_supply": "1000000000000000000000000000",
+      "type": "ERC-20"
     }
   ]
 }
