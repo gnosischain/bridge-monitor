@@ -39,6 +39,7 @@ const Title = styled(BaseSubTitle)`
   display: flex;
   column-gap: 20px;
   align-items: center;
+  margin-bottom: 10px;
 `
 
 const InvalidToken = styled(InnerCard)`
@@ -224,7 +225,15 @@ const Limits: React.FC = () => {
     const mainnetToGnosisChain = token
     const otherSideAddress = token.extensions.bridgeInfo[Chains.gnosis]?.tokenAddress.toLowerCase()
     if (!otherSideAddress) throw new Error('Token address not found')
-    const gnosisChainToMainnet = tokensByAddress[otherSideAddress]
+    const gnosisChainToMainnet = tokensByAddress[otherSideAddress] ?? {
+      address: token.extensions.bridgeInfo[Chains.gnosis]?.tokenAddress,
+      chainId: Chains.gnosis,
+      decimals: 18,
+      extensions: token.extensions,
+      logoURI: '',
+      name: 'Safe Token',
+      symbol: 'SAFE',
+    }
 
     const isSelectedTokenValid = mainnetToGnosisChain && gnosisChainToMainnet
 

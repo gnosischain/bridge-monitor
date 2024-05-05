@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { isAddress } from '@ethersproject/address'
 import { DebounceInput } from 'react-debounce-input'
 
+import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { ChevronDown as BaseChevronDown } from '@/src/components/assets/ChevronDown'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown as BaseDropdown, DropdownPosition } from '@/src/components/dropdown'
@@ -12,6 +13,10 @@ import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
+import { getToChainId } from '@/src/utils/tools'
+import { ERC165__factory, HomeOmniMediator__factory } from '@/types/typechain'
+import { getNetworkConfig } from '@/src/constants/config/chains'
+import { contracts } from '@/src/constants/config/contracts'
 
 const Wrapper = styled(BaseDropdown)`
   --inner-padding: calc(var(--theme-common-space) / 2);
@@ -170,6 +175,9 @@ const Dropdown: React.FC<Props> = ({
   const [tokensList, setTokensList] = useState(tokens)
   const [value, setValue] = useState('')
 
+  const [isLoading, setIsLoading] = useState(false)
+  const [manualTokens, setManualTokens] = useState<Token[]>([])
+
   const onSelectToken = (token: Token) => {
     setToken(token)
     if (typeof onChange !== 'undefined') onChange(token)
@@ -181,14 +189,72 @@ const Dropdown: React.FC<Props> = ({
     }
   }, [defaultToken, token?.address])
 
+  // if the value is an address and there is not token match
+  // we try a search on-chain.
+  useEffect(() => {
+    if (value && isAddress(value.toLowerCase()) && !tokensList?.length) {
+      setIsLoading(true)
+
+      const isFromGnosis = chainId == Chains.gnosis
+      const erc20 = ERC165__factory.connect(
+        value,
+        new JsonRpcBatchProvider(getNetworkConfig(chainId)?.rpcUrl),
+      )
+      const omni = HomeOmniMediator__factory.connect(
+        contracts.OmniBridge.address[Chains.gnosis],
+        new JsonRpcBatchProvider(getNetworkConfig(Chains.gnosis)?.rpcUrl),
+      )
+
+      Promise.all([
+        erc20.name(),
+        erc20.symbol(),
+        erc20.decimals(),
+        isFromGnosis ? omni.foreignTokenAddress(value) : omni.homeTokenAddress(value),
+      ])
+        .then(([name, symbol, decimals, _address]) => {
+          if (!name || !symbol || !decimals || !_address) return
+
+          setManualTokens(() => [
+            {
+              chainId,
+              address: value,
+              decimals,
+              logoURI: '',
+              name,
+              symbol,
+              extensions: {
+                bridgeInfo: {
+                  [getToChainId(chainId)]: {
+                    tokenAddress: _address,
+                  },
+                  [chainId]: {
+                    tokenAddress: value,
+                  },
+                },
+              },
+            },
+          ])
+        })
+        .finally(() => setIsLoading(false))
+    }
+  }, [tokensList?.length, chainId, value])
+
+  // When the chain changes, we update the tokens list
+  useEffect(() => {
+    if (manualTokens.length > 0) {
+      setTokensList(manualTokens)
+    }
+  }, [ambTokensByNetwork, manualTokens, value, chainId])
+
   useEffect(() => {
     if (value.length === 0) {
       setTokensList(tokens)
     } else {
       if (isAddress(value)) {
-        setTokensList(
-          tokens?.filter((item) => item.address.toLowerCase().indexOf(value.toLowerCase()) !== -1),
+        const filteredTokenList = tokens?.filter(
+          (item) => item.address.toLowerCase().indexOf(value.toLowerCase()) !== -1,
         )
+        setTokensList(filteredTokenList)
       } else {
         setTokensList(
           tokens?.filter((item) => item.symbol.toLowerCase().indexOf(value.toLowerCase()) !== -1),
@@ -226,6 +292,7 @@ const Dropdown: React.FC<Props> = ({
           <Info>Search among hundreds of available tokens</Info>
         </TextfieldContainer>,
         <Items closeOnClick key="items">
+          {isLoading && <NoResults closeOnClick={false}>Loading...</NoResults>}
           {tokensList?.map((item, index) => (
             <DropdownItem
               key={index}
@@ -238,7 +305,11 @@ const Dropdown: React.FC<Props> = ({
             </DropdownItem>
           ))}
         </Items>,
-        tokensList?.length === 0 ? <NoResults closeOnClick={false}>Not found.</NoResults> : <></>,
+        tokensList?.length === 0 && !isLoading ? (
+          <NoResults closeOnClick={false}>Not found.</NoResults>
+        ) : (
+          <></>
+        ),
       ]}
       {...restProps}
     />
