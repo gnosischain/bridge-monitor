@@ -176,24 +176,35 @@ const handleERC20TokenFromForeign = async ({
     if (amount.gt(allowance)) {
       gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
     } else {
-      gasLimit = recipient
-        ? await (bridgeContract as ForeignBridgeErcToNative).estimateGas.relayTokens(
-            recipient.toLowerCase(),
-            amount.toString(),
-          )
-        : await tokenContract.estimateGas.transfer(bridgeContract.address, amount.toString())
+      // gasLimit = recipient
+      //   ? await (bridgeContract as ForeignBridgeErcToNative).estimateGas.relayTokens(
+      //       recipient.toLowerCase(),
+      //       amount.toString(),
+      //     )
+      //   : await tokenContract.estimateGas.transfer(bridgeContract.address, amount.toString())
+      gasLimit = await (bridgeContract as ForeignBridgeErcToNative).estimateGas.relayTokens(
+        recipient ? recipient.toLowerCase() : userAddress.toLowerCase(),
+        amount.toString(),
+      )
     }
 
     return {
       gasLimit,
       tx: async function () {
-        return recipient
-          ? (bridgeContract as ForeignBridgeErcToNative).relayTokens(recipient, amount.toString(), {
-              gasLimit,
-            })
-          : tokenContract.transfer(bridgeContract.address, amount.toString(), {
-              gasLimit,
-            })
+        // return recipient
+        //   ? (bridgeContract as ForeignBridgeErcToNative).relayTokens(recipient, amount.toString(), {
+        //       gasLimit,
+        //     })
+        //   : tokenContract.transfer(bridgeContract.address, amount.toString(), {
+        //       gasLimit,
+        //     })
+        return (bridgeContract as ForeignBridgeErcToNative).relayTokens(
+          recipient ? recipient.toLowerCase() : userAddress.toLowerCase(),
+          amount.toString(),
+          {
+            gasLimit,
+          },
+        )
       },
     }
   }
