@@ -17,6 +17,8 @@ import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
 import { Token } from '@/types/token'
 import { TokenDropdown } from '@/src/pagePartials/bridge/bridgeForm/TokenDropdown'
 import {
+  AURA_ETHEREUM,
+  AURA_GNOSIS,
   EURe_ETHEREUM,
   EURe_GNOSIS,
   WXDAI_GNOSIS,
@@ -37,8 +39,8 @@ import { BridgeSummary } from '@/src/pagePartials/bridge/bridgeForm/BridgeSummar
 import { ReceivedTokenInfo } from '@/src/pagePartials/bridge/bridgeForm/ReceivedTokenInfo'
 import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
 import { toBN } from '@/src/utils/bigNumber'
-import { MoneriumWarning } from './MoneriumWarning'
 import { NotBridgetERC20Warning } from './NotBridgedERC20Warning'
+import { ExternalBridgeWarning } from './ExternalBridgeWarning'
 
 const Title = styled.h2`
   align-items: center;
@@ -193,9 +195,11 @@ const Main = () => {
     (isSameString(formState.token?.address || '', WXDAI_GNOSIS) ||
       isSameString(formState.token?.address || '', sDAI_GNOSIS))
 
-  const isEURe =
+  const sendToExternalBridge =
     isSameString(formState.token?.address || '', EURe_GNOSIS) ||
-    isSameString(formState.token?.address || '', EURe_ETHEREUM)
+    isSameString(formState.token?.address || '', EURe_ETHEREUM) ||
+    isSameString(formState.token?.address || '', AURA_GNOSIS) ||
+    isSameString(formState.token?.address || '', AURA_ETHEREUM)
 
   const tokenOut = useBridgeTokenOutInfo({
     fromChainId: formState.fromChainId,
@@ -250,10 +254,12 @@ const Main = () => {
             <InnerCard>
               <Title>Transfer to</Title>
               {unwrapFirst && <UnwrapFirst />}
-              {isEURe && <MoneriumWarning />}
+              {sendToExternalBridge && formState.token && (
+                <ExternalBridgeWarning token={formState.token} />
+              )}
               {isNotBridgedErc20 && <NotBridgetERC20Warning />}
 
-              {!unwrapFirst && !isEURe && !isNotBridgedErc20 && (
+              {!unwrapFirst && !sendToExternalBridge && !isNotBridgedErc20 && (
                 <>
                   <OnChainInfo>
                     <Chain chainId={formState.toChainId} />
@@ -303,7 +309,11 @@ const Main = () => {
           </FormCards>
           {unwrapFirst ? (
             <ButtonUnwrapFirst symbol={formState.token?.symbol} />
-          ) : !formState.token || !address || amountBN.eq(0) || isEURe || isNotBridgedErc20 ? (
+          ) : !formState.token ||
+            !address ||
+            amountBN.eq(0) ||
+            sendToExternalBridge ||
+            isNotBridgedErc20 ? (
             <DisabledBridgeButton />
           ) : (
             <SafeSuspense fallback={<ButtonPlaceholder />}>

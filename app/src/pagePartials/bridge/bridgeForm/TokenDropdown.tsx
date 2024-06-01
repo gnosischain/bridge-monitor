@@ -391,6 +391,10 @@ const Dropdown: React.FC<Props> = ({
             ...(_manualTokens || []),
           ])
         })
+        .catch(() => {
+          // console.error('Failed to fetch token data:', error)
+          return
+        })
         .finally(() => setIsLoading(false))
     }
   }, [filteredTokens.length, fromChainId, toChainId, value])

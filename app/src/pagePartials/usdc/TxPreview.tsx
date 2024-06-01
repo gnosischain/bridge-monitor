@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Tooltip } from '@/src/components/tooltip'
+// import { Tooltip } from '@/src/components/tooltip'
 import { formatUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import { Loading } from '@/src/components/loading'

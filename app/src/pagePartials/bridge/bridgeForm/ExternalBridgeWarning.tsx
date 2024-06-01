@@ -1,7 +1,7 @@
 import styled from 'styled-components'
-
 import { Warning } from '@/src/components/assets/Warning'
 import React from 'react'
+import { Token } from '@/types/token'
 
 const Contents = styled.div`
   display: flex;
@@ -23,18 +23,26 @@ const ExternalLink = styled.a`
   color: ${({ theme: { colors } }) => colors.textColor};
 `
 
-export const MoneriumWarning: React.FC = () => {
+const externalBridges = {
+  EURe: 'https://monerium.app/',
+  AURA: 'https://app.aura.finance/#/1/bridge',
+}
+
+export const ExternalBridgeWarning: React.FC<{ token: Token }> = ({ token }) => {
+  const symbol = token.symbol
+  const bridgeLink = externalBridges[symbol as keyof typeof externalBridges]
+
   return (
     <>
       <Contents>
         <Warning />
         <Text>
-          <b>EURe</b> is not supported on the Gnosis Bridge.
+          <b>{symbol}</b> is not supported on the Gnosis Bridge.
           <br /> Please use{' '}
-          <ExternalLink href="https://monerium.app/" rel="noreferrer" target="_blank">
-            https://monerium.app/
+          <ExternalLink href={bridgeLink} rel="noreferrer" target="_blank">
+            {bridgeLink}
           </ExternalLink>{' '}
-          for EURe cross-chain transfers
+          for {symbol} cross-chain transfers
         </Text>
       </Contents>
     </>
