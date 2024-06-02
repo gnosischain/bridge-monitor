@@ -33,7 +33,7 @@ export const UsdcEthWarning: React.FC = () => {
         If you want to get <b>old USDC (USDC on xDAI)</b>, please swap your <b>USDC.e</b> after
         bridging to Gnosis Chain on the{' '}
         <Link href={'/usdc'} rel="noreferrer" target="_blank">
-          <b>USDC swap</b>
+          USDC swap
         </Link>{' '}
         page
       </Text>

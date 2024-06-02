@@ -10,7 +10,7 @@ import { Token } from '@/types/token'
 import { TokenOverrideManager } from '@/src/utils/token-overrides'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { contracts } from '@/src/constants/config/contracts'
-import { ZERO_ADDRESS } from '@/src/constants/misc'
+import { USDC_ETHEREUM, USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
 
 /**
  * Retrieves information about the received token based on the provided parameters.
@@ -128,6 +128,25 @@ export const useBridgeTokenOutInfo = ({
   const { data } = useSWR(
     shouldFetch ? [token, fromChainId, toChainId, receiveNativeToken, 'bridgeTokenOut'] : null,
     async ([_token, _fromChainId, _toChainId, _receiveNativeToken]) => {
+      if (
+        _fromChainId === Chains.mainnet &&
+        _toChainId === Chains.gnosis &&
+        isSameString(_token.address, USDC_ETHEREUM)
+      ) {
+        return {
+          ...token,
+          extensions: {
+            bridgeInfo: {
+              '100': {
+                tokenAddress: USDCe_GNOSIS,
+              },
+            },
+          },
+          name: 'USDC.e',
+          symbol: 'USDC.e',
+        }
+      }
+
       try {
         const omniBridgeInstance = HomeOmniMediator__factory.connect(
           contracts.OmniBridge.address[Chains.gnosis],
