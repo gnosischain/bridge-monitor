@@ -21,6 +21,8 @@ import {
   AURA_GNOSIS,
   EURe_ETHEREUM,
   EURe_GNOSIS,
+  USDC_ETHEREUM,
+  USDCe_GNOSIS,
   WXDAI_GNOSIS,
   ZERO_ADDRESS,
   sDAI_GNOSIS,
@@ -39,8 +41,9 @@ import { BridgeSummary } from '@/src/pagePartials/bridge/bridgeForm/BridgeSummar
 import { ReceivedTokenInfo } from '@/src/pagePartials/bridge/bridgeForm/ReceivedTokenInfo'
 import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
 import { toBN } from '@/src/utils/bigNumber'
-import { NotBridgetERC20Warning } from './NotBridgedERC20Warning'
+import { NotBridgedERC20Warning } from './NotBridgedERC20Warning'
 import { ExternalBridgeWarning } from './ExternalBridgeWarning'
+import { UsdcEGcWarning, UsdcEthWarning } from './UsdcWarnings'
 
 const Title = styled.h2`
   align-items: center;
@@ -201,6 +204,9 @@ const Main = () => {
     isSameString(formState.token?.address || '', AURA_GNOSIS) ||
     isSameString(formState.token?.address || '', AURA_ETHEREUM)
 
+  const isUsdcEth = isSameString(formState.token?.address || '', USDC_ETHEREUM)
+  const isUsdceGC = isSameString(formState.token?.address || '', USDCe_GNOSIS)
+
   const tokenOut = useBridgeTokenOutInfo({
     fromChainId: formState.fromChainId,
     receiveNativeToken: formState.receiveNativeToken,
@@ -253,13 +259,15 @@ const Main = () => {
             </InnerCardFrom>
             <InnerCard>
               <Title>Transfer to</Title>
+              {isUsdcEth && <UsdcEthWarning />}
+              {isUsdceGC && <UsdcEGcWarning />}
               {unwrapFirst && <UnwrapFirst />}
               {sendToExternalBridge && formState.token && (
                 <ExternalBridgeWarning token={formState.token} />
               )}
-              {isNotBridgedErc20 && <NotBridgetERC20Warning />}
+              {isNotBridgedErc20 && !unwrapFirst && !isUsdceGC && <NotBridgedERC20Warning />}
 
-              {!unwrapFirst && !sendToExternalBridge && !isNotBridgedErc20 && (
+              {!unwrapFirst && !sendToExternalBridge && !isNotBridgedErc20 && !isUsdceGC && (
                 <>
                   <OnChainInfo>
                     <Chain chainId={formState.toChainId} />

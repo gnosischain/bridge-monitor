@@ -5,6 +5,7 @@ import { Token } from '@/types/token'
 
 const Contents = styled.div`
   display: flex;
+  align-items: center;
   gap: calc(var(--theme-common-space) * 2);
   min-height: 80px;
 

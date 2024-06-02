@@ -19,7 +19,7 @@ const Text = styled.span`
   line-height: 1.4;
 `
 
-export const NotBridgetERC20Warning: React.FC = () => {
+export const NotBridgedERC20Warning: React.FC = () => {
   return (
     <>
       <Contents>
