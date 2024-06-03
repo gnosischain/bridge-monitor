@@ -58,7 +58,7 @@ export const ButtonPlaceholderWithWarning: React.FC = () => {
 
 export const DisabledTransButton = () => (
   <Button disabled={true} onClick={() => undefined}>
-    Transmute
+    Swap
   </Button>
 )
 

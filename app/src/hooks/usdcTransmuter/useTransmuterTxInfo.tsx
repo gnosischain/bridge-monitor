@@ -43,7 +43,7 @@ export const getTransTx = async ({
       },
     }
   } catch (error) {
-    console.error('Error getting transmuter transaction info', error)
+    console.error('Error getting swap transaction info', error)
     return {
       gasLimit: ZERO_BN,
       gasPrice: ZERO_BN,

@@ -3,8 +3,8 @@ import NextHead from 'next/head'
 import { UsdcTransmutationFormIndex } from '@/src/pagePartials/usdc'
 
 const TermsPage: NextPage = () => {
-  const title = 'USDC transmutation'
-  const description = 'USDC transmutation'
+  const title = 'USDC swap'
+  const description = 'USDC swap'
 
   return (
     <>

@@ -391,6 +391,7 @@ const handleUsdcFromForeign = async ({
   let gasLimit: BigNumber
 
   const bytesData = defaultAbiCoder.encode(['address'], [walletAddress])
+  console.log(tokenAddress, TRANSMUTER_ADDRESS, amount.toString(), bytesData)
 
   if (!isERC677 && amount.gt(allowance)) {
     gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())

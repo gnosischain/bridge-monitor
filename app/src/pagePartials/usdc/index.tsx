@@ -114,7 +114,7 @@ const usdcTokens = {
     address: USDC_XDAI_OLD,
     chainId: Chains.gnosis,
     decimals: 6,
-    logoURI: '',
+    logoURI: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694',
     name: 'USDC on xDAI (old USDC)',
     symbol: 'USDC (old)',
   },

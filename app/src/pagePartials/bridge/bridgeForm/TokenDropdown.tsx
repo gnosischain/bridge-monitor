@@ -18,7 +18,7 @@ import { getNetworkConfig } from '@/src/constants/config/chains'
 import { isSameString } from '@/src/utils/tools'
 import { Spinner } from '@/src/components/loading/Spinner'
 import { ERC165__factory } from '@/types/typechain/factories/ERC165__factory'
-import { ZERO_ADDRESS } from '@/src/constants/misc'
+import { USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { useUserTokenListBalances } from '@/src/hooks/bridge/useUserTokenListBalances'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
@@ -278,6 +278,27 @@ const Dropdown: React.FC<Props> = ({
     const allTokens = ambTokensByNetwork[fromChainId]
       .concat(manualTokens.filter((item) => item.chainId === fromChainId))
       .filter((item) => item.address !== ZERO_ADDRESS)
+      .concat(
+        fromChainId === Chains.gnosis
+          ? [
+              {
+                address: USDCe_GNOSIS,
+                chainId: 100,
+                decimals: 6,
+                logoURI: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694',
+                name: 'USDC.e',
+                symbol: 'USDC.e',
+                extensions: {
+                  bridgeInfo: {
+                    '1': {
+                      tokenAddress: '',
+                    },
+                  },
+                },
+              } as Token,
+            ]
+          : [],
+      )
 
     const _filteredTokens = orderBy(
       value
