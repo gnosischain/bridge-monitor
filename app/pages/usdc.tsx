@@ -5,6 +5,7 @@ import { UsdcTransmutationFormIndex } from '@/src/pagePartials/usdc'
 const TermsPage: NextPage = () => {
   const title = 'USDC swap'
   const description = 'USDC swap'
+  const twitterHandle = '@gnosischain'
 
   return (
     <>
@@ -14,7 +15,7 @@ const TermsPage: NextPage = () => {
         <meta content={title} property="og:title" />
         <meta content="website" property="og:type" />
         <meta content={description} property="og:description" />
-        <meta content={title} name="twitter:site" />
+        <meta content={twitterHandle} name="twitter:site" />
       </NextHead>
       <UsdcTransmutationFormIndex />
     </>
