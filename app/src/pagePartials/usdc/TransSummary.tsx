@@ -9,7 +9,7 @@ import { genericSuspense } from '@/src/components/safeSuspense'
 import React from 'react'
 import useWeb3Name from '@/src/hooks/useWeb3Name'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
-import { TRANSMUTER_ADDRESS } from './const'
+import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 
 export const TransSummary: React.FC<{
   amount: BigNumber

@@ -21,7 +21,7 @@ import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { isSameString } from '@/src/utils/tools'
 import { defaultAbiCoder } from 'ethers/lib/utils'
-import { TRANSMUTER_ADDRESS } from '@/src/pagePartials/usdc/const'
+import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 
 /**
  * isNativeToken && isFromForeign: use wrapAndRelayTokens (nativeOmniBridgeMediator) (no need approve: infinite approve) -> ETH -> WETH

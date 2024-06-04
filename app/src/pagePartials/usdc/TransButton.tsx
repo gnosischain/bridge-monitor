@@ -4,7 +4,7 @@ import { Connect } from '@/src/components/assets/Connect'
 import { Chains } from '@/src/constants/config/types'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { getNetworkConfig } from '@/src/constants/config/chains'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
 import useTransaction from '@/src/hooks/useTransaction'
 import { BigNumber } from 'ethers'
@@ -12,8 +12,9 @@ import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import useWeb3Name from '@/src/hooks/useWeb3Name'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
 import { TokenUsdc } from './types'
-import { TRANSMUTER_ADDRESS } from './const'
+import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { useTransmuterTxInfo } from '@/src/hooks/usdcTransmuter/useTransmuterTxInfo'
+import { usdcTokens } from './const'
 
 const Button = styled(ButtonFull)`
   margin: 0 auto;
@@ -68,15 +69,34 @@ const ApproveButton: React.FC<{
   amount: BigNumber
 }> = ({ amount, token, userAddress }) => {
   const [isSending, setIsSending] = useState(false)
+  const [isComponentMounted, setIsComponentMounted] = useState(true)
+
+  useEffect(() => {
+    setIsComponentMounted(true)
+
+    return () => {
+      setIsComponentMounted(false)
+    }
+  }, [])
 
   const approve = useApproval()
 
-  const { mutate: refreshBalance } = useUserTokenBalances({
+  const { mutate: refreshBalanceToken } = useUserTokenBalances({
     userAddress,
     chainId: Chains.gnosis,
     allowanceAddress: TRANSMUTER_ADDRESS,
     tokenAddress: token.address,
   })
+
+  // const tokenOutAddress =
+  //   token.address === usdcTokens.usdcXdaiOld.address
+  //     ? usdcTokens.usdceGnosis.address
+  //     : usdcTokens.usdcXdaiOld.address
+  // const { mutate: refreshBalanceTokenOut } = useUserTokenBalances({
+  //   userAddress,
+  //   chainId: Chains.gnosis,
+  //   tokenAddress: tokenOutAddress,
+  // })
 
   const handleApprove = async () => {
     setIsSending(true)
@@ -89,10 +109,13 @@ const ApproveButton: React.FC<{
 
     if (tx) {
       await tx.wait()
-      await refreshBalance()
+      await refreshBalanceToken()
+      // await refreshBalanceTokenOut()
     }
 
-    setIsSending(false)
+    if (isComponentMounted) {
+      setIsSending(false)
+    }
   }
 
   if (isSending) {
@@ -109,6 +132,7 @@ const TriggerTransButton: React.FC<{
   clearForm: () => void
 }> = ({ amount, clearForm, token, userAddress }) => {
   const [isSending, setIsSending] = useState(false)
+  const [isComponentMounted, setIsComponentMounted] = useState(true)
 
   const { walletChainId, web3Provider } = useWeb3Connection()
   if (!web3Provider) throw new Error('No web3 provider available')
@@ -117,14 +141,33 @@ const TriggerTransButton: React.FC<{
   const sendTx = useTransaction()
   // const router = useRouter()
 
-  const { mutate: refreshBalance } = useUserTokenBalances({
+  const { mutate: refreshBalanceToken } = useUserTokenBalances({
     userAddress,
     chainId: Chains.gnosis,
     allowanceAddress: TRANSMUTER_ADDRESS,
     tokenAddress: token.address,
   })
 
+  const tokenOutAddress =
+    token.address === usdcTokens.usdcXdaiOld.address
+      ? usdcTokens.usdceGnosis.address
+      : usdcTokens.usdcXdaiOld.address
+  const { mutate: refreshBalanceTokenOut } = useUserTokenBalances({
+    userAddress,
+    chainId: Chains.gnosis,
+    allowanceAddress: TRANSMUTER_ADDRESS,
+    tokenAddress: tokenOutAddress,
+  })
+
   const transactionData = useTransmuterTxInfo({ amount, token, userAddress })
+
+  useEffect(() => {
+    setIsComponentMounted(true)
+
+    return () => {
+      setIsComponentMounted(false)
+    }
+  }, [])
 
   const handleTransTx = async () => {
     if (!transactionData || !transactionData.tx) return
@@ -136,14 +179,16 @@ const TriggerTransButton: React.FC<{
       if (tx) {
         await tx.wait()
         clearForm()
-        await refreshBalance()
+        Promise.all([refreshBalanceToken(), refreshBalanceTokenOut()])
       } else {
         throw new Error('Failed to swap')
       }
     } catch (error) {
       console.error(error)
     } finally {
-      setIsSending(false)
+      if (isComponentMounted) {
+        setIsSending(false)
+      }
     }
   }
 
@@ -155,7 +200,7 @@ const TriggerTransButton: React.FC<{
     return <DisabledTransButton />
   }
 
-  return <Button onClick={handleTransTx}>Transmute</Button>
+  return <Button onClick={handleTransTx}>Swap</Button>
 }
 
 export const TransButton: React.FC<{

@@ -1,5 +1,5 @@
 import { Chains, ChainsValues } from '@/src/constants/config/types'
-import { ZERO_BN } from '@/src/constants/misc'
+import { TRANSMUTER_ADDRESS, ZERO_BN } from '@/src/constants/misc'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { MaxButton } from './AmountTokenInput'
 import { fromBN } from '@/src/utils/bigNumber'
@@ -121,7 +121,7 @@ export const UserBalance: React.FC<{
   return (
     <Balance
       address={address}
-      // allowanceAddress={bridgeContract.address}
+      allowanceAddress={TRANSMUTER_ADDRESS}
       chainId={Chains.gnosis}
       onMax={onMax}
       token={token}

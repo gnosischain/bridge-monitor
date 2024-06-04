@@ -3,12 +3,11 @@ import styled from 'styled-components'
 import { AmountTokenInput } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
 import { ButtonPlaceholder, DisabledTransButton, TransButton } from './TransButton'
 import { CardPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/CardPlaceholder'
-import { Chains } from '@/src/constants/config/types'
 import { Header } from './Header'
 import { InnerCard } from './InnerCard'
 import { Switch } from './Switch'
 // import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
-import { USDC_XDAI_OLD, USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
+import { TRANSMUTER_ADDRESS, ZERO_ADDRESS } from '@/src/constants/misc'
 import SafeSuspense from '@/src/components/safeSuspense'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { useDebounce } from 'use-debounce'
@@ -18,6 +17,7 @@ import { UserBalance } from './UserBalance'
 import { TransSummary } from './TransSummary'
 import { toBN } from '@/src/utils/bigNumber'
 import { MainCard } from '@/src/components/card/MainCard'
+import { usdcTokens } from './const'
 
 const Title = styled.h2`
   align-items: center;
@@ -109,25 +109,6 @@ const SkeletonCommon: React.FC = () => (
   </Wrapper>
 )
 
-const usdcTokens = {
-  usdcXdaiOld: {
-    address: USDC_XDAI_OLD,
-    chainId: Chains.gnosis,
-    decimals: 6,
-    logoURI: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694',
-    name: 'USDC on xDAI (old USDC)',
-    symbol: 'USDC (old)',
-  },
-  usdceGnosis: {
-    address: USDCe_GNOSIS,
-    chainId: Chains.gnosis,
-    decimals: 6,
-    logoURI: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694',
-    name: 'USDC.e',
-    symbol: 'USDC.e',
-  },
-}
-
 const initialState: UsdcTransFormState = {
   account: '',
   amount: '',
@@ -167,11 +148,8 @@ const Main = () => {
     })
   }
 
-  const clearForm = () => {
-    dispatch({
-      ...initialState,
-      account: address || ZERO_ADDRESS,
-    })
+  const clearForm = async () => {
+    dispatch({ ...formState, amount: '' })
   }
 
   return (

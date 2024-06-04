@@ -3,7 +3,7 @@ import { Chains } from '@/src/constants/config/types'
 import useSWR from 'swr'
 import { USDC_XDAI_OLD, ZERO_BN } from '@/src/constants/misc'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { TRANSMUTER_ADDRESS } from '@/src/pagePartials/usdc/const'
+import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { TokenUsdc } from '@/src/pagePartials/usdc/types'
 import TransmuterAbi from '@/src/abis/TransmuterEurc.json'
 
@@ -69,6 +69,13 @@ export const useTransmuterTxInfo = ({
   const { data: transactionData } = useSWR(
     ['transactionInfo', token, amount, userAddress],
     async ([, _token, _amount, _userAddress]) => {
+      if (_amount.lte(0)) {
+        return {
+          gasLimit: ZERO_BN,
+          gasPrice: ZERO_BN,
+          tx: null,
+        }
+      }
       const { gasLimit, gasPrice, tx } = await getTransTx({
         account: _userAddress,
         amount: _amount,
