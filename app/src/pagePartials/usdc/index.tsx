@@ -6,8 +6,7 @@ import { CardPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/CardPlaceh
 import { Header } from './Header'
 import { InnerCard } from './InnerCard'
 import { Switch } from './Switch'
-// import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
-import { TRANSMUTER_ADDRESS, ZERO_ADDRESS } from '@/src/constants/misc'
+import { ZERO_ADDRESS } from '@/src/constants/misc'
 import SafeSuspense from '@/src/components/safeSuspense'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { useDebounce } from 'use-debounce'
@@ -185,18 +184,6 @@ const Main = () => {
                 {formState.tokenOut && <TokenInfo token={formState.tokenOut} />}
                 <UserBalance address={address} token={formState.tokenOut} />
               </OnChainInfo>
-              {/* <BridgedToken>
-                <ReceivedTokenInfo
-                  amountBN={amountBN}
-                  fromChainId={formState.fromChainId}
-                  setReceiveNativeToken={(receiveNative: boolean) => {
-                    dispatch({ ...formState, receiveNativeToken: receiveNative })
-                  }}
-                  toChainId={formState.toChainId}
-                  token={formState.token}
-                  tokenOut={tokenOut}
-                />
-              </BridgedToken> */}
             </InnerCard>
             {amountBN.gt(0) && formState.token && formState.tokenOut && address && (
               <TransSummary

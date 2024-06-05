@@ -15,44 +15,46 @@ import { TokenUsdc } from './types'
 import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { useTransmuterTxInfo } from '@/src/hooks/usdcTransmuter/useTransmuterTxInfo'
 import { usdcTokens } from './const'
+import useSWR from 'swr'
 
 const Button = styled(ButtonFull)`
   margin: 0 auto;
   width: 100%;
 `
 
-// const BottomInfo = styled.p`
-//   font-size: 1.4rem;
-//   font-weight: 400;
-//   line-height: 1.2;
-//   margin: 0;
-//   text-align: center;
-//   color: rgb(221, 113, 67);
+const BottomInfo = styled.p`
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0;
+  text-align: center;
+  color: rgb(221, 113, 67);
 
-//   a {
-//     color: rgb(221, 113, 67);
-//   }
-// `
+  a {
+    color: rgb(221, 113, 67);
+  }
+`
 
 export const ButtonPlaceholder: React.FC = () => <Button disabled>Loading...</Button>
 
-export const ButtonPlaceholderWithWarning: React.FC = () => {
-  // const { address, readOnlyAppProvider } = useWeb3Connection()
-  // const isSCWallet = useSWR(
-  //   address && readOnlyAppProvider ? [`isSCWallet-${address}`, address, readOnlyAppProvider] : null,
-  //   ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
-  // ).data
-  // const myTxsLink = `/bridge-explorer/my-transactions?hash=${address}`
+export const ButtonPlaceholderWithWarning: React.FC<{
+  action: string
+}> = ({ action }) => {
+  const { address, readOnlyAppProvider } = useWeb3Connection()
+  const isSCWallet = useSWR(
+    address && readOnlyAppProvider ? [`isSCWallet-${address}`, address, readOnlyAppProvider] : null,
+    ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
+  ).data
 
   return (
     <>
       <ButtonPlaceholder />
-      {/* {isSCWallet && (
+      {isSCWallet && (
         <BottomInfo>
-          When using a smart contract wallet, if transaction is executed but the transmutting status
-          remains unchanged, go to <a href={myTxsLink}>My Transactions</a> page.
+          When using a smart contract wallet, if transaction is executed but the {action} status
+          remains unchanged, just reload the page.
         </BottomInfo>
-      )} */}
+      )}
     </>
   )
 }
@@ -119,7 +121,7 @@ const ApproveButton: React.FC<{
   }
 
   if (isSending) {
-    return <ButtonPlaceholderWithWarning />
+    return <ButtonPlaceholderWithWarning action="approving" />
   }
 
   return <Button onClick={handleApprove}>Approve</Button>
@@ -193,7 +195,7 @@ const TriggerTransButton: React.FC<{
   }
 
   if (isSending) {
-    return <ButtonPlaceholderWithWarning />
+    return <ButtonPlaceholderWithWarning action="swapping" />
   }
 
   if (!transactionData) {
