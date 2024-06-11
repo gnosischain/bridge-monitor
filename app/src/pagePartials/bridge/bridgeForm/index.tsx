@@ -17,8 +17,12 @@ import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
 import { Token } from '@/types/token'
 import { TokenDropdown } from '@/src/pagePartials/bridge/bridgeForm/TokenDropdown'
 import {
+  AURA_ETHEREUM,
+  AURA_GNOSIS,
   EURe_ETHEREUM,
   EURe_GNOSIS,
+  USDC_ETHEREUM,
+  USDCe_GNOSIS,
   WXDAI_GNOSIS,
   ZERO_ADDRESS,
   sDAI_GNOSIS,
@@ -37,8 +41,9 @@ import { BridgeSummary } from '@/src/pagePartials/bridge/bridgeForm/BridgeSummar
 import { ReceivedTokenInfo } from '@/src/pagePartials/bridge/bridgeForm/ReceivedTokenInfo'
 import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
 import { toBN } from '@/src/utils/bigNumber'
-import { MoneriumWarning } from './MoneriumWarning'
-import { NotBridgetERC20Warning } from './NotBridgedERC20Warning'
+import { NotBridgedERC20Warning } from './NotBridgedERC20Warning'
+import { ExternalBridgeWarning } from './ExternalBridgeWarning'
+import { UsdcEGcWarning, UsdcEthWarning } from './UsdcWarnings'
 
 const Title = styled.h2`
   align-items: center;
@@ -193,9 +198,14 @@ const Main = () => {
     (isSameString(formState.token?.address || '', WXDAI_GNOSIS) ||
       isSameString(formState.token?.address || '', sDAI_GNOSIS))
 
-  const isEURe =
+  const sendToExternalBridge =
     isSameString(formState.token?.address || '', EURe_GNOSIS) ||
-    isSameString(formState.token?.address || '', EURe_ETHEREUM)
+    isSameString(formState.token?.address || '', EURe_ETHEREUM) ||
+    isSameString(formState.token?.address || '', AURA_GNOSIS) ||
+    isSameString(formState.token?.address || '', AURA_ETHEREUM)
+
+  const isUsdcEth = isSameString(formState.token?.address || '', USDC_ETHEREUM)
+  const isUsdceGC = isSameString(formState.token?.address || '', USDCe_GNOSIS)
 
   const tokenOut = useBridgeTokenOutInfo({
     fromChainId: formState.fromChainId,
@@ -249,11 +259,15 @@ const Main = () => {
             </InnerCardFrom>
             <InnerCard>
               <Title>Transfer to</Title>
+              {isUsdcEth && <UsdcEthWarning />}
+              {isUsdceGC && <UsdcEGcWarning />}
               {unwrapFirst && <UnwrapFirst />}
-              {isEURe && <MoneriumWarning />}
-              {isNotBridgedErc20 && <NotBridgetERC20Warning />}
+              {sendToExternalBridge && formState.token && (
+                <ExternalBridgeWarning token={formState.token} />
+              )}
+              {isNotBridgedErc20 && !unwrapFirst && !isUsdceGC && <NotBridgedERC20Warning />}
 
-              {!unwrapFirst && !isEURe && !isNotBridgedErc20 && (
+              {!unwrapFirst && !sendToExternalBridge && !isNotBridgedErc20 && !isUsdceGC && (
                 <>
                   <OnChainInfo>
                     <Chain chainId={formState.toChainId} />
@@ -303,7 +317,11 @@ const Main = () => {
           </FormCards>
           {unwrapFirst ? (
             <ButtonUnwrapFirst symbol={formState.token?.symbol} />
-          ) : !formState.token || !address || amountBN.eq(0) || isEURe || isNotBridgedErc20 ? (
+          ) : !formState.token ||
+            !address ||
+            amountBN.eq(0) ||
+            sendToExternalBridge ||
+            isNotBridgedErc20 ? (
             <DisabledBridgeButton />
           ) : (
             <SafeSuspense fallback={<ButtonPlaceholder />}>
