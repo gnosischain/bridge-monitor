@@ -15,6 +15,7 @@ import { fromBN } from '@/src/utils/bigNumber'
 import { getNetworkConfig } from '@/src/constants/config/chains'
 import { Loading } from '@/src/components/loading'
 import { genericSuspense } from '@/src/components/safeSuspense'
+import { useClaimFee } from '@/src/hooks/bridge/useClaimFee'
 
 const Wrapper = styled.ul`
   background: ${({ theme: { colors } }) => colors.white_50};
@@ -43,6 +44,10 @@ const Item = styled.li`
     border-bottom: 1px solid ${({ theme: { colors } }) => colors.cream};
     padding: var(--theme-common-space) 0;
   }
+`
+
+const ItemWarning = styled(Item)`
+  color: ${({ theme: { colors } }) => colors.error};
 `
 
 const Value = styled.span`
@@ -107,6 +112,11 @@ export const TxPreview: React.FC<{
       token,
     })
 
+    const { data: claimFee } = useClaimFee({
+      isFromHome,
+      isNativeBridge,
+    })
+
     if (!transactionData) throw new Error('Transaction data is not available')
 
     const tokenOutAmount = formatUnits(amount.sub(feeInfo || ZERO_BN), tokenOut?.decimals)
@@ -149,6 +159,15 @@ export const TxPreview: React.FC<{
             <Tooltip content="Estimated bridge fees" />
           </Value>
         </Item>
+        {claimFee && (
+          <ItemWarning>
+            Estimated claim fee on Ethereum
+            <Value>
+              {`${formatUnits(claimFee, 18)} ETH`}
+              <Tooltip content="You'll need to claim your token on Ethereum" />
+            </Value>
+          </ItemWarning>
+        )}
       </Wrapper>
     )
   },
