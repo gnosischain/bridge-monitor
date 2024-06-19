@@ -167,9 +167,10 @@ export const ClaimButton = ({
       const AMBInterface = new Interface(contracts.AMB.abi)
       const USER_REQUEST_FOR_SIGNATURE_TOPIC0 =
         '0x520d2afde79cbd5db58755ac9480f81bc658e5c517fcae7365a3d832590b0183'
-      const userRequestForSignatureEvent = initialTx.logs.find(
-        (log) => log.topics[0] === USER_REQUEST_FOR_SIGNATURE_TOPIC0,
-      )
+      const userRequestForSignatureEvent =
+        initialTx && initialTx.logs
+          ? initialTx.logs.find((log) => log.topics[0] === USER_REQUEST_FOR_SIGNATURE_TOPIC0)
+          : undefined
 
       if (!userRequestForSignatureEvent) {
         notify({

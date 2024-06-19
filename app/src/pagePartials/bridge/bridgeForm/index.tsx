@@ -19,6 +19,7 @@ import { TokenDropdown } from '@/src/pagePartials/bridge/bridgeForm/TokenDropdow
 import {
   AURA_ETHEREUM,
   AURA_GNOSIS,
+  AURA_GNOSIS_CANONICAL,
   EURe_ETHEREUM,
   EURe_GNOSIS,
   USDC_ETHEREUM,
@@ -202,7 +203,8 @@ const Main = () => {
     isSameString(formState.token?.address || '', EURe_GNOSIS) ||
     isSameString(formState.token?.address || '', EURe_ETHEREUM) ||
     isSameString(formState.token?.address || '', AURA_GNOSIS) ||
-    isSameString(formState.token?.address || '', AURA_ETHEREUM)
+    isSameString(formState.token?.address || '', AURA_ETHEREUM) ||
+    isSameString(formState.token?.address || '', AURA_GNOSIS_CANONICAL)
 
   const isUsdcEth = isSameString(formState.token?.address || '', USDC_ETHEREUM)
   const isUsdceGC = isSameString(formState.token?.address || '', USDCe_GNOSIS)
@@ -265,7 +267,9 @@ const Main = () => {
               {sendToExternalBridge && formState.token && (
                 <ExternalBridgeWarning token={formState.token} />
               )}
-              {isNotBridgedErc20 && !unwrapFirst && !isUsdceGC && <NotBridgedERC20Warning />}
+              {isNotBridgedErc20 && !unwrapFirst && !isUsdceGC && !sendToExternalBridge && (
+                <NotBridgedERC20Warning />
+              )}
 
               {!unwrapFirst && !sendToExternalBridge && !isNotBridgedErc20 && !isUsdceGC && (
                 <>
