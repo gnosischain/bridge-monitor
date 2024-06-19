@@ -1714,22 +1714,6 @@
     },
     {
       "bridge_type": "omni",
-      "foreign_address": "0x27FBDD15fB0820b50B9c3683ea628bb6aB9B2D70",
-      "origin_chain_id": "1",
-      "address": "0x32D4CC674Cb8438Dd454054874d4977B07FC54bF",
-      "circulating_market_cap": null,
-      "decimals": "18",
-      "exchange_rate": null,
-      "holders": "1",
-      "icon_url": null,
-      "is_bridged": true,
-      "name": "Basic Attention Token on xDai",
-      "symbol": "BAT",
-      "total_supply": "101000000000000000000000",
-      "type": "ERC-20"
-    },
-    {
-      "bridge_type": "omni",
       "foreign_address": "0x27fD686Db10E0aE047fe8FE1DE9830C0e0dC3CFA",
       "origin_chain_id": "1",
       "address": "0x06CBDD3bef4C35ac76c48Cc5c8f65c973d5a3005",
@@ -4414,22 +4398,6 @@
       "name": "SushiSwap LP Token on xDai",
       "symbol": "SLP",
       "total_supply": "4980904047466637407",
-      "type": "ERC-20"
-    },
-    {
-      "bridge_type": "omni",
-      "foreign_address": "0x770D377b556A5DbFC7d96EB2c9c01223B9a59bb8",
-      "origin_chain_id": "1",
-      "address": "0x4f133EFa3775942c24d2E66e0f12AB371d4d15f4",
-      "circulating_market_cap": null,
-      "decimals": "18",
-      "exchange_rate": null,
-      "holders": "2",
-      "icon_url": null,
-      "is_bridged": true,
-      "name": "Dai Token from BSC on xDai",
-      "symbol": "DAI",
-      "total_supply": "78359687846748733257",
       "type": "ERC-20"
     },
     {
@@ -8194,22 +8162,6 @@
     },
     {
       "bridge_type": "omni",
-      "foreign_address": "0xda9dd450d8D0B4BD89E3f036c49CB90F0A35e59a",
-      "origin_chain_id": "1",
-      "address": "0xb8D89191083d6C0aC7213F0F4522cf3fAD188B92",
-      "circulating_market_cap": null,
-      "decimals": "18",
-      "exchange_rate": null,
-      "holders": "1",
-      "icon_url": null,
-      "is_bridged": true,
-      "name": "Curve DAO Token on xDai on BSC from BSC on xDai",
-      "symbol": "CRV",
-      "total_supply": "458247390899132960",
-      "type": "ERC-20"
-    },
-    {
-      "bridge_type": "omni",
       "foreign_address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
       "origin_chain_id": "1",
       "address": "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
@@ -9154,22 +9106,6 @@
     },
     {
       "bridge_type": "omni",
-      "foreign_address": "0xF5D669627376EBd411E34b98F19C868c8ABA5ADA",
-      "origin_chain_id": "1",
-      "address": "0xBDE011911128F6bD4ABb1d18F39fdc3614Ca2cfe",
-      "circulating_market_cap": null,
-      "decimals": "18",
-      "exchange_rate": null,
-      "holders": "144",
-      "icon_url": null,
-      "is_bridged": true,
-      "name": "Axie Infinity Shard on xDai",
-      "symbol": "AXS",
-      "total_supply": "190740483018757196554",
-      "type": "ERC-20"
-    },
-    {
-      "bridge_type": "omni",
       "foreign_address": "0xF629cBd94d3791C9250152BD8dfBDF380E2a3B9c",
       "origin_chain_id": "1",
       "address": "0x5A757F0BcAdFDb78651B7bDBe67e44e8Fd7F7f6b",
@@ -9538,22 +9474,6 @@
     },
     {
       "bridge_type": "omni",
-      "foreign_address": "0xfC2a0e600E71E8c2484C15a22C514d1F2d10879B",
-      "origin_chain_id": "1",
-      "address": "0x4c82F5220902B3A70ACcdF86aEB93d5C90386891",
-      "circulating_market_cap": null,
-      "decimals": "18",
-      "exchange_rate": null,
-      "holders": "1",
-      "icon_url": null,
-      "is_bridged": true,
-      "name": "BUSD Token from BSC on xDai",
-      "symbol": "BUSD",
-      "total_supply": "5564944831455554669",
-      "type": "ERC-20"
-    },
-    {
-      "bridge_type": "omni",
       "foreign_address": "0xfC6e284605AD1604b8c33066cf8265070a59fE46",
       "origin_chain_id": "1",
       "address": "0x3F428E2C193B40550728aF51Fe13dEC7d89E4a48",
@@ -9758,6 +9678,22 @@
       "name": "SAFE",
       "symbol": "SAFE",
       "total_supply": "1000000000000000000000000000",
+      "type": "ERC-20"
+    },
+    {
+      "bridge_type": "omni",
+      "foreign_address": "0xae78736Cd615f374D3085123A210448E74Fc6393",
+      "origin_chain_id": "1",
+      "address": "0xc791240D1F2dEf5938E2031364Ff4ed887133C3d",
+      "circulating_market_cap": null,
+      "decimals": "18",
+      "exchange_rate": null,
+      "holders": "3",
+      "icon_url": null,
+      "is_bridged": true,
+      "name": "Rocket Pool ETH",
+      "symbol": "rETH",
+      "total_supply": "504206832843876155817429",
       "type": "ERC-20"
     }
   ]
