@@ -56,6 +56,14 @@ const Value = styled.span`
   gap: var(--theme-common-space);
 `
 
+const Warning = styled.div`
+  color: ${({ theme: { colors } }) => colors.error};
+`
+const ExternalLink = styled.a`
+  color: ${({ theme: { colors } }) => colors.error};
+  word-break: break-all;
+`
+
 export const TxPreviewLoading: React.FC = ({ ...restProps }) => {
   return (
     <Wrapper as="div" {...restProps}>
@@ -118,6 +126,24 @@ export const TxPreview: React.FC<{
     })
 
     if (!transactionData) throw new Error('Transaction data is not available')
+
+    if (transactionData.gasLimit.isZero()) {
+      return (
+        <Wrapper {...restProps}>
+          <Warning>
+            There is problem with the token approval. Try to revoke previous approval if any on{' '}
+            <ExternalLink
+              href={`https://revoke.cash/address/${userAddress}?chainId=${fromChainId}`}
+              rel="noreferrer"
+              target="_blank"
+            >
+              {`https://revoke.cash/address/${userAddress}?chainId=${fromChainId}`}
+            </ExternalLink>{' '}
+            and try again.
+          </Warning>
+        </Wrapper>
+      )
+    }
 
     const tokenOutAmount = formatUnits(amount.sub(feeInfo || ZERO_BN), tokenOut?.decimals)
     const estimatedTime = requiredBlocks.estimatedTimeInSeconds || 0
