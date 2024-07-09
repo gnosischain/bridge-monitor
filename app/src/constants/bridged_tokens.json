@@ -9711,6 +9711,22 @@
       "symbol": "POLK",
       "total_supply": "100000000000000000000000000",
       "type": "ERC-20"
+    },
+    {
+      "bridge_type": "omni",
+      "foreign_address": "0xe485E2f1bab389C08721B291f6b59780feC83Fd7",
+      "origin_chain_id": "1",
+      "address": "0x8CCd277Cc638E7e17F8100cE583cBcEf42007Dca",
+      "circulating_market_cap": null,
+      "decimals": "18",
+      "exchange_rate": null,
+      "holders": "2777",
+      "icon_url": null,
+      "is_bridged": true,
+      "name": "Shutter Token",
+      "symbol": "SHU",
+      "total_supply": "1000000000000000000000000000",
+      "type": "ERC-20"
     }
   ]
 }
