@@ -200,7 +200,12 @@ const handleERC20TokenFromForeign = async ({
   }
 
   if (!isERC677 && amount.gt(allowance)) {
-    gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
+    try {
+      gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
+    } catch (error) {
+      gasLimit = BigNumber.from(0)
+    }
+    // gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
   } else {
     // Never use transfer in this case. Always use relayTokens.
     // Can we use transferAndCall here if the token is compatible with ERC677/ERC827???
@@ -420,7 +425,7 @@ export const getBridgeTx = async ({
   account,
   allowance,
   amount,
-  balance,
+  // balance,
   fromChainId,
   receiveNativeToken,
   recipient,
@@ -443,6 +448,7 @@ export const getBridgeTx = async ({
 }) => {
   const bridgeContract = getBridgeContract(fromChainId, toChainId, tokenAddress).connect(signer)
 
+  // if (amount.lte(0) || !account || allowance.lt(amount)) {
   if (amount.lte(0) || !account) {
     return {
       gasLimit: ZERO_BN,
