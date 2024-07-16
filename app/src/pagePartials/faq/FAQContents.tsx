@@ -72,8 +72,8 @@ export const FAQContents: React.FC = () => {
             </a>
           </li>
           <li>
-            <a href="https://dln.trade/" rel="noreferrer" target="_blank">
-              DLN
+            <a href="https://app.debridge.finance/" rel="noreferrer" target="_blank">
+              debridge
             </a>
           </li>
           <li>
