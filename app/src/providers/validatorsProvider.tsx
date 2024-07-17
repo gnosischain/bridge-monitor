@@ -7,6 +7,10 @@ import { gnosis } from '@/src/constants/config/rpc-providers'
 import { fromSubgraphTimestamp } from '@/src/utils/date'
 import { Chains, chainsConfig } from '@/src/constants/config/chains'
 import cloneDeep from 'lodash/cloneDeep'
+import {
+  TELEPATHY_VALIDATOR_ADDRESS,
+  TELEPATHY_VALIDATOR_ADDRESS_REPLACED,
+} from '../constants/misc'
 
 type ValidatorsContextType = {
   validators: Record<BridgesValues, Validator[]>
@@ -40,7 +44,11 @@ const fetcher = async () => {
       const val = getValidatorByAddress(v.address, v.bridgeType!)
       if (!val) throw new Error('Validator not found')
 
-      const balanceHomeValue = await getBalance(v.address, homeProvider)
+      const validatorAddress =
+        v.address.toLowerCase() === TELEPATHY_VALIDATOR_ADDRESS.toLowerCase()
+          ? TELEPATHY_VALIDATOR_ADDRESS_REPLACED
+          : v.address
+      const balanceHomeValue = await getBalance(validatorAddress, homeProvider)
 
       return {
         ...val,
