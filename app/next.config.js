@@ -35,4 +35,12 @@ module.exports = withBundleAnalyzer({
     },
   },
   transpilePackages: ['@web3-name-sdk/core'],
+  async middleware() {
+    return [
+      {
+        source: '/manifest.json',
+        destination: '/middleware.ts',
+      },
+    ]
+  },
 })
