@@ -8345,7 +8345,7 @@
       "decimals": "18",
       "exchange_rate": "0.065957",
       "holders": "9914",
-      "icon_url": "https://assets.coingecko.com/coins/images/24384/small/cow.png?1696523567",
+      "icon_url": "/images/icons/cow-token.svg",
       "is_bridged": true,
       "name": "CoW Protocol Token from Mainnet",
       "symbol": "COW",
