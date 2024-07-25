@@ -7,7 +7,7 @@ import { Loading } from '@/src/components/loading'
 import isDev from '@/src/utils/isDev'
 
 type Props = {
-  children: React.ReactNode
+  children?: React.ReactNode
   fallback?: JSX.Element
 }
 
@@ -31,7 +31,7 @@ export default function SafeSuspense({
   )
 }
 
-export function genericSuspense<T>(Element: FC<T>, fallback?: FC<T>) {
+export function genericSuspense<T extends Props>(Element: FC<T>, fallback?: FC<T>) {
   return function GenericSuspenseReturnFunction(props: T) {
     return (
       <ErrorBoundary
