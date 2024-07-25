@@ -31,6 +31,9 @@ import { hexToNumber, isValidChain } from '@/src/utils/tools'
 import { RequiredNonNull } from '@/types/utils'
 import { ModalCSS } from '@/src/theme/onBoard'
 
+import Onboard from '@web3-onboard/core'
+import safeModule from '@web3-onboard/gnosis'
+
 const STORAGE_CONNECTED_WALLET = 'onboard_selectedWallet'
 
 declare type SetChainOptions = {
@@ -65,11 +68,13 @@ const walletConnect = walletConnectModule({
   version: 2,
 })
 
+const safe = safeModule()
+
 export function initOnboard() {
   if (typeof window === 'undefined' || window?.onboard || onBoardApi) return
 
   onBoardApi = init({
-    wallets: [injected, walletConnect],
+    wallets: [injected, walletConnect, safe],
     chains: chainsForOnboard,
     notify: {
       enabled: false,
@@ -201,6 +206,20 @@ export default function Web3ConnectionProvider({ children }: Props) {
       setWalletFromLocalStorage()
     }
   }, [connect, connectedWallets.length])
+
+  // autoconnect if it's inside Safe app
+  useEffect(() => {
+    const connectToSafe = async () => {
+      if (window.top !== window.self) {
+        // is it an iframe?
+        await connect({
+          autoSelect: { label: 'Safe', disableModals: true },
+        })
+      }
+    }
+
+    connectToSafe()
+  }, [connect])
 
   const getExplorerUrl = useMemo(() => {
     return (hash: string, network = 'mainnet') => {
