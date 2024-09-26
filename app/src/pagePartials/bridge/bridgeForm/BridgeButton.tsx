@@ -17,6 +17,10 @@ import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInf
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
 import useSWR from 'swr'
+import useWeb3Name from '@/src/hooks/useWeb3Name'
+import { isValidDomainName } from '@/src/utils/isValidDomainName'
+import { USDC_ETHEREUM } from '@/src/constants/misc'
+import { isSameString } from '@/src/utils/tools'
 
 const Button = styled(ButtonFull)`
   margin: 0 auto;
@@ -30,11 +34,17 @@ const BottomInfo = styled.p`
   margin: 0;
   text-align: center;
   color: rgb(221, 113, 67);
+
+  a {
+    color: rgb(221, 113, 67);
+  }
 `
 
 export const ButtonPlaceholder: React.FC = () => <Button disabled>Loading...</Button>
 
-export const ButtonPlaceholderWithWarning: React.FC = () => {
+export const ButtonPlaceholderWithWarning: React.FC<{
+  action: string
+}> = ({ action }) => {
   const { address, readOnlyAppProvider } = useWeb3Connection()
   const isSCWallet = useSWR(
     address && readOnlyAppProvider ? [`isSCWallet-${address}`, address, readOnlyAppProvider] : null,
@@ -45,12 +55,18 @@ export const ButtonPlaceholderWithWarning: React.FC = () => {
   return (
     <>
       <ButtonPlaceholder />
-      {isSCWallet && (
-        <BottomInfo>
-          When using a smart contract wallet, if transaction is executed but the bridging status
-          remains unchanged, go to <a href={myTxsLink}>My Transactions</a> page.
-        </BottomInfo>
-      )}
+      {isSCWallet &&
+        (action === 'approving' ? (
+          <BottomInfo>
+            When using a smart contract wallet, if transaction is executed but the approving status
+            remains unchanged, just reload the page and insert the same amount for bridge.
+          </BottomInfo>
+        ) : (
+          <BottomInfo>
+            When using a smart contract wallet, if transaction is executed but the {action} status
+            remains unchanged, go to <a href={myTxsLink}>My Transactions</a> page.
+          </BottomInfo>
+        ))}
     </>
   )
 }
@@ -94,7 +110,7 @@ const ApproveButton: React.FC<{
   }
 
   if (isSending) {
-    return <ButtonPlaceholderWithWarning />
+    return <ButtonPlaceholderWithWarning action="approving" />
   }
 
   return <Button onClick={handleApprove}>Approve</Button>
@@ -157,10 +173,27 @@ const TriggerBridgeButton: React.FC<{
   }
 
   if (isSending) {
-    return <ButtonPlaceholderWithWarning />
+    return <ButtonPlaceholderWithWarning action="bridging" />
   }
 
-  return <Button onClick={handleBridgeTx}>Bridge</Button>
+  const isUsdcEth = isSameString(token.address, USDC_ETHEREUM)
+
+  return (
+    <>
+      <Button onClick={handleBridgeTx}>Bridge</Button>
+      {isUsdcEth && (
+        <BottomInfo>
+          When bridging USDC from Ethereum the receiver is the <b>USDC.e swapping contract</b>,
+          after bridging it sends funds to your receipent address
+          <br />
+          You can track this transaction by its hash or by the sender address on the{' '}
+          <a href={`/bridge-explorer?hash=${userAddress}`} rel="noreferrer" target="_blank">
+            Search page
+          </a>
+        </BottomInfo>
+      )}
+    </>
+  )
 }
 
 export const DisabledBridgeButton = () => (
@@ -200,12 +233,17 @@ export const BridgeButton: React.FC<{
 
   const appChainConfig = getNetworkConfig(fromChainId)
 
+  const { resolvedAddress } = useWeb3Name({
+    name: isValidDomainName(recipient) ? recipient : undefined,
+  })
+  const recipientAddress = resolvedAddress ?? recipient
+
   const { isValidToSend: canBridge, shouldApprove } = useBridgeValidations({
     fromChainId,
     toChainId,
     userAddress,
     amount,
-    recipient,
+    recipient: recipientAddress,
     fromToken,
     toToken,
   })
@@ -260,7 +298,7 @@ export const BridgeButton: React.FC<{
       amount={amount}
       fromChainId={fromChainId}
       receiveNativeToken={receiveNativeToken}
-      recipient={recipient}
+      recipient={recipientAddress}
       toChainId={toChainId}
       token={fromToken}
       userAddress={userAddress}

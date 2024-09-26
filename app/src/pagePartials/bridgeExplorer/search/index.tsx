@@ -8,6 +8,7 @@ import { isTransactionHash } from '@/src/utils/tools'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/router'
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
+import { isValidDomainName } from '@/src/utils/isValidDomainName'
 
 const Wrapper = styled.div`
   --wrapper-width: 1080px;
@@ -105,8 +106,12 @@ export const Search: React.FC = ({ ...restProps }) => {
   const router = useRouter()
   const { hash: byParamHash } = useMemo(() => router.query, [router.query])
   const byParamHashString = byParamHash as string
-  const isValidHash = (value: string) => isTransactionHash(value) || isAddress(value)
+
+  const isValidHash = (value: string) => {
+    return isTransactionHash(value) || isAddress(value) || isValidDomainName(value)
+  }
   const isEmptyHash = (value: string) => value === ''
+
   const {
     filters,
     hash: currentHash,
@@ -115,6 +120,7 @@ export const Search: React.FC = ({ ...restProps }) => {
     hash:
       isValidHash(byParamHashString) && !isEmptyHash(byParamHashString) ? byParamHashString : '',
   })
+
   const [error, setError] = useState<string>('')
   const errorMessage = 'Address or transaction hash is invalid'
 

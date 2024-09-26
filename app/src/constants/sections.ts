@@ -30,6 +30,10 @@ export const bridgeExplorerSections = [
     section: 'Validators',
     href: `${bridgeExplorerBaseURL}/validators`,
   },
+  {
+    section: 'USDC swap',
+    href: `/usdc`,
+  },
 ] as const
 
 export const mainMenuSections = [...bridgeSections, ...bridgeExplorerSections]

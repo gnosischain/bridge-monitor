@@ -34,4 +34,5 @@ module.exports = withBundleAnalyzer({
       ],
     },
   },
+  transpilePackages: ['@web3-name-sdk/core'],
 })

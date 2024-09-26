@@ -16,7 +16,18 @@ import { Switch } from '@/src/pagePartials/bridge/bridgeForm/Switch'
 import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
 import { Token } from '@/types/token'
 import { TokenDropdown } from '@/src/pagePartials/bridge/bridgeForm/TokenDropdown'
-import { WXDAI_GNOSIS, ZERO_ADDRESS, sDAI_GNOSIS } from '@/src/constants/misc'
+import {
+  AURA_ETHEREUM,
+  AURA_GNOSIS,
+  AURA_GNOSIS_CANONICAL,
+  EURe_ETHEREUM,
+  EURe_GNOSIS,
+  USDC_ETHEREUM,
+  USDCe_GNOSIS,
+  WXDAI_GNOSIS,
+  ZERO_ADDRESS,
+  sDAI_GNOSIS,
+} from '@/src/constants/misc'
 import { chainsConfig } from '@/src/constants/config/chains'
 import SafeSuspense from '@/src/components/safeSuspense'
 import { getToChainId, isSameString } from '@/src/utils/tools'
@@ -31,6 +42,9 @@ import { BridgeSummary } from '@/src/pagePartials/bridge/bridgeForm/BridgeSummar
 import { ReceivedTokenInfo } from '@/src/pagePartials/bridge/bridgeForm/ReceivedTokenInfo'
 import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
 import { toBN } from '@/src/utils/bigNumber'
+import { NotBridgedERC20Warning } from './NotBridgedERC20Warning'
+import { ExternalBridgeWarning } from './ExternalBridgeWarning'
+import { UsdcEGcWarning, UsdcEthWarning } from './UsdcWarnings'
 
 const Title = styled.h2`
   align-items: center;
@@ -104,13 +118,13 @@ const AmountInput = styled(AmountTokenInput)`
   margin-right: calc(var(--theme-common-space) * -1);
 `
 
-const sanitizeAmount = (amount: string, decimals: number) => {
-  if (!amount.includes('.')) return amount
+// const sanitizeAmount = (amount: string, decimals: number) => {
+//   if (!amount.includes('.')) return amount
 
-  const parts = amount.split('.')
-  const decimalPart = parts[1].slice(0, decimals) // Keep only allowed decimal places
-  return `${parts[0]}.${decimalPart}`
-}
+//   const parts = amount.split('.')
+//   const decimalPart = parts[1].slice(0, decimals) // Keep only allowed decimal places
+//   return `${parts[0]}.${decimalPart}`
+// }
 
 const SkeletonCommon: React.FC = () => (
   <Wrapper>
@@ -138,7 +152,7 @@ const initialState: BridgeFormState = {
 }
 
 const Main = () => {
-  const { address, walletChainId, web3Provider } = useWeb3Connection()
+  const { address, walletChainId } = useWeb3Connection()
   const { tokensByNetwork } = useBridgedTokens()
   const [formState, dispatch] = useReducer(
     (data: BridgeFormState, partial: Partial<BridgeFormState>): BridgeFormState => ({
@@ -185,12 +199,27 @@ const Main = () => {
     (isSameString(formState.token?.address || '', WXDAI_GNOSIS) ||
       isSameString(formState.token?.address || '', sDAI_GNOSIS))
 
+  const sendToExternalBridge =
+    isSameString(formState.token?.address || '', EURe_GNOSIS) ||
+    isSameString(formState.token?.address || '', EURe_ETHEREUM) ||
+    isSameString(formState.token?.address || '', AURA_GNOSIS) ||
+    isSameString(formState.token?.address || '', AURA_ETHEREUM) ||
+    isSameString(formState.token?.address || '', AURA_GNOSIS_CANONICAL)
+
+  const isUsdcEth = isSameString(formState.token?.address || '', USDC_ETHEREUM)
+  const isUsdceGC = isSameString(formState.token?.address || '', USDCe_GNOSIS)
+
   const tokenOut = useBridgeTokenOutInfo({
     fromChainId: formState.fromChainId,
     receiveNativeToken: formState.receiveNativeToken,
     toChainId: formState.toChainId,
     token: formState.token,
   })
+
+  const isNotBridgedErc20 =
+    tokenOut?.chainId === 1 && tokenOut.extensions.bridgeInfo[1]?.tokenAddress === ZERO_ADDRESS
+      ? true
+      : false
 
   return (
     <Wrapper>
@@ -222,6 +251,7 @@ const Main = () => {
                 />
                 <AmountInput
                   decimals={formState.token?.decimals || 18}
+                  disabled={isNotBridgedErc20}
                   onChange={(value) => dispatch({ ...formState, amount: value })}
                   placeholder="0.00"
                   value={formState.amount}
@@ -231,9 +261,17 @@ const Main = () => {
             </InnerCardFrom>
             <InnerCard>
               <Title>Transfer to</Title>
-              {unwrapFirst ? (
-                <UnwrapFirst />
-              ) : (
+              {isUsdcEth && <UsdcEthWarning />}
+              {isUsdceGC && <UsdcEGcWarning />}
+              {unwrapFirst && <UnwrapFirst />}
+              {sendToExternalBridge && formState.token && (
+                <ExternalBridgeWarning token={formState.token} />
+              )}
+              {isNotBridgedErc20 && !unwrapFirst && !isUsdceGC && !sendToExternalBridge && (
+                <NotBridgedERC20Warning />
+              )}
+
+              {!unwrapFirst && !sendToExternalBridge && !isNotBridgedErc20 && !isUsdceGC && (
                 <>
                   <OnChainInfo>
                     <Chain chainId={formState.toChainId} />
@@ -283,7 +321,11 @@ const Main = () => {
           </FormCards>
           {unwrapFirst ? (
             <ButtonUnwrapFirst symbol={formState.token?.symbol} />
-          ) : !formState.token || !address || amountBN.eq(0) ? (
+          ) : !formState.token ||
+            !address ||
+            amountBN.eq(0) ||
+            sendToExternalBridge ||
+            isNotBridgedErc20 ? (
             <DisabledBridgeButton />
           ) : (
             <SafeSuspense fallback={<ButtonPlaceholder />}>

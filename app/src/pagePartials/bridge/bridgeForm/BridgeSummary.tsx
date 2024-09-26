@@ -8,6 +8,8 @@ import { BigNumber } from 'ethers'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import React from 'react'
 import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
+import useWeb3Name from '@/src/hooks/useWeb3Name'
+import { isValidDomainName } from '@/src/utils/isValidDomainName'
 
 export const BridgeSummary: React.FC<{
   receiveNativeToken: boolean
@@ -32,6 +34,11 @@ export const BridgeSummary: React.FC<{
     const bridgeContract = getBridgeContract(fromChainId, toChainId, token.address)
     const bridgeAddress = bridgeContract.address
 
+    const { resolvedAddress } = useWeb3Name({
+      name: isValidDomainName(recipient) ? recipient : undefined,
+    })
+    const recipientAddress = resolvedAddress ?? recipient
+
     const { data: addressBalances } = useUserTokenBalances({
       userAddress,
       allowanceAddress: bridgeAddress,
@@ -43,7 +50,7 @@ export const BridgeSummary: React.FC<{
     const { errorMessage } = useBridgeValidations({
       amount,
       fromChainId,
-      recipient,
+      recipient: recipientAddress,
       toChainId,
       fromToken: token,
       toToken: tokenOut,
@@ -57,7 +64,7 @@ export const BridgeSummary: React.FC<{
         amount={amount}
         fromChainId={fromChainId}
         receiveNativeToken={receiveNativeToken}
-        recipient={recipient}
+        recipient={recipientAddress}
         toChainId={toChainId}
         token={token}
         tokenOut={tokenOut}

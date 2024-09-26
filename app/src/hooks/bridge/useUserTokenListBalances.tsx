@@ -1,75 +1,49 @@
 import useSWR from 'swr'
-import { ZERO_BN } from '@/src/constants/misc'
-import { ERC20__factory } from '@/types/typechain'
-import { ChainsValues } from '@/src/constants/config/types'
-import { getNetworkConfig } from '@/src/constants/config/chains'
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
-import { isNativeToken } from '@/src/utils/tools'
+import { type BalanceItem, type ChainID, CovalentClient } from '@covalenthq/client-sdk'
 import { BigNumber } from 'ethers'
-import { Token } from '@/types/token'
+
+const COVALENT_API_KEY = process.env.NEXT_PUBLIC_COVALENT_API_KEY || ''
 
 export const useUserTokenListBalances = ({
   chainId,
-  tokenList,
   userAddress,
 }: {
   userAddress: string | null
-  chainId: ChainsValues
-  tokenList: Token[]
+  chainId: number
 }) => {
-  return useSWR(
-    tokenList.length > 0
-      ? ['tokenUserBalances', userAddress, JSON.stringify(tokenList), chainId]
-      : null,
-    async () => {
-      const fromRpcProvider = new JsonRpcBatchProvider(getNetworkConfig(chainId).rpcUrl)
+  return useSWR(userAddress ? ['tokenUserBalances', userAddress, chainId] : null, async () => {
+    try {
+      if (!userAddress || !COVALENT_API_KEY) return {} as Record<string, BigNumber>
 
-      try {
-        const balancePromises = tokenList.map(async (token) => {
-          const _isNativeToken = isNativeToken(token.address)
+      const client = new CovalentClient(COVALENT_API_KEY)
+      const resp = await client.BalanceService.getTokenBalancesForWalletAddress(
+        chainId as ChainID,
+        userAddress,
+      )
 
-          if (!userAddress || token.chainId !== chainId) {
-            return {
-              tokenAddress: token.address,
-              balance: ZERO_BN,
-            }
-          }
-
-          if (!_isNativeToken) {
-            const erc20 = ERC20__factory.connect(token.address, fromRpcProvider)
-            const balance = await erc20.balanceOf(userAddress)
-            return {
-              tokenAddress: token.address,
-              balance,
-            }
-          } else {
-            const nativeBalance = await fromRpcProvider.getBalance(userAddress)
-            return {
-              tokenAddress: token.address,
-              balance: nativeBalance.gt(ZERO_BN) ? nativeBalance : ZERO_BN,
-            }
-          }
-        })
-
-        // Wait for all balance promises to resolve
-        const balances = await Promise.all(balancePromises)
-        return balances.reduce<Record<string, BigNumber>>((acc, { balance, tokenAddress }) => {
-          acc[tokenAddress] = balance
-          return acc
-        }, {})
-      } catch (error) {
-        console.log('Error fetching user token balances', error)
-        console.log('Params with error', {
-          chainId,
-          tokenList,
-          userAddress,
-        })
-        // Return an object with token addresses as keys and ZERO_BN as values
-        return tokenList.reduce<Record<string, BigNumber>>((acc, token) => {
-          acc[token.address] = ZERO_BN
-          return acc
-        }, {})
+      if (resp.error) {
+        console.log(resp.error_message)
+        throw new Error(resp.error_message)
       }
-    },
-  )
+
+      const balances = resp.data.items.reduce<Record<string, BigNumber>>(
+        (acc, item: BalanceItem) => {
+          const balance = BigNumber.from(item.balance)
+          if (balance.eq(0)) return acc
+          acc[item.contract_address] = BigNumber.from(item.balance)
+          return acc
+        },
+        {},
+      )
+
+      return balances
+    } catch (error) {
+      console.log('Error fetching user tokens balances', error)
+      console.log('Params with error', {
+        chainId,
+        userAddress,
+      })
+      return {} as Record<string, BigNumber>
+    }
+  })
 }

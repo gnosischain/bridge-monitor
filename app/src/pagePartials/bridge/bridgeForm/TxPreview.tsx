@@ -15,6 +15,7 @@ import { fromBN } from '@/src/utils/bigNumber'
 import { getNetworkConfig } from '@/src/constants/config/chains'
 import { Loading } from '@/src/components/loading'
 import { genericSuspense } from '@/src/components/safeSuspense'
+import { useClaimFee } from '@/src/hooks/bridge/useClaimFee'
 
 const Wrapper = styled.ul`
   background: ${({ theme: { colors } }) => colors.white_50};
@@ -45,10 +46,22 @@ const Item = styled.li`
   }
 `
 
+const ItemWarning = styled(Item)`
+  color: ${({ theme: { colors } }) => colors.error};
+`
+
 const Value = styled.span`
   align-items: center;
   display: flex;
   gap: var(--theme-common-space);
+`
+
+const Warning = styled.div`
+  color: ${({ theme: { colors } }) => colors.error};
+`
+const ExternalLink = styled.a`
+  color: ${({ theme: { colors } }) => colors.error};
+  word-break: break-all;
 `
 
 export const TxPreviewLoading: React.FC = ({ ...restProps }) => {
@@ -107,7 +120,30 @@ export const TxPreview: React.FC<{
       token,
     })
 
+    const { data: claimFee } = useClaimFee({
+      isFromHome,
+      isNativeBridge,
+    })
+
     if (!transactionData) throw new Error('Transaction data is not available')
+
+    if (transactionData.gasLimit.isZero()) {
+      return (
+        <Wrapper {...restProps}>
+          <Warning>
+            There is problem with the token approval. Try to revoke previous approval if any on{' '}
+            <ExternalLink
+              href={`https://revoke.cash/address/${userAddress}?chainId=${fromChainId}`}
+              rel="noreferrer"
+              target="_blank"
+            >
+              {`https://revoke.cash/address/${userAddress}?chainId=${fromChainId}`}
+            </ExternalLink>{' '}
+            and try again.
+          </Warning>
+        </Wrapper>
+      )
+    }
 
     const tokenOutAmount = formatUnits(amount.sub(feeInfo || ZERO_BN), tokenOut?.decimals)
     const estimatedTime = requiredBlocks.estimatedTimeInSeconds || 0
@@ -149,6 +185,15 @@ export const TxPreview: React.FC<{
             <Tooltip content="Estimated bridge fees" />
           </Value>
         </Item>
+        {claimFee && (
+          <ItemWarning>
+            Estimated claim fee on Ethereum
+            <Value>
+              {`${formatUnits(claimFee, 18)} ETH`}
+              <Tooltip content="You'll need to claim your token on Ethereum" />
+            </Value>
+          </ItemWarning>
+        )}
       </Wrapper>
     )
   },

@@ -18,7 +18,7 @@ import { getNetworkConfig } from '@/src/constants/config/chains'
 import { isSameString } from '@/src/utils/tools'
 import { Spinner } from '@/src/components/loading/Spinner'
 import { ERC165__factory } from '@/types/typechain/factories/ERC165__factory'
-import { ZERO_ADDRESS } from '@/src/constants/misc'
+import { USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { useUserTokenListBalances } from '@/src/hooks/bridge/useUserTokenListBalances'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
@@ -121,11 +121,17 @@ const TokenInfo = styled.div`
   font-size: 1.2rem;
   font-weight: 400;
   line-height: normal;
+  flex: 1;
 
   strong {
     font-size: 1.8rem;
     font-weight: 500;
   }
+`
+
+const TokenAmount = styled.div`
+  font-size: 1.8rem;
+  font-weight: 500;
 `
 
 const NoResults = styled.div<{ closeOnClick?: boolean }>`
@@ -224,18 +230,6 @@ const TopTokenName = styled.span`
   white-space: nowrap;
 `
 
-const TopTokenBalance = styled.span`
-  color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 1.4rem;
-  font-weight: 400;
-  line-height: 1;
-  overflow: hidden;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-  white-space: nowrap;
-`
-
 const Loading = styled.div`
   align-items: center;
   display: flex;
@@ -269,6 +263,12 @@ const Dropdown: React.FC<Props> = ({
   const [value, setValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  const { address } = useWeb3Connection()
+  const { data: balances } = useUserTokenListBalances({
+    userAddress: address,
+    chainId: fromChainId,
+  })
+
   const onSelectToken = (token: Token) => {
     if (typeof onChange !== 'undefined') onChange(token)
   }
@@ -278,6 +278,27 @@ const Dropdown: React.FC<Props> = ({
     const allTokens = ambTokensByNetwork[fromChainId]
       .concat(manualTokens.filter((item) => item.chainId === fromChainId))
       .filter((item) => item.address !== ZERO_ADDRESS)
+      .concat(
+        fromChainId === Chains.gnosis
+          ? [
+              {
+                address: USDCe_GNOSIS,
+                chainId: 100,
+                decimals: 6,
+                logoURI: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694',
+                name: 'USDC.e',
+                symbol: 'USDC.e',
+                extensions: {
+                  bridgeInfo: {
+                    '1': {
+                      tokenAddress: '',
+                    },
+                  },
+                },
+              } as Token,
+            ]
+          : [],
+      )
 
     const _filteredTokens = orderBy(
       value
@@ -290,8 +311,23 @@ const Dropdown: React.FC<Props> = ({
       ['symbol', 'name'],
     )
 
+    if (balances) {
+      _filteredTokens.sort((a, b) => {
+        const aHasBalance = balances[a.address]
+        const bHasBalance = balances[b.address]
+
+        if (aHasBalance && !bHasBalance) {
+          return -1
+        } else if (!aHasBalance && bHasBalance) {
+          return 1
+        } else {
+          return 0
+        }
+      })
+    }
+
     setFilteredTokens(_filteredTokens)
-  }, [ambTokensByNetwork, fromChainId, manualTokens, value])
+  }, [ambTokensByNetwork, fromChainId, manualTokens, value, balances])
 
   useEffect(() => {
     // Define the symbols array with the desired order
@@ -376,16 +412,13 @@ const Dropdown: React.FC<Props> = ({
             ...(_manualTokens || []),
           ])
         })
+        .catch(() => {
+          // console.error('Failed to fetch token data:', error)
+          return
+        })
         .finally(() => setIsLoading(false))
     }
   }, [filteredTokens.length, fromChainId, toChainId, value])
-
-  const { address } = useWeb3Connection()
-  const { data: balances } = useUserTokenListBalances({
-    userAddress: address,
-    chainId: fromChainId,
-    tokenList: topTokens,
-  })
 
   // Focus the search input when the dropdown is opened
   useEffect(() => {
@@ -442,9 +475,6 @@ const Dropdown: React.FC<Props> = ({
               >
                 <TokenIcon dimensions={22} iconSource={item.logoURI} symbol={item.symbol} />
                 <TopTokenName>{item.symbol}</TopTokenName>
-                <TopTokenBalance>
-                  {balances && formatNumber(Number(fromBN(balances[item.address], item?.decimals)))}
-                </TopTokenBalance>
               </TopToken>
             ))}
           </TopTokens>
@@ -468,6 +498,11 @@ const Dropdown: React.FC<Props> = ({
                   <strong>{item.name}</strong>
                   {item.symbol}
                 </TokenInfo>
+                {balances && balances[item.address] && (
+                  <TokenAmount>
+                    {formatNumber(Number(fromBN(balances[item.address], item?.decimals)))}
+                  </TokenAmount>
+                )}
               </DropdownBridgeItem>
             ))}
           </Items>

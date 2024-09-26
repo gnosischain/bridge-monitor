@@ -72,8 +72,13 @@ export const FAQContents: React.FC = () => {
             </a>
           </li>
           <li>
-            <a href="https://dln.trade/" rel="noreferrer" target="_blank">
-              DLN
+            <a href="https://app.debridge.finance/" rel="noreferrer" target="_blank">
+              debridge
+            </a>
+          </li>
+          <li>
+            <a href="https://app.shapeshift.com/#/trade" rel="noreferrer" target="_blank">
+              shapeshift.com
             </a>
           </li>
         </ul>
@@ -143,7 +148,7 @@ export const FAQContents: React.FC = () => {
       <EmphasizedTitle id="q_3c">What if I need further assistance?</EmphasizedTitle>
       <Paragraph>
         For additional help, join the{' '}
-        <a href="https://discord.gg/gnosischain" rel="noreferrer" target="_blank">
+        <a href="http://discord.gg/gnosis" rel="noreferrer" target="_blank">
           Gnosis Chain Discord
         </a>
         . If you encounter a specific bridge issue, feel free to open a support ticket and provide

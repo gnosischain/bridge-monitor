@@ -5,7 +5,7 @@ import { ChainToken } from '@/src/pagePartials/bridgeExplorer/validators/ChainTo
 import { useLookupBridgedToken } from '@/src/hooks/useLookupBridgedToken'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
-import TokenListProvider from '@/src/providers/tokenListProvider'
+// import TokenListProvider from '@/src/providers/tokenListProvider'
 
 const tokenSize = 16
 

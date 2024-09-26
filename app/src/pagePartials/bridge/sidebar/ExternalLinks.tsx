@@ -11,8 +11,12 @@ export const ExternalLinks: React.FC = ({ ...restProps }) => {
       url: 'https://www.bungee.exchange/',
     },
     {
-      name: 'dln.trade',
-      url: 'https://dln.trade/',
+      name: 'debridge.finance',
+      url: 'https://app.debridge.finance/',
+    },
+    {
+      name: 'shapeshift.com',
+      url: 'https://app.shapeshift.com/#/trade',
     },
   ]
 

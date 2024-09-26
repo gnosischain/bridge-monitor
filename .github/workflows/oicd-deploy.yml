@@ -1,26 +1,26 @@
 name: Deploy Bridge-Explorer
 
 # Controls when the action will run. Invokes the workflow on push events
-# on: 
+# on:
 #   workflow_dispatch:
 on:
   push:
     branches:
       - develop
       - staging
-      - main
     tags:
-      - '*'
+      - "*"
+
 env:
-  AWS_REGION : "eu-central-1" 
+  AWS_REGION: "eu-central-1"
   DEPLOYMENT_DEV: "bridge-explorer-develop"
   DEPLOYMENT_STG: "bridge-explorer-staging"
   NAMESPACE: "bridges"
 
-# Permission can be added at job level or workflow level    
+# Permission can be added at job level or workflow level
 permissions:
-      id-token: write   # This is required for requesting the JWT
-      contents: read    # This is required for actions/checkout
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for actions/checkout and create release
 jobs:
   Build_and_push_image_to_ECR:
     runs-on: ubuntu-latest
@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -40,10 +40,10 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4.0.0
         with:
           audience: sts.amazonaws.com
-          role-to-assume: ${{ secrets.AWS_ECR_ROLE }} 
+          role-to-assume: ${{ secrets.AWS_ECR_ROLE }}
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
-          
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -75,6 +75,7 @@ jobs:
             "NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT=development"
             "NEXT_PUBLIC_SUBGRAPH_ACCESS_ID=${{ secrets.GRAPH_ORG }}"
             "NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS=100:v1.0.1-dev,1:v1.0.0-dev"
+            "NEXT_PUBLIC_COVALENT_API_KEY=${{ secrets.DEV_NEXT_PUBLIC_COVALENT_API_KEY }}"
 
       - name: Build, tag, and push STAGING to Amazon ECR
         if: startsWith(github.ref, 'refs/heads/staging')
@@ -103,6 +104,7 @@ jobs:
             "NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT=production"
             "NEXT_PUBLIC_SUBGRAPH_ACCESS_ID=${{ secrets.GRAPH_API_KEY }}"
             "NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS=100:2ths6FTZhCBggnyakh7PL5KH91zjRv8xPNfzaCRKogJ,1:9W7Ye5xFfefNYDxXD4StqAuj7TU8eLq5PLmuPUnhFbeQ"
+            "NEXT_PUBLIC_COVALENT_API_KEY=${{ secrets.DEV_NEXT_PUBLIC_COVALENT_API_KEY }}"
 
       - name: Get latest Release Tag
         if: (github.ref_type == 'tag' || github.ref == 'refs/heads/main')
@@ -110,17 +112,35 @@ jobs:
         run: echo "tag=$(git describe --abbrev=0 --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_OUTPUT
 
       - name: Create Release
-        uses: ncipollo/release-action@v1
+        uses: actions/github-script@v6
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ steps.release_tag.outputs.tag }}
-          tag: ${{ steps.release_tag.outputs.tag }}
-          skipIfReleaseExists: true
-          generateReleaseNotes: true
-          
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            if (!${{ toJson(steps.release_tag.outputs.tag) }}) {
+              core.setFailed("RELEASE_TAG is not defined.")
+
+              return;
+            }
+            try {
+              const response = await github.rest.repos.createRelease({
+                name: ${{ toJson(steps.release_tag.outputs.tag) }},
+                tag_name: ${{ toJson(steps.release_tag.outputs.tag) }},
+                draft: false,
+                generate_release_notes: true,
+                owner: context.repo.owner,
+                prerelease: false,
+                repo: context.repo.repo,
+              });
+
+              core.exportVariable('RELEASE_ID', response.data.id);
+              core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
+            } catch (error) {
+              core.setFailed(error.message);
+            }
+
       - name: Build, tag, and push PROD to Amazon ECR
-        if: startsWith(github.ref, 'refs/heads/main')
+        if: startsWith(github.ref, 'refs/tags/')
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ steps.release_tag.outputs.tag }}
@@ -147,7 +167,8 @@ jobs:
             "NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT=production"
             "NEXT_PUBLIC_SUBGRAPH_ACCESS_ID=${{ secrets.GRAPH_API_KEY }}"
             "NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS=100:2ths6FTZhCBggnyakh7PL5KH91zjRv8xPNfzaCRKogJ,1:9W7Ye5xFfefNYDxXD4StqAuj7TU8eLq5PLmuPUnhFbeQ"
-    
+            "NEXT_PUBLIC_COVALENT_API_KEY=${{ secrets.PROD_NEXT_PUBLIC_COVALENT_API_KEY }}"
+
   Get_images_and_restart_deployments:
     needs: Build_and_push_image_to_ECR
     if: ( github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/staging' )
@@ -157,7 +178,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4.0.0
         with:
           audience: sts.amazonaws.com
-          role-to-assume: ${{ secrets.AWS_EKS_ROLE }} 
+          role-to-assume: ${{ secrets.AWS_EKS_ROLE }}
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
 

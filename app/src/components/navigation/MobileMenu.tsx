@@ -284,6 +284,7 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
                       characters={4}
                       copy
                       href={getExplorerUrl(address)}
+                      useDomain
                     />
                   )}
                 </ConnectedText>

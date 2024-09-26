@@ -11,6 +11,9 @@ import { ZERO_BN } from '@/src/constants/misc'
 import { formatNumber } from '@/src/utils/format'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
+import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
+import { isValidDomainName } from '@/src/utils/isValidDomainName'
+import useWeb3Name from '../useWeb3Name'
 
 export const useBridgeValidations = ({
   amount,
@@ -73,10 +76,23 @@ export const useBridgeValidations = ({
     formatUnits(bridgeLimits?.maxPerTx || ZERO_BN, fromToken?.decimals || 18),
   )
 
+  const isDomainName = isValidDomainName(recipient || '')
+
+  const { resolvedAddress } = useWeb3Name({ name: isDomainName ? recipient : undefined })
+
+  const isCustomERC20Home =
+    fromChainId === 100 &&
+    tokenMode === 'ERC20' &&
+    fromToken.address !== NATIVE_TOKEN_ADDRESS.toLowerCase()
+
   const errorMessage = useMemo(() => {
     try {
       if (!userAddress || !isValidAmount || !isValidToken) {
         return false
+      }
+
+      if (isCustomERC20Home) {
+        throw Error('This token currently is not supported on the Gnosis Bridge')
       }
 
       // is the wallet is a smart contract wallet, we need to request a recipient
@@ -87,8 +103,12 @@ export const useBridgeValidations = ({
         throw Error('Please specify amount')
       }
 
-      if (recipient && !isAddress(recipient)) {
+      if (recipient && !isAddress(recipient) && !isDomainName) {
         throw Error('Please specify a valid recipient address')
+      }
+
+      if (isDomainName && !resolvedAddress) {
+        throw Error('Domain name is not resolved')
       }
 
       if (minAmountError) {
@@ -121,6 +141,7 @@ export const useBridgeValidations = ({
     userAddress,
     isValidAmount,
     isValidToken,
+    isCustomERC20Home,
     isSCWallet,
     recipient,
     minAmountError,
@@ -131,9 +152,11 @@ export const useBridgeValidations = ({
     minPerTxInNumber,
     fromToken.symbol,
     maxPerTxInNumber,
+    isDomainName,
+    resolvedAddress,
   ])
 
-  const isValidToSend = !errorMessage && isValidAmount && isValidToken
+  const isValidToSend = !errorMessage && isValidAmount && isValidToken && !isCustomERC20Home
 
   return {
     isSCWallet: isSCWallet?.data,
