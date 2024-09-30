@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react'
 import useSWR from 'swr'
-import { BridgesValues } from '@/src/constants/config/bridges'
+import { Bridges, BridgesValues } from '@/src/constants/config/bridges'
 import { fetchHomeValidators, getBalance, getValidatorByAddress } from '@/src/utils/validators'
 import { Validator } from '@/src/utils/validators'
 import { gnosis } from '@/src/constants/config/rpc-providers'
@@ -69,6 +69,17 @@ const fetcher = async () => {
 
   validators.forEach((v) => {
     res[v.bridgeType.toUpperCase() as BridgesValues].push(v)
+  })
+
+  res[Bridges.amb].push({
+    name: 'Hashi',
+    address: '', // N/A for Hashi
+    bridgeType: Bridges.amb,
+    lastSeen: undefined, // TODO: get from API
+    signed: undefined, // TODO: get from API
+    executed: undefined, // N/A for Hashi
+    shortName: 'H',
+    status: 'default',
   })
 
   return res
