@@ -17,6 +17,8 @@ import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
 import { formatNumber } from '@/src/utils/format'
 import { formatUnits } from 'ethers/lib/utils'
 import { useTokenInfo } from '@/src/hooks/bridge/useTokenInfo'
+import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+import useSWR from 'swr'
 
 const InnerWrapper = styled.div`
   max-width: 644px;
@@ -113,6 +115,13 @@ const BottomInfo = styled.p`
   line-height: 1.2;
   margin: 0;
   text-align: center;
+`
+
+const WarningInfo = styled(BottomInfo)`
+  color: rgb(221, 113, 67);
+  a {
+    color: inherit;
+  }
 `
 
 export const Loading: React.FC = () => (
@@ -225,6 +234,14 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
 
   const isBridgeComplete = progressData?.progress === 100
 
+  const { address, readOnlyAppProvider } = useWeb3Connection()
+
+  const isSCWallet = useSWR(
+    address && readOnlyAppProvider ? [`isSCWallet-${address}`, address, readOnlyAppProvider] : null,
+    ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
+  ).data
+  const myTxsLink = `/bridge-explorer/my-transactions?hash=${address}`
+
   return (
     <Wrapper {...restProps}>
       {isLoading ? (
@@ -277,6 +294,12 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
                 isMined={progressData.isMined || false}
                 transactionHash={transactionHash}
               />
+              {isSCWallet && (
+                <WarningInfo>
+                  When using a smart contract wallet, if transaction is executed but transaction
+                  link is not loaded, go to <a href={myTxsLink}>My Transactions</a> page.
+                </WarningInfo>
+              )}
               {isBridgeComplete && toChainId === Chains.mainnet && (
                 <BottomInfo>Claim to unlock your tokens</BottomInfo>
               )}
