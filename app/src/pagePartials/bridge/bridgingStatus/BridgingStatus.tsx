@@ -117,6 +117,13 @@ const BottomInfo = styled.p`
   text-align: center;
 `
 
+const WarningInfo = styled(BottomInfo)`
+  color: rgb(221, 113, 67);
+  a {
+    color: inherit;
+  }
+`
+
 export const Loading: React.FC = () => (
   <>
     <SkeletonLoading
@@ -288,10 +295,10 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
                 transactionHash={transactionHash}
               />
               {isSCWallet && (
-                <BottomInfo>
+                <WarningInfo>
                   When using a smart contract wallet, if transaction is executed but transaction
                   link is not loaded, go to <a href={myTxsLink}>My Transactions</a> page.
-                </BottomInfo>
+                </WarningInfo>
               )}
               {isBridgeComplete && toChainId === Chains.mainnet && (
                 <BottomInfo>Claim to unlock your tokens</BottomInfo>
