@@ -11,6 +11,7 @@ import {
   TELEPATHY_VALIDATOR_ADDRESS,
   TELEPATHY_VALIDATOR_ADDRESS_REPLACED,
 } from '../constants/misc'
+import { useHashi } from '../hooks/useHashi'
 
 type ValidatorsContextType = {
   validators: Record<BridgesValues, Validator[]>
@@ -71,22 +72,35 @@ const fetcher = async () => {
     res[v.bridgeType.toUpperCase() as BridgesValues].push(v)
   })
 
-  res[Bridges.amb].push({
-    name: 'Hashi',
-    address: '', // N/A for Hashi
-    bridgeType: Bridges.amb,
-    lastSeen: undefined, // TODO: get from API
-    signed: undefined, // TODO: get from API
-    executed: undefined, // N/A for Hashi
-    shortName: 'H',
-    status: 'default',
-  })
-
   return res
 }
 
 export const ValidatorsProvider: React.FC = ({ children }) => {
   const res = useSWR('validators', fetcher)
+  const { hashi } = useHashi()
+
+  if (res.data && hashi) {
+    const ambArray = res.data[Bridges.amb]
+    const existingIndex = ambArray.findIndex(
+      (validator: Validator) => 'id' in validator && validator.id === hashi.id,
+    )
+
+    if (existingIndex !== -1) {
+      ambArray[existingIndex] = {
+        ...hashi,
+        status: hashi.status as
+          | 'default'
+          | 'submittedExecuted'
+          | 'executed'
+          | 'notRequired'
+          | 'pending'
+          | 'submitted',
+      }
+    } else {
+      // Add new hashi object
+      ambArray.push(hashi as Validator)
+    }
+  }
 
   return (
     <ValidatorsContext.Provider

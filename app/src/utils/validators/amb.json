@@ -62,5 +62,13 @@
     "bridgeType": "AMB",
     "shortName": "Ty",
     "status": "default"
+  },
+  {
+    "id": 10,
+    "address": "",
+    "name": "Hashi",
+    "bridgeType": "AMB",
+    "shortName": "H",
+    "status": "default"
   }
 ]

@@ -132,7 +132,7 @@ export const Validator: React.FC<Props> = ({ bridgeValidator, ...restProps }) =>
   const lastSeenTime = `${dateLastSeen.duration?.interval} ${dateLastSeen.duration?.epoch}${dateLastSeen.getSuffix}`
 
   const validatorAddress =
-    bridgeValidator.address.toLowerCase() === TELEPATHY_VALIDATOR_ADDRESS.toLowerCase()
+    bridgeValidator.address?.toLowerCase() === TELEPATHY_VALIDATOR_ADDRESS.toLowerCase()
       ? TELEPATHY_VALIDATOR_ADDRESS_REPLACED
       : bridgeValidator.address
 
