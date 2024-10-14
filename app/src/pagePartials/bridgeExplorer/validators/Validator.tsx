@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { InnerCard } from '@/src/components/card/InnerCard'
 import { TokenAddress } from '@/src/components/token/TokenAddress'
@@ -12,6 +12,7 @@ import {
   TELEPATHY_VALIDATOR_ADDRESS,
   TELEPATHY_VALIDATOR_ADDRESS_REPLACED,
 } from '@/src/constants/misc'
+import { IconLink } from '@/src/components/assets/IconLink'
 
 const Wrapper = styled(InnerCard)`
   min-height: var(--validator-item-min-height);
@@ -67,6 +68,59 @@ const Address = styled(TokenAddress)`
   }
 `
 
+const TextCSS = css`
+  color: ${({ theme: { colors } }) => colors.primary};
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1.5;
+`
+
+const ExternalLink = styled.a`
+  ${TextCSS}
+
+  align-items: center;
+  column-gap: var(--theme-common-space);
+  display: flex;
+  text-decoration: none;
+
+  &:active {
+    opacity: 0.8;
+  }
+`
+
+const CommonCSS = css`
+  transition: color 0.15s ease-in-out;
+
+  &:hover {
+    color: ${({ theme: { colors } }) => colors.primaryDark};
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+`
+
+const Link = styled(IconLink)`
+  color: ${({ theme: { colors } }) => colors.primary_50};
+  cursor: pointer;
+
+  ${CommonCSS}
+
+  svg {
+    color: ${({ theme: { colors } }) => colors.primary_50};
+
+    &:hover {
+      color: ${({ theme: { colors } }) => colors.primary};
+    }
+  }
+`
+
+const ExternalLinkWrapper = styled.span`
+  display: flex;
+  align-items: center;
+  column-gap: var(--theme-common-space);
+`
+
 interface Props {
   bridgeValidator: ValidatorType
 }
@@ -78,13 +132,21 @@ export const Validator: React.FC<Props> = ({ bridgeValidator, ...restProps }) =>
   const lastSeenTime = `${dateLastSeen.duration?.interval} ${dateLastSeen.duration?.epoch}${dateLastSeen.getSuffix}`
 
   const validatorAddress =
-    bridgeValidator.address.toLowerCase() === TELEPATHY_VALIDATOR_ADDRESS.toLowerCase()
+    bridgeValidator.address?.toLowerCase() === TELEPATHY_VALIDATOR_ADDRESS.toLowerCase()
       ? TELEPATHY_VALIDATOR_ADDRESS_REPLACED
       : bridgeValidator.address
 
   // @todo adds validator label
   const validatorHealth = () => {
     return HealthStatusTypes.success
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const openLink = (e: any, href: string) => {
+    e.stopPropagation()
+    e.preventDefault()
+
+    window.open(href, '_blank', 'noopener noreferrer')
   }
 
   return (
@@ -103,24 +165,52 @@ export const Validator: React.FC<Props> = ({ bridgeValidator, ...restProps }) =>
           <Text>Signed (24hs)</Text>
           <Value>{bridgeValidator.signed}</Value>
         </Row>
-        <Row>
-          <Text>Executed (24hs)</Text>
-          <Value>{bridgeValidator.executed}</Value>
-        </Row>
+        {bridgeValidator.shortName === 'H' ? (
+          <Row>
+            <Text>Executed (24hs)</Text>
+            <Value>N/A</Value>
+          </Row>
+        ) : (
+          <Row>
+            <Text>Executed (24hs)</Text>
+            <Value>{bridgeValidator.executed}</Value>
+          </Row>
+        )}
       </Rows>
       <SubTitle>Balance</SubTitle>
       <Row>
-        <Balance balanceType={balanceGnosis} />
+        {bridgeValidator.shortName === 'H' ? (
+          <Text>N/A</Text>
+        ) : (
+          <Balance balanceType={balanceGnosis} />
+        )}
       </Row>
-      <Row>
-        <Text>Send tokens</Text>
-        <Address
-          address={validatorAddress}
-          characters={6}
-          copy
-          href={getAddressScanUrl(validatorAddress, bridgeValidator.scanUrl ?? 'gnosis')}
-        />
-      </Row>
+      {bridgeValidator.shortName === 'H' ? (
+        <Row>
+          <Text>Find more info</Text>
+          <ExternalLinkWrapper>
+            <ExternalLink href="https://hashi-explorer.xyz/" rel="noreferrer" target="_blank">
+              Hashi Explorer
+            </ExternalLink>
+            <Link
+              className="externalLink"
+              height={14}
+              onClick={(e) => openLink(e, 'https://hashi-explorer.xyz/')}
+              width={14}
+            />
+          </ExternalLinkWrapper>
+        </Row>
+      ) : (
+        <Row>
+          <Text>Send tokens</Text>
+          <Address
+            address={validatorAddress}
+            characters={6}
+            copy
+            href={getAddressScanUrl(validatorAddress, bridgeValidator.scanUrl ?? 'gnosis')}
+          />
+        </Row>
+      )}
     </Wrapper>
   )
 }
