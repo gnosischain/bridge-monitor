@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
 import { Search } from '@/src/pagePartials/bridgeExplorer/search'
 import NextHead from 'next/head'
-import { Token } from 'graphql'
+// import { Token } from 'graphql'
 import TokenListProvider from '@/src/providers/tokenListProvider'
 
 const MyTransactionsPage: NextPage = () => {

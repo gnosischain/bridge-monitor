@@ -14,7 +14,7 @@ import {
   ForeignAMB__factory,
   ForeignBridgeErcToNative,
   ForeignBridgeErcToNative__factory,
-  HomeAMB__factory,
+  // HomeAMB__factory,
 } from '@/types/typechain'
 import { Interface } from '@ethersproject/abi'
 import { JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
