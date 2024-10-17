@@ -10,8 +10,8 @@ import cloneDeep from 'lodash/cloneDeep'
 import {
   TELEPATHY_VALIDATOR_ADDRESS,
   TELEPATHY_VALIDATOR_ADDRESS_REPLACED,
-} from '../constants/misc'
-import { useHashi } from '../hooks/useHashi'
+} from '@/src/constants/misc'
+import { useHashi } from '@/src/hooks/useHashi'
 
 type ValidatorsContextType = {
   validators: Record<BridgesValues, Validator[]>
