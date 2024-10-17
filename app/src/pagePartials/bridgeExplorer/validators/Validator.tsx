@@ -13,6 +13,7 @@ import {
   TELEPATHY_VALIDATOR_ADDRESS_REPLACED,
 } from '@/src/constants/misc'
 import { IconLink } from '@/src/components/assets/IconLink'
+import { Tooltip } from '@/src/components/tooltip'
 
 const Wrapper = styled(InnerCard)`
   min-height: var(--validator-item-min-height);
@@ -36,6 +37,7 @@ const Row = styled.div`
   color: ${({ theme: { colors } }) => colors.primary};
   display: flex;
   justify-content: space-between;
+  align-items: center;
 `
 
 const Text = styled.span`
@@ -121,6 +123,17 @@ const ExternalLinkWrapper = styled.span`
   column-gap: var(--theme-common-space);
 `
 
+const HashiTooltip = styled(Tooltip)`
+  flex-grow: 1;
+  margin-left: var(--theme-common-space);
+`
+
+const HashiTooltipWrapper = styled.div`
+  display: flex;
+  align-items: flex-start;
+  flex-grow: 1;
+`
+
 interface Props {
   bridgeValidator: ValidatorType
 }
@@ -149,6 +162,8 @@ export const Validator: React.FC<Props> = ({ bridgeValidator, ...restProps }) =>
     window.open(href, '_blank', 'noopener noreferrer')
   }
 
+  const isHashi = bridgeValidator.shortName === 'H'
+
   return (
     <Wrapper {...restProps}>
       <ValidatorHeader
@@ -163,11 +178,19 @@ export const Validator: React.FC<Props> = ({ bridgeValidator, ...restProps }) =>
         </Row>
         <Row>
           <Text>Signed (24hs)</Text>
+          {isHashi && (
+            <HashiTooltipWrapper>
+              <HashiTooltip content="A message is considered signed/approved by Hashi, when a threshold amount of oracles store the same message hash w.r.t the message id." />
+            </HashiTooltipWrapper>
+          )}
           <Value>{bridgeValidator.signed}</Value>
         </Row>
-        {bridgeValidator.shortName === 'H' ? (
+        {isHashi ? (
           <Row>
             <Text>Executed (24hs)</Text>
+            <HashiTooltipWrapper>
+              <HashiTooltip content="Hashi only approves messages, the message is executed either by other bridge validators or by users." />
+            </HashiTooltipWrapper>
             <Value>N/A</Value>
           </Row>
         ) : (
@@ -179,13 +202,18 @@ export const Validator: React.FC<Props> = ({ bridgeValidator, ...restProps }) =>
       </Rows>
       <SubTitle>Balance</SubTitle>
       <Row>
-        {bridgeValidator.shortName === 'H' ? (
-          <Text>N/A</Text>
+        {isHashi ? (
+          <>
+            <Text>N/A</Text>
+            <HashiTooltipWrapper>
+              <HashiTooltip content="Hashi don’t need to execute a message, hence balance field is not applicable." />
+            </HashiTooltipWrapper>
+          </>
         ) : (
           <Balance balanceType={balanceGnosis} />
         )}
       </Row>
-      {bridgeValidator.shortName === 'H' ? (
+      {isHashi ? (
         <Row>
           <Text>Find more info</Text>
           <ExternalLinkWrapper>

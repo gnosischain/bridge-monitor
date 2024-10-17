@@ -2,7 +2,7 @@ import useSWR from 'swr'
 
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { fetchExecutedTransactions, fetchSignedTransactions } from '@/src/utils/validators'
-import { useHashi } from '../useHashi'
+import { useHashi } from '@/src/hooks/useHashi'
 
 export const useFetchValidatorsSignatures = (bridge: BridgesValues, afterDate: number) => {
   const {
