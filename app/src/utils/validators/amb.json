@@ -56,14 +56,6 @@
     "status": "default"
   },
   {
-    "id": 9,
-    "address": "0x456c255A8BC1F33778603A2a48Eb6B0C69F4d48E",
-    "name": "Telepathy",
-    "bridgeType": "AMB",
-    "shortName": "Ty",
-    "status": "default"
-  },
-  {
     "id": 10,
     "address": "",
     "name": "Hashi",
