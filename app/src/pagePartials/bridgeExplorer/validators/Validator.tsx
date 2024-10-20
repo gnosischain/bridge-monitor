@@ -134,6 +134,13 @@ const HashiTooltipWrapper = styled.div`
   flex-grow: 1;
 `
 
+const Column = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--theme-common-space);
+  align-items: flex-end;
+`
+
 interface Props {
   bridgeValidator: ValidatorType
 }
@@ -216,17 +223,39 @@ export const Validator: React.FC<Props> = ({ bridgeValidator, ...restProps }) =>
       {isHashi ? (
         <Row>
           <Text>Find more info</Text>
-          <ExternalLinkWrapper>
-            <ExternalLink href="https://hashi-explorer.xyz/" rel="noreferrer" target="_blank">
-              Hashi Explorer
-            </ExternalLink>
-            <Link
-              className="externalLink"
-              height={14}
-              onClick={(e) => openLink(e, 'https://hashi-explorer.xyz/')}
-              width={14}
-            />
-          </ExternalLinkWrapper>
+          <Column className="text-right">
+            <ExternalLinkWrapper>
+              <ExternalLink href="https://hashi-explorer.xyz/" rel="noreferrer" target="_blank">
+                Hashi Explorer
+              </ExternalLink>
+              <Link
+                className="externalLink"
+                height={14}
+                onClick={(e) => openLink(e, 'https://hashi-explorer.xyz/')}
+                width={14}
+              />
+            </ExternalLinkWrapper>
+            <ExternalLinkWrapper>
+              <ExternalLink
+                href="https://docs.gnosischain.com/bridges/About%20Token%20Bridges/hashi-integration"
+                rel="noreferrer"
+                target="_blank"
+              >
+                Docs
+              </ExternalLink>
+              <Link
+                className="externalLink"
+                height={14}
+                onClick={(e) =>
+                  openLink(
+                    e,
+                    'https://docs.gnosischain.com/bridges/About%20Token%20Bridges/hashi-integration',
+                  )
+                }
+                width={14}
+              />
+            </ExternalLinkWrapper>
+          </Column>
         </Row>
       ) : (
         <Row>
