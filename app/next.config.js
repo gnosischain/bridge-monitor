@@ -35,4 +35,16 @@ module.exports = withBundleAnalyzer({
     },
   },
   transpilePackages: ['@web3-name-sdk/core'],
+  async rewrites() {
+    return [
+      {
+        source: '/api/lastseen',
+        destination: 'https://hashi-explorer.xyz/api_bridge_ui/lastseen',
+      },
+      {
+        source: '/api/num_hashi_signed/:path*',
+        destination: 'https://hashi-explorer.xyz/api_bridge_ui/num_hashi_signed/:path*',
+      },
+    ]
+  },
 })

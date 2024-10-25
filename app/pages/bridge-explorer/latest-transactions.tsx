@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
 import NextHead from 'next/head'
 import { LatestTransactions } from '@/src/pagePartials/bridgeExplorer/latestTransactions'
-import { Token } from 'graphql'
+// import { Token } from 'graphql'
 import TokenListProvider from '@/src/providers/tokenListProvider'
 
 const LatestTransactionsPage: NextPage = () => {

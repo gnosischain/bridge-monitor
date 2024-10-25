@@ -56,11 +56,11 @@
     "status": "default"
   },
   {
-    "id": 9,
-    "address": "0x456c255A8BC1F33778603A2a48Eb6B0C69F4d48E",
-    "name": "Telepathy",
+    "id": 10,
+    "address": "",
+    "name": "Hashi",
     "bridgeType": "AMB",
-    "shortName": "Ty",
+    "shortName": "H",
     "status": "default"
   }
 ]
