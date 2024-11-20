@@ -10,29 +10,26 @@ module.exports = withBundleAnalyzer({
     locales: ['en'],
     defaultLocale: 'en',
   },
-  experimental: {
-    scrollRestoration: false,
-    images: {
-      unoptimized: true,
-      remotePatterns: [
-        {
-          protocol: 'https',
-          hostname: 'tokens.1inch.io',
-        },
-        {
-          protocol: 'https',
-          hostname: 'assets.coingecko.com',
-        },
-        {
-          protocol: 'https',
-          hostname: 'ethereum-optimism.github.io',
-        },
-        {
-          protocol: 'https',
-          hostname: '**',
-        },
-      ],
-    },
+  images: {
+    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'tokens.1inch.io',
+      },
+      {
+        protocol: 'https',
+        hostname: 'assets.coingecko.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ethereum-optimism.github.io',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   transpilePackages: ['@web3-name-sdk/core'],
   async rewrites() {
