@@ -93,9 +93,8 @@ export const Header: React.FC = (props) => {
         <InnerContainer>
           <Link href="/" passHref>
             {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-            <a>
-              <Logo />
-            </a>
+
+            <Logo />
           </Link>
           <FlexEnd>
             <MainMenu />
