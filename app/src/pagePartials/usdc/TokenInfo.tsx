@@ -21,8 +21,10 @@ export const TokenInfo = ({ token }: { token: TokenUsdc }) => {
         <Image
           alt={token.name}
           height={24}
-          objectFit="cover"
           src={token.logoURI as string}
+          style={{
+            objectFit: 'cover',
+          }}
           width={24}
         />
       )}

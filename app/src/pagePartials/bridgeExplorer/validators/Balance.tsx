@@ -38,8 +38,10 @@ export const Balance: React.FC<Props> = ({ balanceType }) => {
             <Image
               alt={balanceType ? balanceType.chain : 'Chain'}
               height={16}
-              objectFit="cover"
               src={iconPath}
+              style={{
+                objectFit: 'cover',
+              }}
               width={16}
             />
           )}
