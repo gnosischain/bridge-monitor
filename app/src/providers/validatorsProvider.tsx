@@ -77,30 +77,32 @@ const fetcher = async () => {
 
 export const ValidatorsProvider: React.FC = ({ children }) => {
   const res = useSWR('validators', fetcher)
-  const { hashi } = useHashi()
 
-  if (res.data && hashi) {
-    const ambArray = res.data[Bridges.amb]
-    const existingIndex = ambArray.findIndex(
-      (validator: Validator) => 'id' in validator && validator.id === hashi.id,
-    )
+  // TODO: add back when hashi is live
+  // const { hashi } = useHashi()
 
-    if (existingIndex !== -1) {
-      ambArray[existingIndex] = {
-        ...hashi,
-        status: hashi.status as
-          | 'default'
-          | 'submittedExecuted'
-          | 'executed'
-          | 'notRequired'
-          | 'pending'
-          | 'submitted',
-      }
-    } else {
-      // Add new hashi object
-      ambArray.push(hashi as Validator)
-    }
-  }
+  // if (res.data && hashi) {
+  //   const ambArray = res.data[Bridges.amb]
+  //   const existingIndex = ambArray.findIndex(
+  //     (validator: Validator) => 'id' in validator && validator.id === hashi.id,
+  //   )
+
+  //   if (existingIndex !== -1) {
+  //     ambArray[existingIndex] = {
+  //       ...hashi,
+  //       status: hashi.status as
+  //         | 'default'
+  //         | 'submittedExecuted'
+  //         | 'executed'
+  //         | 'notRequired'
+  //         | 'pending'
+  //         | 'submitted',
+  //     }
+  //   } else {
+  //     // Add new hashi object
+  //     ambArray.push(hashi as Validator)
+  //   }
+  // }
 
   return (
     <ValidatorsContext.Provider
