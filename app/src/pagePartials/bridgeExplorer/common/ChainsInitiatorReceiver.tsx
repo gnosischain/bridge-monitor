@@ -71,7 +71,7 @@ const Bridge: React.FC<{ chain: string; iconName?: string }> = ({
 
   return iconPath ? (
     <Chain chain={chain.toLowerCase()} {...restProps}>
-      <Image alt={chain} height={16} objectFit="cover" src={iconPath} width={16} />
+      <Image alt={chain} height={16} src={iconPath} style={{ objectFit: 'cover' }} width={16} />
       {chain}
     </Chain>
   ) : null

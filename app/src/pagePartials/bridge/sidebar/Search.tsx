@@ -213,7 +213,12 @@ export const Search: React.FC = ({ ...restProps }) => {
       </SearchWrapper>
       {error && <SCText error>{error}</SCText>}
       {isWalletConnected && address ? (
-        <NextLink as={SCLink} href={`${myTransactionsFullURL}${address}`}>
+        <NextLink
+          as={SCLink}
+          href={`${myTransactionsFullURL}${address}`}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
           <Transactions />
           My Transactions
         </NextLink>

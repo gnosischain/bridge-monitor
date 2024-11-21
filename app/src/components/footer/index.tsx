@@ -69,7 +69,7 @@ const End = styled.div`
   display: flex;
 `
 
-const Link = styled.a`
+const Link = styled(NextLink)`
   ${TextCSS}
 
   align-items: center;
@@ -106,9 +106,7 @@ export const Footer: React.FC = (props) => {
           </ExternalLink>
         </Start>
         <End>
-          <NextLink href="/faq" passHref>
-            <Link>FAQ</Link>
-          </NextLink>
+          <Link href="/faq">FAQ</Link>
           {/* <NextLink href="/privacy" passHref>
             <Link>Privacy Policy</Link>
           </NextLink>
