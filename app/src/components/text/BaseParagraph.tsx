@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export const BaseParagraph = styled.p`
+export const BaseParagraph = styled.div`
   color: ${({ theme: { colors } }) => colors.textColor};
   font-size: 1.5rem;
   font-weight: normal;
