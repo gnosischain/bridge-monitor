@@ -25,7 +25,13 @@ export const ExternalLinks: React.FC = ({ ...restProps }) => {
       <SCTitle>Coming from another chain?</SCTitle>
       <SCText>You might be interested in trying:</SCText>
       {links.map((link, index) => (
-        <SCLink href={link.url} key={link.name} style={{ fontWeight: index === 0 ? '700' : '' }}>
+        <SCLink
+          href={link.url}
+          key={link.name}
+          rel="noopener noreferrer"
+          style={{ fontWeight: index === 0 ? '700' : '' }}
+          target="_blank"
+        >
           {link.name}
         </SCLink>
       ))}

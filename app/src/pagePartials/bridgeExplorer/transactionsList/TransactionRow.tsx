@@ -129,7 +129,7 @@ export const TransactionRow: React.FC<Props> = ({
 
   return (
     // Link's `as` prop is used to show the URL in the browser's address bar without the query params
-    <Link as={txURL} href={href} passHref {...restProps}>
+    <Link as={txURL} href={href} passHref {...restProps} style={{ textDecoration: 'none' }}>
       <TR as={RowLink} compact={!showValidations}>
         <TD>
           <MobileLabel>Transaction Hash</MobileLabel>
