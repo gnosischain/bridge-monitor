@@ -10,29 +10,38 @@ module.exports = withBundleAnalyzer({
     locales: ['en'],
     defaultLocale: 'en',
   },
-  experimental: {
-    scrollRestoration: false,
-    images: {
-      unoptimized: true,
-      remotePatterns: [
-        {
-          protocol: 'https',
-          hostname: 'tokens.1inch.io',
-        },
-        {
-          protocol: 'https',
-          hostname: 'assets.coingecko.com',
-        },
-        {
-          protocol: 'https',
-          hostname: 'ethereum-optimism.github.io',
-        },
-        {
-          protocol: 'https',
-          hostname: '**',
-        },
-      ],
-    },
+  images: {
+    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'tokens.1inch.io',
+      },
+      {
+        protocol: 'https',
+        hostname: 'assets.coingecko.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ethereum-optimism.github.io',
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   transpilePackages: ['@web3-name-sdk/core'],
+  async rewrites() {
+    return [
+      {
+        source: '/api/lastseen',
+        destination: 'https://hashi-explorer.xyz/api_bridge_ui/lastseen',
+      },
+      {
+        source: '/api/num_hashi_signed/:path*',
+        destination: 'https://hashi-explorer.xyz/api_bridge_ui/num_hashi_signed/:path*',
+      },
+    ]
+  },
 })

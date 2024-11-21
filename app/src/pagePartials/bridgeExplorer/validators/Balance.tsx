@@ -36,7 +36,7 @@ export const Balance: React.FC<Props> = ({ balanceType }) => {
         <ChainToken name={balanceType?.chain ?? ''}>
           {iconPath && (
             <Image
-              alt={balanceType?.chain}
+              alt={balanceType ? balanceType.chain : 'Chain'}
               height={16}
               objectFit="cover"
               src={iconPath}
