@@ -145,11 +145,4 @@ Refer to:
 
 ---
 
-## Useful Tools
-
-- [Markdown Link Updater](https://marketplace.visualstudio.com/items?itemName=mathiassoeholm.markdown-link-updater): Helps manage internal and external links in Markdown files.
-- [Docusaurus Admonitions](https://docusaurus.io/docs/markdown-features/admonitions): For enhanced Markdown features in documentation.
-
----
-
-By following this guide, you'll help maintain the quality and consistency of the Bridge Monitor project. Thank you for contributing!
+By following this guide, you'll help maintain the quality and consistency of the Gnosis Bridge project. Thank you for contributing!
