@@ -19,7 +19,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@ethersproject/address": "^5.7.0",
     "@ethersproject/bignumber": "^5.7.0",

@@ -2,6 +2,7 @@
   "name": "gnosis-bridge-explorer",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "analyze": "ANALYZE=true yarn build",
     "build": "next build",

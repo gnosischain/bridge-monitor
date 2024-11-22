@@ -1,0 +1,11 @@
+{
+  "name": "gnosis-bridge",
+  "version": "3.0.17",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "app",
+    "alerts",
+    "subgraph"
+  ]
+}
