@@ -9,13 +9,13 @@ on:
       - develop
       - staging
     tags:
-      - "*"
+      - '*'
 
 env:
-  AWS_REGION: "eu-central-1"
-  DEPLOYMENT_DEV: "bridge-explorer-develop"
-  DEPLOYMENT_STG: "bridge-explorer-staging"
-  NAMESPACE: "bridges"
+  AWS_REGION: 'eu-central-1'
+  DEPLOYMENT_DEV: 'bridge-explorer-develop'
+  DEPLOYMENT_STG: 'bridge-explorer-staging'
+  NAMESPACE: 'bridges'
 
 # Permission can be added at job level or workflow level
 permissions:
@@ -26,18 +26,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Git clone the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v2.2.0 # there's v3.2.0 version exists
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v2.9.1 # latest v3.7.0
 
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.0
+        uses: aws-actions/configure-aws-credentials@v4.0.0 # v4.0.2
         with:
           audience: sts.amazonaws.com
           role-to-assume: ${{ secrets.AWS_ECR_ROLE }}
@@ -46,19 +46,19 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@v2.0.1
 
       - name: Build, tag, and push DEVELOP docker image to Amazon ECR
         if: startsWith(github.ref, 'refs/heads/develop')
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }} # Using develop instead
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v3.3.1 # v6.9.0
         with:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          tags: "${{ env.REGISTRY }}/bridge-explorer:develop"
+          tags: '${{ env.REGISTRY }}/bridge-explorer:develop'
           platforms: |
             linux/amd64
           build-args: |
@@ -81,7 +81,7 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/staging')
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v3.3.1 # v6.9.0
         with:
           context: ./app
           file: ./app/Dockerfile
@@ -112,7 +112,7 @@ jobs:
         run: echo "tag=$(git describe --abbrev=0 --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_OUTPUT
 
       - name: Create Release
-        uses: actions/github-script@v6
+        uses: actions/github-script@v6.4.1 # v7.0.1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -144,7 +144,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ steps.release_tag.outputs.tag }}
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v3.3.1 # v6.9.0
         with:
           context: ./app
           file: ./app/Dockerfile
@@ -175,7 +175,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.0
+        uses: aws-actions/configure-aws-credentials@v4.0.0 # v4.0.2
         with:
           audience: sts.amazonaws.com
           role-to-assume: ${{ secrets.AWS_EKS_ROLE }}
