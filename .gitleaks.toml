@@ -1,0 +1,14 @@
+title = "Ignore token-list.json"
+[extend]
+useDefault = true
+
+[allowlist]
+paths = [
+  'app/src/providers/token-list.json',
+  'app/src/utils/token-overrides.ts',
+  'app/src/components/bridges/InterestFunds.tsx',
+  'app/src/constants/bridges.ts',
+  'app/src/hooks/bridge/useBridgeInfo.tsx',
+  'app/src/hooks/bridge/useBridgeFee.tsx',
+  'app/.next/',
+]
