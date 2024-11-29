@@ -49,7 +49,6 @@ jobs:
             "https://api.github.com/repos/${{ github.repository }}/collaborators?affiliation=direct")
 
           ALLOWED_USERS=$(echo "$COLLABORATORS" | jq -r '.[] | select(.permissions.push == true or .permissions.admin == true) | .login')
-          echo $ALLOWED_USERS
           if ! echo "$ALLOWED_USERS" | grep -q "${{ github.actor }}"; then
             echo "Error: User ${{ github.actor }} does not have write access."
             exit 1
