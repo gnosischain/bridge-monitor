@@ -1,4 +1,4 @@
-name: Deploy Bridge-Explorer
+name: Manual Deployment for dev/stg Bridge-Explorer
 
 # Controls when the action will run. Invokes the workflow on push events
 on:
@@ -24,7 +24,6 @@ on:
         default: 'v1.0.0-dev'
 
 env:
-  AWS_REGION: 'eu-central-1'
   DEPLOYMENT_DEV: 'bridge-explorer-develop'
   DEPLOYMENT_STG: 'bridge-explorer-staging'
   NAMESPACE: 'bridges'
@@ -34,7 +33,32 @@ permissions:
   id-token: write # This is required for requesting the JWT
   contents: write # This is required for actions/checkout and create release
 jobs:
+  validate_user:
+    name: Validate Access
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Collaborators with Write Access
+        uses: actions/github-script@v6
+        id: fetch_collaborators
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: collaborators } = await github.repos.listCollaborators({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              affiliation: 'direct'
+            });
+
+            const writeAccessUsers = collaborators
+              .filter(collaborator => ['admin', 'write'].includes(collaborator.permissions.push))
+              .map(collaborator => collaborator.login);
+
+            core.setOutput('write_access_users', JSON.stringify(writeAccessUsers));
+
+
   Build_and_push_image_to_ECR:
+    needs: validate_user
+    if: ( github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/staging' )
     runs-on: ubuntu-latest
     steps:
       - name: Git clone the repository
@@ -43,18 +67,18 @@ jobs:
           fetch-depth: 0
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2.2.0 # there's v3.2.0 version exists
+        uses: docker/setup-qemu-action@v3.2.0 
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.9.1 # latest v3.7.0
+        uses: docker/setup-buildx-action@v3.7.0
 
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.0 # v4.0.2
+        uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           audience: sts.amazonaws.com
           role-to-assume: ${{ secrets.AWS_ECR_ROLE }}
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -64,8 +88,7 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/develop')
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }} # Using develop instead
-        uses: docker/build-push-action@v3.3.1 # v6.9.0
+        uses: docker/build-push-action@v6.9.0
         with:
           context: ./app
           file: ./app/Dockerfile
