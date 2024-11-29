@@ -42,15 +42,12 @@ jobs:
         id: fetch_collaborators
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          # https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28
           script: |
             COLLABORATORS=$(curl -s \
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
               -H "Accept: application/vnd.github+json" \
               "https://api.github.com/repos/${{ github.repository }}/collaborators?affiliation=direct")
-          
-            # Extract the usernames with "write" or higher permissions
-            ALLOWED_USERS=$(echo "$COLLABORATORS" | jq -r '.[] | select(.permissions.push == true) | .login')
-  
 
   Build_and_push_image_to_ECR:
     needs: validate_user
