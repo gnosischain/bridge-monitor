@@ -43,17 +43,15 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { data: collaborators } = await github.repos.listCollaborators({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              affiliation: 'direct'
-            });
-
-            const writeAccessUsers = collaborators
-              .filter(collaborator => ['admin', 'write'].includes(collaborator.permissions.push))
-              .map(collaborator => collaborator.login);
-
-            core.setOutput('write_access_users', JSON.stringify(writeAccessUsers));
+            COLLABORATORS=$(curl -s \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/collaborators?affiliation=direct")
+          
+            # Extract the usernames with "write" or higher permissions
+            ALLOWED_USERS=$(echo "$COLLABORATORS" | jq -r '.[] | select(.permissions.push == true) | .login')
+  
+            echo "Allowed Users: $ALLOWED_USERS"
 
 
   Build_and_push_image_to_ECR:
