@@ -42,12 +42,24 @@ jobs:
         id: fetch_collaborators
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          # https://github.com/actions/github-script
           # https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28
           script: |
-            COLLABORATORS=$(curl -s \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${{ github.repository }}/collaborators?affiliation=direct")
+            const repo = context.repo;
+            const url = `https://api.github.com/repos/${repo.owner}/${repo.repo}/collaborators?affiliation=direct`;
+
+            const collaboratorsResponse = await fetch(url, {
+              headers: {
+                'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github+json'
+              }
+            });
+
+            if (!collaboratorsResponse.ok) {
+              throw new Error(`Failed to fetch collaborators: ${collaboratorsResponse.statusText}`);
+            }
+              
+            return allowedUsers;
 
   Build_and_push_image_to_ECR:
     needs: validate_user
@@ -109,7 +121,7 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/staging')
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        uses: docker/build-push-action@v3.3.1 # v6.9.0
+        uses: docker/build-push-action@v6.9.0 
         with:
           context: ./app
           file: ./app/Dockerfile
