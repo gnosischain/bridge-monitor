@@ -38,28 +38,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch Collaborators with Write Access
-        uses: actions/github-script@v6
         id: fetch_collaborators
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          # https://github.com/actions/github-script
-          # https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28
-          script: |
-            const repo = context.repo;
-            const url = `https://api.github.com/repos/${repo.owner}/${repo.repo}/collaborators?affiliation=direct`;
-
-            const collaboratorsResponse = await fetch(url, {
-              headers: {
-                'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
-                'Accept': 'application/vnd.github+json'
-              }
-            });
-
-            if (!collaboratorsResponse.ok) {
-              throw new Error(`Failed to fetch collaborators: ${collaboratorsResponse.statusText}`);
-            }
-              
-            return allowedUsers;
+        # https://github.com/actions/github-script
+        # https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28
+        run: |
+          COLLABORATORS=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H 'content-type: application/json' \
+            "https://api.github.com/repos/${{ github.repository }}/collaborators?affiliation=direct")
 
   Build_and_push_image_to_ECR:
     needs: validate_user
