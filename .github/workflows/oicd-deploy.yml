@@ -16,12 +16,12 @@ on:
         description: 'subgraph dev tag version for gc subgraph'
         required: true
         type: string
-        default: 'v1.0.1-dev'
+        default: 'v1.0.1-develop'
       dev_subgraph_mainnet:
         description: 'subgraph dev tag version for mainnet subgraph'
         required: true
         type: string
-        default: 'v1.0.0-dev'
+        default: 'v1.0.0-develop'
 
 env:
   DEPLOYMENT_DEV: 'bridge-explorer-develop'
