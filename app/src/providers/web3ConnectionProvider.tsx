@@ -30,8 +30,6 @@ import { getSupportedNetworks } from '@/src/utils/getSupportedNetworks'
 import { hexToNumber, isValidChain } from '@/src/utils/tools'
 import { RequiredNonNull } from '@/types/utils'
 import { ModalCSS } from '@/src/theme/onBoard'
-
-import Onboard from '@web3-onboard/core'
 import safeModule from '@web3-onboard/gnosis'
 
 const STORAGE_CONNECTED_WALLET = 'onboard_selectedWallet'

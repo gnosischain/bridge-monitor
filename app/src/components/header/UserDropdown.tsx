@@ -144,7 +144,8 @@ const ClickableItem = styled(Item)`
   }
 `
 
-ClickableItem.defaultProps = Item.defaultProps
+// ClickableItem.defaultProps = Item.defaultProps
+ClickableItem.defaultProps = Item.defaultProps as typeof ClickableItem.defaultProps
 
 const ItemLabel = styled.div`
   align-items: center;

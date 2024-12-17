@@ -90,6 +90,7 @@ export const TokenOut: React.FC<{
       fromChainId == Chains.gnosis &&
       token.address == chainsConfig[Chains.gnosis].bridge.wForeignNative
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const tokenOutAmount = formatUnits(amount.sub(feeInfo!), tokenOut?.decimals)
 
     return (

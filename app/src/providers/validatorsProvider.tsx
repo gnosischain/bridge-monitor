@@ -1,6 +1,7 @@
 import React, { createContext, useContext } from 'react'
 import useSWR from 'swr'
-import { Bridges, BridgesValues } from '@/src/constants/config/bridges'
+
+import { BridgesValues } from '@/src/constants/config/bridges'
 import { fetchHomeValidators, getBalance, getValidatorByAddress } from '@/src/utils/validators'
 import { Validator } from '@/src/utils/validators'
 import { gnosis } from '@/src/constants/config/rpc-providers'
@@ -11,7 +12,7 @@ import {
   TELEPATHY_VALIDATOR_ADDRESS,
   TELEPATHY_VALIDATOR_ADDRESS_REPLACED,
 } from '@/src/constants/misc'
-import { useHashi } from '@/src/hooks/useHashi'
+// import { useHashi } from '@/src/hooks/useHashi'
 
 type ValidatorsContextType = {
   validators: Record<BridgesValues, Validator[]>

@@ -8,7 +8,7 @@ import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { ChevronDown as BaseChevronDown } from '@/src/components/assets/ChevronDown'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown as BaseDropdown, DropdownPosition } from '@/src/components/dropdown'
-import { TextfieldCSS } from '@/src/components/form/Textfield'
+import { TextfieldCSS, TextfieldCSSProps, TextfieldProps } from '@/src/components/form/Textfield'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
@@ -45,7 +45,10 @@ const TextFieldWrapper = styled.div`
 `
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Textfield: any = styled(DebounceInput)`
+// const Textfield: any = styled(DebounceInput)`
+const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
+  element: 'input',
+}))<TextfieldCSSProps>`
   --texfield-font-size: 1.4rem;
 
   ${TextfieldCSS};

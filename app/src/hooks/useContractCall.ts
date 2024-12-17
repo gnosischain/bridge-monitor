@@ -19,9 +19,9 @@ export function useContractCall<
   const {
     data = [],
     error,
-    mutate: refetch,
     isLoading,
     isValidating,
+    mutate: refetch,
   } = useSWR(
     key ? [getCacheKey([...params, key, appChainId || 0])] : null,
     async () => {

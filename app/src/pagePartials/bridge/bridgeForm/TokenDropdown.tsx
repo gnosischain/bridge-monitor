@@ -6,7 +6,7 @@ import { isAddress } from '@ethersproject/address'
 import { DebounceInput } from 'react-debounce-input'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown as BaseDropdown, DropdownItem, DropdownPosition } from '@/src/components/dropdown'
-import { TextfieldCSS } from '@/src/components/form/Textfield'
+import { TextfieldCSS, TextfieldCSSProps, TextfieldProps } from '@/src/components/form/Textfield'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
@@ -73,8 +73,9 @@ const TextFieldWrapper = styled.div`
   position: relative;
 `
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Textfield: any = styled(DebounceInput)`
+const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
+  element: 'input',
+}))<TextfieldCSSProps>`
   --texfield-font-size: 1.6rem;
 
   ${TextfieldCSS};
@@ -256,6 +257,8 @@ const Dropdown: React.FC<Props> = ({
 }) => {
   const [isOpened, setIsOpened] = useState(false)
   const [searchInputRef, setSearchInputInputRef] = useState<HTMLInputElement | null>(null)
+
+  // const searchInputRef = useRef<HTMLInputElement | null>(null)
   const { ambTokensByNetwork } = useBridgedTokens()
   const [manualTokens, setManualTokens] = useState<Token[]>([])
   const [filteredTokens, setFilteredTokens] = useState<Token[]>([])
@@ -427,6 +430,10 @@ const Dropdown: React.FC<Props> = ({
     }
   }, [searchInputRef, isOpened])
 
+  // const handleInputRef = (element: HTMLInputElement | null) => {
+  //   setSearchInputInputRef(element)
+  // }
+
   return (
     <Wrapper
       disabled={disabled}
@@ -452,8 +459,13 @@ const Dropdown: React.FC<Props> = ({
               autoComplete="off"
               autoCorrect="off"
               debounceTimeout={300}
+              // eslint-disable-next-line
+              // @ts-ignore
               inputRef={setSearchInputInputRef}
-              onChange={(e: { target: { value: string } }) => setValue(e.target.value)}
+              onChange={(e) => {
+                const target = e.target as unknown as HTMLInputElement
+                setValue(target.value)
+              }}
               placeholder="Search asset"
               spellCheck="false"
               type="search"
