@@ -1,4 +1,4 @@
-name: Deploy Bridge-Explorer
+name: Manual Deployment for dev/stg Bridge-Explorer
 
 # Controls when the action will run. Invokes the workflow on push events
 on:
@@ -24,7 +24,6 @@ on:
         default: v1.0.0-dev
 
 env:
-  AWS_REGION: 'eu-central-1'
   DEPLOYMENT_DEV: 'bridge-explorer-develop'
   DEPLOYMENT_STG: 'bridge-explorer-staging'
   NAMESPACE: 'bridges'
@@ -34,7 +33,30 @@ permissions:
   id-token: write # This is required for requesting the JWT
   contents: write # This is required for actions/checkout and create release
 jobs:
+  validate_user:
+    name: Validate Access
+    runs-on: ubuntu-latest
+    if: ( github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/staging' )
+    steps:
+      - name: Fetch Collaborators with Write Access
+        id: fetch_collaborators
+        # Users has to be explicity added, not working with teeams
+        # https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28
+        run: |
+          COLLABORATORS=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H 'content-type: application/json' \
+            "https://api.github.com/repos/${{ github.repository }}/collaborators?affiliation=direct")
+
+          ALLOWED_USERS=$(echo "$COLLABORATORS" | jq -r '.[] | select(.permissions.push == true or .permissions.admin == true) | .login')
+          if ! echo "$ALLOWED_USERS" | grep -q "${{ github.actor }}"; then
+            echo "Error: User ${{ github.actor }} does not have write access."
+            exit 1
+          fi
+
   Build_and_push_image_to_ECR:
+    needs: validate_user
+    if: ( github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/staging' )
     runs-on: ubuntu-latest
     steps:
       - name: Git clone the repository
@@ -43,18 +65,18 @@ jobs:
           fetch-depth: 0
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2.2.0 # there's v3.2.0 version exists
+        uses: docker/setup-qemu-action@v3.2.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.9.1 # latest v3.7.0
+        uses: docker/setup-buildx-action@v3.7.0
 
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.0 # v4.0.2
+        uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           audience: sts.amazonaws.com
           role-to-assume: ${{ secrets.AWS_ECR_ROLE }}
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -64,8 +86,7 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/develop')
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }} # Using develop instead
-        uses: docker/build-push-action@v3.3.1 # v6.9.0
+        uses: docker/build-push-action@v6.9.0
         with:
           context: ./app
           file: ./app/Dockerfile
@@ -93,7 +114,7 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/staging')
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        uses: docker/build-push-action@v3.3.1 # v6.9.0
+        uses: docker/build-push-action@v6.9.0
         with:
           context: ./app
           file: ./app/Dockerfile
@@ -129,14 +150,14 @@ jobs:
           audience: sts.amazonaws.com
           role-to-assume: ${{ secrets.AWS_EKS_ROLE }}
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Configure kubectl for EKS
-        run: aws eks update-kubeconfig --name ${{ secrets.AWS_EKS_CLUSTER }} --region ${{ env.AWS_REGION }}
+        run: aws eks update-kubeconfig --name ${{ secrets.AWS_EKS_CLUSTER }} --region ${{ secrets.AWS_REGION }}
 
       - name: Restart Bridge Explorer Deployment
         run: |
-          kubectl config use-context arn:aws:eks:${{ env.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:cluster/${{ secrets.AWS_EKS_CLUSTER }}
+          kubectl config use-context arn:aws:eks:${{ secrets.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:cluster/${{ secrets.AWS_EKS_CLUSTER }}
           if [ "${GITHUB_REF#refs/heads/}" = "develop" ]; then
             kubectl rollout restart deploy/${{ env.DEPLOYMENT_DEV }} -n ${{ env.NAMESPACE }}
           else
