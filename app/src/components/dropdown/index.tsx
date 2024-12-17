@@ -22,18 +22,18 @@ export enum DropdownDirection {
 
 interface WrapperProps {
   disabled: boolean
-  fullWidth?: boolean
-  isOpen: boolean
+  $fullWidth?: boolean
+  $isOpen: boolean
 }
 
 const Wrapper = styled.div<WrapperProps>`
   outline: none;
   pointer-events: ${(props) => (props.disabled ? 'none' : 'initial')};
   position: relative;
-  z-index: ${(props) => (props.isOpen ? '50' : '0')};
+  z-index: ${(props) => (props.$isOpen ? '50' : '0')};
 
   ${(props) =>
-    props.fullWidth &&
+    props.$fullWidth &&
     css`
       width: 100%;
     `}
@@ -45,7 +45,7 @@ const Wrapper = styled.div<WrapperProps>`
 `
 
 Wrapper.defaultProps = {
-  fullWidth: false,
+  $fullWidth: false,
 }
 
 const ButtonContainer = styled.div`
@@ -80,9 +80,9 @@ const DirectionUpwardsCSS = css`
 `
 
 interface ItemProps {
-  dropdownDirection?: DropdownDirection
-  dropdownPosition?: DropdownPosition
-  isOpen: boolean
+  $dropdownDirection?: DropdownDirection
+  $dropdownPosition?: DropdownPosition
+  $isOpen: boolean
 }
 
 const Items = styled.div<ItemProps>`
@@ -91,19 +91,19 @@ const Items = styled.div<ItemProps>`
   border: 1px solid ${({ theme: { dropdown } }) => dropdown.borderColor};
   box-shadow: 0 63px 80px rgba(0, 0, 0, 0.07), 0 31.8937px 34.875px rgba(0, 0, 0, 0.04725),
     0 12.6px 13px rgba(0, 0, 0, 0.035), 0 2.75625px 4.625px rgba(0, 0, 0, 0.02275);
-  display: ${(props) => (props.isOpen ? 'block' : 'none')};
+  display: ${(props) => (props.$isOpen ? 'block' : 'none')};
   min-width: 150px;
   max-height: 260px;
   overflow-y: auto;
   position: absolute;
   white-space: nowrap;
 
-  ${(props) => (props.dropdownPosition === DropdownPosition.left ? PositionLeftCSS : '')}
-  ${(props) => (props.dropdownPosition === DropdownPosition.right ? PositionRightCSS : '')}
-  ${(props) => (props.dropdownPosition === DropdownPosition.center ? PositionCenterCSS : '')}
+  ${(props) => (props.$dropdownPosition === DropdownPosition.left ? PositionLeftCSS : '')}
+  ${(props) => (props.$dropdownPosition === DropdownPosition.right ? PositionRightCSS : '')}
+  ${(props) => (props.$dropdownPosition === DropdownPosition.center ? PositionCenterCSS : '')}
   ${(props) =>
-    props.dropdownDirection === DropdownDirection.downwards ? DirectionDownwardsCSS : ''}
-  ${(props) => (props.dropdownDirection === DropdownDirection.upwards ? DirectionUpwardsCSS : '')}
+    props.$dropdownDirection === DropdownDirection.downwards ? DirectionDownwardsCSS : ''}
+  ${(props) => (props.$dropdownDirection === DropdownDirection.upwards ? DirectionUpwardsCSS : '')}
 
   /* width */
   ::-webkit-scrollbar {
@@ -129,15 +129,15 @@ const Items = styled.div<ItemProps>`
 `
 
 Items.defaultProps = {
-  dropdownDirection: DropdownDirection.downwards,
-  dropdownPosition: DropdownPosition.left,
-  isOpen: false,
+  $dropdownDirection: DropdownDirection.downwards,
+  $dropdownPosition: DropdownPosition.left,
+  $isOpen: false,
 }
 
 export interface DropdownItemProps {
-  closeOnClick?: boolean
+  $closeOnClick?: boolean
   disabled?: boolean
-  justifyContent?: string
+  $justifyContent?: string
 }
 
 export const DropdownItemCSS = css<DropdownItemProps>`
@@ -150,7 +150,7 @@ export const DropdownItemCSS = css<DropdownItemProps>`
   font-size: 1.4rem;
   font-weight: 400;
   gap: 8px;
-  justify-content: ${({ justifyContent }) => justifyContent};
+  justify-content: ${({ $justifyContent }) => $justifyContent};
   line-height: 1.4;
   min-height: 36px;
   overflow: hidden;
@@ -202,9 +202,9 @@ export const DropdownItem = styled.div<DropdownItemProps>`
 
 DropdownItem.defaultProps = {
   className: 'dropdownItem',
-  closeOnClick: true,
+  $closeOnClick: true,
   disabled: false,
-  justifyContent: 'flex-start',
+  $justifyContent: 'flex-start',
 }
 
 interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivElement> {
@@ -275,10 +275,10 @@ export const Dropdown: React.FC<Props> = (props) => {
 
   return (
     <Wrapper
+      $fullWidth={fullWidth}
+      $isOpen={isOpen}
       className={`dropdown ${isOpen ? 'isOpen' : ''} ${className}`}
       disabled={disabled}
-      fullWidth={fullWidth}
-      isOpen={isOpen}
       ref={node}
       {...restProps}
     >
@@ -286,10 +286,10 @@ export const Dropdown: React.FC<Props> = (props) => {
         {dropdownButton}
       </ButtonContainer>
       <Items
+        $dropdownDirection={dropdownDirection}
+        $dropdownPosition={dropdownPosition}
+        $isOpen={isOpen}
         className="dropdownItems"
-        dropdownDirection={dropdownDirection}
-        dropdownPosition={dropdownPosition}
-        isOpen={isOpen}
       >
         {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

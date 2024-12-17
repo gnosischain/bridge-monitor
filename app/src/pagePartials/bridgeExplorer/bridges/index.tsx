@@ -30,7 +30,7 @@ export const Bridges: React.FC = ({ ...restProps }) => {
         <Tabs>
           {bridges.map(({ title }, index) => (
             <TabHeader
-              isActive={activeTab === index}
+              $isActive={activeTab === index}
               key={index}
               onClick={() => setActiveTab(index)}
               title={title}

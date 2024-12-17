@@ -61,7 +61,9 @@ const Wrapper = styled(BaseDropdown)`
   }
 `
 
-const TextfieldContainer = styled.div<{ closeOnClick?: boolean }>`
+const TextfieldContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
   background-color: ${({ theme: { dropdown } }) => dropdown.background};
   padding: calc(var(--theme-common-space) * 2);
   position: sticky;
@@ -101,7 +103,9 @@ const Magnifier = styled(BaseMagnifier)`
   transform: translateY(-50%);
 `
 
-const Items = styled.div<{ closeOnClick?: boolean }>`
+const Items = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
   background-color: ${({ theme: { dropdown } }) => dropdown.background};
   padding: 0 0 calc(var(--theme-common-space) / 2);
 `
@@ -135,7 +139,9 @@ const TokenAmount = styled.div`
   font-weight: 500;
 `
 
-const NoResults = styled.div<{ closeOnClick?: boolean }>`
+const NoResults = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
   align-items: center;
   color: ${({ theme: { colors } }) => colors.primary};
   display: flex;
@@ -180,7 +186,9 @@ const ChevronDown = styled(BaseChevronDown)`
   }
 `
 
-const TopTokens = styled.div<{ closeOnClick?: boolean }>`
+const TopTokens = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
   align-items: center;
   border-bottom: 1px solid ${({ theme: { colors } }) => colors.cream};
   column-gap: calc(var(--theme-common-space) / 2);

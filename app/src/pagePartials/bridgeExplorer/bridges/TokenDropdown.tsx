@@ -32,7 +32,9 @@ const Wrapper = styled(BaseDropdown)`
   }
 `
 
-const TextfieldContainer = styled.div<{ closeOnClick?: boolean }>`
+const TextfieldContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
   background-color: ${({ theme: { dropdown } }) => dropdown.background};
   padding: calc(var(--theme-common-space) / 2) calc(var(--theme-common-space) / 2) 0;
   position: sticky;
@@ -79,7 +81,9 @@ const Info = styled.p`
   white-space: normal;
 `
 
-const Items = styled.div<{ closeOnClick?: boolean }>`
+const Items = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
   background-color: ${({ theme: { dropdown } }) => dropdown.background};
   padding: 0 calc(var(--theme-common-space) / 2) calc(var(--theme-common-space) / 2);
 `
@@ -115,7 +119,9 @@ const DropdownItem = styled.div`
   }
 `
 
-const NoResults = styled.div<{ closeOnClick?: boolean }>`
+const NoResults = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
   align-items: center;
   color: ${({ theme: { colors } }) => colors.primary};
   display: flex;

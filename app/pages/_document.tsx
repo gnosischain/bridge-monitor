@@ -1,15 +1,27 @@
 import Document, { DocumentContext, Head, Html, Main, NextScript } from 'next/document'
-import { ServerStyleSheet } from 'styled-components'
+import { ServerStyleSheet, StyleSheetManager } from 'styled-components'
+import isPropValid from '@emotion/is-prop-valid'
 
 export default class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
     const sheet = new ServerStyleSheet()
     const originalRenderPage = ctx.renderPage
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const shouldForwardProp = (propName: string, target: any) => {
+      return typeof target === 'string' ? isPropValid(propName) : true
+    }
+
     try {
       ctx.renderPage = () =>
         originalRenderPage({
-          enhanceApp: (App) => (props) => sheet.collectStyles(<App {...props} />),
+          enhanceApp: (App) => (props) =>
+            sheet.collectStyles(
+              // <App {...props} />
+              <StyleSheetManager shouldForwardProp={shouldForwardProp}>
+                <App {...props} />
+              </StyleSheetManager>,
+            ),
         })
       const initialProps = await Document.getInitialProps(ctx)
       return {

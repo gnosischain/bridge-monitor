@@ -20,6 +20,7 @@
   "dependencies": {
     "@babel/traverse": "^7.23.2",
     "@covalenthq/client-sdk": "^0.9.8",
+    "@emotion/is-prop-valid": "^1.3.1",
     "@graphprotocol/graph-cli": "^0.60.0",
     "@safe-global/safe-apps-provider": "^0.18.3",
     "@safe-global/safe-apps-sdk": "^9.1.0",

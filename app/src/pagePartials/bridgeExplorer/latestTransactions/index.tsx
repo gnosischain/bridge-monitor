@@ -57,7 +57,7 @@ export const LatestTransactions: React.FC = genericSuspense(
           <Tabs>
             {latestTransactions.map(({ title }, index) => (
               <TabHeader
-                isActive={isSameString(activeTab, title)}
+                $isActive={isSameString(activeTab, title)}
                 key={index}
                 onClick={() => router.push(`${latestTransactionsBaseURL}?bridge=${title}`)}
                 title={title}
@@ -93,7 +93,7 @@ export const LatestTransactions: React.FC = genericSuspense(
         <Tabs>
           {latestTransactions.map(({ title }, index) => (
             <TabHeader
-              isActive={index === 0}
+              $isActive={index === 0}
               key={index}
               onClick={() => {
                 return false

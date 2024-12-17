@@ -12,7 +12,7 @@ export const CardPlaceholder: React.FC<{ height?: string }> = ({ height = '235px
     }}
   >
     <SkeletonLoading
-      animate={false}
+      $animate={false}
       style={{
         borderRadius: '16px',
         height: '30px',
@@ -20,7 +20,7 @@ export const CardPlaceholder: React.FC<{ height?: string }> = ({ height = '235px
       }}
     />
     <SkeletonLoading
-      animate={false}
+      $animate={false}
       style={{
         borderRadius: '16px',
         flexGrow: '1',

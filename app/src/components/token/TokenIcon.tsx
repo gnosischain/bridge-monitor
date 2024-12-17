@@ -12,7 +12,9 @@ const IconWrapper = styled.span`
   }
 `
 
-const Placeholder = styled.div<{ dimensions: string }>`
+const Placeholder = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['dimensions'].includes(prop),
+})<{ dimensions: string }>`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.creamDark};
   flex-shrink: 0;

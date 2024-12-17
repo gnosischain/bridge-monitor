@@ -139,7 +139,7 @@ export const Loading: React.FC = () => (
       }}
     >
       <SkeletonLoading
-        animate={false}
+        $animate={false}
         style={{
           borderRadius: '8px',
           display: 'flex',

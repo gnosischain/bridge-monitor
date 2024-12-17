@@ -8,11 +8,12 @@ const Wrapper = styled.div`
   display: flex;
   height: var(--height);
 `
-const Chain = styled.div<{ chain?: string }>`
+const Chain = styled.div<{ $chain?: string }>`
   align-items: center;
-  background: ${({ chain, theme: { colors } }) =>
-    chain === 'gnosis' ? colors.primary : colors.white};
-  color: ${({ chain, theme: { colors } }) => (chain === 'gnosis' ? colors.white : colors.primary)};
+  background: ${({ $chain, theme: { colors } }) =>
+    $chain === 'gnosis' ? colors.primary : colors.white};
+  color: ${({ $chain, theme: { colors } }) =>
+    $chain === 'gnosis' ? colors.white : colors.primary};
   display: flex;
   font-size: 1.2rem;
   gap: calc(var(--theme-common-space) / 2);
@@ -44,7 +45,7 @@ const Chain = styled.div<{ chain?: string }>`
     &:after {
       border-color: transparent transparent transparent
         ${(props) =>
-          props.chain === 'gnosis'
+          props.$chain === 'gnosis'
             ? ({ theme }) => theme.colors.primary
             : ({ theme }) => theme.colors.white};
       border-style: solid;
@@ -70,7 +71,7 @@ const Bridge: React.FC<{ chain: string; iconName?: string }> = ({
   const iconPath = getIcon(iconName)
 
   return iconPath ? (
-    <Chain chain={chain.toLowerCase()} {...restProps}>
+    <Chain $chain={chain.toLowerCase()} {...restProps}>
       <Image alt={chain} height={16} src={iconPath} style={{ objectFit: 'cover' }} width={16} />
       {chain}
     </Chain>
@@ -78,24 +79,24 @@ const Bridge: React.FC<{ chain: string; iconName?: string }> = ({
 }
 
 interface Props {
-  chainInitiator: string
-  chainReceiver: string
-  chainIconInitiator?: string
-  chainIconReceiver?: string
-  showName?: boolean
+  $chainInitiator: string
+  $chainReceiver: string
+  $chainIconInitiator?: string
+  $chainIconReceiver?: string
+  $showName?: boolean
 }
 
 export const ChainsInitiatorReceiver: React.FC<Props> = ({
-  chainIconInitiator,
-  chainIconReceiver,
-  chainInitiator,
-  chainReceiver,
+  $chainIconInitiator,
+  $chainIconReceiver,
+  $chainInitiator,
+  $chainReceiver,
   ...restProps
 }) => {
   return (
     <Wrapper {...restProps}>
-      <Bridge chain={chainInitiator} iconName={chainIconInitiator} />
-      <Bridge chain={chainReceiver} iconName={chainIconReceiver} />
+      <Bridge chain={$chainInitiator} iconName={$chainIconInitiator} />
+      <Bridge chain={$chainReceiver} iconName={$chainIconReceiver} />
     </Wrapper>
   )
 }

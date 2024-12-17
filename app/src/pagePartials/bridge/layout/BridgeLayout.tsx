@@ -6,13 +6,13 @@ import { PropsWithChildren } from 'react'
 export const BridgeLayout: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
   return (
     <SidebarLayout
-      sidebarContents={
+      $sidebarContents={
         <>
           <Search />
           <ExternalLinks />
         </>
       }
-      sidebarPlacement="right"
+      $sidebarPlacement="right"
     >
       {children}
     </SidebarLayout>

@@ -81,24 +81,24 @@ const Status = styled.div`
 `
 
 interface ItemProps {
-  border?: boolean
-  closeOnClick?: boolean
-  darkBg?: boolean
-  flexDirection?: string
+  $border?: boolean
+  $closeOnClick?: boolean
+  $darkBg?: boolean
+  $flexDirection?: string
 }
 
 const Item = styled.div<ItemProps>`
-  align-items: ${({ flexDirection }) => (flexDirection === 'column' ? 'flex-start' : 'center')};
-  background: ${({ darkBg, theme: { colors } }) => (darkBg ? colors.primary : 'transparent')};
-  color: ${({ darkBg, theme: { colors } }) => (darkBg ? colors.warning : colors.cream)};
+  align-items: ${({ $flexDirection }) => ($flexDirection === 'column' ? 'flex-start' : 'center')};
+  background: ${({ $darkBg, theme: { colors } }) => ($darkBg ? colors.primary : 'transparent')};
+  color: ${({ $darkBg, theme: { colors } }) => ($darkBg ? colors.warning : colors.cream)};
   display: flex;
-  flex-direction: ${({ flexDirection }) => flexDirection};
+  flex-direction: ${({ $flexDirection }) => $flexDirection};
   justify-content: space-between;
   padding: var(--dropdown-items-padding-vertical) var(--dropdown-items-padding-horizontal);
   position: relative;
 
-  ${({ border, theme: { colors } }) =>
-    border &&
+  ${({ $border, theme: { colors } }) =>
+    $border &&
     css`
       &:after {
         background: ${colors.primary};
@@ -125,10 +125,10 @@ const Item = styled.div<ItemProps>`
 `
 
 Item.defaultProps = {
-  border: false,
-  closeOnClick: true,
-  darkBg: false,
-  flexDirection: 'row',
+  $border: false,
+  $closeOnClick: true,
+  $darkBg: false,
+  $flexDirection: 'row',
 }
 
 const ClickableItem = styled(Item)`
@@ -202,13 +202,13 @@ const NetworkName = styled.span`
   position: relative;
 `
 
-const UnsupportedNetwork = styled.span<{ small?: boolean | undefined }>`
+const UnsupportedNetwork = styled.span<{ $small?: boolean | undefined }>`
   color: ${({ theme: { colors } }) => colors.error};
   font-weight: 700;
   letter-spacing: -0.5px;
 
-  ${({ small }) =>
-    small &&
+  ${({ $small }) =>
+    $small &&
     css`
       font-size: 1.2rem;
       position: absolute;
@@ -275,7 +275,7 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
         }
         dropdownPosition={DropdownPosition.right}
         items={[
-          <Item closeOnClick={false} flexDirection="column" key="userDropdown_item_0">
+          <Item $closeOnClick={false} $flexDirection="column" key="userDropdown_item_0">
             <Title>Connected with {wallet?.label}</Title>
             {address && (
               <WalletAddress
@@ -287,7 +287,11 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
               />
             )}
           </Item>,
-          <ClickableItem border key="userDropdown_item_1" onClick={() => setShowNetworkModal(true)}>
+          <ClickableItem
+            $border
+            key="userDropdown_item_1"
+            onClick={() => setShowNetworkModal(true)}
+          >
             <ItemLabel>
               <ChainIconWrapper>
                 <ChainIcon
@@ -303,7 +307,7 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
               </ChainIconWrapper>
               <NetworkName>
                 {currentNetwork && <span>{currentNetwork.name}</span>}
-                <UnsupportedNetwork small={currentNetwork !== undefined}>
+                <UnsupportedNetwork $small={currentNetwork !== undefined}>
                   {!isWalletNetworkSupported && 'Unsupported network'}
                 </UnsupportedNetwork>
               </NetworkName>
@@ -319,7 +323,7 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
               My transactions
             </ItemLabel>
           </ClickableItem>,
-          <ClickableItem darkBg key="userDropdown_item_3" onClick={disconnectWallet}>
+          <ClickableItem $darkBg key="userDropdown_item_3" onClick={disconnectWallet}>
             <ItemLabel>
               <Disconnect /> Disconnect
             </ItemLabel>

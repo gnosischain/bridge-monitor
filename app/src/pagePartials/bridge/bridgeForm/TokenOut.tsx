@@ -44,7 +44,7 @@ const wethOptions = [
 export const NoTokenOut: React.FC<{ loading?: boolean }> = ({ loading }) => (
   <>
     <SkeletonLoading
-      animate={false}
+      $animate={false}
       style={{
         borderRadius: '50%',
         height: '24px',
