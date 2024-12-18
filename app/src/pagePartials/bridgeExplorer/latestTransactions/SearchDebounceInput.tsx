@@ -4,6 +4,7 @@ import { DebounceInput } from 'react-debounce-input'
 import { DEBOUNCE_TIME } from '@/src/constants/misc'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import {
+  TextfieldCSS,
   TextfieldCSSProps,
   TextfieldPartsCSS,
   TextfieldProps,
@@ -33,6 +34,7 @@ const Magnifier = styled(BaseMagnifier)`
 const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
   element: 'input',
 }))<TextfieldCSSProps>`
+  ${TextfieldCSS}
   ${TextfieldPartsCSS}
 
   padding-left: calc(calc(var(--theme-common-space) * 4) + var(--icon-size));
@@ -69,6 +71,8 @@ export const SearchDebounceInput: React.FC<Props> = ({
       setValue('')
     }
   }, [reset])
+
+  console.log(restProps)
 
   return (
     <Wrapper {...restProps}>

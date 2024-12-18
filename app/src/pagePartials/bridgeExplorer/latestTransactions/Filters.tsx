@@ -281,7 +281,7 @@ export const Filters: React.FC<Props> = ({ bridge, filters, onResetFilters, ...r
         <Search
           onChange={handleHashChange}
           onEnterValue={() => setResetFields(false)}
-          placeholder="Search by Address 999/ Txn Hash"
+          placeholder="Search by Address / Txn Hash"
           reset={resetFields}
           status={error ? TextfieldStatus.error : undefined}
         />
