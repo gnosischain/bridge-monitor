@@ -3,9 +3,15 @@
   "version": "3.0.17",
   "license": "MIT",
   "private": true,
-  "workspaces": [
-    "app",
-    "alerts",
-    "subgraph"
-  ]
+  "workspaces": {
+    "packages": [
+      "app",
+      "alerts",
+      "subgraph"
+    ],
+    "nohoist": [
+      "**"
+    ]
+  },
+  "packageManager": "yarn@4.5.3"
 }
