@@ -72,8 +72,6 @@ export const SearchDebounceInput: React.FC<Props> = ({
     }
   }, [reset])
 
-  console.log(restProps)
-
   return (
     <Wrapper {...restProps}>
       <Textfield
