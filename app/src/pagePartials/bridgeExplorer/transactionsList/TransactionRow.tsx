@@ -63,7 +63,7 @@ const ViewMore = styled.span`
   }
 `
 
-const RowLink = styled.a`
+const RowLink = styled.div`
   text-decoration: none;
 `
 

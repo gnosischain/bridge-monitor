@@ -151,7 +151,9 @@ const Magnifier = styled(BaseMagnifier)`
   }
 `
 
-const Info = styled.div<{ show: boolean }>`
+const Info = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['show'].includes(prop),
+})<{ show: boolean }>`
   --y-distance: 6px;
 
   align-items: center;
