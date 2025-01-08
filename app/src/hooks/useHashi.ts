@@ -1,10 +1,14 @@
 import useSWR from 'swr'
 import { Bridges } from '../constants/config/bridges'
+import { contracts } from '../constants/config/contracts'
+import { Chains } from '../constants/config/types'
 
 const REFRESH_INTERVAL = 120000 // 2 minutes in milliseconds
 // const LAST_SEEN_URL = 'https://hashi-explorer.xyz/api_bridge_ui/lastseen'
 // const SIGNED_URL =
 //   'https://hashi-explorer.xyz/api_bridge_ui/num_hashi_signed?days_elapsed=1&address=0x2F62433e00168af10c70bc39e2fDbEe5DaCA257b'
+
+const API_INFO_ADDRESS = contracts.AMB.address[Chains.mainnet]
 
 export function useHashi() {
   const fetcher = async (url: string) => {
@@ -18,7 +22,7 @@ export function useHashi() {
   })
 
   const { data: signedData1, error: signedError1 } = useSWR(
-    '/api/num_hashi_signed?days_elapsed=1&address=0x2F62433e00168af10c70bc39e2fDbEe5DaCA257b',
+    `/api/num_hashi_signed?days_elapsed=1&address=${API_INFO_ADDRESS}`,
     fetcher,
     {
       refreshInterval: REFRESH_INTERVAL,
@@ -26,7 +30,7 @@ export function useHashi() {
   )
 
   const { data: signedData7 } = useSWR(
-    '/api/num_hashi_signed?days_elapsed=7&address=0x2F62433e00168af10c70bc39e2fDbEe5DaCA257b',
+    `/api/num_hashi_signed?days_elapsed=7&address=${API_INFO_ADDRESS}`,
     fetcher,
     {
       refreshInterval: REFRESH_INTERVAL,
