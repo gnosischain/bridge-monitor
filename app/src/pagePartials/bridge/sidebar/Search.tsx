@@ -207,7 +207,7 @@ export const Search: React.FC = ({ ...restProps }) => {
           id="sidebarSearch"
           minLength={3}
           onChange={(e: { target: { value: string } }) => setValue(e.target.value)}
-          placeholder={'Search by Address 333/ Tx Hash'}
+          placeholder={'Search by Address / Tx Hash'}
           spellCheck="false"
           type="search"
           value={value}
