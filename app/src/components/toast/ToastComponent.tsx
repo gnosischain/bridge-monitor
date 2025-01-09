@@ -17,7 +17,9 @@ const loadingAnimation = keyframes`
   }
 `
 
-const Wrapper = styled.div<{ type?: ToastStates; autoWidth?: boolean }>`
+const Wrapper = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['type', 'autoWidth'].includes(prop),
+})<{ type?: ToastStates; autoWidth?: boolean }>`
   animation-delay: 0;
   animation-duration: 0.25s;
   animation-iteration-count: 1;
