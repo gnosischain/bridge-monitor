@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { bridgeExplorerBaseURL, myTransactionsFullURL } from '@/src/constants/sections'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { DebounceInput } from 'react-debounce-input'
-import { TextfieldCSS } from '@/src/components/form/Textfield'
+import { TextfieldCSS, TextfieldCSSProps, TextfieldProps } from '@/src/components/form/Textfield'
 import { DEBOUNCE_TIME } from '@/src/constants/misc'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { MyTransactions } from '@/src/components/assets/MyTransactions'
@@ -32,7 +32,10 @@ const SearchWrapper = styled.div`
 `
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Textfield: any = styled(DebounceInput)`
+// const Textfield: any = styled(DebounceInput)`
+const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
+  element: 'input',
+}))<TextfieldCSSProps>`
   ${TextfieldCSS}
 
   --texfield-font-size: 1.5rem;
@@ -204,7 +207,7 @@ export const Search: React.FC = ({ ...restProps }) => {
           id="sidebarSearch"
           minLength={3}
           onChange={(e: { target: { value: string } }) => setValue(e.target.value)}
-          placeholder={'Search by Address / Tx Hash'}
+          placeholder={'Search by Address 333/ Tx Hash'}
           spellCheck="false"
           type="search"
           value={value}

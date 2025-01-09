@@ -123,7 +123,8 @@ export const AmountTokenInput = ({
       <Wrapper {...restProps}>
         <NumericFormat
           allowNegative={false}
-          customInput={TextfieldAmount}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          customInput={TextfieldAmount as any}
           defaultValue={value}
           isAllowed={({ value }) => {
             const [, _decimals] = value.toString().split('.')

@@ -8,7 +8,7 @@ import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { ChevronDown as BaseChevronDown } from '@/src/components/assets/ChevronDown'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown as BaseDropdown, DropdownPosition } from '@/src/components/dropdown'
-import { TextfieldCSS } from '@/src/components/form/Textfield'
+import { TextfieldCSS, TextfieldCSSProps, TextfieldProps } from '@/src/components/form/Textfield'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
@@ -32,7 +32,9 @@ const Wrapper = styled(BaseDropdown)`
   }
 `
 
-const TextfieldContainer = styled.div<{ closeOnClick?: boolean }>`
+const TextfieldContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
   background-color: ${({ theme: { dropdown } }) => dropdown.background};
   padding: calc(var(--theme-common-space) / 2) calc(var(--theme-common-space) / 2) 0;
   position: sticky;
@@ -45,7 +47,10 @@ const TextFieldWrapper = styled.div`
 `
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Textfield: any = styled(DebounceInput)`
+// const Textfield: any = styled(DebounceInput)`
+const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
+  element: 'input',
+}))<TextfieldCSSProps>`
   --texfield-font-size: 1.4rem;
 
   ${TextfieldCSS};
@@ -76,7 +81,9 @@ const Info = styled.p`
   white-space: normal;
 `
 
-const Items = styled.div<{ closeOnClick?: boolean }>`
+const Items = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
   background-color: ${({ theme: { dropdown } }) => dropdown.background};
   padding: 0 calc(var(--theme-common-space) / 2) calc(var(--theme-common-space) / 2);
 `
@@ -112,7 +119,9 @@ const DropdownItem = styled.div`
   }
 `
 
-const NoResults = styled.div<{ closeOnClick?: boolean }>`
+const NoResults = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
   align-items: center;
   color: ${({ theme: { colors } }) => colors.primary};
   display: flex;

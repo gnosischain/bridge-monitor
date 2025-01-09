@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react'
 import useSWR from 'swr'
+
 import { Bridges, BridgesValues } from '@/src/constants/config/bridges'
 import { fetchHomeValidators, getBalance, getValidatorByAddress } from '@/src/utils/validators'
 import { Validator } from '@/src/utils/validators'
@@ -78,31 +79,30 @@ const fetcher = async () => {
 export const ValidatorsProvider: React.FC = ({ children }) => {
   const res = useSWR('validators', fetcher)
 
-  // TODO: add back when hashi is live
-  // const { hashi } = useHashi()
+  const { hashi } = useHashi()
 
-  // if (res.data && hashi) {
-  //   const ambArray = res.data[Bridges.amb]
-  //   const existingIndex = ambArray.findIndex(
-  //     (validator: Validator) => 'id' in validator && validator.id === hashi.id,
-  //   )
+  if (res.data && hashi) {
+    const ambArray = res.data[Bridges.amb]
+    const existingIndex = ambArray.findIndex(
+      (validator: Validator) => 'id' in validator && validator.id === hashi.id,
+    )
 
-  //   if (existingIndex !== -1) {
-  //     ambArray[existingIndex] = {
-  //       ...hashi,
-  //       status: hashi.status as
-  //         | 'default'
-  //         | 'submittedExecuted'
-  //         | 'executed'
-  //         | 'notRequired'
-  //         | 'pending'
-  //         | 'submitted',
-  //     }
-  //   } else {
-  //     // Add new hashi object
-  //     ambArray.push(hashi as Validator)
-  //   }
-  // }
+    if (existingIndex !== -1) {
+      ambArray[existingIndex] = {
+        ...hashi,
+        status: hashi.status as
+          | 'default'
+          | 'submittedExecuted'
+          | 'executed'
+          | 'notRequired'
+          | 'pending'
+          | 'submitted',
+      }
+    } else {
+      // Add new hashi object
+      ambArray.push(hashi as Validator)
+    }
+  }
 
   return (
     <ValidatorsContext.Provider

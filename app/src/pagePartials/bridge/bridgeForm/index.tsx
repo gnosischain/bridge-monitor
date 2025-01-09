@@ -232,11 +232,11 @@ const Main = () => {
               <OnChainInfo>
                 <Chain chainId={formState.fromChainId} />
                 <UserBalance
-                  address={address}
-                  fromChainId={formState.fromChainId}
-                  onMax={(value) => dispatch({ ...formState, amount: value })}
-                  toChainId={formState.toChainId}
-                  token={formState.token}
+                  $address={address}
+                  $fromChainId={formState.fromChainId}
+                  $onMax={(value) => dispatch({ ...formState, amount: value })}
+                  $toChainId={formState.toChainId}
+                  $token={formState.token}
                 />
               </OnChainInfo>
               <BridgedToken>
@@ -276,11 +276,11 @@ const Main = () => {
                   <OnChainInfo>
                     <Chain chainId={formState.toChainId} />
                     <UserBalance
-                      address={address}
+                      $address={address}
                       /* Inverted values as we need to get the values from the other side of the chain */
-                      fromChainId={formState.toChainId}
-                      toChainId={formState.fromChainId}
-                      token={tokenOut}
+                      $fromChainId={formState.toChainId}
+                      $toChainId={formState.fromChainId}
+                      $token={tokenOut}
                     />
                   </OnChainInfo>
                   <BridgedToken>

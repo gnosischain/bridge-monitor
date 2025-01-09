@@ -1,8 +1,8 @@
 import styled, { keyframes } from 'styled-components'
 
-const Wrapper = styled.div<{ dimensions: string; baseColor: string }>`
-  --dimensions: ${({ dimensions }) => dimensions};
-  --base-color: ${({ baseColor }) => baseColor};
+const Wrapper = styled.div<{ $dimensions: string; $baseColor: string }>`
+  --dimensions: ${({ $dimensions }) => $dimensions};
+  --base-color: ${({ $baseColor }) => $baseColor};
 
   height: var(--dimensions);
   position: relative;
@@ -130,12 +130,17 @@ const MiddleCircle = styled.div`
   width: var(--middle-circle-dimensions);
 `
 
-export const Spinner: React.FC<{ dimensions?: string; baseColor?: string }> = ({
-  baseColor = '#9a9a9a',
-  dimensions = '34px',
+interface SpinnerProps {
+  $dimensions?: string
+  $baseColor?: string
+}
+
+export const Spinner: React.FC<SpinnerProps> = ({
+  $baseColor = '#9a9a9a',
+  $dimensions = '34px',
   ...restProps
 }) => (
-  <Wrapper baseColor={baseColor} dimensions={dimensions} {...restProps}>
+  <Wrapper $baseColor={$baseColor} $dimensions={$dimensions} {...restProps}>
     <MainCircle>
       <Point0 />
       <Point1 />

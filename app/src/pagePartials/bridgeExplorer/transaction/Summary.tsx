@@ -67,7 +67,9 @@ const PodAmount = styled(Pod)`
   }
 `
 
-const PodStatus = styled(Pod)`
+const PodStatus = styled(Pod).withConfig({
+  shouldForwardProp: (prop) => !['status'].includes(prop),
+})`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     grid-column: auto / span 1;
   }
@@ -119,98 +121,98 @@ const Date = styled(TransactionDate)`
 `
 
 interface Props {
-  bridgeName: string
-  initiator: string
-  initiatorAmount: string
-  initiatorName: string
-  initiatorNetwork: string
-  initiatorNetworkIcon?: string
-  initiatorToken: string
-  receiver: string
-  receiverName: string
-  receiverNetwork: string
-  receiverNetworkIcon?: string
-  timestampExecution: number
-  timestampStarted: number
-  transaction?: Transaction
-  transactionStatus: TransactionStatus
-  updateInMemoryTransaction: UpdateInMemoryTx
+  $bridgeName: string
+  $initiator: string
+  $initiatorAmount: string
+  $initiatorName: string
+  $initiatorNetwork: string
+  $initiatorNetworkIcon?: string
+  $initiatorToken: string
+  $receiver: string
+  $receiverName: string
+  $receiverNetwork: string
+  $receiverNetworkIcon?: string
+  $timestampExecution: number
+  $timestampStarted: number
+  $transaction?: Transaction
+  $transactionStatus: TransactionStatus
+  $updateInMemoryTransaction: UpdateInMemoryTx
 }
 
 export const Summary: React.FC<Props> = ({
-  bridgeName,
-  initiator,
-  initiatorAmount,
-  initiatorNetwork,
-  initiatorNetworkIcon,
-  initiatorToken,
-  receiver,
-  receiverNetwork,
-  receiverNetworkIcon,
-  timestampExecution,
-  timestampStarted,
-  transaction,
-  transactionStatus,
-  updateInMemoryTransaction,
+  $bridgeName,
+  $initiator,
+  $initiatorAmount,
+  $initiatorNetwork,
+  $initiatorNetworkIcon,
+  $initiatorToken,
+  $receiver,
+  $receiverNetwork,
+  $receiverNetworkIcon,
+  $timestampExecution,
+  $timestampStarted,
+  $transaction,
+  $transactionStatus,
+  $updateInMemoryTransaction,
   ...restProps
 }) => {
   return (
     <Wrapper {...restProps}>
-      <PodBridge subTitle={bridgeName === 'AMB' ? 'Omnibridge' : bridgeName} title="Bridge">
+      <PodBridge subTitle={$bridgeName === 'AMB' ? 'Omnibridge' : $bridgeName} title="Bridge">
         <ChainsInitiatorReceiver
-          chainIconInitiator={initiatorNetworkIcon}
-          chainIconReceiver={receiverNetworkIcon}
-          chainInitiator={initiatorNetwork}
-          chainReceiver={receiverNetwork}
-          showName
+          $chainIconInitiator={$initiatorNetworkIcon}
+          $chainIconReceiver={$receiverNetworkIcon}
+          $chainInitiator={$initiatorNetwork}
+          $chainReceiver={$receiverNetwork}
+          $showName
         />
       </PodBridge>
       <Pod title="Initiator">
         <Address
-          address={initiator}
+          address={$initiator}
           characters={6}
           copy
-          href={getAddressScanUrl(initiator, initiatorNetwork)}
+          href={getAddressScanUrl($initiator, $initiatorNetwork)}
           useDomain
         />
       </Pod>
       <Pod title="Receiver">
         <Address
-          address={receiver}
+          address={$receiver}
           characters={6}
           copy
-          href={getAddressScanUrl(receiver, receiverNetwork)}
+          href={getAddressScanUrl($receiver, $receiverNetwork)}
           useDomain
         />
       </Pod>
       <PodAmount title="Amount">
         <InitiatorReceiver>
           <Initiator
-            bridgeName={bridgeName}
-            initiatorNetwork={initiatorNetwork}
-            token={initiatorToken}
-            tokenValue={initiatorAmount}
+            bridgeName={$bridgeName}
+            initiatorNetwork={$initiatorNetwork}
+            token={$initiatorToken}
+            tokenValue={$initiatorAmount}
           />
-          {bridgeName.toLowerCase() === 'xdai' && <ArrowRight />}
+          {$bridgeName.toLowerCase() === 'xdai' && <ArrowRight />}
           <Receiver
-            bridgeName={bridgeName}
-            initiatorNetwork={initiatorNetwork}
-            token={initiatorToken}
-            tokenValue={initiatorAmount}
+            bridgeName={$bridgeName}
+            initiatorNetwork={$initiatorNetwork}
+            token={$initiatorToken}
+            tokenValue={$initiatorAmount}
           />
         </InitiatorReceiver>
       </PodAmount>
       {/* @todo - If a signature fails it has to change state */}
       <PodStatus
-        subTitle={transactionStatus}
+        subTitle={$transactionStatus}
         title="Status"
-        transaction={transaction}
-        updateInMemoryTransaction={updateInMemoryTransaction}
+        transaction={$transaction}
+        updateInMemoryTransaction={$updateInMemoryTransaction}
       >
         {/* @todo:
          - if transactionStatus is not completed, completed value must be empty
         */}
-        <Date completed={timestampExecution} started={timestampStarted} />
+        <Date completed={$timestampExecution} started={$timestampStarted} />
       </PodStatus>
     </Wrapper>
   )

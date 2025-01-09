@@ -1,4 +1,5 @@
 import { InputHTMLAttributes } from 'react'
+import { DebounceInputProps } from 'react-debounce-input'
 import styled, { css } from 'styled-components'
 
 export enum TextfieldStatus {
@@ -6,13 +7,47 @@ export enum TextfieldStatus {
   success = 'success',
 }
 
-interface TexfieldCSSProps {
-  status?: TextfieldStatus | undefined
+// interface TextfieldCSSProps {
+//   status?: TextfieldStatus | undefined
+// }
+
+// export interface TextfieldProps extends InputHTMLAttributes<HTMLInputElement>, TextfieldCSSProps {}
+
+export type TextfieldCSSProps = {
+  status?: 'error' | 'success'
+  autoComplete?: string
+  autoCorrect?: string
+  spellCheck?: string
+  className?: string
+  id?: string
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  theme: {
+    textField: {
+      active: {
+        backgroundColor: string
+        borderColor: string
+        boxShadow: string
+        color: string
+      }
+      errorColor: string
+      successColor: string
+      backgroundColor: string
+      borderColor: string
+      color: string
+      height: string
+      placeholder: {
+        color: string
+      }
+    }
+  }
 }
 
-export interface TextfieldProps extends InputHTMLAttributes<HTMLInputElement>, TexfieldCSSProps {}
+export type TextfieldProps = DebounceInputProps<
+  InputHTMLAttributes<HTMLInputElement>,
+  TextfieldCSSProps
+>
 
-export const TexfieldPartsCSS = css<TexfieldCSSProps>`
+export const TextfieldPartsCSS = css<TextfieldCSSProps>`
   &:active,
   &:focus {
     background-color: ${({ theme: { textField } }) => textField.active.backgroundColor};
@@ -76,7 +111,7 @@ export const TexfieldPartsCSS = css<TexfieldCSSProps>`
   }
 `
 
-export const TextfieldCSS = css<TexfieldCSSProps>`
+export const TextfieldCSS = css<TextfieldCSSProps>`
   --textfield-border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   --texfield-font-size: 1.3rem;
   --textfield-padding: 0 var(--theme-common-space);
@@ -115,5 +150,5 @@ export const TextfieldCSS = css<TexfieldCSSProps>`
 
 export const Textfield = styled.input<TextfieldProps>`
   ${TextfieldCSS}
-  ${TexfieldPartsCSS}
+  ${TextfieldPartsCSS}
 `

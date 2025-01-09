@@ -16,8 +16,8 @@ const loadingAnimation = keyframes`
 `
 
 interface SkeletonProps extends PropsWithChildren<unknown> {
-  animate?: boolean
-  animationDuration?: string
+  $animate?: boolean
+  $animationDuration?: string
   style?: CSSProperties
 }
 
@@ -26,16 +26,16 @@ const AnimationCSS = css<SkeletonProps>`
   --background-color-end: #d7cfba;
 
   animation-delay: 0;
-  animation-duration: ${({ animationDuration }) => `${animationDuration}`};
+  animation-duration: ${({ $animationDuration }) => `${$animationDuration}`};
   animation-iteration-count: infinite;
   animation-name: ${loadingAnimation};
   animation-timing-function: ease-in-out;
 `
 
 export const SkeletonLoading = styled.div<SkeletonProps>`
-  ${({ animate }) => animate && AnimationCSS}
-  background-color: ${({ animate, theme: { colors } }) =>
-    animate ? 'var(--background-color-start)' : colors.creamDark};
+  ${({ $animate }) => $animate && AnimationCSS}
+  background-color: ${({ $animate, theme: { colors } }) =>
+    $animate ? 'var(--background-color-start)' : colors.creamDark};
   border-radius: 10px;
   min-height: 20px;
   min-width: 50px;
@@ -43,6 +43,6 @@ export const SkeletonLoading = styled.div<SkeletonProps>`
 `
 
 SkeletonLoading.defaultProps = {
-  animate: true,
-  animationDuration: '2s',
+  $animate: true,
+  $animationDuration: '2s',
 }

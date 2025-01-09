@@ -33,7 +33,7 @@ export const Table = styled.div`
   }
 `
 
-export const TR = styled.div<{ compact?: boolean }>`
+export const TR = styled.div<{ $compact?: boolean }>`
   background-color: ${({ theme: { colors } }) => colors.cream};
   border: 1px solid ${({ theme: { colors } }) => colors.creamDark};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
@@ -63,13 +63,13 @@ export const TR = styled.div<{ compact?: boolean }>`
     border-right: none;
     column-gap: calc(var(--table-padding-common));
     display: grid;
-    grid-template-columns: ${({ compact }) => {
+    grid-template-columns: ${({ $compact }) => {
       const addressWidth = 'minmax(185px, 1fr)'
       const bridgeDirectionWidth = 'minmax(155px, 1fr)'
       const statusWidth = 'minmax(100px, 1fr)'
       const baseTemplate = `${addressWidth} ${bridgeDirectionWidth} ${addressWidth} 10px ${addressWidth}`
 
-      return compact ? `${baseTemplate} ${statusWidth}` : `${baseTemplate} 1fr ${statusWidth}`
+      return $compact ? `${baseTemplate} ${statusWidth}` : `${baseTemplate} 1fr ${statusWidth}`
     }};
     margin: 0;
     padding: 0;

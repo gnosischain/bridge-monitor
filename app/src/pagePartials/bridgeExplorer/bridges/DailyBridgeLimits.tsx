@@ -83,20 +83,20 @@ const Placeholder: React.FC = () => (
     }}
   >
     <SkeletonLoading
-      animate={false}
+      $animate={false}
       style={{
         height: '34px',
         marginBottom: '8px',
       }}
     />
     {Array.from({ length: 2 }).map((item, index) => (
-      <SkeletonLoading animate={false} key={index} style={{ height: '95px' }} />
+      <SkeletonLoading $animate={false} key={index} style={{ height: '95px' }} />
     ))}
     {Array.from({ length: 2 }).map((item, index) => (
-      <SkeletonLoading animate={false} key={index} style={{ height: '70px' }} />
+      <SkeletonLoading $animate={false} key={index} style={{ height: '70px' }} />
     ))}
     {Array.from({ length: 2 }).map((item, index) => (
-      <SkeletonLoading animate={false} key={index} style={{ minHeight: '0', height: '17px' }} />
+      <SkeletonLoading $animate={false} key={index} style={{ minHeight: '0', height: '17px' }} />
     ))}
   </SkeletonLoading>
 )

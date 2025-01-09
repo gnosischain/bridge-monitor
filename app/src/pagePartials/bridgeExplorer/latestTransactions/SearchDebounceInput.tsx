@@ -3,7 +3,13 @@ import styled from 'styled-components'
 import { DebounceInput } from 'react-debounce-input'
 import { DEBOUNCE_TIME } from '@/src/constants/misc'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
-import { TexfieldPartsCSS, TextfieldCSS, TextfieldStatus } from '@/src/components/form/Textfield'
+import {
+  TextfieldCSS,
+  TextfieldCSSProps,
+  TextfieldPartsCSS,
+  TextfieldProps,
+  TextfieldStatus,
+} from '@/src/components/form/Textfield'
 
 const Wrapper = styled.div`
   --icon-size: 20px;
@@ -25,10 +31,11 @@ const Magnifier = styled(BaseMagnifier)`
   width: var(--icon-size);
 `
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Textfield: any = styled(DebounceInput)`
+const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
+  element: 'input',
+}))<TextfieldCSSProps>`
   ${TextfieldCSS}
-  ${TexfieldPartsCSS}
+  ${TextfieldPartsCSS}
 
   padding-left: calc(calc(var(--theme-common-space) * 4) + var(--icon-size));
   position: relative;

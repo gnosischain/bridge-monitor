@@ -44,7 +44,7 @@ const wethOptions = [
 export const NoTokenOut: React.FC<{ loading?: boolean }> = ({ loading }) => (
   <>
     <SkeletonLoading
-      animate={false}
+      $animate={false}
       style={{
         borderRadius: '50%',
         height: '24px',
@@ -90,6 +90,7 @@ export const TokenOut: React.FC<{
       fromChainId == Chains.gnosis &&
       token.address == chainsConfig[Chains.gnosis].bridge.wForeignNative
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const tokenOutAmount = formatUnits(amount.sub(feeInfo!), tokenOut?.decimals)
 
     return (

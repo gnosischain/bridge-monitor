@@ -129,7 +129,12 @@ export const RecipientAddress: React.FC<{
               {isDifferentWalletOpen && (
                 <RecipientAddressWrapper key="recipientAddress" {...animation}>
                   <RecipientAddressHeader>Recipient Address</RecipientAddressHeader>
-                  <Textfield onChange={onChange} type="text" value={recipient} />
+                  <Textfield
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    onChange={onChange as any}
+                    type="text"
+                    value={recipient}
+                  />
                 </RecipientAddressWrapper>
               )}
             </AnimatePresence>

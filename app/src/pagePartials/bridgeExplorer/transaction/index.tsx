@@ -200,22 +200,22 @@ export const Transaction: React.FC = ({ ...restProps }) => {
       </Head>
       <Information>
         <Summary
-          bridgeName={currentTx.bridgeName}
-          initiator={currentTx.initiator}
-          initiatorAmount={currentTx.initiatorAmount}
-          initiatorName={currentTx.initiator}
-          initiatorNetwork={currentTx.initiatorNetwork}
-          initiatorNetworkIcon={getChainIconName(currentTx.initiatorNetwork)}
-          initiatorToken={currentTx.initiatorToken}
-          receiver={currentTx.receiver}
-          receiverName={currentTx.receiver}
-          receiverNetwork={currentTx.receiverNetwork}
-          receiverNetworkIcon={getChainIconName(currentTx.receiverNetwork)}
-          timestampExecution={currentTx.execution?.timestamp ?? 0}
-          timestampStarted={currentTx.timestamp ?? 0}
-          transaction={currentTx}
-          transactionStatus={currentTx.transactionStatus}
-          updateInMemoryTransaction={updateInMemoryTransaction}
+          $bridgeName={currentTx.bridgeName}
+          $initiator={currentTx.initiator}
+          $initiatorAmount={currentTx.initiatorAmount}
+          $initiatorName={currentTx.initiator}
+          $initiatorNetwork={currentTx.initiatorNetwork}
+          $initiatorNetworkIcon={getChainIconName(currentTx.initiatorNetwork)}
+          $initiatorToken={currentTx.initiatorToken}
+          $receiver={currentTx.receiver}
+          $receiverName={currentTx.receiver}
+          $receiverNetwork={currentTx.receiverNetwork}
+          $receiverNetworkIcon={getChainIconName(currentTx.receiverNetwork)}
+          $timestampExecution={currentTx.execution?.timestamp ?? 0}
+          $timestampStarted={currentTx.timestamp ?? 0}
+          $transaction={currentTx}
+          $transactionStatus={currentTx.transactionStatus}
+          $updateInMemoryTransaction={updateInMemoryTransaction}
         />
         <StatusList>
           <StatusDetails

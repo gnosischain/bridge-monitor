@@ -5,7 +5,9 @@ import { InnerContainer } from '@/src/components/innerContainer'
 
 type SidebarPlacement = 'right' | 'left' | undefined
 
-const Wrapper = styled(InnerContainer)<{ sidebarPlacement?: SidebarPlacement }>`
+const Wrapper = styled(InnerContainer).withConfig({
+  shouldForwardProp: (prop) => !['sidebarPlacement'].includes(prop),
+})<{ sidebarPlacement?: SidebarPlacement }>`
   --sidebar-width: 456px;
   --sidebar-width-tablet: 340px;
 
@@ -25,7 +27,9 @@ const Wrapper = styled(InnerContainer)<{ sidebarPlacement?: SidebarPlacement }>`
   }
 `
 
-const Sidebar = styled(BaseSidebar)<{ sidebarPlacement?: SidebarPlacement; className?: string }>`
+const Sidebar = styled(BaseSidebar).withConfig({
+  shouldForwardProp: (prop) => !['sidebarPlacement', 'className'].includes(prop),
+})<{ sidebarPlacement?: SidebarPlacement; className?: string }>`
   order: 1;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeWideStart}) {
@@ -37,7 +41,9 @@ Sidebar.defaultProps = {
   className: 'sidebar',
 }
 
-const Main = styled.div<{ sidebarPlacement?: SidebarPlacement }>`
+const Main = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['sidebarPlacement'].includes(prop),
+})<{ sidebarPlacement?: SidebarPlacement }>`
   order: 0;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeWideStart}) {
@@ -50,20 +56,20 @@ Main.defaultProps = {
 }
 
 interface Props {
-  sidebarContents: React.ReactNode
-  sidebarPlacement?: SidebarPlacement
+  $sidebarContents: React.ReactNode
+  $sidebarPlacement?: SidebarPlacement
 }
 
 export const SidebarLayout: React.FC<Props> = ({
+  $sidebarContents,
+  $sidebarPlacement = 'right',
   children,
-  sidebarContents,
-  sidebarPlacement = 'right',
   ...restProps
 }) => (
-  <Wrapper sidebarPlacement={sidebarPlacement} {...restProps}>
-    <Main as="main" sidebarPlacement={sidebarPlacement}>
+  <Wrapper sidebarPlacement={$sidebarPlacement} {...restProps}>
+    <Main as="main" sidebarPlacement={$sidebarPlacement}>
       {children}
     </Main>
-    <Sidebar sidebarPlacement={sidebarPlacement}>{sidebarContents}</Sidebar>
+    <Sidebar sidebarPlacement={$sidebarPlacement}>{$sidebarContents}</Sidebar>
   </Wrapper>
 )

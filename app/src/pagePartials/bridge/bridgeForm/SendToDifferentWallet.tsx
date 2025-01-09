@@ -1,7 +1,9 @@
 import styled, { css } from 'styled-components'
 import { ChevronDown } from '@/src/components/assets/ChevronDown'
 
-const Wrapper = styled.button<{ isOpen: boolean }>`
+const Wrapper = styled.button.withConfig({
+  shouldForwardProp: (prop) => !['isOpen'].includes(prop),
+})<{ isOpen: boolean }>`
   align-items: center;
   background-color: transparent;
   border: none;

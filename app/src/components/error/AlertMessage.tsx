@@ -32,7 +32,7 @@ export const AlertMessage: React.FC<{
   icon?: React.ReactNode
   mode?: 'error' | 'warning' | 'success'
   text?: string | React.ReactNode
-}> = ({ icon = <Warning />, text = 'Something went wrong.', mode, ...restProps }) => {
+}> = ({ icon = <Warning />, mode, text = 'Something went wrong.', ...restProps }) => {
   return (
     <Wrapper mode={mode} {...restProps}>
       {icon}

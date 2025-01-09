@@ -63,7 +63,7 @@ const ViewMore = styled.span`
   }
 `
 
-const RowLink = styled.a`
+const RowLink = styled.div`
   text-decoration: none;
 `
 
@@ -130,7 +130,7 @@ export const TransactionRow: React.FC<Props> = ({
   return (
     // Link's `as` prop is used to show the URL in the browser's address bar without the query params
     <Link as={txURL} href={href} passHref {...restProps} style={{ textDecoration: 'none' }}>
-      <TR as={RowLink} compact={!showValidations}>
+      <TR $compact={!showValidations} as={RowLink}>
         <TD>
           <MobileLabel>Transaction Hash</MobileLabel>
           <TokenAddress
@@ -144,10 +144,10 @@ export const TransactionRow: React.FC<Props> = ({
         <TD>
           <MobileLabel>Bridge</MobileLabel>
           <ChainsInitiatorReceiver
-            chainIconInitiator={initiatorNetworkIcon}
-            chainIconReceiver={receiverNetworkIcon}
-            chainInitiator={initiatorNetwork}
-            chainReceiver={receiverNetwork}
+            $chainIconInitiator={initiatorNetworkIcon}
+            $chainIconReceiver={receiverNetworkIcon}
+            $chainInitiator={initiatorNetwork}
+            $chainReceiver={receiverNetwork}
           />
         </TD>
         <TD>
