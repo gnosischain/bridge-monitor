@@ -45,7 +45,7 @@
     "graphql-tag": "^2.12.6",
     "loader-utils": "^2.0.4",
     "lodash": "^4.17.21",
-    "next": "^15.0.3",
+    "next": "^15.1.4",
     "nextjs-google-analytics": "^1.2.0",
     "nullthrows": "^1.1.1",
     "polished": "^4.2.2",
