@@ -1,5 +1,5 @@
 import { getChainKey, getNetworkConfig } from '@/src/constants/config/chains'
-import { ChainsKeys, ChainsValues } from '@/src/constants/config/types'
+import { ChainsValues } from '@/src/constants/config/types'
 import { getIcon } from '@/src/utils/icons'
 import Image from 'next/image'
 import styled from 'styled-components'
@@ -26,8 +26,10 @@ export const Chain = ({ chainId }: { chainId: ChainsValues }) => {
       <Image
         alt={chainKey}
         height={24}
-        objectFit="cover"
         src={getIcon(`${capitalize(chainKey)}Big`)}
+        style={{
+          objectFit: 'cover',
+        }}
         width={24}
       />
       {chainConfig.shortName}

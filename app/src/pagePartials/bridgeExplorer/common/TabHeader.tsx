@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components'
 
-const Wrapper = styled.button<{ isActive: boolean }>`
+const Wrapper = styled.button<{ $isActive: boolean }>`
   background-color: transparent;
   border-bottom-color: ${({ theme: { colors } }) => colors.cream};
   border-left-color: transparent;
@@ -46,8 +46,8 @@ const Wrapper = styled.button<{ isActive: boolean }>`
     }
   }
 
-  ${({ isActive }) =>
-    isActive &&
+  ${({ $isActive }) =>
+    $isActive &&
     css`
       background-color: ${({ theme: { colors } }) => colors.cream};
       border-bottom-color: ${({ theme: { colors } }) => colors.cream};
@@ -91,14 +91,14 @@ interface Props {
   disabled?: boolean
   onClick?: () => void
   title: string
-  isActive: boolean
+  $isActive: boolean
 }
 
-export const TabHeader: React.FC<Props> = ({ disabled, isActive, onClick, title }) => {
+export const TabHeader: React.FC<Props> = ({ $isActive, disabled, onClick, title }) => {
   const handleActive = () => onClick && onClick()
 
   return (
-    <Wrapper disabled={disabled} isActive={isActive} onClick={handleActive}>
+    <Wrapper $isActive={$isActive} disabled={disabled} onClick={handleActive}>
       {/* TODO: Get title from a non-hardcoded way */}
       <Title>{title === 'AMB' ? 'Omnibridge' : title}</Title>
     </Wrapper>

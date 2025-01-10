@@ -41,47 +41,47 @@ const Value = styled.span`
 const BalanceTitle = () => <Title>Balance:</Title>
 
 const Balance: React.FC<{
-  address: string
-  chainId: ChainsValues
-  token: Token
-  allowanceAddress?: string
-  onMax?: (value: string) => void
+  $address: string
+  $chainId: ChainsValues
+  $token: Token
+  $allowanceAddress?: string
+  $onMax?: (value: string) => void
 }> = genericSuspense(
-  ({ address, allowanceAddress, chainId, onMax, token, ...restProps }) => {
+  ({ $address, $allowanceAddress, $chainId, $onMax, $token, ...restProps }) => {
     const { data } = useUserTokenBalances({
-      userAddress: address,
-      allowanceAddress,
-      chainId,
-      tokenAddress: token.address,
+      userAddress: $address,
+      allowanceAddress: $allowanceAddress,
+      chainId: $chainId,
+      tokenAddress: $token.address,
     })
 
     const balance = data?.balance || ZERO_BN
-    const value = formatNumber(Number(fromBN(balance, token?.decimals)))
+    const value = formatNumber(Number(fromBN(balance, $token?.decimals)))
 
     return (
       <Wrapper {...restProps}>
         <BalanceWrapper>
           <BalanceTitle />
           <Value>
-            {!value || value === '0' ? '0.00' : value} {token?.symbol}
+            {!value || value === '0' ? '0.00' : value} {$token?.symbol}
           </Value>
         </BalanceWrapper>
-        {onMax && (
+        {$onMax && (
           <MaxButton
             disabled={balance?.isZero()}
-            onClick={() => onMax(formatUnits(balance, token.decimals))}
+            onClick={() => $onMax(formatUnits(balance, $token.decimals))}
           />
         )}
       </Wrapper>
     )
   },
-  ({ onMax, ...restProps }) => (
+  ({ $onMax, ...restProps }) => (
     <Wrapper {...restProps}>
       <BalanceWrapper>
         <BalanceTitle />
         <SkeletonLoading style={{ minWidth: 0, minHeight: 0, height: '16px', width: '75px' }} />
       </BalanceWrapper>
-      {onMax && (
+      {$onMax && (
         <MaxButton
           disabled
           onClick={() => {
@@ -94,24 +94,24 @@ const Balance: React.FC<{
 )
 
 export const UserBalance: React.FC<{
-  fromChainId: ChainsValues
-  toChainId: ChainsValues
-  allowanceAddress?: string
-  address?: string | null
-  onMax?: (value: string) => void
-  token?: Token | undefined
-}> = ({ address, fromChainId, onMax, toChainId, token, ...restProps }) => {
+  $fromChainId: ChainsValues
+  $toChainId: ChainsValues
+  $allowanceAddress?: string
+  $address?: string | null
+  $onMax?: (value: string) => void
+  $token?: Token | undefined
+}> = ({ $address, $fromChainId, $onMax, $toChainId, $token, ...restProps }) => {
   // If the user clicks the Switch network many times
   // we need to check  if token.chainId !== fromChainId
   // As it might be the case the token and fromChainId are not in sync
-  if (!token || !address || token.chainId !== fromChainId) {
+  if (!$token || !$address || $token.chainId !== $fromChainId) {
     return (
       <Wrapper {...restProps}>
         <BalanceWrapper>
           <BalanceTitle />
           <Value>0.00</Value>
         </BalanceWrapper>
-        {onMax && (
+        {$onMax && (
           <MaxButton
             disabled
             onClick={() => {
@@ -123,15 +123,15 @@ export const UserBalance: React.FC<{
     )
   }
 
-  const bridgeContract = getBridgeContract(fromChainId, toChainId, token.address)
+  const bridgeContract = getBridgeContract($fromChainId, $toChainId, $token.address)
 
   return (
     <Balance
-      address={address}
-      allowanceAddress={bridgeContract.address}
-      chainId={fromChainId}
-      onMax={onMax}
-      token={token}
+      $address={$address}
+      $allowanceAddress={bridgeContract.address}
+      $chainId={$fromChainId}
+      $onMax={$onMax}
+      $token={$token}
       {...restProps}
     />
   )

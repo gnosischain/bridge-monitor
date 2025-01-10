@@ -2,7 +2,9 @@ import styled from 'styled-components'
 
 import Image from 'next/image'
 
-const Wrapper = styled.div<{ bgColor: string; size?: string }>`
+const Wrapper = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['bgColor', 'size'].includes(prop),
+})<{ bgColor: string; size?: string }>`
   --size: ${({ size }) => (size ? size : '40px')};
 
   align-items: center;

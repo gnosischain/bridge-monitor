@@ -74,7 +74,11 @@ const schemas = [
   ),
 ]
 
-console.log('schemas', schemas)
+// Log schemas with masked ACCESS_ID
+console.log(
+  'schemas',
+  schemas.map((url) => url.replace(/[a-zA-Z0-9-]+(?=\/subgraphs\/id)/, '[SUBGRAPH_ACCESS_ID]')),
+)
 
 module.exports = {
   overwrite: true,

@@ -75,7 +75,9 @@ const Progress = styled.div`
   height: 16px;
 `
 
-const ProgressBar = styled.span<{ percentage: number }>`
+const ProgressBar = styled.span.withConfig({
+  shouldForwardProp: (prop) => !['percentage'].includes(prop),
+})<{ percentage: number }>`
   background-color: ${(props) =>
     props.percentage <= 50
       ? ({ theme }) => theme.colors.secondary

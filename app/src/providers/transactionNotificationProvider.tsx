@@ -4,11 +4,11 @@ import { TransactionResponse } from '@ethersproject/providers'
 import toast from 'react-hot-toast'
 
 import { notify } from '@/src/components/toast'
-import { ChainsKeys, ChainsValues } from '@/src/constants/config/types'
+import { ChainsValues } from '@/src/constants/config/types'
 import { ToastStates } from '@/src/constants/types'
 import { usePersistedState } from '@/src/hooks/usePersistedState'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { getChainKey, getNetworkConfig } from '@/src/constants/config/chains'
+import { getChainKey } from '@/src/constants/config/chains'
 
 type TransactionStorageItem = {
   chainId: ChainsValues

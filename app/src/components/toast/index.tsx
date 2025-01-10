@@ -1,4 +1,5 @@
-import { Toast, Toaster, toast } from 'react-hot-toast'
+import type { Toast as ToastType } from 'react-hot-toast'
+import { Toaster, toast } from 'react-hot-toast'
 
 import { Failed as FailedIcon } from '@/src/components/assets/Failed'
 import { Success as SuccessIcon } from '@/src/components/assets/Success'
@@ -9,7 +10,7 @@ import { ToastStates } from '@/src/constants/types'
 type ToastComponentProps = {
   explorerUrl?: string
   message?: string
-  t: Toast
+  t: ToastType
   title?: string
 }
 
@@ -22,7 +23,7 @@ type ToastTypes = {
 const ToastTypes: ToastTypes = {
   [ToastStates.waiting]: ({ explorerUrl, message, t, title }: ToastComponentProps) => (
     <ToastComponent
-      icon={<Spinner dimensions="25px" />}
+      icon={<Spinner $dimensions="25px" />}
       link={explorerUrl ? { url: explorerUrl, text: 'Click to verify on explorer' } : undefined}
       message={message ? message : undefined}
       t={t}
@@ -65,7 +66,7 @@ const notify = ({
   title?: string
   type: ToastStates
 }) => {
-  toast.custom((t: Toast) => ToastTypes[type]({ title, t, explorerUrl, message }), { id })
+  toast.custom((t: ToastType) => ToastTypes[type]({ title, t, explorerUrl, message }), { id })
 }
 
 const Toast = () => (

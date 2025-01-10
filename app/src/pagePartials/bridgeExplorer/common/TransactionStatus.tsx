@@ -3,7 +3,9 @@ import styled, { css } from 'styled-components'
 import { StatusColors } from '@/src/pagePartials/bridgeExplorer/common/StatusColors'
 import { TransactionStatus as TxStatusEnum } from '@/types/generated/subgraph'
 
-const Wrapper = styled.div<{ status: TxStatusEnum }>`
+const Wrapper = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['status'].includes(prop),
+})<{ status: TxStatusEnum }>`
   align-items: center;
   column-gap: var(--theme-common-space);
   display: flex;

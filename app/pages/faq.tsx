@@ -27,12 +27,12 @@ const FAQPage: NextPageWithLayout = () => {
 FAQPage.getLayout = function getLayout(page: ReactElement) {
   return (
     <SidebarLayout
-      sidebarContents={
+      $sidebarContents={
         <>
           <Questions />
         </>
       }
-      sidebarPlacement="right"
+      $sidebarPlacement="right"
     >
       {page}
     </SidebarLayout>

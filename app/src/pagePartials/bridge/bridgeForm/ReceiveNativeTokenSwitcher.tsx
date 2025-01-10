@@ -11,17 +11,17 @@ const Wrapper = styled.div`
   width: 100%;
 `
 
-const Value = styled.span<{ disabled?: boolean }>`
-  font-size: 1.5rem;
-  font-weight: 500;
-  margin-left: auto;
-  opacity: ${({ disabled }) => (disabled ? 0.7 : 1)};
+// const Value = styled.span<{ disabled?: boolean }>`
+//   font-size: 1.5rem;
+//   font-weight: 500;
+//   margin-left: auto;
+//   opacity: ${({ disabled }) => (disabled ? 0.7 : 1)};
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    font-size: 1.6rem;
-    font-weight: 600;
-  }
-`
+//   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+//     font-size: 1.6rem;
+//     font-weight: 600;
+//   }
+// `
 
 interface IOption {
   disabled?: boolean

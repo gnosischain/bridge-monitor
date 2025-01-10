@@ -199,6 +199,8 @@ export const ValidatorsSkeleton: React.FC = () => (
 )
 
 export const Validators: React.FC = ({ ...restProps }) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const { refetch } = useValidators(Bridges.amb)
 
   /**

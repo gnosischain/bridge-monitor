@@ -187,7 +187,10 @@ export const Filters: React.FC<Props> = ({ bridge, filters, onResetFilters, ...r
   const { validators } = useValidators(bridge as BridgesValues)
   const [resetFields, setResetFields] = useState<boolean>(false)
 
-  const validatorNames = validators.map((val) => val.name)
+  // hide Hashi from validatorsOptions - temporary until data will be fetched from hashi explorer
+  // const validatorNames = validators.map((val) => val.name)
+  const validatorNames = validators.filter((val) => val.name !== 'Hashi').map((val) => val.name)
+
   const statusNames = txStatus.map(
     (status) => status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(),
   )

@@ -6,7 +6,7 @@ import { isAddress } from '@ethersproject/address'
 import { DebounceInput } from 'react-debounce-input'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown as BaseDropdown, DropdownItem, DropdownPosition } from '@/src/components/dropdown'
-import { TextfieldCSS } from '@/src/components/form/Textfield'
+import { TextfieldCSS, TextfieldCSSProps, TextfieldProps } from '@/src/components/form/Textfield'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
@@ -61,7 +61,9 @@ const Wrapper = styled(BaseDropdown)`
   }
 `
 
-const TextfieldContainer = styled.div<{ closeOnClick?: boolean }>`
+const TextfieldContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
   background-color: ${({ theme: { dropdown } }) => dropdown.background};
   padding: calc(var(--theme-common-space) * 2);
   position: sticky;
@@ -73,8 +75,9 @@ const TextFieldWrapper = styled.div`
   position: relative;
 `
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Textfield: any = styled(DebounceInput)`
+const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
+  element: 'input',
+}))<TextfieldCSSProps>`
   --texfield-font-size: 1.6rem;
 
   ${TextfieldCSS};
@@ -100,7 +103,9 @@ const Magnifier = styled(BaseMagnifier)`
   transform: translateY(-50%);
 `
 
-const Items = styled.div<{ closeOnClick?: boolean }>`
+const Items = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
   background-color: ${({ theme: { dropdown } }) => dropdown.background};
   padding: 0 0 calc(var(--theme-common-space) / 2);
 `
@@ -134,7 +139,9 @@ const TokenAmount = styled.div`
   font-weight: 500;
 `
 
-const NoResults = styled.div<{ closeOnClick?: boolean }>`
+const NoResults = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
   align-items: center;
   color: ${({ theme: { colors } }) => colors.primary};
   display: flex;
@@ -179,7 +186,9 @@ const ChevronDown = styled(BaseChevronDown)`
   }
 `
 
-const TopTokens = styled.div<{ closeOnClick?: boolean }>`
+const TopTokens = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
   align-items: center;
   border-bottom: 1px solid ${({ theme: { colors } }) => colors.cream};
   column-gap: calc(var(--theme-common-space) / 2);
@@ -256,6 +265,8 @@ const Dropdown: React.FC<Props> = ({
 }) => {
   const [isOpened, setIsOpened] = useState(false)
   const [searchInputRef, setSearchInputInputRef] = useState<HTMLInputElement | null>(null)
+
+  // const searchInputRef = useRef<HTMLInputElement | null>(null)
   const { ambTokensByNetwork } = useBridgedTokens()
   const [manualTokens, setManualTokens] = useState<Token[]>([])
   const [filteredTokens, setFilteredTokens] = useState<Token[]>([])
@@ -427,6 +438,10 @@ const Dropdown: React.FC<Props> = ({
     }
   }, [searchInputRef, isOpened])
 
+  // const handleInputRef = (element: HTMLInputElement | null) => {
+  //   setSearchInputInputRef(element)
+  // }
+
   return (
     <Wrapper
       disabled={disabled}
@@ -452,8 +467,13 @@ const Dropdown: React.FC<Props> = ({
               autoComplete="off"
               autoCorrect="off"
               debounceTimeout={300}
+              // eslint-disable-next-line
+              // @ts-ignore
               inputRef={setSearchInputInputRef}
-              onChange={(e: { target: { value: string } }) => setValue(e.target.value)}
+              onChange={(e) => {
+                const target = e.target as unknown as HTMLInputElement
+                setValue(target.value)
+              }}
               placeholder="Search asset"
               spellCheck="false"
               type="search"

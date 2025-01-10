@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react'
 import useSWR from 'swr'
+
 import { Bridges, BridgesValues } from '@/src/constants/config/bridges'
 import { fetchHomeValidators, getBalance, getValidatorByAddress } from '@/src/utils/validators'
 import { Validator } from '@/src/utils/validators'
@@ -79,14 +80,15 @@ export const ValidatorsProvider: React.FC = ({ children }) => {
   const res = useSWR('validators', fetcher)
   const { hashi } = useHashi()
 
-  if (res.data && hashi) {
-    const ambArray = res.data[Bridges.amb]
-    const existingIndex = ambArray.findIndex(
+  const validators = res.data || defaultValidators
+
+  if (validators && hashi) {
+    const existingIndex = validators[Bridges.amb].findIndex(
       (validator: Validator) => 'id' in validator && validator.id === hashi.id,
     )
 
     if (existingIndex !== -1) {
-      ambArray[existingIndex] = {
+      validators[Bridges.amb][existingIndex] = {
         ...hashi,
         status: hashi.status as
           | 'default'
@@ -98,14 +100,12 @@ export const ValidatorsProvider: React.FC = ({ children }) => {
       }
     } else {
       // Add new hashi object
-      ambArray.push(hashi as Validator)
+      validators[Bridges.amb].push(hashi as Validator)
     }
   }
 
   return (
-    <ValidatorsContext.Provider
-      value={{ validators: res.data || defaultValidators, refetch: res.mutate }}
-    >
+    <ValidatorsContext.Provider value={{ validators: validators, refetch: res.mutate }}>
       {children}
     </ValidatorsContext.Provider>
   )

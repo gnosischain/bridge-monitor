@@ -12,9 +12,9 @@ const Dropdown = styled(BaseDropdown)`
   }
 `
 
-const Button = styled(ButtonDropdown)<{ activeFilter: boolean }>`
-  ${({ activeFilter }) =>
-    activeFilter &&
+const Button = styled(ButtonDropdown)<{ $activeFilter: boolean }>`
+  ${({ $activeFilter }) =>
+    $activeFilter &&
     css`
       background-color: ${({ theme: { buttonDropdown } }) => buttonDropdown.backgroundColorHover};
       border-color: ${({ theme: { buttonDropdown } }) => buttonDropdown.borderColorHover};
@@ -22,10 +22,10 @@ const Button = styled(ButtonDropdown)<{ activeFilter: boolean }>`
     `}
 `
 
-const LittleCircleOfExtraClarification = styled.div<{ status: TransactionStatus }>`
+const LittleCircleOfExtraClarification = styled.div<{ $status: TransactionStatus }>`
   --size: 8px;
 
-  background-color: ${(props) => StatusColors[props.status] ?? StatusColors.DEFAULT};
+  background-color: ${({ $status }) => StatusColors[$status] ?? StatusColors.DEFAULT};
   align-items: center;
   border-radius: 50%;
   height: var(--size);
@@ -43,12 +43,12 @@ export const FilterDropdown: React.FC<Props> = ({ onChange, options, value, ...r
     <Dropdown
       activeItemHighlight
       activeItemIndex={options.indexOf(value)}
-      dropdownButton={<Button activeFilter={options[0] !== value}>{value}</Button>}
+      dropdownButton={<Button $activeFilter={options[0] !== value}>{value}</Button>}
       items={options.map((el, index) => (
         <DropdownItem key={index} onClick={() => onChange(el)}>
           {index !== 0 &&
             Object.values(TransactionStatus)?.includes(el.toUpperCase() as TransactionStatus) && (
-              <LittleCircleOfExtraClarification status={el.toUpperCase() as TransactionStatus} />
+              <LittleCircleOfExtraClarification $status={el.toUpperCase() as TransactionStatus} />
             )}
           {el}
         </DropdownItem>

@@ -30,7 +30,7 @@ interface Props {
 
 export const TransactionHeader: React.FC<Props> = ({ validators, ...restProps }) => {
   return (
-    <THead compact={!validators} {...restProps}>
+    <THead $compact={!validators} {...restProps}>
       <TH>Tx Hash</TH>
       <TH>Bridge Direction</TH>
       <TH>Initiator</TH>

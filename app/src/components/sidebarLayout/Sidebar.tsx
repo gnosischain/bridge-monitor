@@ -9,10 +9,18 @@ const Wrapper = styled.div`
   row-gap: calc(var(--theme-common-space) * 2);
 `
 
-export const Sidebar: React.FC = ({ children, ...restProps }) => {
-  return <Wrapper {...restProps}>{children}</Wrapper>
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string
 }
 
-Sidebar.defaultProps = {
-  className: 'sidebar',
+export const Sidebar: React.FC<SidebarProps> = ({
+  children,
+  className = 'sidebar',
+  ...restProps
+}) => {
+  return (
+    <Wrapper className={className} {...restProps}>
+      {children}
+    </Wrapper>
+  )
 }

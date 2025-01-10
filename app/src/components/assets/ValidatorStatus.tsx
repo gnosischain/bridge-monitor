@@ -39,7 +39,9 @@ const ValidatorStyles = {
   `,
 }
 
-const Wrapper = styled.span<{ status: keyof typeof ValidatorStyles }>`
+const Wrapper = styled.span.withConfig({
+  shouldForwardProp: (prop) => !['status'].includes(prop),
+})<{ status: keyof typeof ValidatorStyles }>`
   ${(props) => {
     return ValidatorStyles[props.status] ?? ValidatorStyles.default
   }}
