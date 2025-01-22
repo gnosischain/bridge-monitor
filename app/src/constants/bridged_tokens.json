@@ -2978,6 +2978,22 @@
     },
     {
       "bridge_type": "omni",
+      "foreign_address": "0xb6919Ef2ee4aFC163BC954C5678e2BB570c2D103",
+      "origin_chain_id": "1",
+      "address": "0xC6ed4f520f6A4e4DC27273509239b7F8A68d2068",
+      "circulating_market_cap": null,
+      "decimals": "18",
+      "exchange_rate": null,
+      "holders": "13",
+      "icon_url": null,
+      "is_bridged": true,
+      "name": "Ubiquity Dollar from Mainnet",
+      "symbol": "UUSD",
+      "total_supply": "22084466520309401150653",
+      "type": "ERC-20"
+    },
+    {
+      "bridge_type": "omni",
       "foreign_address": "0x4EdBE0221b92bb98f3DD2f1A1779d0cECa1628c3",
       "origin_chain_id": "1",
       "address": "0xcaE40062a887581A3d1661d0AC2b481c32e3E938",
