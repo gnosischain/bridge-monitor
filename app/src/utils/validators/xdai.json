@@ -54,5 +54,13 @@
     "bridgeType": "XDAI",
     "shortName": "GW",
     "status": "default"
+  },
+  {
+    "id": 9,
+    "address": "",
+    "name": "Hashi",
+    "bridgeType": "XDAI",
+    "shortName": "H",
+    "status": "default"
   }
 ]
