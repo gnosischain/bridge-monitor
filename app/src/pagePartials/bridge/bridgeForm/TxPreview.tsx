@@ -17,7 +17,28 @@ import { Loading } from '@/src/components/loading'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { useClaimFee } from '@/src/hooks/bridge/useClaimFee'
 
-const Wrapper = styled.ul`
+const Wrapper = styled.ul.withConfig({
+  shouldForwardProp: (prop) =>
+    ![
+      'amount',
+      'token',
+      'tokenOut',
+      'fromChainId',
+      'toChainId',
+      'receiveNativeToken',
+      'recipient',
+      'userAddress',
+    ].includes(prop),
+})<{
+  amount?: string
+  token?: string
+  tokenOut?: string
+  fromChainId?: number
+  toChainId?: number
+  receiveNativeToken?: boolean
+  recipient?: string
+  userAddress?: string
+}>`
   background: ${({ theme: { colors } }) => colors.white_50};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   border: 1px solid ${({ theme: { colors } }) => colors.cream};
