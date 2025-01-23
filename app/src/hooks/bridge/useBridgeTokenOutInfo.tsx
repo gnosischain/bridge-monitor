@@ -10,7 +10,7 @@ import { Token } from '@/types/token'
 import { TokenOverrideManager } from '@/src/utils/token-overrides'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { contracts } from '@/src/constants/config/contracts'
-import { USDC_ETHEREUM, USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
+import { USDC_ETHEREUM, USDC_XDAI_OLD, USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
 
 /**
  * Retrieves information about the received token based on the provided parameters.
@@ -144,6 +144,28 @@ export const useBridgeTokenOutInfo = ({
           },
           name: 'USDC.e',
           symbol: 'USDC.e',
+        }
+      }
+
+      if (
+        _fromChainId === Chains.gnosis &&
+        _toChainId === Chains.mainnet &&
+        isSameString(_token.address, USDCe_GNOSIS)
+      ) {
+        return {
+          address: USDC_ETHEREUM,
+          chainId: Chains.mainnet,
+          decimals: 6,
+          extensions: {
+            bridgeInfo: {
+              '100': {
+                tokenAddress: USDC_XDAI_OLD,
+              },
+            },
+          },
+          name: 'USDC',
+          symbol: 'USDC',
+          logoURI: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694',
         }
       }
 

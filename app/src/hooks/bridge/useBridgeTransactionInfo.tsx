@@ -202,6 +202,7 @@ const handleERC20TokenFromForeign = async ({
   if (!isERC677 && amount.gt(allowance)) {
     try {
       gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
+      console.log('gasLimit', gasLimit)
     } catch (error) {
       gasLimit = BigNumber.from(0)
     }
@@ -575,6 +576,7 @@ export const useBridgeTransactionInfo = ({
       _tokenMode,
       _receiveNativeToken,
     ]) => {
+      console.log('get Bridge TX', _token)
       const { gasLimit, gasPrice, tx } = await getBridgeTx({
         account: userAddress,
         amount: _amount,

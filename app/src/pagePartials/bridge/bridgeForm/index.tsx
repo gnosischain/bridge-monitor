@@ -11,7 +11,10 @@ import { CardPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/CardPlaceh
 import { Chains } from '@/src/constants/config/types'
 import { Header } from '@/src/pagePartials/bridge/bridgeForm/Header'
 import { InnerCard } from '@/src/pagePartials/bridge/bridgeForm/InnerCard'
-import { ButtonUnwrapFirst, UnwrapFirst } from '@/src/pagePartials/bridge/bridgeForm/UnwrapFirst'
+import {
+  // ButtonUnwrapFirst,
+  UnwrapFirst,
+} from '@/src/pagePartials/bridge/bridgeForm/warnings/UnwrapFirst'
 import { Switch } from '@/src/pagePartials/bridge/bridgeForm/Switch'
 import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
 import { Token } from '@/types/token'
@@ -42,9 +45,9 @@ import { BridgeSummary } from '@/src/pagePartials/bridge/bridgeForm/BridgeSummar
 import { ReceivedTokenInfo } from '@/src/pagePartials/bridge/bridgeForm/ReceivedTokenInfo'
 import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
 import { toBN } from '@/src/utils/bigNumber'
-import { NotBridgedERC20Warning } from './NotBridgedERC20Warning'
-import { ExternalBridgeWarning } from './ExternalBridgeWarning'
-import { UsdcEGcWarning, UsdcEthWarning } from './UsdcWarnings'
+import { NotBridgedERC20Warning } from './warnings/NotBridgedERC20Warning'
+import { ExternalBridgeWarning } from './warnings/ExternalBridgeWarning'
+import { UsdcEGcWarning, UsdcEthWarning } from './warnings/UsdcWarnings'
 
 const Title = styled.h2`
   align-items: center;
@@ -221,6 +224,10 @@ const Main = () => {
       ? true
       : false
 
+  console.log('tokenIn', formState.token)
+  console.log('tokenOut', tokenOut)
+  console.log('isNotBridgedErc20', isNotBridgedErc20)
+
   return (
     <Wrapper>
       <FormWrapper>
@@ -263,15 +270,15 @@ const Main = () => {
               <Title>Transfer to</Title>
               {isUsdcEth && <UsdcEthWarning />}
               {isUsdceGC && <UsdcEGcWarning />}
-              {unwrapFirst && <UnwrapFirst />}
+              {unwrapFirst && <UnwrapFirst symbol={formState.token?.symbol} />}
               {sendToExternalBridge && formState.token && (
                 <ExternalBridgeWarning token={formState.token} />
               )}
-              {isNotBridgedErc20 && !unwrapFirst && !isUsdceGC && !sendToExternalBridge && (
+              {isNotBridgedErc20 && !unwrapFirst && !sendToExternalBridge && (
                 <NotBridgedERC20Warning />
               )}
 
-              {!unwrapFirst && !sendToExternalBridge && !isNotBridgedErc20 && !isUsdceGC && (
+              {!unwrapFirst && !sendToExternalBridge && !isNotBridgedErc20 && (
                 <>
                   <OnChainInfo>
                     <Chain chainId={formState.toChainId} />
@@ -319,13 +326,11 @@ const Main = () => {
                 />
               )}
           </FormCards>
-          {unwrapFirst ? (
-            <ButtonUnwrapFirst symbol={formState.token?.symbol} />
-          ) : !formState.token ||
-            !address ||
-            amountBN.eq(0) ||
-            sendToExternalBridge ||
-            isNotBridgedErc20 ? (
+          {!formState.token ||
+          !address ||
+          amountBN.eq(0) ||
+          sendToExternalBridge ||
+          isNotBridgedErc20 ? (
             <DisabledBridgeButton />
           ) : (
             <SafeSuspense fallback={<ButtonPlaceholder />}>
