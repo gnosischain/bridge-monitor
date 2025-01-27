@@ -15,7 +15,7 @@ export const useFetchValidatorsSignatures = (bridge: BridgesValues, afterDate: n
 
   const { getHashiSignedTransactions } = useHashi()
 
-  const hashiSigned = getHashiSignedTransactions(afterDate)
+  const hashiSigned = getHashiSignedTransactions(afterDate, bridge)
 
   if (Array.isArray(data)) {
     const hashiIndex = data.findIndex((item) => item.name === 'Hashi')
