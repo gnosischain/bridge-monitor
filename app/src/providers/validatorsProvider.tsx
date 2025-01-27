@@ -78,29 +78,32 @@ const fetcher = async () => {
 
 export const ValidatorsProvider: React.FC = ({ children }) => {
   const res = useSWR('validators', fetcher)
-  const { hashi } = useHashi()
+  const { hashiAmb, hashiXdai } = useHashi()
 
   const validators = res.data || defaultValidators
 
-  if (validators && hashi) {
-    const existingIndex = validators[Bridges.amb].findIndex(
-      (validator: Validator) => 'id' in validator && validator.id === hashi.id,
-    )
-
-    if (existingIndex !== -1) {
-      validators[Bridges.amb][existingIndex] = {
-        ...hashi,
-        status: hashi.status as
-          | 'default'
-          | 'submittedExecuted'
-          | 'executed'
-          | 'notRequired'
-          | 'pending'
-          | 'submitted',
+  if (validators) {
+    if (hashiAmb) {
+      const existingIndexAmb = validators[Bridges.amb].findIndex(
+        (validator: Validator) => 'id' in validator && validator.id === hashiAmb.id,
+      )
+      if (existingIndexAmb !== -1) {
+        validators[Bridges.amb][existingIndexAmb] = hashiAmb
+      } else {
+        // Add new hashi object
+        validators[Bridges.amb].push(hashiAmb)
       }
-    } else {
-      // Add new hashi object
-      validators[Bridges.amb].push(hashi as Validator)
+    }
+
+    if (hashiXdai) {
+      const existingIndexXdai = validators[Bridges.xdai].findIndex(
+        (validator: Validator) => 'id' in validator && validator.id === hashiXdai.id,
+      )
+      if (existingIndexXdai !== -1) {
+        validators[Bridges.xdai][existingIndexXdai] = hashiXdai
+      } else {
+        validators[Bridges.xdai].push(hashiXdai)
+      }
     }
   }
 
