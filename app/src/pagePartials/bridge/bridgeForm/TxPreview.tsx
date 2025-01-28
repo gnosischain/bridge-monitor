@@ -141,8 +141,6 @@ export const TxPreview: React.FC<{
       token,
     })
 
-    // console.log('transactionData', transactionData)
-
     const { data: claimFee } = useClaimFee({
       isFromHome,
       isNativeBridge,

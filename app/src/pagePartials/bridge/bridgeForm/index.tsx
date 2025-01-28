@@ -48,6 +48,8 @@ import { toBN } from '@/src/utils/bigNumber'
 import { NotBridgedERC20Warning } from './warnings/NotBridgedERC20Warning'
 import { ExternalBridgeWarning } from './warnings/ExternalBridgeWarning'
 import { UsdcEGcWarning, UsdcEthWarning } from './warnings/UsdcWarnings'
+import { BridgeWithSteps } from './bridgeWithSteps/BridgeWithSteps'
+import { BigNumber } from 'ethers'
 
 const Title = styled.h2`
   align-items: center;
@@ -343,6 +345,22 @@ const Main = () => {
                 toChainId={formState.toChainId}
                 toToken={tokenOut}
                 userAddress={address}
+              />
+            </SafeSuspense>
+          )}
+          {isUsdceGC && (
+            <SafeSuspense fallback={<ButtonPlaceholder />}>
+              <BridgeWithSteps
+                amount={BigNumber.from('10')}
+                onClose={() => {}}
+                // amount={amountBN}
+                // fromChainId={formState.fromChainId}
+                // fromToken={formState.token}
+                // receiveNativeToken={formState.receiveNativeToken}
+                // recipient={formState.recipient}
+                // toChainId={formState.toChainId}
+                // toToken={tokenOut}
+                // userAddress={address}
               />
             </SafeSuspense>
           )}
