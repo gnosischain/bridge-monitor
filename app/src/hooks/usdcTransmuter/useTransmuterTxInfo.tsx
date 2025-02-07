@@ -79,9 +79,9 @@ export const useTransmuterTxInfo = ({
   if (walletChainId !== Chains.gnosis) throw new Error('Invalid chain')
 
   const { data: transactionData } = useSWR(
-    ['transactionInfo', token, amount, userAddress],
-    async ([, _token, _amount, _userAddress]) => {
-      if (returnZero) {
+    ['transactionInfo', token, amount, userAddress, returnZero || false],
+    async ([, _token, _amount, _userAddress, _returnZero]) => {
+      if (_returnZero) {
         return {
           gasLimit: ZERO_BN,
           gasPrice: ZERO_BN,

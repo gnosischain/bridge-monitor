@@ -348,11 +348,13 @@ const Main = () => {
               />
             </SafeSuspense>
           )}
-          {isUsdceGC && (
+          {isUsdceGC && tokenOut && formState.token && (
             <SafeSuspense fallback={<ButtonPlaceholder />}>
               <BridgeWithSteps
                 amount={BigNumber.from('10')}
                 onClose={() => {}}
+                tokenIn={formState.token}
+                tokenOut={tokenOut}
                 // amount={amountBN}
                 // fromChainId={formState.fromChainId}
                 // fromToken={formState.token}
