@@ -171,6 +171,10 @@ export const Validator: React.FC<Props> = ({ bridgeValidator, ...restProps }) =>
 
   const isHashi = bridgeValidator.shortName === 'H'
 
+  // if (isHashi) {
+  //   return null
+  // }
+
   return (
     <Wrapper {...restProps}>
       <ValidatorHeader

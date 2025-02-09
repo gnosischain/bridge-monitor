@@ -2,9 +2,7 @@ import styled from 'styled-components'
 
 import { HealthStatusTypes } from '@/src/constants/types'
 
-const Dot = styled.div.withConfig({
-  shouldForwardProp: (prop) => !['status'].includes(prop),
-})<{ status?: string }>`
+const Dot = styled.div<{ status?: string }>`
   --size: 8px;
 
   background-color: ${(props) =>
