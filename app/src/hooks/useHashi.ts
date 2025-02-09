@@ -9,12 +9,23 @@ const REFRESH_INTERVAL = 120000 // 2 minutes in milliseconds
 //   'https://hashi-explorer.xyz/api_bridge_ui/num_hashi_signed?days_elapsed=1&address=0x2F62433e00168af10c70bc39e2fDbEe5DaCA257b'
 
 const API_INFO_ADDRESS = contracts.AMB.address[Chains.mainnet]
+const FALLBACK_LASTSEEN = { lastseen: '1970-01-01T00:00:00Z' }
+const FALLBACK_NUM_HASHI_SIGNED = { num_hashi_signed: 0 }
 
 export function useHashi() {
   const fetcher = async (url: string) => {
-    const res = await fetch(url)
-    const data = await res.json()
-    return data
+    try {
+      const res = await fetch(url)
+      const data = await res.json()
+      return data
+    } catch (error) {
+      if (url.includes('/api/lastseen')) {
+        return FALLBACK_LASTSEEN
+      } else if (url.includes('/api/num_hashi_signed')) {
+        return FALLBACK_NUM_HASHI_SIGNED
+      }
+      return {}
+    }
   }
 
   const { data: seenData, error: seenError } = useSWR('/api/lastseen', fetcher, {
