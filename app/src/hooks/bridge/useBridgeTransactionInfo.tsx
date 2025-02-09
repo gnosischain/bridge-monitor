@@ -660,7 +660,6 @@ export const useBridgeTransactionInfo = ({
       _tokenMode,
       _receiveNativeToken,
     ]) => {
-      console.log('get Bridge TX', _token)
       const { gasLimit, gasPrice, tx } = await getBridgeTx({
         account: userAddress,
         amount: _amount,

@@ -1,20 +1,13 @@
 import { useReducer } from 'react'
 import styled from 'styled-components'
 import { AmountTokenInput } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
-import {
-  BridgeButton,
-  ButtonPlaceholder,
-  DisabledBridgeButton,
-} from '@/src/pagePartials/bridge/bridgeForm/BridgeButton'
+import { ButtonPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/BridgeButton'
 import { RecipientAddress } from '@/src/pagePartials/bridge/bridgeForm/RecipientAddress'
 import { CardPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/CardPlaceholder'
 import { Chains } from '@/src/constants/config/types'
 import { Header } from '@/src/pagePartials/bridge/bridgeForm/Header'
 import { InnerCard } from '@/src/pagePartials/bridge/bridgeForm/InnerCard'
-import {
-  // ButtonUnwrapFirst,
-  UnwrapFirst,
-} from '@/src/pagePartials/bridge/bridgeForm/warnings/UnwrapFirst'
+import { UnwrapFirst } from '@/src/pagePartials/bridge/bridgeForm/warnings/UnwrapFirst'
 import { Switch } from '@/src/pagePartials/bridge/bridgeForm/Switch'
 import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
 import { Token } from '@/types/token'
@@ -47,9 +40,11 @@ import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
 import { toBN } from '@/src/utils/bigNumber'
 import { NotBridgedERC20Warning } from './warnings/NotBridgedERC20Warning'
 import { ExternalBridgeWarning } from './warnings/ExternalBridgeWarning'
-import { UsdcEGcWarning, UsdcEthWarning } from './warnings/UsdcWarnings'
-import { BridgeWithSteps } from './bridgeWithSteps/BridgeWithSteps'
-import { BigNumber } from 'ethers'
+import {
+  UsdcEGcWarning,
+  UsdcEthWarning,
+} from '@/src/pagePartials/bridge/bridgeForm/warnings/UsdcWarnings'
+import { UnifiedBridgeButton } from './button/UnifiedBridgeButton'
 
 const Title = styled.h2`
   align-items: center;
@@ -226,10 +221,6 @@ const Main = () => {
       ? true
       : false
 
-  console.log('tokenIn', formState.token)
-  console.log('tokenOut', tokenOut)
-  console.log('isNotBridgedErc20', isNotBridgedErc20)
-
   return (
     <Wrapper>
       <FormWrapper>
@@ -328,7 +319,19 @@ const Main = () => {
                 />
               )}
           </FormCards>
-          {!formState.token ||
+          <UnifiedBridgeButton
+            amount={amountBN}
+            fromChainId={formState.fromChainId}
+            fromToken={formState.token}
+            isUsdceGC={isUsdceGC}
+            receiveNativeToken={formState.receiveNativeToken}
+            recipient={formState.recipient}
+            sendToExternalBridge={sendToExternalBridge}
+            toChainId={formState.toChainId}
+            toToken={tokenOut}
+            userAddress={address}
+          />
+          {/* {!formState.token ||
           !address ||
           amountBN.eq(0) ||
           sendToExternalBridge ||
@@ -347,25 +350,19 @@ const Main = () => {
                 userAddress={address}
               />
             </SafeSuspense>
-          )}
-          {isUsdceGC && tokenOut && formState.token && (
+          )} */}
+          {/* {isUsdceGC && tokenOut && formState.token && isBridgeWithSteps && (
             <SafeSuspense fallback={<ButtonPlaceholder />}>
               <BridgeWithSteps
                 amount={BigNumber.from('10')}
-                onClose={() => {}}
+                onClose={() => {
+                  setIsBridgeWithSteps(false)
+                }}
                 tokenIn={formState.token}
                 tokenOut={tokenOut}
-                // amount={amountBN}
-                // fromChainId={formState.fromChainId}
-                // fromToken={formState.token}
-                // receiveNativeToken={formState.receiveNativeToken}
-                // recipient={formState.recipient}
-                // toChainId={formState.toChainId}
-                // toToken={tokenOut}
-                // userAddress={address}
               />
             </SafeSuspense>
-          )}
+          )} */}
         </Form>
       </FormWrapper>
     </Wrapper>
