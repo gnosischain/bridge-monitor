@@ -46,11 +46,7 @@ export const UsdcEGcWarning: React.FC = () => {
     <Contents>
       <Warning />
       <Text>
-        Please convert <b>USDC.e</b> to <b>USDC</b> before bridging on the{' '}
-        <Link href={'/usdc'} rel="noreferrer" target="_blank">
-          <b>USDC swap</b>
-        </Link>{' '}
-        page
+        This operation will swap <b>USDC.e</b> to <b>USDC</b> and bridge it to USDC on Ethereum
       </Text>
     </Contents>
   )
