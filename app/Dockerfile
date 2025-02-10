@@ -1,4 +1,4 @@
-FROM node:18.20.1-alpine AS base
+FROM node:22.13.1-alpine AS base
 
 FROM base AS deps
 RUN apk add --update --no-cache
@@ -28,6 +28,10 @@ ARG NEXT_PUBLIC_COVALENT_API_KEY
 
 COPY package.json yarn.lock subgraph-config.js ./
 COPY /src ./src
+
+# Cleaning the cache of yarn
+RUN  yarn cache clean
+
 RUN  yarn install 
 RUN  yarn postinstall
 
