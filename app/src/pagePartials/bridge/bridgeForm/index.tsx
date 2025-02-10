@@ -1,4 +1,4 @@
-import { useReducer } from 'react'
+import { useEffect, useMemo, useReducer } from 'react'
 import styled from 'styled-components'
 import { AmountTokenInput } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
 import {
@@ -8,7 +8,7 @@ import {
 } from '@/src/pagePartials/bridge/bridgeForm/BridgeButton'
 import { RecipientAddress } from '@/src/pagePartials/bridge/bridgeForm/RecipientAddress'
 import { CardPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/CardPlaceholder'
-import { Chains } from '@/src/constants/config/types'
+import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Header } from '@/src/pagePartials/bridge/bridgeForm/Header'
 import { InnerCard } from '@/src/pagePartials/bridge/bridgeForm/InnerCard'
 import { ButtonUnwrapFirst, UnwrapFirst } from '@/src/pagePartials/bridge/bridgeForm/UnwrapFirst'
@@ -45,6 +45,7 @@ import { toBN } from '@/src/utils/bigNumber'
 import { NotBridgedERC20Warning } from './NotBridgedERC20Warning'
 import { ExternalBridgeWarning } from './ExternalBridgeWarning'
 import { UsdcEGcWarning, UsdcEthWarning } from './UsdcWarnings'
+import { useRouter } from 'next/router'
 
 const Title = styled.h2`
   align-items: center;
@@ -152,8 +153,25 @@ const initialState: BridgeFormState = {
 }
 
 const Main = () => {
+  const router = useRouter()
   const { address, walletChainId } = useWeb3Connection()
   const { tokensByNetwork } = useBridgedTokens()
+
+  const queryParams = useMemo(() => router.query, [router.query])
+  const { fromChainId, toChainId, token } = queryParams
+
+  const initialFromChainId = (Object.values(Chains) as number[]).includes(Number(fromChainId))
+    ? (Number(fromChainId) as ChainsValues)
+    : Chains.mainnet
+
+  const initialToChainId = (Object.values(Chains) as number[]).includes(Number(toChainId))
+    ? (Number(toChainId) as ChainsValues)
+    : Chains.gnosis
+
+  const initialToken = tokensByNetwork[initialFromChainId]?.find((t) =>
+    isSameString(t.address, token as string),
+  )
+
   const [formState, dispatch] = useReducer(
     (data: BridgeFormState, partial: Partial<BridgeFormState>): BridgeFormState => ({
       ...data,
@@ -162,8 +180,30 @@ const Main = () => {
     {
       ...initialState,
       account: address || ZERO_ADDRESS,
+      fromChainId: initialFromChainId,
+      toChainId: initialToChainId,
+      token: initialToken,
     },
   )
+
+  useEffect(() => {
+    const currentQuery = {
+      fromChainId: formState.fromChainId.toString(),
+      toChainId: formState.toChainId.toString(),
+      token: formState.token?.address || '',
+    }
+
+    const hasQueryChanged = Object.entries(currentQuery).some(
+      ([key, value]) => router.query[key] !== value,
+    )
+
+    if (hasQueryChanged) {
+      router.replace({ pathname: router.pathname, query: currentQuery }, undefined, {
+        shallow: true,
+      })
+    }
+  }, [formState.fromChainId, formState.toChainId, formState.token?.address, router])
+
   const [debouncedAmount] = useDebounce(formState.amount, 500)
 
   const amountBN = toBN(debouncedAmount || '0', formState.token?.decimals || 0)
