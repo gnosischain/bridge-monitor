@@ -29,7 +29,9 @@ ARG NEXT_PUBLIC_COVALENT_API_KEY
 COPY package.json yarn.lock subgraph-config.js ./
 COPY /src ./src
 
+# Cleaning the cache of yarn
 RUN  yarn cache clean
+
 RUN  yarn install 
 RUN  yarn postinstall
 
