@@ -21,8 +21,6 @@ export const SwapAndBridge: React.FC<Props> = ({
 }) => {
   const [isOpened, setIsOpened] = useState<boolean>(false)
 
-  console.log(amount, recipient, tokenIn, tokenOut, userAddress)
-
   return (
     <>
       <Button onClick={() => setIsOpened(true)}>Swap & Bridge</Button>

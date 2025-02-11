@@ -331,38 +331,6 @@ const Main = () => {
             toToken={tokenOut}
             userAddress={address}
           />
-          {/* {!formState.token ||
-          !address ||
-          amountBN.eq(0) ||
-          sendToExternalBridge ||
-          isNotBridgedErc20 ? (
-            <DisabledBridgeButton />
-          ) : (
-            <SafeSuspense fallback={<ButtonPlaceholder />}>
-              <BridgeButton
-                amount={amountBN}
-                fromChainId={formState.fromChainId}
-                fromToken={formState.token}
-                receiveNativeToken={formState.receiveNativeToken}
-                recipient={formState.recipient}
-                toChainId={formState.toChainId}
-                toToken={tokenOut}
-                userAddress={address}
-              />
-            </SafeSuspense>
-          )} */}
-          {/* {isUsdceGC && tokenOut && formState.token && isBridgeWithSteps && (
-            <SafeSuspense fallback={<ButtonPlaceholder />}>
-              <BridgeWithSteps
-                amount={BigNumber.from('10')}
-                onClose={() => {
-                  setIsBridgeWithSteps(false)
-                }}
-                tokenIn={formState.token}
-                tokenOut={tokenOut}
-              />
-            </SafeSuspense>
-          )} */}
         </Form>
       </FormWrapper>
     </Wrapper>
