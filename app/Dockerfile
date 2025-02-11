@@ -1,4 +1,4 @@
-FROM node:18.20.1-alpine AS base
+FROM node:22.13.1-alpine AS base
 
 FROM base AS deps
 RUN apk add --update --no-cache
