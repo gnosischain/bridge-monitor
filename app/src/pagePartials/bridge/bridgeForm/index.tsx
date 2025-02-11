@@ -181,6 +181,10 @@ const Main = () => {
       otherSideToken = NATIVE_TOKEN_ADDRESS
     }
 
+    if (isSameString(formState.token?.address, USDCe_GNOSIS)) {
+      otherSideToken = USDC_ETHEREUM
+    }
+
     const token = tokensByNetwork[formState.toChainId].find((token) =>
       isSameString(token.address, otherSideToken),
     )
