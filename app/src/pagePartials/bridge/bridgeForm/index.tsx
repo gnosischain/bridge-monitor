@@ -158,7 +158,7 @@ const Main = () => {
   const { tokensByNetwork } = useBridgedTokens()
 
   const queryParams = useMemo(() => router.query, [router.query])
-  const { fromChainId, toChainId, token } = queryParams
+  const { amount, fromChainId, toChainId, token } = queryParams
 
   const initialFromChainId = (Object.values(Chains) as number[]).includes(Number(fromChainId))
     ? (Number(fromChainId) as ChainsValues)
@@ -172,6 +172,8 @@ const Main = () => {
     isSameString(t.address, token as string),
   )
 
+  const initialAmount = amount ? amount.toString() : '0'
+
   const [formState, dispatch] = useReducer(
     (data: BridgeFormState, partial: Partial<BridgeFormState>): BridgeFormState => ({
       ...data,
@@ -180,6 +182,7 @@ const Main = () => {
     {
       ...initialState,
       account: address || ZERO_ADDRESS,
+      amount: initialAmount,
       fromChainId: initialFromChainId,
       toChainId: initialToChainId,
       token: initialToken,
@@ -191,6 +194,7 @@ const Main = () => {
       fromChainId: formState.fromChainId.toString(),
       toChainId: formState.toChainId.toString(),
       token: formState.token?.address || '',
+      amount: formState.amount,
     }
 
     const hasQueryChanged = Object.entries(currentQuery).some(
@@ -202,7 +206,13 @@ const Main = () => {
         shallow: true,
       })
     }
-  }, [formState.fromChainId, formState.toChainId, formState.token?.address, router])
+  }, [
+    formState.amount,
+    formState.fromChainId,
+    formState.toChainId,
+    formState.token?.address,
+    router,
+  ])
 
   const [debouncedAmount] = useDebounce(formState.amount, 500)
 
