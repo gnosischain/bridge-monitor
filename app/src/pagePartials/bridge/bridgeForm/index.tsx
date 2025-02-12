@@ -172,7 +172,7 @@ const Main = () => {
     isSameString(t.address, token as string),
   )
 
-  const initialAmount = amount ? amount.toString() : '0'
+  const initialAmount = amount ? amount.toString() : ''
 
   const [formState, dispatch] = useReducer(
     (data: BridgeFormState, partial: Partial<BridgeFormState>): BridgeFormState => ({
