@@ -11,6 +11,14 @@ import { ApproveButton } from './ApproveButton'
 import { TriggerBridgeButton } from './TriggerBridgeButton'
 import { DisabledBridgeButton } from './DisabledBridgeButton'
 import { Connect } from '@/src/components/assets/Connect'
+import { ButtonFull } from '@/src/components/buttons/Button'
+import styled from 'styled-components'
+import { SwapAndBridge } from './SwapAndBridge'
+
+const Button = styled(ButtonFull)`
+  margin: 0 auto;
+  width: 100%;
+`
 
 interface BridgeButtonProps {
   fromChainId: ChainsValues
@@ -18,6 +26,7 @@ interface BridgeButtonProps {
   amount: BigNumber
   recipient: string
   fromToken: Token
+  isUsdceGC: boolean
   userAddress: string
   toToken?: Token
   receiveNativeToken: boolean
@@ -27,6 +36,7 @@ export const BridgeButton: React.FC<BridgeButtonProps> = ({
   amount,
   fromChainId,
   fromToken,
+  isUsdceGC,
   receiveNativeToken,
   recipient,
   toChainId,
@@ -70,7 +80,7 @@ export const BridgeButton: React.FC<BridgeButtonProps> = ({
 
   if (!isWalletConnected) {
     return (
-      <button onClick={connectWallet}>
+      <Button onClick={connectWallet}>
         {connectingWallet ? (
           'Connecting wallet...'
         ) : (
@@ -78,20 +88,32 @@ export const BridgeButton: React.FC<BridgeButtonProps> = ({
             <Connect /> Connect Wallet
           </>
         )}
-      </button>
+      </Button>
     )
   }
 
   if (hasToSwitchNetwork) {
     return (
-      <button onClick={() => pushNetwork({ chainId: appChainConfig.chainIdHex })}>
+      <Button onClick={() => pushNetwork({ chainId: appChainConfig.chainIdHex })}>
         {`Switch to ${appChainConfig.name}`}
-      </button>
+      </Button>
     )
   }
 
   if (!canBridge) {
     return <DisabledBridgeButton />
+  }
+
+  if (isUsdceGC) {
+    return (
+      <SwapAndBridge
+        amount={amount}
+        recipient={recipient}
+        tokenIn={fromToken}
+        tokenOut={toToken}
+        userAddress={userAddress}
+      />
+    )
   }
 
   if (shouldApprove) {

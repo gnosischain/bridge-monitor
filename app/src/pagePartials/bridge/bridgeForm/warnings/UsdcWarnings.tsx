@@ -46,7 +46,8 @@ export const UsdcEGcWarning: React.FC = () => {
     <Contents>
       <Warning />
       <Text>
-        This operation will swap <b>USDC.e</b> to <b>USDC</b> and bridge it to USDC on Ethereum
+        This operation will swap <b>USDC.e</b> to <b>USDC</b> on Gnosis chain and bridge it to{' '}
+        <b>USDC</b> on Ethereum
       </Text>
     </Contents>
   )

@@ -7,7 +7,6 @@ import { ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { ZERO_ADDRESS } from '@/src/constants/misc'
 import { ButtonPlaceholder } from './ButtonPlaceholder'
-import { SwapAndBridge } from './SwapAndBridge'
 
 export interface UnifiedBridgeButtonProps {
   fromChainId: ChainsValues
@@ -48,24 +47,13 @@ export const UnifiedBridgeButton: React.FC<UnifiedBridgeButtonProps> = ({
     return <DisabledBridgeButton />
   }
 
-  if (isUsdceGC) {
-    return (
-      <SwapAndBridge
-        amount={amount}
-        recipient={recipient}
-        tokenIn={fromToken}
-        tokenOut={toToken}
-        userAddress={userAddress}
-      />
-    )
-  }
-
   return (
     <SafeSuspense fallback={<ButtonPlaceholder />}>
       <BridgeButton
         amount={amount}
         fromChainId={fromChainId}
         fromToken={fromToken}
+        isUsdceGC={isUsdceGC}
         receiveNativeToken={receiveNativeToken}
         recipient={recipient}
         toChainId={toChainId}
