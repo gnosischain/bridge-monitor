@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useReducer } from 'react'
 import styled from 'styled-components'
+import { ParsedUrlQuery } from 'querystring'
 import { AmountTokenInput } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
 import {
   BridgeButton,
@@ -152,27 +153,48 @@ const initialState: BridgeFormState = {
   token: undefined,
 }
 
+type SanitizedQuery = {
+  amount: string
+  fromChainId: ChainsValues
+  toChainId: ChainsValues
+  token: Token | undefined
+}
+
+const sanitizeQuery = (
+  query: ParsedUrlQuery,
+  tokensByNetwork: Record<number, Token[]>,
+): SanitizedQuery => {
+  const sanitizedAmount =
+    query.amount && !isNaN(Number(query.amount)) ? query.amount.toString() : ''
+
+  const validFromChainId = (Object.values(Chains) as number[]).includes(Number(query.fromChainId))
+    ? (Number(query.fromChainId) as ChainsValues)
+    : Chains.mainnet
+
+  const validToChainId = validFromChainId === Chains.mainnet ? Chains.gnosis : Chains.mainnet
+
+  const validToken = tokensByNetwork[validFromChainId]?.find((t) =>
+    isSameString(t.address, query.token as string),
+  )
+
+  return {
+    amount: sanitizedAmount,
+    fromChainId: validFromChainId,
+    toChainId: validToChainId,
+    token: validToken,
+  }
+}
+
 const Main = () => {
   const router = useRouter()
   const { address, walletChainId } = useWeb3Connection()
   const { tokensByNetwork } = useBridgedTokens()
 
   const queryParams = useMemo(() => router.query, [router.query])
-  const { amount, fromChainId, toChainId, token } = queryParams
-
-  const initialFromChainId = (Object.values(Chains) as number[]).includes(Number(fromChainId))
-    ? (Number(fromChainId) as ChainsValues)
-    : Chains.mainnet
-
-  const initialToChainId = (Object.values(Chains) as number[]).includes(Number(toChainId))
-    ? (Number(toChainId) as ChainsValues)
-    : Chains.gnosis
-
-  const initialToken = tokensByNetwork[initialFromChainId]?.find((t) =>
-    isSameString(t.address, token as string),
+  const sanitizedQuery = useMemo(
+    () => sanitizeQuery(queryParams, tokensByNetwork),
+    [queryParams, tokensByNetwork],
   )
-
-  const initialAmount = amount ? amount.toString() : ''
 
   const [formState, dispatch] = useReducer(
     (data: BridgeFormState, partial: Partial<BridgeFormState>): BridgeFormState => ({
@@ -182,17 +204,13 @@ const Main = () => {
     {
       ...initialState,
       account: address || ZERO_ADDRESS,
-      amount: initialAmount,
-      fromChainId: initialFromChainId,
-      toChainId: initialToChainId,
-      token: initialToken,
+      ...sanitizedQuery,
     },
   )
 
   useEffect(() => {
     const currentQuery = {
       fromChainId: formState.fromChainId.toString(),
-      toChainId: formState.toChainId.toString(),
       token: formState.token?.address || '',
       amount: formState.amount,
     }
@@ -206,13 +224,7 @@ const Main = () => {
         shallow: true,
       })
     }
-  }, [
-    formState.amount,
-    formState.fromChainId,
-    formState.toChainId,
-    formState.token?.address,
-    router,
-  ])
+  }, [formState.amount, formState.fromChainId, formState.token?.address, router])
 
   const [debouncedAmount] = useDebounce(formState.amount, 500)
 
