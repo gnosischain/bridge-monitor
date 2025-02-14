@@ -15,7 +15,7 @@ import { InnerCard } from '@/src/pagePartials/bridge/bridgeForm/InnerCard'
 import { ButtonUnwrapFirst, UnwrapFirst } from '@/src/pagePartials/bridge/bridgeForm/UnwrapFirst'
 import { Switch } from '@/src/pagePartials/bridge/bridgeForm/Switch'
 import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
-import { Token } from '@/types/token'
+import { Token, TokensByNetwork } from '@/types/token'
 import { TokenDropdown } from '@/src/pagePartials/bridge/bridgeForm/TokenDropdown'
 import {
   AURA_ETHEREUM,
@@ -47,6 +47,7 @@ import { NotBridgedERC20Warning } from './NotBridgedERC20Warning'
 import { ExternalBridgeWarning } from './ExternalBridgeWarning'
 import { UsdcEGcWarning, UsdcEthWarning } from './UsdcWarnings'
 import { useRouter } from 'next/router'
+import { usdcTokens } from '../../usdc/const'
 
 const Title = styled.h2`
   align-items: center;
@@ -160,10 +161,7 @@ type SanitizedQuery = {
   token: Token | undefined
 }
 
-const sanitizeQuery = (
-  query: ParsedUrlQuery,
-  tokensByNetwork: Record<number, Token[]>,
-): SanitizedQuery => {
+const sanitizeQuery = (query: ParsedUrlQuery, tokensByNetwork: TokensByNetwork): SanitizedQuery => {
   const sanitizedAmount =
     query.amount && !isNaN(Number(query.amount)) ? query.amount.toString() : ''
 
@@ -185,6 +183,10 @@ const sanitizeQuery = (
   }
 }
 
+const tokensException: TokensByNetwork = {
+  '100': [usdcTokens.usdceGnosis],
+}
+
 const Main = () => {
   const router = useRouter()
   const { address, walletChainId } = useWeb3Connection()
@@ -192,7 +194,7 @@ const Main = () => {
 
   const queryParams = useMemo(() => router.query, [router.query])
   const sanitizedQuery = useMemo(
-    () => sanitizeQuery(queryParams, tokensByNetwork),
+    () => sanitizeQuery(queryParams, { ...tokensByNetwork, ...tokensException }),
     [queryParams, tokensByNetwork],
   )
 
