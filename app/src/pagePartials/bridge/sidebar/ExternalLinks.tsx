@@ -18,6 +18,14 @@ export const ExternalLinks: React.FC = ({ ...restProps }) => {
       name: 'shapeshift.com',
       url: 'https://app.shapeshift.com/#/trade',
     },
+    {
+      name: 'symbiosis.finance',
+      url: 'https://app.symbiosis.finance/swap',
+    },
+    {
+      name: 'relay.link',
+      url: 'https://relay.link/bridge/gnosis',
+    },
   ]
 
   return (
