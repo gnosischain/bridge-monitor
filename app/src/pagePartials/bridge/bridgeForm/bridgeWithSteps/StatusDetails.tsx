@@ -8,6 +8,7 @@ const Wrapper = styled.div`
   --wrapper-width: 155px;
 
   display: grid;
+  align-items: center;
   grid-template-columns: 1fr;
   position: relative;
   row-gap: calc(var(--theme-common-space) * 2);
@@ -81,12 +82,12 @@ const TransactionStatus = styled.h2`
 
 const Details = styled.div`
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  padding-bottom: calc(var(--theme-common-space) * 4);
   order: 1;
   display: flex;
   flex-direction: column;
   gap: var(--theme-common-space);
   align-items: center;
+  justify-content: center;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     order: 0;
@@ -100,30 +101,29 @@ Details.defaultProps = {
 
 const Title = styled.h3`
   color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   font-weight: 500;
   line-height: 1.2;
-  margin: var(--theme-common-space) 0 0;
-  margin: calc(var(--theme-common-space) * 1) 0 calc(var(--theme-common-space) * 2);
+  margin: 0;
 `
 
-// const Description = styled.p`
-//   color: ${({ theme: { colors } }) => colors.primary};
-//   font-size: 1.6rem;
-//   font-weight: 400;
-//   line-height: 1.5;
-//   margin: 0 0 calc(var(--theme-common-space) * 3);
-//   white-space: pre-wrap;
-//   word-break: break-word;
+const Description = styled.p`
+  color: ${({ theme: { colors } }) => colors.error};
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0 0 calc(var(--theme-common-space) * 3);
+  white-space: pre-wrap;
+  word-break: break-word;
 
-//   &:last-child {
-//     margin-bottom: 0;
-//   }
-// `
+  &:last-child {
+    margin-bottom: 0;
+  }
+`
 
 interface Props {
   description: string
-  // title: string
+  title: string
   transactionStatus: string
   statusIcon: Status
 }
@@ -132,15 +132,15 @@ export const StatusDetails: React.FC<Props> = ({
   children,
   description,
   statusIcon,
-  // title,
+  title,
   transactionStatus,
   ...restProps
 }) => {
   return (
     <Wrapper {...restProps}>
       <Details>
-        {/* <Title>{title}</Title> */}
-        <Title>{description}</Title>
+        <Title>{title}</Title>
+        <Description>{description}</Description>
         {children}
       </Details>
       <StatusWrapper>

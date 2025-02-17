@@ -48,7 +48,7 @@ type SwapButtonProps = {
   disabled: boolean
 }
 
-export const SwapButton = ({ amount, disabled, setStatus, ...restProps }: SwapButtonProps) => {
+export const Swap = ({ amount, disabled, setStatus, ...restProps }: SwapButtonProps) => {
   const [isWorking, setIsWorking] = useState(false)
   const { address } = useWeb3Connection()
   const sendTx = useTransaction()

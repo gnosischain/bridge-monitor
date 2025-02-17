@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button } from './Button'
-import { BridgeWithSteps } from '../bridgeWithSteps/BridgeWithSteps'
+import { BridgeWithSteps } from '../bridgeWithSteps'
 import { BigNumber } from 'ethers'
 import { Token } from '@/types/token'
 

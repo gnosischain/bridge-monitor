@@ -7,8 +7,8 @@ import { Chains } from '@/src/constants/config/chains'
 import { TRANSMUTER_ADDRESS, ZERO_ADDRESS } from '@/src/constants/misc'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { BigNumber } from 'ethers'
-import { ApproveButton } from './ApproveButton'
-import { SwapButton } from './SwapButton'
+import { Approve } from './Approve'
+import { Swap } from './Swap'
 import { BridgeButton } from './BridgeButton'
 import { Token } from '@/types/token'
 import { Step, statuses, steps } from './const'
@@ -46,7 +46,7 @@ export const BridgeWithSteps: React.FC<BridgeWithStepsProps> = ({
   userAddress,
   ...restProps
 }) => {
-  const [status, setStatus] = useState<Step[]>(steps.approve)
+  const [status, setStatus] = useState<Step[]>(steps.approving)
 
   const { data: userBalanceData, mutate: refreshBalanceToken } = useUserTokenBalances({
     userAddress: userAddress || ZERO_ADDRESS,
@@ -57,7 +57,6 @@ export const BridgeWithSteps: React.FC<BridgeWithStepsProps> = ({
 
   if (!userBalanceData) throw new Error('User balance data is not available')
 
-  // const isValidToSend = amount.gt(0) && amount.lte(userBalanceData.balance)
   const shouldApprove = amount.gt(userBalanceData.allowance) && amount.lte(userBalanceData.balance)
 
   useEffect(() => {
@@ -74,19 +73,12 @@ export const BridgeWithSteps: React.FC<BridgeWithStepsProps> = ({
       {...restProps}
     >
       <StatusList>
-        <StatusDetails
-          description="1. Grant permission to spend tokens"
-          statusIcon={statuses.approve[status[0]].statusIcon as Status}
-          // title={statuses.approve[status[0]].title}
-          transactionStatus={statuses.approve[status[0]].text}
-        >
-          <ApproveButton
-            amount={amount}
-            disabled={status[0] !== 'now' && status[0] !== 'pending'}
-            refreshBalanceToken={refreshBalanceToken}
-            setStatus={setStatus}
-          />
-        </StatusDetails>
+        <Approve
+          amount={amount}
+          approveStatus={status[0]}
+          refreshBalanceToken={refreshBalanceToken}
+          setStatus={setStatus}
+        />
 
         <StatusDetails
           description="2. Swap USDC.e to USDC"
@@ -94,7 +86,7 @@ export const BridgeWithSteps: React.FC<BridgeWithStepsProps> = ({
           // title={statuses.swap[status[1]].title}
           transactionStatus={statuses.swap[status[1]].text}
         >
-          <SwapButton
+          <Swap
             amount={amount}
             disabled={status[1] !== 'now' && status[1] !== 'pending'}
             setStatus={setStatus}
