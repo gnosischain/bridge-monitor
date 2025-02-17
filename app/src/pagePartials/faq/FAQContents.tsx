@@ -81,6 +81,16 @@ export const FAQContents: React.FC = () => {
               shapeshift.com
             </a>
           </li>
+          <li>
+            <a href="https://app.symbiosis.finance/swap" rel="noreferrer" target="_blank">
+              Symbiosis
+            </a>
+          </li>
+          <li>
+            <a href="https://relay.link/bridge/gnosis" rel="noreferrer" target="_blank">
+              Relay
+            </a>
+          </li>
         </ul>
       </Paragraph>
       <EmphasizedTitle id="q_1d">How do I bridge from Gnosis to Ethereum?</EmphasizedTitle>
