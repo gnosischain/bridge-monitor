@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useReducer } from 'react'
+import { useEffect, useReducer } from 'react'
 import styled from 'styled-components'
-import { ParsedUrlQuery } from 'querystring'
 import { AmountTokenInput } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
 import {
   BridgeButton,
@@ -9,13 +8,13 @@ import {
 } from '@/src/pagePartials/bridge/bridgeForm/BridgeButton'
 import { RecipientAddress } from '@/src/pagePartials/bridge/bridgeForm/RecipientAddress'
 import { CardPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/CardPlaceholder'
-import { Chains, ChainsValues } from '@/src/constants/config/types'
+import { Chains } from '@/src/constants/config/types'
 import { Header } from '@/src/pagePartials/bridge/bridgeForm/Header'
 import { InnerCard } from '@/src/pagePartials/bridge/bridgeForm/InnerCard'
 import { ButtonUnwrapFirst, UnwrapFirst } from '@/src/pagePartials/bridge/bridgeForm/UnwrapFirst'
 import { Switch } from '@/src/pagePartials/bridge/bridgeForm/Switch'
 import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
-import { Token, TokensByNetwork } from '@/types/token'
+import { Token } from '@/types/token'
 import { TokenDropdown } from '@/src/pagePartials/bridge/bridgeForm/TokenDropdown'
 import {
   AURA_ETHEREUM,
@@ -47,7 +46,7 @@ import { NotBridgedERC20Warning } from './NotBridgedERC20Warning'
 import { ExternalBridgeWarning } from './ExternalBridgeWarning'
 import { UsdcEGcWarning, UsdcEthWarning } from './UsdcWarnings'
 import { useRouter } from 'next/router'
-import { usdcTokens } from '../../usdc/const'
+import { useSanitizedQuery } from '@/src/hooks/useSanitizedQuery'
 
 const Title = styled.h2`
   align-items: center;
@@ -154,49 +153,12 @@ const initialState: BridgeFormState = {
   token: undefined,
 }
 
-type SanitizedQuery = {
-  amount: string
-  fromChainId: ChainsValues
-  toChainId: ChainsValues
-  token: Token | undefined
-}
-
-const sanitizeQuery = (query: ParsedUrlQuery, tokensByNetwork: TokensByNetwork): SanitizedQuery => {
-  const sanitizedAmount =
-    query.amount && !isNaN(Number(query.amount)) ? query.amount.toString() : ''
-
-  const validFromChainId = (Object.values(Chains) as number[]).includes(Number(query.fromChainId))
-    ? (Number(query.fromChainId) as ChainsValues)
-    : Chains.mainnet
-
-  const validToChainId = validFromChainId === Chains.mainnet ? Chains.gnosis : Chains.mainnet
-
-  const validToken = tokensByNetwork[validFromChainId]?.find((t) =>
-    isSameString(t.address, query.token as string),
-  )
-
-  return {
-    amount: sanitizedAmount,
-    fromChainId: validFromChainId,
-    toChainId: validToChainId,
-    token: validToken,
-  }
-}
-
-const tokensException: TokensByNetwork = {
-  '100': [usdcTokens.usdceGnosis],
-}
-
 const Main = () => {
   const router = useRouter()
   const { address, walletChainId } = useWeb3Connection()
   const { tokensByNetwork } = useBridgedTokens()
 
-  const queryParams = useMemo(() => router.query, [router.query])
-  const sanitizedQuery = useMemo(
-    () => sanitizeQuery(queryParams, { ...tokensByNetwork, ...tokensException }),
-    [queryParams, tokensByNetwork],
-  )
+  const sanitizedQuery = useSanitizedQuery(tokensByNetwork)
 
   const [formState, dispatch] = useReducer(
     (data: BridgeFormState, partial: Partial<BridgeFormState>): BridgeFormState => ({
