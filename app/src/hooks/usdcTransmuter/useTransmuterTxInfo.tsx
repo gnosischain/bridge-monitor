@@ -10,6 +10,7 @@ import TransmuterAbi from '@/src/abis/TransmuterEurc.json'
 export const getTransTx = async ({
   account,
   amount,
+  returnZero,
   signer,
   tokenAddress,
 }: {
@@ -17,9 +18,18 @@ export const getTransTx = async ({
   amount: BigNumber
   signer: Signer
   tokenAddress: string
+  returnZero?: boolean
 }) => {
   const transmuteContract = new ethers.Contract(TRANSMUTER_ADDRESS, TransmuterAbi, signer)
   const transMethod = tokenAddress === USDC_XDAI_OLD ? 'deposit' : 'withdraw'
+
+  if (returnZero) {
+    return {
+      gasLimit: ZERO_BN,
+      gasPrice: ZERO_BN,
+      tx: null,
+    }
+  }
 
   if (amount.lte(0) || !account) {
     return {
@@ -54,12 +64,14 @@ export const getTransTx = async ({
 
 export const useTransmuterTxInfo = ({
   amount,
+  returnZero,
   token,
   userAddress,
 }: {
   amount: BigNumber
   token: TokenUsdc
   userAddress: string
+  returnZero?: boolean
 }) => {
   const { walletChainId, web3Provider } = useWeb3Connection()
   if (!web3Provider) throw new Error('No web3 provider available')
@@ -67,8 +79,16 @@ export const useTransmuterTxInfo = ({
   if (walletChainId !== Chains.gnosis) throw new Error('Invalid chain')
 
   const { data: transactionData } = useSWR(
-    ['transactionInfo', token, amount, userAddress],
-    async ([, _token, _amount, _userAddress]) => {
+    ['transactionInfo', token, amount, userAddress, returnZero || false],
+    async ([, _token, _amount, _userAddress, _returnZero]) => {
+      if (_returnZero) {
+        return {
+          gasLimit: ZERO_BN,
+          gasPrice: ZERO_BN,
+          tx: null,
+        }
+      }
+
       if (_amount.lte(0)) {
         return {
           gasLimit: ZERO_BN,

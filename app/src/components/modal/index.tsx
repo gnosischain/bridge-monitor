@@ -39,7 +39,7 @@ const Title = styled.h1`
   font-size: 1.8rem;
   font-weight: 700;
   line-height: 1.2;
-  margin: 0 0 20px;
+  margin: 20px 0 20px;
   text-align: center;
   width: 100%;
 `

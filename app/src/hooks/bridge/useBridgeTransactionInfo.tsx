@@ -2,7 +2,7 @@ import { BigNumber, Signer } from 'ethers'
 import { ChainsValues } from '@/src/constants/config/types'
 import useSWR from 'swr'
 import { Token } from '@/types/token'
-import { USDC_ETHEREUM, ZERO_BN } from '@/src/constants/misc'
+import { USDC_ETHEREUM, USDCe_GNOSIS, ZERO_BN } from '@/src/constants/misc'
 import {
   ERC20__factory,
   ERC677,
@@ -202,6 +202,7 @@ const handleERC20TokenFromForeign = async ({
   if (!isERC677 && amount.gt(allowance)) {
     try {
       gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
+      console.log('gasLimit', gasLimit)
     } catch (error) {
       gasLimit = BigNumber.from(0)
     }
@@ -360,6 +361,77 @@ const handleERC20TokenFromHome = async ({
  * @param recipient Optional. The recipient address.
  * @returns An object containing the gas limit and a transaction function.
  */
+const handleUsdceFromHome = async ({
+  allowance,
+  amount,
+  bridgeContract,
+  recipient,
+  signer,
+  tokenAddress,
+  tokenMode,
+  userAddress,
+}: {
+  bridgeContract: HomeOmniMediator
+  signer: Signer
+  amount: BigNumber
+  tokenAddress: string
+  allowance: BigNumber
+  tokenMode: TOKEN_MODE
+  recipient: string | undefined
+  userAddress: string
+}) => {
+  // Quick fix to avoid useBridgeValidations to error when an approval is needed.
+  // If an approval is needed the gasLimit should be calculated for the approval operation and not for the bridge operation.
+  // If that not happens the estimateGas will fail because the allowance is not enough.
+  //
+  // TODO: If an approval is needed, "gasLimit" will be set with the value the approval operation will take.
+  // But "tx" will have the bridge operation. It would be good to solve this inconsistency.
+  // And then remove the useApproval hook and call the approve using the tx function returned by this function.
+
+  const walletAddress = recipient || userAddress
+  const isERC677 = tokenMode === 'ERC677'
+  const tokenContract = isERC677
+    ? ERC677__factory.connect(tokenAddress, signer)
+    : ERC20__factory.connect(tokenAddress, signer)
+
+  let gasLimit: BigNumber
+
+  const bytesData = defaultAbiCoder.encode(['address'], [walletAddress])
+
+  if (!isERC677 && amount.gt(allowance)) {
+    gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
+  } else {
+    gasLimit = await bridgeContract.estimateGas.relayTokensAndCall(
+      tokenAddress,
+      TRANSMUTER_ADDRESS,
+      amount.toString(),
+      bytesData,
+    )
+  }
+
+  return {
+    gasLimit,
+    tx: async function () {
+      return bridgeContract.relayTokensAndCall(
+        tokenAddress,
+        TRANSMUTER_ADDRESS,
+        amount.toString(),
+        bytesData,
+      )
+    },
+  }
+}
+
+/**
+ * Handles the transfer of ERC20 tokens from foreign chain.
+ * @param bridgeContract The bridge contract instance (ForeignOmniMediator).
+ * @param signer The signer instance.
+ * @param amount The amount of tokens to transfer.
+ * @param tokenAddress The address of the ERC20 token.
+ * @param isDAI Optional. Indicates if the token is DAI.
+ * @param recipient Optional. The recipient address.
+ * @returns An object containing the gas limit and a transaction function.
+ */
 const handleUsdcFromForeign = async ({
   allowance,
   amount,
@@ -465,8 +537,21 @@ export const getBridgeTx = async ({
 
   const isUsdcEth = isSameString(tokenAddress, USDC_ETHEREUM)
 
+  const isUsdceGnosis = isSameString(tokenAddress, USDCe_GNOSIS)
+
   const gasPrice = await bridgeContract.provider.getGasPrice()
-  const { gasLimit, tx } = isUsdcEth
+  const { gasLimit, tx } = isUsdceGnosis
+    ? await handleUsdceFromHome({
+        bridgeContract: bridgeContract as HomeOmniMediator,
+        signer,
+        amount,
+        tokenAddress,
+        userAddress: account,
+        recipient,
+        allowance,
+        tokenMode,
+      })
+    : isUsdcEth
     ? await handleUsdcFromForeign({
         bridgeContract: bridgeContract as ForeignOmniMediator,
         signer,
