@@ -105,6 +105,11 @@ const Title = styled.h3`
   font-weight: 500;
   line-height: 1.2;
   margin: 0;
+  text-align: center;
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    align-items: end;
+    text-align: right;
+  }
 `
 
 const Description = styled.p`
@@ -115,9 +120,15 @@ const Description = styled.p`
   margin: 0 0 calc(var(--theme-common-space) * 3);
   white-space: pre-wrap;
   word-break: break-word;
+  text-align: center;
 
   &:last-child {
     margin-bottom: 0;
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    align-items: end;
+    text-align: right;
   }
 `
 
