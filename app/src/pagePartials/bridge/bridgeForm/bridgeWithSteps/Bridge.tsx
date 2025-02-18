@@ -71,38 +71,7 @@ type BridgeProps = {
   userAddress: string
 }
 
-export const Bridge: React.FC<BridgeProps> = ({
-  amount,
-  bridgeStatus,
-  recipient,
-  setStatus,
-  token,
-  userAddress,
-}) => {
-  if (bridgeStatus === 'now' || bridgeStatus === 'pending' || bridgeStatus === 'done') {
-    return (
-      <BridgeActive
-        amount={amount}
-        bridgeStatus={bridgeStatus}
-        recipient={recipient || userAddress}
-        setStatus={setStatus}
-        token={token}
-        userAddress={userAddress || ''}
-      />
-    )
-  } else {
-    return (
-      <StatusDetails
-        description={''}
-        statusIcon={statuses.bridge[bridgeStatus].statusIcon as Status}
-        title="Bridge USDC to Ethereum"
-        transactionStatus="3. Bridge"
-      />
-    )
-  }
-}
-
-export const BridgeActive: React.FC<BridgeProps> = ({
+const BridgeActive: React.FC<BridgeProps> = ({
   amount,
   bridgeStatus,
   recipient,
@@ -199,4 +168,35 @@ export const BridgeActive: React.FC<BridgeProps> = ({
       )}
     </StatusDetails>
   )
+}
+
+export const Bridge: React.FC<BridgeProps> = ({
+  amount,
+  bridgeStatus,
+  recipient,
+  setStatus,
+  token,
+  userAddress,
+}) => {
+  if (bridgeStatus === 'now' || bridgeStatus === 'pending' || bridgeStatus === 'done') {
+    return (
+      <BridgeActive
+        amount={amount}
+        bridgeStatus={bridgeStatus}
+        recipient={recipient || userAddress}
+        setStatus={setStatus}
+        token={token}
+        userAddress={userAddress || ''}
+      />
+    )
+  } else {
+    return (
+      <StatusDetails
+        description={''}
+        statusIcon={statuses.bridge[bridgeStatus].statusIcon as Status}
+        title="Bridge USDC to Ethereum"
+        transactionStatus="3. Bridge"
+      />
+    )
+  }
 }
