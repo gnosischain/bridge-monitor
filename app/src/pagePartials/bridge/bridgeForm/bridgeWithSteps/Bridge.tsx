@@ -78,6 +78,37 @@ export const Bridge: React.FC<BridgeProps> = ({
   setStatus,
   token,
   userAddress,
+}) => {
+  if (bridgeStatus === 'now' || bridgeStatus === 'pending' || bridgeStatus === 'done') {
+    return (
+      <BridgeActive
+        amount={amount}
+        bridgeStatus={bridgeStatus}
+        recipient={recipient || userAddress}
+        setStatus={setStatus}
+        token={token}
+        userAddress={userAddress || ''}
+      />
+    )
+  } else {
+    return (
+      <StatusDetails
+        description={''}
+        statusIcon={statuses.bridge[bridgeStatus].statusIcon as Status}
+        title="Bridge USDC to Ethereum"
+        transactionStatus="3. Bridge"
+      />
+    )
+  }
+}
+
+export const BridgeActive: React.FC<BridgeProps> = ({
+  amount,
+  bridgeStatus,
+  recipient,
+  setStatus,
+  token,
+  userAddress,
   ...restProps
 }) => {
   const [isWorking, setIsWorking] = useState(false)

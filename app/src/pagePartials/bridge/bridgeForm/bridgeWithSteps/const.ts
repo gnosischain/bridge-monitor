@@ -13,66 +13,66 @@ export const statuses = {
   approve: {
     notStarted: {
       title: '',
-      text: 'Approve',
+      text: '1. Approve',
       statusIcon: 'none',
     },
     now: {
       title: 'Confirm approval transaction in your wallet',
-      text: 'Approve',
+      text: '1. Approve',
       statusIcon: 'waiting',
     },
     pending: {
       title: 'Confirm approval transaction in your wallet',
-      text: 'Approve',
+      text: '1. Approve',
       statusIcon: 'pending',
     },
     done: {
       title: 'Approval confirmed',
-      text: 'Approved',
+      text: '1. Approved',
       statusIcon: 'success',
     },
   },
   swap: {
     notStarted: {
       title: 'Swapping',
-      text: 'Swap',
+      text: '2. Swap',
       statusIcon: 'none',
     },
     now: {
       title: 'Confirm swap transaction in your wallet',
-      text: 'Swap',
+      text: '2. Swap',
       statusIcon: 'waiting',
     },
     pending: {
       title: 'Confirm swap transaction in your wallet',
-      text: 'Swap',
+      text: '2. Swap',
       statusIcon: 'pending',
     },
     done: {
       title: 'Swap is executed',
-      text: 'Swapped',
+      text: '2. Swapped',
       statusIcon: 'success',
     },
   },
   bridge: {
     notStarted: {
       title: 'Bridging',
-      text: 'Bridge',
+      text: '3. Bridge',
       statusIcon: 'none',
     },
     now: {
       title: 'Confirm bridging transaction in your wallet',
-      text: 'Bridge',
+      text: '3. Bridge',
       statusIcon: 'waiting',
     },
     pending: {
       title: 'Confirm bridging transaction in your wallet',
-      text: 'Bridge',
+      text: '3. Bridge',
       statusIcon: 'pending',
     },
     done: {
       title: 'Bridging is initiated',
-      text: 'Bridge',
+      text: '3. Bridge',
       statusIcon: 'success',
     },
   },

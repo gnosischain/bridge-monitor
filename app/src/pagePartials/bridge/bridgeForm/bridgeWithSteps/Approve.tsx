@@ -130,7 +130,7 @@ export const Approve = ({
     <StatusDetails
       description={approveStatus === 'pending' ? statuses.approve.pending.title : ''}
       statusIcon={statuses.approve[approveStatus].statusIcon as Status}
-      title="1. Grant permission to spend tokens"
+      title="Grant permission to spend tokens"
       transactionStatus={statuses.approve[approveStatus].text}
     >
       {showButton && (

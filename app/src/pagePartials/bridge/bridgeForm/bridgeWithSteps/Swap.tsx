@@ -127,7 +127,7 @@ export const Swap = ({
     <StatusDetails
       description={swapStatus === 'pending' ? statuses.swap.pending.title : ''}
       statusIcon={statuses.swap[swapStatus].statusIcon as Status}
-      title="2. Swap USDC.e to USDC"
+      title="Swap USDC.e to USDC"
       transactionStatus={statuses.swap[swapStatus].text}
     >
       {showButton && (
