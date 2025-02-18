@@ -9,7 +9,7 @@ import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { BigNumber } from 'ethers'
 import { Approve } from './Approve'
 import { Swap } from './Swap'
-import { BridgeButton } from './BridgeButton'
+import { Bridge } from './Bridge'
 import { Token } from '@/types/token'
 import { Step, statuses, steps } from './const'
 import { BridgeButtonDisabled } from './BridgeButtonDisabled'
@@ -46,7 +46,7 @@ export const BridgeWithSteps: React.FC<BridgeWithStepsProps> = ({
   userAddress,
   ...restProps
 }) => {
-  const [status, setStatus] = useState<Step[]>(steps.approving)
+  const [status, setStatus] = useState<Step[]>(steps.approve)
 
   const { data: userBalanceData, mutate: refreshBalanceToken } = useUserTokenBalances({
     userAddress: userAddress || ZERO_ADDRESS,
@@ -61,7 +61,7 @@ export const BridgeWithSteps: React.FC<BridgeWithStepsProps> = ({
 
   useEffect(() => {
     if (!shouldApprove) {
-      setStatus(steps.swap)
+      setStatus(steps.swapping)
     }
   }, [shouldApprove])
 
@@ -79,21 +79,10 @@ export const BridgeWithSteps: React.FC<BridgeWithStepsProps> = ({
           refreshBalanceToken={refreshBalanceToken}
           setStatus={setStatus}
         />
+        <Swap amount={amount} setStatus={setStatus} swapStatus={status[1]} />
 
-        <StatusDetails
-          description="2. Swap USDC.e to USDC"
-          statusIcon={statuses.swap[status[1]].statusIcon as Status}
-          // title={statuses.swap[status[1]].title}
-          transactionStatus={statuses.swap[status[1]].text}
-        >
-          <Swap
-            amount={amount}
-            disabled={status[1] !== 'now' && status[1] !== 'pending'}
-            setStatus={setStatus}
-          />
-        </StatusDetails>
-
-        <StatusDetails
+        <Bridge amount={amount} setStatus={setStatus} bridgeStatus={status[2]} />
+        {/* <StatusDetails
           description="3. Bridge USDC to Ethereum"
           statusIcon={statuses.bridge[status[2]].statusIcon as Status}
           // title={statuses.bridge[status[2]].title}
@@ -111,7 +100,7 @@ export const BridgeWithSteps: React.FC<BridgeWithStepsProps> = ({
               userAddress={userAddress || ''}
             />
           )}
-        </StatusDetails>
+        </StatusDetails> */}
       </StatusList>
     </Modal>
   )

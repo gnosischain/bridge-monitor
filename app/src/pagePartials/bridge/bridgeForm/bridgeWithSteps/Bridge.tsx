@@ -60,7 +60,7 @@ const USDC_GC_BRIDGED = {
   },
 }
 
-type BridgeButtonProps = {
+type BridgeProps = {
   amount: BigNumber
   disabled: boolean
   recipient: string
@@ -69,7 +69,7 @@ type BridgeButtonProps = {
   userAddress: string
 }
 
-export const BridgeButton: React.FC<BridgeButtonProps> = ({
+export const Bridge: React.FC<BridgeProps> = ({
   amount,
   disabled,
   recipient,

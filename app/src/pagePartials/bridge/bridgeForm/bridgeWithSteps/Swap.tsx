@@ -4,9 +4,11 @@ import useTransaction from '@/src/hooks/useTransaction'
 import { TokenUsdc } from '@/src/pagePartials/usdc/types'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { BigNumber } from 'ethers'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
-import { Step, steps } from './const'
+import { Step, statuses, steps } from './const'
+import { StatusDetails } from './StatusDetails'
+import { Status } from './IconStatus'
 
 const Wrapper = styled.button`
   align-items: center;
@@ -42,16 +44,18 @@ const Wrapper = styled.button`
   }
 `
 
-type SwapButtonProps = {
+type SwapProps = {
   amount: BigNumber
   setStatus: (status: Step[]) => void
-  disabled: boolean
+  swapStatus: Step
 }
 
-export const Swap = ({ amount, disabled, setStatus, ...restProps }: SwapButtonProps) => {
+export const Swap = ({ amount, setStatus, swapStatus, ...restProps }: SwapProps) => {
   const [isWorking, setIsWorking] = useState(false)
   const { address } = useWeb3Connection()
+  const [showButton, setShowButton] = useState(false)
   const sendTx = useTransaction()
+  const disabled = swapStatus !== 'now' && swapStatus !== 'pending'
 
   const swapTxData = useTransmuterTxInfo({
     amount,
@@ -60,33 +64,58 @@ export const Swap = ({ amount, disabled, setStatus, ...restProps }: SwapButtonPr
     returnZero: disabled,
   })
 
-  const handleSwap = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-    e.preventDefault()
-    if (!swapTxData || !swapTxData.tx) return
+  const runSwap = useMemo(
+    () => async () => {
+      if (!swapTxData || !swapTxData.tx) return
+      setIsWorking(true)
+      console.log('running swap')
 
-    setStatus(steps.swapping)
-    setIsWorking(true)
-
-    try {
-      const tx = await sendTx(swapTxData.tx)
-      if (tx) {
-        await tx.wait()
-        setStatus(steps.bridge)
-      } else {
-        throw new Error('Failed to swap')
+      try {
+        const tx = await sendTx(swapTxData.tx)
+        if (tx) {
+          await tx.wait()
+          setStatus(steps.bridging)
+        } else {
+          throw new Error('Failed to swap')
+        }
+      } catch (error) {
+        console.error(error)
+        setStatus(steps.swap)
+        setShowButton(true)
+      } finally {
+        setIsWorking(false)
       }
-    } catch (error) {
-      console.error(error)
-      setStatus(steps.swap)
-    } finally {
-      setIsWorking(false)
+    },
+    [sendTx, setStatus, swapTxData],
+  )
+
+  const handleSwap = async (e?: React.MouseEvent<HTMLButtonElement>) => {
+    if (e) {
+      e.stopPropagation()
+      e.preventDefault()
     }
+    setStatus(steps.swapping)
+    await runSwap()
   }
 
+  useEffect(() => {
+    if (swapStatus === 'pending' && !isWorking) {
+      runSwap()
+    }
+  }, [swapStatus, isWorking, runSwap])
+
   return (
-    <Wrapper disabled={isWorking || disabled} onClick={handleSwap} {...restProps}>
-      {isWorking ? 'Swapping' : 'Swap'}
-    </Wrapper>
+    <StatusDetails
+      description={swapStatus === 'pending' ? statuses.swap.pending.title : ''}
+      statusIcon={statuses.swap[swapStatus].statusIcon as Status}
+      title="2. Swap USDC.e to USDC"
+      transactionStatus={statuses.swap[swapStatus].text}
+    >
+      {showButton && (
+        <Wrapper disabled={isWorking || disabled} onClick={handleSwap} {...restProps}>
+          {isWorking ? 'Swapping' : 'Swap'}
+        </Wrapper>
+      )}
+    </StatusDetails>
   )
 }

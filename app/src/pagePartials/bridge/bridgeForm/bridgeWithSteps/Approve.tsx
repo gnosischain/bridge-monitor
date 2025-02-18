@@ -61,6 +61,7 @@ export const Approve = ({
 
   const runApprove = useMemo(
     () => async () => {
+      console.log('running approve')
       setIsWorking(true)
       try {
         const receipt = await approve({
@@ -94,6 +95,7 @@ export const Approve = ({
   }
 
   useEffect(() => {
+    console.log('approveStatus', approveStatus)
     if (approveStatus === 'pending' && !isWorking) {
       runApprove()
     }
