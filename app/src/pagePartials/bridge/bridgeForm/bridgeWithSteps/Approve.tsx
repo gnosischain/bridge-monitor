@@ -1,4 +1,4 @@
-import { TRANSMUTER_ADDRESS, USDCe_GNOSIS } from '@/src/constants/misc'
+import { TRANSMUTER_ADDRESS, USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
 import { BigNumber } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
@@ -6,6 +6,9 @@ import styled from 'styled-components'
 import { Step, statuses, steps } from './const'
 import { StatusDetails } from './StatusDetails'
 import { Status } from '@/src/pagePartials/bridgeExplorer/transaction/IconStatus'
+import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
+import { Chains } from '@/src/constants/config/chains'
+import { Token } from '@/types/token'
 
 const Wrapper = styled.button`
   align-items: center;
@@ -44,24 +47,46 @@ const Wrapper = styled.button`
 type ApproveProps = {
   amount: BigNumber
   approveStatus: Step
+  userAddress: string
+  tokenIn: Token
   setStatus: (status: Step[]) => void
-  refreshBalanceToken: () => void
 }
 
 export const Approve = ({
   amount,
   approveStatus,
-  refreshBalanceToken,
   setStatus,
+  tokenIn,
+  userAddress,
   ...restProps
 }: ApproveProps) => {
   const approve = useApproval()
   const [isWorking, setIsWorking] = useState(false)
   const [showButton, setShowButton] = useState(false)
 
+  const { data: userBalanceData, mutate: refreshBalanceToken } = useUserTokenBalances({
+    userAddress: userAddress || ZERO_ADDRESS,
+    chainId: Chains.gnosis,
+    allowanceAddress: TRANSMUTER_ADDRESS,
+    tokenAddress: tokenIn.address,
+  })
+
+  if (!userBalanceData) throw new Error('User balance data is not available')
+
+  const shouldApprove = amount.gt(userBalanceData.allowance) && amount.lte(userBalanceData.balance)
+
+  useEffect(() => {
+    if (shouldApprove && approveStatus === 'now' && !showButton) {
+      setStatus(steps.approving)
+    }
+
+    if (!shouldApprove && approveStatus === 'now') {
+      setStatus(steps.swapping)
+    }
+  }, [shouldApprove, approveStatus, setStatus, showButton])
+
   const runApprove = useMemo(
     () => async () => {
-      console.log('running approve')
       setIsWorking(true)
       try {
         const receipt = await approve({
@@ -74,6 +99,7 @@ export const Approve = ({
         await receipt.wait()
         setStatus(steps.swapping)
         refreshBalanceToken()
+        if (showButton) setShowButton(false)
       } catch (e) {
         console.error(e)
         setStatus(steps.approve)
@@ -82,7 +108,7 @@ export const Approve = ({
         setIsWorking(false)
       }
     },
-    [approve, amount, refreshBalanceToken, setStatus, setShowButton],
+    [approve, amount, setStatus, refreshBalanceToken, showButton],
   )
 
   const handleApprove = async (e?: React.MouseEvent<HTMLButtonElement>) => {
@@ -95,7 +121,6 @@ export const Approve = ({
   }
 
   useEffect(() => {
-    console.log('approveStatus', approveStatus)
     if (approveStatus === 'pending' && !isWorking) {
       runApprove()
     }

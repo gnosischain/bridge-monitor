@@ -1,4 +1,4 @@
-import { USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
+import { TRANSMUTER_ADDRESS, USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
 import { useTransmuterTxInfo } from '@/src/hooks/usdcTransmuter/useTransmuterTxInfo'
 import useTransaction from '@/src/hooks/useTransaction'
 import { TokenUsdc } from '@/src/pagePartials/usdc/types'
@@ -9,6 +9,9 @@ import styled from 'styled-components'
 import { Step, statuses, steps } from './const'
 import { StatusDetails } from './StatusDetails'
 import { Status } from './IconStatus'
+import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
+import { Token } from '@/types/token'
+import { Chains } from '@/src/constants/config/chains'
 
 const Wrapper = styled.button`
   align-items: center;
@@ -46,16 +49,32 @@ const Wrapper = styled.button`
 
 type SwapProps = {
   amount: BigNumber
+  userAddress: string
+  tokenIn: Token
   setStatus: (status: Step[]) => void
   swapStatus: Step
 }
 
-export const Swap = ({ amount, setStatus, swapStatus, ...restProps }: SwapProps) => {
+export const Swap = ({
+  amount,
+  setStatus,
+  swapStatus,
+  tokenIn,
+  userAddress,
+  ...restProps
+}: SwapProps) => {
   const [isWorking, setIsWorking] = useState(false)
   const { address } = useWeb3Connection()
   const [showButton, setShowButton] = useState(false)
   const sendTx = useTransaction()
   const disabled = swapStatus !== 'now' && swapStatus !== 'pending'
+
+  const { mutate: refreshBalanceToken } = useUserTokenBalances({
+    userAddress: userAddress || ZERO_ADDRESS,
+    chainId: Chains.gnosis,
+    allowanceAddress: TRANSMUTER_ADDRESS,
+    tokenAddress: tokenIn.address,
+  })
 
   const swapTxData = useTransmuterTxInfo({
     amount,
@@ -68,12 +87,12 @@ export const Swap = ({ amount, setStatus, swapStatus, ...restProps }: SwapProps)
     () => async () => {
       if (!swapTxData || !swapTxData.tx) return
       setIsWorking(true)
-      console.log('running swap')
 
       try {
         const tx = await sendTx(swapTxData.tx)
         if (tx) {
           await tx.wait()
+          refreshBalanceToken()
           setStatus(steps.bridging)
         } else {
           throw new Error('Failed to swap')
@@ -86,7 +105,7 @@ export const Swap = ({ amount, setStatus, swapStatus, ...restProps }: SwapProps)
         setIsWorking(false)
       }
     },
-    [sendTx, setStatus, swapTxData],
+    [refreshBalanceToken, sendTx, setStatus, swapTxData],
   )
 
   const handleSwap = async (e?: React.MouseEvent<HTMLButtonElement>) => {
@@ -99,10 +118,10 @@ export const Swap = ({ amount, setStatus, swapStatus, ...restProps }: SwapProps)
   }
 
   useEffect(() => {
-    if (swapStatus === 'pending' && !isWorking) {
+    if (swapStatus === 'pending' && !isWorking && swapTxData && swapTxData.tx) {
       runSwap()
     }
-  }, [swapStatus, isWorking, runSwap])
+  }, [swapStatus, isWorking, runSwap, swapTxData])
 
   return (
     <StatusDetails

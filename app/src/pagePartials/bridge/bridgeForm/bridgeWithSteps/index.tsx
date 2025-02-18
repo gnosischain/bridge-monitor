@@ -1,18 +1,12 @@
 import { Modal } from '@/src/components/modal'
-import { StatusDetails } from './StatusDetails'
 import styled from 'styled-components'
-import { useEffect, useState } from 'react'
-import { Status } from '@/src/pagePartials/bridgeExplorer/transaction/IconStatus'
-import { Chains } from '@/src/constants/config/chains'
-import { TRANSMUTER_ADDRESS, ZERO_ADDRESS } from '@/src/constants/misc'
-import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
+import { useState } from 'react'
 import { BigNumber } from 'ethers'
 import { Approve } from './Approve'
 import { Swap } from './Swap'
 import { Bridge } from './Bridge'
 import { Token } from '@/types/token'
-import { Step, statuses, steps } from './const'
-import { BridgeButtonDisabled } from './BridgeButtonDisabled'
+import { Step, steps } from './const'
 
 const StatusList = styled.div`
   background-color: ${({ theme: { colors } }) => colors.cream};
@@ -48,23 +42,6 @@ export const BridgeWithSteps: React.FC<BridgeWithStepsProps> = ({
 }) => {
   const [status, setStatus] = useState<Step[]>(steps.approve)
 
-  const { data: userBalanceData, mutate: refreshBalanceToken } = useUserTokenBalances({
-    userAddress: userAddress || ZERO_ADDRESS,
-    chainId: Chains.gnosis,
-    allowanceAddress: TRANSMUTER_ADDRESS,
-    tokenAddress: tokenIn.address,
-  })
-
-  if (!userBalanceData) throw new Error('User balance data is not available')
-
-  const shouldApprove = amount.gt(userBalanceData.allowance) && amount.lte(userBalanceData.balance)
-
-  useEffect(() => {
-    if (!shouldApprove) {
-      setStatus(steps.swapping)
-    }
-  }, [shouldApprove])
-
   return (
     <Modal
       onClose={onClose}
@@ -76,31 +53,27 @@ export const BridgeWithSteps: React.FC<BridgeWithStepsProps> = ({
         <Approve
           amount={amount}
           approveStatus={status[0]}
-          refreshBalanceToken={refreshBalanceToken}
           setStatus={setStatus}
+          tokenIn={tokenIn}
+          userAddress={userAddress}
         />
-        <Swap amount={amount} setStatus={setStatus} swapStatus={status[1]} />
 
-        <Bridge amount={amount} setStatus={setStatus} bridgeStatus={status[2]} />
-        {/* <StatusDetails
-          description="3. Bridge USDC to Ethereum"
-          statusIcon={statuses.bridge[status[2]].statusIcon as Status}
-          // title={statuses.bridge[status[2]].title}
-          transactionStatus="Bridge"
-        >
-          {status[2] !== 'now' && status[2] !== 'pending' ? (
-            <BridgeButtonDisabled />
-          ) : (
-            <BridgeButton
-              amount={amount}
-              disabled={false}
-              recipient={recipient || userAddress}
-              setStatus={setStatus}
-              token={tokenIn}
-              userAddress={userAddress || ''}
-            />
-          )}
-        </StatusDetails> */}
+        <Swap
+          amount={amount}
+          setStatus={setStatus}
+          swapStatus={status[1]}
+          tokenIn={tokenIn}
+          userAddress={userAddress}
+        />
+
+        <Bridge
+          amount={amount}
+          bridgeStatus={status[2]}
+          recipient={recipient || userAddress}
+          setStatus={setStatus}
+          token={tokenIn}
+          userAddress={userAddress || ''}
+        />
       </StatusList>
     </Modal>
   )

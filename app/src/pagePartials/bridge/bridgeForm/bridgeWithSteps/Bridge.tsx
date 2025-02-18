@@ -5,10 +5,12 @@ import useTransaction from '@/src/hooks/useTransaction'
 import { Token } from '@/types/token'
 import { BigNumber } from 'ethers'
 import router from 'next/router'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
-import { Step, steps } from './const'
+import { Step, statuses, steps } from './const'
 import { USDC_ETHEREUM, USDC_XDAI_OLD } from '@/src/constants/misc'
+import { StatusDetails } from './StatusDetails'
+import { Status } from './IconStatus'
 
 const Wrapper = styled.button`
   align-items: center;
@@ -62,7 +64,7 @@ const USDC_GC_BRIDGED = {
 
 type BridgeProps = {
   amount: BigNumber
-  disabled: boolean
+  bridgeStatus: Step
   recipient: string
   setStatus: (status: Step[]) => void
   token: Token
@@ -71,7 +73,7 @@ type BridgeProps = {
 
 export const Bridge: React.FC<BridgeProps> = ({
   amount,
-  disabled,
+  bridgeStatus,
   recipient,
   setStatus,
   token,
@@ -79,11 +81,13 @@ export const Bridge: React.FC<BridgeProps> = ({
   ...restProps
 }) => {
   const [isWorking, setIsWorking] = useState(false)
+  const [showButton, setShowButton] = useState(false)
   const sendTx = useTransaction()
 
   const fromChainId = Chains.gnosis
   const toChainId = Chains.mainnet
   const isNativeBridge = false
+  const disabled = bridgeStatus !== 'now' && bridgeStatus !== 'pending'
 
   const { data: transactionData } = useBridgeTransactionInfo({
     receiveNativeToken: false,
@@ -95,41 +99,73 @@ export const Bridge: React.FC<BridgeProps> = ({
     token: USDC_GC_BRIDGED,
   })
 
-  const handleBridge = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-    e.preventDefault()
-
-    if (!transactionData || !transactionData.tx) {
-      console.error('No transactionData.tx')
-      return
-    }
-
-    setStatus(steps.bridging)
-    setIsWorking(true)
-
-    try {
-      const tx = await sendTx(transactionData.tx)
-      if (tx) {
-        setStatus(steps.completed)
-        router.push(
-          `${bridgePagesBaseURL}/${tx.hash}?fromChainId=${fromChainId}&isNativeBridge=${
-            isNativeBridge ? 1 : 0
-          }&tokenAddress=${token?.address}&amount=${amount}&toChainId=${toChainId}`,
-        )
-      } else {
-        throw new Error('Failed to bridge')
+  const runBridge = useMemo(
+    () => async () => {
+      if (!transactionData || !transactionData.tx) {
+        console.error('No transactionData.tx')
+        return
       }
-    } catch (error) {
-      setStatus(steps.bridge)
-      console.error(error)
-    } finally {
-      setIsWorking(false)
+      setIsWorking(true)
+
+      try {
+        const tx = await sendTx(transactionData.tx)
+        if (tx) {
+          setStatus(steps.completed)
+          router.push(
+            `${bridgePagesBaseURL}/${tx.hash}?fromChainId=${fromChainId}&isNativeBridge=${
+              isNativeBridge ? 1 : 0
+            }&tokenAddress=${token?.address}&amount=${amount}&toChainId=${toChainId}`,
+          )
+        } else {
+          throw new Error('Failed to bridge')
+        }
+      } catch (error) {
+        setStatus(steps.bridge)
+        setShowButton(true)
+        console.error(error)
+      } finally {
+        setIsWorking(false)
+      }
+    },
+    [
+      amount,
+      fromChainId,
+      isNativeBridge,
+      sendTx,
+      setStatus,
+      toChainId,
+      token?.address,
+      transactionData,
+    ],
+  )
+
+  useEffect(() => {
+    if (bridgeStatus === 'pending' && !isWorking) {
+      runBridge()
     }
+  }, [bridgeStatus, isWorking, runBridge])
+
+  const handleBridge = async (e?: React.MouseEvent<HTMLButtonElement>) => {
+    if (e) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
+    setStatus(steps.bridging)
+    await runBridge()
   }
 
   return (
-    <Wrapper disabled={isWorking || disabled} onClick={handleBridge} {...restProps}>
-      {isWorking ? 'Bridging' : 'Bridge'}
-    </Wrapper>
+    <StatusDetails
+      description={bridgeStatus === 'pending' ? statuses.bridge.pending.title : ''}
+      statusIcon={statuses.bridge[bridgeStatus].statusIcon as Status}
+      title="3. Bridge USDC to Ethereum"
+      transactionStatus="Bridge"
+    >
+      {showButton && (
+        <Wrapper disabled={isWorking || disabled} onClick={handleBridge} {...restProps}>
+          {isWorking ? 'Bridging' : 'Bridge'}
+        </Wrapper>
+      )}
+    </StatusDetails>
   )
 }
