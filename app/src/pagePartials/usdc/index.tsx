@@ -16,7 +16,7 @@ import { UserBalance } from './UserBalance'
 import { TransSummary } from './TransSummary'
 import { toBN } from '@/src/utils/bigNumber'
 import { MainCard } from '@/src/components/card/MainCard'
-import { usdcTokens } from './const'
+import { usdcTokens } from '@/src/constants/usdcTokens'
 
 const Title = styled.h2`
   align-items: center;

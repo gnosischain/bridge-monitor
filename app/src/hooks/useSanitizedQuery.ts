@@ -1,8 +1,8 @@
 import { Token, TokensByNetwork } from '@/types/token'
 import { ParsedUrlQuery } from 'querystring'
-import { Chains, ChainsValues } from '../constants/config/types'
-import { isSameString } from '../utils/tools'
-import { usdcTokens } from '../pagePartials/usdc/const'
+import { Chains, ChainsValues } from '@/src/constants/config/types'
+import { isSameString } from '@/src/utils/tools'
+import { usdcTokens } from '@/src/constants/usdcTokens'
 import { useMemo } from 'react'
 import { useRouter } from 'next/router'
 

@@ -31,4 +31,18 @@ export const usdcTokens: Record<string, Token> = {
       },
     },
   },
+  usdcMainnet: {
+    address: USDC_ETHEREUM,
+    chainId: Chains.mainnet,
+    decimals: 6,
+    extensions: {
+      bridgeInfo: {
+        1: { tokenAddress: USDC_ETHEREUM },
+        100: { tokenAddress: USDC_XDAI_OLD },
+      },
+    },
+    name: 'USDC',
+    symbol: 'USDC',
+    logoURI: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694',
+  },
 }
