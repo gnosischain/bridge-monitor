@@ -3,6 +3,14 @@ import { SCLink, SCText, SCTitle, Wrapper } from '@/src/components/card/SidebarC
 export const ExternalLinks: React.FC = ({ ...restProps }) => {
   const links = [
     {
+      name: 'stargate.finance',
+      url: 'https://stargate.finance/bridge',
+    },
+    {
+      name: 'relay.link',
+      url: 'https://relay.link/bridge/gnosis',
+    },
+    {
       name: 'debridge.finance',
       url: 'https://app.debridge.finance/',
     },
@@ -22,24 +30,14 @@ export const ExternalLinks: React.FC = ({ ...restProps }) => {
       name: 'symbiosis.finance',
       url: 'https://app.symbiosis.finance/swap',
     },
-    {
-      name: 'relay.link',
-      url: 'https://relay.link/bridge/gnosis',
-    },
   ]
 
   return (
     <Wrapper {...restProps}>
       <SCTitle>Coming from another chain?</SCTitle>
       <SCText>You might be interested in trying:</SCText>
-      {links.map((link, index) => (
-        <SCLink
-          href={link.url}
-          key={link.name}
-          rel="noopener noreferrer"
-          style={{ fontWeight: index === 0 ? '700' : '' }}
-          target="_blank"
-        >
+      {links.map((link) => (
+        <SCLink href={link.url} key={link.name} rel="noopener noreferrer" target="_blank">
           {link.name}
         </SCLink>
       ))}
