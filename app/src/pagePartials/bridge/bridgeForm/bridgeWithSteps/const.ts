@@ -72,7 +72,7 @@ export const statuses = {
     },
     done: {
       title: 'Bridging is initiated',
-      text: '3. Bridge',
+      text: '3. Bridge started',
       statusIcon: 'success',
     },
   },

@@ -8,9 +8,9 @@ import router from 'next/router'
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { Step, statuses, steps } from './const'
-import { USDC_ETHEREUM, USDC_XDAI_OLD } from '@/src/constants/misc'
 import { StatusDetails } from './StatusDetails'
 import { Status } from './IconStatus'
+import { usdcTokens } from '@/src/constants/usdcTokens'
 
 const Wrapper = styled.button`
   align-items: center;
@@ -46,22 +46,6 @@ const Wrapper = styled.button`
   }
 `
 
-const USDC_GC_BRIDGED = {
-  chainId: 100,
-  address: USDC_XDAI_OLD,
-  decimals: 6,
-  logoURI: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694',
-  name: 'USDC on xDai',
-  symbol: 'USDC',
-  extensions: {
-    bridgeInfo: {
-      '1': {
-        tokenAddress: USDC_ETHEREUM,
-      },
-    },
-  },
-}
-
 type BridgeProps = {
   amount: BigNumber
   bridgeStatus: Step
@@ -96,7 +80,7 @@ const BridgeActive: React.FC<BridgeProps> = ({
     toChainId,
     amount,
     recipient,
-    token: USDC_GC_BRIDGED,
+    token: usdcTokens.usdcXdaiOld,
   })
 
   const runBridge = useMemo(
@@ -158,8 +142,8 @@ const BridgeActive: React.FC<BridgeProps> = ({
     <StatusDetails
       description={bridgeStatus === 'pending' ? statuses.bridge.pending.title : ''}
       statusIcon={statuses.bridge[bridgeStatus].statusIcon as Status}
-      title="3. Bridge USDC to Ethereum"
-      transactionStatus="Bridge"
+      title="Bridge USDC to Ethereum"
+      transactionStatus={statuses.bridge[bridgeStatus].text}
     >
       {showButton && (
         <Wrapper disabled={isWorking || disabled} onClick={handleBridge} {...restProps}>
