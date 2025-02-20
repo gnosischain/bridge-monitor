@@ -7,7 +7,7 @@ import { useTokenMode } from '@/src/hooks/bridge/useTokenMode'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { ChainsValues } from '@/src/constants/config/types'
 import useBridgeLimits from '@/src/hooks/bridge/useBridgeLimits'
-import { ZERO_BN } from '@/src/constants/misc'
+import { USDCe_GNOSIS, ZERO_BN } from '@/src/constants/misc'
 import { formatNumber } from '@/src/utils/format'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
@@ -83,7 +83,8 @@ export const useBridgeValidations = ({
   const isCustomERC20Home =
     fromChainId === 100 &&
     tokenMode === 'ERC20' &&
-    fromToken.address !== NATIVE_TOKEN_ADDRESS.toLowerCase()
+    fromToken.address !== NATIVE_TOKEN_ADDRESS.toLowerCase() &&
+    fromToken.address !== USDCe_GNOSIS
 
   const errorMessage = useMemo(() => {
     try {

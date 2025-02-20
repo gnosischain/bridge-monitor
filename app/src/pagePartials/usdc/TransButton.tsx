@@ -14,7 +14,7 @@ import { isValidDomainName } from '@/src/utils/isValidDomainName'
 import { TokenUsdc } from './types'
 import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { useTransmuterTxInfo } from '@/src/hooks/usdcTransmuter/useTransmuterTxInfo'
-import { usdcTokens } from './const'
+import { usdcTokens } from '@/src/constants/usdcTokens'
 import useSWR from 'swr'
 
 const Button = styled(ButtonFull)`

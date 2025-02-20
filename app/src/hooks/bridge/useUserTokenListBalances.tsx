@@ -1,8 +1,17 @@
 import useSWR from 'swr'
-import { type BalanceItem, type ChainID, CovalentClient } from '@covalenthq/client-sdk'
 import { BigNumber } from 'ethers'
 
-const COVALENT_API_KEY = process.env.NEXT_PUBLIC_COVALENT_API_KEY || ''
+const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || ''
+
+const apiUrl: Record<string, string> = {
+  '1': `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+  '100': `https://gnosis-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+}
+
+const headers = {
+  Accept: 'application/json',
+  'Content-Type': 'application/json',
+}
 
 export const useUserTokenListBalances = ({
   chainId,
@@ -13,28 +22,41 @@ export const useUserTokenListBalances = ({
 }) => {
   return useSWR(userAddress ? ['tokenUserBalances', userAddress, chainId] : null, async () => {
     try {
-      if (!userAddress || !COVALENT_API_KEY) return {} as Record<string, BigNumber>
+      if (!userAddress || !ALCHEMY_API_KEY) return {} as Record<string, BigNumber>
 
-      const client = new CovalentClient(COVALENT_API_KEY)
-      const resp = await client.BalanceService.getTokenBalancesForWalletAddress(
-        chainId as ChainID,
-        userAddress,
-      )
+      const body = JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'alchemy_getTokenBalances',
+        params: [userAddress, 'erc20'],
+        id: 1,
+      })
 
-      if (resp.error) {
-        console.log(resp.error_message)
-        throw new Error(resp.error_message)
+      const response = await fetch(apiUrl[String(chainId)], {
+        method: 'POST',
+        headers,
+        body,
+      })
+
+      if (!response.ok) {
+        throw new Error(`Network error: ${response.status}`)
       }
 
-      const balances = resp.data.items.reduce<Record<string, BigNumber>>(
-        (acc, item: BalanceItem) => {
-          const balance = BigNumber.from(item.balance)
-          if (balance.eq(0)) return acc
-          acc[item.contract_address] = BigNumber.from(item.balance)
-          return acc
-        },
-        {},
-      )
+      const data = await response.json()
+
+      if (data.error) {
+        console.error('Alchemy API error:', data.error.message)
+        throw new Error(data.error.message)
+      }
+
+      const tokenBalances = data.result.tokenBalances
+      const balances: Record<string, BigNumber> = {}
+
+      tokenBalances.forEach((token: { contractAddress: string; tokenBalance: string }) => {
+        const balance = BigNumber.from(token.tokenBalance)
+        if (!balance.isZero()) {
+          balances[token.contractAddress] = balance
+        }
+      })
 
       return balances
     } catch (error) {
