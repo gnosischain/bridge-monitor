@@ -57,7 +57,6 @@ export const BridgeSummary: React.FC<{
       userAddress,
     })
 
-    // return <div>BridgeSummary</div>
     return errorMessage ? (
       <AlertMessage text={errorMessage} />
     ) : (
