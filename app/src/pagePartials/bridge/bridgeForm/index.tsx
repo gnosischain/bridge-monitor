@@ -1,17 +1,13 @@
-import { useReducer } from 'react'
+import { useEffect, useReducer } from 'react'
 import styled from 'styled-components'
 import { AmountTokenInput } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
-import {
-  BridgeButton,
-  ButtonPlaceholder,
-  DisabledBridgeButton,
-} from '@/src/pagePartials/bridge/bridgeForm/BridgeButton'
+import { ButtonPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/button/ButtonPlaceholder'
 import { RecipientAddress } from '@/src/pagePartials/bridge/bridgeForm/RecipientAddress'
 import { CardPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/CardPlaceholder'
 import { Chains } from '@/src/constants/config/types'
 import { Header } from '@/src/pagePartials/bridge/bridgeForm/Header'
 import { InnerCard } from '@/src/pagePartials/bridge/bridgeForm/InnerCard'
-import { ButtonUnwrapFirst, UnwrapFirst } from '@/src/pagePartials/bridge/bridgeForm/UnwrapFirst'
+import { UnwrapFirst } from '@/src/pagePartials/bridge/bridgeForm/warnings/UnwrapFirst'
 import { Switch } from '@/src/pagePartials/bridge/bridgeForm/Switch'
 import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
 import { Token } from '@/types/token'
@@ -42,9 +38,15 @@ import { BridgeSummary } from '@/src/pagePartials/bridge/bridgeForm/BridgeSummar
 import { ReceivedTokenInfo } from '@/src/pagePartials/bridge/bridgeForm/ReceivedTokenInfo'
 import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
 import { toBN } from '@/src/utils/bigNumber'
-import { NotBridgedERC20Warning } from './NotBridgedERC20Warning'
-import { ExternalBridgeWarning } from './ExternalBridgeWarning'
-import { UsdcEGcWarning, UsdcEthWarning } from './UsdcWarnings'
+import { NotBridgedERC20Warning } from './warnings/NotBridgedERC20Warning'
+import { ExternalBridgeWarning } from './warnings/ExternalBridgeWarning'
+import {
+  UsdcEGcWarning,
+  UsdcEthWarning,
+} from '@/src/pagePartials/bridge/bridgeForm/warnings/UsdcWarnings'
+import { UnifiedBridgeButton } from './button/UnifiedBridgeButton'
+import { useRouter } from 'next/router'
+import { useSanitizedQuery } from '@/src/hooks/useSanitizedQuery'
 
 const Title = styled.h2`
   align-items: center;
@@ -152,8 +154,12 @@ const initialState: BridgeFormState = {
 }
 
 const Main = () => {
+  const router = useRouter()
   const { address, walletChainId } = useWeb3Connection()
   const { tokensByNetwork } = useBridgedTokens()
+
+  const sanitizedQuery = useSanitizedQuery(tokensByNetwork)
+
   const [formState, dispatch] = useReducer(
     (data: BridgeFormState, partial: Partial<BridgeFormState>): BridgeFormState => ({
       ...data,
@@ -162,8 +168,28 @@ const Main = () => {
     {
       ...initialState,
       account: address || ZERO_ADDRESS,
+      ...sanitizedQuery,
     },
   )
+
+  useEffect(() => {
+    const currentQuery = {
+      fromChainId: formState.fromChainId.toString(),
+      token: formState.token?.address || '',
+      amount: formState.amount,
+    }
+
+    const hasQueryChanged = Object.entries(currentQuery).some(
+      ([key, value]) => router.query[key] !== value,
+    )
+
+    if (hasQueryChanged) {
+      router.replace({ pathname: router.pathname, query: currentQuery }, undefined, {
+        shallow: true,
+      })
+    }
+  }, [formState.amount, formState.fromChainId, formState.token?.address, router])
+
   const [debouncedAmount] = useDebounce(formState.amount, 500)
 
   const amountBN = toBN(debouncedAmount || '0', formState.token?.decimals || 0)
@@ -179,6 +205,10 @@ const Main = () => {
       isSameString(formState.token?.address, chainsConfig[Chains.mainnet].bridge.DAI)
     ) {
       otherSideToken = NATIVE_TOKEN_ADDRESS
+    }
+
+    if (isSameString(formState.token?.address, USDCe_GNOSIS)) {
+      otherSideToken = USDC_ETHEREUM
     }
 
     const token = tokensByNetwork[formState.toChainId].find((token) =>
@@ -263,15 +293,15 @@ const Main = () => {
               <Title>Transfer to</Title>
               {isUsdcEth && <UsdcEthWarning />}
               {isUsdceGC && <UsdcEGcWarning />}
-              {unwrapFirst && <UnwrapFirst />}
+              {unwrapFirst && <UnwrapFirst symbol={formState.token?.symbol} />}
               {sendToExternalBridge && formState.token && (
                 <ExternalBridgeWarning token={formState.token} />
               )}
-              {isNotBridgedErc20 && !unwrapFirst && !isUsdceGC && !sendToExternalBridge && (
+              {isNotBridgedErc20 && !unwrapFirst && !sendToExternalBridge && (
                 <NotBridgedERC20Warning />
               )}
 
-              {!unwrapFirst && !sendToExternalBridge && !isNotBridgedErc20 && !isUsdceGC && (
+              {!unwrapFirst && !sendToExternalBridge && !isNotBridgedErc20 && (
                 <>
                   <OnChainInfo>
                     <Chain chainId={formState.toChainId} />
@@ -319,28 +349,18 @@ const Main = () => {
                 />
               )}
           </FormCards>
-          {unwrapFirst ? (
-            <ButtonUnwrapFirst symbol={formState.token?.symbol} />
-          ) : !formState.token ||
-            !address ||
-            amountBN.eq(0) ||
-            sendToExternalBridge ||
-            isNotBridgedErc20 ? (
-            <DisabledBridgeButton />
-          ) : (
-            <SafeSuspense fallback={<ButtonPlaceholder />}>
-              <BridgeButton
-                amount={amountBN}
-                fromChainId={formState.fromChainId}
-                fromToken={formState.token}
-                receiveNativeToken={formState.receiveNativeToken}
-                recipient={formState.recipient}
-                toChainId={formState.toChainId}
-                toToken={tokenOut}
-                userAddress={address}
-              />
-            </SafeSuspense>
-          )}
+          <UnifiedBridgeButton
+            amount={amountBN}
+            fromChainId={formState.fromChainId}
+            fromToken={formState.token}
+            isUsdceGC={isUsdceGC}
+            receiveNativeToken={formState.receiveNativeToken}
+            recipient={formState.recipient}
+            sendToExternalBridge={sendToExternalBridge}
+            toChainId={formState.toChainId}
+            toToken={tokenOut}
+            userAddress={address}
+          />
         </Form>
       </FormWrapper>
     </Wrapper>

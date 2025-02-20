@@ -51,6 +51,16 @@ export const FAQContents: React.FC = () => {
         If you are not coming from Ethereum, you can use one of the following bridges:
         <ul>
           <li>
+            <a href="https://stargate.finance/bridge" rel="noreferrer" target="_blank">
+              Stargate
+            </a>
+          </li>
+          <li>
+            <a href="https://relay.link/bridge/gnosis" rel="noreferrer" target="_blank">
+              Relay
+            </a>
+          </li>
+          <li>
             <a href="https://jumper.exchange/" rel="noreferrer" target="_blank">
               Jumper
             </a>{' '}
@@ -73,12 +83,17 @@ export const FAQContents: React.FC = () => {
           </li>
           <li>
             <a href="https://app.debridge.finance/" rel="noreferrer" target="_blank">
-              debridge
+              deBridge
             </a>
           </li>
           <li>
             <a href="https://app.shapeshift.com/#/trade" rel="noreferrer" target="_blank">
-              shapeshift.com
+              ShapeShift.com
+            </a>
+          </li>
+          <li>
+            <a href="https://app.symbiosis.finance/swap" rel="noreferrer" target="_blank">
+              Symbiosis
             </a>
           </li>
         </ul>

@@ -2,7 +2,6 @@ import styled from 'styled-components'
 
 import { Warning } from '@/src/components/assets/Warning'
 import React from 'react'
-import { ButtonFull } from '@/src/components/buttons/Button'
 
 const Contents = styled.div`
   display: flex;
@@ -20,37 +19,25 @@ const Text = styled.span`
   line-height: 1.4;
 `
 
-const Button = styled(ButtonFull)`
-  cursor: pointer;
+const ExternalLink = styled.a`
+  color: ${({ theme: { colors } }) => colors.textColor};
 `
 
-export const UnwrapFirst: React.FC = () => {
+export const UnwrapFirst: React.FC<{ symbol: string | undefined }> = ({ symbol }) => {
+  const bridgeLink = `https://swap.cow.fi/#/100/swap/${symbol}/xDAI`
   return (
     <>
       <Contents>
         <Warning />
         <Text>
           <b>wxDAI</b> and <b>sDAI</b> need to be unwrapped to xDAI first before bridging to
-          Ethereum. You can swap your tokens using the button below.
+          Ethereum.
+          <br /> You can swap your tokens to xDAI on CoW Swap:{' '}
+          <ExternalLink href={bridgeLink} rel="noreferrer" target="_blank">
+            {bridgeLink}
+          </ExternalLink>{' '}
         </Text>
       </Contents>
     </>
-  )
-}
-
-export const ButtonUnwrapFirst: React.FC<{ symbol: string | undefined }> = ({
-  symbol,
-  ...restProps
-}) => {
-  return (
-    <Button
-      as="a"
-      href={`https://swap.cow.fi/#/100/swap/${symbol}/xDAI`}
-      rel="noreferrer"
-      target="_blank"
-      {...restProps}
-    >
-      Swap {symbol}
-    </Button>
   )
 }

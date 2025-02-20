@@ -99,10 +99,14 @@ export const RecipientAddress: React.FC<{
           },
         }
 
-    // hack, couldn't trigger suspense above
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 2000)
+    useEffect(() => {
+      // hack, couldn't trigger suspense above
+      const timer = setTimeout(() => {
+        setIsLoading(false)
+      }, 2000)
+
+      return () => clearTimeout(timer)
+    }, [])
 
     return (
       <Wrapper>
