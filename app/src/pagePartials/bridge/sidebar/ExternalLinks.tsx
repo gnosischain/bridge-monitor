@@ -30,6 +30,10 @@ export const ExternalLinks: React.FC = ({ ...restProps }) => {
       name: 'symbiosis.finance',
       url: 'https://app.symbiosis.finance/swap',
     },
+    {
+      name: 'swaps.io',
+      url: 'https://swaps.io/',
+    },
   ]
 
   return (

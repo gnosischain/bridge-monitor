@@ -96,6 +96,11 @@ export const FAQContents: React.FC = () => {
               Symbiosis
             </a>
           </li>
+          <li>
+            <a href="https://swaps.io/" rel="noreferrer" target="_blank">
+              Swaps.io
+            </a>
+          </li>
         </ul>
       </Paragraph>
       <EmphasizedTitle id="q_1d">How do I bridge from Gnosis to Ethereum?</EmphasizedTitle>
