@@ -47,7 +47,7 @@ import {
 import { UnifiedBridgeButton } from './button/UnifiedBridgeButton'
 import { useRouter } from 'next/router'
 import { useSanitizedQuery } from '@/src/hooks/useSanitizedQuery'
-import { isBlockedToken } from '@/src/utils/blocked-tokens'
+import { isBlockedToken } from '@/src/utils/blockedTokens'
 
 const Title = styled.h2`
   align-items: center;
