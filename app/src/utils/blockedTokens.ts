@@ -90,18 +90,18 @@ const blockedTokens: Record<string, BlockedToken> = {
   //   mediator: '0xe964a36142bbe39751d0b4d6140fc0b8c48e68be',
   //   mode: 'ERC677',
   // },
-  // UDT -> gnosis
-  '0x8c84142c4a716a16a89d0e61707164d6107a9811': {
-    tokenOutAddress: '0x90de74265a416e1393a450752175aed98fe11517',
-    mediator: '0x5f0fe58709639a39c193521d919afaef02e570f7',
-    mode: 'ERC677',
-  },
-  // UDT -> mainnet
-  '0x90de74265a416e1393a450752175aed98fe11517': {
-    tokenOutAddress: '0x8c84142c4a716a16a89d0e61707164d6107a9811',
-    mediator: '0x41a4ee2855a7dc328524babb07d7f505b201133e',
-    mode: 'D-ERC20',
-  },
+  // // UDT -> gnosis
+  // '0x8c84142c4a716a16a89d0e61707164d6107a9811': {
+  //   tokenOutAddress: '0x90de74265a416e1393a450752175aed98fe11517',
+  //   mediator: '0x5f0fe58709639a39c193521d919afaef02e570f7',
+  //   mode: 'ERC677',
+  // },
+  // // UDT -> mainnet
+  // '0x90de74265a416e1393a450752175aed98fe11517': {
+  //   tokenOutAddress: '0x8c84142c4a716a16a89d0e61707164d6107a9811',
+  //   mediator: '0x41a4ee2855a7dc328524babb07d7f505b201133e',
+  //   mode: 'D-ERC20',
+  // },
 }
 
 export const isBlockedToken = (address: string): boolean => {
