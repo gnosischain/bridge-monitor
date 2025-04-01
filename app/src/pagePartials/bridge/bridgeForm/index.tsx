@@ -47,6 +47,7 @@ import {
 import { UnifiedBridgeButton } from './button/UnifiedBridgeButton'
 import { useRouter } from 'next/router'
 import { useSanitizedQuery } from '@/src/hooks/useSanitizedQuery'
+import { isBlockedToken } from '@/src/utils/blocked-tokens'
 
 const Title = styled.h2`
   align-items: center;
@@ -247,12 +248,13 @@ const Main = () => {
   })
 
   const isNotBridgedErc20 =
-    tokenOut?.chainId === 1 && tokenOut.extensions.bridgeInfo[1]?.tokenAddress === ZERO_ADDRESS
+    (tokenOut?.chainId === 1 && tokenOut.extensions.bridgeInfo[1]?.tokenAddress === ZERO_ADDRESS) ||
+    isBlockedToken(formState.token?.address || '')
       ? true
       : false
 
-  // console.log('tokenIn', formState.token)
-  // console.log('tokenOut', tokenOut)
+  console.log('tokenIn', formState.token)
+  console.log('tokenOut', tokenOut)
 
   return (
     <Wrapper>
