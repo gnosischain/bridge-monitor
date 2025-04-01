@@ -1,7 +1,7 @@
 import useSWR from 'swr'
 import { createWeb3Name } from '@web3-name-sdk/core'
 
-const web3name = createWeb3Name()
+const web3name = createWeb3Name({ rpcUrl: process.env.NEXT_PUBLIC_RPC_MAINNET })
 
 interface UseWeb3NameProps {
   address?: string
