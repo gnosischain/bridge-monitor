@@ -1,21 +1,12 @@
 import { HTMLAttributes } from 'react'
 import styled from 'styled-components'
 
-// const Wrapper = styled.svg`
-//   display: block;
-//   flex-shrink: 0;
-
-//   .fill {
-//     fill: ${({ theme: { colors } }) => colors.error};
-//   }
-// `
-
 const Wrapper = styled.svg`
   display: block;
   flex-shrink: 0;
 
   .fill {
-    fill: #ff0000;
+    fill: ${({ theme: { colors } }) => colors.error};
   }
 `
 
