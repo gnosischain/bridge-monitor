@@ -20,6 +20,6 @@ export const StatusColors = {
     ${({ theme: { colors } }) => colors.darkSecondary};
   `,
   DEFAULT: css`
-    ${({ theme: { colors } }) => colors.darkerGray};
+    ${({ theme: { colors } }) => colors.darkerGrey};
   `,
 }

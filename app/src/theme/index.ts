@@ -63,6 +63,7 @@ export const theme = {
     secondary: color_016,
     success: color_017,
     textColor: color_002,
+    titleColor: color_002,
     warning: color_018,
     white: color_004,
     white_50: color_028,
@@ -81,6 +82,7 @@ export const theme = {
     family: `'Karla', 'Helvetica Neue', 'Arial', 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'`,
     familyCode: `'JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', 'Courier New', 'monospace'`,
     familyHeading: `'Lora', 'Times New Roman', Times, serif, 'Georgia', 'Garamond', 'Cambria', 'PT Serif', 'Merriweather', 'Book Antiqua', Palatino, 'Palatino Linotype', 'American Typewriter', 'serif'`,
+    fontFamily: `'Karla', 'Helvetica Neue', 'Arial', 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'`,
   },
   checkBox: {
     dimensions: radioAndCheckDimensions,
