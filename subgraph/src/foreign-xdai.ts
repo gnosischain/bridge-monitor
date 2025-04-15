@@ -1,11 +1,11 @@
-import { Address, Bytes, dataSource, log } from "@graphprotocol/graph-ts";
-import { RelayedMessage } from "../generated/ForeignBridgeErcToNative/ForeignBridgeErcToNative";
+import { Address, BigInt, Bytes, dataSource, log } from "@graphprotocol/graph-ts";
+import { RelayedMessage, UserRequestForAffirmation } from "../generated/ForeignBridgeErcToNative/ForeignBridgeErcToNative";
 import { XDAITransaction, TransactionExecution } from "../generated/schema";
 import { Transfer } from "../generated/DAI/DAI";
 import { FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS } from "./config/addresses";
 // import { processUserRequestForAffirmation } from "./utils/xdai-bridge";
 import { DAI_ADDRESS, isSameString } from "./utils/misc";
-import { combineNonceAndChainId, USER_REQUEST_FOR_AFFIRMATION_TOPIC, USER_REQUEST_FOR_AFFIRMATION_TOPIC_WITH_NONCE } from "./utils/xdai-bridge";
+import { combineNonceAndChainId, processUserRequestForAffirmation, USER_REQUEST_FOR_AFFIRMATION_TOPIC, USER_REQUEST_FOR_AFFIRMATION_TOPIC_WITH_NONCE } from "./utils/xdai-bridge";
 
 //-------------------------
 // Foreign > Home
@@ -34,50 +34,12 @@ export function handlerTransfer(event: Transfer): void {
     return;
   }
 
-  // Determine the transaction ID based on the logs
-  let transactionId = txHash.toHexString();
-  let messageId = Bytes.empty();
-  let hasMessageId = false;
-
-  let receiver = Address.zero();
-  let hasReceiver = false;
-
-  if (receipt != null) {
-    // Check for logs with USER_REQUEST_FOR_AFFIRMATION_TOPIC_WITH_NONCE
-    const logsWithNonce = receipt.logs.filter((_log) =>
-      _log.topics.includes(USER_REQUEST_FOR_AFFIRMATION_TOPIC_WITH_NONCE)
-    );
-
-    // Check for logs with USER_REQUEST_FOR_AFFIRMATION_TOPIC
-    const logsWithoutNonce = receipt.logs.filter((_log) =>
-      _log.topics.includes(USER_REQUEST_FOR_AFFIRMATION_TOPIC)
-    );
-
-    // If we have logs with nonce, use the nonce as the transaction ID
-    if (logsWithNonce.length > 0) {
-      const _affirmationEvent = logsWithNonce[0];
-      // Extract nonce from the event data
-      const nonce = Bytes.fromHexString(`0x${_affirmationEvent.data.toHexString().slice(2, 66)}`);
-      const nonceAndChainId = combineNonceAndChainId(nonce, 1);
-      transactionId = nonceAndChainId.toHexString(); 
-      messageId = nonceAndChainId;
-      hasMessageId = true;
-      receiver = Address.fromBytes(Bytes.fromHexString(
-        `0x${_affirmationEvent.data.toHexString().slice(66, 106)}`
-      ));
-      hasReceiver = true;
-    } 
-    // If we have logs without nonce, use the transaction hash as the ID
-    else if (logsWithoutNonce.length > 0) {
-      const _affirmationEvent = logsWithoutNonce[0];
-      receiver = Address.fromBytes(Bytes.fromHexString(
-        `0x${_affirmationEvent.data.toHexString().slice(26, 66)}`
-      ));
-    }
+  // discard events after bridge updated to use nonce
+  if (event.block.number >= new BigInt(22273407)) {
+    return;
   }
 
-  // Create the transaction with the determined ID
-  let transaction = new XDAITransaction(transactionId);
+  let transaction = new XDAITransaction(txHash.toHexString());
   transaction.transactionHash = txHash;
   transaction.bridgeName = "XDAI";
   transaction.transactionStatus = "INITIATED";
@@ -88,23 +50,71 @@ export function handlerTransfer(event: Transfer): void {
   transaction.initiatorAmount = value;
   transaction.initiatorNetwork = dataSource.network();
 
-  // Set the receiver if it was determined from the logs
-  if (hasReceiver) {
-    transaction.receiver = receiver;
-  } else {
-    // If no receiver was determined, assume it's the same as the sender
+  processUserRequestForAffirmation(transaction, receipt);
+  // if processUserRequestForAffirmation hasn't set receiver address
+  // we can be sure it was a transfer directly to the xDAI bridge contract
+  // when that happens, userRequestForAffirmation event is not emitted
+  // for this case, we can assume the receiver is the same as the sender
+  // here are examples of both cases:
+  // https://etherscan.io/tx/0x1445acd5d72025e5cf824edbb3d036e1e8adf5340acbe9940551a095ae8af575#eventlog
+  // https://etherscan.io/tx/0xc718b857fa518056264d7fab70d3a6eb8634fd76eb3d54e60c5a1ff873f1b0a4#eventlog
+  if (!transaction.receiver) {
     transaction.receiver = sender;
   }
-
-  // Set the messageId if it was determined from the logs
-  if (hasMessageId) {
-    transaction.messageId = messageId;
-  }
-
   transaction.receiverAmount = value;
   transaction.receiverNetwork = "gnosis";
   transaction.receiverToken = Address.zero();
 
+  transaction.save();
+}
+
+const TRANSFER_TOPIC = Bytes.fromHexString("0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"); // keccak256("Transfer(address,address,uint256)")
+
+export function handlerUserRequestForAffirmationWithNonce(event: UserRequestForAffirmation): void {
+  const txHash = event.transaction.hash;
+  let sender = Address.zero();
+  const value = event.params.value;
+  const nonce = event.params.nonce;
+  const recipient = event.params.recipient;
+
+  // discard events after bridge updated to use nonce
+  if (event.block.number < new BigInt(22273407)) {
+    return;
+  }
+
+  const nonceWithChainId = combineNonceAndChainId(nonce, 1);
+
+  let receipt = event.receipt;
+  if (receipt != null) {
+    for (let i = 0; i < receipt.logs.length; i++) {
+      let log = receipt.logs[i];
+      if (log.topics.length > 0 && log.topics[0].equals(TRANSFER_TOPIC)) {
+        // topics[1] is the 'src' (sender) address, as a Bytes32
+        let srcBytes = log.topics[1];
+        // Take the last 20 bytes for the address
+        sender = Address.fromBytes(Bytes.fromUint8Array(srcBytes.subarray(12, 32)));
+        break;
+      }
+    }
+  }
+
+  let transaction = new XDAITransaction(nonceWithChainId.toHexString());
+  transaction.initiator = sender;
+  transaction.initiatorToken = Address.fromHexString(DAI_ADDRESS);
+  transaction.initiatorAmount = value;
+  transaction.initiatorNetwork = "mainnet";
+
+  transaction.messageId = nonceWithChainId;
+
+  transaction.transactionHash = txHash;
+  transaction.bridgeName = "XDAI";
+  transaction.transactionStatus = "INITIATED";
+  transaction.timestamp = event.block.timestamp;
+  transaction.receiver = recipient;
+  transaction.receiverAmount = value;
+  transaction.receiverNetwork = "gnosis";
+  transaction.receiverToken = Address.zero();
+  transaction.nonce = nonce;
   transaction.save();
 }
 
@@ -114,29 +124,60 @@ export function handlerTransfer(event: Transfer): void {
 // This event is triggered when the user receives the funds on the foreign chain.
 // Note that the bridging operation was initiated in home.
 export function handlerRelayedMessage(event: RelayedMessage): void {
-  const txHash = event.params.transactionHash.toHexString();
-  const timestamp = event.block.timestamp;
+  if (event.block.number < new BigInt(22273407)) {
+    const txHash = event.params.transactionHash.toHexString();
+    const timestamp = event.block.timestamp;
 
-  let execution = new TransactionExecution(txHash);
-  execution.transaction = txHash;
-  execution.transactionHash = event.transaction.hash;
-  execution.timestamp = timestamp;
-  execution.save();
+    let execution = new TransactionExecution(txHash);
+    execution.transaction = txHash;
+    execution.transactionHash = event.transaction.hash;
+    execution.timestamp = timestamp;
+    execution.save();
 
-  let transaction = new XDAITransaction(txHash);
-  transaction.transactionHash = event.params.transactionHash;
-  transaction.bridgeName = "XDAI";
-  transaction.transactionStatus = "COMPLETED";
+    let transaction = new XDAITransaction(txHash);
+    transaction.transactionHash = event.params.transactionHash;
+    transaction.bridgeName = "XDAI";
+    transaction.transactionStatus = "COMPLETED";
 
-  transaction.initiatorNetwork = "gnosis";
-  transaction.initiatorToken = Address.zero();
-  transaction.initiatorAmount = event.params.value;
+    transaction.initiatorNetwork = "gnosis";
+    transaction.initiatorToken = Address.zero();
+    transaction.initiatorAmount = event.params.value;
 
-  transaction.receiver = event.params.recipient;
-  transaction.receiverToken = Address.fromHexString(DAI_ADDRESS);
-  transaction.receiverNetwork = dataSource.network();
-  transaction.receiverAmount = event.params.value;
+    transaction.receiver = event.params.recipient;
+    transaction.receiverToken = Address.fromHexString(DAI_ADDRESS);
+    transaction.receiverNetwork = dataSource.network();
+    transaction.receiverAmount = event.params.value;
 
-  transaction.execution = execution.id;
-  transaction.save();
+    transaction.execution = execution.id;
+    transaction.save();
+  } else {
+    const nonce = event.params.transactionHash;
+    const timestamp = event.block.timestamp;
+
+    const nonceWithChainId = combineNonceAndChainId(nonce, 100);
+    const nonceWithChainIdHex = nonceWithChainId.toHexString();
+
+    let execution = new TransactionExecution(nonceWithChainIdHex);
+    execution.transaction = nonceWithChainIdHex;
+    execution.transactionHash = event.transaction.hash;
+    execution.timestamp = timestamp;
+    execution.save();
+
+    let transaction = new XDAITransaction(nonceWithChainIdHex);
+    transaction.transactionHash = event.params.transactionHash;
+    transaction.bridgeName = "XDAI";
+    transaction.transactionStatus = "COMPLETED";
+
+    transaction.initiatorNetwork = "gnosis";
+    transaction.initiatorToken = Address.zero();
+    transaction.initiatorAmount = event.params.value;
+
+    transaction.receiver = event.params.recipient;
+    transaction.receiverToken = Address.fromHexString(DAI_ADDRESS);
+    transaction.receiverNetwork = dataSource.network();
+    transaction.receiverAmount = event.params.value;
+
+    transaction.execution = execution.id;
+    transaction.save();
+  }
 }

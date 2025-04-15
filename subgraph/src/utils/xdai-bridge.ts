@@ -22,30 +22,12 @@ export function processUserRequestForAffirmation(
     return;
   }
 
-  // Check for logs with USER_REQUEST_FOR_AFFIRMATION_TOPIC_WITH_NONCE
-  const logsWithNonce = receipt.logs.filter((_log) =>
-    _log.topics.includes(USER_REQUEST_FOR_AFFIRMATION_TOPIC_WITH_NONCE)
-  );
-
-  // Check for logs with USER_REQUEST_FOR_AFFIRMATION_TOPIC
-  const logsWithoutNonce = receipt.logs.filter((_log) =>
+  const filteredLogs = receipt.logs.filter((_log) =>
     _log.topics.includes(USER_REQUEST_FOR_AFFIRMATION_TOPIC)
   );
 
-  // If we have logs with nonce, use the nonce as the transaction ID
-  if (logsWithNonce.length > 0) {
-    const _affirmationEvent = logsWithNonce[0];
-    // Extract nonce from the event data
-    const nonce = Bytes.fromHexString(`0x${_affirmationEvent.data.toHexString().slice(2, 66)}`);
-    transaction.id = nonce.toHexString();
-    transaction.messageId = nonce;
-    transaction.receiver = Address.fromHexString(
-      `0x${_affirmationEvent.data.toHexString().slice(66, 106)}`
-    );
-  } 
-  // If we have logs without nonce, use the transaction hash as the ID
-  else if (logsWithoutNonce.length > 0) {
-    const _affirmationEvent = logsWithoutNonce[0];
+  if (filteredLogs.length > 0) {
+    const _affirmationEvent = filteredLogs[0];
     transaction.receiver = Address.fromHexString(
       `0x${_affirmationEvent.data.toHexString().slice(26, 66)}`
     );
