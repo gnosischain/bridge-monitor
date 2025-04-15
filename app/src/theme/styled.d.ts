@@ -52,5 +52,107 @@ declare module 'styled-components' {
       tabletLandscapeStart: string
       tabletPortraitStart: string
     }
+    dropdown: {
+      borderRadius: string
+      background: string
+      borderColor: string
+      boxShadow: string
+      item: {
+        backgroundColor: string
+        backgroundColorHover: string
+        backgroundColorActive: string
+        borderColor: string
+        color: string
+        colorActive: string
+      }
+    }
+    checkBox: {
+      dimensions: string
+      backgroundColorActive: string
+      backgroundColor: string
+      borderColor: string
+    }
+    radioButton: {
+      dimensions: string
+      backgroundColorActive: string
+      backgroundColor: string
+      borderColor: string
+    }
+    header: {
+      backgroundColor: string
+      color: string
+    }
+    layout: {
+      horizontalPaddingDesktopStart: string
+      horizontalPaddingDesktopWideStart: string
+      horizontalPaddingMobile: string
+      horizontalPaddingTabletLandscapeStart: string
+      horizontalPaddingTabletPortraitStart: string
+      maxWidth: string
+    }
+    card: {
+      backgroundColor: string
+      borderColor: string
+      borderRadius: string
+      padding: string
+    }
+    buttonDropdown: {
+      backgroundColor: string
+      backgroundColorHover: string
+      borderColor: string
+      borderColorHover: string
+      color: string
+      colorHover: string
+    }
+    buttonPrimary: {
+      backgroundColor: string
+      backgroundColorHover: string
+      borderColor: string
+      borderColorHover: string
+      color: string
+      colorHover: string
+    }
+    buttonSecondary: {
+      backgroundColor: string
+      backgroundColorHover: string
+      borderColor: string
+      borderColorHover: string
+      color: string
+      colorHover: string
+    }
+    textField: {
+      backgroundColor: string
+      borderColor: string
+      color: string
+      errorColor: string
+      height: string
+      successColor: string
+      active: {
+        backgroundColor: string
+        borderColor: string
+        boxShadow: string
+        color: string
+      }
+      placeholder: {
+        color: string
+      }
+    }
+    mainMenu: {
+      color: string
+    }
+    modal: {
+      overlayColor: string
+    }
+    onBoard: {
+      backgroundColor: string
+      borderColor: string
+      color: string
+      sidebarBackgroundColor: string
+    }
+    toast: {
+      backgroundColor: string
+      borderColor: string
+      boxShadow: string
+    }
   }
 }
