@@ -3,7 +3,7 @@ enum BridgeType {
   AMB
 }
 
-type Validator @entity {
+type Validator @entity(immutable: false) {
   id: ID! # Validator Address
   name: String # See Config folder
   bridgeType: BridgeType # xDai, AMB, Omnibridge
@@ -24,7 +24,7 @@ enum TransactionStatus {
   ERROR
 }
 
-type TransactionValidation @entity {
+type TransactionValidation @entity(immutable: false) {
   id: ID! # tx.id + '-' + validator.id
   transaction: Transaction!
   transactionHash: Bytes
@@ -33,7 +33,7 @@ type TransactionValidation @entity {
   timestamp: BigInt!
 }
 
-type TransactionExecution @entity {
+type TransactionExecution @entity(immutable: false) {
   id: ID! # tx.id + '-' + validator.id
   transaction: Transaction! # Tx hash where the bridge operation ended
   transactionHash: Bytes!
@@ -66,7 +66,7 @@ interface Transaction {
   execution: TransactionExecution # This is the "end" of the bridge operation. It can be seen as the "claim". In Home is executed by the validator when the threshold is reached. In Foreign is executed by the user manually.
 }
 
-type XDAITransaction implements Transaction @entity {
+type XDAITransaction implements Transaction @entity(immutable: false) {
   id: ID! # Transaction Hash
   transactionHash: Bytes
   bridgeName: String
@@ -86,7 +86,7 @@ type XDAITransaction implements Transaction @entity {
   nonce: Bytes # Nonce parameter for UserRequestForSignatureWithNonce events
 }
 
-type AMBTransaction implements Transaction @entity {
+type AMBTransaction implements Transaction @entity(immutable: false) {
   id: ID! # Message ID
   transactionHash: Bytes
   bridgeName: String

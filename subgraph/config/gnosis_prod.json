@@ -3,16 +3,16 @@
   "network": "gnosis",
 
   "HomeBridgeErcToNative": "0x7301CFA0e1756B71869E93d4e4Dca5c7d0eb0AA6",
-  "startBlockHomeBridgeErcToNative": 39568341,
+  "startBlockHomeBridgeErcToNative": 25736050,
 
   "XDAIBridgeValidators": "0xb289f0e6fbdff8eee340498a56e1787b303f1b6d",
-  "startBlockXDAIBridgeValidators": 39568341,
+  "startBlockXDAIBridgeValidators": 25736050,
 
   "AMBBridgeValidators": "0xa280fed8d7cad9a76c8b50ca5c33c2534ffa5008",
-  "startBlockAMBBridgeValidators": 39568341,
+  "startBlockAMBBridgeValidators": 25736050,
 
   "HomeAMB": "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59",
-  "startBlockHomeAMB": 39568341,
+  "startBlockHomeAMB": 25736050,
 
   "validators": [
     {

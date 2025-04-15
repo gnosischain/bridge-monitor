@@ -4,14 +4,14 @@
   "license": "MIT",
   "scripts": {
     "codegen": "./scripts/codegen.sh",
-    "codegen-all": "./scripts/codegen-all.sh",
     "build": "./scripts/build.sh",
     "deploy": "./scripts/deploy.sh",
     "deploy:local": "./scripts/deploy-local.sh",
+    "deploy-test": "./scripts/deploy-test.sh",
     "test": "graph test"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "^0.60.0",
+    "@graphprotocol/graph-cli": "^0.97.0",
     "@graphprotocol/graph-ts": "0.31.0",
     "ejs": "^3.1.10"
   },

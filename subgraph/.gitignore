@@ -15,3 +15,7 @@ src/config/*.ts
 
 # npm
 node_modules
+
+subgraph_eth.yaml
+subgraph_gc.yaml
+deploy-test.sh

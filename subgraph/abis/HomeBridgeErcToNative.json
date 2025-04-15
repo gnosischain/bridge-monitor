@@ -44,7 +44,7 @@
     "inputs": [
       { "indexed": false, "name": "recipient", "type": "address" },
       { "indexed": false, "name": "value", "type": "uint256" },
-      { "indexed": false, "name": "transactionHash", "type": "bytes32" }
+      { "indexed": false, "name": "nonce", "type": "bytes32" }
     ],
     "name": "AffirmationCompleted",
     "type": "event"
@@ -62,7 +62,7 @@
     "anonymous": false,
     "inputs": [
       { "indexed": true, "name": "signer", "type": "address" },
-      { "indexed": false, "name": "transactionHash", "type": "bytes32" }
+      { "indexed": false, "name": "nonce", "type": "bytes32" }
     ],
     "name": "SignedForAffirmation",
     "type": "event"

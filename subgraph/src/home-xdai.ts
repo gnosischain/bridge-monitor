@@ -1,4 +1,4 @@
-import { log, Address } from "@graphprotocol/graph-ts";
+import { log, Address, Bytes, BigInt } from "@graphprotocol/graph-ts";
 import {
   AffirmationCompleted,
   CollectedSignatures,
@@ -15,7 +15,8 @@ import {
   XDAITransaction,
 } from "../generated/schema";
 import {
-  getHomeTxHashFromMessageMethod,
+  combineNonceAndChainId,
+  getHomeNonceOrTxHashFromMessageMethod,
   xDAISignedForAffirmationData,
 } from "./utils/xdai-bridge";
 import { BRIDGE_XDAI, DAI_ADDRESS, loadValidator } from "./utils/misc";
@@ -58,13 +59,15 @@ export function handlerUserRequestForSignatureWithNonce(
   const txValue = event.params.value;
   const nonce = event.params.nonce;
 
-  let transaction = new XDAITransaction(nonce.toHexString());
+  const nonceAndChainId = combineNonceAndChainId(nonce, 100);
+
+  let transaction = new XDAITransaction(nonceAndChainId.toHexString());
   transaction.transactionHash = txHash;
   transaction.bridgeName = "XDAI";
   transaction.transactionStatus = "INITIATED";
   transaction.timestamp = event.block.timestamp;
   
-  transaction.messageId = nonce;
+  transaction.messageId = nonceAndChainId;
 
   transaction.initiatorNetwork = "gnosis";
   transaction.initiator = event.transaction.from;
@@ -90,14 +93,18 @@ export function handlerSignedForUserRequest(event: SignedForUserRequest): void {
   // using the messageHash emitted in this event.
   const xDai = HomeBridgeErcToNative.bind(event.address);
   const message = xDai.message(event.params.messageHash);
-  const xDaiTxHash = getHomeTxHashFromMessageMethod(message);
+  let xDaiNonceOrTxHash = getHomeNonceOrTxHashFromMessageMethod(message);
+
+  if (event.block.number >= new BigInt(39569937)) {
+    xDaiNonceOrTxHash = combineNonceAndChainId(Bytes.fromHexString(xDaiNonceOrTxHash), 100).toHexString();
+  }
 
   // get transaction or fail
-  const transaction = XDAITransaction.load(xDaiTxHash);
+  const transaction = XDAITransaction.load(xDaiNonceOrTxHash);
   if (!transaction) {
     log.error(
       `XDAI:handlerSignedForUserRequest - tx not found id: {}, txHash {}`,
-      [xDaiTxHash, event.transaction.hash.toHexString()]
+      [xDaiNonceOrTxHash, event.transaction.hash.toHexString()]
     );
     return;
   }
@@ -122,7 +129,7 @@ export function handlerSignedForUserRequest(event: SignedForUserRequest): void {
   );
   txValidation.validator = validator.id;
   txValidation.transactionHash = event.transaction.hash;
-  txValidation.transaction = xDaiTxHash;
+  txValidation.transaction = xDaiNonceOrTxHash;
   txValidation.validatorAddr = validatorAddress;
   txValidation.timestamp = timestamp;
   txValidation.save();
@@ -137,14 +144,18 @@ export function handlerCollectedSignatures(event: CollectedSignatures): void {
   // using the messageHash emitted in this event.
   const xDai = HomeBridgeErcToNative.bind(event.address);
   const message = xDai.message(event.params.messageHash);
-  const xDaiTxHash = getHomeTxHashFromMessageMethod(message);
+  let xDaiNonceOrTxHash = getHomeNonceOrTxHashFromMessageMethod(message);
+
+  if (event.block.number >= new BigInt(39569937)) {
+    xDaiNonceOrTxHash = combineNonceAndChainId(Bytes.fromHexString(xDaiNonceOrTxHash), 100).toHexString();
+  }
 
   // get transaction or fail
-  const transaction = XDAITransaction.load(xDaiTxHash);
+  const transaction = XDAITransaction.load(xDaiNonceOrTxHash);
   if (!transaction) {
     log.error(
       `XDAI:handlerCollectedSignatures - tx not found id: {}, txHash {}`,
-      [xDaiTxHash, event.transaction.hash.toHexString()]
+      [xDaiNonceOrTxHash, event.transaction.hash.toHexString()]
     );
     return;
   }
@@ -163,18 +174,25 @@ export function handlerCollectedSignatures(event: CollectedSignatures): void {
 // A validator signs an affirmation (saying the operation is valid).
 // This is the first event the home is aware of.
 export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
-  const foreignTxHash = event.params.transactionHash;
-  const foreignTxHashString = event.params.transactionHash.toHexString();
+  let foreignNonce = event.params.nonce;
+
+  if (event.block.number >= new BigInt(39569937)) {
+    foreignNonce = combineNonceAndChainId(foreignNonce, 1);
+  }
+
+  const foreignNonceString = foreignNonce.toHexString();
   const transactionData = event.transaction.input.toHexString();
   const signer = event.params.signer.toHexString(); // validator address
 
+  const txHash = event.transaction.hash;
+
   // Try to load tx, as it might be the first validator signing it we might need to create it
-  let transaction = XDAITransaction.load(foreignTxHashString);
+  let transaction = XDAITransaction.load(foreignNonceString);
   if (!transaction) {
-    transaction = new XDAITransaction(foreignTxHashString);
+    transaction = new XDAITransaction(foreignNonceString);
     transaction.bridgeName = "XDAI";
-    transaction.transactionHash = foreignTxHash;
-    transaction.messageId = foreignTxHash;
+    transaction.transactionHash = txHash;
+    transaction.messageId = foreignNonce;
     transaction.transactionStatus = "COLLECTING";
 
     transaction.initiatorNetwork = "mainnet";
@@ -190,8 +208,8 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
   let validator = loadValidator(signer, BRIDGE_XDAI);
   if (!validator) {
     log.error(
-      `XDAI:handlerSignedForAffirmation - Validator {} not found, txHash: {}`,
-      [signer, foreignTxHash.toHexString()]
+      `XDAI:handlerSignedForAffirmation - Validator {} not found, nonce: {}`,
+      [signer, foreignNonce.toHexString()]
     );
     return;
   }
@@ -199,12 +217,12 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
   validator.save();
 
   // Create validation entity
-  const txValidationId = foreignTxHashString + "-" + validator.id;
+  const txValidationId = foreignNonceString + "-" + validator.id;
   let txValidation = new TransactionValidation(txValidationId);
   txValidation.validator = validator.id;
   txValidation.validatorAddr = validator.address;
   txValidation.transactionHash = event.transaction.hash;
-  txValidation.transaction = foreignTxHashString;
+  txValidation.transaction = foreignNonceString;
   txValidation.timestamp = event.block.timestamp;
   txValidation.save();
 }
@@ -214,8 +232,12 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
 // and the funds are minted on home side.
 // txExample: https://gnosisscan.io/tx/0xb431ceba6b6ac480ab6127429251ac621f79cd1292a83c255146c79bd8600960#eventlog
 export function handlerAffirmationCompleted(event: AffirmationCompleted): void {
-  const foreignTxHash = event.params.transactionHash;
-  const foreignTxHashString = foreignTxHash.toHexString();
+  let foreignNonce = event.params.nonce;
+
+  if (event.block.number >= new BigInt(39569937)) {
+    foreignNonce = combineNonceAndChainId(foreignNonce, 1);
+  }
+  const foreignNonceString = foreignNonce.toHexString();
   const executorId = event.transaction.from; // validator address
 
   // Load validator and update last activity
@@ -223,7 +245,7 @@ export function handlerAffirmationCompleted(event: AffirmationCompleted): void {
   if (!validator) {
     log.error(
       `XDAI:handlerSignedForAffirmation - Validator {} not found, txHash: {}`,
-      [executorId.toHexString(), foreignTxHash.toHexString()]
+      [executorId.toHexString(), foreignNonce.toHexString()]
     );
     return;
   }
@@ -231,24 +253,24 @@ export function handlerAffirmationCompleted(event: AffirmationCompleted): void {
   validator.save();
 
   // Create execution entity
-  const execution = new TransactionExecution(foreignTxHashString);
+  const execution = new TransactionExecution(foreignNonceString);
   execution.executor = executorId.toHexString();
   execution.validatorAddr = validator.address;
-  execution.transaction = foreignTxHashString;
+  execution.transaction = foreignNonceString;
   execution.transactionHash = event.transaction.hash;
   execution.timestamp = event.block.timestamp;
   execution.save();
 
   // Link execution to transaction
-  let transaction = XDAITransaction.load(foreignTxHashString);
+  let transaction = XDAITransaction.load(foreignNonceString);
   if (!transaction) {
     log.error(
-      `XDAI:handlerSignedForAffirmation - Transaction not found, txHash: {}`,
-      [foreignTxHash.toHexString()]
+      `XDAI:handlerSignedForAffirmation - Transaction not found, nonce: {}`,
+      [foreignNonce.toHexString()]
     );
     return;
   }
   transaction.transactionStatus = "COMPLETED";
-  transaction.execution = foreignTxHashString;
+  transaction.execution = foreignNonceString;
   transaction.save();
 }
