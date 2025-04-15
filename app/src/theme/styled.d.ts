@@ -26,6 +26,7 @@ declare module 'styled-components' {
       secondary: string
       success: string
       textColor: string
+      titleColor: string
       warning: string
       white: string
       white_50: string
@@ -44,6 +45,7 @@ declare module 'styled-components' {
       family: string
       familyCode: string
       familyHeading: string
+      fontFamily: string
     }
     breakPoints: {
       desktopStart: string
