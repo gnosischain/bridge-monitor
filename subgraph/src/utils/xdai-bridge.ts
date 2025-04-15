@@ -6,6 +6,10 @@ const USER_REQUEST_FOR_AFFIRMATION_TOPIC = Bytes.fromHexString(
   "0x1d491a427d1f8cc0d447496f300fac39f7306122481d8e663451eb268274146b"
 );
 
+const USER_REQUEST_FOR_AFFIRMATION_TOPIC_AFTER_UPGRAGE_XDAI_HASHI = Bytes.fromHexString(
+  "f6968e689b3d8c24f22c10c2a3256bb5ca483a474e11bac08423baa049e38ae8"
+);
+
 export function processUserRequestForAffirmation(
   transaction: XDAITransaction,
   receipt: ethereum.TransactionReceipt | null
@@ -19,7 +23,7 @@ export function processUserRequestForAffirmation(
   }
 
   const filteredLogs = receipt.logs.filter((_log) =>
-    _log.topics.includes(USER_REQUEST_FOR_AFFIRMATION_TOPIC)
+    _log.topics.includes(USER_REQUEST_FOR_AFFIRMATION_TOPIC) || _log.topics.includes(USER_REQUEST_FOR_AFFIRMATION_TOPIC_AFTER_UPGRAGE_XDAI_HASHI)
   );
 
   if (filteredLogs.length > 0) {
