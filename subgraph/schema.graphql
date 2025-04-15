@@ -83,6 +83,7 @@ type XDAITransaction implements Transaction @entity {
   validations: [TransactionValidation!] @derivedFrom(field: "transaction")
   execution: TransactionExecution
   messageId: Bytes
+  nonce: Bytes # Nonce parameter for UserRequestForSignatureWithNonce events
 }
 
 type AMBTransaction implements Transaction @entity {

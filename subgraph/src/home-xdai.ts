@@ -6,6 +6,7 @@ import {
   SignedForAffirmation,
   SignedForUserRequest,
   UserRequestForSignature,
+  UserRequestForSignature1,
 } from "../generated/HomeBridgeErcToNative/HomeBridgeErcToNative";
 import {
   TransactionExecution,
@@ -51,29 +52,31 @@ export function handlerUserRequestForSignature(
 }
 
 export function handlerUserRequestForSignatureWithNonce(
-  event: UserRequestForSignature
+  event: UserRequestForSignature1
 ): void {
-  // const txHash = event.transaction.hash;
-  // const txValue = event.params.value;
+  const txHash = event.transaction.hash;
+  const txValue = event.params.value;
+  const nonce = event.params.nonce;
 
-  // let transaction = new XDAITransaction(txHash.toHexString());
-  // transaction.transactionHash = txHash;
-  // transaction.messageId = txHash;
-  // transaction.bridgeName = "XDAI";
-  // transaction.transactionStatus = "INITIATED";
-  // transaction.timestamp = event.block.timestamp;
+  let transaction = new XDAITransaction(nonce.toHexString());
+  transaction.transactionHash = txHash;
+  transaction.bridgeName = "XDAI";
+  transaction.transactionStatus = "INITIATED";
+  transaction.timestamp = event.block.timestamp;
+  
+  transaction.messageId = nonce;
 
-  // transaction.initiatorNetwork = "gnosis";
-  // transaction.initiator = event.transaction.from;
-  // transaction.initiatorToken = Address.zero();
-  // transaction.initiatorAmount = txValue;
+  transaction.initiatorNetwork = "gnosis";
+  transaction.initiator = event.transaction.from;
+  transaction.initiatorToken = Address.zero();
+  transaction.initiatorAmount = txValue;
 
-  // transaction.receiverNetwork = "mainnet";
-  // transaction.receiver = event.params.recipient;
-  // transaction.receiverToken = Address.fromHexString(DAI_ADDRESS);
-  // transaction.receiverAmount = txValue;
+  transaction.receiverNetwork = "mainnet";
+  transaction.receiver = event.params.recipient;
+  transaction.receiverToken = Address.fromHexString(DAI_ADDRESS);
+  transaction.receiverAmount = txValue;
 
-  // transaction.save();
+  transaction.save();
 }
 
 // 2. The validators sign the bridging.
