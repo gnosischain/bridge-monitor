@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components'
 import { IconCheck } from '@/src/components/assets/IconCheck'
 
 const NotRequired = css`
-  border: 1px solid ${({ theme: { colors } }) => colors.primnary_50};
+  border: 1px solid ${({ theme: { colors } }) => colors.primary_50};
   opacity: 0.2;
 
   svg {
