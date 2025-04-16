@@ -57,6 +57,7 @@ jobs:
 
       - name: Install graph-cli & dependencies
         run: |
+          cd subgraph
           yarn install
           
       - name: Build Subgraph
