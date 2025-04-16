@@ -48,7 +48,6 @@ import { UnifiedBridgeButton } from './button/UnifiedBridgeButton'
 import { useRouter } from 'next/router'
 import { useSanitizedQuery } from '@/src/hooks/useSanitizedQuery'
 import { isBlockedToken } from '@/src/utils/blockedTokens'
-import { XdaiWarning } from './warnings/xDaiWarning'
 
 const Title = styled.h2`
   align-items: center;
