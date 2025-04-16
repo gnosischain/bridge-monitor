@@ -28,7 +28,7 @@ jobs:
       TYPE: ${{ inputs.type }}
       NETWORK: ${{ inputs.network }}
       DEBUG: true
-      SUBGRAPH_NAME: gbc-bridge-${{ inputs.type }}
+      SUBGRAPH_NAME: gbc-bridge-${{ inputs.network }}
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
