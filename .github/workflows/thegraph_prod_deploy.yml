@@ -79,7 +79,7 @@ jobs:
       - name: Build & Deploy Subgraph for Gnosis Chain
         if: ${{ inputs.network == 'Gnosis Chain' }}
         env:
-          SUBGRAPH_LABELS: "${{ github.ref_name }}-${{ steps.random_id.outputs.random_id }}"
+          SUBGRAPH_LABELS: "${{ steps.release_tag.outputs.tag }}-${{ steps.random_id.outputs.random_id }}"
           TYPE: home
           DEBUG: true
           SUBGRAPH_NAME: gbc-bridge-gnosis
