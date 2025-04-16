@@ -3,11 +3,11 @@
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
-    "codegen": "sh scripts/codegen.sh",
-    "build": "sh scripts/build.sh",
-    "deploy": "sh scripts/deploy.sh",
-    "deploy:local": "sh scripts/deploy-local.sh",
-    "deploy-test": "sh scripts/deploy-test.sh",
+    "codegen": "./scripts/codegen.sh",
+    "build": "./scripts/build.sh",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:local": "./scripts/deploy-local.sh",
+    "deploy-test": "./scripts/deploy-test.sh",
     "test": "graph test"
   },
   "dependencies": {

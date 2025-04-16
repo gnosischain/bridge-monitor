@@ -5,7 +5,12 @@ set -o errexit
 
 # Exporting variables from the env file and making them available in the code below
 set -a
-source .env
+
+if [ -f .env ]; then
+  echo "Loading .env file"
+  source .env
+fi
+
 set +a
 
 # Type is required to Generate Specific subgraph.yaml
