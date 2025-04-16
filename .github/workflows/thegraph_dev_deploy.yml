@@ -1,0 +1,93 @@
+name: The Graph - Manual Deployment to Dev
+
+on:
+    workflow_dispatch:
+      inputs:
+        network:
+            description: "Network for Subgraph deployment - Ethereum or Gnosis Chain"
+            required: true
+            options:
+                - Ethereum
+                - Gnosis Chain
+            type: choice
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deployment
+    runs-on: ubuntu-latest
+    outputs:
+      random_id: ${{ steps.random_id.outputs.random_id }}
+    env:
+      DEPLOY_API_KEY: ${{ secrets.THEGRAPH_DEPLOY_API_KEY }}
+      DEBUG: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Check for excluded branches
+        if: startsWith(github.ref, 'refs/heads/main')
+        run: |
+          echo "This branch is excluded from workflow dispatch."
+          exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+            node-version-file: '.nvmrc'
+
+      - name: Install dependencies
+        run: |
+          cd subgraph
+          yarn install
+
+      - name: Generate Random ID
+        id: random_id
+        run: |
+          echo "random_id=$(openssl rand -hex 4)" >> $GITHUB_OUTPUT
+
+      - name: Build & Deploy Subgraph for ETH mainnet
+        if: ${{ inputs.network == 'Ethereum' }}
+        env:
+          SUBGRAPH_LABELS: "${{ github.ref_name }}-${{ steps.random_id.outputs.random_id }}"
+          TYPE: foreign
+          DEBUG: true
+          SUBGRAPH_NAME: gbc-bridge-mainnet
+          NETWORK: mainnet
+        run: |
+          cd subgraph
+          yarn build
+          yarn deploy
+
+      - name: Build & Deploy Subgraph for Gnosis Chain
+        if: ${{ inputs.network == 'Gnosis Chain' }}
+        env:
+          SUBGRAPH_LABELS: "${{ github.ref_name }}-${{ steps.random_id.outputs.random_id }}"
+          TYPE: home
+          DEBUG: true
+          SUBGRAPH_NAME: gbc-bridge-gnosis
+          NETWORK: gnosis
+        run: |
+          cd subgraph
+          yarn build
+          yarn deploy
+
+  notify:
+    uses: ./.github/workflows/slack_release_notification.yml
+    if: ${{ always() }}
+    needs: deploy
+    secrets: 
+      RELEASES_SLACK_WEBHOOK_URL: ${{ secrets.RELEASES_SLACK_WEBHOOK_URL }}
+    with:
+      environment: Development
+      service: Bridge Monitor SubGraph
+      success: ${{ contains(join(needs.*.result, ','), 'success') }}
+      message: "deploy service `Bridge Monitor SubGraph` version `${{ github.ref_name }}-${{ needs.deploy.outputs.random_id }}`. Triggered by `${{ github.actor }}`."
+    

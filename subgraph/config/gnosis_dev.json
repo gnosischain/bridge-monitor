@@ -1,0 +1,104 @@
+{
+  "description": "Subgraph for the Bridge Monitoring System (GnosisChain)",
+  "network": "gnosis",
+
+  "HomeBridgeErcToNative": "0x7301CFA0e1756B71869E93d4e4Dca5c7d0eb0AA6",
+  "startBlockHomeBridgeErcToNative": 39568341,
+
+  "XDAIBridgeValidators": "0xb289f0e6fbdff8eee340498a56e1787b303f1b6d",
+  "startBlockXDAIBridgeValidators": 39568341,
+
+  "AMBBridgeValidators": "0xa280fed8d7cad9a76c8b50ca5c33c2534ffa5008",
+  "startBlockAMBBridgeValidators": 39568341,
+
+  "HomeAMB": "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59",
+  "startBlockHomeAMB": 39568341,
+
+  "validators": [
+    {
+      "address": "0x587c0d02b40822f15f05301d87c16f6a08aaddde",
+      "name": "Cow Protocol",
+      "bridgeType": "XDAI"
+    },
+    {
+      "address": "0xc073c8e5ed9aa11cf6776c69b3e13b259ba9f506",
+      "name": "Giveth",
+      "bridgeType": "XDAI"
+    },
+    {
+      "address": "0x97630e2ae609d4104abda91f3066c556403182dd",
+      "name": "Gnosis DAO",
+      "bridgeType": "XDAI"
+    },
+    {
+      "address": "0x1312e98995bbcc30fc63db3cef807e20cdd33dca",
+      "name": "Gnosis Safe",
+      "bridgeType": "XDAI"
+    },
+    {
+      "address": "0x4d1c96b9a49c4469a0b720a22b74b034eddfe051",
+      "name": "Protofire",
+      "bridgeType": "XDAI"
+    },
+    {
+      "address": "0xfe24cfb2f8872e9ed097c451de065a9f6048915b",
+      "name": "Syncnode",
+      "bridgeType": "XDAI"
+    },
+    {
+      "address": "0x90776017057b84bc47D7e7383b65C463C80a6cdd",
+      "name": "Gateway",
+      "bridgeType": "XDAI"
+    },
+    {
+      "address": "0xfa98b60e02a61b6590f073cad56e68326652d094",
+      "name": "Karpatkey",
+      "bridgeType": "XDAI"
+    },
+    {
+      "address": "0x459a3bd49f1ff109bc90b76125533699aaaaf9a6",
+      "name": "Protofire",
+      "bridgeType": "AMB"
+    },
+    {
+      "address": "0x105CD22eD3D089Bf5589C59b452f9dE0796Ca52d",
+      "name": "Giveth",
+      "bridgeType": "AMB"
+    },
+    {
+      "address": "0x19aC7c69e5F1AC95b8d49b30Cbb79e81f1ab0dba",
+      "name": "Syncnode",
+      "bridgeType": "AMB"
+    },
+    {
+      "address": "0xbdc141c8d2343f33f40cb9edd601ccf460cd0dde",
+      "name": "Gnosis DAO",
+      "bridgeType": "AMB"
+    },
+    {
+      "address": "0x674c97db4ce6cac04a124d745979f3e4cba0e9f0",
+      "name": "Cow Protocol",
+      "bridgeType": "AMB"
+    },
+    {
+      "address": "0x258667E543C913264388B33328337257aF208a8f",
+      "name": "Gnosis Safe",
+      "bridgeType": "AMB"
+    },
+    {
+      "address": "0xfA98B60E02A61B6590f073cAD56e68326652d094",
+      "name": "Karpatkey",
+      "bridgeType": "AMB"
+    },
+    {
+      "address": "0x3e0A20099626F3d4d4Ea7B0cE0330e88d1Fe65D6",
+      "name": "Gateway",
+      "bridgeType": "AMB"
+    },
+    {
+      "address": "0x456c255A8BC1F33778603A2a48Eb6B0C69F4d48E",
+      "name": "Telepathy",
+      "bridgeType": "AMB"
+    }
+  ]
+}

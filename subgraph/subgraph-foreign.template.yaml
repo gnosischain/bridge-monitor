@@ -75,6 +75,9 @@ dataSources:
       eventHandlers:
         - event: RelayedMessage(address,uint256,bytes32)
           handler: handlerRelayedMessage
+        - event: UserRequestForAffirmation(address,uint256,bytes32)
+          handler: handlerUserRequestForAffirmationWithNonce
+          receipt: true
       file: ./src/foreign-xdai.ts
   ##### AMB #####
   # - name: AMBBridgeValidators

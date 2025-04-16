@@ -17,7 +17,6 @@ interface Props {
 }
 
 export const Validations: React.FC<Props> = ({ fetchValidatorName, validations }) => {
-  console.log('validations', validations)
   return (
     <Wrapper>
       {validations.map((validation: TransactionValidation, index) => {

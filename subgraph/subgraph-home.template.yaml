@@ -27,6 +27,8 @@ dataSources:
       eventHandlers:
         - event: UserRequestForSignature(address,uint256)
           handler: handlerUserRequestForSignature
+        - event: UserRequestForSignature(address,uint256,bytes32)
+          handler: handlerUserRequestForSignatureWithNonce
         - event: SignedForUserRequest(indexed address,bytes32)
           handler: handlerSignedForUserRequest
         - event: CollectedSignatures(address,bytes32,uint256)
