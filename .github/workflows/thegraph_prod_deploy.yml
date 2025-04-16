@@ -26,7 +26,8 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: subgraph/
+        shell: bash
+        working-directory: ./subgraph/
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
