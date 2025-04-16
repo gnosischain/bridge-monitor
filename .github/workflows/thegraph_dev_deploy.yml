@@ -4,19 +4,12 @@ on:
     workflow_dispatch:
       inputs:
         network:
-            description: "Network for Subgraph deployment - Ethereum Mainnet (Mainnet) or Gnosis Chain (Gnosis)"
+            description: "Network for Subgraph deployment - Ethereum or Gnosis Chain"
             required: true
             options:
-                - mainnet
-                - gnosis
+                - Ethereum
+                - Gnosis Chain
             type: choice
-        type:
-          description: "Brige type: Home or Foreign"
-          required: true
-          options:
-              - home
-              - foreign
-          type: choice
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -29,11 +22,8 @@ jobs:
     outputs:
       random_id: ${{ steps.random_id.outputs.random_id }}
     env:
-      ACCESS_TOKEN: ${{ secrets.THEGRAPH_DEPLOY_API_KEY }}
-      TYPE: ${{ inputs.type }}
-      NETWORK: ${{ inputs.network }}
+      DEPLOY_API_KEY: ${{ secrets.THEGRAPH_DEPLOY_API_KEY }}
       DEBUG: true
-      SUBGRAPH_NAME: gbc-bridge-${{ inputs.type }}
     steps:
       - uses: actions/checkout@v4
 
@@ -48,27 +38,45 @@ jobs:
           echo "This branch is excluded from workflow dispatch."
           exit 1
 
-      - name: Generate Random ID
-        id: random_id
-        run: |
-          echo "random_id=$(openssl rand -hex 4)" >> $GITHUB_OUTPUT
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
             node-version-file: '.nvmrc'
 
-      - name: Install dependencies & build subgraphs
+      - name: Install dependencies
         run: |
           cd subgraph
           yarn install
-          yarn codegen
-          yarn build
-    
-      - name: Deploy Subgraphs
+
+      - name: Generate Random ID
+        id: random_id
+        run: |
+          echo "random_id=$(openssl rand -hex 4)" >> $GITHUB_OUTPUT
+
+      - name: Build & Deploy Subgraph for ETH mainnet
+        if: ${{ inputs.network == 'Ethereum' }}
         env:
           SUBGRAPH_LABELS: "${{ github.ref_name }}-${{ steps.random_id.outputs.random_id }}"
+          TYPE: foreign
+          DEBUG: true
+          SUBGRAPH_NAME: gbc-bridge-mainnet
+          NETWORK: mainnet
         run: |
+          cd subgraph
+          yarn build
+          yarn deploy
+
+      - name: Build & Deploy Subgraph for Gnosis Chain
+        if: ${{ inputs.network == 'Gnosis Chain' }}
+        env:
+          SUBGRAPH_LABELS: "${{ github.ref_name }}-${{ steps.random_id.outputs.random_id }}"
+          TYPE: home
+          DEBUG: true
+          SUBGRAPH_NAME: gbc-bridge-gnosis
+          NETWORK: gnosis
+        run: |
+          cd subgraph
+          yarn build
           yarn deploy
 
   notify:

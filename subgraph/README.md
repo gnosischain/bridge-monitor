@@ -37,7 +37,7 @@ Generate Types
 
 - yarn codegen
 
-Deploy (Remember to edit ACCESS_TOKEN and SUBGRAPH_NAME env vars)
+Deploy (Remember to edit THEGRAPH_DEPLOY_API_KEY and SUBGRAPH_NAME env vars)
 
 - yarn deploy
 
@@ -69,11 +69,11 @@ NETOWRK=mainnet
 
 ### GNOSIS
 
-- set $ACCESS_TOKEN at .env file ($ACCESS_TOKEN != $DEPLOY_KEY) $ACCESS_TOKEN value comes from subgraph created on HostedService
+- set $DEPLOY_API_KEY at .env file. $DEPLOY_API_KEY value comes from subgraph created on HostedService
 - run yarn deploy
 
 ### MAINNET
 
-- run graph auth --studio \$DEPLOY_KEY
-- take \$DEPLOY_KEY from created subgraph on Subgraph Studio
-- run graph deploy --studio <subgraph_slug>
+- run graph auth \$DEPLOY_API_KEY
+- take \$DEPLOY_API_KEY from created subgraph on Subgraph Studio
+- run graph deploy <subgraph_slug>

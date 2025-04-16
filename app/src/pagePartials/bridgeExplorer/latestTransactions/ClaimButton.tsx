@@ -145,10 +145,15 @@ export const ClaimButton = ({
     if (transaction.bridgeName.toUpperCase() === 'XDAI') {
       // XDAI Bridge
       // recover message and signatures
+      // console.log('transaction', transaction)
+      const modifiedId = transaction.id.startsWith('0x00000064')
+        ? '0x00000000' + transaction.id.substring(10)
+        : transaction.transactionHash
+
       const messageHash = await erc20ToNativeBridgeHelper.getMessageHash(
         transaction.receiver,
         transaction.receiverAmount,
-        transaction.transactionHash,
+        modifiedId,
       )
       const [message, signatures] = await Promise.all([
         erc20ToNativeBridgeHelper.getMessage(messageHash),

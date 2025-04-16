@@ -48,7 +48,6 @@ import { UnifiedBridgeButton } from './button/UnifiedBridgeButton'
 import { useRouter } from 'next/router'
 import { useSanitizedQuery } from '@/src/hooks/useSanitizedQuery'
 import { isBlockedToken } from '@/src/utils/blockedTokens'
-import { XdaiWarning } from './warnings/xDaiWarning'
 
 const Title = styled.h2`
   align-items: center;
@@ -121,14 +120,6 @@ const FromTokenDropdown = styled(TokenDropdown)`
 const AmountInput = styled(AmountTokenInput)`
   margin-right: calc(var(--theme-common-space) * -1);
 `
-
-// const sanitizeAmount = (amount: string, decimals: number) => {
-//   if (!amount.includes('.')) return amount
-
-//   const parts = amount.split('.')
-//   const decimalPart = parts[1].slice(0, decimals) // Keep only allowed decimal places
-//   return `${parts[0]}.${decimalPart}`
-// }
 
 const SkeletonCommon: React.FC = () => (
   <Wrapper>
@@ -254,15 +245,6 @@ const Main = () => {
       ? true
       : false
 
-  // console.log('tokenIn', formState.token)
-  // console.log('tokenOut', tokenOut)
-
-  const isXdai =
-    (formState.fromChainId === Chains.mainnet &&
-      isSameString(formState.token?.address || '', '0x6B175474E89094C44Da98b954EedeAC495271d0F')) ||
-    (formState.fromChainId === Chains.gnosis &&
-      isSameString(formState.token?.address || '', '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'))
-
   return (
     <Wrapper>
       <FormWrapper>
@@ -303,7 +285,6 @@ const Main = () => {
             </InnerCardFrom>
             <InnerCard>
               <Title>Transfer to</Title>
-              {isXdai && <XdaiWarning />}
               {isUsdcEth && <UsdcEthWarning />}
               {isUsdceGC && <UsdcEGcWarning />}
               {unwrapFirst && <UnwrapFirst symbol={formState.token?.symbol} />}
@@ -314,7 +295,7 @@ const Main = () => {
                 <NotBridgedERC20Warning />
               )}
 
-              {!unwrapFirst && !sendToExternalBridge && !isNotBridgedErc20 && !isXdai && (
+              {!unwrapFirst && !sendToExternalBridge && !isNotBridgedErc20 && (
                 <>
                   <OnChainInfo>
                     <Chain chainId={formState.toChainId} />
@@ -349,8 +330,7 @@ const Main = () => {
               formState.token &&
               tokenOut &&
               address &&
-              walletChainId == formState.fromChainId &&
-              !isXdai && (
+              walletChainId == formState.fromChainId && (
                 <BridgeSummary
                   amount={amountBN}
                   fromChainId={formState.fromChainId}
@@ -363,20 +343,18 @@ const Main = () => {
                 />
               )}
           </FormCards>
-          {!isXdai && (
-            <UnifiedBridgeButton
-              amount={amountBN}
-              fromChainId={formState.fromChainId}
-              fromToken={formState.token}
-              isUsdceGC={isUsdceGC}
-              receiveNativeToken={formState.receiveNativeToken}
-              recipient={formState.recipient}
-              sendToExternalBridge={sendToExternalBridge}
-              toChainId={formState.toChainId}
-              toToken={tokenOut}
-              userAddress={address}
-            />
-          )}
+          <UnifiedBridgeButton
+            amount={amountBN}
+            fromChainId={formState.fromChainId}
+            fromToken={formState.token}
+            isUsdceGC={isUsdceGC}
+            receiveNativeToken={formState.receiveNativeToken}
+            recipient={formState.recipient}
+            sendToExternalBridge={sendToExternalBridge}
+            toChainId={formState.toChainId}
+            toToken={tokenOut}
+            userAddress={address}
+          />
         </Form>
       </FormWrapper>
     </Wrapper>
