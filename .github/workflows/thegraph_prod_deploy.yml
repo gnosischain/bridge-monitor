@@ -58,7 +58,6 @@ jobs:
       - name: Install graph-cli & dependencies
         run: |
           yarn install
-          yarn global add @graphprotocol/graph-cli
           
       - name: Build Subgraph
         run: yarn codegen && yarn build
