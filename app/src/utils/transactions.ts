@@ -142,9 +142,6 @@ const fetchHomeTransaction = async (query?: QueryTransactionsArgs) => {
   let transactions: TransactionsQuery['transactions'] = []
   let shouldIterate = true
 
-  console.log('TRANSACTION_QUERY', TRANSACTION_QUERY)
-  console.log('query', query)
-
   while (shouldIterate) {
     const { transactions: newTransactions } = await getHomeGraphqlClient()<
       TransactionsQuery,
@@ -261,8 +258,6 @@ export const fetchTransactions = async (
     homeTxs as TransactionSG[],
     foreignTxs as TransactionSG[],
   )
-
-  console.log('transactions', transactions)
 
   if (inMemoryFilters.validator) {
     transactions = transactions
