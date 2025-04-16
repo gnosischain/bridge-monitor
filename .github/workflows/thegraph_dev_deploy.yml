@@ -69,6 +69,7 @@ jobs:
         env:
           SUBGRAPH_LABELS: "${{ github.ref_name }}-${{ steps.random_id.outputs.random_id }}"
         run: |
+          cd subgraph
           yarn deploy
 
   notify:
