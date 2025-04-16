@@ -23,7 +23,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./subgraph/
+        working-directory: ./subgraph
     outputs:
       random_id: ${{ steps.random_id.outputs.random_id }}
     steps:
