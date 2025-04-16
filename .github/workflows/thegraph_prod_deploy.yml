@@ -70,6 +70,7 @@ jobs:
           TYPE: foreign
           DEBUG: true
           SUBGRAPH_NAME: gbc-bridge-mainnet
+          NETWORK: mainnet
         run: |
           cd subgraph
           yarn build
@@ -82,6 +83,7 @@ jobs:
           TYPE: home
           DEBUG: true
           SUBGRAPH_NAME: gbc-bridge-gnosis
+          NETWORK: gnosis
         run: |
           cd subgraph
           yarn build
