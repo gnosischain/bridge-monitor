@@ -19,7 +19,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-
 jobs:
   deploy:
     name: Deployment
@@ -88,7 +87,6 @@ jobs:
             SUBGRAPH_NAME: gbc-bridge-gnosis
             ACCESS_TOKEN: ${{ secrets.THEGRAPH_DEPLOY_API_KEY }}
         run: yarn deploy -l "${{ github.ref_name }}-${{ steps.random_id.outputs.random_id }}"
-
 
   notify:
     uses: ./.github/workflows/slack_release_notification.yml
