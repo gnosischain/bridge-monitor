@@ -10,11 +10,6 @@ on:
                 - Ethereum
                 - Gnosis Chain
             type: choice
-  
-
-defaults:
-  run:
-    working-directory: subgraph/
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,6 +20,9 @@ jobs:
   deploy:
     name: Deployment
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: subgraph/
     outputs:
       random_id: ${{ steps.random_id.outputs.random_id }}
     steps:
