@@ -1,0 +1,105 @@
+name: The Graph - Manual Deployment to Prod
+
+on:
+    workflow_dispatch:
+      inputs:
+        version:
+          description: "Release version to deploy"
+          required: true
+          type: string
+        network:
+            description: "Network for Subgraph deployment - (Gnosis Chain or Ethereum)"
+            required: true
+            options:
+                - Ethereum
+                - Gnosis Chain
+            type: choice
+  
+defaults:
+  run:
+    working-directory: subgraph/
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+
+jobs:
+  deploy:
+    name: Deployment
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Check version tag exists
+        id: release_tag
+        run: |
+          TAG_EXISTS=$(git tag -l "${{ inputs.version }}")
+          if [ -z "$TAG_EXISTS" ]; then
+            echo "Version ${{ inputs.version }} does not exist."
+            exit 1
+          else
+             echo "tag=$TAG_EXISTS" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+            node-version-file: '.nvmrc'
+
+      - name: Install graph-cli & dependencies
+        run: |
+          yarn run clean
+          yarn global add @graphprotocol/graph-cli
+          yarn install
+          
+      - name: Build Subgraph
+        run: yarn codegen && yarn build
+
+      - name: Authenticate to Subgraph Studio
+        run: graph auth --studio ${{ secrets.THEGRAPH_DEPLOY_API_KEY }}
+
+      # Script to deploy to production environment
+      - name: Generate Random ID for buildcode
+        id: random_id
+        run: |
+          echo "random_id=$(openssl rand -hex 4)" >> $GITHUB_OUTPUT
+
+      - name: Deploy Subgraph 
+        run: yarn deploy -l "${{ steps.release_tag.outputs.tag }}-${{ steps.random_id.outputs.random_id }}"
+
+      - name: Deploy Subgraph for ETH Mainnet
+        if: ${{ inputs.network == 'Ethereum' }}
+        env:
+            SUBGRAPH_NAME: gbc-bridge-mainnet
+            ACCESS_TOKEN: ${{ secrets.THEGRAPH_DEPLOY_API_KEY }}
+        run: yarn deploy -l "${{ github.ref_name }}-${{ steps.random_id.outputs.random_id }}"
+
+      - name: Deploy Subgraph for Gnosis Chain
+        if: ${{ inputs.network == 'Gnosis Chain' }}
+        env:
+            SUBGRAPH_NAME: gbc-bridge-gnosis
+            ACCESS_TOKEN: ${{ secrets.THEGRAPH_DEPLOY_API_KEY }}
+        run: yarn deploy -l "${{ github.ref_name }}-${{ steps.random_id.outputs.random_id }}"
+
+
+  notify:
+    uses: ./.github/workflows/slack_release_notification.yml
+    if: ${{ always() }}
+    needs: deploy
+    secrets: 
+      RELEASES_SLACK_WEBHOOK_URL: ${{ secrets.RELEASES_SLACK_WEBHOOK_URL }}
+    with:
+      environment: Production
+      service: Bridge Monitor SubGraph
+      success: ${{ contains(join(needs.*.result, ','), 'success') }}
+      message: "deploy service `Bridge Monitor SubGraph` version `${{ inputs.version }}`. Triggered by `${{ github.actor }}`."
+    
