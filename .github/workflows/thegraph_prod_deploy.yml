@@ -23,10 +23,12 @@ jobs:
   deploy:
     name: Deployment
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./subgraph
+    env:
+      DEPLOY_API_KEY: ${{ secrets.THEGRAPH_DEPLOY_API_KEY }}
+      TYPE: ${{ inputs.type }}
+      NETWORK: ${{ inputs.network }}
+      DEBUG: true
+      SUBGRAPH_NAME: gbc-bridge-${{ inputs.type }}
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
@@ -61,31 +63,17 @@ jobs:
           yarn codegen
           yarn build
 
-      - name: Authenticate to Subgraph Studio
-        run: graph auth --studio ${{ secrets.THEGRAPH_DEPLOY_API_KEY }}
-
-      # Script to deploy to production environment
       - name: Generate Random ID for buildcode
         id: random_id
         run: |
           echo "random_id=$(openssl rand -hex 4)" >> $GITHUB_OUTPUT
 
-      - name: Deploy Subgraph 
-        run: yarn deploy -l "${{ steps.release_tag.outputs.tag }}-${{ steps.random_id.outputs.random_id }}"
-
-      - name: Deploy Subgraph for ETH Mainnet
-        if: ${{ inputs.network == 'Ethereum' }}
+      - name: Deploy Subgraphs
         env:
-            SUBGRAPH_NAME: gbc-bridge-mainnet
-            ACCESS_TOKEN: ${{ secrets.THEGRAPH_DEPLOY_API_KEY }}
-        run: yarn deploy -l "${{ github.ref_name }}-${{ steps.random_id.outputs.random_id }}"
-
-      - name: Deploy Subgraph for Gnosis Chain
-        if: ${{ inputs.network == 'Gnosis Chain' }}
-        env:
-            SUBGRAPH_NAME: gbc-bridge-gnosis
-            ACCESS_TOKEN: ${{ secrets.THEGRAPH_DEPLOY_API_KEY }}
-        run: yarn deploy -l "${{ github.ref_name }}-${{ steps.random_id.outputs.random_id }}"
+          SUBGRAPH_LABELS: "${{ github.ref_name }}-${{ steps.random_id.outputs.random_id }}"
+        run: |
+          cd subgraph
+          yarn deploy
 
   notify:
     uses: ./.github/workflows/slack_release_notification.yml

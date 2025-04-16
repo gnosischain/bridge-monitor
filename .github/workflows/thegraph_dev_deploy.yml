@@ -29,7 +29,7 @@ jobs:
     outputs:
       random_id: ${{ steps.random_id.outputs.random_id }}
     env:
-      ACCESS_TOKEN: ${{ secrets.THEGRAPH_DEPLOY_API_KEY }}
+      DEPLOY_API_KEY: ${{ secrets.THEGRAPH_DEPLOY_API_KEY }}
       TYPE: ${{ inputs.type }}
       NETWORK: ${{ inputs.network }}
       DEBUG: true
@@ -48,11 +48,6 @@ jobs:
           echo "This branch is excluded from workflow dispatch."
           exit 1
 
-      - name: Generate Random ID
-        id: random_id
-        run: |
-          echo "random_id=$(openssl rand -hex 4)" >> $GITHUB_OUTPUT
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -64,7 +59,12 @@ jobs:
           yarn install
           yarn codegen
           yarn build
-    
+
+      - name: Generate Random ID
+        id: random_id
+        run: |
+          echo "random_id=$(openssl rand -hex 4)" >> $GITHUB_OUTPUT
+
       - name: Deploy Subgraphs
         env:
           SUBGRAPH_LABELS: "${{ github.ref_name }}-${{ steps.random_id.outputs.random_id }}"
