@@ -45,13 +45,12 @@ jobs:
         with:
             node-version-file: '.nvmrc'
 
-      - name: Install graph-cli & dependencies
+      - name: Install dependencies & build subgraphs
         run: |
           cd subgraph
           yarn install
-          
-      - name: Build Subgraph
-        run: yarn codegen && yarn build
+          yarn codegen
+          yarn build
 
       - name: Authenticate to Subgraph Studio
         run: graph auth --studio ${{ secrets.THEGRAPH_DEPLOY_API_KEY }}
