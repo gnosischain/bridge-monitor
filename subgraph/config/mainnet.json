@@ -3,14 +3,14 @@
   "network": "mainnet",
 
   "DAI": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-  "startDAI": 16308190,
+  "startDAI": 22272590,
   "DAITopic0": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
 
   "ForeignBridgeErcToNative": "0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016",
-  "startBlockForeignBridgeErcToNative": 16308190,
+  "startBlockForeignBridgeErcToNative": 22272590,
 
   "ForeignAMB": "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e",
-  "startBlockForeignAMB": 16308190,
+  "startBlockForeignAMB": 22272590,
 
   "validators": [
     {

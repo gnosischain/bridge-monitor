@@ -32,6 +32,11 @@ export function handlerUserRequestForSignature(
   const txHash = event.transaction.hash;
   const txValue = event.params.value;
 
+  log.error(
+    `XDAI:handlerUserRequestForSignature - txHash {}, blockNumber {}`,
+    [event.transaction.hash.toHexString(), event.block.number.toString()]
+  );
+
   let transaction = new XDAITransaction(txHash.toHexString());
   transaction.transactionHash = txHash;
   transaction.messageId = txHash;
@@ -60,6 +65,11 @@ export function handlerUserRequestForSignatureWithNonce(
   const nonce = event.params.nonce;
 
   const nonceAndChainId = combineNonceAndChainId(nonce, 100);
+
+  log.error(
+    `XDAI:handlerUserRequestForSignatureWithNonce - txHash {}, blockNumber {}`,
+    [event.transaction.hash.toHexString(), event.block.number.toString()]
+  );
 
   let transaction = new XDAITransaction(nonceAndChainId.toHexString());
   transaction.transactionHash = txHash;
@@ -95,7 +105,7 @@ export function handlerSignedForUserRequest(event: SignedForUserRequest): void {
   const message = xDai.message(event.params.messageHash);
   let xDaiNonceOrTxHash = getHomeNonceOrTxHashFromMessageMethod(message);
 
-  if (event.block.number >= new BigInt(39569937)) {
+  if (xDaiNonceOrTxHash.startsWith("0x00000000")) {
     xDaiNonceOrTxHash = combineNonceAndChainId(Bytes.fromHexString(xDaiNonceOrTxHash), 100).toHexString();
   }
 
@@ -146,7 +156,7 @@ export function handlerCollectedSignatures(event: CollectedSignatures): void {
   const message = xDai.message(event.params.messageHash);
   let xDaiNonceOrTxHash = getHomeNonceOrTxHashFromMessageMethod(message);
 
-  if (event.block.number >= new BigInt(39569937)) {
+  if (xDaiNonceOrTxHash.startsWith("0x00000000")) {
     xDaiNonceOrTxHash = combineNonceAndChainId(Bytes.fromHexString(xDaiNonceOrTxHash), 100).toHexString();
   }
 
@@ -175,12 +185,12 @@ export function handlerCollectedSignatures(event: CollectedSignatures): void {
 // This is the first event the home is aware of.
 export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
   let foreignNonce = event.params.nonce;
+  let foreignNonceString = foreignNonce.toHexString();
 
-  if (event.block.number >= new BigInt(39569937)) {
-    foreignNonce = combineNonceAndChainId(foreignNonce, 1);
+  if (foreignNonceString.startsWith("0x00000000")) {
+    foreignNonceString = combineNonceAndChainId(foreignNonce, 1).toHexString();
   }
 
-  const foreignNonceString = foreignNonce.toHexString();
   const transactionData = event.transaction.input.toHexString();
   const signer = event.params.signer.toHexString(); // validator address
 
@@ -234,10 +244,13 @@ export function handlerSignedForAffirmation(event: SignedForAffirmation): void {
 export function handlerAffirmationCompleted(event: AffirmationCompleted): void {
   let foreignNonce = event.params.nonce;
 
-  if (event.block.number >= new BigInt(39569937)) {
-    foreignNonce = combineNonceAndChainId(foreignNonce, 1);
+  let foreignNonceString = foreignNonce.toHexString();
+
+  if (foreignNonceString.startsWith("0x00000000")) {
+    foreignNonceString = combineNonceAndChainId(foreignNonce, 1).toHexString();
   }
-  const foreignNonceString = foreignNonce.toHexString();
+
+
   const executorId = event.transaction.from; // validator address
 
   // Load validator and update last activity
