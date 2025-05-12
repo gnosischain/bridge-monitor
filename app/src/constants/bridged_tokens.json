@@ -9762,6 +9762,22 @@
       "symbol": "UDT",
       "total_supply": "9936213363153110036806",
       "type": "ERC-20"
+    },
+    {
+      "bridge_type": "xdai",
+      "foreign_address": "0xdC035D45d973E3EC169d2276DDab16f1e407384F",
+      "origin_chain_id": "1",
+      "address": "",
+      "circulating_market_cap": null,
+      "decimals": "18",
+      "exchange_rate": null,
+      "holders": "2281",
+      "icon_url": null,
+      "is_bridged": true,
+      "name": "USDS",
+      "symbol": "USDS",
+      "total_supply": "3854025994000000000000000000",
+      "type": "ERC-20"
     }
   ]
 }

@@ -1,5 +1,5 @@
 import { chainsConfig } from '@/src/constants/config/chains'
-import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
+import { NATIVE_TOKEN_ADDRESS, USDS_ADDRESS } from '@/src/constants/config/common'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { isSameString } from '@/src/utils/tools'
@@ -12,7 +12,7 @@ import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInf
 import { contracts } from '@/src/constants/config/contracts'
 import { USDC_ETHEREUM, USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
 import { usdcTokens } from '@/src/constants/usdcTokens'
-
+import { xdaiToken } from '@/src/constants/xdaiToken'
 /**
  * Retrieves information about the received token based on the provided parameters.
  * @param amount The amount of the token.
@@ -143,6 +143,10 @@ export const useBridgeTokenOutInfo = ({
         isSameString(_token.address, USDCe_GNOSIS)
       ) {
         return usdcTokens.usdcMainnet
+      }
+
+      if (_fromChainId === Chains.mainnet && isSameString(_token.address, USDS_ADDRESS)) {
+        return xdaiToken
       }
 
       try {

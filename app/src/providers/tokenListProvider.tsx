@@ -2,7 +2,7 @@ import { FC, PropsWithChildren, createContext, useContext } from 'react'
 import useSWR from 'swr/immutable'
 import { TokensLists } from '@/src/constants/config/types'
 import { getIcon } from '@/src/utils/icons'
-import { isNativeToken, isSameString } from '@/src/utils/tools'
+import { isNativeToken, isSameString, isUsdsToken } from '@/src/utils/tools'
 import {
   NativeTokensByNetwork,
   Token,
@@ -139,6 +139,10 @@ const useTokenListQuery = () => {
           acc.nativeTokensByNetwork[token.chainId] = token
         }
 
+        if (isUsdsToken(token.address)) {
+          acc.nativeTokensByNetwork[token.chainId] = token
+        }
+
         acc.tokens.concat(token)
         acc.tokensByAddress[token.address] = token
         acc.tokensByNetwork[token.chainId] = (acc.tokensByNetwork[token.chainId] ?? []).concat(
@@ -169,6 +173,8 @@ const TokenListContext = createContext<TokenListQueryReturn>({} as any)
 
 export const TokenListProvider: FC<PropsWithChildren<unknown>> = ({ children }) => {
   const { data } = useTokenListQuery()
+
+  console.log('===========data', data)
 
   return data ? (
     <TokenListContext.Provider value={data}>{children}</TokenListContext.Provider>
