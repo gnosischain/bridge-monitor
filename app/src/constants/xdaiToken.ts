@@ -5,7 +5,7 @@ import { NATIVE_TOKEN_ADDRESS, USDS_ADDRESS } from '@/src/constants/config/commo
 export const xdaiToken: Token = {
   chainId: 100,
   address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-  decimals: 6,
+  decimals: 18,
   logoURI: getIcon('xdai'),
   name: 'xDAI',
   symbol: 'xDAI',

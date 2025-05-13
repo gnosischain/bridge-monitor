@@ -174,8 +174,6 @@ const TokenListContext = createContext<TokenListQueryReturn>({} as any)
 export const TokenListProvider: FC<PropsWithChildren<unknown>> = ({ children }) => {
   const { data } = useTokenListQuery()
 
-  console.log('===========data', data)
-
   return data ? (
     <TokenListContext.Provider value={data}>{children}</TokenListContext.Provider>
   ) : null
