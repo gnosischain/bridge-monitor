@@ -85,12 +85,11 @@ export function processOmniBridgeTokenBridgingInitiatedEvent(
   for (let index = 0; index < receipt.logs.length; index++) {
     const _log = receipt.logs[index];
     const _topics = _log.topics;
-    if (
-      _topics[0] == TOKENS_BRIDGING_INITIATED_TOPIC &&
-      _topics[3] == messageId
-    ) {
-      _tokensBridgingEvent = _log;
-      break;
+    if (_topics.length === 4) {
+      if (_topics[0] == TOKENS_BRIDGING_INITIATED_TOPIC && _topics[3] == messageId) {
+        _tokensBridgingEvent = _log;
+        break;
+      }
     }
   }
 
