@@ -23,8 +23,10 @@ export const getBridgeCommonInfo = ({
   const isFromForeign = !isFromHome
   const isNativeToken = defaultIsNativeToken(tokenAddress)
   const isDAI = isSameString(chainsConfig[fromChainId].bridge.DAI, tokenAddress)
+  const isUSDS = isSameString(chainsConfig[fromChainId].bridge.USDS, tokenAddress)
 
-  const isNativeBridge = !!(isFromHome && isNativeToken) || !!(isFromForeign && isDAI) // native bridge == xDAI bridge
+  const isNativeBridge =
+    !!(isFromHome && isNativeToken) || !!(isFromForeign && isDAI) || !!(isFromForeign && isUSDS) // native bridge == xDAI bridge
 
   const foreignChainId = isFromForeign ? fromChainId : toChainId
 
@@ -34,6 +36,7 @@ export const getBridgeCommonInfo = ({
     isFromForeign,
     isNativeToken,
     isDAI,
+    isUSDS,
     isNativeBridge,
   }
 }
