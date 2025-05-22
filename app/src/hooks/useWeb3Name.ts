@@ -28,10 +28,16 @@ const useWeb3Name = ({ address, name }: UseWeb3NameProps) => {
     {
       shouldRetryOnError: true,
       errorRetryCount: 2,
-      errorRetryInterval: 1000,
+      errorRetryInterval: 3000,
       revalidateOnFocus: false,
       revalidateOnMount: false,
       revalidateOnReconnect: false,
+      dedupingInterval: 60000,
+      focusThrottleInterval: 5000,
+      loadingTimeout: 10000,
+      onError: (err) => {
+        console.error('Error resolving name:', name, err)
+      },
     },
   )
 
@@ -41,15 +47,18 @@ const useWeb3Name = ({ address, name }: UseWeb3NameProps) => {
     {
       shouldRetryOnError: true,
       errorRetryCount: 2,
-      errorRetryInterval: 1000,
+      errorRetryInterval: 3000,
       revalidateOnFocus: false,
       revalidateOnMount: false,
       revalidateOnReconnect: false,
+      dedupingInterval: 60000,
+      focusThrottleInterval: 5000,
+      loadingTimeout: 10000,
+      onError: (err) => {
+        console.error('Error resolving address:', address, err)
+      },
     },
   )
-
-  if (addressError) console.error('Error resolving address:', address, addressError)
-  if (nameError) console.error('Error resolving name:', name, nameError)
 
   return { resolvedAddress, resolvedName, addressError, nameError }
 }
