@@ -12,8 +12,6 @@ import {
   Erc20ToNativeBridgeHelper__factory,
   ForeignAMB,
   ForeignAMB__factory,
-  ForeignBridgeErcToNative,
-  ForeignBridgeErcToNative__factory,
   ForeignBridgeRouter,
   ForeignBridgeRouter__factory,
   // HomeAMB__factory,
@@ -138,7 +136,6 @@ export const ClaimButton = ({
     })
 
     let claim: () =>
-      | ReturnType<ForeignBridgeErcToNative['executeSignatures']>
       | ReturnType<ForeignBridgeRouter['executeSignatures']>
       | ReturnType<ForeignAMB['safeExecuteSignaturesWithAutoGasLimit']>
 
