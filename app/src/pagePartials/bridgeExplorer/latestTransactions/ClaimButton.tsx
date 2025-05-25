@@ -14,6 +14,8 @@ import {
   ForeignAMB__factory,
   ForeignBridgeErcToNative,
   ForeignBridgeErcToNative__factory,
+  ForeignBridgeRouter,
+  ForeignBridgeRouter__factory,
   // HomeAMB__factory,
 } from '@/types/typechain'
 import { Interface } from '@ethersproject/abi'
@@ -137,6 +139,7 @@ export const ClaimButton = ({
 
     let claim: () =>
       | ReturnType<ForeignBridgeErcToNative['executeSignatures']>
+      | ReturnType<ForeignBridgeRouter['executeSignatures']>
       | ReturnType<ForeignAMB['safeExecuteSignaturesWithAutoGasLimit']>
 
     const wallet: WalletState = window.onboard.state.get().wallets[0]
@@ -161,9 +164,12 @@ export const ClaimButton = ({
       ])
 
       // build claim tx
-      const address = contracts.XDAIBridge.address[Chains.mainnet]
-      const foreignXDAI = ForeignBridgeErcToNative__factory.connect(address, provider.getSigner())
-      claim = () => foreignXDAI.executeSignatures(message, signatures)
+      const address = contracts.BridgeRouter.address[Chains.mainnet]
+      const foreignBridgeRouter = ForeignBridgeRouter__factory.connect(
+        address,
+        provider.getSigner(),
+      )
+      claim = () => foreignBridgeRouter.executeSignatures(message, signatures)
     } else {
       // AMB Bridge
       // recover message and signatures
