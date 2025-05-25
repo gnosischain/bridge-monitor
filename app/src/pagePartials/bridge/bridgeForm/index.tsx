@@ -186,7 +186,6 @@ const Main = () => {
   const [debouncedAmount] = useDebounce(formState.amount, 500)
 
   const amountBN = toBN(debouncedAmount || '0', formState.token?.decimals || 0)
-  console.log('amountBN', amountBN.toString())
 
   const handleFromChainIdChange = async () => {
     const newFromChainId = formState.toChainId === 100 ? 100 : 1

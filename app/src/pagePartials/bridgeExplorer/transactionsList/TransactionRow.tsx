@@ -114,6 +114,7 @@ export const TransactionRow: React.FC<Props> = ({
     receiverNetwork,
     receiverNetworkIcon,
     receiverScanUrl,
+    receiverToken,
     scanUrl,
     timestamp,
     transactionHash,
@@ -178,12 +179,15 @@ export const TransactionRow: React.FC<Props> = ({
             href={receiverScanUrl}
             useDomain
           />
-          <Receiver
-            bridgeName={bridgeName}
-            initiatorNetwork={initiatorNetwork}
-            token={initiatorToken}
-            tokenValue={initiatorAmount}
-          />
+          {bridgeName.toLowerCase() === 'xdai' && (
+            <Receiver
+              bridgeName={bridgeName}
+              initiatorNetwork={initiatorNetwork}
+              receiverToken={receiverToken}
+              token={initiatorToken}
+              tokenValue={initiatorAmount}
+            />
+          )}
         </TD>
         {showValidations && (
           <TD>

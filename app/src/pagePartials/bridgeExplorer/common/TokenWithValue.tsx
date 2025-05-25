@@ -63,6 +63,7 @@ Value.defaultProps = {
 interface Props {
   bridgeName: string
   initiatorNetwork: string
+  receiverToken?: string
   token: string
   tokenValue: BigNumberish
 }
@@ -130,20 +131,21 @@ const InitiatorToken: React.FC<Props> = ({
 const ReceiverToken: React.FC<Props> = ({
   bridgeName,
   initiatorNetwork,
+  receiverToken,
   token: tokenAddress,
   tokenValue,
   ...restProps
 }) => {
-  const { destinationToken, isLoading, isXdaiBridge, value } = useLookupBridgedToken({
+  const { initiatorToken, isLoading, isXdaiBridge, value } = useLookupBridgedToken({
     bridgeName,
     initiatorNetwork,
-    tokenAddress,
+    tokenAddress: receiverToken ?? tokenAddress,
     tokenValue,
   })
 
   return isXdaiBridge ? (
     <TokenInfo
-      initiatorToken={destinationToken}
+      initiatorToken={initiatorToken}
       isLoading={isLoading}
       label={receivedLabel}
       value={value}
