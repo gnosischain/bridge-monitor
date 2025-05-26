@@ -1,15 +1,17 @@
 import { recoverLocalStorageKey, setLocalStorageKey } from '@/src/hooks/usePersistedState'
 import addMilliseconds from 'date-fns/addMilliseconds'
 import compareAsc from 'date-fns/compareAsc'
+import parseISO from 'date-fns/parseISO'
 
 const OLD_ENOUGH = 30 * 60 * 60 * 1000
 const key = 'claimTxs'
 const setState = setLocalStorageKey.bind(null, key)
 const state = () => recoverLocalStorageKey<{ id: string; timestamp: Date }[]>(key, [])
 
-const isTooOld = (timestamp: Date) => {
+const isTooOld = (timestamp: Date | string) => {
   const now = new Date()
-  const limitDate = addMilliseconds(timestamp, OLD_ENOUGH)
+  const parsedTimestamp = typeof timestamp === 'string' ? parseISO(timestamp) : timestamp
+  const limitDate = addMilliseconds(parsedTimestamp, OLD_ENOUGH)
   return compareAsc(now, limitDate) == 1
 }
 

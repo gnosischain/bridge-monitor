@@ -245,6 +245,9 @@ const Main = () => {
       ? true
       : false
 
+  console.log('formState', formState)
+  console.log('tokenOut', tokenOut)
+
   return (
     <Wrapper>
       <FormWrapper>
