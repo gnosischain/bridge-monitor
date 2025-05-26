@@ -2,7 +2,7 @@ import { Address, BigInt, Bytes, dataSource, log } from "@graphprotocol/graph-ts
 import { RelayedMessage, UserRequestForAffirmation, UserRequestForAffirmation1 } from "../generated/ForeignBridgeErcToNative/ForeignBridgeErcToNative";
 import { XDAITransaction, TransactionExecution } from "../generated/schema";
 import { Transfer } from "../generated/DAI/DAI";
-import { FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS } from "./config/addresses";
+import { BRIDGE_ROUTER_ADDRESS_ETHEREUM, FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS, XDAI_BRIDGE_PERIPHERAL_FOR_DAI_PRE_USDS_UPGRADE_ADDRESS } from "./config/addresses";
 // import { processUserRequestForAffirmation } from "./utils/xdai-bridge";
 import { DAI_ADDRESS, isSameString } from "./utils/misc";
 import { combineNonceAndChainId, processUserRequestForAffirmation } from "./utils/xdai-bridge";
@@ -140,16 +140,24 @@ export function handlerUserRequestForAffirmationWithNonce(event: UserRequestForA
 
   const nonceWithChainId = combineNonceAndChainId(nonce, 1);
 
-  let receipt = event.receipt;
+let receipt = event.receipt;
   if (receipt != null) {
     for (let i = 0; i < receipt.logs.length; i++) {
-      let log = receipt.logs[i];
-      if (log.topics.length > 0 && log.topics[0].equals(TRANSFER_TOPIC)) {
-        // topics[1] is the 'src' (sender) address, as a Bytes32
-        let srcBytes = log.topics[1];
-        // Take the last 20 bytes for the address
-        sender = Address.fromBytes(Bytes.fromUint8Array(srcBytes.subarray(12, 32)));
-        break;
+      let _log = receipt.logs[i];
+      if (_log.topics.length > 0 && _log.topics[0].equals(TRANSFER_TOPIC)) {
+        let dstBytes = _log.topics[2];
+        const destination = Address.fromBytes(Bytes.fromUint8Array(dstBytes.subarray(12, 32))).toHexString().toLowerCase();
+        if (destination == XDAI_BRIDGE_PERIPHERAL_FOR_DAI_PRE_USDS_UPGRADE_ADDRESS.toLowerCase()
+          || destination == FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS.toLowerCase()
+          || destination == BRIDGE_ROUTER_ADDRESS_ETHEREUM.toLowerCase()) {
+          
+          
+          // topics[1] is the 'src' (sender) address, as a Bytes32
+          let srcBytes = _log.topics[1];
+          // Take the last 20 bytes for the address
+          sender = Address.fromBytes(Bytes.fromUint8Array(srcBytes.subarray(12, 32)));
+          break;
+        }
       }
     }
   }

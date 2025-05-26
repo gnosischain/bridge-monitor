@@ -705,7 +705,6 @@ export const useBridgeTransactionInfo = ({
     tokenAddress: token.address,
   })
   if (!userBalancesData) throw new Error('User balances are not available')
-  console.log('userBalancesData', userBalancesData)
 
   return useSWR(
     [
