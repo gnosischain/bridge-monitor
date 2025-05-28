@@ -139,8 +139,9 @@ export function handlerUserRequestForAffirmationWithNonce(event: UserRequestForA
   }
 
   const nonceWithChainId = combineNonceAndChainId(nonce, 1);
+  let initatorTokenAddress = Address.zero();
 
-let receipt = event.receipt;
+  let receipt = event.receipt;
   if (receipt != null) {
     for (let i = 0; i < receipt.logs.length; i++) {
       let _log = receipt.logs[i];
@@ -150,6 +151,8 @@ let receipt = event.receipt;
         if (destination == XDAI_BRIDGE_PERIPHERAL_FOR_DAI_PRE_USDS_UPGRADE_ADDRESS.toLowerCase()
           || destination == FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS.toLowerCase()
           || destination == BRIDGE_ROUTER_ADDRESS_ETHEREUM.toLowerCase()) {
+
+          initatorTokenAddress = _log.address;
           
           
           // topics[1] is the 'src' (sender) address, as a Bytes32
@@ -168,7 +171,7 @@ let receipt = event.receipt;
 
   let transaction = new XDAITransaction(nonceWithChainId.toHexString());
   transaction.initiator = sender;
-  transaction.initiatorToken = Address.fromHexString(DAI_ADDRESS);
+  transaction.initiatorToken = initatorTokenAddress;
   transaction.initiatorAmount = value;
   transaction.initiatorNetwork = "mainnet";
 
