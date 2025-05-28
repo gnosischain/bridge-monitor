@@ -136,8 +136,6 @@ export const Transaction: React.FC = ({ ...restProps }) => {
   const txExecution = currentTx?.execution ?? ({} as TransactionExecution)
   const { validators: bridgeValidators } = useValidators(currentTx?.bridgeName as BridgesValues)
 
-  console.log('currentTx', currentTx)
-
   if ((!currentTx && isLoading) || isLoading) return <TransactionSkeletonLoading />
   if (!currentTx)
     return (
