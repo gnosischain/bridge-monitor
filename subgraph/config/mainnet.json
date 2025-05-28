@@ -3,14 +3,14 @@
   "network": "mainnet",
 
   "DAI": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-  "startDAI": 40243760,
+  "startDAI": 22532720,
   "DAITopic0": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
 
   "ForeignBridgeErcToNative": "0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016",
-  "startBlockForeignBridgeErcToNative": 40243760,
+  "startBlockForeignBridgeErcToNative": 22532720,
 
   "ForeignAMB": "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e",
-  "startBlockForeignAMB": 40243760,
+  "startBlockForeignAMB": 22532720,
 
   "BridgeRouter": "0x9a873656c19Efecbfb4f9FAb5B7acdeAb466a0B0",
   "XDAIBridgePeripheralForDaiPreUsdsUpgrade": "0xF676cc15Eb6d15b794aeC65bC20052aFB53D9052",
