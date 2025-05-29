@@ -288,7 +288,11 @@ const Dropdown: React.FC<Props> = ({
   useEffect(() => {
     const allTokens = ambTokensByNetwork[fromChainId]
       .concat(manualTokens.filter((item) => item.chainId === fromChainId))
-      .filter((item) => item.address !== ZERO_ADDRESS)
+      .filter((item) => {
+        if (isSameString(item.address, ZERO_ADDRESS)) return false
+        if (fromChainId === Chains.gnosis && isSameString(item.symbol, 'USDS')) return false
+        return true
+      })
       .concat(
         fromChainId === Chains.gnosis
           ? [
@@ -437,10 +441,6 @@ const Dropdown: React.FC<Props> = ({
       searchInputRef.focus()
     }
   }, [searchInputRef, isOpened])
-
-  // const handleInputRef = (element: HTMLInputElement | null) => {
-  //   setSearchInputInputRef(element)
-  // }
 
   return (
     <Wrapper

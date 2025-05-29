@@ -154,8 +154,11 @@ const useBridgeLimits = (
       const isForeignDAI =
         _fromChainId != Chains.gnosis &&
         isSameString(_fromTokenAddress, chainsConfig[_fromChainId].bridge.DAI)
+      const isForeignUSDS =
+        _fromChainId != Chains.gnosis &&
+        isSameString(_fromTokenAddress, chainsConfig[_fromChainId].bridge.USDS)
 
-      if (isGnosisXDai || isForeignDAI || overwrittenMediator) {
+      if (isGnosisXDai || isForeignDAI || overwrittenMediator || isForeignUSDS) {
         const contractAddress = overwrittenMediator
           ? TokenOverrideManager.getOverride(_fromTokenAddress).mediator // use the overridden mediator address.
           : contracts.XDAIBridge.address[_fromChainId]

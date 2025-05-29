@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
+import { NATIVE_TOKEN_ADDRESS, USDS_ADDRESS } from '@/src/constants/config/common'
 import { isSameString } from '@/src/utils/tools'
 import { Token as BaseToken } from '@/types/token'
 import bridgedTokens from '@/src/constants/bridged_tokens.json'
@@ -35,6 +35,7 @@ export default function handler(_: NextApiRequest, res: NextApiResponse<Array<To
     const { address, decimals, foreign_address, icon_url, name, origin_chain_id, symbol } = token
     const isWethOnXdai = isSameString(address, WETH_ON_XDAI)
     const isDaiOnMainnet = isSameString(foreign_address, DAI_ON_MAINNET)
+    const isUsdsOnMainnet = isSameString(foreign_address, USDS_ADDRESS)
     let extraTokens: Array<Token> = []
 
     if (isDaiOnMainnet) {
@@ -100,6 +101,41 @@ export default function handler(_: NextApiRequest, res: NextApiResponse<Array<To
             bridgeInfo: {
               [origin_chain_id]: {
                 tokenAddress: NATIVE_TOKEN_ADDRESS,
+              },
+            },
+          },
+        },
+      ]
+    }
+
+    if (isUsdsOnMainnet) {
+      extraTokens = [
+        {
+          chainId: Number(origin_chain_id),
+          address: foreign_address,
+          decimals: Number(decimals),
+          logoURI: icon_url ?? undefined,
+          name: name.replace(bridgedTokenName, ''),
+          symbol,
+          extensions: {
+            bridgeInfo: {
+              100: {
+                tokenAddress: NATIVE_TOKEN_ADDRESS,
+              },
+            },
+          },
+        },
+        {
+          chainId: 100,
+          address: NATIVE_TOKEN_ADDRESS,
+          decimals: Number(decimals),
+          logoURI: icon_url ?? undefined,
+          name: 'xDai',
+          symbol: 'xDAI',
+          extensions: {
+            bridgeInfo: {
+              [origin_chain_id]: {
+                tokenAddress: foreign_address,
               },
             },
           },

@@ -58,6 +58,7 @@ export const ValidatorIcon: React.FC<Props> = ({ shortName, size, title, ...rest
         className="validatorImage"
         height={data.size}
         src={data.image}
+        style={{ objectFit: 'contain', maxWidth: '100%', maxHeight: '100%' }}
         width={data.size}
       />
     </Wrapper>

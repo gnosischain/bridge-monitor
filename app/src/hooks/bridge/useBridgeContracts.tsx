@@ -4,7 +4,7 @@ import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { JsonRpcBatchProvider } from '@ethersproject/providers'
 
 import {
-  ForeignBridgeErcToNative__factory,
+  ForeignBridgeRouter__factory,
   ForeignOmniMediator__factory,
   HomeBridgeErcToNative__factory,
   HomeOmniMediator__factory,
@@ -29,10 +29,17 @@ export const getBridgeContract = (
   })
 
   if (isNativeBridge) {
-    return (isHome ? HomeBridgeErcToNative__factory : ForeignBridgeErcToNative__factory).connect(
-      contracts.XDAIBridge.address[fromChainId],
-      provider,
-    )
+    if (isHome) {
+      return HomeBridgeErcToNative__factory.connect(
+        contracts.XDAIBridge.address[fromChainId],
+        provider,
+      )
+    } else {
+      return ForeignBridgeRouter__factory.connect(
+        contracts.BridgeRouter.address[fromChainId],
+        provider,
+      )
+    }
   } else if (fromChainId !== Chains.gnosis && isNativeToken) {
     return NativeOmniBridgeMediator__factory.connect(
       contracts.omniBridgeNativeToken.address[fromChainId],
