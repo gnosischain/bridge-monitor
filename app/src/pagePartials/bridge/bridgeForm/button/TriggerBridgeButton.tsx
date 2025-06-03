@@ -45,8 +45,6 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
     token,
   })
 
-  console.log('transactionData', transactionData)
-
   if (!transactionData) throw new Error('Transaction data is not available')
 
   const { isNativeBridge } = getBridgeCommonInfo({
