@@ -21,7 +21,6 @@
 *.pem
 tsconfig.tsbuildinfo
 .eslintcache
-types/generated/
 
 # debug
 npm-debug.log*
@@ -37,9 +36,6 @@ yarn-error.log*
 
 # vercel
 .vercel
-
-#types
-/types/typechain
 
 #IDE files
 /.idea
