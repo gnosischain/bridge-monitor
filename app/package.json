@@ -15,7 +15,7 @@
     "start": "next start",
     "typechain": "typechain --target=ethers-v5 ./src/abis/**/*.json --out-dir ./types/typechain/",
     "subgraph-codegen": "graphql-codegen --config ./subgraph-config.js",
-    "postinstall-locally": "yarn typechain && yarn subgraph-codegen"
+    "postinstall": "yarn typechain && yarn subgraph-codegen"
   },
   "dependencies": {
     "@babel/traverse": "^7.23.2",
