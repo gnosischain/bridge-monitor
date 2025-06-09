@@ -41,5 +41,5 @@ yarn-error.log*
 /.idea
 
 
-types/generated/
-types/typechain/
+# types/generated/
+# types/typechain/
