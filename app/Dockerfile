@@ -26,9 +26,6 @@ ARG NEXT_PUBLIC_SUBGRAPH_ACCESS_ID
 ARG NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS
 ARG NEXT_PUBLIC_ALCHEMY_API_KEY
 
-# Env variables meant to be used in the CI at build time to interact with thegraph API
-ARG CODEGEN_CI_SUBGRAPH_ACCESS_ID
-
 COPY package.json yarn.lock subgraph-config.js ./
 COPY /src ./src
 
