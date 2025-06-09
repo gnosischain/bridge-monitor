@@ -19,10 +19,10 @@ const getSubgraphEnvVariables = (chainPair) => {
     )
   }
 
-  // verify NEXT_PUBLIC_SUBGRAPH_ACCESS_ID is set
-  const ACCESS_ID = process.env.NEXT_PUBLIC_SUBGRAPH_ACCESS_ID
+  // verify CODEGEN_CI_SUBGRAPH_ACCESS_ID is set
+  const ACCESS_ID = process.env.CODEGEN_CI_SUBGRAPH_ACCESS_ID
   if (!ACCESS_ID) {
-    throw Error('Missing env var NEXT_PUBLIC_SUBGRAPH_ACCESS_ID')
+    throw Error('Missing env var CODEGEN_CI_SUBGRAPH_ACCESS_ID')
   }
 
   // verify NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE is set if env is production
