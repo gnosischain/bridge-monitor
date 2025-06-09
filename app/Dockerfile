@@ -33,6 +33,7 @@ COPY /src ./src
 RUN  yarn cache clean
 
 RUN  yarn install
+RUN  yarn postinstall
 
 FROM base AS builder
 WORKDIR /app
