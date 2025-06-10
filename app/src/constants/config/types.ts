@@ -21,6 +21,7 @@ export type ChainConfig = {
   bridge: {
     DAI: string
     wForeignNative: string
+    USDS?: string
   }
 }
 

@@ -132,6 +132,7 @@ interface Props {
   $receiverName: string
   $receiverNetwork: string
   $receiverNetworkIcon?: string
+  $receiverToken?: string
   $timestampExecution: number
   $timestampStarted: number
   $transaction?: Transaction
@@ -149,6 +150,7 @@ export const Summary: React.FC<Props> = ({
   $receiver,
   $receiverNetwork,
   $receiverNetworkIcon,
+  $receiverToken,
   $timestampExecution,
   $timestampStarted,
   $transaction,
@@ -193,13 +195,18 @@ export const Summary: React.FC<Props> = ({
             token={$initiatorToken}
             tokenValue={$initiatorAmount}
           />
-          {$bridgeName.toLowerCase() === 'xdai' && <ArrowRight />}
-          <Receiver
-            bridgeName={$bridgeName}
-            initiatorNetwork={$initiatorNetwork}
-            token={$initiatorToken}
-            tokenValue={$initiatorAmount}
-          />
+          {$bridgeName.toLowerCase() === 'xdai' && (
+            <>
+              <ArrowRight />
+              <Receiver
+                bridgeName={$bridgeName}
+                initiatorNetwork={$initiatorNetwork}
+                receiverToken={$receiverToken}
+                token={$initiatorToken}
+                tokenValue={$initiatorAmount}
+              />
+            </>
+          )}
         </InitiatorReceiver>
       </PodAmount>
       {/* @todo - If a signature fails it has to change state */}

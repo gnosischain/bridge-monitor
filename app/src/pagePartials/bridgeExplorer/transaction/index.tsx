@@ -211,6 +211,7 @@ export const Transaction: React.FC = ({ ...restProps }) => {
           $receiverName={currentTx.receiver}
           $receiverNetwork={currentTx.receiverNetwork}
           $receiverNetworkIcon={getChainIconName(currentTx.receiverNetwork)}
+          $receiverToken={currentTx.receiverToken}
           $timestampExecution={currentTx.execution?.timestamp ?? 0}
           $timestampStarted={currentTx.timestamp ?? 0}
           $transaction={currentTx}

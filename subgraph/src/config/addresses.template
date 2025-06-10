@@ -1,1 +1,3 @@
 export const FOREIGN_BRIDGE_ERC_TO_NATIVE_ADDRESS = '{{ForeignBridgeErcToNative}}';
+export const BRIDGE_ROUTER_ADDRESS_ETHEREUM = '{{BridgeRouter}}';
+export const XDAI_BRIDGE_PERIPHERAL_FOR_DAI_PRE_USDS_UPGRADE_ADDRESS = '{{XDAIBridgePeripheralForDaiPreUsdsUpgrade}}';

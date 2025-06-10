@@ -67,6 +67,12 @@ export const contracts = {
     },
     abi: AMBBridgeHelper_abi,
   },
+  BridgeRouter: {
+    address: {
+      [Chains.mainnet]: '0x9a873656c19Efecbfb4f9FAb5B7acdeAb466a0B0',
+      [Chains.gnosis]: '',
+    },
+  },
 } as const
 
 export type ContractsKeys = keyof typeof contracts

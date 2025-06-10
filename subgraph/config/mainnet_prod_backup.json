@@ -12,6 +12,9 @@
   "ForeignAMB": "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e",
   "startBlockForeignAMB": 16308190,
 
+  "BridgeRouter": "0x9a873656c19Efecbfb4f9FAb5B7acdeAb466a0B0",
+  "XDAIBridgePeripheralForDaiPreUsdsUpgrade": "0xF676cc15Eb6d15b794aeC65bC20052aFB53D9052",
+
   "validators": [
     {
       "id": 1,
