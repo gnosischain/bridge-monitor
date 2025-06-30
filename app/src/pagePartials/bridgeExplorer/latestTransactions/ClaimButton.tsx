@@ -23,6 +23,9 @@ import styled from 'styled-components'
 import { useState } from 'react'
 import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
+import { Dropdown, DropdownItem } from '@/src/components/dropdown'
+import { TokenIcon } from '@/src/components/token/TokenIcon'
+
 const Wrapper = styled.button`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.primary};
@@ -54,6 +57,36 @@ const Wrapper = styled.button`
   }
 `
 
+const ButtonHoverWrapper = styled(Wrapper)`
+  &:hover {
+    opacity: 0.8;
+  }
+`
+
+const Items = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
+  padding: 0 0 calc(var(--theme-common-space) / 2);
+  opacity: 1 !important;
+`
+
+const DropdownItemWrapper = styled(DropdownItem)`
+  --inner-padding: calc(var(--theme-common-space) * 2);
+  &:first-child {
+    border-radius: 0;
+  }
+  padding: var(--inner-padding);
+`
+
+const TokenInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: normal;
+  flex: 1;
+`
+
 type ClaimButtonProps = {
   transaction: Transaction
   updateInMemoryTransaction: UpdateInMemoryTx
@@ -67,7 +100,7 @@ export const ClaimButton = ({
   const { appChainId, connectWallet, isWalletConnected, isWalletNetworkSupported, pushNetwork } =
     useWeb3Connection()
   const [isWorking, setIsWorking] = useState(false)
-
+  const [isOpened, setIsOpened] = useState(false)
   const erc20ToNativeBridgeHelper = useContractInstance(
     Erc20ToNativeBridgeHelper__factory,
     'BridgeHelper',
@@ -81,6 +114,7 @@ export const ClaimButton = ({
   )
 
   const sendTx = useTransaction({ skipConnectionCheck: true })
+  const isXDAI = transaction.bridgeName.toUpperCase() === 'XDAI'
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleClaim = async (e: any) => {
@@ -142,7 +176,7 @@ export const ClaimButton = ({
     const wallet: WalletState = window.onboard.state.get().wallets[0]
     const provider = new Web3Provider(wallet.provider)
 
-    if (transaction.bridgeName.toUpperCase() === 'XDAI') {
+    if (isXDAI) {
       // XDAI Bridge
       // recover message and signatures
       // console.log('transaction', transaction)
@@ -230,10 +264,60 @@ export const ClaimButton = ({
     }
   }
 
-  return (
-    <Wrapper disabled={isWorking || transaction.isClaiming} onClick={handleClaim} {...restProps}>
-      Claim
-      {transaction.isClaiming && 'ing...'}
-    </Wrapper>
-  )
+  const handleClaimClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    setIsOpened(!isOpened)
+  }
+
+  const handleClaimXDAI = (e: React.MouseEvent<HTMLDivElement>, token: 'usds' | 'dai') => {
+    e.preventDefault()
+    console.log('token', token)
+  }
+
+  if (isXDAI) {
+    return (
+      <Dropdown
+        dropdownButton={
+          <ButtonHoverWrapper
+            disabled={isWorking || transaction.isClaiming}
+            onClick={handleClaimClick}
+            {...restProps}
+          >
+            Claim
+            {transaction.isClaiming && 'ing...'}
+          </ButtonHoverWrapper>
+        }
+        items={[
+          <Items className="no-fade" key="items">
+            <DropdownItemWrapper
+              key="usds"
+              onClick={(e) => {
+                handleClaimXDAI(e, 'usds')
+              }}
+              style={{ opacity: 1 }}
+            >
+              <TokenIcon dimensions={16} iconSource={'/images/icons/usds.webp'} symbol={'USDS'} />
+              <TokenInfo>USDS</TokenInfo>
+            </DropdownItemWrapper>
+            <DropdownItemWrapper
+              key="dai"
+              onClick={(e) => {
+                handleClaimXDAI(e, 'dai')
+              }}
+            >
+              <TokenIcon dimensions={16} iconSource={'/images/icons/dai.svg'} symbol={'DAI'} />
+              <TokenInfo>DAI</TokenInfo>
+            </DropdownItemWrapper>
+          </Items>,
+        ]}
+      />
+    )
+  } else {
+    return (
+      <Wrapper disabled={isWorking || transaction.isClaiming} onClick={handleClaim} {...restProps}>
+        Claim
+        {transaction.isClaiming && 'ing...'}
+      </Wrapper>
+    )
+  }
 }
