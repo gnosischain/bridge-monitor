@@ -144,6 +144,7 @@ const initialState: BridgeFormState = {
   recipient: '',
   toChainId: Chains.gnosis,
   token: undefined,
+  receiveUsds: false,
 }
 
 const Main = () => {
@@ -235,6 +236,7 @@ const Main = () => {
   const tokenOut = useBridgeTokenOutInfo({
     fromChainId: formState.fromChainId,
     receiveNativeToken: formState.receiveNativeToken,
+    receiveUsds: formState.receiveUsds,
     toChainId: formState.toChainId,
     token: formState.token,
   })
@@ -313,6 +315,9 @@ const Main = () => {
                       fromChainId={formState.fromChainId}
                       setReceiveNativeToken={(receiveNative: boolean) => {
                         dispatch({ ...formState, receiveNativeToken: receiveNative })
+                      }}
+                      setReceiveUsds={(receiveUsds: boolean) => {
+                        dispatch({ ...formState, receiveUsds: receiveUsds })
                       }}
                       toChainId={formState.toChainId}
                       token={formState.token}
