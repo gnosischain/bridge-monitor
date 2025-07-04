@@ -41,8 +41,13 @@ const sanitizeQuery = (query: ParsedUrlQuery, tokensByNetwork: TokensByNetwork):
 
 export const useSanitizedQuery = (tokensByNetwork: TokensByNetwork) => {
   const router = useRouter()
+
   return useMemo(
-    () => sanitizeQuery(router.query, { ...tokensByNetwork, ...tokensException }),
+    () =>
+      sanitizeQuery(router.query, {
+        [1]: [...tokensByNetwork[1], ...(tokensException[1] || [])],
+        [100]: [...tokensByNetwork[100], ...(tokensException[100] || [])],
+      }),
     [router.query, tokensByNetwork],
   )
 }
