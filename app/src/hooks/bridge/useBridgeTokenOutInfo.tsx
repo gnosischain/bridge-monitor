@@ -85,6 +85,12 @@ const getReceivedTokenInfo = async ({
 
   if (isFromHome) {
     // xDAI -> DAI
+    if (receiveUsds) {
+      return {
+        tokenOutAddress: USDS_ADDRESS,
+      }
+    }
+
     if (isNativeToken) {
       return {
         tokenOutAddress: chainsConfig[toChainId].bridge.DAI,
@@ -99,12 +105,6 @@ const getReceivedTokenInfo = async ({
           ? NATIVE_TOKEN_ADDRESS
           : chainsConfig[toChainId].bridge.wForeignNative,
         canReceiveNativeToken: false,
-      }
-    }
-
-    if (receiveUsds) {
-      return {
-        tokenOutAddress: USDS_ADDRESS,
       }
     }
 

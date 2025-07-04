@@ -12,6 +12,7 @@ import { chainsConfig } from '@/src/constants/config/chains'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { isSameString } from '@/src/utils/tools'
+import React, { useState } from 'react'
 
 const NoTokenSelected = styled.span`
   font-size: 1.5rem;
@@ -110,6 +111,10 @@ export const TokenOut: React.FC<{
     const showXDaiSwitcher =
       fromChainId === Chains.gnosis && isSameString(token.address, NATIVE_TOKEN_ADDRESS)
 
+    // Add state for selected option
+    const [selectedNativeToken, setSelectedNativeToken] = useState(wethOptions[0].label)
+    const [selectedXDaiToken, setSelectedXDaiToken] = useState(xdaiOptions[0].label)
+
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const tokenOutAmount = formatUnits(amount.sub(feeInfo!), tokenOut?.decimals)
 
@@ -117,19 +122,23 @@ export const TokenOut: React.FC<{
       <>
         {showNativeTokenSwitcher ? (
           <ReceiveTokenSwitcher
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              setSelectedNativeToken(event.target.value)
               onReceiveNativeChange(event.target.value === 'ETH')
-            }
+            }}
             options={wethOptions}
             optionsId="ethOptions"
+            value={selectedNativeToken}
           />
         ) : showXDaiSwitcher ? (
           <ReceiveTokenSwitcher
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              setSelectedXDaiToken(event.target.value)
               onReceiveUsdsChange(event.target.value === 'USDS')
-            }
+            }}
             options={xdaiOptions}
             optionsId="xdaiOptions"
+            value={selectedXDaiToken}
           />
         ) : (
           <>

@@ -23,14 +23,21 @@ interface Props {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   options: IOption[]
   optionsId: string
+  value: string
 }
 
-export const ReceiveTokenSwitcher = ({ onChange, options, optionsId, ...restProps }: Props) => {
+export const ReceiveTokenSwitcher = ({
+  onChange,
+  options,
+  optionsId,
+  value,
+  ...restProps
+}: Props) => {
   return (
     <Wrapper {...restProps}>
       {options.map(({ disabled, icon, label, name }, index) => (
         <TokenSelectButton
-          defaultChecked={index === 0}
+          checked={value === label}
           disabled={disabled}
           icon={icon}
           id={optionsId}
