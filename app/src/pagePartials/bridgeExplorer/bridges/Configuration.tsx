@@ -80,8 +80,10 @@ export const Configuration: React.FC = ({ ...restProps }) => {
           <SubTitle>Ethereum Addresses</SubTitle>
           <Rows>
             <Row address={XDAI.bridgeProxy} title="Bridge Proxy Contract" />
+            <Row address={XDAI.bridgeRouter} title="Bridge Router Proxy Contract" />
             <Row address={XDAI.governorMultisig} title="Governor Multisig" />
             <Row address={XDAI.tokens.dai} title="DAI Token" />
+            <Row address={XDAI.tokens.usds} title="USDS Token" />
             <Row address={XDAI.protocol.address} title="Protocol" />
             <Row address={XDAI.protocol.token} title="Protocol Token" />
           </Rows>

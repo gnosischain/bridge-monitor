@@ -55,7 +55,7 @@ const ExternalLink = styled.a`
   align-items: center;
   column-gap: var(--theme-common-space);
   display: flex;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   text-decoration: none;
 
   &:active {
@@ -106,6 +106,13 @@ export const Footer: React.FC = (props) => {
           </ExternalLink>
         </Start>
         <End>
+          <ExternalLink
+            href="https://docs.gnosischain.com/bridges/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            Documentation
+          </ExternalLink>
           <Link href="/faq">FAQ</Link>
           {/* <NextLink href="/privacy" passHref>
             <Link>Privacy Policy</Link>

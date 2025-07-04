@@ -8,11 +8,20 @@ export const ReceivedTokenInfo: React.FC<{
   fromChainId: ChainsValues
   toChainId: ChainsValues
   setReceiveNativeToken: (receiveNative: boolean) => void
+  setReceiveUsds: (receiveUsds: boolean) => void
   token: Token | undefined
   amountBN: BigNumber
   tokenOut?: Token
 }> = genericSuspense(
-  ({ amountBN, fromChainId, setReceiveNativeToken, toChainId, token, tokenOut }) => {
+  ({
+    amountBN,
+    fromChainId,
+    setReceiveNativeToken,
+    setReceiveUsds,
+    toChainId,
+    token,
+    tokenOut,
+  }) => {
     return (
       <>
         {!token || !tokenOut ? (
@@ -22,6 +31,7 @@ export const ReceivedTokenInfo: React.FC<{
             amount={amountBN}
             fromChainId={fromChainId}
             setReceiveNativeToken={setReceiveNativeToken}
+            setReceiveUsds={setReceiveUsds}
             toChainId={toChainId}
             token={token}
             tokenOut={tokenOut}
