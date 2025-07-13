@@ -23,6 +23,9 @@ import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
 
 import { Dropdown, DropdownDirection, DropdownItem } from '@/src/components/dropdown'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
+import { useForeignXdaiErc20Address } from '@/src/hooks/contracts/useForeignXdaiErc20Address'
+import { USDS_ADDRESS } from '@/src/constants/config/common'
+import { isSameString } from '@/src/utils/tools'
 
 const Wrapper = styled.button`
   align-items: center;
@@ -113,6 +116,9 @@ export const ClaimButton = ({
 
   const sendTx = useTransaction({ skipConnectionCheck: true })
   const isXDAI = transaction.bridgeName.toUpperCase() === 'XDAI'
+
+  const { foreignXdaiErc20Token } = useForeignXdaiErc20Address()
+  const isUsdsDisabled = !isSameString(foreignXdaiErc20Token, USDS_ADDRESS)
 
   const getClaimTx = async (
     provider: Web3Provider,
@@ -305,11 +311,12 @@ export const ClaimButton = ({
               <TokenInfo>DAI</TokenInfo>
             </DropdownItemWrapper>
             <DropdownItemWrapper
+              disabled={isUsdsDisabled}
               key="usds"
               onClick={(e) => {
                 handleClaimXDAI(e, 'usds')
               }}
-              style={{ opacity: 1 }}
+              style={{ opacity: isUsdsDisabled ? 0.5 : 1 }}
             >
               <TokenIcon dimensions={16} iconSource={'/images/icons/usds.webp'} symbol={'USDS'} />
               <TokenInfo>USDS</TokenInfo>
