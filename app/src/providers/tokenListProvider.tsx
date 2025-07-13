@@ -2,7 +2,7 @@ import { FC, PropsWithChildren, createContext, useContext } from 'react'
 import useSWR from 'swr/immutable'
 import { TokensLists } from '@/src/constants/config/types'
 import { getIcon } from '@/src/utils/icons'
-import { isNativeToken, isSameString, isUsdsToken } from '@/src/utils/tools'
+import { isNativeToken, isSameString } from '@/src/utils/tools'
 import {
   NativeTokensByNetwork,
   Token,
@@ -136,10 +136,6 @@ const useTokenListQuery = () => {
 
         // native tokens indexing
         if (isNativeToken(token.address)) {
-          acc.nativeTokensByNetwork[token.chainId] = token
-        }
-
-        if (isUsdsToken(token.address)) {
           acc.nativeTokensByNetwork[token.chainId] = token
         }
 
