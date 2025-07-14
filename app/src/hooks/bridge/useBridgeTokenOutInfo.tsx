@@ -27,6 +27,7 @@ const getReceivedTokenInfo = async ({
   fromChainId,
   omniBridgeInstance,
   receiveNativeToken,
+  receiveUsds,
   toChainId,
   tokenAddress,
 }: {
@@ -35,6 +36,7 @@ const getReceivedTokenInfo = async ({
   tokenAddress: string
   omniBridgeInstance: HomeOmniMediator
   receiveNativeToken: boolean
+  receiveUsds: boolean
 }): Promise<{ tokenOutAddress: string; canReceiveNativeToken?: boolean }> => {
   const { isDAI, isFromForeign, isFromHome, isNativeToken } = getBridgeCommonInfo({
     fromChainId,
@@ -83,6 +85,12 @@ const getReceivedTokenInfo = async ({
 
   if (isFromHome) {
     // xDAI -> DAI
+    if (receiveUsds) {
+      return {
+        tokenOutAddress: USDS_ADDRESS,
+      }
+    }
+
     if (isNativeToken) {
       return {
         tokenOutAddress: chainsConfig[toChainId].bridge.DAI,
@@ -113,10 +121,12 @@ const getReceivedTokenInfo = async ({
 export const useBridgeTokenOutInfo = ({
   fromChainId,
   receiveNativeToken,
+  receiveUsds,
   toChainId,
   token,
 }: {
   receiveNativeToken: boolean
+  receiveUsds: boolean
   toChainId: ChainsValues
   fromChainId: ChainsValues
   token?: Token
@@ -127,8 +137,10 @@ export const useBridgeTokenOutInfo = ({
   const shouldFetch = !!(token && fromChainId && toChainId)
 
   const { data } = useSWR(
-    shouldFetch ? [token, fromChainId, toChainId, receiveNativeToken, 'bridgeTokenOut'] : null,
-    async ([_token, _fromChainId, _toChainId, _receiveNativeToken]) => {
+    shouldFetch
+      ? [token, fromChainId, toChainId, receiveNativeToken, receiveUsds, 'bridgeTokenOut']
+      : null,
+    async ([_token, _fromChainId, _toChainId, _receiveNativeToken, _receiveUsds]) => {
       if (
         _fromChainId === Chains.mainnet &&
         _toChainId === Chains.gnosis &&
@@ -161,6 +173,7 @@ export const useBridgeTokenOutInfo = ({
           tokenAddress: _token.address,
           fromChainId: _fromChainId,
           receiveNativeToken: _receiveNativeToken,
+          receiveUsds: _receiveUsds,
         })
 
         // if tokenOutInfo address is ZERO_ADDRESS is a new token on the other chain and we need to handle it

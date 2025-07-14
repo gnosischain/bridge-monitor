@@ -1,4 +1,4 @@
-import { NATIVE_TOKEN_ADDRESS, USDS_ADDRESS } from '@/src/constants/config/common'
+import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { ZERO_ADDRESS } from '@/src/constants/misc'
 import { isHexString } from '@ethersproject/bytes'
@@ -37,10 +37,6 @@ export const isTransactionHash = (hash: string) => isHexString(hash) && hash.len
 
 export const isNativeToken = (address: string) => {
   return isSameString(address, NATIVE_TOKEN_ADDRESS || ZERO_ADDRESS)
-}
-
-export const isUsdsToken = (address: string) => {
-  return isSameString(address, USDS_ADDRESS)
 }
 
 export const getToChainId = (fromChainId: ChainsValues) =>
