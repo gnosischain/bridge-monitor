@@ -19,11 +19,11 @@ import { isSameString } from '@/src/utils/tools'
 import { Spinner } from '@/src/components/loading/Spinner'
 import { ERC165__factory } from '@/types/typechain/factories/ERC165__factory'
 import { USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
-import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { useUserTokenListBalances } from '@/src/hooks/bridge/useUserTokenListBalances'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { fromBN } from '@/src/utils/bigNumber'
 import { formatNumber } from '@/src/utils/format'
+import { usdsToken } from '@/src/constants/usdsToken'
 
 const BaseChevronDown = ({ ...restProps }) => (
   <svg
@@ -314,6 +314,7 @@ const Dropdown: React.FC<Props> = ({
             ]
           : [],
       )
+      .concat(fromChainId === Chains.mainnet ? [usdsToken] : [])
 
     const _filteredTokens = orderBy(
       value
@@ -369,16 +370,17 @@ const Dropdown: React.FC<Props> = ({
     const filteredTokens = Object.values(_tokens)
       .map((_t) => tokensByChain.find((token) => isSameString(get(token, key), _t.address)))
       .filter((token): token is Token => !!token)
-      .concat(
-        tokensByChain.find((item) => isSameString(item.address, NATIVE_TOKEN_ADDRESS)) as Token,
-      )
 
     // Sort the filtered tokens according to their position in the _tokens array
-    const orderedTokens = filteredTokens
-      .sort(
-        (a, b) => symbols.indexOf(a.symbol.toUpperCase()) - symbols.indexOf(b.symbol.toUpperCase()),
-      )
-      .slice(0, 10)
+    const orderedTokens = [
+      ...(fromChainId === Chains.mainnet ? [usdsToken] : []),
+      ...filteredTokens
+        .sort(
+          (a, b) =>
+            symbols.indexOf(a.symbol.toUpperCase()) - symbols.indexOf(b.symbol.toUpperCase()),
+        )
+        .slice(0, 10),
+    ]
 
     setTopTokens(orderedTokens)
   }, [ambTokensByNetwork, fromChainId, toChainId])
