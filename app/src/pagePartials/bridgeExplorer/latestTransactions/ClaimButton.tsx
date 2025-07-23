@@ -11,10 +11,8 @@ import {
   AMBBridgeHelper__factory,
   Erc20ToNativeBridgeHelper__factory,
   ForeignAMB,
-  ForeignAMB__factory,
   ForeignBridgeRouter,
   ForeignBridgeRouter__factory,
-  // HomeAMB__factory,
 } from '@/types/typechain'
 import { Interface } from '@ethersproject/abi'
 import { JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
@@ -22,6 +20,12 @@ import { WalletState } from '@web3-onboard/core'
 import styled from 'styled-components'
 import { useState } from 'react'
 import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
+
+import { Dropdown, DropdownDirection, DropdownItem } from '@/src/components/dropdown'
+import { TokenIcon } from '@/src/components/token/TokenIcon'
+import { useForeignXdaiErc20Address } from '@/src/hooks/contracts/useForeignXdaiErc20Address'
+import { USDS_ADDRESS } from '@/src/constants/config/common'
+import { isSameString } from '@/src/utils/tools'
 
 const Wrapper = styled.button`
   align-items: center;
@@ -54,6 +58,36 @@ const Wrapper = styled.button`
   }
 `
 
+const ButtonHoverWrapper = styled(Wrapper)`
+  &:hover {
+    opacity: 0.8;
+  }
+`
+
+const Items = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
+})<{ closeOnClick?: boolean }>`
+  padding: 0 0 calc(var(--theme-common-space) / 2);
+  opacity: 1 !important;
+`
+
+const DropdownItemWrapper = styled(DropdownItem)`
+  --inner-padding: calc(var(--theme-common-space) * 2);
+  &:first-child {
+    border-radius: 0;
+  }
+  padding: var(--inner-padding);
+`
+
+const TokenInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: normal;
+  flex: 1;
+`
+
 type ClaimButtonProps = {
   transaction: Transaction
   updateInMemoryTransaction: UpdateInMemoryTx
@@ -67,7 +101,7 @@ export const ClaimButton = ({
   const { appChainId, connectWallet, isWalletConnected, isWalletNetworkSupported, pushNetwork } =
     useWeb3Connection()
   const [isWorking, setIsWorking] = useState(false)
-
+  const [isOpened, setIsOpened] = useState(false)
   const erc20ToNativeBridgeHelper = useContractInstance(
     Erc20ToNativeBridgeHelper__factory,
     'BridgeHelper',
@@ -81,12 +115,80 @@ export const ClaimButton = ({
   )
 
   const sendTx = useTransaction({ skipConnectionCheck: true })
+  const isXDAI = transaction.bridgeName.toUpperCase() === 'XDAI'
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleClaim = async (e: any) => {
-    e.stopPropagation()
-    e.preventDefault()
+  const { foreignXdaiErc20Token } = useForeignXdaiErc20Address()
+  const isUsdsDisabled = !isSameString(foreignXdaiErc20Token, USDS_ADDRESS)
 
+  const getClaimTx = async (
+    provider: Web3Provider,
+    token: 'usds' | 'dai' | 'amb',
+  ): Promise<
+    | (() => ReturnType<ForeignBridgeRouter['executeSignatures']>)
+    | (() => ReturnType<ForeignAMB['safeExecuteSignaturesWithAutoGasLimit']>)
+  > => {
+    const address = contracts.BridgeRouter.address[Chains.mainnet]
+
+    const foreignBridgeRouter = ForeignBridgeRouter__factory.connect(address, provider.getSigner())
+    if (token === 'usds' || token === 'dai') {
+      // XDAI Bridge
+      // recover message and signatures
+      const modifiedId = transaction.id.startsWith('0x00000064')
+        ? '0x00000000' + transaction.id.substring(10)
+        : transaction.transactionHash
+
+      const messageHash = await erc20ToNativeBridgeHelper.getMessageHash(
+        transaction.receiver,
+        transaction.receiverAmount,
+        modifiedId,
+      )
+      const [message, signatures] = await Promise.all([
+        erc20ToNativeBridgeHelper.getMessage(messageHash),
+        erc20ToNativeBridgeHelper.getSignatures(messageHash),
+      ])
+
+      if (token === 'usds') {
+        return () => foreignBridgeRouter.executeSignaturesUSDS(message, signatures)
+      } else {
+        return () => foreignBridgeRouter.executeSignatures(message, signatures)
+      }
+    } else {
+      // AMB Bridge
+      // recover message and signatures
+      const gnosisProvider = new JsonRpcProvider(chainsConfig[Chains.gnosis].rpcUrl, Chains.gnosis)
+      const initialTx = await gnosisProvider.getTransactionReceipt(transaction.transactionHash)
+      const AMBInterface = new Interface(contracts.AMB.abi)
+      const USER_REQUEST_FOR_SIGNATURE_TOPIC0 =
+        '0x520d2afde79cbd5db58755ac9480f81bc658e5c517fcae7365a3d832590b0183'
+      const userRequestForSignatureEvent =
+        initialTx && initialTx.logs
+          ? initialTx.logs.find((log) => log.topics[0] === USER_REQUEST_FOR_SIGNATURE_TOPIC0)
+          : undefined
+
+      if (!userRequestForSignatureEvent) {
+        notify({
+          type: ToastStates.failed,
+          message: 'Failed to claim - unable to build claim tx',
+          id: 'claim',
+        })
+        console.error(
+          'Unable to build claim tx. Log for UserRequestForSignatures not found',
+          initialTx,
+        )
+        setIsWorking(false)
+        return () => {
+          throw new Error('Unable to build claim tx. Log for UserRequestForSignatures not found')
+        }
+      }
+
+      const message = AMBInterface.parseLog(userRequestForSignatureEvent).args.encodedData
+      const signatures = await ambBridgeHelper.getSignatures(message)
+
+      return () => foreignBridgeRouter.safeExecuteSignaturesWithAutoGasLimit(message, signatures)
+    }
+  }
+
+  const executeClaim = async (token: 'usds' | 'dai' | 'amb'): Promise<void> => {
     setIsWorking(true)
 
     // if not connected, show a modal to connect
@@ -135,73 +237,9 @@ export const ClaimButton = ({
       id: 'claim',
     })
 
-    let claim: () =>
-      | ReturnType<ForeignBridgeRouter['executeSignatures']>
-      | ReturnType<ForeignAMB['safeExecuteSignaturesWithAutoGasLimit']>
-
     const wallet: WalletState = window.onboard.state.get().wallets[0]
     const provider = new Web3Provider(wallet.provider)
-
-    if (transaction.bridgeName.toUpperCase() === 'XDAI') {
-      // XDAI Bridge
-      // recover message and signatures
-      // console.log('transaction', transaction)
-      const modifiedId = transaction.id.startsWith('0x00000064')
-        ? '0x00000000' + transaction.id.substring(10)
-        : transaction.transactionHash
-
-      const messageHash = await erc20ToNativeBridgeHelper.getMessageHash(
-        transaction.receiver,
-        transaction.receiverAmount,
-        modifiedId,
-      )
-      const [message, signatures] = await Promise.all([
-        erc20ToNativeBridgeHelper.getMessage(messageHash),
-        erc20ToNativeBridgeHelper.getSignatures(messageHash),
-      ])
-
-      // build claim tx
-      const address = contracts.BridgeRouter.address[Chains.mainnet]
-      const foreignBridgeRouter = ForeignBridgeRouter__factory.connect(
-        address,
-        provider.getSigner(),
-      )
-      claim = () => foreignBridgeRouter.executeSignatures(message, signatures)
-    } else {
-      // AMB Bridge
-      // recover message and signatures
-      const gnosisProvider = new JsonRpcProvider(chainsConfig[Chains.gnosis].rpcUrl, Chains.gnosis)
-      const initialTx = await gnosisProvider.getTransactionReceipt(transaction.transactionHash)
-      const AMBInterface = new Interface(contracts.AMB.abi)
-      const USER_REQUEST_FOR_SIGNATURE_TOPIC0 =
-        '0x520d2afde79cbd5db58755ac9480f81bc658e5c517fcae7365a3d832590b0183'
-      const userRequestForSignatureEvent =
-        initialTx && initialTx.logs
-          ? initialTx.logs.find((log) => log.topics[0] === USER_REQUEST_FOR_SIGNATURE_TOPIC0)
-          : undefined
-
-      if (!userRequestForSignatureEvent) {
-        notify({
-          type: ToastStates.failed,
-          message: 'Failed to claim - unable to build claim tx',
-          id: 'claim',
-        })
-        console.error(
-          'Unable to build claim tx. Log for UserRequestForSignatures not found',
-          initialTx,
-        )
-        setIsWorking(false)
-        return
-      }
-
-      const message = AMBInterface.parseLog(userRequestForSignatureEvent).args.encodedData
-      const signatures = await ambBridgeHelper.getSignatures(message)
-
-      // build claim tx
-      const address = contracts.AMB.address[Chains.mainnet]
-      const foreignAMB = ForeignAMB__factory.connect(address, provider.getSigner())
-      claim = () => foreignAMB.safeExecuteSignaturesWithAutoGasLimit(message, signatures)
-    }
+    const claim = await getClaimTx(provider, token)
 
     try {
       const receipt = await sendTx(claim)
@@ -230,10 +268,69 @@ export const ClaimButton = ({
     }
   }
 
-  return (
-    <Wrapper disabled={isWorking || transaction.isClaiming} onClick={handleClaim} {...restProps}>
-      Claim
-      {transaction.isClaiming && 'ing...'}
-    </Wrapper>
-  )
+  const handleClaim = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
+    e.preventDefault()
+    await executeClaim('amb')
+  }
+
+  const handleOpenDropdown = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    setIsOpened(!isOpened)
+  }
+
+  const handleClaimXDAI = async (e: React.MouseEvent<HTMLDivElement>, token: 'usds' | 'dai') => {
+    e.stopPropagation()
+    e.preventDefault()
+    await executeClaim(token)
+  }
+
+  if (isXDAI) {
+    return (
+      <Dropdown
+        dropdownButton={
+          <ButtonHoverWrapper
+            disabled={isWorking || transaction.isClaiming}
+            onClick={handleOpenDropdown}
+            {...restProps}
+          >
+            Claim
+            {transaction.isClaiming && 'ing...'}
+          </ButtonHoverWrapper>
+        }
+        dropdownDirection={DropdownDirection.upwards}
+        items={[
+          <Items className="no-fade" key="items">
+            <DropdownItemWrapper
+              key="dai"
+              onClick={(e) => {
+                handleClaimXDAI(e, 'dai')
+              }}
+            >
+              <TokenIcon dimensions={16} iconSource={'/images/icons/dai.svg'} symbol={'DAI'} />
+              <TokenInfo>DAI</TokenInfo>
+            </DropdownItemWrapper>
+            <DropdownItemWrapper
+              disabled={isUsdsDisabled}
+              key="usds"
+              onClick={(e) => {
+                handleClaimXDAI(e, 'usds')
+              }}
+              style={{ opacity: isUsdsDisabled ? 0.5 : 1 }}
+            >
+              <TokenIcon dimensions={16} iconSource={'/images/icons/usds.webp'} symbol={'USDS'} />
+              <TokenInfo>USDS</TokenInfo>
+            </DropdownItemWrapper>
+          </Items>,
+        ]}
+      />
+    )
+  } else {
+    return (
+      <Wrapper disabled={isWorking || transaction.isClaiming} onClick={handleClaim} {...restProps}>
+        Claim
+        {transaction.isClaiming && 'ing...'}
+      </Wrapper>
+    )
+  }
 }

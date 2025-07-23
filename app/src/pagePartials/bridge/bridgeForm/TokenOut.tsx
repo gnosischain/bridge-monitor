@@ -7,9 +7,12 @@ import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInf
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { useBridgeFee } from '@/src/hooks/bridge/useBridgeFee'
 import { formatUnits } from 'ethers/lib/utils'
-import { ReceiveNativeTokenSwitcher } from '@/src/pagePartials/bridge/bridgeForm/ReceiveNativeTokenSwitcher'
+import { ReceiveTokenSwitcher } from '@/src/pagePartials/bridge/bridgeForm/ReceiveTokenSwitcher'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { genericSuspense } from '@/src/components/safeSuspense'
+import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
+import { isSameString } from '@/src/utils/tools'
+import React, { useState } from 'react'
 
 const NoTokenSelected = styled.span`
   font-size: 1.5rem;
@@ -41,6 +44,19 @@ const wethOptions = [
   },
 ]
 
+const xdaiOptions = [
+  {
+    icon: '/images/icons/dai.svg',
+    label: 'DAI',
+    name: 'xdai-types',
+  },
+  {
+    icon: '/images/icons/usds.webp',
+    label: 'USDS',
+    name: 'xdai-types',
+  },
+]
+
 export const NoTokenOut: React.FC<{ loading?: boolean }> = ({ loading }) => (
   <>
     <SkeletonLoading
@@ -61,6 +77,7 @@ export const TokenOut: React.FC<{
   amount: BigNumber
   fromChainId: ChainsValues
   setReceiveNativeToken: (receiveNative: boolean) => void
+  setReceiveUsds: (receiveUsds: boolean) => void
   toChainId: ChainsValues
   token: Token
   tokenOut: Token
@@ -69,6 +86,7 @@ export const TokenOut: React.FC<{
     amount,
     fromChainId,
     setReceiveNativeToken: onReceiveNativeChange,
+    setReceiveUsds: onReceiveUsdsChange,
     toChainId,
     token,
     tokenOut,
@@ -90,18 +108,37 @@ export const TokenOut: React.FC<{
       fromChainId == Chains.gnosis &&
       token.address == chainsConfig[Chains.gnosis].bridge.wForeignNative
 
+    const showXDaiSwitcher =
+      fromChainId === Chains.gnosis && isSameString(token.address, NATIVE_TOKEN_ADDRESS)
+
+    // Add state for selected option
+    const [selectedNativeToken, setSelectedNativeToken] = useState(wethOptions[0].label)
+    const [selectedXDaiToken, setSelectedXDaiToken] = useState(xdaiOptions[0].label)
+
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const tokenOutAmount = formatUnits(amount.sub(feeInfo!), tokenOut?.decimals)
 
     return (
       <>
         {showNativeTokenSwitcher ? (
-          <ReceiveNativeTokenSwitcher
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+          <ReceiveTokenSwitcher
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              setSelectedNativeToken(event.target.value)
               onReceiveNativeChange(event.target.value === 'ETH')
-            }
+            }}
             options={wethOptions}
             optionsId="ethOptions"
+            value={selectedNativeToken}
+          />
+        ) : showXDaiSwitcher ? (
+          <ReceiveTokenSwitcher
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              setSelectedXDaiToken(event.target.value)
+              onReceiveUsdsChange(event.target.value === 'USDS')
+            }}
+            options={xdaiOptions}
+            optionsId="xdaiOptions"
+            value={selectedXDaiToken}
           />
         ) : (
           <>

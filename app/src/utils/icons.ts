@@ -5,6 +5,7 @@ const GnosisIconBig = '/images/icons/gnosis2.svg'
 const DAIIcon = '/images/icons/dai.svg'
 const XDAIIcon = '/images/icons/xdai.svg'
 const InchIcon = '/images/icons/1inch.svg'
+const USDSIcon = '/images/icons/usds.webp'
 
 export const getIcon = (name?: string) => {
   const iconName = name?.toLowerCase()
@@ -25,6 +26,8 @@ export const getIcon = (name?: string) => {
     ? DAIIcon
     : iconName === '1inch'
     ? InchIcon
+    : iconName === 'usds'
+    ? USDSIcon
     : ''
 }
 

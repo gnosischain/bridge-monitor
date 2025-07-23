@@ -9,4 +9,5 @@ export type BridgeFormState = {
   receiveNativeToken: boolean
   account: string
   token?: Token
+  receiveUsds: boolean
 }

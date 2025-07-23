@@ -46,7 +46,7 @@ export const TR = styled.div<{ $compact?: boolean }>`
   row-gap: calc(var(--table-padding-common));
   transition: none;
 
-  &:hover > * {
+  &:hover > *:not(:last-child) {
     opacity: 0.8;
   }
 
