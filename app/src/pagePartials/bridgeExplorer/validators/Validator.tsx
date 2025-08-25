@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import { InnerCard } from '@/src/components/card/InnerCard'
 import { TokenAddress } from '@/src/components/token/TokenAddress'
@@ -12,8 +12,6 @@ import {
   TELEPATHY_VALIDATOR_ADDRESS,
   TELEPATHY_VALIDATOR_ADDRESS_REPLACED,
 } from '@/src/constants/misc'
-import { IconLink } from '@/src/components/assets/IconLink'
-import { Tooltip } from '@/src/components/tooltip'
 
 const Wrapper = styled(InnerCard)`
   min-height: var(--validator-item-min-height);
@@ -70,77 +68,6 @@ const Address = styled(TokenAddress)`
   }
 `
 
-const TextCSS = css`
-  color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 1.4rem;
-  font-weight: 400;
-  line-height: 1.5;
-`
-
-const ExternalLink = styled.a`
-  ${TextCSS}
-
-  align-items: center;
-  column-gap: var(--theme-common-space);
-  display: flex;
-  text-decoration: none;
-
-  &:active {
-    opacity: 0.8;
-  }
-`
-
-const CommonCSS = css`
-  transition: color 0.15s ease-in-out;
-
-  &:hover {
-    color: ${({ theme: { colors } }) => colors.primaryDark};
-  }
-
-  &:active {
-    opacity: 0.6;
-  }
-`
-
-const Link = styled(IconLink)`
-  color: ${({ theme: { colors } }) => colors.primary_50};
-  cursor: pointer;
-
-  ${CommonCSS}
-
-  svg {
-    color: ${({ theme: { colors } }) => colors.primary_50};
-
-    &:hover {
-      color: ${({ theme: { colors } }) => colors.primary};
-    }
-  }
-`
-
-const ExternalLinkWrapper = styled.span`
-  display: flex;
-  align-items: center;
-  column-gap: var(--theme-common-space);
-`
-
-const HashiTooltip = styled(Tooltip)`
-  flex-grow: 1;
-  margin-left: var(--theme-common-space);
-`
-
-const HashiTooltipWrapper = styled.div`
-  display: flex;
-  align-items: flex-start;
-  flex-grow: 1;
-`
-
-const Column = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: var(--theme-common-space);
-  align-items: flex-end;
-`
-
 interface Props {
   bridgeValidator: ValidatorType
 }
@@ -161,20 +88,6 @@ export const Validator: React.FC<Props> = ({ bridgeValidator, ...restProps }) =>
     return HealthStatusTypes.success
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const openLink = (e: any, href: string) => {
-    e.stopPropagation()
-    e.preventDefault()
-
-    window.open(href, '_blank', 'noopener noreferrer')
-  }
-
-  const isHashi = bridgeValidator.shortName === 'H'
-
-  // if (isHashi) {
-  //   return null
-  // }
-
   return (
     <Wrapper {...restProps}>
       <ValidatorHeader
@@ -189,89 +102,28 @@ export const Validator: React.FC<Props> = ({ bridgeValidator, ...restProps }) =>
         </Row>
         <Row>
           <Text>Signed (24hs)</Text>
-          {isHashi && (
-            <HashiTooltipWrapper>
-              <HashiTooltip content="A message is considered signed/approved by Hashi, when a threshold amount of oracles store the same message hash w.r.t the message id." />
-            </HashiTooltipWrapper>
-          )}
           <Value>{bridgeValidator.signed}</Value>
         </Row>
-        {isHashi ? (
-          <Row>
-            <Text>Executed (24hs)</Text>
-            <HashiTooltipWrapper>
-              <HashiTooltip content="Hashi only approves messages, the message is executed either by other bridge validators or by users." />
-            </HashiTooltipWrapper>
-            <Value>N/A</Value>
-          </Row>
-        ) : (
-          <Row>
-            <Text>Executed (24hs)</Text>
-            <Value>{bridgeValidator.executed}</Value>
-          </Row>
-        )}
+
+        <Row>
+          <Text>Executed (24hs)</Text>
+          <Value>{bridgeValidator.executed}</Value>
+        </Row>
       </Rows>
       <SubTitle>Balance</SubTitle>
       <Row>
-        {isHashi ? (
-          <>
-            <Text>N/A</Text>
-            <HashiTooltipWrapper>
-              <HashiTooltip content="Hashi don’t need to execute a message, hence balance field is not applicable." />
-            </HashiTooltipWrapper>
-          </>
-        ) : (
-          <Balance balanceType={balanceGnosis} />
-        )}
+        <Balance balanceType={balanceGnosis} />
       </Row>
-      {isHashi ? (
-        <Row>
-          <Text>Find more info</Text>
-          <Column className="text-right">
-            <ExternalLinkWrapper>
-              <ExternalLink href="https://hashi-explorer.xyz/" rel="noreferrer" target="_blank">
-                Hashi Explorer
-              </ExternalLink>
-              <Link
-                className="externalLink"
-                height={14}
-                onClick={(e) => openLink(e, 'https://hashi-explorer.xyz/')}
-                width={14}
-              />
-            </ExternalLinkWrapper>
-            <ExternalLinkWrapper>
-              <ExternalLink
-                href="https://docs.gnosischain.com/bridges/About%20Token%20Bridges/hashi-integration"
-                rel="noreferrer"
-                target="_blank"
-              >
-                Docs
-              </ExternalLink>
-              <Link
-                className="externalLink"
-                height={14}
-                onClick={(e) =>
-                  openLink(
-                    e,
-                    'https://docs.gnosischain.com/bridges/About%20Token%20Bridges/hashi-integration',
-                  )
-                }
-                width={14}
-              />
-            </ExternalLinkWrapper>
-          </Column>
-        </Row>
-      ) : (
-        <Row>
-          <Text>Send tokens</Text>
-          <Address
-            address={validatorAddress}
-            characters={6}
-            copy
-            href={getAddressScanUrl(validatorAddress, bridgeValidator.scanUrl ?? 'gnosis')}
-          />
-        </Row>
-      )}
+
+      <Row>
+        <Text>Send tokens</Text>
+        <Address
+          address={validatorAddress}
+          characters={6}
+          copy
+          href={getAddressScanUrl(validatorAddress, bridgeValidator.scanUrl ?? 'gnosis')}
+        />
+      </Row>
     </Wrapper>
   )
 }

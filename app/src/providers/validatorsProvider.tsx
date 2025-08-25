@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from 'react'
 import useSWR from 'swr'
 
-import { Bridges, BridgesValues } from '@/src/constants/config/bridges'
+import { BridgesValues } from '@/src/constants/config/bridges'
 import { fetchHomeValidators, getBalance, getValidatorByAddress } from '@/src/utils/validators'
 import { Validator } from '@/src/utils/validators'
 import { gnosis } from '@/src/constants/config/rpc-providers'
@@ -12,7 +12,6 @@ import {
   TELEPATHY_VALIDATOR_ADDRESS,
   TELEPATHY_VALIDATOR_ADDRESS_REPLACED,
 } from '@/src/constants/misc'
-import { useHashi } from '@/src/hooks/useHashi'
 
 type ValidatorsContextType = {
   validators: Record<BridgesValues, Validator[]>
@@ -78,31 +77,8 @@ const fetcher = async () => {
 
 export const ValidatorsProvider: React.FC = ({ children }) => {
   const res = useSWR('validators', fetcher)
-  const { hashi } = useHashi()
 
   const validators = res.data || defaultValidators
-
-  if (validators && hashi) {
-    const existingIndex = validators[Bridges.amb].findIndex(
-      (validator: Validator) => 'id' in validator && validator.id === hashi.id,
-    )
-
-    if (existingIndex !== -1) {
-      validators[Bridges.amb][existingIndex] = {
-        ...hashi,
-        status: hashi.status as
-          | 'default'
-          | 'submittedExecuted'
-          | 'executed'
-          | 'notRequired'
-          | 'pending'
-          | 'submitted',
-      }
-    } else {
-      // Add new hashi object
-      validators[Bridges.amb].push(hashi as Validator)
-    }
-  }
 
   return (
     <ValidatorsContext.Provider value={{ validators: validators, refetch: res.mutate }}>
