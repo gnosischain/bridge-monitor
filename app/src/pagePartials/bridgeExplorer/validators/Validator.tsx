@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import { InnerCard } from '@/src/components/card/InnerCard'
 import { TokenAddress } from '@/src/components/token/TokenAddress'
@@ -12,7 +12,6 @@ import {
   TELEPATHY_VALIDATOR_ADDRESS,
   TELEPATHY_VALIDATOR_ADDRESS_REPLACED,
 } from '@/src/constants/misc'
-import { IconLink } from '@/src/components/assets/IconLink'
 
 const Wrapper = styled(InnerCard)`
   min-height: var(--validator-item-min-height);
@@ -67,66 +66,6 @@ const Address = styled(TokenAddress)`
       color: ${({ theme: { colors } }) => colors.primary};
     }
   }
-`
-
-const TextCSS = css`
-  color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 1.4rem;
-  font-weight: 400;
-  line-height: 1.5;
-`
-
-const ExternalLink = styled.a`
-  ${TextCSS}
-
-  align-items: center;
-  column-gap: var(--theme-common-space);
-  display: flex;
-  text-decoration: none;
-
-  &:active {
-    opacity: 0.8;
-  }
-`
-
-const CommonCSS = css`
-  transition: color 0.15s ease-in-out;
-
-  &:hover {
-    color: ${({ theme: { colors } }) => colors.primaryDark};
-  }
-
-  &:active {
-    opacity: 0.6;
-  }
-`
-
-const Link = styled(IconLink)`
-  color: ${({ theme: { colors } }) => colors.primary_50};
-  cursor: pointer;
-
-  ${CommonCSS}
-
-  svg {
-    color: ${({ theme: { colors } }) => colors.primary_50};
-
-    &:hover {
-      color: ${({ theme: { colors } }) => colors.primary};
-    }
-  }
-`
-
-const ExternalLinkWrapper = styled.span`
-  display: flex;
-  align-items: center;
-  column-gap: var(--theme-common-space);
-`
-
-const Column = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: var(--theme-common-space);
-  align-items: flex-end;
 `
 
 interface Props {
