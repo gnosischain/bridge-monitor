@@ -54,13 +54,5 @@
     "bridgeType": "AMB",
     "shortName": "GW",
     "status": "default"
-  },
-  {
-    "id": 10,
-    "address": "",
-    "name": "Hashi",
-    "bridgeType": "AMB",
-    "shortName": "H",
-    "status": "default"
   }
 ]
