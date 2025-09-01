@@ -265,6 +265,7 @@ const handleERC20TokenFromForeign = async ({
  * @returns An object containing the gas limit and a transaction function.
  */
 const handleERC20TokenFromHome = async ({
+  allowance,
   amount,
   bridgeContract,
   receiveNativeToken,
@@ -284,6 +285,7 @@ const handleERC20TokenFromHome = async ({
   toChainId: ChainsValues
   recipient?: string
   receiveNativeToken?: boolean
+  allowance?: BigNumber
 }) => {
   // Here we have two cases. If the token is compatible with ERC677/ERC827 we should use transferAndCall method and avoid the approve step.
   const isERC677 = tokenMode === 'ERC677'
@@ -332,6 +334,16 @@ const handleERC20TokenFromHome = async ({
           walletAddress,
           amount.toString(),
         )
+      },
+    }
+  }
+
+  // ERC20
+  if (allowance && amount.gt(allowance)) {
+    return {
+      gasLimit: await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString()),
+      tx: async function () {
+        return tokenContract.approve(bridgeContract.address, amount.toString())
       },
     }
   }
@@ -655,6 +667,7 @@ export const getBridgeTx = async ({
           userAddress: account,
           recipient,
           receiveNativeToken,
+          allowance,
         })
       : await handleERC20TokenFromForeign({
           bridgeContract: bridgeContract as ForeignOmniMediator,
