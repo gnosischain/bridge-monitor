@@ -101,6 +101,11 @@ export const FAQContents: React.FC = () => {
               Swaps.io
             </a>
           </li>
+          <li>
+            <a href="https://app.squidrouter.com/" rel="noreferrer" target="_blank">
+              Squid
+            </a>
+          </li>
         </ul>
       </Paragraph>
       <EmphasizedTitle id="q_1d">How do I bridge from Gnosis to Ethereum?</EmphasizedTitle>
