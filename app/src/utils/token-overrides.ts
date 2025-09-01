@@ -111,18 +111,18 @@ const TOKEN_OVERRIDES: Record<
   //   mediator: '0x5689c65cfe5e8bf1a5f836c956dea1b3b8be00bb',
   //   mode: 'ERC677',
   // },
-  // // SWASH -> gnosis
-  // '0x84e2c67cbefae6b5148fca7d02b341b12ff4b5bb': {
-  //   tokenOutAddress: '0xa130e3a33a4d84b04c3918c4e5762223ae252f80',
-  //   mediator: '0x68a64df7458a8eb2677991e657508fe00205332d',
-  //   mode: 'ERC677',
-  // },
-  // // SWASH -> mainnet
-  // '0xa130e3a33a4d84b04c3918c4e5762223ae252f80': {
-  //   tokenOutAddress: '0x84e2c67cbefae6b5148fca7d02b341b12ff4b5bb',
-  //   mediator: '0xe964a36142bbe39751d0b4d6140fc0b8c48e68be',
-  //   mode: 'ERC677',
-  // },
+  // SWASH -> gnosis
+  '0x84e2c67cbefae6b5148fca7d02b341b12ff4b5bb': {
+    tokenOutAddress: '0xa130e3a33a4d84b04c3918c4e5762223ae252f80',
+    mediator: '0x68a64df7458a8eb2677991e657508fe00205332d',
+    mode: 'ERC677',
+  },
+  // SWASH -> mainnet
+  '0xa130e3a33a4d84b04c3918c4e5762223ae252f80': {
+    tokenOutAddress: '0x84e2c67cbefae6b5148fca7d02b341b12ff4b5bb',
+    mediator: '0xe964a36142bbe39751d0b4d6140fc0b8c48e68be',
+    mode: 'ERC677',
+  },
   // // UDT -> gnosis
   // '0x8c84142c4a716a16a89d0e61707164d6107a9811': {
   //   tokenOutAddress: '0x90de74265a416e1393a450752175aed98fe11517',
