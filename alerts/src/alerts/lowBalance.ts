@@ -6,8 +6,8 @@ import { Message, MessageType } from "./messages"
 // @todo add logic to disable alert
 
 // @todo define better thresholds for each token
-const MIN_XDAI_BALANCE_THRESHOLD = 0.5
-const MIN_ETH_BALANCE_THRESHOLD = 0.5
+const MIN_XDAI_BALANCE_THRESHOLD = parseInt(process.env.MIN_XDAI_BALANCE_THRESHOLD) || 1
+const MIN_ETH_BALANCE_THRESHOLD = parseInt(process.env.MIN_ETH_BALANCE_THRESHOLD) || 0.01
 
 const getXDAIBalance = (v: Validator) => v.tokensBalances[0]
 const getETHBalance = (v: Validator) => v.tokensBalances[1]
@@ -49,10 +49,20 @@ const createValidatorETHBalanceMessage = (validator: Validator): Message => {
 
 const lowBalanceAlerts = async (): Promise<Message[]> => {
   const validators = await fetchValidators()
-  
-  const lowETHMessages = validators.map(createValidatorETHBalanceMessage).filter(Boolean)
-  const lowXDAIMessages = validators.map(createValidatorXDAIBalanceMessage).filter(Boolean)
-  return lowETHMessages.concat(lowXDAIMessages)
+
+  let lowXDAIMessages,lowETHMessages
+  if(process.env.IS_VALIDATOR_BALANCE_ON_GC == 'true'){
+
+    lowXDAIMessages = validators.map(createValidatorXDAIBalanceMessage).filter(Boolean)
+    
+    return lowXDAIMessages
+  }else{
+    lowETHMessages = validators.map(createValidatorETHBalanceMessage).filter(Boolean)
+    lowXDAIMessages = validators.map(createValidatorXDAIBalanceMessage).filter(Boolean)
+    return lowETHMessages.concat(lowXDAIMessages)
+  }
+
+
 }
 
 export { lowBalanceAlerts }
