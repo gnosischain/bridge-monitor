@@ -7,7 +7,6 @@ export const checkInactiveValidators = async (): Promise<Message | null> => {
   console.log('Checking for inactive validators...');
   try {
     const allValidators = await fetchValidators();
-    console.log("All validators ",allValidators )
     const now = Math.floor(Date.now() / 1000);
     const inactivityCutoff = now - INACTIVITY_THRESHOLD_HOURS * 60 * 60;
 
@@ -15,7 +14,6 @@ export const checkInactiveValidators = async (): Promise<Message | null> => {
       if (!validator.lastActivity) {
         return true; // Consider validators never seen as inactive
       }
-      console.log(`${validator.address}: ${validator.lastActivity}`)
       return parseInt(validator.lastActivity, 10) < inactivityCutoff;
     });
 

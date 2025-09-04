@@ -9,7 +9,11 @@
   ],
   "scripts": {
     "dev": "ts-node src/index.ts",
+    "dev:schedule": "SCHEDULE_ENABLED=true RUN_ONCE_ON_START=true ts-node src/index.ts",
+    "dev:once": "SCHEDULE_ENABLED=false ts-node src/index.ts",
     "start": "node ./dist/index.js",
+    "start:schedule": "SCHEDULE_ENABLED=true node ./dist/index.js",
+    "start:once": "SCHEDULE_ENABLED=false node ./dist/index.js",
     "build": "tsc --build --clean",
     "typechain": "typechain --target=ethers-v5 ./src/abis/**/*.json --out-dir ./src/types/typechain",
     "subgraph": "graphql-codegen --config subgraph-config.js",
@@ -30,7 +34,8 @@
     "ethers": "^5.7.1",
     "graphql": "^16.6.0",
     "graphql-request": "^5.0.0",
-    "graphql-tag": "^2.12.6"
+    "graphql-tag": "^2.12.6",
+    "node-cron": "^3.0.3"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^2.13.6",
@@ -40,6 +45,7 @@
     "@graphql-codegen/typescript-operations": "^2.5.4",
     "@typechain/ethers-v5": "^10.1.0",
     "@types/node": "^18.8.3",
+    "@types/node-cron": "^3.0.11",
     "@types/node-fetch": "^2.6.13",
     "ts-node": "^10.9.1",
     "typechain": "^8.1.0",

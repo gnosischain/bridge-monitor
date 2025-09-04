@@ -39,7 +39,6 @@ const fetchValidators = async () => {
     fetchForeignValidators(),
   ])
 
-  console.log("validators Data ", validatorsData)
   const validatorsNative = validatorsData[0]
   // @todo verify that both coincide
   const validatorsForeign = validatorsData[1]

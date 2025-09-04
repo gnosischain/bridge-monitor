@@ -1,8 +1,12 @@
 import gql from 'graphql-tag'
+import * as fs from 'fs'
+import * as path from 'path'
 import { useNativeGraphqlClient, useForeignGraphqlClient } from '../graphql'
 import { Message, MessageType } from './messages'
 
 const TRANSACTION_TIMEOUT_HOURS = parseInt(process.env.TRANSACTION_TIMEOUT_HOURS) || 2
+const ALERT_STATE_FILE = process.env.ALERT_STATE_FILE || path.join(__dirname, '../../data/stuck-tx-alerts.json')
+const ALERT_CLEANUP_HOURS = parseInt(process.env.ALERT_CLEANUP_HOURS) || 48 // Cleanup resolved alerts after 48 hours
 
 const STUCK_TRANSACTIONS_QUERY = gql`
   query StuckTransactions($timeThreshold: BigInt!) {
@@ -73,6 +77,109 @@ type StuckTransactionsVariables = {
   timeThreshold: string
 }
 
+type AlertState = {
+  transactionId: string
+  transactionHash: string
+  status: 'COLLECTING'
+  firstAlertTime: number
+  lastAlertTime: number
+  bridgeEndpoint: string
+}
+
+type AlertStateFile = {
+  version: string
+  alerts: Record<string, AlertState>
+  lastCleanup: number
+}
+
+// State management functions
+const ensureDataDirectory = () => {
+  const dataDir = path.dirname(ALERT_STATE_FILE)
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true })
+  }
+}
+
+const loadAlertState = (): AlertStateFile => {
+  try {
+    ensureDataDirectory()
+    if (fs.existsSync(ALERT_STATE_FILE)) {
+      const data = fs.readFileSync(ALERT_STATE_FILE, 'utf-8')
+      const parsed = JSON.parse(data) as AlertStateFile
+      return parsed
+    }
+  } catch (error) {
+    console.warn('Failed to load alert state file:', error)
+  }
+  
+  return {
+    version: '1.0',
+    alerts: {},
+    lastCleanup: Date.now()
+  }
+}
+
+const saveAlertState = (state: AlertStateFile): void => {
+  try {
+    ensureDataDirectory()
+    fs.writeFileSync(ALERT_STATE_FILE, JSON.stringify(state, null, 2), 'utf-8')
+  } catch (error) {
+    console.error('Failed to save alert state file:', error)
+  }
+}
+
+const cleanupResolvedAlerts = (state: AlertStateFile, currentStuckTxIds: Set<string>): AlertStateFile => {
+  const now = Date.now()
+  const cleanupThreshold = now - (ALERT_CLEANUP_HOURS * 60 * 60 * 1000)
+  
+  // Remove alerts for transactions that are no longer stuck or are old
+  const cleanedAlerts: Record<string, AlertState> = {}
+  
+  Object.entries(state.alerts).forEach(([txId, alertState]) => {
+    const isStillStuck = currentStuckTxIds.has(txId)
+    const isRecent = alertState.lastAlertTime > cleanupThreshold
+    
+    if (isStillStuck || isRecent) {
+      cleanedAlerts[txId] = alertState
+    } else {
+      console.log(`🗑️  Cleaning up resolved alert for transaction: ${alertState.transactionHash}`)
+    }
+  })
+  
+  return {
+    ...state,
+    alerts: cleanedAlerts,
+    lastCleanup: now
+  }
+}
+
+const shouldAlertTransaction = (tx: StuckTransaction, alertState: AlertStateFile): boolean => {
+  const existingAlert = alertState.alerts[tx.id]
+  
+  if (!existingAlert) {
+    // New transaction, should alert
+    return true
+  }
+  
+  // Already alerted - skip
+  console.log(`⏭️  Skipping already alerted transaction: ${tx.transactionHash} (first alerted: ${new Date(existingAlert.firstAlertTime).toISOString()})`)
+  return false
+}
+
+const recordAlert = (tx: StuckTransaction, endpoint: string, alertState: AlertStateFile): void => {
+  const now = Date.now()
+  const existingAlert = alertState.alerts[tx.id]
+  
+  alertState.alerts[tx.id] = {
+    transactionId: tx.id,
+    transactionHash: tx.transactionHash,
+    status: tx.transactionStatus,
+    firstAlertTime: existingAlert?.firstAlertTime || now,
+    lastAlertTime: now,
+    bridgeEndpoint: endpoint
+  }
+}
+
 const formatDuration = (hours: number): string => {
   if (hours < 24) {
     return `${Math.round(hours)} hour${hours !== 1 ? 's' : ''}`
@@ -117,6 +224,10 @@ const checkStuckTransactions = async (): Promise<Message[]> => {
   const timeThreshold = Math.floor(Date.now() / 1000 - TRANSACTION_TIMEOUT_HOURS * 3600)
   
   try {
+    // Load current alert state
+    let alertState = loadAlertState()
+    console.log(`📊 Loaded alert state: ${Object.keys(alertState.alerts).length} tracked alerts`)
+    
     const nativeClient = useNativeGraphqlClient()
     const foreignClient = useForeignGraphqlClient()
     
@@ -125,13 +236,45 @@ const checkStuckTransactions = async (): Promise<Message[]> => {
       foreignClient<StuckTransactionsResponse, StuckTransactionsVariables>(STUCK_TRANSACTIONS_QUERY, { timeThreshold: timeThreshold.toString() })
     ])
     
-    if (nativeResponse.transactions.length > 0) {
-      messages.push(createStuckTransactionMessage(nativeResponse.transactions, 'native'))
+    // Collect all current stuck transaction IDs for cleanup
+    const currentStuckTxIds = new Set<string>()
+    nativeResponse.transactions.forEach(tx => currentStuckTxIds.add(tx.id))
+    foreignResponse.transactions.forEach(tx => currentStuckTxIds.add(tx.id))
+    
+    // Clean up resolved alerts periodically
+    const shouldCleanup = Date.now() - alertState.lastCleanup > (60 * 60 * 1000) // Every hour
+    if (shouldCleanup) {
+      console.log('🧹 Performing periodic cleanup of resolved alerts...')
+      alertState = cleanupResolvedAlerts(alertState, currentStuckTxIds)
     }
     
-    if (foreignResponse.transactions.length > 0) {
-      messages.push(createStuckTransactionMessage(foreignResponse.transactions, 'foreign'))
+    // Process native bridge transactions
+    if (nativeResponse.transactions.length > 0) {
+      const newTransactions = nativeResponse.transactions.filter(tx => shouldAlertTransaction(tx, alertState))
+      console.log(`🔍 Native bridge: ${nativeResponse.transactions.length} stuck, ${newTransactions.length} new alerts`)
+      
+      if (newTransactions.length > 0) {
+        // Record alerts for new transactions
+        newTransactions.forEach(tx => recordAlert(tx, 'native', alertState))
+        messages.push(createStuckTransactionMessage(newTransactions, 'native'))
+      }
     }
+    
+    // Process foreign bridge transactions
+    if (foreignResponse.transactions.length > 0) {
+      const newTransactions = foreignResponse.transactions.filter(tx => shouldAlertTransaction(tx, alertState))
+      console.log(`🔍 Foreign bridge: ${foreignResponse.transactions.length} stuck, ${newTransactions.length} new alerts`)
+      
+      if (newTransactions.length > 0) {
+        // Record alerts for new transactions
+        newTransactions.forEach(tx => recordAlert(tx, 'foreign', alertState))
+        messages.push(createStuckTransactionMessage(newTransactions, 'foreign'))
+      }
+    }
+    
+    // Save updated alert state
+    saveAlertState(alertState)
+    console.log(`💾 Saved alert state: ${Object.keys(alertState.alerts).length} tracked alerts`)
     
   } catch (error) {
     console.error('Error checking stuck transactions:', error)

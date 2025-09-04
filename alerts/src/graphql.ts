@@ -3,8 +3,7 @@ import { GraphQLClient } from 'graphql-request'
 
 const NATIVE_ENDPOINT = process.env.SUBGRAPH_API_NATIVE
 const FOREIGN_ENDPOINT = process.env.SUBGRAPH_API_FOREIGN
-// TODO: check
-const API_KEY = process.env.GRAPH_API_KEY || ''
+
 
 const SG_ENDPOINTS = [NATIVE_ENDPOINT, FOREIGN_ENDPOINT].filter(Boolean) as string[]
 
