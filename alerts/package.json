@@ -14,11 +14,10 @@
     "start": "node ./dist/index.js",
     "start:schedule": "SCHEDULE_ENABLED=true node ./dist/index.js",
     "start:once": "SCHEDULE_ENABLED=false node ./dist/index.js",
-    "build": "tsc --build --clean",
+    "build": "tsc",
     "typechain": "typechain --target=ethers-v5 ./src/abis/**/*.json --out-dir ./src/types/typechain",
-    "subgraph": "graphql-codegen --config subgraph-config.js",
+    "subgraph": "graphql-codegen --config ./subgraph-config.js",
     "types": "tsc --project tsconfig.json",
-    "postinstall": "yarn typechain && yarn subgraph",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

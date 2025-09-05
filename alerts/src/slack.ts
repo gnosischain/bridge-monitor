@@ -80,17 +80,25 @@ const sendMessageToChannel = async (msg: Message, channelId: string) => {
 
 const sendMessageOverWebhook = async (msg: Message) => {
   try {
+    const payload = {
+      text: msg.title,
+      blocks: createBlocksMessage(msg)
+    };
+    
     const response = await fetch(webhookURL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ blocks: createBlocksMessage(msg) }),
+      body: JSON.stringify(payload),
     });
+    
     if (response.ok) {
       console.log(`Successfully sent message via webhook.`);
     } else {
+      const responseText = await response.text();
       console.error(`Failed to send message via webhook: ${response.status} ${response.statusText}`);
+      console.error(`Response body: ${responseText}`);
     }
   } catch (e) {
     console.error('Error sending message via webhook:', e);

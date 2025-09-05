@@ -1,5 +1,5 @@
 import { DocumentNode } from 'graphql'
-import { GraphQLClient } from 'graphql-request'
+import { GraphQLClient, Variables } from 'graphql-request'
 
 const NATIVE_ENDPOINT = process.env.SUBGRAPH_API_NATIVE
 const FOREIGN_ENDPOINT = process.env.SUBGRAPH_API_FOREIGN
@@ -21,9 +21,9 @@ const initGraphQLClients = (apiURLs: string[]) => {
 
 const graphqlClients = initGraphQLClients(SG_ENDPOINTS)
 
-const useGraphqlFetcher = (apiURL: string) => <Response, Variables = void>(
+const useGraphqlFetcher = (apiURL: string) => <Response, TVariables extends Variables = Variables>(
   query: DocumentNode,
-  variables?: Variables,
+  variables?: TVariables,
 ) => {
   if (!graphqlClients[apiURL]) throw new Error('graphql endpoint not initialized')
   const fetcher = graphqlClients[apiURL]

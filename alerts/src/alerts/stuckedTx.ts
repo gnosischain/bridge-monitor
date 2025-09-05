@@ -8,12 +8,18 @@ const TRANSACTION_TIMEOUT_HOURS = parseInt(process.env.TRANSACTION_TIMEOUT_HOURS
 const ALERT_STATE_FILE = process.env.ALERT_STATE_FILE || path.join(__dirname, '../../data/stuck-tx-alerts.json')
 const ALERT_CLEANUP_HOURS = parseInt(process.env.ALERT_CLEANUP_HOURS) || 48 // Cleanup resolved alerts after 48 hours
 
+
 const STUCK_TRANSACTIONS_QUERY = gql`
-  query StuckTransactions($timeThreshold: BigInt!) {
+  query StuckTransactions($timeThreshold: BigInt!, $startupThreshold: BigInt!) {
     transactions(
       where: {
-        or: [
-          { transactionStatus: COLLECTING, timestamp_lt: $timeThreshold }
+        and: [
+          { timestamp_gte: $startupThreshold },
+          {
+            or: [
+              { transactionStatus: COLLECTING, timestamp_lt: $timeThreshold }
+            ]
+          }
         ]
       }
       orderBy: timestamp
@@ -75,6 +81,7 @@ type StuckTransactionsResponse = {
 
 type StuckTransactionsVariables = {
   timeThreshold: string
+  startupThreshold: string
 }
 
 type AlertState = {
@@ -90,6 +97,7 @@ type AlertStateFile = {
   version: string
   alerts: Record<string, AlertState>
   lastCleanup: number
+  lastCheckedTimestamp: number
 }
 
 // State management functions
@@ -115,7 +123,8 @@ const loadAlertState = (): AlertStateFile => {
   return {
     version: '1.0',
     alerts: {},
-    lastCleanup: Date.now()
+    lastCleanup: Date.now(),
+    lastCheckedTimestamp: Math.floor(Date.now() / 1000) - TRANSACTION_TIMEOUT_HOURS * 3600
   }
 }
 
@@ -221,19 +230,30 @@ const createStuckTransactionMessage = (transactions: StuckTransaction[], endpoin
 const checkStuckTransactions = async (): Promise<Message[]> => {
   const messages: Message[] = []
   
-  const timeThreshold = Math.floor(Date.now() / 1000 - TRANSACTION_TIMEOUT_HOURS * 3600)
+  const currentTime = Math.floor(Date.now() / 1000)
+  const timeThreshold = currentTime - TRANSACTION_TIMEOUT_HOURS * 3600
   
   try {
     // Load current alert state
     let alertState = loadAlertState()
     console.log(`📊 Loaded alert state: ${Object.keys(alertState.alerts).length} tracked alerts`)
     
+    // Use lastCheckedTimestamp to only look at transactions after the last check
+    const startupThreshold = alertState.lastCheckedTimestamp
+    console.log(`🕒 Monitoring transactions after: ${new Date(startupThreshold * 1000).toISOString()}`)
+    console.log(`⏰ Looking for transactions stuck before: ${new Date(timeThreshold * 1000).toISOString()}`)
+    
     const nativeClient = useNativeGraphqlClient()
     const foreignClient = useForeignGraphqlClient()
     
+    const queryVariables = { 
+      timeThreshold: timeThreshold.toString(),
+      startupThreshold: startupThreshold.toString()
+    }
+    
     const [nativeResponse, foreignResponse] = await Promise.all([
-      nativeClient<StuckTransactionsResponse, StuckTransactionsVariables>(STUCK_TRANSACTIONS_QUERY, { timeThreshold: timeThreshold.toString() }),
-      foreignClient<StuckTransactionsResponse, StuckTransactionsVariables>(STUCK_TRANSACTIONS_QUERY, { timeThreshold: timeThreshold.toString() })
+      nativeClient<StuckTransactionsResponse, StuckTransactionsVariables>(STUCK_TRANSACTIONS_QUERY, queryVariables),
+      foreignClient<StuckTransactionsResponse, StuckTransactionsVariables>(STUCK_TRANSACTIONS_QUERY, queryVariables)
     ])
     
     // Collect all current stuck transaction IDs for cleanup
@@ -271,6 +291,9 @@ const checkStuckTransactions = async (): Promise<Message[]> => {
         messages.push(createStuckTransactionMessage(newTransactions, 'foreign'))
       }
     }
+    
+    // Update lastCheckedTimestamp to current timeThreshold
+    alertState.lastCheckedTimestamp = timeThreshold
     
     // Save updated alert state
     saveAlertState(alertState)

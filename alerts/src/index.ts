@@ -6,7 +6,7 @@ import { sendMessage } from "./slack"
 
 // Configuration from environment variables
 const SCHEDULE_ENABLED = process.env.SCHEDULE_ENABLED === 'true'
-const SCHEDULE_CRON = process.env.SCHEDULE_CRON || '0 */15 * * * *' // Default: every 15 minutes
+const SCHEDULE_CRON = process.env.SCHEDULE_CRON || '*/15 * * * *' // Default: every 15 minutes, use 5 elements instead of 6 to run in docker environment
 const RUN_ONCE_ON_START = process.env.RUN_ONCE_ON_START === 'true'
 
 let isRunning = false
