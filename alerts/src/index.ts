@@ -6,11 +6,16 @@ import { sendMessage } from "./slack"
 
 // Configuration from environment variables
 const SCHEDULE_ENABLED = process.env.SCHEDULE_ENABLED === 'true'
-const SCHEDULE_CRON = process.env.SCHEDULE_CRON || '*/15 * * * *' // Default: every 15 minutes, use 5 elements instead of 6 to run in docker environment
+let SCHEDULE_CRON: string
+if(process.env.NODE_ENV === 'DEV'){
+  SCHEDULE_CRON= process.env.SCHEDULE_CRON  || '0 */15 * * * *'
+}else if (process.env.NODE_ENV ==='PROD'){
+  SCHEDULE_CRON = process.env.SCHEDULE_CRON || '*/15 * * * *' // Default: every 15 minutes, use 5 elements instead of 6 to run in docker environment
+
+}
 const RUN_ONCE_ON_START = process.env.RUN_ONCE_ON_START === 'true'
 
 let isRunning = false
-let runCount = 0
 let lastRunTime: Date | null = null
 let lastError: Error | null = null
 
@@ -21,11 +26,10 @@ const runAlerts = async () => {
   }
 
   isRunning = true
-  runCount++
   const startTime = new Date()
   
   try {
-    console.log(`🚀 Starting alert job #${runCount} at ${startTime.toISOString()}`)
+    console.log(`🚀 Starting alert job  at ${startTime.toISOString()}`)
     
     const msgs = await messages()
     console.log(`📊 Generated ${msgs.length} alert message(s)`)
@@ -53,7 +57,7 @@ const runAlerts = async () => {
   } finally {
     isRunning = false
     const duration = Date.now() - startTime.getTime()
-    console.log(`⏱️  Alert job #${runCount} completed in ${duration}ms\n`)
+    console.log(`⏱️  Alert job completed in ${duration}ms\n`)
   }
 }
 
@@ -66,13 +70,24 @@ const startScheduler = () => {
   if (!cron.validate(SCHEDULE_CRON)) {
     throw new Error(`Invalid cron expression: ${SCHEDULE_CRON}`)
   }
-  
-  // Schedule the job
-  const task = cron.schedule(SCHEDULE_CRON, () => {
-    runAlerts().catch(error => {
-      console.error('🔥 Unhandled error in scheduled task:', error)
-    })
+ // Schedule the job
+ const task = cron.schedule(SCHEDULE_CRON, () => {
+  runAlerts().catch(error => {
+    console.error('🔥 Unhandled error in scheduled task:', error)
   })
+})
+
+// Start the task
+task.start();
+
+// Conditionally run the job once on start
+if (RUN_ONCE_ON_START) {
+  console.log('🔄 Running job once on start...')
+  runAlerts().catch(error => {
+    console.error('🔥 Unhandled error during initial run:', error)
+  })
+}
+
   
   console.log('✅ Scheduler started successfully')
   
@@ -80,7 +95,6 @@ const startScheduler = () => {
   setInterval(() => {
     const status = {
       isRunning,
-      runCount,
       lastRunTime: lastRunTime?.toISOString(),
       lastError: lastError?.message,
       nextRun: 'Based on cron schedule',

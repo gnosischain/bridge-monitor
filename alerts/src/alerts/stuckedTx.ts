@@ -4,22 +4,18 @@ import * as path from 'path'
 import { useNativeGraphqlClient, useForeignGraphqlClient } from '../graphql'
 import { Message, MessageType } from './messages'
 
+
 const TRANSACTION_TIMEOUT_HOURS = parseInt(process.env.TRANSACTION_TIMEOUT_HOURS) || 2
 const ALERT_STATE_FILE = process.env.ALERT_STATE_FILE || path.join(__dirname, '../../data/stuck-tx-alerts.json')
 const ALERT_CLEANUP_HOURS = parseInt(process.env.ALERT_CLEANUP_HOURS) || 48 // Cleanup resolved alerts after 48 hours
 
-
 const STUCK_TRANSACTIONS_QUERY = gql`
-  query StuckTransactions($timeThreshold: BigInt!, $startupThreshold: BigInt!) {
+  query StuckTransactions($startupThreshold: BigInt!) {
     transactions(
       where: {
         and: [
           { timestamp_gte: $startupThreshold },
-          {
-            or: [
-              { transactionStatus: COLLECTING, timestamp_lt: $timeThreshold }
-            ]
-          }
+          { transactionStatus: COLLECTING }
         ]
       }
       orderBy: timestamp
@@ -80,7 +76,6 @@ type StuckTransactionsResponse = {
 }
 
 type StuckTransactionsVariables = {
-  timeThreshold: string
   startupThreshold: string
 }
 
@@ -115,17 +110,19 @@ const loadAlertState = (): AlertStateFile => {
     if (fs.existsSync(ALERT_STATE_FILE)) {
       const data = fs.readFileSync(ALERT_STATE_FILE, 'utf-8')
       const parsed = JSON.parse(data) as AlertStateFile
-      return parsed
+      if(parsed){
+        return parsed
+      }
     }
   } catch (error) {
     console.warn('Failed to load alert state file:', error)
   }
   
   return {
-    version: '1.0',
+    version: "1.0",
     alerts: {},
     lastCleanup: Date.now(),
-    lastCheckedTimestamp: Math.floor(Date.now() / 1000) - TRANSACTION_TIMEOUT_HOURS * 3600
+    lastCheckedTimestamp: 0
   }
 }
 
@@ -171,7 +168,7 @@ const shouldAlertTransaction = (tx: StuckTransaction, alertState: AlertStateFile
     return true
   }
   
-  // Already alerted - skip
+  // Already alerted - update timestamp but don't alert again
   console.log(`⏭️  Skipping already alerted transaction: ${tx.transactionHash} (first alerted: ${new Date(existingAlert.firstAlertTime).toISOString()})`)
   return false
 }
@@ -201,7 +198,7 @@ const formatDuration = (hours: number): string => {
 
 const createStuckTransactionMessage = (tx: StuckTransaction): Message => {
   
-  const now = Math.floor(Date.now() / 1000)
+    const now = Date.now()
   
       const hoursStuck = (now - parseInt(tx.timestamp)) / 3600
       const validationCount = tx.validations?.length || 0
@@ -213,7 +210,7 @@ const createStuckTransactionMessage = (tx: StuckTransaction): Message => {
         title: `🚨 Stuck Tx Alert on ${tx.bridgeName} for ${hoursStuck} hr(s)`,
         type: MessageType.STUCK_TRANSACTION,
         createdBy: tx.bridgeName,
-        createdByLink: tx.initiatorNetwork == 'gnosis' ? `https://gnosisscan.io/tx/${tx.transactionHash}` || `https://etherscan.io/tx/${tx.transactionHash}`,
+        createdByLink: tx.initiatorNetwork === 'gnosis' ? `https://gnosisscan.io/tx/${tx.transactionHash}` : `https://etherscan.io/tx/${tx.transactionHash}`,
         timestamp: new Date(),
         body: body
       }
@@ -222,26 +219,37 @@ const createStuckTransactionMessage = (tx: StuckTransaction): Message => {
 }
 
 const checkStuckTransactions = async (): Promise<Message[]> => {
+  console.log("Checking for Tx with COLLECTING status...")
   const messages: Message[] = []
   
-  const currentTime = Math.floor(Date.now() / 1000)
+  // Don't need to wait for required block confirmation because the STATUS will be 'INITIATED' instead of 'COLLECTING'
+  const currentTime = Date.now()
   const timeThreshold = currentTime - TRANSACTION_TIMEOUT_HOURS * 3600
   
   try {
     // Load current alert state
     let alertState = loadAlertState()
+
     console.log(`📊 Loaded alert state: ${Object.keys(alertState.alerts).length} tracked alerts`)
     
-    // Use lastCheckedTimestamp to only look at transactions after the last check
-    const startupThreshold = alertState.lastCheckedTimestamp
-    console.log(`🕒 Monitoring transactions after: ${new Date(startupThreshold * 1000).toISOString()}`)
-    console.log(`⏰ Looking for transactions stuck before: ${new Date(timeThreshold * 1000).toISOString()}`)
+    // For first startup or when lastCheckedTimestamp is 0, check from timeNow - transactionTimeoutHours
+    let startupThreshold: number
+    if ( alertState.lastCheckedTimestamp === 0) {
+      // First startup case: check from timeNow - transactionTimeoutHours to timeNow
+      startupThreshold = timeThreshold
+      console.log(`🚀 First startup: checking transactions from ${new Date(startupThreshold).toISOString()} to now`)
+    } else {
+      // Regular case: check from last checked timestamp
+      startupThreshold = alertState.lastCheckedTimestamp
+      console.log(`🔄 Regular check: monitoring transactions after ${new Date(startupThreshold).toISOString()}`)
+    }
+    
+    console.log(`⏰ Looking for transactions stuck after: ${new Date(timeThreshold).toISOString()}`)
     
     const nativeClient = useNativeGraphqlClient()
     const foreignClient = useForeignGraphqlClient()
     
     const queryVariables = { 
-      timeThreshold: timeThreshold.toString(),
       startupThreshold: startupThreshold.toString()
     }
     
@@ -267,14 +275,16 @@ const checkStuckTransactions = async (): Promise<Message[]> => {
       const newTransactions = nativeResponse.transactions.filter(tx => shouldAlertTransaction(tx, alertState))
       console.log(`🔍 Native bridge: ${nativeResponse.transactions.length} stuck, ${newTransactions.length} new alerts`)
       
+      // Update timestamps for all stuck transactions (including duplicates)
+      nativeResponse.transactions.forEach(tx => {
+        recordAlert(tx, 'native', alertState)
+      })
+      
+      // Only add messages for new transactions
       if (newTransactions.length > 0) {
-        // Record alerts for new transactions
         newTransactions.forEach(tx => {
-          
-          recordAlert(tx, 'foreign', alertState)
           messages.push(createStuckTransactionMessage(tx))
-          }
-        )
+        })
       }
     }
     
@@ -283,19 +293,21 @@ const checkStuckTransactions = async (): Promise<Message[]> => {
       const newTransactions = foreignResponse.transactions.filter(tx => shouldAlertTransaction(tx, alertState))
       console.log(`🔍 Foreign bridge: ${foreignResponse.transactions.length} stuck, ${newTransactions.length} new alerts`)
       
+      // Update timestamps for all stuck transactions (including duplicates)
+      foreignResponse.transactions.forEach(tx => {
+        recordAlert(tx, 'foreign', alertState)
+      })
+      
+      // Only add messages for new transactions
       if (newTransactions.length > 0) {
-        // Record alerts for new transactions
         newTransactions.forEach(tx => {
-          
-          recordAlert(tx, 'foreign', alertState)
           messages.push(createStuckTransactionMessage(tx))
-        }
-        )
+        })
       }
     }
     
-    // Update lastCheckedTimestamp to current timeThreshold
-    alertState.lastCheckedTimestamp = timeThreshold
+    // Update lastCheckedTimestamp to current time to prevent overlapping in next iteration
+    alertState.lastCheckedTimestamp = currentTime
     
     // Save updated alert state
     saveAlertState(alertState)
