@@ -101,6 +101,7 @@ type AlertStateFile = {
 }
 
 // State management functions
+// Store the stucked txs in /data folder to avoid duplicate signaling
 const ensureDataDirectory = () => {
   const dataDir = path.dirname(ALERT_STATE_FILE)
   if (!fs.existsSync(dataDir)) {
@@ -198,33 +199,26 @@ const formatDuration = (hours: number): string => {
   return `${days} day${days !== 1 ? 's' : ''} ${remainingHours} hour${remainingHours !== 1 ? 's' : ''}`
 }
 
-const createStuckTransactionMessage = (transactions: StuckTransaction[], endpoint: string): Message => {
-  const collectingTxs = transactions.filter(tx => tx.transactionStatus === 'COLLECTING')
+const createStuckTransactionMessage = (tx: StuckTransaction): Message => {
   
   const now = Math.floor(Date.now() / 1000)
   
-  let body = `Found ${transactions.length} stuck transaction${transactions.length !== 1 ? 's' : ''} on ${endpoint.includes('foreign') ? 'Foreign' : 'Native'} bridge:\n\n`
-  
-  if (collectingTxs.length > 0) {
-    body += `**🔄 COLLECTING Status (${collectingTxs.length}) - Waiting for validator signatures:**\n`
-    collectingTxs.forEach(tx => {
       const hoursStuck = (now - parseInt(tx.timestamp)) / 3600
       const validationCount = tx.validations?.length || 0
-      body += `• \`${tx.transactionHash}\` (${formatDuration(hoursStuck)} stuck, ${validationCount} validations)\n`
+      let body = `• \`${tx.transactionHash}\` (${formatDuration(hoursStuck)} stuck, ${validationCount} validations)\n`
       body += `  Bridge: ${tx.bridgeName} | ${tx.initiatorNetwork} → ${tx.receiverNetwork}\n`
-    })
-    body += '\n'
-  }
+      body += '\n'
+
+      return {
+        title: `🚨 Stuck Tx Alert on ${tx.bridgeName} for ${hoursStuck} hr(s)`,
+        type: MessageType.STUCK_TRANSACTION,
+        createdBy: tx.bridgeName,
+        createdByLink: tx.initiatorNetwork == 'gnosis' ? `https://gnosisscan.io/tx/${tx.transactionHash}` || `https://etherscan.io/tx/${tx.transactionHash}`,
+        timestamp: new Date(),
+        body: body
+      }
+   
   
- 
-  return {
-    title: `🚨 ${transactions.length} Stuck Transaction${transactions.length !== 1 ? 's' : ''} Alert`,
-    body,
-    type: MessageType.STUCK_TRANSACTION,
-    createdBy: 'Bridge Monitor',
-    createdByLink: '',
-    timestamp: new Date()
-  }
 }
 
 const checkStuckTransactions = async (): Promise<Message[]> => {
@@ -275,8 +269,12 @@ const checkStuckTransactions = async (): Promise<Message[]> => {
       
       if (newTransactions.length > 0) {
         // Record alerts for new transactions
-        newTransactions.forEach(tx => recordAlert(tx, 'native', alertState))
-        messages.push(createStuckTransactionMessage(newTransactions, 'native'))
+        newTransactions.forEach(tx => {
+          
+          recordAlert(tx, 'foreign', alertState)
+          messages.push(createStuckTransactionMessage(tx))
+          }
+        )
       }
     }
     
@@ -287,8 +285,12 @@ const checkStuckTransactions = async (): Promise<Message[]> => {
       
       if (newTransactions.length > 0) {
         // Record alerts for new transactions
-        newTransactions.forEach(tx => recordAlert(tx, 'foreign', alertState))
-        messages.push(createStuckTransactionMessage(newTransactions, 'foreign'))
+        newTransactions.forEach(tx => {
+          
+          recordAlert(tx, 'foreign', alertState)
+          messages.push(createStuckTransactionMessage(tx))
+        }
+        )
       }
     }
     

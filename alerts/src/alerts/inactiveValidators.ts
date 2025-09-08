@@ -1,9 +1,23 @@
-import { fetchValidators } from '../validators';
-import { Message } from './messages';
+import { title } from 'process';
+import { fetchValidators, Validator } from '../validators';
+import { Message, MessageType } from "./messages"
 
 const INACTIVITY_THRESHOLD_HOURS = parseInt(process.env.INACTIVITY_THRESHOLD_HOURS) || 0.01;
 
-export const checkInactiveValidators = async (): Promise<Message | null> => {
+
+const createInactiveValidatorMessage = (validator: Validator, inactiveSince: string, lastActivityUTC: string) =>{
+  return{
+    title: `Inactive validator alert: ${validator.name} on ${validator.bridgeType}`,
+    type: MessageType.INACTIVE_VALIDATOR,
+    createdBy: validator.name,
+    createdByLink: `https://gnosisscan.io/address/${validator.address}`,
+    timestamp: new Date(),
+    body: `Inactive since: ${inactiveSince}, last activity in ${lastActivityUTC}`
+    
+  }
+}
+
+export const checkInactiveValidators = async (): Promise<Message[] | null> => {
   console.log('Checking for inactive validators...');
   try {
     const allValidators = await fetchValidators();
@@ -20,44 +34,23 @@ export const checkInactiveValidators = async (): Promise<Message | null> => {
     if (inactiveValidators.length > 0) {
       console.log(`Found ${inactiveValidators.length} inactive validators.`);
       
-      // Define the type for the accumulator object for type safety
-      type ValidatorInfo = { address: string; lastActivityUTC: string; 'Inactive Since': string; };
-
-      // Create a JSON object with validator names as keys
-      const inactiveValidatorsJson = inactiveValidators.reduce((acc: Record<string, ValidatorInfo>, validator) => {
-        const name = validator.name || validator.id;
-
+        const message = inactiveValidators.map(( validator: Validator) => {
+        
         // Calculate inactivity duration
         const diffInSeconds = now - parseInt(validator.lastActivity, 10);
         const diffInHours = Math.round(diffInSeconds / 3600);
         const hourText = diffInHours === 1 ? 'hr' : 'hrs';
         const inactiveSince = `${diffInHours} ${hourText} ago`;
+        const lastActivityUTC = new Date(parseInt(validator.lastActivity, 10) * 1000).toUTCString()
 
-        acc[name] = {
-          address: validator.address,
-          lastActivityUTC: new Date(parseInt(validator.lastActivity, 10) * 1000).toUTCString(),
-          'Inactive Since': inactiveSince
-        };
-        return acc;
-      }, {});
-
-      // Format the JSON for the message body
-      const jsonString = JSON.stringify(inactiveValidatorsJson, null, 2);
-      const messageBody = `The following validators have been inactive for more than ${INACTIVITY_THRESHOLD_HOURS} hours:\n\
-\
-\
-${jsonString}\
-\
-\
-`;
+        
+        return createInactiveValidatorMessage(validator,inactiveSince, lastActivityUTC)
+       
+      });
+      return message
+     
       
-      return {
-        title: '🚨 Inactive Validators Alert',
-        body: messageBody,
-        type: 'InactiveValiadtor',
-        createdBy: 'Bridge Monitor',
-        createdByLink: ''
-      };
+   
     } else {
       console.log('All validators are active.');
     }

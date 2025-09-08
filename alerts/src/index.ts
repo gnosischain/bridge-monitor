@@ -72,19 +72,9 @@ const startScheduler = () => {
     runAlerts().catch(error => {
       console.error('🔥 Unhandled error in scheduled task:', error)
     })
-  }, {
-    scheduled: false
   })
   
-  // Start the scheduler
-  task.start()
   console.log('✅ Scheduler started successfully')
-  
-  // Run immediately if configured
-  if (RUN_ONCE_ON_START) {
-    console.log('🏃 Running alerts immediately on startup...')
-    setTimeout(() => runAlerts(), 1000)
-  }
   
   // Health check endpoint (log status every hour)
   setInterval(() => {
@@ -97,7 +87,7 @@ const startScheduler = () => {
       uptime: process.uptime()
     }
     console.log('📊 Alert system status:', JSON.stringify(status, null, 2))
-  }, 60 * 60 * 1000) // Every hour
+  }, 24 * 60 * 60 * 1000) // Every 24 hour
   
   // Graceful shutdown
   process.on('SIGINT', () => {
@@ -123,10 +113,6 @@ const main = async () => {
   if (SCHEDULE_ENABLED) {
     startScheduler()
     
-    // Keep the process alive
-    setInterval(() => {
-      // This keeps the Node.js process running
-    }, 60000)
   } else {
     console.log('📝 Running in one-time mode...')
     await runAlerts()
