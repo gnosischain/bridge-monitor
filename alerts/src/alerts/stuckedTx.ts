@@ -319,7 +319,6 @@ const checkStuckTransactions = async (): Promise<Message[]> => {
       maxDelay: Math.floor(maxDelay / 1000).toString(), // Convert to seconds for subgraph
       minDelay: Math.floor(minDelay / 1000).toString()  // Convert to seconds for subgraph
     }
-    console.log("query variables ", queryVariables)
     
     // Get all transactions in the time period from both subgraphs
     const [nativeResponse, foreignResponse] = await Promise.all([
