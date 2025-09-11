@@ -4,23 +4,35 @@ import * as path from 'path'
 import { useNativeGraphqlClient, useForeignGraphqlClient } from '../graphql'
 import { Message, MessageType } from './messages'
 
+// Two scenarios:
+// 1. Foreign -> Native 
+// Foreign subgraph: record transaction timestamp and transactionStatus as INITIATED
+// Native subgraph: use the id from Foreign subgraph to query and will have transactionStatus as COLLECTING / COMPLETED
+// tx is stuck if: Native subgraph's status is still COLLECTING after timeout
+// 2. Native -> Foreign 
+// Native subgraph: record transaction timestamp, check for transaction that is INITIATED/COLLECTING/UNCLAIMED
+// Foreign subgraph: use id from GC subgraph to query and will have transactionStatus as COMPLETED
+// tx is stuck if: Native subgraph's status is still INITIATED/COLLECTING after timeout
+
 
 const TRANSACTION_TIMEOUT_HOURS = parseInt(process.env.TRANSACTION_TIMEOUT_HOURS) || 2
 const ALERT_STATE_FILE = process.env.ALERT_STATE_FILE || path.join(__dirname, '../../data/stuck-tx-alerts.json')
 const ALERT_CLEANUP_HOURS = parseInt(process.env.ALERT_CLEANUP_HOURS) || 48 // Cleanup resolved alerts after 48 hours
 
-const STUCK_TRANSACTIONS_QUERY = gql`
-  query StuckTransactions($startupThreshold: BigInt!) {
+// Query to get all transactions in time range
+const TRANSACTIONS_QUERY = gql`
+  query Transactions($maxDelay: BigInt!, $minDelay: BigInt!) {
     transactions(
       where: {
         and: [
-          { timestamp_gte: $startupThreshold },
-          { transactionStatus: COLLECTING }
+          { timestamp_not: null }, 
+          { timestamp_gte: $maxDelay },
+          { timestamp_lt: $minDelay}
         ]
       }
       orderBy: timestamp
       orderDirection: asc
-      first: 50
+      first: 200
     ) {
       id
       transactionHash
@@ -47,6 +59,22 @@ const STUCK_TRANSACTIONS_QUERY = gql`
   }
 `
 
+// Query to check if a specific transaction exists and its status
+const TRANSACTION_BY_ID_QUERY = gql`
+  query TransactionById($id: ID!) {
+    transaction(id: $id) {
+      id
+      transactionStatus
+      execution {
+        id
+        timestamp
+      }
+    }
+  }
+`
+
+
+
 type StuckTransaction = {
   id: string
   transactionHash: string
@@ -71,12 +99,52 @@ type StuckTransaction = {
   }>
 }
 
-type StuckTransactionsResponse = {
-  transactions: StuckTransaction[]
+type Transaction = {
+  id: string
+  transactionHash: string
+  bridgeName: string
+  transactionStatus: string
+  timestamp: string
+  initiator: string
+  initiatorNetwork: string
+  receiverNetwork: string
+  initiatorToken: string
+  receiverToken: string
+  initiatorAmount: string
+  validations: Array<{
+    id: string
+    timestamp: string
+    validatorAddr: string
+  }>
+  execution: Array<{
+    id: string
+    timestamp: string
+    validatorAddr: string
+  }>
 }
 
-type StuckTransactionsVariables = {
-  startupThreshold: string
+type TransactionsResponse = {
+  transactions: Transaction[]
+}
+
+type TransactionsVariables = {
+  maxDelay: string
+  minDelay: string
+}
+
+type TransactionByIdResponse = {
+  transaction: {
+    id: string
+    transactionStatus: string
+    execution: Array<{
+      id: string
+      timestamp: string
+    }>
+  } | null
+}
+
+type TransactionByIdVariables = {
+  id: string
 }
 
 type AlertState = {
@@ -137,7 +205,7 @@ const saveAlertState = (state: AlertStateFile): void => {
 
 const cleanupResolvedAlerts = (state: AlertStateFile, currentStuckTxIds: Set<string>): AlertStateFile => {
   const now = Date.now()
-  const cleanupThreshold = now - (ALERT_CLEANUP_HOURS * 60 * 60 * 1000)
+  const cleanupThreshold = now - (ALERT_CLEANUP_HOURS * 60 * 60 * 1000) // in ms
   
   // Remove alerts for transactions that are no longer stuck or are old
   const cleanedAlerts: Record<string, AlertState> = {}
@@ -200,7 +268,9 @@ const createStuckTransactionMessage = (tx: StuckTransaction): Message => {
   
     const now = Date.now()
   
-      const hoursStuck = (now - parseInt(tx.timestamp)) / 3600
+    // tx.timestamp is in second 
+    // Date.now is in ms
+      const hoursStuck = (now - parseInt(tx.timestamp) * 1000) / (3600 * 1000) 
       const validationCount = tx.validations?.length || 0
       let body = `• \`${tx.transactionHash}\` (${formatDuration(hoursStuck)} stuck, ${validationCount} validations)\n`
       body += `  Bridge: ${tx.bridgeName} | ${tx.initiatorNetwork} → ${tx.receiverNetwork}\n`
@@ -219,12 +289,13 @@ const createStuckTransactionMessage = (tx: StuckTransaction): Message => {
 }
 
 const checkStuckTransactions = async (): Promise<Message[]> => {
-  console.log("Checking for Tx with COLLECTING status...")
+  console.log("Checking for stuck transactions across both subgraphs...")
   const messages: Message[] = []
   
-  // Don't need to wait for required block confirmation because the STATUS will be 'INITIATED' instead of 'COLLECTING'
-  const currentTime = Date.now()
-  const timeThreshold = currentTime - TRANSACTION_TIMEOUT_HOURS * 3600
+  // Check period for [maxDelay, minDelay] // minDelay has to gte required block confirmation 
+  let minDelay = Date.now() - TRANSACTION_TIMEOUT_HOURS * 3600 * 1000 // in ms
+  let maxDelay = minDelay -  24 * 3600 * 1000   // default: 24 hours period from minDelay, in ms
+
   
   try {
     // Load current alert state
@@ -233,35 +304,88 @@ const checkStuckTransactions = async (): Promise<Message[]> => {
     console.log(`📊 Loaded alert state: ${Object.keys(alertState.alerts).length} tracked alerts`)
     
     // For first startup or when lastCheckedTimestamp is 0, check from timeNow - transactionTimeoutHours
-    let startupThreshold: number
-    if ( alertState.lastCheckedTimestamp === 0) {
-      // First startup case: check from timeNow - transactionTimeoutHours to timeNow
-      startupThreshold = timeThreshold
-      console.log(`🚀 First startup: checking transactions from ${new Date(startupThreshold).toISOString()} to now`)
+    if (alertState.lastCheckedTimestamp === 0) {
+      console.log(`🚀 First startup: checking transactions from ${new Date(maxDelay).toISOString()} to ${new Date(minDelay).toISOString()}`)
     } else {
       // Regular case: check from last checked timestamp
-      startupThreshold = alertState.lastCheckedTimestamp
-      console.log(`🔄 Regular check: monitoring transactions after ${new Date(startupThreshold).toISOString()}`)
+      maxDelay = alertState.lastCheckedTimestamp
+      console.log(`🔄 Regular check: monitoring transactions from ${new Date(maxDelay).toISOString()} to ${new Date(minDelay).toISOString()}`)
     }
-    
-    console.log(`⏰ Looking for transactions stuck after: ${new Date(timeThreshold).toISOString()}`)
-    
+        
     const nativeClient = useNativeGraphqlClient()
     const foreignClient = useForeignGraphqlClient()
     
     const queryVariables = { 
-      startupThreshold: startupThreshold.toString()
+      maxDelay: Math.floor(maxDelay / 1000).toString(), // Convert to seconds for subgraph
+      minDelay: Math.floor(minDelay / 1000).toString()  // Convert to seconds for subgraph
     }
+    console.log("query variables ", queryVariables)
     
+    // Get all transactions in the time period from both subgraphs
     const [nativeResponse, foreignResponse] = await Promise.all([
-      nativeClient<StuckTransactionsResponse, StuckTransactionsVariables>(STUCK_TRANSACTIONS_QUERY, queryVariables),
-      foreignClient<StuckTransactionsResponse, StuckTransactionsVariables>(STUCK_TRANSACTIONS_QUERY, queryVariables)
+      nativeClient<TransactionsResponse, TransactionsVariables>(TRANSACTIONS_QUERY, queryVariables),
+      foreignClient<TransactionsResponse, TransactionsVariables>(TRANSACTIONS_QUERY, queryVariables)
     ])
     
-    // Collect all current stuck transaction IDs for cleanup
+    console.log(`📊 Native transactions found: ${nativeResponse.transactions.length}`)
+    console.log(`📊 Foreign transactions found: ${foreignResponse.transactions.length}`)
+    
+    const stuckTransactions: StuckTransaction[] = []
     const currentStuckTxIds = new Set<string>()
-    nativeResponse.transactions.forEach(tx => currentStuckTxIds.add(tx.id))
-    foreignResponse.transactions.forEach(tx => currentStuckTxIds.add(tx.id))
+
+    // Scenario 1: Foreign -> Native (Foreign has INITIATED, Native should have COLLECTING/COMPLETED)
+    for (const foreignTx of foreignResponse.transactions) {
+      if (foreignTx.transactionStatus === 'INITIATED') {
+        // Check if this transaction exists in native subgraph
+        try {
+          const nativeStatus = await nativeClient<TransactionByIdResponse, TransactionByIdVariables>(
+            TRANSACTION_BY_ID_QUERY, 
+            { id: foreignTx.id }
+          )
+          
+          if (nativeStatus.transaction) {
+            // Transaction exists in native - check if it's stuck in COLLECTING
+            if (nativeStatus.transaction.transactionStatus === 'COLLECTING' && 
+                !nativeStatus.transaction.execution.length ) {
+              const stuckTx: StuckTransaction = {
+                ...foreignTx,
+                transactionStatus: 'COLLECTING'
+              }
+              stuckTransactions.push(stuckTx)
+              currentStuckTxIds.add(foreignTx.id)
+            }
+          } else if(nativeStatus.transaction.transactionStatus === 'COMPLETED'){
+            // skip
+          }
+         
+          
+        } catch (error) {
+          console.warn(`Failed to check native status for transaction ${foreignTx.id}:`, error)
+        }
+      }
+    }
+
+    // Scenario 2: Native -> Foreign (Check if Native transactions are stuck in INITIATED/COLLECTING)
+    for (const nativeTx of nativeResponse.transactions) {
+      if (nativeTx.transactionStatus === 'INITIATED' || nativeTx.transactionStatus === 'COLLECTING') {
+        // Check if transaction timestamp is older than timeout threshold
+        const now = Date.now()
+        const txAge = now - parseInt(nativeTx.timestamp) * 1000 // in ms
+        const stuckThreshold = TRANSACTION_TIMEOUT_HOURS * 3600 * 1000 // in ms
+        
+        if (txAge > stuckThreshold) {
+          // Transaction is stuck - older than timeout and still in INITIATED/COLLECTING
+          const stuckTx: StuckTransaction = {
+            ...nativeTx,
+            transactionStatus: 'COLLECTING'
+          }
+          stuckTransactions.push(stuckTx)
+          currentStuckTxIds.add(nativeTx.id)
+        }
+      }
+    }
+
+    console.log(`🔍 Found ${stuckTransactions.length} stuck transactions`)
     
     // Clean up resolved alerts periodically
     const shouldCleanup = Date.now() - alertState.lastCleanup > (60 * 60 * 1000) // Every hour
@@ -270,14 +394,15 @@ const checkStuckTransactions = async (): Promise<Message[]> => {
       alertState = cleanupResolvedAlerts(alertState, currentStuckTxIds)
     }
     
-    // Process native bridge transactions
-    if (nativeResponse.transactions.length > 0) {
-      const newTransactions = nativeResponse.transactions.filter(tx => shouldAlertTransaction(tx, alertState))
-      console.log(`🔍 Native bridge: ${nativeResponse.transactions.length} stuck, ${newTransactions.length} new alerts`)
+    // Process stuck transactions
+    if (stuckTransactions.length > 0) {
+      const newTransactions = stuckTransactions.filter(tx => shouldAlertTransaction(tx, alertState))
+      console.log(`🚨 ${stuckTransactions.length} stuck transactions, ${newTransactions.length} new alerts`)
       
-      // Update timestamps for all stuck transactions (including duplicates)
-      nativeResponse.transactions.forEach(tx => {
-        recordAlert(tx, 'native', alertState)
+      // Update timestamps for all stuck transactions
+      stuckTransactions.forEach(tx => {
+        const endpoint = tx.initiatorNetwork === 'gnosis' ? 'native' : 'foreign'
+        recordAlert(tx, endpoint, alertState)
       })
       
       // Only add messages for new transactions
@@ -288,26 +413,8 @@ const checkStuckTransactions = async (): Promise<Message[]> => {
       }
     }
     
-    // Process foreign bridge transactions
-    if (foreignResponse.transactions.length > 0) {
-      const newTransactions = foreignResponse.transactions.filter(tx => shouldAlertTransaction(tx, alertState))
-      console.log(`🔍 Foreign bridge: ${foreignResponse.transactions.length} stuck, ${newTransactions.length} new alerts`)
-      
-      // Update timestamps for all stuck transactions (including duplicates)
-      foreignResponse.transactions.forEach(tx => {
-        recordAlert(tx, 'foreign', alertState)
-      })
-      
-      // Only add messages for new transactions
-      if (newTransactions.length > 0) {
-        newTransactions.forEach(tx => {
-          messages.push(createStuckTransactionMessage(tx))
-        })
-      }
-    }
-    
-    // Update lastCheckedTimestamp to current time to prevent overlapping in next iteration
-    alertState.lastCheckedTimestamp = currentTime
+    // Update lastCheckedTimestamp to minDelay (end of current check period)
+    alertState.lastCheckedTimestamp = minDelay
     
     // Save updated alert state
     saveAlertState(alertState)
