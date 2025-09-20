@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
+name: envio-indexer
+networks:
+- id: 1
+  start_block: 23392830
+  contracts:
+  - name: xDaiForeign
+    address:
+    - 0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016
+    handler: src/EventHandlers.ts
+    events:
+    - event: RelayedMessage(address recipient, uint256 value, bytes32 transactionHash)
+    - event: UserRequestForAffirmation(address recipient, uint256 value, bytes32 nonce)
+- id: 100
+  start_block: 42191540
+  contracts:
+  - name: xDaiHome
+    address:
+    - 0x7301CFA0e1756B71869E93d4e4Dca5c7d0eb0AA6
+    handler: src/EventHandlers.ts
+    events:
+    - event: AffirmationCompleted(address recipient, uint256 value, bytes32 nonce)
+    - event: CollectedSignatures(address authorityResponsibleForRelay, bytes32 messageHash, uint256 NumberOfCollectedSignatures)
+    - event: SignedForAffirmation(address indexed signer, bytes32 nonce)
+    - event: SignedForUserRequest(address indexed signer, bytes32 messageHash)
+    - event: UserRequestForSignature(address recipient, uint256 value)
+unordered_multichain_mode: true
+preload_handlers: true

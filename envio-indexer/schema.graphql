@@ -1,0 +1,46 @@
+type XDaiForeign_RelayedMessage {
+  id: ID!
+  recipient: String!
+  value: BigInt!
+  transactionHash: String!
+}
+
+type XDaiForeign_UserRequestForAffirmation {
+  id: ID!
+  recipient: String!
+  value: BigInt!
+  nonce: String!
+}
+
+type XDaiHome_AffirmationCompleted {
+  id: ID!
+  recipient: String!
+  value: BigInt!
+  nonce: String!
+}
+
+type XDaiHome_CollectedSignatures {
+  id: ID!
+  authorityResponsibleForRelay: String!
+  messageHash: String!
+  numberOfCollectedSignatures: BigInt!
+}
+
+type XDaiHome_SignedForAffirmation {
+  id: ID!
+  signer: String!
+  nonce: String!
+}
+
+type XDaiHome_SignedForUserRequest {
+  id: ID!
+  signer: String!
+  messageHash: String!
+}
+
+type XDaiHome_UserRequestForSignature {
+  id: ID!
+  recipient: String!
+  value: BigInt!
+}
+
