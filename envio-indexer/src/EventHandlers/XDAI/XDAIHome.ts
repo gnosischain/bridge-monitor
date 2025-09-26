@@ -1,8 +1,7 @@
-import { Validator, XDAIHome, TransactionValidation } from "generated";
+import { Validator, XDAIHome, TransactionValidation, TransactionExecution } from "generated";
 import { TransactionStatusEnum, BridgeTypeEnum, CHAIN } from "../../const";
 import { combineNonceAndChainId } from "../../utils/combineNonceAndChainId";
 import { getValidator } from "../../utils/getValidator";
-import { stringify } from "../../utils/stringify";
 
 XDAIHome.SignedForAffirmation.handler(async ({ event, context }) => {
   const foreignNonce = event.params.nonce;
@@ -10,10 +9,8 @@ XDAIHome.SignedForAffirmation.handler(async ({ event, context }) => {
     ? combineNonceAndChainId(foreignNonce, CHAIN.FOREIGN.ID)
     : foreignNonce;
 
-  context.log.info(`2 XDAI: SignedForAffirmation - looking for tx: ${txId}`);
   const tx = await context.Transaction.get(txId);
   if (!tx) {
-    context.log.info(`2 XDAI: SignedForAffirmation - tx not found - creating new tx`);
     const newTx = {
       id: txId,
       bridgeType: BridgeTypeEnum.XDAI,
@@ -39,9 +36,7 @@ XDAIHome.SignedForAffirmation.handler(async ({ event, context }) => {
   
     context.Transaction.set({...newTx});
   } else {
-    context.log.info(`2 XDAI: SignedForAffirmation - tx found - updating tx ${stringify(tx)}`);
     const newTx = { ...tx, transactionStatus: TransactionStatusEnum.COLLECTING };
-    context.log.info(`2 XDAI: SignedForAffirmation - updating tx ${stringify(newTx)}`);
     context.Transaction.set({...newTx});
   }
 
@@ -64,4 +59,51 @@ XDAIHome.SignedForAffirmation.handler(async ({ event, context }) => {
     timestamp: BigInt(event.block.timestamp),
   };
   context.TransactionValidation.set(validation);
+});
+
+XDAIHome.AffirmationCompleted.handler(async ({ event, context }) => {
+  const foreignNonce = event.params.nonce;
+  const txId = foreignNonce.startsWith("0x00000000")
+    ? combineNonceAndChainId(foreignNonce, CHAIN.FOREIGN.ID)
+    : foreignNonce;
+
+  const executor = event.transaction.from?.toLowerCase();
+  if (!executor) {
+    context.log.error(
+      `XDAI: AffirmationCompleted - Executor not found, nonce: ${foreignNonce}`
+    );
+    return;
+  }
+  const validator = await getValidator(context, executor);
+  if (!validator) {
+    context.log.error(
+      `XDAI: AffirmationCompleted - Validator ${executor} not found, nonce: ${foreignNonce}`
+    );
+    return;
+  }
+  context.Validator.set({ ...validator, lastActivity: BigInt(event.block.timestamp) });
+
+  const tx = await context.Transaction.get(txId);
+  if (!tx) {
+    context.log.error(
+      `XDAI: AffirmationCompleted - Transaction not found, nonce: ${foreignNonce}`
+    );
+    return;
+  }
+
+  const execution: TransactionExecution = {
+    id: txId,
+    transaction_id: txId,
+    transactionHash: event.transaction.hash,
+    timestamp: BigInt(event.block.timestamp),
+    executor_id: validator.id,
+    executorAddress: validator.address,
+  };
+  context.TransactionExecution.set(execution);
+
+  context.Transaction.set({
+    ...tx,
+    transactionStatus: TransactionStatusEnum.COMPLETED,
+    execution_id: execution.id,
+  });
 });

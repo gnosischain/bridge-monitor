@@ -1,9 +1,8 @@
-import { XDAIForeign, Transaction } from "generated";
-import { BridgeTypeEnum, CHAIN, TransactionStatusEnum, TransactionStatusLiteral } from "../../const";
+import { XDAIForeign } from "generated";
+import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { combineNonceAndChainId } from "../../utils/combineNonceAndChainId";
 import { getInitiatorFromReceipt } from "../../effects/getInitiatorFromReceipt";
 import { ADDRESSES } from "../../addresses";
-import { stringify } from "../../utils/stringify";
 
 // XDAIForeign.RelayedMessage.handler(async ({ event, context }) => {
 //   const entity: XDAITransaction = {
@@ -17,7 +16,6 @@ import { stringify } from "../../utils/stringify";
 // });
 
 const receiptCache = new Map<string, { sender: string; token: string }>();
-
 
 XDAIForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
   if (context.isPreload) return;
