@@ -1,46 +1,66 @@
-type XDaiForeign_RelayedMessage {
+enum BridgeType {
+  XDAI
+  AMB
+}
+
+enum TransactionStatus {
+  INITIATED
+  COLLECTING
+  UNCLAIMED
+  COMPLETED
+  ERROR
+}
+
+type Validator {
   id: ID!
-  recipient: String!
-  value: BigInt!
+  name: String
+  bridgeType: BridgeType 
+  address: String!
+  lastActivity: BigInt # Last time Validator Signed|Executed a Tx
+  signed: [TransactionValidation!]! @derivedFrom(field: "validator") # tx signed (24hs)
+  executed: [TransactionExecution!]! @derivedFrom(field: "executor") # tx executed (24hs)
+  hashAdded: String
+  hashRemoved: String
+  removed: Boolean
+}
+
+type Transaction {
+  id: ID!
+  messageId: String
+  nonce: String
+  transactionHash: String
+  timestamp: BigInt
+  bridgeType: BridgeType!
+
+  initiatorNetwork: Int!
+  initiator: String
+  initiatorToken: String
+  initiatorAmount: BigInt
+
+  receiverNetwork: Int!
+  receiver: String
+  receiverToken: String
+  receiverAmount: BigInt
+
+  transactionStatus: TransactionStatus
+  validations: [TransactionValidation!]! @derivedFrom(field: "transaction")
+  execution: TransactionExecution
+}
+
+type TransactionValidation {
+  id: ID!
+  transaction: Transaction!
+  transactionHash: String
+  validator: Validator!
+  validatorAddress: String
+  timestamp: BigInt!
+}
+
+type TransactionExecution {
+  id: ID!
+  transaction: Transaction!
   transactionHash: String!
+  timestamp: BigInt!
+  executor: Validator
+  executorAddress: String
 }
-
-type XDaiForeign_UserRequestForAffirmation {
-  id: ID!
-  recipient: String!
-  value: BigInt!
-  nonce: String!
-}
-
-type XDaiHome_AffirmationCompleted {
-  id: ID!
-  recipient: String!
-  value: BigInt!
-  nonce: String!
-}
-
-type XDaiHome_CollectedSignatures {
-  id: ID!
-  authorityResponsibleForRelay: String!
-  messageHash: String!
-  numberOfCollectedSignatures: BigInt!
-}
-
-type XDaiHome_SignedForAffirmation {
-  id: ID!
-  signer: String!
-  nonce: String!
-}
-
-type XDaiHome_SignedForUserRequest {
-  id: ID!
-  signer: String!
-  messageHash: String!
-}
-
-type XDaiHome_UserRequestForSignature {
-  id: ID!
-  recipient: String!
-  value: BigInt!
-}
-
