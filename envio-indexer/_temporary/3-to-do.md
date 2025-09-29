@@ -1,4 +1,4 @@
-1. For AMB - include 3rd party AMB tokens (todo: list the mediators here)
+1. For AMB - include 3rd party AMB tokens from here: app/src/utils/token-overrides.ts, including commented ones.
 2. See how to pre-fill Validators (via onBlock handler or any other way) and check maybe we don't need to do it
 3. Use Effect API for fetching Transaction data etc. (?)
 
@@ -12,3 +12,5 @@
 6. Validators:
   - XDAIValidators
   - AMBValidators
+
+7. Rewrite queries from app (app/src/hooks/subgraph)
