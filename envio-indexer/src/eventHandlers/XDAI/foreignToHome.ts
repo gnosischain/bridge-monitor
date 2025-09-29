@@ -1,8 +1,92 @@
-import { Validator, XDAIHome, TransactionValidation, TransactionExecution } from "generated";
-import { TransactionStatusEnum, BridgeTypeEnum, CHAIN } from "../../const";
+import { TransactionExecution, TransactionValidation, Validator, XDAIForeign, XDAIHome } from "generated";
+import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { combineNonceAndChainId } from "../../utils/combineNonceAndChainId";
+import { getInitiatorFromReceipt } from "../../effects/getInitiatorFromReceipt";
+import { ADDRESSES } from "../../addresses";
 import { getValidator } from "../../utils/getValidator";
 
+const receiptCache = new Map<string, { sender: string; token: string }>();
+
+// [Foreign]
+// 1 Init. DAI is transferred to the bridge contract
+// Before Hashi update
+XDAIForeign.UserRequestForAffirmation_NoNonce.handler(async ({ event, context }) => {
+  return;
+});
+
+// After Hashi update (current version)
+XDAIForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
+  if (context.isPreload) return;
+
+  const txHash = event.transaction.hash;
+  let cached = receiptCache.get(txHash);
+  if (!cached) {
+    const res = await context.effect(getInitiatorFromReceipt, { hash: txHash });
+    if (res) {
+      const [sender, token] = res;
+      cached = { sender, token };
+      receiptCache.set(txHash, cached);
+    }
+  }
+
+  const initiator = cached?.sender;
+  const initiatorToken = cached?.token;
+
+  if (!initiator || !initiatorToken) return;
+
+  const nonce = event.params.nonce;
+  const nonceWithChainId = combineNonceAndChainId(nonce, CHAIN.FOREIGN.ID);
+  
+  const tx = await context.Transaction.get(nonceWithChainId);
+  if (!tx) {
+    const newTx = {
+      id: nonceWithChainId,
+      bridgeType: BridgeTypeEnum.XDAI,
+      execution_id: undefined,
+      transactionStatus: TransactionStatusEnum.INITIATED,
+      messageId: nonceWithChainId,
+      nonce,
+      transactionHash: event.transaction.hash,
+      timestamp: BigInt(event.block.timestamp),
+
+      initiatorNetwork: CHAIN.FOREIGN.ID,
+      initiator,
+      initiatorToken,
+      initiatorAmount: event.params.value,
+      
+      receiverNetwork: CHAIN.HOME.ID,
+      receiver: event.params.recipient,
+      receiverToken: ADDRESSES.HOME.XDAI_TOKEN,
+      receiverAmount: event.params.value,
+    }
+  
+    context.Transaction.set(newTx);
+  } else {
+    const updatedTx = {
+      ...tx,
+      id: nonceWithChainId,
+      bridgeType: BridgeTypeEnum.XDAI,
+      messageId: nonceWithChainId,
+      nonce,
+      transactionHash: event.transaction.hash,
+      timestamp: BigInt(event.block.timestamp),
+
+      initiatorNetwork: CHAIN.FOREIGN.ID,
+      initiator,
+      initiatorToken,
+      initiatorAmount: event.params.value,
+      
+      receiverNetwork: CHAIN.HOME.ID,
+      receiver: event.params.recipient,
+      receiverToken: ADDRESSES.HOME.XDAI_TOKEN,
+      receiverAmount: event.params.value
+    }
+    context.Transaction.set(updatedTx);
+  }
+});
+
+// [Home]
+// 2 Validation. Validators sign transaction
 XDAIHome.SignedForAffirmation.handler(async ({ event, context }) => {
   const foreignNonce = event.params.nonce;
   const txId = foreignNonce.startsWith("0x00000000")
@@ -61,6 +145,8 @@ XDAIHome.SignedForAffirmation.handler(async ({ event, context }) => {
   context.TransactionValidation.set(validation);
 });
 
+// [Home]
+// 3 Execution. Validator executes transaction
 XDAIHome.AffirmationCompleted.handler(async ({ event, context }) => {
   const foreignNonce = event.params.nonce;
   const txId = foreignNonce.startsWith("0x00000000")

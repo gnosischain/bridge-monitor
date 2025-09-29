@@ -1,6 +1,5 @@
 import type { Validator as ValidatorType } from "generated";
 import validators from "../seed/validators.json";
-import { BridgeTypeEnum } from "../const";
 
 export async function getValidator(
   context: any,
