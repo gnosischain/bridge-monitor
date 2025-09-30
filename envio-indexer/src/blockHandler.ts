@@ -4,7 +4,7 @@ import validators from "./seed/validators.json";
 onBlock(
   {
     name: "seedValidators",
-    chain: 1,
+    chain: 100,
     startBlock: 23392830,
     endBlock: 23392830,
   },

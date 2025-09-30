@@ -1,11 +1,13 @@
 # yaml-language-server: $schema=./node_modules/envio/evm.schema.json
 name: gnosis-bridge-indexer
-unordered_multichain_mode: true
+unordered_multichain_mode: false
 preload_handlers: true
 networks:
 # [Home] (Gnosis)
 - id: 100
-  start_block: 42317097 # 42191540
+  # rpc_config:
+  #   url: https://virtual.gnosis.eu.rpc.tenderly.co/4c9e4122-6c01-46bd-a44a-e08133d2d2cc # block to start 42084872
+  start_block: 39567805
   contracts:
   - name: XDAIHome
     address:
@@ -13,48 +15,52 @@ networks:
     handler: src/eventHandlers/XDAI/index.ts
     events:
     # [XDAI Home -> Foreign]
-    # 1. Init
+    # [1. Init]
       # Before Hashi update
     - event: UserRequestForSignature(address recipient, uint256 value)
       name: UserRequestForSignature_NoNonceNoToken
       field_selection:
         transaction_fields:
           - "hash"
+          - "from"
       # After Hashi update
     - event: UserRequestForSignature(address recipient, uint256 value, bytes32 nonce)
       name: UserRequestForSignature_WithNonceNoToken
       field_selection:
         transaction_fields:
           - "hash"
+          - "from"
       # After USDS migration (current version)
     - event: UserRequestForSignature(address recipient, uint256 value, bytes32 nonce, address token)
       name: UserRequestForSignature
       field_selection:
         transaction_fields:
           - "hash"
+          - "from"
 
     # [XDAI Home -> Foreign]
-    # 2. Validation
+    # [2. Validation]
     - event: SignedForUserRequest(address indexed signer, bytes32 messageHash)
       field_selection:
         transaction_fields:
           - "hash"
 
     # [XDAI Home -> Foreign]
-    # 3. Ready to execute on Foreign (treshold signatures reached)
+    # [3. Ready to execute on Foreign (treshold signatures reached)]
     - event: CollectedSignatures(address authorityResponsibleForRelay, bytes32 messageHash, uint256 NumberOfCollectedSignatures)
       field_selection:
         transaction_fields:
           - "hash"
     
     # [XDAI Foreign -> Home]
-    # 2. Validation
+    # [2. Validation]
     - event: SignedForAffirmation(address indexed signer, bytes32 nonce)
       field_selection:
         transaction_fields:
           - "hash"
+
     # [XDAI Foreign -> Home]
-    # 3. Execution
+    # [3. Execution]
     - event: AffirmationCompleted(address recipient, uint256 value, bytes32 nonce)
       field_selection:
         transaction_fields:
@@ -67,55 +73,77 @@ networks:
     handler: src/eventHandlers/AMB/index.ts
     events:
     # [AMB Home -> Foreign]
-    # 1. Init
+    # [1. Init]
     - event: UserRequestForSignature(bytes32 indexed messageId, bytes encodedData)
-      field_selection:
-        transaction_fields:
-          - "hash"
+
     # [AMB Home -> Foreign]
-    # 2. Validation
+    # [2. Validation]
     - event: SignedForUserRequest(address indexed signer, bytes32 messageHash)
-      field_selection:
-        transaction_fields:
-          - "hash"
+
     # [AMB Home -> Foreign]
-    # 3. Ready to execute on Foreign (treshold signatures reached)
+    # [3. Ready to execute on Foreign (treshold signatures reached)]
     - event: CollectedSignatures(address authorityResponsibleForRelay, bytes32 messageHash, uint256 NumberOfCollectedSignatures)
-      field_selection:
-        transaction_fields:
-          - "hash"
 
     # [AMB Foreign -> Home]
-    # 2. Validation
+    # [2. Validation]
     - event: SignedForAffirmation(address indexed signer, bytes32 messageHash)
-      field_selection:
-        transaction_fields:
-          - "hash"
+
     # [AMB Foreign -> Home]
-    # 3. Execution
+    # [3. Execution]
     - event: AffirmationCompleted(address indexed sender, address indexed executor, bytes32 indexed messageId, bool status)
-      field_selection:
-        transaction_fields:
-          - "hash"
+
+
+#   - name: XDAIBridgeValidators
+#     address:
+#     - 0xB289f0e6fBDFf8EEE340498a56e1787B303F1B6D
+#     handler: src/EventHandlers/XDAI/XDAIValidators.ts
+#     events:
+#     - event: ValidatorAdded(address indexed validator)
+#     - event: ValidatorRemoved(address indexed validator)
+
+# - name: AMBBridgeValidators
 
 # [Foreign] (Ethereum)
 - id: 1
-  start_block: 23446570 #23392830
+  start_block: 22272590
   contracts:
+
+  # [XDAI Foreign -> Home]
+  # [0. Token transfer] (DAI transferred to the bridge contract)
+  - name: DAI
+    address:
+    - 0x6B175474E89094C44Da98b954EedeAC495271d0F
+    handler: src/eventHandlers/XDAI/index.ts
+    events:
+    - event: Transfer(address indexed from, address indexed to, uint256 value)
+      field_selection:
+        transaction_fields:
+          - "hash"
+  # [0. Token transfer] (USDS transferred to the bridge contract)
+  - name: USDS
+    address:
+    - 0xdC035D45d973E3EC169d2276DDab16f1e407384F
+    handler: src/eventHandlers/XDAI/index.ts
+    events:
+    - event: Transfer(address indexed from, address indexed to, uint256 value)
+      field_selection:
+        transaction_fields:
+          - "hash"
+
   - name: XDAIForeign
     address:
     - 0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016
     handler: src/eventHandlers/XDAI/index.ts
     events:
     # [XDAI Home -> Foreign]
-    # 4. Execution (token claimed)
+    # [4. Execution (token claimed)]
     - event: RelayedMessage(address recipient, uint256 value, bytes32 transactionHash)
       field_selection:
         transaction_fields:
           - "hash"
 
     # [XDAI Foreign -> Home]
-    # 1. Init
+    # [1. Init]
       # Before Hashi update
     - event: UserRequestForAffirmation(address recipient, uint256 value)
       name: UserRequestForAffirmation_NoNonce
@@ -135,23 +163,9 @@ networks:
     handler: src/eventHandlers/AMB/index.ts
     events:
     # [AMB Home -> Foreign]
-    # 4. Execution (token claimed)
+    # [4. Execution (token claimed)]
     - event: RelayedMessage(address indexed sender, address indexed executor, bytes32 indexed messageId, bool status)
-      field_selection:
-        transaction_fields:
-          - "hash"
 
     # [AMB Foreign -> Home]
-    # 1. Init
+    # [1. Init]
     - event: UserRequestForAffirmation(bytes32 indexed messageId, bytes encodedData)
-      field_selection:
-        transaction_fields:
-          - "hash"
-
-#   - name: XDAIBridgeValidators
-#     address:
-#     - 0xB289f0e6fBDFf8EEE340498a56e1787B303F1B6D
-#     handler: src/EventHandlers/XDAI/XDAIValidators.ts
-#     events:
-#     - event: ValidatorAdded(address indexed validator)
-#     - event: ValidatorRemoved(address indexed validator)

@@ -1,37 +1,142 @@
-import { TransactionExecution, TransactionValidation, Validator, XDAIForeign, XDAIHome } from "generated";
+import { DAI, TransactionExecution, TransactionValidation, Validator, XDAIForeign, XDAIHome, USDS } from "generated";
 import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { combineNonceAndChainId } from "../../utils/combineNonceAndChainId";
-import { getInitiatorFromReceipt } from "../../effects/getInitiatorFromReceipt";
+// import { getInitiatorFromReceipt } from "../../effects/getInitiatorFromReceipt";
 import { ADDRESSES } from "../../addresses";
 import { getValidator } from "../../utils/getValidator";
 
-const receiptCache = new Map<string, { sender: string; token: string }>();
-
 // [Foreign]
-// 1 Init. DAI is transferred to the bridge contract
-// Before Hashi update
-XDAIForeign.UserRequestForAffirmation_NoNonce.handler(async ({ event, context }) => {
-  return;
+// 0. DAI transfer, to keep sender and sender token
+DAI.Transfer.handler(async ({ event, context }) => {
+  const txHash = event.transaction.hash;
+  const sender = event.params.from;
+
+  const tx = await context.DaiOrUsdsTransfer.get(txHash);
+  if (!tx) {
+    const newTx = {
+      id: txHash,
+      transactionHash: txHash,
+      sender: sender,
+      token: event.srcAddress
+    };
+    context.DaiOrUsdsTransfer.set(newTx);
+  }
+}, {
+  eventFilters: [
+    {to: ADDRESSES.FOREIGN.XDAI_BRIDGE },
+    {to: ADDRESSES.FOREIGN.XDAI_BRIDGE_PERIPHERAL_FOR_DAI_PRE_USDS_UPGRADE_ADDRESS },
+    {to: ADDRESSES.FOREIGN.BRIDGE_ROUTER },
+  ]
 });
 
-// After Hashi update (current version)
-XDAIForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
-  if (context.isPreload) return;
-
+// [Foreign]
+// 0. USDS transfer, to keep sender and sender token
+USDS.Transfer.handler(async ({ event, context }) => {
   const txHash = event.transaction.hash;
-  let cached = receiptCache.get(txHash);
-  if (!cached) {
-    const res = await context.effect(getInitiatorFromReceipt, { hash: txHash });
-    if (res) {
-      const [sender, token] = res;
-      cached = { sender, token };
-      receiptCache.set(txHash, cached);
+  const sender = event.params.from;
+
+  const tx = await context.DaiOrUsdsTransfer.get(txHash);
+  if (!tx) {
+    const newTx = {
+      id: txHash,
+      transactionHash: txHash,
+      sender: sender,
+      token: event.srcAddress,
+    };
+    context.DaiOrUsdsTransfer.set(newTx);
+  }
+}, {
+  eventFilters: [
+    {to: ADDRESSES.FOREIGN.XDAI_BRIDGE },
+    {to: ADDRESSES.FOREIGN.XDAI_BRIDGE_PERIPHERAL_FOR_DAI_PRE_USDS_UPGRADE_ADDRESS },
+    {to: ADDRESSES.FOREIGN.BRIDGE_ROUTER },
+  ]
+});
+
+// [Foreign]
+// 1 Init. Bridging started
+// Before Hashi update
+XDAIForeign.UserRequestForAffirmation_NoNonce.handler(async ({ event, context }) => {
+  const txHash = event.transaction.hash;
+  
+  // const res = await context.effect(getInitiatorFromReceipt, { hash: txHash });
+  // if (!res) return;
+  // const { initiator, initiatorToken } = res;
+  // if (!initiator || !initiatorToken) return;
+
+  const transferTx = await context.DaiOrUsdsTransfer.get(txHash);
+  if (!transferTx) {
+    return;
+  }
+  const { sender: initiator, token: initiatorToken } = transferTx;
+  if (!initiator || !initiatorToken) return;
+
+  const tx = await context.Transaction.get(txHash);
+  if (!tx) {
+    const newTx = {
+      id: txHash,
+      bridgeType: BridgeTypeEnum.XDAI,
+      execution_id: undefined,
+      transactionStatus: TransactionStatusEnum.INITIATED,
+      messageId: txHash,
+      nonce: txHash,
+      transactionHash: event.transaction.hash,
+      timestamp: BigInt(event.block.timestamp),
+
+      initiatorNetwork: CHAIN.FOREIGN.ID,
+      initiator,
+      initiatorToken,
+      initiatorAmount: event.params.value,
+      
+      receiverNetwork: CHAIN.HOME.ID,
+      receiver: event.params.recipient,
+      receiverToken: ADDRESSES.HOME.XDAI_TOKEN,
+      receiverAmount: event.params.value,
     }
+  
+    context.Transaction.set(newTx);
+  } else {
+    return;
+    // const updatedTx = {
+    //   ...tx,
+    //   id: txHash,
+    //   bridgeType: BridgeTypeEnum.XDAI,
+    //   messageId: txHash,
+    //   nonce: txHash,
+    //   transactionHash: event.transaction.hash,
+    //   timestamp: BigInt(event.block.timestamp),
+
+    //   initiatorNetwork: CHAIN.FOREIGN.ID,
+    //   initiator,
+    //   initiatorToken,
+    //   initiatorAmount: event.params.value,
+      
+    //   receiverNetwork: CHAIN.HOME.ID,
+    //   receiver: event.params.recipient,
+    //   receiverToken: ADDRESSES.HOME.XDAI_TOKEN,
+    //   receiverAmount: event.params.value
+    // }
+    // context.Transaction.set(updatedTx);
   }
 
-  const initiator = cached?.sender;
-  const initiatorToken = cached?.token;
+});
 
+// [Foreign]
+// 1 Init. Bridging started
+// After Hashi update (current version)
+XDAIForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
+  const txHash = event.transaction.hash;
+
+  // const res = await context.effect(getInitiatorFromReceipt, { hash: txHash });
+  // if (!res || res.initiator === '' || res.initiatorToken === '') return;
+  // const { initiator, initiatorToken } = res;
+  // if (!initiator || !initiatorToken) return;
+
+  const transferTx = await context.DaiOrUsdsTransfer.get(txHash);
+  if (!transferTx) {
+    return;
+  }
+  const { sender: initiator, token: initiatorToken } = transferTx;
   if (!initiator || !initiatorToken) return;
 
   const nonce = event.params.nonce;
@@ -62,26 +167,27 @@ XDAIForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
   
     context.Transaction.set(newTx);
   } else {
-    const updatedTx = {
-      ...tx,
-      id: nonceWithChainId,
-      bridgeType: BridgeTypeEnum.XDAI,
-      messageId: nonceWithChainId,
-      nonce,
-      transactionHash: event.transaction.hash,
-      timestamp: BigInt(event.block.timestamp),
+    return;
+    // const updatedTx = {
+    //   ...tx,
+    //   id: nonceWithChainId,
+    //   bridgeType: BridgeTypeEnum.XDAI,
+    //   messageId: nonceWithChainId,
+    //   nonce,
+    //   transactionHash: event.transaction.hash,
+    //   timestamp: BigInt(event.block.timestamp),
 
-      initiatorNetwork: CHAIN.FOREIGN.ID,
-      initiator,
-      initiatorToken,
-      initiatorAmount: event.params.value,
+    //   initiatorNetwork: CHAIN.FOREIGN.ID,
+    //   initiator,
+    //   initiatorToken,
+    //   initiatorAmount: event.params.value,
       
-      receiverNetwork: CHAIN.HOME.ID,
-      receiver: event.params.recipient,
-      receiverToken: ADDRESSES.HOME.XDAI_TOKEN,
-      receiverAmount: event.params.value
-    }
-    context.Transaction.set(updatedTx);
+    //   receiverNetwork: CHAIN.HOME.ID,
+    //   receiver: event.params.recipient,
+    //   receiverToken: ADDRESSES.HOME.XDAI_TOKEN,
+    //   receiverAmount: event.params.value
+    // }
+    // context.Transaction.set(updatedTx);
   }
 });
 
@@ -95,30 +201,30 @@ XDAIHome.SignedForAffirmation.handler(async ({ event, context }) => {
 
   const tx = await context.Transaction.get(txId);
   if (!tx) {
-    const newTx = {
-      id: txId,
-      bridgeType: BridgeTypeEnum.XDAI,
-      execution_id: undefined,
-      transactionStatus: TransactionStatusEnum.COLLECTING,
-      messageId: txId,
-      nonce: foreignNonce,
+    return;
+    // const newTx = {
+    //   id: txId,
+    //   bridgeType: BridgeTypeEnum.XDAI,
+    //   execution_id: undefined,
+    //   transactionStatus: TransactionStatusEnum.COLLECTING,
+    //   messageId: txId,
+    //   nonce: foreignNonce,
 
-      initiatorNetwork: CHAIN.FOREIGN.ID,    
-      receiverNetwork: CHAIN.HOME.ID,
+    //   initiatorNetwork: CHAIN.FOREIGN.ID,    
+    //   receiverNetwork: CHAIN.HOME.ID,
 
-      initiator: undefined,
-      initiatorToken: undefined,
-      initiatorAmount: undefined,
+    //   initiator: undefined,
+    //   initiatorToken: undefined,
+    //   initiatorAmount: undefined,
 
-      receiver: undefined,
-      receiverToken: undefined,
-      receiverAmount: undefined,
+    //   receiver: undefined,
+    //   receiverToken: undefined,
+    //   receiverAmount: undefined,
 
-      timestamp: undefined,
-      transactionHash: undefined,
-    }
-  
-    context.Transaction.set({...newTx});
+    //   timestamp: undefined,
+    //   transactionHash: undefined,
+    // }
+    // context.Transaction.set({...newTx});
   } else {
     const newTx = { ...tx, transactionStatus: TransactionStatusEnum.COLLECTING };
     context.Transaction.set({...newTx});
@@ -147,49 +253,95 @@ XDAIHome.SignedForAffirmation.handler(async ({ event, context }) => {
 
 // [Home]
 // 3 Execution. Validator executes transaction
-XDAIHome.AffirmationCompleted.handler(async ({ event, context }) => {
+XDAIHome.AffirmationCompleted.handler(async ({ event, context }) => { 
   const foreignNonce = event.params.nonce;
   const txId = foreignNonce.startsWith("0x00000000")
     ? combineNonceAndChainId(foreignNonce, CHAIN.FOREIGN.ID)
     : foreignNonce;
 
-  const executor = event.transaction.from?.toLowerCase();
-  if (!executor) {
-    context.log.error(
-      `XDAI: AffirmationCompleted - Executor not found, nonce: ${foreignNonce}`
-    );
-    return;
-  }
-  const validator = await getValidator(context, executor);
-  if (!validator) {
-    context.log.error(
-      `XDAI: AffirmationCompleted - Validator ${executor} not found, nonce: ${foreignNonce}`
-    );
-    return;
-  }
-  context.Validator.set({ ...validator, lastActivity: BigInt(event.block.timestamp) });
+  // const executor = event.transaction.from?.toLowerCase();
+  // if (!executor) {
+  //   context.log.error(
+  //     `XDAI: AffirmationCompleted - Executor not found, nonce: ${foreignNonce}`
+  //   );
+  //   return;
+  // }
+  // const validator = await getValidator(context, executor);
+  // if (!validator) {
+  //   context.log.error(
+  //     `XDAI: AffirmationCompleted - Validator ${executor} not found, nonce: ${foreignNonce}`
+  //   );
+  //   return;
+  // }
+  // context.Validator.set({ ...validator, lastActivity: BigInt(event.block.timestamp) });
+
+  // const execution: TransactionExecution = {
+  //   id: `${txId}-${validator.id}`,
+  //   transaction_id: txId,
+  //   transactionHash: event.transaction.hash,
+  //   timestamp: BigInt(event.block.timestamp),
+  //   executor_id: validator.id,
+  //   executorAddress: validator.address,
+  // };
+  // context.TransactionExecution.set(execution);
 
   const tx = await context.Transaction.get(txId);
   if (!tx) {
-    context.log.error(
-      `XDAI: AffirmationCompleted - Transaction not found, nonce: ${foreignNonce}`
-    );
     return;
+    // const newTx = {
+    //   id: txId,
+    //   bridgeType: BridgeTypeEnum.XDAI,
+    //   execution_id: execution.id,
+    //   transactionStatus: TransactionStatusEnum.COMPLETED,
+    //   messageId: txId,
+    //   nonce: foreignNonce,
+
+    //   initiatorNetwork: CHAIN.FOREIGN.ID,    
+    //   receiverNetwork: CHAIN.HOME.ID,
+
+    //   initiator: undefined,
+    //   initiatorToken: undefined,
+    //   initiatorAmount: undefined,
+
+    //   receiver: undefined,
+    //   receiverToken: ADDRESSES.HOME.XDAI_TOKEN,
+    //   receiverAmount: undefined,
+
+    //   timestamp: undefined,
+    //   transactionHash: undefined,
+    // }
+    // context.Transaction.set({...newTx});
+  } else {
+    const executor = event.transaction.from?.toLowerCase();
+    if (!executor) {
+      context.log.error(
+        `XDAI: AffirmationCompleted - Executor not found, nonce: ${foreignNonce}`
+      );
+      return;
+    }
+    const validator = await getValidator(context, executor);
+    if (!validator) {
+      context.log.error(
+        `XDAI: AffirmationCompleted - Validator ${executor} not found, nonce: ${foreignNonce}`
+      );
+      return;
+    }
+    context.Validator.set({ ...validator, lastActivity: BigInt(event.block.timestamp) });
+
+    const execution: TransactionExecution = {
+      id: `${txId}-${validator.id}`,
+      transaction_id: txId,
+      transactionHash: event.transaction.hash,
+      timestamp: BigInt(event.block.timestamp),
+      executor_id: validator.id,
+      executorAddress: validator.address,
+    };
+    context.TransactionExecution.set(execution);
+    const newTx = {
+      ...tx,
+      transactionStatus: TransactionStatusEnum.COMPLETED,
+      execution_id: execution.id,
+    };
+    context.Transaction.set({...newTx});
   }
-
-  const execution: TransactionExecution = {
-    id: txId,
-    transaction_id: txId,
-    transactionHash: event.transaction.hash,
-    timestamp: BigInt(event.block.timestamp),
-    executor_id: validator.id,
-    executorAddress: validator.address,
-  };
-  context.TransactionExecution.set(execution);
-
-  context.Transaction.set({
-    ...tx,
-    transactionStatus: TransactionStatusEnum.COMPLETED,
-    execution_id: execution.id,
-  });
 });
