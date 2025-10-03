@@ -9,8 +9,8 @@
     - check USDS/DAI as sender token ✅
   - GC -> Eth ✅
 5. AMB bridge:
-  - Eth -> GC
-  - GC -> Eth
+  - Eth -> GC ✅
+  - GC -> Eth ✅
 
 6. Validators:
   - XDAIValidators
