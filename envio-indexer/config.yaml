@@ -2,6 +2,7 @@
 name: gnosis-bridge-indexer
 unordered_multichain_mode: false
 preload_handlers: true
+
 networks:
 # [Home] (Gnosis)
 - id: 100
@@ -75,33 +76,55 @@ networks:
     # [AMB Home -> Foreign]
     # [1. Init]
     - event: UserRequestForSignature(bytes32 indexed messageId, bytes encodedData)
+      field_selection:
+        transaction_fields:
+          - "hash"
 
     # [AMB Home -> Foreign]
     # [2. Validation]
     - event: SignedForUserRequest(address indexed signer, bytes32 messageHash)
+      field_selection:
+        transaction_fields:
+          - "hash"
 
     # [AMB Home -> Foreign]
     # [3. Ready to execute on Foreign (treshold signatures reached)]
     - event: CollectedSignatures(address authorityResponsibleForRelay, bytes32 messageHash, uint256 NumberOfCollectedSignatures)
+      field_selection:
+        transaction_fields:
+          - "hash"
 
     # [AMB Foreign -> Home]
     # [2. Validation]
     - event: SignedForAffirmation(address indexed signer, bytes32 messageHash)
+      field_selection:
+        transaction_fields:
+          - "hash"
 
     # [AMB Foreign -> Home]
     # [3. Execution]
     - event: AffirmationCompleted(address indexed sender, address indexed executor, bytes32 indexed messageId, bool status)
+      field_selection:
+        transaction_fields:
+          - "hash"
+          - "from"
 
-
-#   - name: XDAIBridgeValidators
-#     address:
-#     - 0xB289f0e6fBDFf8EEE340498a56e1787B303F1B6D
-#     handler: src/EventHandlers/XDAI/XDAIValidators.ts
-#     events:
-#     - event: ValidatorAdded(address indexed validator)
-#     - event: ValidatorRemoved(address indexed validator)
-
-# - name: AMBBridgeValidators
+  # OmniBridge Mediators on Gnosis Chain (Home)
+  - name: OmniBridgeHomeMediator
+    address:
+    - 0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d
+    - 0xbed794745e2a0543ee609795ade87a55bbe935ba
+    - 0xf75c28fe07e0647b05160288f172ad27cccd8f30
+    - 0x0eeacdb0dd96588711581c5f3173dd55841b8e91
+    - 0x53f3f44c434494da73ec44a6e8a8d091332bc2ce
+    - 0x7d55f9981d4e10a193314e001b96f72fcc901e40
+    - 0xbe20f60339b06db32c319d46cf3bc9bacc0694ab
+    - 0x68a64df7458a8eb2677991e657508fe00205332d
+    - 0x5f0fe58709639a39c193521d919afaef02e570f7
+    handler: src/eventHandlers/AMB/index.ts
+    events:
+    - event: TokensBridgingInitiated(address indexed token, address indexed sender, uint256 value, bytes32 indexed messageId)
+    - event: TokensBridged(address indexed token, address indexed recipient, uint256 value, bytes32 indexed messageId)
 
 # [Foreign] (Ethereum)
 - id: 1
@@ -165,7 +188,41 @@ networks:
     # [AMB Home -> Foreign]
     # [4. Execution (token claimed)]
     - event: RelayedMessage(address indexed sender, address indexed executor, bytes32 indexed messageId, bool status)
+      field_selection:
+        transaction_fields:
+          - "hash"
+          - "from"
 
     # [AMB Foreign -> Home]
     # [1. Init]
     - event: UserRequestForAffirmation(bytes32 indexed messageId, bytes encodedData)
+      field_selection:
+        transaction_fields:
+          - "hash"
+
+  # OmniBridge Mediators on Ethereum (Foreign)
+  - name: OmniBridgeForeignMediator
+    address:
+    - 0x88ad09518695c6c3712AC10a214bE5109a655671
+    - 0xed7e6720ac8525ac1aeee710f08789d02cd87ecb
+    - 0xe7228b4ebad37ba031a8b63473727f991e262dcd
+    - 0x81a4833b3a40e7c61efe9d1a287343797993b1e8
+    - 0x29e572d45cc33d5a68dcc8f92bfc7ded0017bc59
+    - 0x2eeeddeece91c9f4c5ba4c8e1d784a0234c6d015
+    - 0x5689c65cfe5e8bf1a5f836c956dea1b3b8be00bb
+    - 0xe964a36142bbe39751d0b4d6140fc0b8c48e68be
+    - 0x41a4ee2855a7dc328524babb07d7f505b201133e
+    handler: src/eventHandlers/AMB/index.ts
+    events:
+    - event: TokensBridgingInitiated(address indexed token, address indexed sender, uint256 value, bytes32 indexed messageId)
+    - event: TokensBridged(address indexed token, address indexed recipient, uint256 value, bytes32 indexed messageId)
+
+#   - name: XDAIBridgeValidators
+#     address:
+#     - 0xB289f0e6fBDFf8EEE340498a56e1787B303F1B6D
+#     handler: src/EventHandlers/XDAI/XDAIValidators.ts
+#     events:
+#     - event: ValidatorAdded(address indexed validator)
+#     - event: ValidatorRemoved(address indexed validator)
+
+# - name: AMBBridgeValidators

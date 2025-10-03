@@ -71,3 +71,12 @@ type DaiOrUsdsTransfer {
   sender: String!
   token: String!
 }
+
+type AMBTransfer {
+  id: ID!
+  messageId: String!
+  token: String!
+  sender: String
+  recipient: String
+  amount: BigInt
+}
