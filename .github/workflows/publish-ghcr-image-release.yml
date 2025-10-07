@@ -1,0 +1,94 @@
+name: Create Release Build tag Bridge-Explorer GHCR
+
+# Controls when the action will run. Invokes the workflow on push events
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: write # This is required for actions/checkout and create release
+  packages: write # This is required for pushing to GHCR
+
+jobs:
+  Build_and_push_image_to_GHCR:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get latest Release Tag
+        if: (github.ref_type == 'tag' || github.ref == 'refs/heads/main')
+        id: release_tag
+        run: echo "tag=$(git describe --abbrev=0 --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: actions/github-script@v6
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            if (!${{ toJson(steps.release_tag.outputs.tag) }}) {
+              core.setFailed("RELEASE_TAG is not defined.")
+              return;
+            }
+            try {
+              const response = await github.rest.repos.createRelease({
+                name: ${{ toJson(steps.release_tag.outputs.tag) }},
+                tag_name: ${{ toJson(steps.release_tag.outputs.tag) }},
+                draft: false,
+                generate_release_notes: true,
+                owner: context.repo.owner,
+                prerelease: false,
+                repo: context.repo.repo,
+              });
+
+              core.exportVariable('RELEASE_ID', response.data.id);
+              core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
+            } catch (error) {
+              core.setFailed(error.message);
+            }
+
+      - name: Build, tag, and push PROD to GitHub Container Registry
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          IMAGE_TAG: ${{ steps.release_tag.outputs.tag }}
+        uses: docker/build-push-action@v3
+        with:
+          context: ./app
+          file: ./app/Dockerfile
+          push: true
+          tags: |
+            "ghcr.io/gnosischain/bridge-explorer:${{ env.IMAGE_TAG }}"
+          platforms: |
+            linux/amd64
+          build-args: |
+            "NEXT_PUBLIC_APP_NAME=GnosisBridgeMonitor"
+            "NEXT_PUBLIC_DEFAULT_THEME=dark"
+            "NEXT_PUBLIC_DEFAULT_CHAIN_ID=1"
+            "NEXT_PUBLIC_COOKIES_WARNING_ENABLED=true"
+            "NEXT_PUBLIC_POLLING_INTERVAL=10000"
+            "NEXT_PUBLIC_RPC_MAINNET=https://rpc.eu-central-1.gateway.fm/v4/ethereum/non-archival/mainnet?apiKey=LXyRambFCpLn3HqgKKRluyfH8RHpf_qT.xOmQXGPVWlOlaDSK"
+            "NEXT_PUBLIC_RPC_GNOSIS=https://rpc.gnosischain.com"
+            "NEXT_PUBLIC_RPC_CHIADO=https://rpc.chiadochain.net"
+            "NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL=${{ secrets.WALLET_CONNECT_URL }}"
+            "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }}"
+            "NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT=production"
+            "NEXT_PUBLIC_SUBGRAPH_ACCESS_ID=${{ secrets.THEGRAPH_READ_API_KEY }}"
+            "NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS=100:2ths6FTZhCBggnyakh7PL5KH91zjRv8xPNfzaCRKogJ,1:9W7Ye5xFfefNYDxXD4StqAuj7TU8eLq5PLmuPUnhFbeQ"
+            "NEXT_PUBLIC_ALCHEMY_API_KEY=${{ secrets.PROD_NEXT_PUBLIC_ALCHEMY_API_KEY }}"
