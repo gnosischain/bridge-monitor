@@ -13,11 +13,13 @@
   - GC -> Eth ✅
 
 6. Validators:
-  - XDAIValidators
-  - AMBValidators
+  - XDAIValidators ✅
+  - AMBValidators ✅
 
 7. Rewrite queries from app (app/src/hooks/subgraph)
 
 8. Ensure where tx hash is actually needed. ✅
 
 9. Index DAI and USDS transfers on Foreign chain, and fetch initiator and token from there. ✅
+
+10. Update github actions - ✅ (to test)
