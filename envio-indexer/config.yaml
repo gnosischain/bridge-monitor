@@ -2,17 +2,19 @@
 name: gnosis-bridge-indexer
 unordered_multichain_mode: false
 preload_handlers: true
+raw_events: true
 
 networks:
 # [Home] (Gnosis)
 - id: 100
   # rpc_config:
   #   url: https://virtual.gnosis.eu.rpc.tenderly.co/4c9e4122-6c01-46bd-a44a-e08133d2d2cc # block to start 42084872
-  start_block: 39567805
+  start_block: 7904944
   contracts:
   - name: XDAIHome
     address:
     - 0x7301CFA0e1756B71869E93d4e4Dca5c7d0eb0AA6
+    start_block: 39567805
     handler: src/eventHandlers/XDAI/index.ts
     events:
     # [XDAI Home -> Foreign]
@@ -71,6 +73,7 @@ networks:
   - name: AMBHome
     address:
     - 0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59
+    start_block: 39567805
     handler: src/eventHandlers/AMB/index.ts
     events:
     # [AMB Home -> Foreign]
@@ -121,10 +124,42 @@ networks:
     - 0xbe20f60339b06db32c319d46cf3bc9bacc0694ab
     - 0x68a64df7458a8eb2677991e657508fe00205332d
     - 0x5f0fe58709639a39c193521d919afaef02e570f7
+    start_block: 39567805
     handler: src/eventHandlers/AMB/index.ts
     events:
     - event: TokensBridgingInitiated(address indexed token, address indexed sender, uint256 value, bytes32 indexed messageId)
     - event: TokensBridged(address indexed token, address indexed recipient, uint256 value, bytes32 indexed messageId)
+
+  - name: XDAIBridgeValidators
+    address:
+    - 0xB289f0e6fBDFf8EEE340498a56e1787B303F1B6D
+    start_block: 7904944
+    handler: src/eventHandlers/validators.ts
+    events:
+    - event: ValidatorAdded(address indexed validator)
+      field_selection:
+        transaction_fields:
+          - "hash"
+    - event: ValidatorRemoved(address indexed validator)
+      field_selection:
+        transaction_fields:
+          - "hash"
+
+  - name: AMBBridgeValidators
+    address:
+    - 0xA280feD8D7CaD9a76C8b50cA5c33c2534fFa5008
+    start_block: 7904944
+    handler: src/eventHandlers/validators.ts
+    events:
+    - event: ValidatorAdded(address indexed validator)
+      field_selection:
+        transaction_fields:
+          - "hash"
+    - event: ValidatorRemoved(address indexed validator)
+      field_selection:
+        transaction_fields:
+          - "hash"
+
 
 # [Foreign] (Ethereum)
 - id: 1
@@ -217,12 +252,3 @@ networks:
     - event: TokensBridgingInitiated(address indexed token, address indexed sender, uint256 value, bytes32 indexed messageId)
     - event: TokensBridged(address indexed token, address indexed recipient, uint256 value, bytes32 indexed messageId)
 
-#   - name: XDAIBridgeValidators
-#     address:
-#     - 0xB289f0e6fBDFf8EEE340498a56e1787B303F1B6D
-#     handler: src/EventHandlers/XDAI/XDAIValidators.ts
-#     events:
-#     - event: ValidatorAdded(address indexed validator)
-#     - event: ValidatorRemoved(address indexed validator)
-
-# - name: AMBBridgeValidators
