@@ -226,7 +226,7 @@ XDAIHome.SignedForUserRequest.handler(async ({ event, context }) => {
   const validation: TransactionValidation = {
     id: validationId,
     transaction_id: messageId,
-    validator_id: signer,
+    validator_id: validator.id,
     validatorAddress: signer,
     transactionHash: event.transaction.hash,
     timestamp: BigInt(event.block.timestamp),
@@ -337,19 +337,40 @@ XDAIForeign.RelayedMessage.handler(async ({ event, context }) => {
     // context.Transaction.set({...newTx});
   } else {
     const executionId = messageId;
+
+    // Populate executor as tx.from and resolve to known validator when possible
+    const executor = event.transaction.from?.toLowerCase();
+    let executorId: string | undefined = undefined;
+    let executorAddress: string | undefined = undefined;
+
+    if (executor) {
+      const validator = await getValidator(context, executor);
+      if (validator) {
+        context.Validator.set({ ...validator, lastActivity: BigInt(event.block.timestamp) });
+        executorId = validator.id;
+        executorAddress = validator.address;
+      } else {
+        // not a known validator from config; still record the executor address
+        executorAddress = executor;
+      }
+    }
+
     const execution: TransactionExecution = {
       id: executionId,
       transaction_id: messageId,
       transactionHash: event.transaction.hash,
       timestamp: BigInt(event.block.timestamp),
-      executor_id: undefined,
-      executorAddress: undefined,
+      executor_id: executorId,
+      executorAddress: executorAddress,
     };
     context.TransactionExecution.set(execution);
+
     const updatedTx = {
       ...tx,
       transactionStatus: TransactionStatusEnum.COMPLETED,
-      execution_id: executionId
+      execution_id: executionId,
+      // Ensure receiver side (mainnet) info remains populated; set network if missing
+      receiverNetwork: tx.receiverNetwork ?? CHAIN.FOREIGN.ID,
     };
     context.Transaction.set(updatedTx);
   }

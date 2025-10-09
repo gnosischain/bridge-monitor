@@ -5,22 +5,32 @@ export async function getValidator(
   context: any,
   signer: string
 ): Promise<ValidatorType | undefined> {
-  const id = signer.toLowerCase();
-  const existing = await context.Validator.get(id);
+  const addr = signer.toLowerCase();
+
+  // Try existing by multiple id conventions
+  let existing = await context.Validator.get(addr);
   if (existing) return existing as ValidatorType;
 
+  existing = await context.Validator.get(`${addr}-AMB`);
+  if (existing) return existing as ValidatorType;
+
+  existing = await context.Validator.get(`${addr}-XDAI`);
+  if (existing) return existing as ValidatorType;
+
+  // Fallback to seed mapping (known validators only; do not create unknowns)
   const found = (validators as Array<any>).find(
-    (v) => String(v.address).toLowerCase() === id
+    (v) => String(v.address).toLowerCase() === addr
   );
 
   if (!found) {
-    context.log.error(`Validator ${id} not found in validators.json`);
+    context.log.error(`Validator ${addr} not found in validators.json`);
     return undefined;
   }
 
+  const id: string = found.id ?? `${addr}-${found.bridgeType}`;
   const entity: ValidatorType = {
     id,
-    address: id,
+    address: addr,
     name: found.name,
     bridgeType: found.bridgeType,
     lastActivity: undefined,
@@ -31,5 +41,3 @@ export async function getValidator(
   context.Validator.set(entity);
   return entity;
 }
-
-
