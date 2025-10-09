@@ -3,8 +3,10 @@ import { chainsConfig } from '@/src/constants/config/chains'
 import { Chains } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { getForeignGraphqlClient, getHomeGraphqlClient } from '@/src/constants/config/subgraph'
-import { TRANSACTION_QUERY } from '@/src/queries/transactions'
+import { getEnvioGraphqlClient, isEnvioBackend } from '@/src/constants/config/indexer'
+import { ENVIO_TRANSACTIONS_QUERY, TRANSACTION_QUERY } from '@/src/queries/transactions'
 import {
+  OrderDirection,
   QueryTransactionsArgs,
   TransactionExecution as TransactionExecutionSG,
   Transaction as TransactionSG,
@@ -134,6 +136,7 @@ const prepareTransactionForView = (tx: TransactionSG): Transaction => {
     initiatorScanUrl: getAddressScanUrl(tx.initiator, tx.initiatorNetwork ?? ''),
     receiverScanUrl: getAddressScanUrl(tx.receiver, tx.receiverNetwork ?? ''),
   }
+
   return res
 }
 
@@ -245,10 +248,196 @@ export const unifyTransactions = async (
   return Object.values(allTransactions).sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
 }
 
+const toEnvioWhere = (where?: any): Record<string, any> | undefined => {
+  if (!where) return undefined
+  const andClauses: any[] = []
+
+  // transactionHash equals
+  if (where.transactionHash) {
+    andClauses.push({ transactionHash: { _eq: String(where.transactionHash).toLowerCase() } })
+  }
+
+  // timestamp range
+  if (where.timestamp_gte !== undefined) {
+    andClauses.push({ timestamp: { _gte: Number(where.timestamp_gte) } })
+  }
+  if (where.timestamp_lte !== undefined) {
+    andClauses.push({ timestamp: { _lte: Number(where.timestamp_lte) } })
+  }
+
+  // initiator/receiver OR search
+  if (Array.isArray(where.or)) {
+    const ors = where.or
+      .map((cl: any) => {
+        if (cl.initiator) return { initiator: { _eq: String(cl.initiator).toLowerCase() } }
+        if (cl.receiver) return { receiver: { _eq: String(cl.receiver).toLowerCase() } }
+        return undefined
+      })
+      .filter(Boolean)
+    if (ors.length) andClauses.push({ _or: ors })
+  }
+
+  // initiatorNetwork textual mapping
+  if (where.initiatorNetwork) {
+    const val = String(where.initiatorNetwork).toLowerCase()
+    const num = val === 'gnosis' ? 100 : val === 'mainnet' ? 1 : undefined
+    if (num !== undefined) andClauses.push({ initiatorNetwork: { _eq: num } })
+  }
+
+  // bridgeName -> bridgeType enum mapping
+  const bridgeName = where.bridgeName || where.bridgeName_contains_nocase
+  if (bridgeName) {
+    const val = String(bridgeName).toUpperCase()
+    const enumVal = val.includes('XDAI') ? 'XDAI' : 'AMB'
+    andClauses.push({ bridgeType: { _eq: enumVal } })
+  }
+
+  // Combine explicit 'and' if present
+  if (Array.isArray(where.and)) {
+    where.and.forEach((inner: any) => {
+      if (inner.timestamp_gte !== undefined) {
+        andClauses.push({ timestamp: { _gte: Number(inner.timestamp_gte) } })
+      }
+      if (inner.timestamp_lte !== undefined) {
+        andClauses.push({ timestamp: { _lte: Number(inner.timestamp_lte) } })
+      }
+      if (inner.transactionHash) {
+        andClauses.push({ transactionHash: { _eq: String(inner.transactionHash).toLowerCase() } })
+      }
+      if (inner.initiatorNetwork) {
+        const val = String(inner.initiatorNetwork).toLowerCase()
+        const num = val === 'gnosis' ? 100 : val === 'mainnet' ? 1 : undefined
+        if (num !== undefined) andClauses.push({ initiatorNetwork: { _eq: num } })
+      }
+      const innerBridge = inner.bridgeName || inner.bridgeName_contains_nocase
+      if (innerBridge) {
+        const val = String(innerBridge).toUpperCase()
+        const enumVal = val.includes('XDAI') ? 'XDAI' : 'AMB'
+        andClauses.push({ bridgeType: { _eq: enumVal } })
+      }
+      if (Array.isArray(inner.or)) {
+        const ors = inner.or
+          .map((cl: any) => {
+            if (cl.initiator) return { initiator: { _eq: String(cl.initiator).toLowerCase() } }
+            if (cl.receiver) return { receiver: { _eq: String(cl.receiver).toLowerCase() } }
+            return undefined
+          })
+          .filter(Boolean)
+        if (ors.length) andClauses.push({ _or: ors })
+      }
+    })
+  }
+
+  return andClauses.length ? { _and: andClauses } : undefined
+}
+
+const networkIdToName = (id?: number | null) => {
+  if (id === 100) return 'gnosis'
+  if (id === 1) return 'mainnet'
+  return ''
+}
+
+const bridgeTypeToName = (bt?: string | null) => {
+  if (!bt) return ''
+  return bt.toUpperCase() === 'XDAI' ? 'xDai' : bt.toUpperCase()
+}
+
+const fetchTransactionsEnvio = async (
+  query: QueryTransactionsArgs,
+  inMemoryFilters: TxsInMemoryFilters,
+) => {
+  const where = toEnvioWhere(query?.where)
+  const order_by =
+    query?.orderDirection === OrderDirection.Desc
+      ? [{ timestamp: 'desc' as const }]
+      : [{ timestamp: 'asc' as const }]
+  const limit = query?.first ?? defaultRequestLimit
+  const offset = query?.skip ?? 0
+
+  const request = getEnvioGraphqlClient<{
+    Transaction: Array<any>
+  }>()
+  const res = await request(ENVIO_TRANSACTIONS_QUERY, {
+    where,
+    order_by,
+    limit,
+    offset,
+  })
+
+  // Drop malformed rows early (skip problematic transactions)
+  const safeRows = (res.Transaction || []).filter(
+    (row: any) =>
+      row?.id &&
+      ((row?.initiatorNetwork !== null && row?.initiatorNetwork !== undefined) ||
+        (row?.receiverNetwork !== null && row?.receiverNetwork !== undefined)),
+  )
+
+  // Map to subgraph-like TransactionSG for reuse of prepareTransactionForView.
+  const sgRows: TransactionSG[] = safeRows.map((row: any) => {
+    return {
+      __typename: 'Transaction' as any,
+      id: row.id,
+      bridgeName: bridgeTypeToName(row.bridgeType),
+      transactionHash: row.transactionHash ?? '',
+      timestamp: row.timestamp ?? 0,
+      initiator: row.initiator ?? '',
+      initiatorAmount: row.initiatorAmount ?? '0',
+      initiatorNetwork: networkIdToName(row.initiatorNetwork),
+      initiatorToken: row.initiatorToken ?? '',
+      receiver: row.receiver ?? '',
+      receiverToken: row.receiverToken ?? '',
+      receiverAmount: row.receiverAmount ?? '0',
+      receiverNetwork: networkIdToName(row.receiverNetwork),
+      transactionStatus: row.transactionStatus,
+      execution: row.execution
+        ? {
+            __typename: 'TransactionExecution' as any,
+            id: row.execution.id,
+            timestamp: row.execution.timestamp,
+            transactionHash: row.execution.transactionHash,
+            // map executorAddress -> validatorAddr
+            validatorAddr: row.execution.executorAddress,
+          }
+        : null,
+      validations: Array.isArray(row.validations)
+        ? row.validations.map((v: any) => ({
+            __typename: 'TransactionValidation' as any,
+            id: v.id,
+            timestamp: v.timestamp,
+            transactionHash: v.transactionHash,
+            validatorAddr: v.validatorAddress,
+          }))
+        : [],
+    } as unknown as TransactionSG
+  })
+
+  // In-memory filters for validator/executor
+  let transactions = sgRows
+  if (inMemoryFilters.validator) {
+    transactions = transactions
+      .filter((tx) => tx.validations && tx.validations.length > 0)
+      .filter((tx) =>
+        tx.validations?.some((v) => isSameString(v.validatorAddr, inMemoryFilters.validator ?? '')),
+      )
+  }
+  if (inMemoryFilters.executor) {
+    transactions = transactions
+      .filter((tx) => !!tx.execution?.validatorAddr)
+      .filter((tx) =>
+        isSameString(tx.execution?.validatorAddr ?? '', inMemoryFilters.executor ?? ''),
+      )
+  }
+
+  return transactions.map(prepareTransactionForView)
+}
+
 export const fetchTransactions = async (
   query: QueryTransactionsArgs,
   inMemoryFilters: TxsInMemoryFilters,
 ) => {
+  if (isEnvioBackend()) {
+    return fetchTransactionsEnvio(query, inMemoryFilters)
+  }
   const [homeTxs, foreignTxs] = await Promise.all([
     fetchHomeTransaction(query),
     fetchForeignTransaction(query),
