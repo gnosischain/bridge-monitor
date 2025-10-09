@@ -7,8 +7,8 @@ preload_handlers: true
 networks:
 # [Home] (Gnosis)
 - id: 100
-  # rpc_config:
-  #   url: https://virtual.gnosis.eu.rpc.tenderly.co/4c9e4122-6c01-46bd-a44a-e08133d2d2cc # block to start 42084872
+  rpc_config:
+    url: "${ENVIO_RPC_HOME}"
   start_block: 7904944
   contracts:
   - name: XDAIHome
@@ -163,6 +163,8 @@ networks:
 
 # [Foreign] (Ethereum)
 - id: 1
+  rpc_config:
+    url: "${ENVIO_RPC_FOREIGN}"
   start_block: 22272590
   contracts:
 
