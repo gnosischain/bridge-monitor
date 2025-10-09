@@ -75,8 +75,15 @@ type DaiOrUsdsTransfer {
 type AMBTransfer {
   id: ID!
   messageId: String!
+  messageHash: String
   token: String!
   sender: String
   recipient: String
   amount: BigInt
+}
+
+# One-way lookup for AMB signature events: messageHash -> messageId
+type AMBMessageHashLookup {
+  id: ID!         # messageHash
+  messageId: String!
 }

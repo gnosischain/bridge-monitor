@@ -55,3 +55,11 @@ export function extractReceiverFromEncodedData(encodedData?: string): string | u
   if (!encodedData || encodedData.length < 300) return undefined;
   return "0x" + encodedData.slice(260, 300);
 }
+
+/** Parse messageId (bytes32) from AMB encodedData bytes hex (first 32 bytes after 0x) */
+export function parseMessageIdFromEncodedData(encodedData?: string): string | undefined {
+  if (!encodedData) return undefined;
+  const hex = encodedData.toLowerCase();
+  if (!hex.startsWith("0x") || hex.length < 66) return undefined;
+  return "0x" + hex.slice(2, 66);
+}

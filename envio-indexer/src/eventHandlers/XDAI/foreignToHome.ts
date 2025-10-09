@@ -21,6 +21,18 @@ DAI.Transfer.handler(async ({ event, context }) => {
     };
     context.DaiOrUsdsTransfer.set(newTx);
   }
+
+  // Early backfill: update Transaction if exists (pre-nonce flows use txHash as id)
+  const maybeTx = await context.Transaction.get(txHash);
+  if (maybeTx) {
+    const updated = {
+      ...maybeTx,
+      initiator: maybeTx.initiator ?? sender,
+      initiatorToken: maybeTx.initiatorToken ?? event.srcAddress,
+      // amount is set from bridge event; do not override here
+    };
+    context.Transaction.set(updated);
+  }
 }, {
   eventFilters: [
     {to: ADDRESSES.FOREIGN.XDAI_BRIDGE },
@@ -45,6 +57,18 @@ USDS.Transfer.handler(async ({ event, context }) => {
     };
     context.DaiOrUsdsTransfer.set(newTx);
   }
+
+  // Early backfill: update Transaction if exists (pre-nonce flows use txHash as id)
+  const maybeTx = await context.Transaction.get(txHash);
+  if (maybeTx) {
+    const updated = {
+      ...maybeTx,
+      initiator: maybeTx.initiator ?? sender,
+      initiatorToken: maybeTx.initiatorToken ?? event.srcAddress,
+      // amount is set from bridge event; do not override here
+    };
+    context.Transaction.set(updated);
+  }
 }, {
   eventFilters: [
     {to: ADDRESSES.FOREIGN.XDAI_BRIDGE },
@@ -65,11 +89,8 @@ XDAIForeign.UserRequestForAffirmation_NoNonce.handler(async ({ event, context })
   // if (!initiator || !initiatorToken) return;
 
   const transferTx = await context.DaiOrUsdsTransfer.get(txHash);
-  if (!transferTx) {
-    return;
-  }
-  const { sender: initiator, token: initiatorToken } = transferTx;
-  if (!initiator || !initiatorToken) return;
+  const initiator = transferTx?.sender;
+  const initiatorToken = transferTx?.token;
 
   const tx = await context.Transaction.get(txHash);
   if (!tx) {
@@ -133,11 +154,8 @@ XDAIForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
   // if (!initiator || !initiatorToken) return;
 
   const transferTx = await context.DaiOrUsdsTransfer.get(txHash);
-  if (!transferTx) {
-    return;
-  }
-  const { sender: initiator, token: initiatorToken } = transferTx;
-  if (!initiator || !initiatorToken) return;
+  const initiator = transferTx?.sender;
+  const initiatorToken = transferTx?.token;
 
   const nonce = event.params.nonce;
   const nonceWithChainId = combineNonceAndChainId(nonce, CHAIN.FOREIGN.ID);
@@ -243,7 +261,7 @@ XDAIHome.SignedForAffirmation.handler(async ({ event, context }) => {
   const validation: TransactionValidation = {
     id: validationId,
     transaction_id: txId,
-    validator_id: signer,
+    validator_id: validator.id,
     validatorAddress: signer,
     transactionHash: event.transaction.hash,
     timestamp: BigInt(event.block.timestamp),

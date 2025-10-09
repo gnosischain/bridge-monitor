@@ -13,7 +13,8 @@ onBlock(
     if (context.isPreload) return;
 
     for (const v of validators as Array<any>) {
-      const id: string = v.id ?? `${String(v.address).toLowerCase()}-${v.bridgeType}`;
+      // Normalize validator id to lowercase <address>-<bridgeType> to match getValidator lookups
+      const id: string = `${String(v.address).toLowerCase()}-${v.bridgeType}`;
       const entity: Validator = {
         id,
         name: v.name,

@@ -15,6 +15,7 @@ OmniBridgeHomeMediator.TokensBridgingInitiated.handler(async ({ event, context }
     context.AMBTransfer.set({
       id: messageId,
       messageId,
+      messageHash: undefined,
       token: token!,
       sender: sender,
       amount,
@@ -27,6 +28,18 @@ OmniBridgeHomeMediator.TokensBridgingInitiated.handler(async ({ event, context }
       sender: sender,
       amount,
     });
+  }
+
+  // Early backfill: if Transaction exists, set initiator fields immediately
+  const tx = await context.Transaction.get(messageId);
+  if (tx) {
+    const updated = {
+      ...tx,
+      initiator: tx.initiator ?? sender,
+      initiatorToken: tx.initiatorToken ?? token!,
+      initiatorAmount: tx.initiatorAmount ?? amount,
+    };
+    context.Transaction.set(updated);
   }
 });
 
@@ -41,6 +54,7 @@ OmniBridgeHomeMediator.TokensBridged.handler(async ({ event, context }) => {
     context.AMBTransfer.set({
       id: messageId,
       messageId,
+      messageHash: undefined,
       token: token!,
       sender: undefined,
       amount,
@@ -53,6 +67,18 @@ OmniBridgeHomeMediator.TokensBridged.handler(async ({ event, context }) => {
       recipient: recipient,
       amount,
     });
+  }
+
+  // Early backfill: if Transaction exists, set receiver fields immediately
+  const tx = await context.Transaction.get(messageId);
+  if (tx) {
+    const updated = {
+      ...tx,
+      receiver: tx.receiver ?? recipient,
+      receiverToken: tx.receiverToken ?? token!,
+      receiverAmount: tx.receiverAmount ?? amount,
+    };
+    context.Transaction.set(updated);
   }
 });
 
@@ -68,6 +94,7 @@ OmniBridgeForeignMediator.TokensBridgingInitiated.handler(async ({ event, contex
     context.AMBTransfer.set({
       id: messageId,
       messageId,
+      messageHash: undefined,
       token: token!,
       sender: sender,
       amount,
@@ -80,6 +107,18 @@ OmniBridgeForeignMediator.TokensBridgingInitiated.handler(async ({ event, contex
       sender: sender,
       amount,
     });
+  }
+
+  // Early backfill: if Transaction exists, set initiator fields immediately
+  const tx = await context.Transaction.get(messageId);
+  if (tx) {
+    const updated = {
+      ...tx,
+      initiator: tx.initiator ?? sender,
+      initiatorToken: tx.initiatorToken ?? token!,
+      initiatorAmount: tx.initiatorAmount ?? amount,
+    };
+    context.Transaction.set(updated);
   }
 });
 
@@ -94,6 +133,7 @@ OmniBridgeForeignMediator.TokensBridged.handler(async ({ event, context }) => {
     context.AMBTransfer.set({
       id: messageId,
       messageId,
+      messageHash: undefined,
       token: token!,
       sender: undefined,
       amount,
@@ -106,5 +146,17 @@ OmniBridgeForeignMediator.TokensBridged.handler(async ({ event, context }) => {
       recipient: recipient,
       amount,
     });
+  }
+
+  // Early backfill: if Transaction exists, set receiver fields immediately
+  const tx = await context.Transaction.get(messageId);
+  if (tx) {
+    const updated = {
+      ...tx,
+      receiver: tx.receiver ?? recipient,
+      receiverToken: tx.receiverToken ?? token!,
+      receiverAmount: tx.receiverAmount ?? amount,
+    };
+    context.Transaction.set(updated);
   }
 });
