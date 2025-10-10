@@ -1,4 +1,5 @@
 import { OmniBridgeForeignMediator, OmniBridgeHomeMediator } from "generated";
+import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 
 // Normalize to lowercase hex string
 const toLower = (v?: string) => (typeof v === "string" ? v.toLowerCase() : v);
@@ -40,6 +41,28 @@ OmniBridgeHomeMediator.TokensBridgingInitiated.handler(async ({ event, context }
       initiatorAmount: tx.initiatorAmount ?? amount,
     };
     context.Transaction.set(updated);
+  } else {
+    // Create Transaction early from mediator event (we have initiator + amount here)
+    const newTx = {
+      id: messageId,
+      messageId,
+      nonce: messageId,
+      timestamp: BigInt(event.block.timestamp),
+      bridgeType: BridgeTypeEnum.AMB,
+      transactionStatus: TransactionStatusEnum.INITIATED,
+      execution_id: undefined,
+
+      initiatorNetwork: CHAIN.HOME.ID,
+      initiator: sender,
+      initiatorToken: token!,
+      initiatorAmount: amount,
+
+      receiverNetwork: CHAIN.FOREIGN.ID,
+      receiver: undefined,
+      receiverToken: token!,
+      receiverAmount: amount,
+    };
+    context.Transaction.set(newTx as any);
   }
 });
 
@@ -119,6 +142,28 @@ OmniBridgeForeignMediator.TokensBridgingInitiated.handler(async ({ event, contex
       initiatorAmount: tx.initiatorAmount ?? amount,
     };
     context.Transaction.set(updated);
+  } else {
+    // Create Transaction early from mediator event (we have initiator + amount here)
+    const newTx = {
+      id: messageId,
+      messageId,
+      nonce: messageId,
+      timestamp: BigInt(event.block.timestamp),
+      bridgeType: BridgeTypeEnum.AMB,
+      transactionStatus: TransactionStatusEnum.INITIATED,
+      execution_id: undefined,
+
+      initiatorNetwork: CHAIN.FOREIGN.ID,
+      initiator: sender,
+      initiatorToken: token!,
+      initiatorAmount: amount,
+
+      receiverNetwork: CHAIN.HOME.ID,
+      receiver: undefined,
+      receiverToken: token!,
+      receiverAmount: amount,
+    };
+    context.Transaction.set(newTx as any);
   }
 });
 
