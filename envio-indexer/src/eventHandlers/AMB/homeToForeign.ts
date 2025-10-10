@@ -165,7 +165,7 @@ AMBForeign.RelayedMessage.handler(async ({ event, context }) => {
   // Attribute execution to tx.from validator (mirrors XDAI approach)
   const executorAddr = event.transaction.from?.toLowerCase();
   let executorId: string | undefined = undefined;
-  let executorAddress: string | undefined = undefined;
+  let executorAddress: string | undefined = executorAddr;
   if (executorAddr) {
     const validator = await getValidator(context, executorAddr);
     if (validator) {
