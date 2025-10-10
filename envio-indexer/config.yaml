@@ -2,13 +2,13 @@
 name: gnosis-bridge-indexer
 unordered_multichain_mode: false
 preload_handlers: true
-# raw_events: true
+raw_events: true
 
 networks:
 # [Home] (Gnosis)
 - id: 100
   # rpc_config:
-  #   url: https://virtual.gnosis.eu.rpc.tenderly.co/4c9e4122-6c01-46bd-a44a-e08133d2d2cc # block to start 42084872
+  #   url: ${ENVIO_RPC_HOME}
   start_block: 7904944
   contracts:
   - name: XDAIHome
@@ -134,7 +134,7 @@ networks:
     address:
     - 0xB289f0e6fBDFf8EEE340498a56e1787B303F1B6D
     start_block: 7904944
-    handler: src/eventHandlers/validators.ts
+    handler: src/eventHandlers/validator.ts
     events:
     - event: ValidatorAdded(address indexed validator)
       field_selection:
@@ -149,7 +149,7 @@ networks:
     address:
     - 0xA280feD8D7CaD9a76C8b50cA5c33c2534fFa5008
     start_block: 7904944
-    handler: src/eventHandlers/validators.ts
+    handler: src/eventHandlers/validator.ts
     events:
     - event: ValidatorAdded(address indexed validator)
       field_selection:
@@ -163,6 +163,8 @@ networks:
 
 # [Foreign] (Ethereum)
 - id: 1
+  # rpc_config:
+  #   url: ${ENVIO_RPC_FOREIGN}
   start_block: 22272590
   contracts:
 
