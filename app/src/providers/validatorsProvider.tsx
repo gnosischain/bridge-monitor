@@ -4,7 +4,7 @@ import useSWR from 'swr'
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { fetchHomeValidators, getBalance, getValidatorByAddress } from '@/src/utils/validators'
 import { Validator } from '@/src/utils/validators'
-import { gnosis } from '@/src/constants/config/rpc-providers'
+import { gnosisBatch } from '@/src/constants/config/rpc-providers'
 import { fromSubgraphTimestamp } from '@/src/utils/date'
 import { Chains, chainsConfig } from '@/src/constants/config/chains'
 import cloneDeep from 'lodash/cloneDeep'
@@ -34,7 +34,7 @@ const ValidatorsContext = createContext<ValidatorsContextType>({
 })
 
 const fetcher = async () => {
-  const homeProvider = gnosis()
+  const homeProvider = gnosisBatch()
   const validatorsData = await fetchHomeValidators()
 
   const validatorsPromises = validatorsData.map(async (v) => {
@@ -87,7 +87,11 @@ const fetcher = async () => {
 }
 
 export const ValidatorsProvider: React.FC = ({ children }) => {
-  const res = useSWR('validators', fetcher)
+  const res = useSWR('validators', fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    dedupingInterval: 60000,
+  })
 
   const validators = res.data || defaultValidators
 
