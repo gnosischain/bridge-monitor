@@ -248,49 +248,80 @@ export const unifyTransactions = async (
   return Object.values(allTransactions).sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
 }
 
-const toEnvioWhere = (where?: any): Record<string, any> | undefined => {
+const toEnvioWhere = (where?: unknown): Record<string, unknown> | undefined => {
   if (!where) return undefined
-  const andClauses: any[] = []
+  type OrClause = { initiator?: unknown; receiver?: unknown }
+  type InnerWhere = {
+    timestamp_gte?: unknown
+    timestamp_lte?: unknown
+    transactionHash?: unknown
+    initiatorNetwork?: unknown
+    bridgeName?: unknown
+    bridgeName_contains_nocase?: unknown
+    or?: OrClause[]
+  }
+  type RawWhere = {
+    id?: unknown
+    transactionHash?: unknown
+    timestamp_gte?: unknown
+    timestamp_lte?: unknown
+    or?: OrClause[]
+    initiatorNetwork?: unknown
+    bridgeName?: unknown
+    bridgeName_contains_nocase?: unknown
+    and?: InnerWhere[]
+  }
+
+  const w = where as RawWhere
+  const andClauses: Array<Record<string, unknown>> = []
 
   // id equals
-  if (where.id) {
-    andClauses.push({ id: { _eq: String(where.id).toLowerCase() } })
+  if (w.id) {
+    andClauses.push({ id: { _eq: String(w.id).toLowerCase() } })
   }
 
   // transactionHash equals
-  if (where.transactionHash) {
-    andClauses.push({ transactionHash: { _eq: String(where.transactionHash).toLowerCase() } })
+  if (w.transactionHash) {
+    andClauses.push({ transactionHash: { _eq: String(w.transactionHash).toLowerCase() } })
   }
 
   // timestamp range
-  if (where.timestamp_gte !== undefined) {
-    andClauses.push({ timestamp: { _gte: Number(where.timestamp_gte) } })
+  if (w.timestamp_gte !== undefined) {
+    andClauses.push({ timestamp: { _gte: Number(w.timestamp_gte) } })
   }
-  if (where.timestamp_lte !== undefined) {
-    andClauses.push({ timestamp: { _lte: Number(where.timestamp_lte) } })
+  if (w.timestamp_lte !== undefined) {
+    andClauses.push({ timestamp: { _lte: Number(w.timestamp_lte) } })
   }
 
   // initiator/receiver OR search
-  if (Array.isArray(where.or)) {
-    const ors = where.or
-      .map((cl: any) => {
-        if (cl.initiator) return { initiator: { _eq: String(cl.initiator).toLowerCase() } }
-        if (cl.receiver) return { receiver: { _eq: String(cl.receiver).toLowerCase() } }
+  if (Array.isArray(w.or)) {
+    const ors = w.or
+      .map((cl: OrClause) => {
+        if (typeof cl.initiator === 'string') {
+          return {
+            initiator: { _eq: cl.initiator.toLowerCase() },
+          }
+        }
+        if (typeof cl.receiver === 'string') {
+          return {
+            receiver: { _eq: cl.receiver.toLowerCase() },
+          }
+        }
         return undefined
       })
-      .filter(Boolean)
+      .filter(Boolean) as Array<Record<string, unknown>>
     if (ors.length) andClauses.push({ _or: ors })
   }
 
   // initiatorNetwork textual mapping
-  if (where.initiatorNetwork) {
-    const val = String(where.initiatorNetwork).toLowerCase()
+  if (w.initiatorNetwork) {
+    const val = String(w.initiatorNetwork).toLowerCase()
     const num = val === 'gnosis' ? 100 : val === 'mainnet' ? 1 : undefined
     if (num !== undefined) andClauses.push({ initiatorNetwork: { _eq: num } })
   }
 
   // bridgeName -> bridgeType enum mapping
-  const bridgeName = where.bridgeName || where.bridgeName_contains_nocase
+  const bridgeName = w.bridgeName || w.bridgeName_contains_nocase
   if (bridgeName) {
     const val = String(bridgeName).toUpperCase()
     const enumVal = val.includes('XDAI') ? 'XDAI' : 'AMB'
@@ -298,8 +329,8 @@ const toEnvioWhere = (where?: any): Record<string, any> | undefined => {
   }
 
   // Combine explicit 'and' if present
-  if (Array.isArray(where.and)) {
-    where.and.forEach((inner: any) => {
+  if (Array.isArray(w.and)) {
+    w.and.forEach((inner: InnerWhere) => {
       if (inner.timestamp_gte !== undefined) {
         andClauses.push({ timestamp: { _gte: Number(inner.timestamp_gte) } })
       }
@@ -322,12 +353,20 @@ const toEnvioWhere = (where?: any): Record<string, any> | undefined => {
       }
       if (Array.isArray(inner.or)) {
         const ors = inner.or
-          .map((cl: any) => {
-            if (cl.initiator) return { initiator: { _eq: String(cl.initiator).toLowerCase() } }
-            if (cl.receiver) return { receiver: { _eq: String(cl.receiver).toLowerCase() } }
+          .map((cl: OrClause) => {
+            if (typeof cl.initiator === 'string') {
+              return {
+                initiator: { _eq: cl.initiator.toLowerCase() },
+              }
+            }
+            if (typeof cl.receiver === 'string') {
+              return {
+                receiver: { _eq: cl.receiver.toLowerCase() },
+              }
+            }
             return undefined
           })
-          .filter(Boolean)
+          .filter(Boolean) as Array<Record<string, unknown>>
         if (ors.length) andClauses.push({ _or: ors })
       }
     })
@@ -359,8 +398,35 @@ const fetchTransactionsEnvio = async (
   const limit = query?.first ?? defaultRequestLimit
   const offset = query?.skip ?? 0
 
+  type EnvioTx = {
+    id: string
+    bridgeType?: string | null
+    transactionHash?: string | null
+    timestamp?: number | null
+    initiator?: string | null
+    initiatorAmount?: string | null
+    initiatorNetwork?: number | null
+    initiatorToken?: string | null
+    receiver?: string | null
+    receiverToken?: string | null
+    receiverAmount?: string | null
+    receiverNetwork?: number | null
+    transactionStatus?: string | null
+    execution?: {
+      id: string
+      timestamp: number
+      transactionHash: string
+      executorAddress?: string | null
+    } | null
+    validations?: Array<{
+      id: string
+      timestamp: number
+      transactionHash: string
+      validatorAddress: string
+    }>
+  }
   const request = getEnvioGraphqlClient<{
-    Transaction: Array<any>
+    Transaction: Array<EnvioTx>
   }>()
   const res = await request(ENVIO_TRANSACTIONS_QUERY, {
     where,
@@ -371,16 +437,16 @@ const fetchTransactionsEnvio = async (
 
   // Drop malformed rows early (skip problematic transactions)
   const safeRows = (res.Transaction || []).filter(
-    (row: any) =>
+    (row: EnvioTx) =>
       row?.id &&
       ((row?.initiatorNetwork !== null && row?.initiatorNetwork !== undefined) ||
         (row?.receiverNetwork !== null && row?.receiverNetwork !== undefined)),
   )
 
   // Map to subgraph-like TransactionSG for reuse of prepareTransactionForView.
-  const sgRows: TransactionSG[] = safeRows.map((row: any) => {
+  const sgRows: TransactionSG[] = safeRows.map((row: EnvioTx) => {
     return {
-      __typename: 'Transaction' as any,
+      __typename: 'Transaction' as const,
       id: row.id,
       bridgeName: bridgeTypeToName(row.bridgeType),
       transactionHash: row.transactionHash ?? '',
@@ -396,7 +462,7 @@ const fetchTransactionsEnvio = async (
       transactionStatus: row.transactionStatus,
       execution: row.execution
         ? {
-            __typename: 'TransactionExecution' as any,
+            __typename: 'TransactionExecution' as const,
             id: row.execution.id,
             timestamp: row.execution.timestamp,
             transactionHash: row.execution.transactionHash,
@@ -405,8 +471,8 @@ const fetchTransactionsEnvio = async (
           }
         : null,
       validations: Array.isArray(row.validations)
-        ? row.validations.map((v: any) => ({
-            __typename: 'TransactionValidation' as any,
+        ? row.validations.map((v) => ({
+            __typename: 'TransactionValidation' as const,
             id: v.id,
             timestamp: v.timestamp,
             transactionHash: v.transactionHash,
