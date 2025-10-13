@@ -252,6 +252,11 @@ const toEnvioWhere = (where?: any): Record<string, any> | undefined => {
   if (!where) return undefined
   const andClauses: any[] = []
 
+  // id equals
+  if (where.id) {
+    andClauses.push({ id: { _eq: String(where.id).toLowerCase() } })
+  }
+
   // transactionHash equals
   if (where.transactionHash) {
     andClauses.push({ transactionHash: { _eq: String(where.transactionHash).toLowerCase() } })
