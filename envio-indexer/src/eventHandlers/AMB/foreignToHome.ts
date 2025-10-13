@@ -2,7 +2,7 @@ import { AMBForeign, AMBHome } from "generated";
 import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { getValidator } from "../../utils/getValidator";
 import { isOmniBridgeUsage, extractReceiverFromEncodedData, parseMessageIdFromEncodedData } from "../../utils/omnibridge";
-import { getAmbMessageByHash } from "../../effects/getAmbMessageByHash";
+import { getMessageByHash } from "../../effects/getMessageByHash";
 
 /**
  * AMB Foreign -> Home (ETH -> GC)
@@ -61,9 +61,9 @@ AMBForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
 // 2. Validation. Validators sign transaction (update validator lastActivity)
 AMBHome.SignedForAffirmation.handler(async ({ event, context }) => {
   const signer = event.params.signer.toLowerCase();
-  const validator = await getValidator(context, signer);
+  const validator = await getValidator(context, signer, BridgeTypeEnum.AMB);
   if (!validator) {
-    context.log.error(`AMB: SignedForAffirmation - Validator ${signer} not found`);
+    context.log.error(`AMB: SignedForAffirmation - Validator ${signer} not found, tx hash: ${event.transaction.hash}`);
     return;
   }
   context.Validator.set({ ...validator, lastActivity: BigInt(event.block.timestamp) });
@@ -76,9 +76,10 @@ AMBHome.SignedForAffirmation.handler(async ({ event, context }) => {
   if (cached?.messageId) {
     messageId = cached.messageId;
   } else {
-    const encoded = await context.effect(getAmbMessageByHash, {
+    const encoded = await context.effect(getMessageByHash, {
       address: event.srcAddress,
       messageHash,
+      bridge: BridgeTypeEnum.AMB,
     });
     messageId = typeof encoded === "string" ? parseMessageIdFromEncodedData(encoded) : undefined;
     if (messageId) {
@@ -139,11 +140,13 @@ AMBHome.AffirmationCompleted.handler(async ({ event, context }) => {
   let executorId: string | undefined = undefined;
   let executorAddress: string | undefined = undefined;
   if (executorAddr) {
-    const validator = await getValidator(context, executorAddr);
+    const validator = await getValidator(context, executorAddr, BridgeTypeEnum.AMB);
     if (validator) {
       context.Validator.set({ ...validator, lastActivity: BigInt(timestamp) });
       executorId = validator.id;
       executorAddress = validator.address;
+    } else {
+      context.log.error(`AMB: AffirmationCompleted - Validator ${executorAddr} not found, tx hash: ${event.transaction.hash}`);
     }
   }
 

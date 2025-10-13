@@ -1,9 +1,19 @@
 import { DAI, TransactionExecution, TransactionValidation, Validator, XDAIForeign, XDAIHome, USDS } from "generated";
 import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { combineNonceAndChainId } from "../../utils/combineNonceAndChainId";
-// import { getInitiatorFromReceipt } from "../../effects/getInitiatorFromReceipt";
 import { ADDRESSES } from "../../addresses";
 import { getValidator } from "../../utils/getValidator";
+
+/**
+ * XDAI Foreign -> Home (ETH -> GC)
+ * Flow:
+ * 0) Foreign ERC20 Transfer (DAI/USDS) — capture sender/token for later enrichment
+ * 1) Foreign XDAI: UserRequestForAffirmation (pre- and post-Hashi) => INITIATED Transaction
+ *    - Pre-Hashi: txHash as id
+ *    - Post-Hashi: use nonce + chainId as id
+ * 2) Home XDAI: SignedForAffirmation => set Transaction to COLLECTING and record validator signature
+ * 3) Home XDAI: AffirmationCompleted => create TransactionExecution and COMPLETE the Transaction
+ */
 
 // [Foreign]
 // 0. DAI transfer, to keep sender and sender token
@@ -82,11 +92,6 @@ USDS.Transfer.handler(async ({ event, context }) => {
 // Before Hashi update
 XDAIForeign.UserRequestForAffirmation_NoNonce.handler(async ({ event, context }) => {
   const txHash = event.transaction.hash;
-  
-  // const res = await context.effect(getInitiatorFromReceipt, { hash: txHash });
-  // if (!res) return;
-  // const { initiator, initiatorToken } = res;
-  // if (!initiator || !initiatorToken) return;
 
   const transferTx = await context.DaiOrUsdsTransfer.get(txHash);
   const initiator = transferTx?.sender;
@@ -118,26 +123,6 @@ XDAIForeign.UserRequestForAffirmation_NoNonce.handler(async ({ event, context })
     context.Transaction.set(newTx);
   } else {
     return;
-    // const updatedTx = {
-    //   ...tx,
-    //   id: txHash,
-    //   bridgeType: BridgeTypeEnum.XDAI,
-    //   messageId: txHash,
-    //   nonce: txHash,
-    //   transactionHash: event.transaction.hash,
-    //   timestamp: BigInt(event.block.timestamp),
-
-    //   initiatorNetwork: CHAIN.FOREIGN.ID,
-    //   initiator,
-    //   initiatorToken,
-    //   initiatorAmount: event.params.value,
-      
-    //   receiverNetwork: CHAIN.HOME.ID,
-    //   receiver: event.params.recipient,
-    //   receiverToken: ADDRESSES.HOME.XDAI_TOKEN,
-    //   receiverAmount: event.params.value
-    // }
-    // context.Transaction.set(updatedTx);
   }
 
 });
@@ -147,11 +132,6 @@ XDAIForeign.UserRequestForAffirmation_NoNonce.handler(async ({ event, context })
 // After Hashi update (current version)
 XDAIForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
   const txHash = event.transaction.hash;
-
-  // const res = await context.effect(getInitiatorFromReceipt, { hash: txHash });
-  // if (!res || res.initiator === '' || res.initiatorToken === '') return;
-  // const { initiator, initiatorToken } = res;
-  // if (!initiator || !initiatorToken) return;
 
   const transferTx = await context.DaiOrUsdsTransfer.get(txHash);
   const initiator = transferTx?.sender;
@@ -186,26 +166,6 @@ XDAIForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
     context.Transaction.set(newTx);
   } else {
     return;
-    // const updatedTx = {
-    //   ...tx,
-    //   id: nonceWithChainId,
-    //   bridgeType: BridgeTypeEnum.XDAI,
-    //   messageId: nonceWithChainId,
-    //   nonce,
-    //   transactionHash: event.transaction.hash,
-    //   timestamp: BigInt(event.block.timestamp),
-
-    //   initiatorNetwork: CHAIN.FOREIGN.ID,
-    //   initiator,
-    //   initiatorToken,
-    //   initiatorAmount: event.params.value,
-      
-    //   receiverNetwork: CHAIN.HOME.ID,
-    //   receiver: event.params.recipient,
-    //   receiverToken: ADDRESSES.HOME.XDAI_TOKEN,
-    //   receiverAmount: event.params.value
-    // }
-    // context.Transaction.set(updatedTx);
   }
 });
 
@@ -219,39 +179,17 @@ XDAIHome.SignedForAffirmation.handler(async ({ event, context }) => {
 
   const tx = await context.Transaction.get(txId);
   if (!tx) {
+    context.log.error(`XDAI Foreign: SignedForAffirmation Not found tx for nonce: ${foreignNonce}`);
     return;
-    // const newTx = {
-    //   id: txId,
-    //   bridgeType: BridgeTypeEnum.XDAI,
-    //   execution_id: undefined,
-    //   transactionStatus: TransactionStatusEnum.COLLECTING,
-    //   messageId: txId,
-    //   nonce: foreignNonce,
-
-    //   initiatorNetwork: CHAIN.FOREIGN.ID,    
-    //   receiverNetwork: CHAIN.HOME.ID,
-
-    //   initiator: undefined,
-    //   initiatorToken: undefined,
-    //   initiatorAmount: undefined,
-
-    //   receiver: undefined,
-    //   receiverToken: undefined,
-    //   receiverAmount: undefined,
-
-    //   timestamp: undefined,
-    //   transactionHash: undefined,
-    // }
-    // context.Transaction.set({...newTx});
   } else {
     const newTx = { ...tx, transactionStatus: TransactionStatusEnum.COLLECTING };
     context.Transaction.set({...newTx});
   }
 
   const signer = event.params.signer.toLowerCase();
-  const validator = await getValidator(context, signer);
+  const validator = await getValidator(context, signer, BridgeTypeEnum.XDAI);
   if (!validator) {
-    context.log.error(`XDAI: SignedForAffirmation - Validator ${signer} not found, nonce: ${foreignNonce}`);
+    context.log.error(`XDAI: SignedForAffirmation - Validator ${signer} not found, nonce: ${foreignNonce}, tx hash: ${event.transaction.hash}`);
     return;
   }
   const updatedValidator: Validator = { ...validator, lastActivity: BigInt(event.block.timestamp) };
@@ -277,70 +215,22 @@ XDAIHome.AffirmationCompleted.handler(async ({ event, context }) => {
     ? combineNonceAndChainId(foreignNonce, CHAIN.FOREIGN.ID)
     : foreignNonce;
 
-  // const executor = event.transaction.from?.toLowerCase();
-  // if (!executor) {
-  //   context.log.error(
-  //     `XDAI: AffirmationCompleted - Executor not found, nonce: ${foreignNonce}`
-  //   );
-  //   return;
-  // }
-  // const validator = await getValidator(context, executor);
-  // if (!validator) {
-  //   context.log.error(
-  //     `XDAI: AffirmationCompleted - Validator ${executor} not found, nonce: ${foreignNonce}`
-  //   );
-  //   return;
-  // }
-  // context.Validator.set({ ...validator, lastActivity: BigInt(event.block.timestamp) });
-
-  // const execution: TransactionExecution = {
-  //   id: `${txId}-${validator.id}`,
-  //   transaction_id: txId,
-  //   transactionHash: event.transaction.hash,
-  //   timestamp: BigInt(event.block.timestamp),
-  //   executor_id: validator.id,
-  //   executorAddress: validator.address,
-  // };
-  // context.TransactionExecution.set(execution);
-
   const tx = await context.Transaction.get(txId);
   if (!tx) {
+    context.log.error(`XDAI Foreign: AffirmationCompleted Not found tx for nonce: ${foreignNonce}`);
     return;
-    // const newTx = {
-    //   id: txId,
-    //   bridgeType: BridgeTypeEnum.XDAI,
-    //   execution_id: execution.id,
-    //   transactionStatus: TransactionStatusEnum.COMPLETED,
-    //   messageId: txId,
-    //   nonce: foreignNonce,
-
-    //   initiatorNetwork: CHAIN.FOREIGN.ID,    
-    //   receiverNetwork: CHAIN.HOME.ID,
-
-    //   initiator: undefined,
-    //   initiatorToken: undefined,
-    //   initiatorAmount: undefined,
-
-    //   receiver: undefined,
-    //   receiverToken: ADDRESSES.HOME.XDAI_TOKEN,
-    //   receiverAmount: undefined,
-
-    //   timestamp: undefined,
-    //   transactionHash: undefined,
-    // }
-    // context.Transaction.set({...newTx});
   } else {
     const executor = event.transaction.from?.toLowerCase();
     if (!executor) {
       context.log.error(
-        `XDAI: AffirmationCompleted - Executor not found, nonce: ${foreignNonce}`
+        `XDAI: AffirmationCompleted - Executor not found, nonce: ${foreignNonce}, tx hash: ${event.transaction.hash}`
       );
       return;
     }
-    const validator = await getValidator(context, executor);
+    const validator = await getValidator(context, executor, BridgeTypeEnum.XDAI);
     if (!validator) {
       context.log.error(
-        `XDAI: AffirmationCompleted - Validator ${executor} not found, nonce: ${foreignNonce}`
+        `XDAI: AffirmationCompleted - Validator ${executor} not found, nonce: ${foreignNonce}, tx hash: ${event.transaction.hash}`
       );
       return;
     }

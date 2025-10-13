@@ -2,7 +2,7 @@ import { AMBForeign, AMBHome } from "generated";
 import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { getValidator } from "../../utils/getValidator";
 import { isOmniBridgeUsage, extractReceiverFromEncodedData, parseMessageIdFromEncodedData } from "../../utils/omnibridge";
-import { getAmbMessageByHash } from "../../effects/getAmbMessageByHash";
+import { getMessageByHash } from "../../effects/getMessageByHash";
 
 /**
  * AMB Home -> Foreign (GC -> ETH)
@@ -61,9 +61,9 @@ AMBHome.UserRequestForSignature.handler(async ({ event, context }) => {
 // 2 Validation. Validators sign transaction (update validator lastActivity)
 AMBHome.SignedForUserRequest.handler(async ({ event, context }) => {
   const signer = event.params.signer.toLowerCase();
-  const validator = await getValidator(context, signer);
+  const validator = await getValidator(context, signer, BridgeTypeEnum.AMB);
   if (!validator) {
-    context.log.error(`AMB: SignedForUserRequest - Validator ${signer} not found`);
+    context.log.error(`AMB: SignedForUserRequest - Validator ${signer} not found, tx hash: ${event.transaction.hash}`);
     return;
   }
   context.Validator.set({ ...validator, lastActivity: BigInt(event.block.timestamp) });
@@ -76,9 +76,10 @@ AMBHome.SignedForUserRequest.handler(async ({ event, context }) => {
   if (cached?.messageId) {
     messageId = cached.messageId;
   } else {
-    const encoded = await context.effect(getAmbMessageByHash, {
+    const encoded = await context.effect(getMessageByHash, {
       address: event.srcAddress,
       messageHash,
+      bridge: BridgeTypeEnum.AMB,
     });
     messageId = typeof encoded === "string" ? parseMessageIdFromEncodedData(encoded) : undefined;
     if (messageId) {
@@ -118,9 +119,9 @@ AMBHome.SignedForUserRequest.handler(async ({ event, context }) => {
 // 3 Ready to execute on Foreign (threshold reached). Update validator lastActivity
 AMBHome.CollectedSignatures.handler(async ({ event, context }) => {
   const executorAddress = event.params.authorityResponsibleForRelay.toLowerCase();
-  const validator = await getValidator(context, executorAddress);
+  const validator = await getValidator(context, executorAddress, BridgeTypeEnum.AMB);
   if (!validator) {
-    context.log.error(`AMB: CollectedSignatures - Validator ${executorAddress} not found`);
+    context.log.error(`AMB: CollectedSignatures - Validator ${executorAddress} not found, tx hash: ${event.transaction.hash}`);
     return;
   }
   context.Validator.set({ ...validator, lastActivity: BigInt(event.block.timestamp) });
@@ -129,9 +130,10 @@ AMBHome.CollectedSignatures.handler(async ({ event, context }) => {
   const ch = await context.AMBMessageHashLookup.get(event.params.messageHash);
   let messageId = ch?.messageId;
   if (!messageId) {
-    const encoded = await context.effect(getAmbMessageByHash, {
+    const encoded = await context.effect(getMessageByHash, {
       address: event.srcAddress,
       messageHash: event.params.messageHash,
+      bridge: BridgeTypeEnum.AMB,
     });
     messageId = typeof encoded === "string" ? parseMessageIdFromEncodedData(encoded) : undefined;
     if (messageId) {
@@ -167,11 +169,14 @@ AMBForeign.RelayedMessage.handler(async ({ event, context }) => {
   let executorId: string | undefined = undefined;
   let executorAddress: string | undefined = executorAddr;
   if (executorAddr) {
-    const validator = await getValidator(context, executorAddr);
+    const validator = await getValidator(context, executorAddr, BridgeTypeEnum.AMB);
     if (validator) {
       context.Validator.set({ ...validator, lastActivity: BigInt(timestamp) });
       executorId = validator.id;
       executorAddress = validator.address;
+    } else {
+      // claiming can be done by anyone
+      executorAddress = executorAddr;
     }
   }
 
