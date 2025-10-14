@@ -3,7 +3,7 @@ import { createPublicClient, http } from "viem";
 import { gnosis } from "viem/chains";
 import HomeXDAIAbi from "../../abi/HomeBridgeErcToNative.json";
 import HomeAMBAbi from "../../abi/HomeAMB.json";
-import { BridgeTypeEnum } from "../const";
+import { BridgeTypeEnum, RPC_HOME } from "../const";
 
 export const getMessageByHash = experimental_createEffect(
   {
@@ -17,7 +17,7 @@ export const getMessageByHash = experimental_createEffect(
     cache: true,
   },
   async ({ input }) => {
-    const rpc = process.env.ENVIO_RPC_HOME as `http${string}` | undefined;
+    const rpc = RPC_HOME;
     if (!rpc) return null;
 
     const client = createPublicClient({ chain: gnosis, transport: http(rpc) });
