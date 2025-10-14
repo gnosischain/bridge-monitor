@@ -44,7 +44,7 @@ export const useFetchTransactions = (
   inMemoryFilters: TxsInMemoryFilters,
   query?: QueryTransactionsArgs,
 ) => {
-  const { data, error, isLoading, isValidating, mutate } = useSWR(
+  const { data, error, isLoading, isValidating, mutate } = useSWR<Transaction[]>(
     query
       ? [
           'useFetchTransactions',
@@ -54,7 +54,13 @@ export const useFetchTransactions = (
           inMemoryFilters,
         ]
       : null,
-    async ([, , _query, , _inMemoryFilters]) => fetchTransactions(_query, _inMemoryFilters),
+    async ([, , _query, , _inMemoryFilters]: [
+      string,
+      string,
+      QueryTransactionsArgs,
+      string,
+      TxsInMemoryFilters,
+    ]) => fetchTransactions(_query, _inMemoryFilters),
     { suspense: false },
   )
 
@@ -65,11 +71,11 @@ export const useFetchTransactions = (
       setForeignTransaction(transaction.id)
       // update in-memory txs
       mutate(
-        (txs) =>
-          txs?.map((tx) => (tx.id === transaction.id ? { ...transaction, isClaiming: true } : tx)),
-        {
-          revalidate: false,
-        },
+        (txs: Transaction[] | undefined) =>
+          txs?.map((tx: Transaction) =>
+            tx.id === transaction.id ? { ...transaction, isClaiming: true } : tx,
+          ),
+        { revalidate: false },
       )
     }
   }

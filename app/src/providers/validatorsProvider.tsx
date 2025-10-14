@@ -8,6 +8,7 @@ import { gnosisBatch } from '@/src/constants/config/rpc-providers'
 import { fromSubgraphTimestamp } from '@/src/utils/date'
 import { Chains, chainsConfig } from '@/src/constants/config/chains'
 import cloneDeep from 'lodash/cloneDeep'
+import { ValidatorStatusTypes } from '@/src/constants/types'
 import {
   TELEPATHY_VALIDATOR_ADDRESS,
   TELEPATHY_VALIDATOR_ADDRESS_REPLACED,
@@ -55,9 +56,9 @@ const fetcher = async () => {
     const validator: Validator = {
       address: v.address.toLowerCase(),
       name,
-      bridgeType: (v.bridgeType || (staticVal?.bridgeType as any) || '') as any,
+      bridgeType: String(v.bridgeType || staticVal?.bridgeType || ''),
       shortName,
-      status: undefined as any,
+      status: ValidatorStatusTypes.default,
       lastSeen: fromSubgraphTimestamp(v.lastActivity),
       signed: Array.isArray(v.signed) ? v.signed.length : 0,
       executed: Array.isArray(v.executed) ? v.executed.length : 0,

@@ -110,7 +110,16 @@ export const getValidationsStatus = (transaction: Transaction, _validators: Vali
 
 export const fetchHomeValidators = async (filter?: ValidatorsQueryVariables) => {
   if (isEnvioBackend()) {
-    const request = getEnvioGraphqlClient<{ Validator: Array<any> }>()
+    type EnvioValidatorRow = {
+      id?: string
+      name?: string | null
+      bridgeType?: string | null
+      address: string
+      lastActivity?: number | null
+      signed?: Array<{ id: string }>
+      executed?: Array<{ id: string }>
+    }
+    const request = getEnvioGraphqlClient<{ Validator: EnvioValidatorRow[] }>()
     const res = await request(ENVIO_VALIDATORS_QUERY, {})
     return res.Validator
   }
@@ -151,12 +160,19 @@ export const fetchSignedTransactions = async (bridge: BridgesValues, afterDate: 
   const validators = VALIDATORS_BY_BRIDGE[bridgeValue]
 
   if (isEnvioBackend()) {
-    const request = getEnvioGraphqlClient<{ Validator: Array<any> }>()
+    type EnvioValidatorRow = {
+      address: string
+      name?: string | null
+      bridgeType?: string | null
+      signed?: Array<{ id: string }>
+      executed?: Array<{ id: string }>
+    }
+    const request = getEnvioGraphqlClient<{ Validator: EnvioValidatorRow[] }>()
     const res = await request(ENVIO_VALIDATORS_ACTIVITY_QUERY, { after: String(afterDate) })
     const rows = (res.Validator || []).filter(
-      (v) => String(v.bridgeType || '').toUpperCase() === bridgeValue,
+      (v: EnvioValidatorRow) => String(v.bridgeType || '').toUpperCase() === bridgeValue,
     )
-    return rows.map((v: any) => ({
+    return rows.map((v: EnvioValidatorRow) => ({
       name: v.name || v.address,
       value: Array.isArray(v.signed) ? v.signed.length : 0,
     }))
@@ -196,12 +212,19 @@ export const fetchExecutedTransactions = async (bridge: BridgesValues, afterDate
   const validators = VALIDATORS_BY_BRIDGE[bridgeValue]
 
   if (isEnvioBackend()) {
-    const request = getEnvioGraphqlClient<{ Validator: Array<any> }>()
+    type EnvioValidatorRow = {
+      address: string
+      name?: string | null
+      bridgeType?: string | null
+      signed?: Array<{ id: string }>
+      executed?: Array<{ id: string }>
+    }
+    const request = getEnvioGraphqlClient<{ Validator: EnvioValidatorRow[] }>()
     const res = await request(ENVIO_VALIDATORS_ACTIVITY_QUERY, { after: String(afterDate) })
     const rows = (res.Validator || []).filter(
-      (v) => String(v.bridgeType || '').toUpperCase() === bridgeValue,
+      (v: EnvioValidatorRow) => String(v.bridgeType || '').toUpperCase() === bridgeValue,
     )
-    return rows.map((v: any) => ({
+    return rows.map((v: EnvioValidatorRow) => ({
       name: v.name || v.address,
       value: Array.isArray(v.executed) ? v.executed.length : 0,
     }))

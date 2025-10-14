@@ -3,8 +3,20 @@ import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { ADDRESSES } from "../../addresses";
 import { combineNonceAndChainId } from "../../utils/combineNonceAndChainId";
 import { getValidator } from "../../utils/getValidator";
-import { getHomeMessageByHash } from "../../effects/getHomeMessageByHash";
+import { getMessageByHash } from "../../effects/getMessageByHash";
 import { getHomeNonceOrTxHashFromMessageMethod } from "../../utils/getHomeNonceOrTxHashFromMessageMethod";
+
+/**
+ * XDAI Home -> Foreign (GC -> ETH)
+ * Flow:
+ * 1) Home XDAI: UserRequestForSignature (three variants over time)
+ *    - NoNonce/NoToken (legacy) => INITIATED Transaction using txHash as id
+ *    - WithNonce/NoToken (post-Hashi) => INITIATED using nonce + chainId as id
+ *    - WithNonce/Token (current) => INITIATED using nonce + chainId, token from event
+ * 2) Home XDAI: SignedForUserRequest => COLLECTING + persist validator signature (recover messageId via message(messageHash))
+ * 3) Home XDAI: CollectedSignatures => UNCLAIMED (ready to execute on Foreign)
+ * 4) Foreign XDAI: RelayedMessage => create TransactionExecution and COMPLETE the Transaction
+ */
 
 // [Home]
 // 1 Init. DAI is transferred to the bridge contract
@@ -172,41 +184,23 @@ XDAIHome.SignedForUserRequest.handler(async ({ event, context }) => {
   // When a validator signs the transaction, the txHash used as id on 1 is not emitted.
   // We need to recover it by querying the xDai.message(messageHash) bridge contract method
   // using the messageHash emitted in this event.
-  const message = await context.effect(getHomeMessageByHash, {
+  const message = await context.effect(getMessageByHash, {
     address: event.srcAddress,
     messageHash: event.params.messageHash,
+    bridge: BridgeTypeEnum.XDAI,
   });
-  if (!message) return;
+  if (!message) {
+    context.log.error(`XDAI Home: SignedForUserRequest Not found message for txHash: ${event.transaction.hash} and messageHash: ${event.params.messageHash}`);
+    return;
+  };
 
   const xDaiNonceOrTxHash = getHomeNonceOrTxHashFromMessageMethod(message);
   const messageId = xDaiNonceOrTxHash.startsWith("0x00000000") ? combineNonceAndChainId(xDaiNonceOrTxHash, CHAIN.HOME.ID) : xDaiNonceOrTxHash;
 
   const tx = await context.Transaction.get(messageId);
   if (!tx) {
+    context.log.error(`XDAI Home: SignedForUserRequest Not found tx for messageId: ${messageId}`);
     return;
-    // const newTx = {
-    //   id: messageId,
-    //   bridgeType: BridgeTypeEnum.XDAI,
-    //   execution_id: undefined,
-    //   transactionStatus: TransactionStatusEnum.COLLECTING,
-    //   messageId: messageId,
-    //   nonce: xDaiNonceOrTxHash,
-
-    //   initiatorNetwork: CHAIN.FOREIGN.ID,    
-    //   receiverNetwork: CHAIN.HOME.ID,
-
-    //   initiator: undefined,
-    //   initiatorToken: undefined,
-    //   initiatorAmount: undefined,
-
-    //   receiver: undefined,
-    //   receiverToken: undefined,
-    //   receiverAmount: undefined,
-
-    //   timestamp: undefined,
-    //   transactionHash: undefined,
-    // }
-    // context.Transaction.set({...newTx});
   } else {
     const updatedTx = { ...tx, transactionStatus: TransactionStatusEnum.COLLECTING };
     
@@ -214,11 +208,12 @@ XDAIHome.SignedForUserRequest.handler(async ({ event, context }) => {
   }
 
   const signer = event.params.signer.toLowerCase();
-  const validator = await getValidator(context, signer);
+  const validator = await getValidator(context, signer, BridgeTypeEnum.XDAI);
   if (!validator) {
-    context.log.error(`XDAI Home: SignedForUserRequest - Validator ${signer} not found, nonce: ${xDaiNonceOrTxHash}`);
+    context.log.error(`XDAI Home: SignedForUserRequest - Validator ${signer} not found, nonce: ${xDaiNonceOrTxHash}, txHash: ${event.transaction.hash}`);
     return;
   }
+
   const updatedValidator: Validator = { ...validator, lastActivity: BigInt(event.block.timestamp) };
   context.Validator.set(updatedValidator);
 
@@ -242,9 +237,10 @@ XDAIHome.CollectedSignatures.handler(async ({ event, context }) => {
   // When a validator signs the transaction, the txHash used as id on 1 is not emitted.
   // We need to recover it by querying the xDai.message(messageHash) bridge contract method
   // using the messageHash emitted in this event.
-  const message = await context.effect(getHomeMessageByHash, {
+  const message = await context.effect(getMessageByHash, {
     address: event.srcAddress,
     messageHash: event.params.messageHash,
+    bridge: BridgeTypeEnum.XDAI,
   });
   if (!message) return;
 
@@ -254,30 +250,8 @@ XDAIHome.CollectedSignatures.handler(async ({ event, context }) => {
   const tx = await context.Transaction.get(messageId);
 
   if (!tx) {
+    context.log.error(`XDAI Home: CollectedSignatures Not found tx for messageId: ${messageId}`);
     return;
-    // const newTx = {
-    //   id: messageId,
-    //   bridgeType: BridgeTypeEnum.XDAI,
-    //   execution_id: undefined,
-    //   transactionStatus: TransactionStatusEnum.UNCLAIMED,
-    //   messageId: messageId,
-    //   nonce: xDaiNonceOrTxHash,
-
-    //   initiatorNetwork: CHAIN.HOME.ID,    
-    //   receiverNetwork: CHAIN.FOREIGN.ID,
-
-    //   initiator: undefined,
-    //   initiatorToken: undefined,
-    //   initiatorAmount: undefined,
-
-    //   receiver: undefined,
-    //   receiverToken: undefined,
-    //   receiverAmount: undefined,
-
-    //   timestamp: undefined,
-    //   transactionHash: undefined,
-    // }
-    // context.Transaction.set({...newTx});
   } else {
     if (tx.transactionStatus !== TransactionStatusEnum.COMPLETED) {
       const updatedTx = {
@@ -298,43 +272,10 @@ XDAIForeign.RelayedMessage.handler(async ({ event, context }) => {
     ? combineNonceAndChainId(txHashOrNonce, CHAIN.HOME.ID)
     : txHashOrNonce
 
-  // const executionId = messageId;
-  // const execution: TransactionExecution = {
-  //   id: executionId,
-  //   transaction_id: messageId,
-  //   transactionHash: event.transaction.hash,
-  //   timestamp: BigInt(event.block.timestamp),
-  //   executor_id: undefined,
-  //   executorAddress: undefined,
-  // };
-  // context.TransactionExecution.set(execution);
-
   const tx = await context.Transaction.get(messageId);
   if (!tx) {
+    context.log.error(`XDAI Foreign: RelayedMessage Not found tx for messageId: ${messageId}`);
     return;
-    // const newTx = {
-    //   id: messageId,
-    //   bridgeType: BridgeTypeEnum.XDAI,
-    //   execution_id: executionId,
-    //   transactionStatus: TransactionStatusEnum.COMPLETED,
-    //   messageId: messageId,
-    //   nonce: txHashOrNonce,
-
-    //   initiatorNetwork: CHAIN.HOME.ID,    
-    //   receiverNetwork: CHAIN.FOREIGN.ID,
-
-    //   initiator: undefined,
-    //   initiatorToken: undefined,
-    //   initiatorAmount: undefined,
-
-    //   receiver: undefined,
-    //   receiverToken: undefined,
-    //   receiverAmount: undefined,
-
-    //   timestamp: undefined,
-    //   transactionHash: undefined,
-    // }
-    // context.Transaction.set({...newTx});
   } else {
     const executionId = messageId;
 
@@ -344,13 +285,13 @@ XDAIForeign.RelayedMessage.handler(async ({ event, context }) => {
     let executorAddress: string | undefined = undefined;
 
     if (executor) {
-      const validator = await getValidator(context, executor);
+      const validator = await getValidator(context, executor, BridgeTypeEnum.XDAI);
       if (validator) {
         context.Validator.set({ ...validator, lastActivity: BigInt(event.block.timestamp) });
         executorId = validator.id;
         executorAddress = validator.address;
       } else {
-        // not a known validator from config; still record the executor address
+        // claiming can be done by anyone
         executorAddress = executor;
       }
     }

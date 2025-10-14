@@ -7,12 +7,12 @@ raw_events: true
 networks:
 # [Home] (Gnosis)
 - id: 100
-  start_block: 7904944
+  start_block: 39568341
+
   contracts:
   - name: XDAIHome
     address:
     - 0x7301CFA0e1756B71869E93d4e4Dca5c7d0eb0AA6
-    start_block: 39567805
     handler: src/eventHandlers/XDAI/index.ts
     events:
     # [XDAI Home -> Foreign]
@@ -71,7 +71,6 @@ networks:
   - name: AMBHome
     address:
     - 0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59
-    start_block: 39567805
     handler: src/eventHandlers/AMB/index.ts
     events:
     # [AMB Home -> Foreign]
@@ -122,7 +121,7 @@ networks:
     - 0xbe20f60339b06db32c319d46cf3bc9bacc0694ab
     - 0x68a64df7458a8eb2677991e657508fe00205332d
     - 0x5f0fe58709639a39c193521d919afaef02e570f7
-    start_block: 39567805
+    # start_block: 39567805
     handler: src/eventHandlers/AMB/index.ts
     events:
     - event: TokensBridgingInitiated(address indexed token, address indexed sender, uint256 value, bytes32 indexed messageId)
@@ -131,7 +130,6 @@ networks:
   - name: XDAIBridgeValidators
     address:
     - 0xB289f0e6fBDFf8EEE340498a56e1787B303F1B6D
-    start_block: 7904944
     handler: src/eventHandlers/validator.ts
     events:
     - event: ValidatorAdded(address indexed validator)
@@ -146,7 +144,6 @@ networks:
   - name: AMBBridgeValidators
     address:
     - 0xA280feD8D7CaD9a76C8b50cA5c33c2534fFa5008
-    start_block: 7904944
     handler: src/eventHandlers/validator.ts
     events:
     - event: ValidatorAdded(address indexed validator)

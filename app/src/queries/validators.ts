@@ -22,7 +22,7 @@ export const VALIDATORS_QUERY = gql`
 
 export const ENVIO_VALIDATORS_QUERY = `
   query EnvioValidators {
-    Validator(where: { removed: { _eq: false }, hashAdded: { _is_null: false } }) {
+    Validator(where: { removed: { _eq: false } }) {
       id
       name
       bridgeType
@@ -36,7 +36,7 @@ export const ENVIO_VALIDATORS_QUERY = `
 
 export const ENVIO_VALIDATORS_ACTIVITY_QUERY = `
   query EnvioValidatorsActivity($after: numeric!) {
-    Validator(where: { removed: { _eq: false }, hashAdded: { _is_null: false } }) {
+    Validator(where: { removed: { _eq: false } }) {
       address
       name
       bridgeType
