@@ -26,3 +26,5 @@ export const TransactionStatusEnum = {
   ERROR: "ERROR",
 } as const;
 export type TransactionStatusLiteral = (typeof TransactionStatusEnum)[keyof typeof TransactionStatusEnum];
+
+export const RPC_HOME = process.env.ENVIO_RPC_HOME || 'https://rpc.gnosischain.com' as `http${string}`;
