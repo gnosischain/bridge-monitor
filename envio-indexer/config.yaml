@@ -119,6 +119,15 @@ networks:
       - name: OmniBridgeHomeMediator
         address:
           - 0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d
+        # start_block: 39567805
+        handler: src/eventHandlers/AMB/index.ts
+        events:
+          - event: TokensBridgingInitiated(address indexed token, address indexed sender, uint256 value, bytes32 indexed messageId)
+          - event: TokensBridged(address indexed token, address indexed recipient, uint256 value, bytes32 indexed messageId)
+
+        # ERC677Bridge Mediators on Gnosis Chain (Home)
+      - name: ERC677BridgeHomeMediator
+        address:
           - 0xbed794745e2a0543ee609795ade87a55bbe935ba
           - 0xf75c28fe07e0647b05160288f172ad27cccd8f30
           - 0x0eeacdb0dd96588711581c5f3173dd55841b8e91
@@ -130,8 +139,8 @@ networks:
         # start_block: 39567805
         handler: src/eventHandlers/AMB/index.ts
         events:
-          - event: TokensBridgingInitiated(address indexed token, address indexed sender, uint256 value, bytes32 indexed messageId)
-          - event: TokensBridged(address indexed token, address indexed recipient, uint256 value, bytes32 indexed messageId)
+          - event: TokensBridgingInitiated(address indexed sender, uint256 value, bytes32 indexed messageId)
+          - event: TokensBridged(address indexed recipient, uint256 value, bytes32 indexed messageId)
 
       - name: XDAIBridgeValidators
         address:
@@ -239,6 +248,13 @@ networks:
       - name: OmniBridgeForeignMediator
         address:
           - 0x88ad09518695c6c3712AC10a214bE5109a655671
+        handler: src/eventHandlers/AMB/index.ts
+        events:
+          - event: TokensBridgingInitiated(address indexed token, address indexed sender, uint256 value, bytes32 indexed messageId)
+          - event: TokensBridged(address indexed token, address indexed recipient, uint256 value, bytes32 indexed messageId)
+      # ERC677Bridge Mediators on Ethereum (Foreign)
+      - name: ERC677BridgeForeignMediator
+        address:
           - 0xed7e6720ac8525ac1aeee710f08789d02cd87ecb
           - 0xe7228b4ebad37ba031a8b63473727f991e262dcd
           - 0x81a4833b3a40e7c61efe9d1a287343797993b1e8
@@ -249,5 +265,5 @@ networks:
           - 0x41a4ee2855a7dc328524babb07d7f505b201133e
         handler: src/eventHandlers/AMB/index.ts
         events:
-          - event: TokensBridgingInitiated(address indexed token, address indexed sender, uint256 value, bytes32 indexed messageId)
-          - event: TokensBridged(address indexed token, address indexed recipient, uint256 value, bytes32 indexed messageId)
+          - event: TokensBridgingInitiated (address indexed sender, uint256 value, bytes32 indexed messageId)
+          - event: TokensBridged (address indexed recipient, uint256 value, bytes32 indexed messageId)
