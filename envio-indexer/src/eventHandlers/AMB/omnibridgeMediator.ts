@@ -16,7 +16,6 @@ OmniBridgeHomeMediator.TokensBridgingInitiated.handler(async ({ event, context }
     context.AMBTransfer.set({
       id: messageId,
       messageId,
-      messageHash: undefined,
       token: token!,
       sender: sender,
       amount,
@@ -77,7 +76,6 @@ OmniBridgeHomeMediator.TokensBridged.handler(async ({ event, context }) => {
     context.AMBTransfer.set({
       id: messageId,
       messageId,
-      messageHash: undefined,
       token: token!,
       sender: undefined,
       amount,
@@ -117,7 +115,6 @@ OmniBridgeForeignMediator.TokensBridgingInitiated.handler(async ({ event, contex
     context.AMBTransfer.set({
       id: messageId,
       messageId,
-      messageHash: undefined,
       token: token!,
       sender: sender,
       amount,
@@ -178,7 +175,6 @@ OmniBridgeForeignMediator.TokensBridged.handler(async ({ event, context }) => {
     context.AMBTransfer.set({
       id: messageId,
       messageId,
-      messageHash: undefined,
       token: token!,
       sender: undefined,
       amount,

@@ -14,7 +14,7 @@ enum TransactionStatus {
 type Validator {
   id: ID!
   name: String
-  bridgeType: BridgeType 
+  bridgeType: BridgeType
   address: String!
   lastActivity: BigInt # Last time Validator Signed|Executed a Tx
   signed: [TransactionValidation!]! @derivedFrom(field: "validator") # tx signed (24hs)
@@ -75,15 +75,8 @@ type DaiOrUsdsTransfer {
 type AMBTransfer {
   id: ID!
   messageId: String!
-  messageHash: String
   token: String!
   sender: String
   recipient: String
   amount: BigInt
-}
-
-# One-way lookup for AMB signature events: messageHash -> messageId
-type AMBMessageHashLookup {
-  id: ID!         # messageHash
-  messageId: String!
 }

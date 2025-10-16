@@ -2,7 +2,8 @@ import { AMBForeign, AMBHome } from "generated";
 import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { getValidator } from "../../utils/getValidator";
 import { isOmniBridgeUsage, extractReceiverFromEncodedData, parseMessageIdFromEncodedData } from "../../utils/omnibridge";
-import { getMessageByHash } from "../../effects/getMessageByHash";
+import { decodeFunctionData, parseAbiItem } from 'viem'
+
 
 /**
  * AMB Home -> Foreign (GC -> ETH)
@@ -68,30 +69,16 @@ AMBHome.SignedForUserRequest.handler(async ({ event, context }) => {
   }
   context.Validator.set({ ...validator, lastActivity: BigInt(event.block.timestamp) });
 
-  // Resolve messageId for signature: lookup-first, effect-once fallback
-  const messageHash = event.params.messageHash;
+  // extract out the message frrom message
+  const rawInput = event.transaction.input as `0x${string}`;
+  const { functionName, args } = decodeFunctionData({
+    abi: [parseAbiItem("function submitSignature(bytes signature, bytes message)")],
+    data: rawInput
+  })
+  const message = args[1];
   let messageId: string | undefined;
-
-  const cached = await context.AMBMessageHashLookup.get(messageHash);
-  if (cached?.messageId) {
-    messageId = cached.messageId;
-  } else {
-    const encoded = await context.effect(getMessageByHash, {
-      address: event.srcAddress,
-      messageHash,
-      bridge: BridgeTypeEnum.AMB,
-    });
-    messageId = typeof encoded === "string" ? parseMessageIdFromEncodedData(encoded) : undefined;
-    if (messageId) {
-      // Cache mapping for future signatures (avoid effect)
-      context.AMBMessageHashLookup.set({ id: messageHash, messageId });
-      // Persist hash on transfer row
-      const amb = await context.AMBTransfer.get(messageId);
-      if (amb && !amb.messageHash) {
-        context.AMBTransfer.set({ ...amb, messageHash });
-      }
-    }
-  }
+   messageId = message.slice(0, 66);
+  
 
   if (messageId) {
     const tx = await context.Transaction.get(messageId);
@@ -126,22 +113,17 @@ AMBHome.CollectedSignatures.handler(async ({ event, context }) => {
   }
   context.Validator.set({ ...validator, lastActivity: BigInt(event.block.timestamp) });
 
-  // Also set transaction to UNCLAIMED (ready to execute) if not completed yet
-  const ch = await context.AMBMessageHashLookup.get(event.params.messageHash);
-  let messageId = ch?.messageId;
-  if (!messageId) {
-    const encoded = await context.effect(getMessageByHash, {
-      address: event.srcAddress,
-      messageHash: event.params.messageHash,
-      bridge: BridgeTypeEnum.AMB,
-    });
-    messageId = typeof encoded === "string" ? parseMessageIdFromEncodedData(encoded) : undefined;
-    if (messageId) {
-      context.AMBMessageHashLookup.set({ id: event.params.messageHash, messageId });
-      const amb = await context.AMBTransfer.get(messageId);
-      if (amb && !amb.messageHash) context.AMBTransfer.set({ ...amb, messageHash: event.params.messageHash });
-    }
-  }
+  // filter out message from input
+  const rawInput = event.transaction.input as `0x${string}`;
+  const { functionName, args } = decodeFunctionData({
+    abi: [parseAbiItem("function submitSignature(bytes signature, bytes message)")],
+    data: rawInput
+  })
+  const message = args[1];
+  let messageId: string | undefined;
+   messageId = message.slice(0, 66);
+  
+
   if (messageId) {
     const tx = await context.Transaction.get(messageId);
     if (tx && tx.transactionStatus !== TransactionStatusEnum.COMPLETED && tx.transactionStatus !== TransactionStatusEnum.ERROR) {

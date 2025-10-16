@@ -3,8 +3,8 @@ import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { ADDRESSES } from "../../addresses";
 import { combineNonceAndChainId } from "../../utils/combineNonceAndChainId";
 import { getValidator } from "../../utils/getValidator";
-import { getMessageByHash } from "../../effects/getMessageByHash";
 import { getHomeNonceOrTxHashFromMessageMethod } from "../../utils/getHomeNonceOrTxHashFromMessageMethod";
+import { decodeFunctionData, parseAbiItem } from 'viem'
 
 /**
  * XDAI Home -> Foreign (GC -> ETH)
@@ -180,15 +180,13 @@ XDAIHome.UserRequestForSignature.handler(async ({ event, context }) => {
 // 2 Validation. Validators sign transaction
 XDAIHome.SignedForUserRequest.handler(async ({ event, context }) => {
 
-  // on 1. we create the transaction entity with the txHash as id
-  // When a validator signs the transaction, the txHash used as id on 1 is not emitted.
-  // We need to recover it by querying the xDai.message(messageHash) bridge contract method
-  // using the messageHash emitted in this event.
-  const message = await context.effect(getMessageByHash, {
-    address: event.srcAddress,
-    messageHash: event.params.messageHash,
-    bridge: BridgeTypeEnum.XDAI,
-  });
+  const rawInput = event.transaction.input as `0x${string}`;
+  const { functionName, args } = decodeFunctionData({
+    abi: [parseAbiItem("function submitSignature(bytes signature, bytes message)")],
+    data: rawInput
+  })
+  const message = args[1];
+
   if (!message) {
     context.log.error(`XDAI Home: SignedForUserRequest Not found message for txHash: ${event.transaction.hash} and messageHash: ${event.params.messageHash}`);
     return;
@@ -233,16 +231,13 @@ XDAIHome.SignedForUserRequest.handler(async ({ event, context }) => {
 // 3 Ready to execute on Foreign (treshold signatures reached)
 // When this event happens, is possible to claim the tokens on the foreign network.
 XDAIHome.CollectedSignatures.handler(async ({ event, context }) => {
-  // on 1. we create the transaction entity with the txHash as id
-  // When a validator signs the transaction, the txHash used as id on 1 is not emitted.
-  // We need to recover it by querying the xDai.message(messageHash) bridge contract method
-  // using the messageHash emitted in this event.
-  const message = await context.effect(getMessageByHash, {
-    address: event.srcAddress,
-    messageHash: event.params.messageHash,
-    bridge: BridgeTypeEnum.XDAI,
-  });
-  if (!message) return;
+
+  const rawInput = event.transaction.input as `0x${string}`;
+  const { functionName, args } = decodeFunctionData({
+    abi: [parseAbiItem("function submitSignature(bytes signature, bytes message)")],
+    data: rawInput
+  })
+  const message = args[1];
 
   const xDaiNonceOrTxHash = getHomeNonceOrTxHashFromMessageMethod(message);
   const messageId = xDaiNonceOrTxHash.startsWith("0x00000000") ? combineNonceAndChainId(xDaiNonceOrTxHash, CHAIN.HOME.ID) : xDaiNonceOrTxHash;
