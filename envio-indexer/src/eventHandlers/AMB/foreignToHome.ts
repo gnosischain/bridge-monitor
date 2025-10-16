@@ -2,7 +2,6 @@ import { AMBForeign, AMBHome } from "generated";
 import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { getValidator } from "../../utils/getValidator";
 import { isOmniBridgeUsage, extractReceiverFromEncodedData, parseMessageIdFromEncodedData } from "../../utils/omnibridge";
-import { getMessageByHash } from "../../effects/getMessageByHash";
 
 /**
  * AMB Foreign -> Home (ETH -> GC)
@@ -68,30 +67,11 @@ AMBHome.SignedForAffirmation.handler(async ({ event, context }) => {
   }
   context.Validator.set({ ...validator, lastActivity: BigInt(event.block.timestamp) });
 
-  // Resolve messageId for signature: lookup-first, effect-once fallback
-  const messageHash = event.params.messageHash;
-  let messageId: string | undefined;
+  // function executeAffirmation(bytes message);
+  const message = event.transaction.input;
 
-  const cached = await context.AMBMessageHashLookup.get(messageHash);
-  if (cached?.messageId) {
-    messageId = cached.messageId;
-  } else {
-    const encoded = await context.effect(getMessageByHash, {
-      address: event.srcAddress,
-      messageHash,
-      bridge: BridgeTypeEnum.AMB,
-    });
-    messageId = typeof encoded === "string" ? parseMessageIdFromEncodedData(encoded) : undefined;
-    if (messageId) {
-      // Cache mapping for future signatures (avoid effect)
-      context.AMBMessageHashLookup.set({ id: messageHash, messageId });
-      // Persist the hash on AMBTransfer
-      const amb = await context.AMBTransfer.get(messageId);
-      if (amb && !amb.messageHash) {
-        context.AMBTransfer.set({ ...amb, messageHash });
-      }
-    }
-  }
+  const messageId = `0x${message.slice(138, 202)}`;
+
 
   if (messageId) {
     const tx = await context.Transaction.get(messageId);
@@ -112,14 +92,10 @@ AMBHome.SignedForAffirmation.handler(async ({ event, context }) => {
         context.Transaction.set({ ...tx, transactionStatus: TransactionStatusEnum.COLLECTING });
       }
 
-      // Persist the hash on AMBTransfer for future direct lookups
-      const amb = await context.AMBTransfer.get(messageId);
-      if (amb && !amb.messageHash) {
-        context.AMBTransfer.set({ ...amb, messageHash });
-      }
     }
   }
-});
+}
+);
 
 // [Home] Gnosis
 // 3. Execution. Validator executes transaction (complete Transaction)
