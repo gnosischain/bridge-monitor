@@ -118,6 +118,11 @@ export const TokenOut: React.FC<{
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const tokenOutAmount = formatUnits(amount.sub(feeInfo!), tokenOut?.decimals)
 
+    const handleSwitchDaiUsds = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSelectedXDaiToken(event.target.value)
+      onReceiveUsdsChange(event.target.value === 'USDS')
+    }
+
     return (
       <>
         {showNativeTokenSwitcher ? (
@@ -132,10 +137,7 @@ export const TokenOut: React.FC<{
           />
         ) : showXDaiSwitcher ? (
           <ReceiveTokenSwitcher
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              setSelectedXDaiToken(event.target.value)
-              onReceiveUsdsChange(event.target.value === 'USDS')
-            }}
+            onChange={handleSwitchDaiUsds}
             options={xdaiOptions}
             optionsId="xdaiOptions"
             value={selectedXDaiToken}
