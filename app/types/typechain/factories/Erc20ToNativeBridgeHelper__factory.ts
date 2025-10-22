@@ -11,45 +11,9 @@ import type {
 
 const _abi = [
   {
+    constant: true,
     inputs: [
       {
-        internalType: "address",
-        name: "_homeBridge",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_foreignBridge",
-        type: "address",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "constructor",
-  },
-  {
-    inputs: [],
-    name: "bridge",
-    outputs: [
-      {
-        internalType: "contract IHomeErc20ToNativeBridge",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "clean",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
         name: "_msgHash",
         type: "bytes32",
       },
@@ -57,28 +21,26 @@ const _abi = [
     name: "getMessage",
     outputs: [
       {
-        internalType: "bytes",
         name: "result",
         type: "bytes",
       },
     ],
+    payable: false,
     stateMutability: "view",
     type: "function",
   },
   {
+    constant: true,
     inputs: [
       {
-        internalType: "address",
         name: "_recipient",
         type: "address",
       },
       {
-        internalType: "uint256",
         name: "_value",
         type: "uint256",
       },
       {
-        internalType: "bytes32",
         name: "_origTxHash",
         type: "bytes32",
       },
@@ -86,18 +48,46 @@ const _abi = [
     name: "getMessageHash",
     outputs: [
       {
-        internalType: "bytes32",
         name: "",
         type: "bytes32",
       },
     ],
+    payable: false,
     stateMutability: "view",
     type: "function",
   },
   {
+    constant: true,
+    inputs: [],
+    name: "foreignBridge",
+    outputs: [
+      {
+        name: "",
+        type: "address",
+      },
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        name: "",
+        type: "address",
+      },
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    constant: true,
     inputs: [
       {
-        internalType: "bytes32",
         name: "_msgHash",
         type: "bytes32",
       },
@@ -105,13 +95,82 @@ const _abi = [
     name: "getSignatures",
     outputs: [
       {
-        internalType: "bytes",
         name: "",
         type: "bytes",
       },
     ],
+    payable: false,
     stateMutability: "view",
     type: "function",
+  },
+  {
+    constant: true,
+    inputs: [
+      {
+        name: "_recipient",
+        type: "address",
+      },
+      {
+        name: "_value",
+        type: "uint256",
+      },
+      {
+        name: "_nonce",
+        type: "bytes32",
+      },
+      {
+        name: "_token",
+        type: "address",
+      },
+    ],
+    name: "getMessageHash",
+    outputs: [
+      {
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: "bridge",
+    outputs: [
+      {
+        name: "",
+        type: "address",
+      },
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    constant: false,
+    inputs: [],
+    name: "clean",
+    outputs: [],
+    payable: false,
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        name: "_homeBridge",
+        type: "address",
+      },
+      {
+        name: "_foreignBridge",
+        type: "address",
+      },
+    ],
+    payable: false,
+    stateMutability: "nonpayable",
+    type: "constructor",
   },
 ] as const;
 

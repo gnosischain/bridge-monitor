@@ -9,7 +9,10 @@ import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { Transaction } from '@/src/utils/transactions'
 import {
   AMBBridgeHelper__factory,
+  Erc20ToNativeBridgeHelper,
   Erc20ToNativeBridgeHelper__factory,
+  Erc20ToNativeBridgeHelper_beforeUSDSMigration,
+  Erc20ToNativeBridgeHelper_beforeUSDSMigration__factory,
   ForeignAMB,
   ForeignBridgeRouter,
   ForeignBridgeRouter__factory,
@@ -20,6 +23,7 @@ import { WalletState } from '@web3-onboard/core'
 import { useState } from 'react'
 import styled from 'styled-components'
 import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
+import { useIsUsdsEnabled } from '@/src/hooks/contracts/useIsUsdsEnabled'
 
 const Wrapper = styled.button`
   align-items: center;
@@ -65,9 +69,12 @@ export const ClaimButton = ({
   const { appChainId, connectWallet, isWalletConnected, isWalletNetworkSupported, pushNetwork } =
     useWeb3Connection()
   const [isWorking, setIsWorking] = useState(false)
+  const isUsdsEnabled = useIsUsdsEnabled()
   const erc20ToNativeBridgeHelper = useContractInstance(
-    Erc20ToNativeBridgeHelper__factory,
-    'BridgeHelper',
+    isUsdsEnabled
+      ? Erc20ToNativeBridgeHelper__factory
+      : Erc20ToNativeBridgeHelper_beforeUSDSMigration__factory,
+    isUsdsEnabled ? 'BridgeHelper' : 'BridgeHelper__beforeUsdsMigration',
     Chains.gnosis,
   )
 
@@ -78,6 +85,7 @@ export const ClaimButton = ({
   )
 
   const sendTx = useTransaction({ skipConnectionCheck: true })
+
   const isXDAI = transaction.bridgeName.toUpperCase() === 'XDAI'
 
   const getClaimTx = async (
@@ -96,11 +104,13 @@ export const ClaimButton = ({
         ? '0x00000000' + transaction.id.substring(10)
         : transaction.transactionHash
 
-      const messageHash = await erc20ToNativeBridgeHelper.getMessageHash(
-        transaction.receiver,
-        transaction.receiverAmount,
-        modifiedId,
-      )
+      const messageHash = await (isUsdsEnabled
+        ? (erc20ToNativeBridgeHelper as Erc20ToNativeBridgeHelper)[
+            'getMessageHash(address,uint256,bytes32,address)'
+          ](transaction.receiver, transaction.receiverAmount, modifiedId, transaction.receiverToken)
+        : (
+            erc20ToNativeBridgeHelper as Erc20ToNativeBridgeHelper_beforeUSDSMigration
+          ).getMessageHash(transaction.receiver, transaction.receiverAmount, modifiedId))
       const [message, signatures] = await Promise.all([
         erc20ToNativeBridgeHelper.getMessage(messageHash),
         erc20ToNativeBridgeHelper.getSignatures(messageHash),
