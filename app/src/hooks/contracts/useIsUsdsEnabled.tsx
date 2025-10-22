@@ -19,8 +19,6 @@ export const useIsUsdsEnabled = () => {
     typeof erc20AddressCalls
   >(erc20AddressCalls, [[]], 'foreignXDAIContext')
 
-  console.log('foreignXDAIContext', foreignXDAIContext)
-
   const isUsdsEnabled = useMemo(
     () => isSameString(foreignXDAIContext?.[0], USDS_ADDRESS),
     [foreignXDAIContext],

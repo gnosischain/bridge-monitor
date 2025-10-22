@@ -93,8 +93,6 @@ export const TokenOut: React.FC<{
     })
 
     const isUsdsEnabled = useIsUsdsEnabled()
-    console.log('isUsdsEnabled', isUsdsEnabled)
-
     const xdaiOptions = [
       {
         icon: '/images/icons/dai.svg',

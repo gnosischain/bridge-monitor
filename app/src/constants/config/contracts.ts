@@ -1,5 +1,6 @@
 import XDAI_abi from '@/src/abis/HomeBridgeErcToNative.json' // TODO: maybe we can unified the names of the ABI files too.
 import OMNI_abi from '@/src/abis/HomeOmniMediator.json' // TODO: maybe we can unified the names of the ABI files too.
+import BridgeHelper_beforeUsdsMigration_abi from '@/src/abis/Erc20ToNativeBridgeHelper_beforeUSDSMigration.json'
 import BridgeHelper_abi from '@/src/abis/Erc20ToNativeBridgeHelper.json'
 import AMB_abi from '@/src/abis/HomeAMB.json' // TODO: maybe we can unified the names of the ABI files too.
 import OMNI_FEE_MANAGER_abi from '@/src/abis/OmniBridgeFeeManager.json'
@@ -54,10 +55,17 @@ export const contracts = {
     },
     abi: OMNI_FEE_MANAGER_abi,
   },
-  BridgeHelper: {
+  BridgeHelper__beforeUsdsMigration: {
     address: {
       [Chains.mainnet]: '',
       [Chains.gnosis]: '0x2D51EAa266eafcb59bB36dD3c7E99C515e58113A',
+    },
+    abi: BridgeHelper_beforeUsdsMigration_abi,
+  },
+  BridgeHelper: {
+    address: {
+      [Chains.mainnet]: '',
+      [Chains.gnosis]: '0xe30269bc61E677cD60aD163a221e464B7022fbf5',
     },
     abi: BridgeHelper_abi,
   },
