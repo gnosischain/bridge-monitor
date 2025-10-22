@@ -135,6 +135,7 @@ export const BridgeButton: React.FC<BridgeButtonProps> = ({
       receiveNativeToken={receiveNativeToken}
       recipient={recipientAddress}
       toChainId={toChainId}
+      toToken={toToken}
       token={fromToken}
       userAddress={userAddress}
     />

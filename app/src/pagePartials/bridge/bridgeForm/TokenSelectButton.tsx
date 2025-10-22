@@ -56,10 +56,17 @@ interface Props extends InputHTMLAttributes<HTMLInputElement> {
   label: string
 }
 
-export const TokenSelectButton: React.FC<Props> = ({ disabled, icon, id, label, ...restProps }) => {
+export const TokenSelectButton: React.FC<Props> = ({
+  disabled,
+  icon,
+  id,
+  label,
+  name,
+  ...restProps
+}) => {
   return (
     <Wrapper disabled={disabled}>
-      <Input id={id} name="radio" type="radio" {...restProps} />
+      <Input id={id} name={name} type="radio" {...restProps} />
       <Checkmark>
         <TokenIcon dimensions={24} iconSource={icon} symbol={label} />
         {label}

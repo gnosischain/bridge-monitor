@@ -5,6 +5,7 @@ import AMB_abi from '@/src/abis/HomeAMB.json' // TODO: maybe we can unified the 
 import OMNI_FEE_MANAGER_abi from '@/src/abis/OmniBridgeFeeManager.json'
 import AMBBridgeHelper_abi from '@/src/abis/AMBBridgeHelper.json'
 import NativeOmniBridgeMediator_abi from '@/src/abis/NativeOmniBridgeMediator.json'
+import USDSDeposit_abi from '@/src/abis/USDSdeposit.json'
 import ERC20_abi from '@/src/abis/ERC20.json'
 import { Chains } from '@/src/constants/config/types'
 
@@ -72,6 +73,13 @@ export const contracts = {
       [Chains.mainnet]: '0x9a873656c19Efecbfb4f9FAb5B7acdeAb466a0B0',
       [Chains.gnosis]: '',
     },
+  },
+  USDSDeposit: {
+    address: {
+      [Chains.mainnet]: '',
+      [Chains.gnosis]: '0x5C183C8A49aBA6e31049997a56D75600E27FF8c9',
+    },
+    abi: USDSDeposit_abi,
   },
 } as const
 
