@@ -3,7 +3,6 @@ import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { combineNonceAndChainId } from "../../utils/combineNonceAndChainId";
 import { ADDRESSES } from "../../addresses";
 import { getValidator } from "../../utils/getValidator";
-
 /**
  * XDAI Foreign -> Home (ETH -> GC)
  * Flow:
@@ -19,7 +18,7 @@ import { getValidator } from "../../utils/getValidator";
 // 0. DAI transfer, to keep sender and sender token
 DAI.Transfer.handler(async ({ event, context }) => {
   const txHash = event.transaction.hash;
-  const sender = event.params.from;
+  const sender = event.params.from.toLowerCase();
 
   const tx = await context.DaiOrUsdsTransfer.get(txHash);
   if (!tx) {
@@ -37,7 +36,7 @@ DAI.Transfer.handler(async ({ event, context }) => {
   if (maybeTx) {
     const updated = {
       ...maybeTx,
-      initiator: maybeTx.initiator ?? sender,
+      initiator: maybeTx.initiator?.toLowerCase() ?? sender,
       initiatorToken: maybeTx.initiatorToken ?? event.srcAddress,
       // amount is set from bridge event; do not override here
     };
@@ -55,7 +54,7 @@ DAI.Transfer.handler(async ({ event, context }) => {
 // 0. USDS transfer, to keep sender and sender token
 USDS.Transfer.handler(async ({ event, context }) => {
   const txHash = event.transaction.hash;
-  const sender = event.params.from;
+  const sender = event.params.from.toLowerCase();
 
   const tx = await context.DaiOrUsdsTransfer.get(txHash);
   if (!tx) {
@@ -73,7 +72,7 @@ USDS.Transfer.handler(async ({ event, context }) => {
   if (maybeTx) {
     const updated = {
       ...maybeTx,
-      initiator: maybeTx.initiator ?? sender,
+      initiator: maybeTx.initiator?.toLowerCase() ?? sender,
       initiatorToken: maybeTx.initiatorToken ?? event.srcAddress,
       // amount is set from bridge event; do not override here
     };
@@ -94,7 +93,10 @@ XDAIForeign.UserRequestForAffirmation_NoNonce.handler(async ({ event, context })
   const txHash = event.transaction.hash;
 
   const transferTx = await context.DaiOrUsdsTransfer.get(txHash);
-  const initiator = transferTx?.sender;
+  if (!transferTx) {
+    return;
+  };
+  const initiator = transferTx?.sender?.toLowerCase();
   const initiatorToken = transferTx?.token;
 
   const tx = await context.Transaction.get(txHash);
@@ -115,7 +117,7 @@ XDAIForeign.UserRequestForAffirmation_NoNonce.handler(async ({ event, context })
       initiatorAmount: event.params.value,
       
       receiverNetwork: CHAIN.HOME.ID,
-      receiver: event.params.recipient,
+      receiver: event.params.recipient.toLowerCase(),
       receiverToken: ADDRESSES.HOME.XDAI_TOKEN,
       receiverAmount: event.params.value,
     }
@@ -134,7 +136,10 @@ XDAIForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
   const txHash = event.transaction.hash;
 
   const transferTx = await context.DaiOrUsdsTransfer.get(txHash);
-  const initiator = transferTx?.sender;
+  if (!transferTx) {
+    return;
+  };
+  const initiator = transferTx?.sender?.toLowerCase();
   const initiatorToken = transferTx?.token;
 
   const nonce = event.params.nonce;
@@ -158,7 +163,7 @@ XDAIForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
       initiatorAmount: event.params.value,
       
       receiverNetwork: CHAIN.HOME.ID,
-      receiver: event.params.recipient,
+      receiver: event.params.recipient.toLowerCase(),
       receiverToken: ADDRESSES.HOME.XDAI_TOKEN,
       receiverAmount: event.params.value,
     }

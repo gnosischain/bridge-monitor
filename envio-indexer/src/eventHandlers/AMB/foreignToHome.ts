@@ -43,12 +43,12 @@ AMBForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
       execution_id: undefined,
 
       initiatorNetwork: CHAIN.FOREIGN.ID,
-      initiator: transfer?.sender,
+      initiator: transfer?.sender?.toLowerCase(),
       initiatorToken: transfer?.token,
       initiatorAmount: transfer?.amount,
 
       receiverNetwork: CHAIN.HOME.ID,
-      receiver: receiver,
+      receiver: receiver?.toLowerCase(),
       receiverToken: transfer?.token,
       receiverAmount: transfer?.amount,
     };
@@ -81,7 +81,7 @@ AMBHome.SignedForAffirmation.handler(async ({ event, context }) => {
         id: validationId,
         transaction_id: messageId,
         validator_id: validator.id,
-        validatorAddress: validator.address,
+        validatorAddress: validator.address.toLowerCase(),
         transactionHash: event.transaction.hash,
         timestamp: BigInt(event.block.timestamp),
       };
@@ -120,7 +120,7 @@ AMBHome.AffirmationCompleted.handler(async ({ event, context }) => {
     if (validator) {
       context.Validator.set({ ...validator, lastActivity: BigInt(timestamp) });
       executorId = validator.id;
-      executorAddress = validator.address;
+      executorAddress = validator.address.toLowerCase();
     } else {
       context.log.error(`AMB: AffirmationCompleted - Validator ${executorAddr} not found, tx hash: ${event.transaction.hash}`);
     }
@@ -150,13 +150,13 @@ AMBHome.AffirmationCompleted.handler(async ({ event, context }) => {
       execution_id: executionId,
 
       initiatorNetwork: CHAIN.FOREIGN.ID,
-      initiator: transfer.sender,
-      initiatorToken: transfer.token,
+      initiator: transfer?.sender?.toLowerCase(),
+      initiatorToken: transfer?.token,
       initiatorAmount: transfer.amount,
 
       receiverNetwork: CHAIN.HOME.ID,
-      receiver: transfer.recipient,
-      receiverToken: transfer.token,
+      receiver: transfer?.recipient?.toLowerCase(),
+      receiverToken: transfer?.token,
       receiverAmount: transfer.amount,
     };
     context.Transaction.set(newTx);
@@ -165,11 +165,11 @@ AMBHome.AffirmationCompleted.handler(async ({ event, context }) => {
       ...tx,
       transactionStatus: status ? TransactionStatusEnum.COMPLETED : TransactionStatusEnum.ERROR,
       execution_id: executionId,
-      receiver: transfer.recipient ?? tx.receiver,
-      receiverToken: transfer.token ?? tx.receiverToken,
+      receiver: transfer?.recipient?.toLowerCase() ?? tx.receiver?.toLowerCase(),
+      receiverToken: transfer?.token ?? tx.receiverToken,
       receiverAmount: transfer.amount ?? tx.receiverAmount,
-      initiator: tx.initiator ?? transfer.sender,
-      initiatorToken: tx.initiatorToken ?? transfer.token,
+      initiator: tx.initiator ?? transfer?.sender?.toLowerCase(),
+      initiatorToken: tx.initiatorToken ?? transfer?.token,
       initiatorAmount: tx.initiatorAmount ?? transfer.amount,
       nonce: tx.nonce ?? messageId,
     };
