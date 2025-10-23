@@ -93,6 +93,9 @@ XDAIForeign.UserRequestForAffirmation_NoNonce.handler(async ({ event, context })
   const txHash = event.transaction.hash;
 
   const transferTx = await context.DaiOrUsdsTransfer.get(txHash);
+  if (!transferTx) {
+    return;
+  };
   const initiator = transferTx?.sender?.toLowerCase();
   const initiatorToken = transferTx?.token;
 
@@ -133,6 +136,9 @@ XDAIForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
   const txHash = event.transaction.hash;
 
   const transferTx = await context.DaiOrUsdsTransfer.get(txHash);
+  if (!transferTx) {
+    return;
+  };
   const initiator = transferTx?.sender?.toLowerCase();
   const initiatorToken = transferTx?.token;
 
