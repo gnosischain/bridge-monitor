@@ -13,6 +13,7 @@ import { contracts } from '@/src/constants/config/contracts'
 import { USDC_ETHEREUM, USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
 import { usdcTokens } from '@/src/constants/usdcTokens'
 import { xdaiToken } from '@/src/constants/xdaiToken'
+import { usdsToken } from '@/src/constants/usdsToken'
 /**
  * Retrieves information about the received token based on the provided parameters.
  * @param amount The amount of the token.
@@ -141,6 +142,10 @@ export const useBridgeTokenOutInfo = ({
       ? [token, fromChainId, toChainId, receiveNativeToken, receiveUsds, 'bridgeTokenOut']
       : null,
     async ([_token, _fromChainId, _toChainId, _receiveNativeToken, _receiveUsds]) => {
+      if (_receiveUsds && _fromChainId === Chains.gnosis) {
+        return usdsToken
+      }
+
       if (
         _fromChainId === Chains.mainnet &&
         _toChainId === Chains.gnosis &&

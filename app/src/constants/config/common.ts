@@ -5,7 +5,6 @@ export const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ''
 
 export const RPC_MAINNET = process.env.NEXT_PUBLIC_RPC_MAINNET || ''
 export const RPC_GNOSIS = process.env.NEXT_PUBLIC_RPC_GNOSIS || ''
-export const RPC_CHIADO = process.env.NEXT_PUBLIC_RPC_CHIADO || ''
 
 export const WALLET_CONNECT_DAPP_URL = process.env.NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL || ''
 export const WALLET_CONNECT_PROJECT_ID = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || ''

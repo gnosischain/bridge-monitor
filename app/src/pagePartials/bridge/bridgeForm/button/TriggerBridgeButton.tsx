@@ -20,6 +20,7 @@ interface TriggerBridgeButtonProps {
   amount: BigNumber
   recipient: string
   receiveNativeToken: boolean
+  toToken?: Token
 }
 
 export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
@@ -28,6 +29,7 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
   receiveNativeToken,
   recipient,
   toChainId,
+  toToken,
   token,
   userAddress,
 }) => {
@@ -43,6 +45,7 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
     amount,
     recipient,
     token,
+    toToken,
   })
 
   if (!transactionData) throw new Error('Transaction data is not available')

@@ -1,6 +1,6 @@
 import { chainsConfig } from '@/src/constants/config/chains'
 import { ChainsValues } from '@/src/constants/config/types'
-import { ZERO_ADDRESS } from '@/src/constants/misc'
+import { EURCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { TokenOverrideManager } from '@/src/utils/token-overrides'
 import { Token } from '@/types/token'
@@ -8,6 +8,7 @@ import { HomeOmniMediator__factory } from '@/types/typechain'
 import useSWR from 'swr/immutable'
 import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { contracts } from '@/src/constants/config/contracts'
+import { isSameString } from '@/src/utils/tools'
 
 // This hook is used to determine what kind of token is being used in the bridge.
 // Depends on the result we can detect what method we should use to transfer the token to the bridge contract.
@@ -29,6 +30,10 @@ export const useTokenMode = (fromChainId: ChainsValues, toChainId: ChainsValues,
     shouldFetch ? ['tokenMode', token] : null,
     async ([, _token]) => {
       try {
+        if (isSameString(_token.address, EURCe_GNOSIS)) {
+          return 'ERC20'
+        }
+
         const omniBridge = HomeOmniMediator__factory.connect(
           contracts.OmniBridge.address[fromChainId],
           new JsonRpcBatchProvider(chainsConfig[fromChainId].rpcUrl),

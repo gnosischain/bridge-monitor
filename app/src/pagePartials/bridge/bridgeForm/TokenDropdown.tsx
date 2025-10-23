@@ -24,6 +24,7 @@ import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { fromBN } from '@/src/utils/bigNumber'
 import { formatNumber } from '@/src/utils/format'
 import { usdsToken } from '@/src/constants/usdsToken'
+import { xdaiToken } from '@/src/constants/xdaiToken'
 
 const BaseChevronDown = ({ ...restProps }) => (
   <svg
@@ -373,6 +374,7 @@ const Dropdown: React.FC<Props> = ({
 
     // Sort the filtered tokens according to their position in the _tokens array
     const orderedTokens = [
+      ...(fromChainId === Chains.gnosis ? [xdaiToken] : []),
       ...(fromChainId === Chains.mainnet ? [usdsToken] : []),
       ...filteredTokens
         .sort(

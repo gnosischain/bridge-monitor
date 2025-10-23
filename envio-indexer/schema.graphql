@@ -1,0 +1,82 @@
+enum BridgeType {
+  XDAI
+  AMB
+}
+
+enum TransactionStatus {
+  INITIATED
+  COLLECTING
+  UNCLAIMED
+  COMPLETED
+  ERROR
+}
+
+type Validator {
+  id: ID!
+  name: String
+  bridgeType: BridgeType
+  address: String!
+  lastActivity: BigInt # Last time Validator Signed|Executed a Tx
+  signed: [TransactionValidation!]! @derivedFrom(field: "validator") # tx signed (24hs)
+  executed: [TransactionExecution!]! @derivedFrom(field: "executor") # tx executed (24hs)
+  hashAdded: String
+  hashRemoved: String
+  removed: Boolean
+}
+
+type Transaction {
+  id: ID!
+  messageId: String
+  nonce: String
+  transactionHash: String
+  timestamp: BigInt
+  bridgeType: BridgeType!
+
+  initiatorNetwork: Int!
+  initiator: String
+  initiatorToken: String
+  initiatorAmount: BigInt
+
+  receiverNetwork: Int!
+  receiver: String
+  receiverToken: String
+  receiverAmount: BigInt
+
+  transactionStatus: TransactionStatus
+  validations: [TransactionValidation!]! @derivedFrom(field: "transaction")
+  execution: TransactionExecution
+}
+
+type TransactionValidation {
+  id: ID!
+  transaction: Transaction!
+  transactionHash: String
+  validator: Validator!
+  validatorAddress: String
+  timestamp: BigInt!
+}
+
+type TransactionExecution {
+  id: ID!
+  transaction: Transaction!
+  transactionHash: String!
+  timestamp: BigInt!
+  executor: Validator
+  executorAddress: String
+}
+
+type DaiOrUsdsTransfer {
+  id: ID!
+  transactionHash: String!
+  sender: String!
+  token: String!
+}
+
+type AMBTransfer {
+  id: ID!
+  messageId: String!
+  token: String!
+  sender: String
+  recipient: String
+  amount: BigInt
+}

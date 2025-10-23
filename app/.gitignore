@@ -43,3 +43,5 @@ yarn-error.log*
 
 # types/generated/
 # types/typechain/
+
+.yarn/
