@@ -1,8 +1,7 @@
 import { OmniBridgeForeignMediator, OmniBridgeHomeMediator, ERC677BridgeHomeMediator, ERC677BridgeForeignMediator } from "generated";
 import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { getTokenForBridge } from "../../utils/erc677TokenMapping";
-// Normalize to lowercase hex string
-const toLower = (v?: string) => (typeof v === "string" ? v.toLowerCase() : v);
+import { toLower } from "../../utils/toLower";
 
 // [Home] Gnosis - OmniBridge Mediator
 OmniBridgeHomeMediator.TokensBridgingInitiated.handler(async ({ event, context }) => {
@@ -35,8 +34,8 @@ OmniBridgeHomeMediator.TokensBridgingInitiated.handler(async ({ event, context }
   if (tx) {
     const updated = {
       ...tx,
-      initiator: tx.initiator ?? sender,
-      initiatorToken: tx.initiatorToken ?? token!,
+      initiator: tx.initiator?.toLowerCase() ?? sender?.toLowerCase(),
+      initiatorToken: tx.initiatorToken?.toLowerCase() ?? token!.toLowerCase(),
       initiatorAmount: tx.initiatorAmount ?? amount,
     };
     context.Transaction.set(updated);
@@ -52,13 +51,13 @@ OmniBridgeHomeMediator.TokensBridgingInitiated.handler(async ({ event, context }
       execution_id: undefined,
 
       initiatorNetwork: CHAIN.HOME.ID,
-      initiator: sender,
-      initiatorToken: token!,
+      initiator: sender?.toLowerCase(),
+      initiatorToken: token!.toLowerCase(),
       initiatorAmount: amount,
 
       receiverNetwork: CHAIN.FOREIGN.ID,
       receiver: undefined,
-      receiverToken: token!,
+      receiverToken: token!.toLowerCase(),
       receiverAmount: amount,
     };
     context.Transaction.set(newTx as any);
@@ -162,7 +161,7 @@ OmniBridgeHomeMediator.TokensBridged.handler(async ({ event, context }) => {
   if (tx) {
     const updated = {
       ...tx,
-      receiver: tx.receiver ?? recipient,
+      receiver: tx.receiver?.toLowerCase() ?? recipient?.toLowerCase(),
       receiverToken: tx.receiverToken ?? token!,
       receiverAmount: tx.receiverAmount ?? amount,
     };
@@ -205,7 +204,7 @@ if (!token) {
   if (tx) {
     const updated = {
       ...tx,
-      receiver: tx.receiver ?? recipient,
+      receiver: tx.receiver?.toLowerCase() ?? recipient,
       receiverToken: tx.receiverToken ?? token!,
       receiverAmount: tx.receiverAmount ?? amount,
     };
@@ -243,7 +242,7 @@ OmniBridgeForeignMediator.TokensBridgingInitiated.handler(async ({ event, contex
   if (tx) {
     const updated = {
       ...tx,
-      initiator: tx.initiator ?? sender,
+      initiator: tx.initiator?.toLowerCase() ?? sender,
       initiatorToken: tx.initiatorToken ?? token!,
       initiatorAmount: tx.initiatorAmount ?? amount,
     };
@@ -307,7 +306,7 @@ if (!token) {
   if (tx) {
     const updated = {
       ...tx,
-      initiator: tx.initiator ?? sender,
+      initiator: tx.initiator?.toLowerCase() ?? sender,
       initiatorToken: tx.initiatorToken ?? token!,
       initiatorAmount: tx.initiatorAmount ?? amount,
     };
@@ -368,7 +367,7 @@ OmniBridgeForeignMediator.TokensBridged.handler(async ({ event, context }) => {
   if (tx) {
     const updated = {
       ...tx,
-      receiver: tx.receiver ?? recipient,
+      receiver: tx.receiver?.toLowerCase() ?? recipient,
       receiverToken: tx.receiverToken ?? token!,
       receiverAmount: tx.receiverAmount ?? amount,
     };
@@ -412,7 +411,7 @@ if (!token) {
   if (tx) {
     const updated = {
       ...tx,
-      receiver: tx.receiver ?? recipient,
+      receiver: tx.receiver?.toLowerCase() ?? recipient,
       receiverToken: tx.receiverToken ?? token!,
       receiverAmount: tx.receiverAmount ?? amount,
     };

@@ -36,12 +36,12 @@ XDAIHome.UserRequestForSignature_NoNonceNoToken.handler(async ({ event, context 
       timestamp: BigInt(event.block.timestamp),
 
       initiatorNetwork: CHAIN.HOME.ID,
-      initiator: event.transaction.from,
+      initiator: event.transaction.from?.toLowerCase(),
       initiatorToken: ADDRESSES.HOME.XDAI_TOKEN,
       initiatorAmount: event.params.value,
       
       receiverNetwork: CHAIN.FOREIGN.ID,
-      receiver: event.params.recipient,
+      receiver: event.params.recipient?.toLowerCase(),
       receiverToken: ADDRESSES.FOREIGN.DAI_TOKEN,
       receiverAmount: event.params.value,
     }
@@ -57,12 +57,12 @@ XDAIHome.UserRequestForSignature_NoNonceNoToken.handler(async ({ event, context 
       timestamp: BigInt(event.block.timestamp),
 
       initiatorNetwork: CHAIN.HOME.ID,
-      initiator: event.transaction.from,
+      initiator: event.transaction.from?.toLowerCase(),
       initiatorToken: ADDRESSES.HOME.XDAI_TOKEN,
       initiatorAmount: event.params.value,
       
       receiverNetwork: CHAIN.FOREIGN.ID,
-      receiver: event.params.recipient,
+      receiver: event.params.recipient?.toLowerCase(),
       receiverToken: ADDRESSES.FOREIGN.DAI_TOKEN,
       receiverAmount: event.params.value
     }
@@ -89,12 +89,12 @@ XDAIHome.UserRequestForSignature_WithNonceNoToken.handler(async ({ event, contex
       timestamp: BigInt(event.block.timestamp),
 
       initiatorNetwork: CHAIN.HOME.ID,
-      initiator: event.transaction.from,
+      initiator: event.transaction.from?.toLowerCase(),
       initiatorToken: ADDRESSES.HOME.XDAI_TOKEN,
       initiatorAmount: event.params.value,
       
       receiverNetwork: CHAIN.FOREIGN.ID,
-      receiver: event.params.recipient,
+      receiver: event.params.recipient?.toLowerCase(),
       receiverToken: ADDRESSES.FOREIGN.DAI_TOKEN,
       receiverAmount: event.params.value,
     }
@@ -110,12 +110,12 @@ XDAIHome.UserRequestForSignature_WithNonceNoToken.handler(async ({ event, contex
       timestamp: BigInt(event.block.timestamp),
 
       initiatorNetwork: CHAIN.HOME.ID,
-      initiator: event.transaction.from,
+      initiator: event.transaction.from?.toLowerCase(),
       initiatorToken: ADDRESSES.HOME.XDAI_TOKEN,
       initiatorAmount: event.params.value,
       
       receiverNetwork: CHAIN.FOREIGN.ID,
-      receiver: event.params.recipient,
+      receiver: event.params.recipient?.toLowerCase(),
       receiverToken: ADDRESSES.FOREIGN.DAI_TOKEN,
       receiverAmount: event.params.value
     }
@@ -142,12 +142,12 @@ XDAIHome.UserRequestForSignature.handler(async ({ event, context }) => {
       timestamp: BigInt(event.block.timestamp),
 
       initiatorNetwork: CHAIN.HOME.ID,
-      initiator: event.transaction.from,
+      initiator: event.transaction.from?.toLowerCase(),
       initiatorToken: ADDRESSES.HOME.XDAI_TOKEN,
       initiatorAmount: event.params.value,
       
       receiverNetwork: CHAIN.FOREIGN.ID,
-      receiver: event.params.recipient,
+      receiver: event.params.recipient?.toLowerCase(),
       receiverToken: event.params.token,
       receiverAmount: event.params.value,
     }
@@ -163,12 +163,12 @@ XDAIHome.UserRequestForSignature.handler(async ({ event, context }) => {
       timestamp: BigInt(event.block.timestamp),
 
       initiatorNetwork: CHAIN.HOME.ID,
-      initiator: event.transaction.from,
+      initiator: event.transaction.from?.toLowerCase(),
       initiatorToken: ADDRESSES.HOME.XDAI_TOKEN,
       initiatorAmount: event.params.value,
       
       receiverNetwork: CHAIN.FOREIGN.ID,
-      receiver: event.params.recipient,
+      receiver: event.params.recipient?.toLowerCase(),
       receiverToken: event.params.token,
       receiverAmount: event.params.value
     }

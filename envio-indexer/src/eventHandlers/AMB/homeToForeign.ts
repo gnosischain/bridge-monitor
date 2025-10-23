@@ -4,7 +4,6 @@ import { getValidator } from "../../utils/getValidator";
 import { isOmniBridgeUsage, extractReceiverFromEncodedData, parseMessageIdFromEncodedData } from "../../utils/omnibridge";
 import { decodeFunctionData, parseAbiItem } from 'viem'
 
-
 /**
  * AMB Home -> Foreign (GC -> ETH)
  * Flow:
@@ -45,12 +44,12 @@ AMBHome.UserRequestForSignature.handler(async ({ event, context }) => {
       execution_id: undefined,
 
       initiatorNetwork: CHAIN.HOME.ID,
-      initiator: transfer?.sender,
+      initiator: transfer?.sender?.toLowerCase(),
       initiatorToken: transfer?.token,
       initiatorAmount: transfer?.amount,
 
       receiverNetwork: CHAIN.FOREIGN.ID,
-      receiver: receiver,
+      receiver: receiver?.toLowerCase(),
       receiverToken: transfer?.token,
       receiverAmount: transfer?.amount,
     };
@@ -88,7 +87,7 @@ AMBHome.SignedForUserRequest.handler(async ({ event, context }) => {
         id: validationId,
         transaction_id: messageId,
         validator_id: validator.id,
-        validatorAddress: validator.address,
+        validatorAddress: validator.address.toLowerCase(),
         transactionHash: event.transaction.hash,
         timestamp: BigInt(event.block.timestamp),
       };
@@ -155,7 +154,7 @@ AMBForeign.RelayedMessage.handler(async ({ event, context }) => {
     if (validator) {
       context.Validator.set({ ...validator, lastActivity: BigInt(timestamp) });
       executorId = validator.id;
-      executorAddress = validator.address;
+      executorAddress = validator.address.toLowerCase();
     } else {
       // claiming can be done by anyone
       executorAddress = executorAddr;
@@ -186,12 +185,12 @@ AMBForeign.RelayedMessage.handler(async ({ event, context }) => {
       execution_id: executionId,
 
       initiatorNetwork: CHAIN.HOME.ID,
-      initiator: transfer.sender,
+      initiator: transfer.sender?.toLowerCase(),
       initiatorToken: transfer.token,
       initiatorAmount: transfer.amount,
 
       receiverNetwork: CHAIN.FOREIGN.ID,
-      receiver: transfer.recipient,
+      receiver: transfer.recipient?.toLowerCase(),
       receiverToken: transfer.token,
       receiverAmount: transfer.amount,
     };
@@ -201,10 +200,10 @@ AMBForeign.RelayedMessage.handler(async ({ event, context }) => {
       ...tx,
       transactionStatus: status ? TransactionStatusEnum.COMPLETED : TransactionStatusEnum.ERROR,
       execution_id: executionId,
-      receiver: transfer.recipient ?? tx.receiver,
+      receiver: transfer.recipient?.toLowerCase() ?? tx.receiver?.toLowerCase(),
       receiverToken: transfer.token ?? tx.receiverToken,
       receiverAmount: transfer.amount ?? tx.receiverAmount,
-      initiator: tx.initiator ?? transfer.sender,
+      initiator: tx.initiator?.toLowerCase() ?? transfer.sender?.toLowerCase(),
       initiatorToken: tx.initiatorToken ?? transfer.token,
       initiatorAmount: tx.initiatorAmount ?? transfer.amount,
       nonce: tx.nonce ?? messageId,
