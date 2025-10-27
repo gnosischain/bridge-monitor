@@ -4616,13 +4616,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uniswap/token-lists@npm:^1.0.0-beta.31":
-  version: 1.0.0-beta.34
-  resolution: "@uniswap/token-lists@npm:1.0.0-beta.34"
-  checksum: 10c0/963319d229555b6444316073ab7861d880f10d4ff7902ff90cd4544976396b3b6c39af007544649c78e744bcc16431daddedceb41032b45fa09d77dc0b84d0e2
-  languageName: node
-  linkType: hard
-
 "@walletconnect/core@npm:2.17.2":
   version: 2.17.2
   resolution: "@walletconnect/core@npm:2.17.2"
@@ -9600,7 +9593,6 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^5.13.0"
     "@typescript-eslint/parser": "npm:^5.13.0"
     "@uniswap/sdk-core": "npm:^4.0.7"
-    "@uniswap/token-lists": "npm:^1.0.0-beta.31"
     "@web3-name-sdk/core": "npm:^0.1.16"
     "@web3-onboard/common": "npm:^2.3.3"
     "@web3-onboard/core": "npm:^2.21.2"
@@ -9624,7 +9616,7 @@ __metadata:
     framer-motion: "npm:^11.15.0"
     graphql: "npm:^16.8.1"
     graphql-codegen-plugin-typescript-swr: "npm:^0.8.5"
-    graphql-request: "npm:^4.0.0"
+    graphql-request: "npm:^7.3.1"
     graphql-tag: "npm:^2.12.6"
     hardhat: "npm:^2.19.2"
     husky: "npm:^7.0.4"
@@ -9763,6 +9755,17 @@ __metadata:
   peerDependencies:
     graphql: 14 - 16
   checksum: 10c0/f8167925a110e8e1de93d56c14245e7e64391dc8dce5002dd01bf24a3059f345d4ca1bb6ce2040e2ec78264211b0704e75da3e63984f0f74d2042f697a4e8cc6
+  languageName: node
+  linkType: hard
+
+"graphql-request@npm:^7.3.1":
+  version: 7.3.1
+  resolution: "graphql-request@npm:7.3.1"
+  dependencies:
+    "@graphql-typed-document-node/core": "npm:^3.2.0"
+  peerDependencies:
+    graphql: 14 - 16
+  checksum: 10c0/7764cdd965a17d102c1730f627396bf1e57337a4cd6a149d7c24cf0c3a753b79027bfc2f6f592ac655567d650faa954f2272f5bccb05bec84aea9e70a298ac69
   languageName: node
   linkType: hard
 
