@@ -6,17 +6,14 @@ import { ERC20__factory } from '@/types/typechain'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { Token } from '@/types/token'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
+import { xdaiToken } from '@/src/constants/xdaiToken'
 
 export const useTokenInfo = (tokenAddress: string, chainId: ChainsValues) => {
   const { tokensByAddress } = useBridgedTokens()
 
   return useSWR([chainId, tokenAddress], async ([_chainId, _token]) => {
     if (tokenAddress.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase() && chainId === 100) {
-      return {
-        name: 'XDAI',
-        symbol: 'XDAI',
-        decimals: 18,
-      } as Token
+      return xdaiToken
     }
 
     const token = tokensByAddress[_token.toLowerCase()]
@@ -39,6 +36,12 @@ export const useTokenInfo = (tokenAddress: string, chainId: ChainsValues) => {
         name,
         symbol,
         decimals,
+        extensions: {
+          bridgeInfo: {
+            1: { tokenAddress: chainId === 1 ? tokenAddress : '' },
+            100: { tokenAddress: chainId === 100 ? tokenAddress : '' },
+          },
+        },
       } as Token
     } catch (error) {
       console.error('Error fetching token info', error)

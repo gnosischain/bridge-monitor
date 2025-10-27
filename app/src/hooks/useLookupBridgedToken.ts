@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { TokenInfo as UniswapToken } from '@uniswap/token-lists'
+import { TokenInfo as UniswapToken } from '@/types/token'
 import { BigNumber, BigNumberish, FixedNumber, constants } from 'ethers'
 import memoize from 'lodash/memoize'
 import { useEffect, useMemo, useState } from 'react'
