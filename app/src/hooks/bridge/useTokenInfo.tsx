@@ -36,6 +36,12 @@ export const useTokenInfo = (tokenAddress: string, chainId: ChainsValues) => {
         name,
         symbol,
         decimals,
+        extensions: {
+          bridgeInfo: {
+            1: { tokenAddress: chainId === 1 ? tokenAddress : '' },
+            100: { tokenAddress: chainId === 100 ? tokenAddress : '' },
+          },
+        },
       } as Token
     } catch (error) {
       console.error('Error fetching token info', error)
