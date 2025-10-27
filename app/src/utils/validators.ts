@@ -9,9 +9,14 @@ import xdaiValidators from '@/src/utils/validators/xdai.json'
 import { ValidatorStatusType } from '@/src/components/assets/ValidatorStatus'
 import { Bridges, BridgesValues } from '@/src/constants/config/bridges'
 import { getHomeGraphqlClient } from '@/src/constants/config/subgraph'
+import { getEnvioGraphqlClient, isEnvioBackend } from '@/src/constants/config/indexer'
 import { BalanceType, ValidatorStatusTypes } from '@/src/constants/types'
 import { TRANSACTION_QUERY } from '@/src/queries/transactions'
-import { VALIDATORS_QUERY } from '@/src/queries/validators'
+import {
+  ENVIO_VALIDATORS_ACTIVITY_QUERY,
+  ENVIO_VALIDATORS_QUERY,
+  VALIDATORS_QUERY,
+} from '@/src/queries/validators'
 import {
   OrderDirection,
   QueryTransactionsArgs,
@@ -104,6 +109,20 @@ export const getValidationsStatus = (transaction: Transaction, _validators: Vali
 }
 
 export const fetchHomeValidators = async (filter?: ValidatorsQueryVariables) => {
+  if (isEnvioBackend()) {
+    type EnvioValidatorRow = {
+      id?: string
+      name?: string | null
+      bridgeType?: string | null
+      address: string
+      lastActivity?: number | null
+      signed?: Array<{ id: string }>
+      executed?: Array<{ id: string }>
+    }
+    const request = getEnvioGraphqlClient<{ Validator: EnvioValidatorRow[] }>()
+    const res = await request(ENVIO_VALIDATORS_QUERY, {})
+    return res.Validator
+  }
   const { validators } = await getHomeGraphqlClient()<ValidatorsQuery, ValidatorsQueryVariables>(
     VALIDATORS_QUERY,
     filter,
@@ -138,9 +157,28 @@ const ORDER_BY = Transaction_OrderBy.Timestamp
 
 export const fetchSignedTransactions = async (bridge: BridgesValues, afterDate: number) => {
   const bridgeValue = bridge.toUpperCase() as BridgesValues
-  // fetches TXs validated within a period of time
   const validators = VALIDATORS_BY_BRIDGE[bridgeValue]
 
+  if (isEnvioBackend()) {
+    type EnvioValidatorRow = {
+      address: string
+      name?: string | null
+      bridgeType?: string | null
+      signed?: Array<{ id: string }>
+      executed?: Array<{ id: string }>
+    }
+    const request = getEnvioGraphqlClient<{ Validator: EnvioValidatorRow[] }>()
+    const res = await request(ENVIO_VALIDATORS_ACTIVITY_QUERY, { after: String(afterDate) })
+    const rows = (res.Validator || []).filter(
+      (v: EnvioValidatorRow) => String(v.bridgeType || '').toUpperCase() === bridgeValue,
+    )
+    return rows.map((v: EnvioValidatorRow) => ({
+      name: v.name || v.address,
+      value: Array.isArray(v.signed) ? v.signed.length : 0,
+    }))
+  }
+
+  // Subgraph path (legacy)
   const signedTXsPromises = validators.map(async (validator) => {
     const query = {
       first: MAX_RESULTS,
@@ -166,15 +204,33 @@ export const fetchSignedTransactions = async (bridge: BridgesValues, afterDate: 
   })
 
   const eachValidatorSignedTXs = await Promise.all(signedTXsPromises)
-
   return eachValidatorSignedTXs
 }
 
 export const fetchExecutedTransactions = async (bridge: BridgesValues, afterDate: number) => {
   const bridgeValue = bridge.toUpperCase() as BridgesValues
-  // fetches TXs validated within a period of time
   const validators = VALIDATORS_BY_BRIDGE[bridgeValue]
 
+  if (isEnvioBackend()) {
+    type EnvioValidatorRow = {
+      address: string
+      name?: string | null
+      bridgeType?: string | null
+      signed?: Array<{ id: string }>
+      executed?: Array<{ id: string }>
+    }
+    const request = getEnvioGraphqlClient<{ Validator: EnvioValidatorRow[] }>()
+    const res = await request(ENVIO_VALIDATORS_ACTIVITY_QUERY, { after: String(afterDate) })
+    const rows = (res.Validator || []).filter(
+      (v: EnvioValidatorRow) => String(v.bridgeType || '').toUpperCase() === bridgeValue,
+    )
+    return rows.map((v: EnvioValidatorRow) => ({
+      name: v.name || v.address,
+      value: Array.isArray(v.executed) ? v.executed.length : 0,
+    }))
+  }
+
+  // Subgraph path (legacy)
   const executedTXsPromises = validators.map(async (validator) => {
     const query = {
       first: MAX_RESULTS,

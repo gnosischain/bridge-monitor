@@ -1,0 +1,107 @@
+[
+  {
+    "address": "0x105cd22ed3d089bf5589c59b452f9de0796ca52d",
+    "bridgeType": "AMB",
+    "id": "0x105cd22ed3d089bf5589c59b452f9de0796ca52d-AMB",
+    "name": "Giveth",
+    "removed": false
+  },
+  {
+    "address": "0x1312e98995bbcc30fc63db3cef807e20cdd33dca",
+    "bridgeType": "XDAI",
+    "id": "0x1312e98995bbcc30fc63db3cef807e20cdd33dca-XDAI",
+    "name": "Gnosis Safe",
+    "removed": false
+  },
+  {
+    "address": "0x258667e543c913264388b33328337257af208a8f",
+    "bridgeType": "AMB",
+    "id": "0x258667e543c913264388b33328337257af208a8f-AMB",
+    "name": "Gnosis Safe",
+    "removed": false
+  },
+  {
+    "address": "0x3e0a20099626f3d4d4ea7b0ce0330e88d1fe65d6",
+    "bridgeType": "AMB",
+    "id": "0x3e0a20099626f3d4d4ea7b0ce0330e88d1fe65d6-AMB",
+    "name": "Gateway",
+    "removed": false
+  },
+  {
+    "address": "0x456c255a8bc1f33778603a2a48eb6b0c69f4d48e",
+    "bridgeType": "AMB",
+    "id": "0x456c255A8BC1F33778603A2a48Eb6B0C69F4d48E-AMB",
+    "name": "Telepathy",
+    "removed": false
+  },
+  {
+    "address": "0x459a3bd49f1ff109bc90b76125533699aaaaf9a6",
+    "bridgeType": "AMB",
+    "id": "0x459a3bd49f1ff109bc90b76125533699aaaaf9a6-AMB",
+    "name": "Protofire",
+    "removed": false
+  },
+  {
+    "address": "0x4d1c96b9a49c4469a0b720a22b74b034eddfe051",
+    "bridgeType": "XDAI",
+    "id": "0x4d1c96b9a49c4469a0b720a22b74b034eddfe051-XDAI",
+    "name": "Protofire",
+    "removed": false
+  },
+  {
+    "address": "0x587c0d02b40822f15f05301d87c16f6a08aaddde",
+    "bridgeType": "XDAI",
+    "id": "0x587c0d02b40822f15f05301d87c16f6a08aaddde-XDAI",
+    "name": "Cow Protocol",
+    "removed": false
+  },
+  {
+    "address": "0x674c97db4ce6cac04a124d745979f3e4cba0e9f0",
+    "bridgeType": "AMB",
+    "id": "0x674c97db4ce6cac04a124d745979f3e4cba0e9f0-AMB",
+    "name": "Cow Protocol",
+    "removed": false
+  },
+  {
+    "address": "0x90776017057b84bc47d7e7383b65c463c80a6cdd",
+    "bridgeType": "XDAI",
+    "id": "0x90776017057b84bc47d7e7383b65c463c80a6cdd-XDAI",
+    "name": "Gateway",
+    "removed": false
+  },
+  {
+    "address": "0x97630e2ae609d4104abda91f3066c556403182dd",
+    "bridgeType": "XDAI",
+    "id": "0x97630e2ae609d4104abda91f3066c556403182dd-XDAI",
+    "name": "Gnosis DAO",
+    "removed": false
+  },
+  {
+    "address": "0xbdc141c8d2343f33f40cb9edd601ccf460cd0dde",
+    "bridgeType": "AMB",
+    "id": "0xbdc141c8d2343f33f40cb9edd601ccf460cd0dde-AMB",
+    "name": "Gnosis DAO",
+    "removed": false
+  },
+  {
+    "address": "0xc073c8e5ed9aa11cf6776c69b3e13b259ba9f506",
+    "bridgeType": "XDAI",
+    "id": "0xc073c8e5ed9aa11cf6776c69b3e13b259ba9f506-XDAI",
+    "name": "Giveth",
+    "removed": false
+  },
+  {
+    "address": "0xfa98b60e02a61b6590f073cad56e68326652d094",
+    "bridgeType": "AMB",
+    "id": "0xfa98b60e02a61b6590f073cad56e68326652d094-AMB",
+    "name": "Karpatkey",
+    "removed": false
+  },
+  {
+    "address": "0xfa98b60e02a61b6590f073cad56e68326652d094",
+    "bridgeType": "XDAI",
+    "id": "0xfa98b60e02a61b6590f073cad56e68326652d094-XDAI",
+    "name": "Karpatkey",
+    "removed": false
+  }
+]

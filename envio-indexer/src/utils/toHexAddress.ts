@@ -1,0 +1,1 @@
+export const toHexAddr = (topic: string) => `0x${topic.slice(-40)}`;

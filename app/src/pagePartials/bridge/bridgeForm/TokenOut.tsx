@@ -13,6 +13,7 @@ import { genericSuspense } from '@/src/components/safeSuspense'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { isSameString } from '@/src/utils/tools'
 import React, { useState } from 'react'
+import { useIsUsdsEnabled } from '@/src/hooks/contracts/useIsUsdsEnabled'
 
 const NoTokenSelected = styled.span`
   font-size: 1.5rem;
@@ -41,19 +42,6 @@ const wethOptions = [
     icon: '/images/icons/ethToken.svg',
     label: 'ETH',
     name: 'eth-types',
-  },
-]
-
-const xdaiOptions = [
-  {
-    icon: '/images/icons/dai.svg',
-    label: 'DAI',
-    name: 'xdai-types',
-  },
-  {
-    icon: '/images/icons/usds.webp',
-    label: 'USDS',
-    name: 'xdai-types',
   },
 ]
 
@@ -104,6 +92,21 @@ export const TokenOut: React.FC<{
       token,
     })
 
+    const isUsdsEnabled = useIsUsdsEnabled()
+    const xdaiOptions = [
+      {
+        icon: '/images/icons/dai.svg',
+        label: 'DAI',
+        name: 'xdai-types',
+      },
+      {
+        icon: '/images/icons/usds.webp',
+        label: 'USDS',
+        name: 'xdai-types',
+        disabled: !isUsdsEnabled,
+      },
+    ]
+
     const showNativeTokenSwitcher =
       fromChainId == Chains.gnosis &&
       token.address == chainsConfig[Chains.gnosis].bridge.wForeignNative
@@ -117,6 +120,11 @@ export const TokenOut: React.FC<{
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const tokenOutAmount = formatUnits(amount.sub(feeInfo!), tokenOut?.decimals)
+
+    const handleSwitchDaiUsds = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSelectedXDaiToken(event.target.value)
+      onReceiveUsdsChange(event.target.value === 'USDS')
+    }
 
     return (
       <>
@@ -132,10 +140,7 @@ export const TokenOut: React.FC<{
           />
         ) : showXDaiSwitcher ? (
           <ReceiveTokenSwitcher
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              setSelectedXDaiToken(event.target.value)
-              onReceiveUsdsChange(event.target.value === 'USDS')
-            }}
+            onChange={handleSwitchDaiUsds}
             options={xdaiOptions}
             optionsId="xdaiOptions"
             value={selectedXDaiToken}

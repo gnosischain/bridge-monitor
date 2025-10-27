@@ -1,10 +1,11 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { TokenInfo as UniswapToken } from '@uniswap/token-lists'
+import { TokenInfo as UniswapToken } from '@/types/token'
 import { BigNumber, BigNumberish, FixedNumber, constants } from 'ethers'
 import memoize from 'lodash/memoize'
 import { useEffect, useMemo, useState } from 'react'
 
 import { Chains, getNetworkConfig } from '@/src/constants/config/chains'
+import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { useDaiToken } from '@/src/hooks/useDaiToken'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { formatNumber } from '@/src/utils/format'
@@ -76,9 +77,10 @@ export const useLookupBridgedToken = ({
 
   const isMainnetToken = initiatorNetwork === 'mainnet'
   tokenAddress = tokenAddress?.toLowerCase()
-  const isXdaiBridge = bridgeName === 'XDAI'
-  const isZeroToken = tokenAddress === constants.AddressZero
-  const isNativeInXdaiBridge = isXdaiBridge && isZeroToken
+  const isXdaiBridge = (bridgeName ?? '').toUpperCase() === 'XDAI'
+  const isNativeAddress =
+    tokenAddress === constants.AddressZero || isSameString(tokenAddress, NATIVE_TOKEN_ADDRESS)
+  const isNativeInXdaiBridge = isXdaiBridge && isNativeAddress
   const [token, setToken] = useState<UniswapToken | undefined>()
   const xDaiBridgedToken = isNativeInXdaiBridge ? mainnetDaiToken : gnosisXdaiToken
 
@@ -86,7 +88,7 @@ export const useLookupBridgedToken = ({
     // have to check if the component is still mounted before setting the state
     let isMounted = true
 
-    if (!isXdaiBridge && !isZeroToken) {
+    if (!isXdaiBridge && !isNativeAddress) {
       lookupToken(tokenAddress, isMainnetToken, tokenList)
         .then((data) => {
           if (isMounted) {
@@ -116,7 +118,7 @@ export const useLookupBridgedToken = ({
     isMainnetToken,
     isNativeInXdaiBridge,
     isXdaiBridge,
-    isZeroToken,
+    isNativeAddress,
     tokenAddress,
     tokenList,
     tokensByAddress,

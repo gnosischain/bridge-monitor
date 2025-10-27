@@ -1,0 +1,26 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "validator",
+        "type": "address"
+      }
+    ],
+    "name": "ValidatorAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "validator",
+        "type": "address"
+      }
+    ],
+    "name": "ValidatorRemoved",
+    "type": "event"
+  }
+]

@@ -25,30 +25,34 @@ import type {
 
 export interface Erc20ToNativeBridgeHelperInterface extends utils.Interface {
   functions: {
-    "bridge()": FunctionFragment;
-    "clean()": FunctionFragment;
     "getMessage(bytes32)": FunctionFragment;
     "getMessageHash(address,uint256,bytes32)": FunctionFragment;
+    "getMessageHash(address,uint256,bytes32,address)": FunctionFragment;
+    "foreignBridge()": FunctionFragment;
+    "owner()": FunctionFragment;
     "getSignatures(bytes32)": FunctionFragment;
+    "bridge()": FunctionFragment;
+    "clean()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "getMessage"
+      | "getMessageHash(address,uint256,bytes32)"
+      | "getMessageHash(address,uint256,bytes32,address)"
+      | "foreignBridge"
+      | "owner"
+      | "getSignatures"
       | "bridge"
       | "clean"
-      | "getMessage"
-      | "getMessageHash"
-      | "getSignatures"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "bridge", values?: undefined): string;
-  encodeFunctionData(functionFragment: "clean", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getMessage",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getMessageHash",
+    functionFragment: "getMessageHash(address,uint256,bytes32)",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
@@ -56,21 +60,46 @@ export interface Erc20ToNativeBridgeHelperInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "getMessageHash(address,uint256,bytes32,address)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "foreignBridge",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
     functionFragment: "getSignatures",
     values: [PromiseOrValue<BytesLike>]
   ): string;
+  encodeFunctionData(functionFragment: "bridge", values?: undefined): string;
+  encodeFunctionData(functionFragment: "clean", values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "bridge", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "clean", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getMessage", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getMessageHash",
+    functionFragment: "getMessageHash(address,uint256,bytes32)",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "getMessageHash(address,uint256,bytes32,address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "foreignBridge",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getSignatures",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "bridge", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "clean", data: BytesLike): Result;
 
   events: {};
 }
@@ -102,29 +131,70 @@ export interface Erc20ToNativeBridgeHelper extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    bridge(overrides?: CallOverrides): Promise<[string]>;
-
-    clean(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     getMessage(
       _msgHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string] & { result: string }>;
 
-    getMessageHash(
+    "getMessageHash(address,uint256,bytes32)"(
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _origTxHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    "getMessageHash(address,uint256,bytes32,address)"(
+      _recipient: PromiseOrValue<string>,
+      _value: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BytesLike>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    foreignBridge(overrides?: CallOverrides): Promise<[string]>;
+
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
     getSignatures(
       _msgHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    bridge(overrides?: CallOverrides): Promise<[string]>;
+
+    clean(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
+
+  getMessage(
+    _msgHash: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "getMessageHash(address,uint256,bytes32)"(
+    _recipient: PromiseOrValue<string>,
+    _value: PromiseOrValue<BigNumberish>,
+    _origTxHash: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "getMessageHash(address,uint256,bytes32,address)"(
+    _recipient: PromiseOrValue<string>,
+    _value: PromiseOrValue<BigNumberish>,
+    _nonce: PromiseOrValue<BytesLike>,
+    _token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  foreignBridge(overrides?: CallOverrides): Promise<string>;
+
+  owner(overrides?: CallOverrides): Promise<string>;
+
+  getSignatures(
+    _msgHash: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   bridge(overrides?: CallOverrides): Promise<string>;
 
@@ -132,95 +202,114 @@ export interface Erc20ToNativeBridgeHelper extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  getMessage(
-    _msgHash: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  getMessageHash(
-    _recipient: PromiseOrValue<string>,
-    _value: PromiseOrValue<BigNumberish>,
-    _origTxHash: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  getSignatures(
-    _msgHash: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
   callStatic: {
-    bridge(overrides?: CallOverrides): Promise<string>;
-
-    clean(overrides?: CallOverrides): Promise<void>;
-
     getMessage(
       _msgHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    getMessageHash(
+    "getMessageHash(address,uint256,bytes32)"(
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _origTxHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
 
+    "getMessageHash(address,uint256,bytes32,address)"(
+      _recipient: PromiseOrValue<string>,
+      _value: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BytesLike>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    foreignBridge(overrides?: CallOverrides): Promise<string>;
+
+    owner(overrides?: CallOverrides): Promise<string>;
+
     getSignatures(
       _msgHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    bridge(overrides?: CallOverrides): Promise<string>;
+
+    clean(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {};
 
   estimateGas: {
+    getMessage(
+      _msgHash: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getMessageHash(address,uint256,bytes32)"(
+      _recipient: PromiseOrValue<string>,
+      _value: PromiseOrValue<BigNumberish>,
+      _origTxHash: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getMessageHash(address,uint256,bytes32,address)"(
+      _recipient: PromiseOrValue<string>,
+      _value: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BytesLike>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    foreignBridge(overrides?: CallOverrides): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getSignatures(
+      _msgHash: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     bridge(overrides?: CallOverrides): Promise<BigNumber>;
 
     clean(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+  };
 
+  populateTransaction: {
     getMessage(
       _msgHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<PopulatedTransaction>;
 
-    getMessageHash(
+    "getMessageHash(address,uint256,bytes32)"(
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _origTxHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<PopulatedTransaction>;
+
+    "getMessageHash(address,uint256,bytes32,address)"(
+      _recipient: PromiseOrValue<string>,
+      _value: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BytesLike>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    foreignBridge(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getSignatures(
       _msgHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-  };
+    ): Promise<PopulatedTransaction>;
 
-  populateTransaction: {
     bridge(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     clean(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getMessage(
-      _msgHash: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getMessageHash(
-      _recipient: PromiseOrValue<string>,
-      _value: PromiseOrValue<BigNumberish>,
-      _origTxHash: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getSignatures(
-      _msgHash: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

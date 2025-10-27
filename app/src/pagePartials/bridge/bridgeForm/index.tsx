@@ -121,13 +121,6 @@ const AmountInput = styled(AmountTokenInput)`
   margin-right: calc(var(--theme-common-space) * -1);
 `
 
-const Info = styled.p`
-  color: ${({ theme: { colors } }) => colors.textColor};
-  font-size: 1.4rem;
-  line-height: 1.4;
-  margin: 0;
-`
-
 const SkeletonCommon: React.FC = () => (
   <Wrapper>
     <FormWrapper>
@@ -239,9 +232,6 @@ const Main = () => {
 
   const isUsdcEth = isSameString(formState.token?.address || '', USDC_ETHEREUM)
   const isUsdceGC = isSameString(formState.token?.address || '', USDCe_GNOSIS)
-  const isXdai =
-    formState.fromChainId === Chains.gnosis &&
-    isSameString(formState.token?.address || '', NATIVE_TOKEN_ADDRESS)
 
   const tokenOut = useBridgeTokenOutInfo({
     fromChainId: formState.fromChainId,
@@ -334,9 +324,6 @@ const Main = () => {
                       tokenOut={tokenOut}
                     />
                   </BridgedToken>
-                  {isXdai && (
-                    <Info>* Provisional only — you’ll choose between USDS and DAI at claim.</Info>
-                  )}
                   <RecipientAddress
                     onChange={(event) => dispatch({ ...formState, recipient: event.target.value })}
                     recipient={formState.recipient}
