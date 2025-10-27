@@ -35,15 +35,15 @@ export const ReceiveTokenSwitcher = ({
 }: Props) => {
   return (
     <Wrapper {...restProps}>
-      {options.map(({ disabled, icon, label, name }, index) => (
+      {options.map(({ disabled, icon, label }) => (
         <TokenSelectButton
           checked={value === label}
           disabled={disabled}
           icon={icon}
-          id={optionsId}
-          key={index}
+          id={`${optionsId}-${label}`}
+          key={label}
           label={label}
-          name={name}
+          name={optionsId}
           onChange={onChange}
           value={label}
         />
