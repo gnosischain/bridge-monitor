@@ -5,6 +5,7 @@ import { BaseSubTitle as Title } from '@/src/components/text/BaseSubTitle'
 import { TokenAddress } from '@/src/components/token/TokenAddress'
 import { bridgeConfig } from '@/src/constants/bridges'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+import { Chains } from '@/src/constants/config/chains'
 
 const RowWrapper = styled.div`
   align-items: flex-start;
@@ -79,13 +80,16 @@ export const Configuration: React.FC = ({ ...restProps }) => {
         <Card>
           <SubTitle>Ethereum Addresses</SubTitle>
           <Rows>
-            <Row address={XDAI.bridgeProxy} title="xDAI Bridge Contract" />
-            <Row address={XDAI.bridgeRouter} title="Bridge Router Proxy Contract" />
+            <Row address={XDAI.bridgeProxy[Chains.mainnet]} title="xDAI Bridge Contract" />
+            <Row address={XDAI.bridgeRouter[Chains.mainnet]} title="Bridge Router Proxy Contract" />
             <Row address={XDAI.governorMultisig} title="Governor Multisig" />
             <Row address={XDAI.tokens.dai} title="DAI Token" />
-            <Row address={XDAI.tokens.usds} title="USDS Token" />
-            <Row address={XDAI.protocol.address} title="Protocol" />
-            <Row address={XDAI.protocol.token} title="Protocol Token" />
+            <Row address={XDAI.tokens.usds.usds} title="USDS Token" />
+          </Rows>
+          <SubTitle>Gnosis Chain Addresses</SubTitle>
+          <Rows>
+            <Row address={XDAI.bridgeProxy[Chains.gnosis]} title="xDAI Bridge Contract" />
+            <Row address={XDAI.tokens.usds.usdsDeposit} title="USDS Deposit Contract" />
           </Rows>
         </Card>
       </Column>
@@ -94,11 +98,17 @@ export const Configuration: React.FC = ({ ...restProps }) => {
         <Card>
           <SubTitle>Ethereum Addresses</SubTitle>
           <Rows>
-            <Row address={OMNI.bridgeProxy} title="Omnibridge Mediator Proxy" />
+            <Row address={OMNI.bridgeProxy[Chains.mainnet]} title="Omnibridge Mediator Proxy" />
             <Row address={OMNI.governorMultisig} title="Governor Multisig" />
-            <Row address={OMNI.protocol.address} title="Protocol Interest Module" />
-            <Row address={OMNI.tokens.usdc} title="USDC Token" />
+            <Row address={OMNI.tokens.usdc.usdc} title="USDC Token" />
             <Row address={OMNI.tokens.usdt} title="USDT Token" />
+          </Rows>
+          <SubTitle>Gnosis Chain Addresses</SubTitle>
+          <Rows>
+            <Row address={OMNI.bridgeProxy[Chains.gnosis]} title="Omnibridge Mediator Proxy" />
+            <Row address={OMNI.tokens.usdc.usdcTransmuter} title="USDC Transmuter contract" />
+            <Row address={OMNI.tokens.usdc.usdcE} title="USDC.e" />
+            <Row address={OMNI.tokens.usdc.usdcXdai} title="USDC on xDAI" />
           </Rows>
         </Card>
       </Column>

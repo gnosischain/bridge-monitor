@@ -34,6 +34,10 @@ export const ExternalLinks: React.FC = ({ ...restProps }) => {
       name: 'swaps.io',
       url: 'https://swaps.io/',
     },
+    {
+      name: 'squid',
+      url: 'https://app.squidrouter.com/',
+    },
   ]
 
   return (

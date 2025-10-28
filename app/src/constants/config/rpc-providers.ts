@@ -1,4 +1,4 @@
-import { JsonRpcProvider } from '@ethersproject/providers'
+import { JsonRpcBatchProvider, JsonRpcProvider } from '@ethersproject/providers'
 
 import { chainsConfig } from './chains'
 import { RPC_GNOSIS, RPC_MAINNET } from './common'
@@ -20,4 +20,11 @@ export const mainnet = () => {
 }
 export const gnosis = () => {
   return new JsonRpcProvider(chainsConfig[Chains.gnosis].rpcUrl, Chains.gnosis)
+}
+
+export const mainnetBatch = () => {
+  return new JsonRpcBatchProvider(chainsConfig[Chains.mainnet].rpcUrl, Chains.mainnet)
+}
+export const gnosisBatch = () => {
+  return new JsonRpcBatchProvider(chainsConfig[Chains.gnosis].rpcUrl, Chains.gnosis)
 }

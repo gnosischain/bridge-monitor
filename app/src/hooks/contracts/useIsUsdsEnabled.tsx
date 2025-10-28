@@ -1,9 +1,12 @@
-import { useContractInstance } from '../useContractInstance'
+import { useContractInstance } from '@/src/hooks/useContractInstance'
 import { Chains } from '@/src/constants/config/chains'
 import { ForeignBridgeErcToNative, ForeignBridgeErcToNative__factory } from '@/types/typechain'
-import { useContractCall } from '../useContractCall'
+import { useContractCall } from '@/src/hooks/useContractCall'
+import { USDS_ADDRESS } from '@/src/constants/config/common'
+import { isSameString } from '@/src/utils/tools'
+import { useMemo } from 'react'
 
-export const useForeignXdaiErc20Address = () => {
+export const useIsUsdsEnabled = () => {
   const foreignXDAI = useContractInstance(
     ForeignBridgeErcToNative__factory,
     'XDAIBridge',
@@ -16,7 +19,10 @@ export const useForeignXdaiErc20Address = () => {
     typeof erc20AddressCalls
   >(erc20AddressCalls, [[]], 'foreignXDAIContext')
 
-  return {
-    foreignXdaiErc20Token: foreignXDAIContext?.[0],
-  }
+  const isUsdsEnabled = useMemo(
+    () => isSameString(foreignXDAIContext?.[0], USDS_ADDRESS),
+    [foreignXDAIContext],
+  )
+
+  return isUsdsEnabled
 }

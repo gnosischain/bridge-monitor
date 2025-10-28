@@ -1,4 +1,4 @@
-import type { TokenInfo as TokenProps } from '@uniswap/token-lists'
+import type { TokenInfo as TokenProps } from '@/types/token'
 import styled, { css } from 'styled-components'
 import { BigNumberish } from 'ethers'
 import { ChainToken } from '@/src/pagePartials/bridgeExplorer/validators/ChainToken'
