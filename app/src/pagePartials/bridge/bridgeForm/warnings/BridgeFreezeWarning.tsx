@@ -45,7 +45,7 @@ const tokens = [
   { name: 'BDT', address: '0x778aa03021b0cd2b798b0b506403e070125d81c9' },
   { name: 'OLAS', address: '0xce11e14225575945b8e6dc0d4f2dd4c570f79d9f' },
   { name: 'SAFE', address: '0x4d18815d14fe5c3304e87b3fa18318baa5c23820' },
-  { name: 'ROCKETPOOL', address: '0x2F0E755Efe6b58238A67DB420Ff3513Ec1fb31eF' },
+  { name: 'ROCKETPOOL', address: '0xc791240D1F2dEf5938E2031364Ff4ed887133C3d' },
   { name: 'GIVETH', address: '0x4f4f9b8d5b4d0dc10506e5551b0513b61fd59e75' },
   { name: 'PNK', address: '0x37b60f4e9a31a64ccc0024dce7d0fd07eaa0f7b3' },
   { name: 'CLNY', address: '0xc9b6218affe8aba68a13899cbf7cf7f14ddd304c' },
