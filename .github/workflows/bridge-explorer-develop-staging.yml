@@ -1,4 +1,4 @@
-name: Deploy Bridge-Explorer Develop/Staging (GCP)
+name: Deploy Bridge Develop/Staging (GCP)
 
 on:
   workflow_dispatch:
@@ -43,13 +43,13 @@ jobs:
           if [ "${{ inputs.environment }}" == "develop" ]; then
             echo "environment=dev" >> $GITHUB_OUTPUT
             echo "image_tag=develop" >> $GITHUB_OUTPUT
-            echo "deployment_name=bridge-explorer-dev" >> $GITHUB_OUTPUT
-            echo "domain=dev.bridge-explorer.gnosisdev.com" >> $GITHUB_OUTPUT
+            echo "deployment_name=bridge-dev" >> $GITHUB_OUTPUT
+            echo "domain=dev.bridge.gnosisdev.com" >> $GITHUB_OUTPUT
           elif [ "${{ inputs.environment }}" == "staging" ]; then
             echo "environment=staging" >> $GITHUB_OUTPUT
             echo "image_tag=staging" >> $GITHUB_OUTPUT
-            echo "deployment_name=bridge-explorer-staging" >> $GITHUB_OUTPUT
-            echo "domain=staging.bridge-explorer.gnosisdev.com" >> $GITHUB_OUTPUT
+            echo "deployment_name=bridge-staging" >> $GITHUB_OUTPUT
+            echo "domain=staging.bridge.gnosisdev.com" >> $GITHUB_OUTPUT
           fi
 
       - name: Set up QEMU
@@ -72,10 +72,10 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          tags: ghcr.io/gnosischain/bridge-explorer:develop
+          tags: ghcr.io/gnosischain/bridge:develop
           platforms: linux/amd64
           build-args: |
-            "NEXT_PUBLIC_APP_NAME=GnosisBridgeMonitor"
+            "NEXT_PUBLIC_APP_NAME=GnosisBridge"
             "NEXT_PUBLIC_DEFAULT_THEME=dark"
             "NEXT_PUBLIC_DEFAULT_CHAIN_ID=1"
             "NEXT_PUBLIC_COOKIES_WARNING_ENABLED=true"
@@ -98,10 +98,10 @@ jobs:
           context: ./app
           file: ./app/Dockerfile
           push: true
-          tags: ghcr.io/gnosischain/bridge-explorer:staging
+          tags: ghcr.io/gnosischain/bridge:staging
           platforms: linux/amd64
           build-args: |
-            "NEXT_PUBLIC_APP_NAME=GnosisBridgeMonitor"
+            "NEXT_PUBLIC_APP_NAME=GnosisBridge"
             "NEXT_PUBLIC_DEFAULT_THEME=dark"
             "NEXT_PUBLIC_DEFAULT_CHAIN_ID=1"
             "NEXT_PUBLIC_COOKIES_WARNING_ENABLED=true"
@@ -113,7 +113,7 @@ jobs:
             "NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT=production"
             "NEXT_PUBLIC_SUBGRAPH_ACCESS_ID=${{ secrets.THEGRAPH_READ_API_KEY }}"
             "NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS=100:2ths6FTZhCBggnyakh7PL5KH91zjRv8xPNfzaCRKogJ,1:9W7Ye5xFfefNYDxXD4StqAuj7TU8eLq5PLmuPUnhFbeQ"
-            "NEXT_PUBLIC_ALCHEMY_API_KEY=${{ secrets.DEV_NEXT_PUBLIC_ALCHEMY_API_KEY }}"
+            "NEXT_PUBLIC_ALCHEMY_API_KEY=${{ secrets.PROD_NEXT_PUBLIC_ALCHEMY_API_KEY }}"
             "NEXT_PUBLIC_ENVIO_INDEXER_URL=${{ secrets.PROD_ENVIO_INDEXER_URL }}"
             "NEXT_PUBLIC_INDEXER_BACKEND=${{ secrets.PROD_INDEXER_BACKEND }}"
 
@@ -177,6 +177,6 @@ jobs:
       RELEASES_SLACK_WEBHOOK_URL: ${{ secrets.RELEASES_SLACK_WEBHOOK_URL }}
     with:
       environment: ${{ needs.build-and-push.outputs.environment == 'dev' && 'Development' || 'Staging' }}
-      service: Bridge Explorer
+      service: Bridge
       success: ${{ needs.deploy-to-gke.result == 'success' }}
-      message: "Deployed Bridge Explorer to ${{ needs.build-and-push.outputs.environment }} (GCP) from branch ${{ github.ref_name }}. Domain: ${{ needs.build-and-push.outputs.domain }}. Commit: ${{ github.sha }}"
+      message: "Deployed Bridge to ${{ needs.build-and-push.outputs.environment }} (GCP) from branch ${{ github.ref_name }}. Domain: ${{ needs.build-and-push.outputs.domain }}. Commit: ${{ github.sha }}"
