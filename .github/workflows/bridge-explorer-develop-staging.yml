@@ -1,0 +1,182 @@
+name: Deploy Bridge Develop/Staging (GCP)
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select the deployment environment'
+        required: true
+        default: 'develop'
+        type: choice
+        options:
+          - staging
+          - develop
+
+env:
+  GCP_PROJECT: gnosischain-staging
+  GCP_REGION: europe-west1
+  GKE_CLUSTER: gnosischain-staging
+  NAMESPACE: gc-tools
+
+# Permission can be added at job level or workflow level
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for actions/checkout
+  packages: write # For pushing to GHCR
+
+jobs:
+  build-and-push:
+    name: Build and Push to GHCR
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+      image_tag: ${{ steps.set-env.outputs.image_tag }}
+      deployment_name: ${{ steps.set-env.outputs.deployment_name }}
+      domain: ${{ steps.set-env.outputs.domain }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set environment variables
+        id: set-env
+        run: |
+          if [ "${{ inputs.environment }}" == "develop" ]; then
+            echo "environment=dev" >> $GITHUB_OUTPUT
+            echo "image_tag=develop" >> $GITHUB_OUTPUT
+            echo "deployment_name=bridge-dev" >> $GITHUB_OUTPUT
+            echo "domain=dev.bridge.gnosisdev.com" >> $GITHUB_OUTPUT
+          elif [ "${{ inputs.environment }}" == "staging" ]; then
+            echo "environment=staging" >> $GITHUB_OUTPUT
+            echo "image_tag=staging" >> $GITHUB_OUTPUT
+            echo "deployment_name=bridge-staging" >> $GITHUB_OUTPUT
+            echo "domain=staging.bridge.gnosisdev.com" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push DEVELOP to GHCR
+        if: startsWith(github.ref, 'refs/heads/develop')
+        uses: docker/build-push-action@v3
+        with:
+          context: ./app
+          file: ./app/Dockerfile
+          push: true
+          tags: ghcr.io/gnosischain/bridge:develop
+          platforms: linux/amd64
+          build-args: |
+            "NEXT_PUBLIC_APP_NAME=GnosisBridge"
+            "NEXT_PUBLIC_DEFAULT_THEME=dark"
+            "NEXT_PUBLIC_DEFAULT_CHAIN_ID=1"
+            "NEXT_PUBLIC_COOKIES_WARNING_ENABLED=true"
+            "NEXT_PUBLIC_POLLING_INTERVAL=10000"
+            "NEXT_PUBLIC_RPC_MAINNET=${{ secrets.DEV_RPC_MAINNET }}"
+            "NEXT_PUBLIC_RPC_GNOSIS=${{ secrets.DEV_RPC_GNOSIS }}"
+            "NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL=${{ secrets.WALLET_CONNECT_URL }}"
+            "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }}"
+            "NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT=development"
+            "NEXT_PUBLIC_SUBGRAPH_ACCESS_ID=${{ secrets.GRAPH_ORG }}"
+            "NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS=100:version/latest,1:version/latest"
+            "NEXT_PUBLIC_ALCHEMY_API_KEY=${{ secrets.DEV_NEXT_PUBLIC_ALCHEMY_API_KEY }}"
+            "NEXT_PUBLIC_ENVIO_INDEXER_URL=${{ secrets.DEV_ENVIO_INDEXER_URL }}"
+            "NEXT_PUBLIC_INDEXER_BACKEND=${{ secrets.DEV_INDEXER_BACKEND }}"
+
+      - name: Build and push STAGING to GHCR
+        if: startsWith(github.ref, 'refs/heads/staging')
+        uses: docker/build-push-action@v3
+        with:
+          context: ./app
+          file: ./app/Dockerfile
+          push: true
+          tags: ghcr.io/gnosischain/bridge:staging
+          platforms: linux/amd64
+          build-args: |
+            "NEXT_PUBLIC_APP_NAME=GnosisBridge"
+            "NEXT_PUBLIC_DEFAULT_THEME=dark"
+            "NEXT_PUBLIC_DEFAULT_CHAIN_ID=1"
+            "NEXT_PUBLIC_COOKIES_WARNING_ENABLED=true"
+            "NEXT_PUBLIC_POLLING_INTERVAL=10000"
+            "NEXT_PUBLIC_RPC_MAINNET=${{ secrets.PROD_RPC_MAINNET }}"
+            "NEXT_PUBLIC_RPC_GNOSIS=${{ secrets.PROD_RPC_GNOSIS }}"
+            "NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL=${{ secrets.WALLET_CONNECT_URL }}"
+            "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }}"
+            "NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT=production"
+            "NEXT_PUBLIC_SUBGRAPH_ACCESS_ID=${{ secrets.THEGRAPH_READ_API_KEY }}"
+            "NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS=100:2ths6FTZhCBggnyakh7PL5KH91zjRv8xPNfzaCRKogJ,1:9W7Ye5xFfefNYDxXD4StqAuj7TU8eLq5PLmuPUnhFbeQ"
+            "NEXT_PUBLIC_ALCHEMY_API_KEY=${{ secrets.PROD_NEXT_PUBLIC_ALCHEMY_API_KEY }}"
+            "NEXT_PUBLIC_ENVIO_INDEXER_URL=${{ secrets.PROD_ENVIO_INDEXER_URL }}"
+            "NEXT_PUBLIC_INDEXER_BACKEND=${{ secrets.PROD_INDEXER_BACKEND }}"
+
+  deploy-to-gke:
+    name: Deploy to GKE ${{ needs.build-and-push.outputs.environment }}
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Install gke-gcloud-auth-plugin
+        run: |
+          gcloud components install gke-gcloud-auth-plugin
+
+      - name: Configure kubectl
+        run: |
+          gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} \
+            --region ${{ env.GCP_REGION }} \
+            --project ${{ env.GCP_PROJECT }}
+
+      - name: Verify deployment exists
+        run: |
+          if ! kubectl get deployment/${{ needs.build-and-push.outputs.deployment_name }} -n ${{ env.NAMESPACE }} &> /dev/null; then
+            echo "Deployment ${{ needs.build-and-push.outputs.deployment_name }} does not exist in namespace ${{ env.NAMESPACE }}"
+            echo "Please ensure Terraform has been applied first to create the deployment"
+            exit 1
+          fi
+
+      - name: Restart deployment
+        run: |
+          kubectl rollout restart deployment/${{ needs.build-and-push.outputs.deployment_name }} -n ${{ env.NAMESPACE }}
+          
+      - name: Wait for rollout to complete
+        run: |
+          kubectl rollout status deployment/${{ needs.build-and-push.outputs.deployment_name }} -n ${{ env.NAMESPACE }} --timeout=5m
+
+      - name: Get deployment status
+        if: always()
+        run: |
+          echo "=== Deployment Status ==="
+          kubectl get deployment/${{ needs.build-and-push.outputs.deployment_name }} -n ${{ env.NAMESPACE }}
+          echo ""
+          echo "=== Pod Status ==="
+          kubectl get pods -n ${{ env.NAMESPACE }} -l app=${{ needs.build-and-push.outputs.deployment_name }}
+          echo ""
+          echo "=== Recent Events ==="
+          kubectl get events -n ${{ env.NAMESPACE }} --sort-by='.lastTimestamp' | tail -20
+
+  notify:
+    uses: ./.github/workflows/slack_release_notification.yml
+    if: always()
+    needs: [build-and-push, deploy-to-gke]
+    secrets:
+      RELEASES_SLACK_WEBHOOK_URL: ${{ secrets.RELEASES_SLACK_WEBHOOK_URL }}
+    with:
+      environment: ${{ needs.build-and-push.outputs.environment == 'dev' && 'Development' || 'Staging' }}
+      service: Bridge
+      success: ${{ needs.deploy-to-gke.result == 'success' }}
+      message: "Deployed Bridge to ${{ needs.build-and-push.outputs.environment }} (GCP) from branch ${{ github.ref_name }}. Domain: ${{ needs.build-and-push.outputs.domain }}. Commit: ${{ github.sha }}"
