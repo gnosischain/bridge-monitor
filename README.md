@@ -1,6 +1,6 @@
 # Bridge Monitor
 
-### Description
+## Description
 
 This monorepository contains the following folders:
 
