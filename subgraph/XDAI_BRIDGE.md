@@ -10,7 +10,7 @@ This file contains all the information related to the XDAI Bridge. See [XDAI](ht
 - GnosisSafe: gno:0x1312e98995bbcc30fc63db3cef807e20cdd33dca
 - Protofire: gno:0x4d1c96b9a49c4469a0b720a22b74b034eddfe051
 - Syncnode: gno:0xfe24cfb2f8872e9ed097c451de065a9f6048915b
-- Gateway: gno:0x90776017057b84bc47D7e7383b65C463C80a6cdd
+- Hopr: gno:0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4
 
 ## Contract Bridge Addresses
 

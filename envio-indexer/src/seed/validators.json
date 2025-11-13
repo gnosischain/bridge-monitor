@@ -21,10 +21,10 @@
     "removed": false
   },
   {
-    "address": "0x3e0a20099626f3d4d4ea7b0ce0330e88d1fe65d6",
+    "address": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4",
     "bridgeType": "AMB",
-    "id": "0x3e0a20099626f3d4d4ea7b0ce0330e88d1fe65d6-AMB",
-    "name": "Gateway",
+    "id": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4-AMB",
+    "name": "Hopr",
     "removed": false
   },
   {
@@ -63,10 +63,10 @@
     "removed": false
   },
   {
-    "address": "0x90776017057b84bc47d7e7383b65c463c80a6cdd",
+    "address": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4",
     "bridgeType": "XDAI",
-    "id": "0x90776017057b84bc47d7e7383b65c463c80a6cdd-XDAI",
-    "name": "Gateway",
+    "id": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4-XDAI",
+    "name": "Hopr",
     "removed": false
   },
   {
