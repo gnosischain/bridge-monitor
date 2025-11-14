@@ -10,7 +10,7 @@ This file contains all the information related to the AMB Bridge. See [AMB](http
 - GnosisDAO: 0xbdc141c8d2343f33f40cb9edd601ccf460cd0dde
 - Cow Protocol: 0x674c97db4ce6cac04a124d745979f3e4cba0e9f0
 - Gnosis Safe: 0x258667E543C913264388B33328337257aF208a8f
-- Hopr: 0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4
+- Gateway: 0x3e0A20099626F3d4d4Ea7B0cE0330e88d1Fe65D6
 
 ## Contract Bridge Addresses
 
