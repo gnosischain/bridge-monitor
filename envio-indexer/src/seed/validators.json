@@ -21,10 +21,10 @@
     "removed": false
   },
   {
-    "address": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4",
+    "address": "0x3e0a20099626f3d4d4ea7b0ce0330e88d1fe65d6",
     "bridgeType": "AMB",
-    "id": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4-AMB",
-    "name": "Hopr",
+    "id": "0x3e0a20099626f3d4d4ea7b0ce0330e88d1fe65d6-AMB",
+    "name": "Gateway",
     "removed": false
   },
   {
@@ -63,10 +63,10 @@
     "removed": false
   },
   {
-    "address": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4",
+    "address": "0x90776017057b84bc47d7e7383b65c463c80a6cdd",
     "bridgeType": "XDAI",
-    "id": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4-XDAI",
-    "name": "Hopr",
+    "id": "0x90776017057b84bc47d7e7383b65c463c80a6cdd-XDAI",
+    "name": "Gateway",
     "removed": false
   },
   {
@@ -102,6 +102,20 @@
     "bridgeType": "XDAI",
     "id": "0xfa98b60e02a61b6590f073cad56e68326652d094-XDAI",
     "name": "Karpatkey",
+    "removed": false
+  },
+  {
+    "address": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4",
+    "bridgeType": "XDAI",
+    "id": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4-XDAI",
+    "name": "Hopr",
+    "removed": false
+  },
+  {
+    "address": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4",
+    "bridgeType": "AMB",
+    "id": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4-AMB",
+    "name": "Hopr",
     "removed": false
   }
 ]
