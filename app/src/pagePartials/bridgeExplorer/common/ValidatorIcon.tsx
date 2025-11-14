@@ -33,8 +33,8 @@ export const ValidatorIcon: React.FC<Props> = ({ shortName, size, title, ...rest
   const data =
     validator === 'S'
       ? { image: `${basePath}safe.svg`, size: 38, bgColor: '#12FF80' }
-      : validator === 'GW'
-      ? { image: `${basePath}gateway.svg`, size: 36, bgColor: '#EDE9EF' }
+      : validator === 'H'
+      ? { image: `${basePath}hopr.svg`, size: 36, bgColor: '#EDE9EF' }
       : validator === 'PF'
       ? { image: `${basePath}protofire.svg`, size: 28, bgColor: '#121f3f' }
       : validator === 'CP'

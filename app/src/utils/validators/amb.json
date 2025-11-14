@@ -49,10 +49,10 @@
   },
   {
     "id": 8,
-    "address": "0x3e0A20099626F3d4d4Ea7B0cE0330e88d1Fe65D6",
-    "name": "Gateway",
+    "address": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4",
+    "name": "Hopr",
     "bridgeType": "AMB",
-    "shortName": "GW",
+    "shortName": "H",
     "status": "default"
   }
 ]

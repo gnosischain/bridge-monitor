@@ -103,5 +103,19 @@
     "id": "0xfa98b60e02a61b6590f073cad56e68326652d094-XDAI",
     "name": "Karpatkey",
     "removed": false
+  },
+  {
+    "address": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4",
+    "bridgeType": "XDAI",
+    "id": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4-XDAI",
+    "name": "Hopr",
+    "removed": false
+  },
+  {
+    "address": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4",
+    "bridgeType": "AMB",
+    "id": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4-AMB",
+    "name": "Hopr",
+    "removed": false
   }
 ]

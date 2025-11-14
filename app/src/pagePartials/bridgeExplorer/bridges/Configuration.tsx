@@ -6,6 +6,7 @@ import { TokenAddress } from '@/src/components/token/TokenAddress'
 import { bridgeConfig } from '@/src/constants/bridges'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { Chains } from '@/src/constants/config/chains'
+import { ChainsKeys } from '@/src/constants/config/types'
 
 const RowWrapper = styled.div`
   align-items: flex-start;
@@ -25,13 +26,13 @@ const RowWrapper = styled.div`
 
 const RowTitle = styled.span``
 
-const Row: React.FC<{ address: string; title: string }> = ({ address, title, ...restProps }) => {
+const Row: React.FC<{ address: string; title: string; network?: ChainsKeys }> = ({ address, title, network, ...restProps }) => {
   const { getExplorerUrl } = useWeb3Connection()
 
   return (
     <RowWrapper {...restProps}>
       <RowTitle>{title}</RowTitle>
-      <TokenAddress address={address} characters={6} copy href={getExplorerUrl(address)} />
+      <TokenAddress address={address} characters={6} copy href={getExplorerUrl(address, network ?? 'mainnet')} />
     </RowWrapper>
   )
 }
@@ -88,8 +89,8 @@ export const Configuration: React.FC = ({ ...restProps }) => {
           </Rows>
           <SubTitle>Gnosis Chain Addresses</SubTitle>
           <Rows>
-            <Row address={XDAI.bridgeProxy[Chains.gnosis]} title="xDAI Bridge Contract" />
-            <Row address={XDAI.tokens.usds.usdsDeposit} title="USDS Deposit Contract" />
+            <Row address={XDAI.bridgeProxy[Chains.gnosis]} title="xDAI Bridge Contract" network="gnosis" />
+            <Row address={XDAI.tokens.usds.usdsDeposit} title="USDS Deposit Contract" network="gnosis" />
           </Rows>
         </Card>
       </Column>
@@ -105,10 +106,10 @@ export const Configuration: React.FC = ({ ...restProps }) => {
           </Rows>
           <SubTitle>Gnosis Chain Addresses</SubTitle>
           <Rows>
-            <Row address={OMNI.bridgeProxy[Chains.gnosis]} title="Omnibridge Mediator Proxy" />
-            <Row address={OMNI.tokens.usdc.usdcTransmuter} title="USDC Transmuter contract" />
-            <Row address={OMNI.tokens.usdc.usdcE} title="USDC.e" />
-            <Row address={OMNI.tokens.usdc.usdcXdai} title="USDC on xDAI" />
+            <Row address={OMNI.bridgeProxy[Chains.gnosis]} title="Omnibridge Mediator Proxy" network="gnosis" />
+            <Row address={OMNI.tokens.usdc.usdcTransmuter} title="USDC Transmuter contract" network="gnosis" />
+            <Row address={OMNI.tokens.usdc.usdcE} title="USDC.e" network="gnosis" />
+            <Row address={OMNI.tokens.usdc.usdcXdai} title="USDC on xDAI" network="gnosis" />
           </Rows>
         </Card>
       </Column>
