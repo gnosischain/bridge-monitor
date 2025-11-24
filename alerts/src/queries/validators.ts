@@ -1,8 +1,8 @@
 import  gql  from 'graphql-tag'
 
 export const VALIDATORS_QUERY = gql`
-  query Validators {
-    validators {
+  query EnvioValidators {
+    Validator {
       id
       address
       name

@@ -14,22 +14,22 @@ export type Validator = {
   bridgeType?: BridgeType
   lastActivity?: string
   name?: string
-  tokensBalances: TokenBalance[]
 }
 
 const fetchNativeValidators = async (filter?: ValidatorsQueryVariables) => {
-  const { validators } = await useNativeGraphqlClient()<
-    ValidatorsQuery,
-    ValidatorsQueryVariables
-  >(VALIDATORS_QUERY, filter)
+  const graphqlClient = useNativeGraphqlClient()
+  const result: any = await graphqlClient(VALIDATORS_QUERY, filter)
+  
+  const validators = result?.Validator || []
+  
   return validators
 }
 
 const fetchForeignValidators = async (filter?: ValidatorsQueryVariables) => {
-  const { validators } = await useForeignGraphqlClient()<
-    ValidatorsQuery,
-    ValidatorsQueryVariables
-  >(VALIDATORS_QUERY, filter)
+  const graphqlClient = useForeignGraphqlClient()
+  const result: any = await graphqlClient(VALIDATORS_QUERY, filter)
+  
+  const validators = result?.Validator || []
   return validators
 }
 
@@ -46,14 +46,14 @@ const fetchValidators = async () => {
   // Filter out validators with the specific address
   const excludedAddress = '0x456c255a8bc1f33778603a2a48eb6b0c69f4d48e' // telepathy
   const filteredValidatorsNative = validatorsNative.filter(
-    validator => validator.address?.toLowerCase() !== excludedAddress.toLowerCase()
+    (validator: Validator) => validator.address?.toLowerCase() !== excludedAddress.toLowerCase()
   )
   const filteredValidatorsForeign = validatorsForeign.filter(
-    validator => validator.address?.toLowerCase() !== excludedAddress.toLowerCase()
+    (validator: Validator) => validator.address?.toLowerCase() !== excludedAddress.toLowerCase()
   )
  
   if(process.env.IS_VALIDATOR_BALANCE_ON_GC == 'true'){
-      const validatorsPromises = filteredValidatorsNative.map<Promise<Validator>>(async (validator) => {
+      const validatorsPromises = filteredValidatorsNative.map(async (validator: Validator) => {
         const [xdaiBalance] = await Promise.all([
           getNativeBalance(gnosisProvider, validator.address),
         
@@ -73,7 +73,7 @@ const fetchValidators = async () => {
       return validators
   }else{
     if (filteredValidatorsNative.length !== filteredValidatorsForeign.length) throw new Error('Validators mismatch')
-      const validatorsPromises = filteredValidatorsNative.map<Promise<Validator>>(async (validator) => {
+      const validatorsPromises = filteredValidatorsNative.map(async (validator: Validator) => {
         const [xdaiBalance, ethBalance] = await Promise.all([
           getNativeBalance(gnosisProvider, validator.address),
           getNativeBalance(mainnetProvider, validator.address),

@@ -1,24 +1,18 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dotenv = require("dotenv");
 
+// Note: This file is not needed for Envio. This is for reference purpose only
+
 const codeGenOutDir = "src/types/subgraph/subgraph.ts";
 
 const FOREIGN_ENDPOINT = process.env.SUBGRAPH_API_FOREIGN || "";
 const NATIVE_ENDPOINT = process.env.SUBGRAPH_API_NATIVE || "";
 const schemas = [
   {
-    [NATIVE_ENDPOINT]: {
-      headers: {
-        Authorization: `Bearer ${process.env.SUBGRAPH_API_KEY}`,
-      },
-    },
+    [NATIVE_ENDPOINT]
   },
   {
-    [FOREIGN_ENDPOINT]: {
-      headers: {
-        Authorization: `Bearer ${process.env.SUBGRAPH_API_KEY}`,
-      },
-    },
+    [FOREIGN_ENDPOINT]
   },
 ];
 

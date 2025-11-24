@@ -3,12 +3,10 @@ FROM node:18-alpine
 
 
 # Accept build arguments
-ARG SUBGRAPH_API_KEY
 ARG SUBGRAPH_API_FOREIGN
 ARG SUBGRAPH_API_NATIVE
 
-# Set them as environment variables for the build
-ENV SUBGRAPH_API_KEY=$SUBGRAPH_API_KEY
+
 ENV SUBGRAPH_API_FOREIGN=$SUBGRAPH_API_FOREIGN
 ENV SUBGRAPH_API_NATIVE=$SUBGRAPH_API_NATIVE
 
@@ -33,7 +31,6 @@ COPY . .
 
 # Generate types
 RUN yarn typechain
-RUN yarn subgraph 
 RUN yarn build
 
 

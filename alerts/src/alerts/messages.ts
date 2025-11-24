@@ -1,6 +1,6 @@
 import { bridgeLimits } from "./bridgeLimits"
 import { checkInactiveValidators } from "./inactiveValidators"
-import { lowBalanceAlerts } from "./lowBalance"
+// import { lowBalanceAlerts } from "./lowBalance"
 import { checkStuckTransactions } from "./stuckedTx"
 
 export type Message = {
@@ -23,9 +23,9 @@ export enum MessageType {
 const messages = async () => {
   // To run only certain alerts, comment out the lines for the checks you want to disable.
   const alertPromises = [
-    bridgeLimits(),
-    lowBalanceAlerts(),
-    checkInactiveValidators(),
+    // bridgeLimits(),
+    // lowBalanceAlerts(),
+   // checkInactiveValidators(),
     checkStuckTransactions(),
   ]
 

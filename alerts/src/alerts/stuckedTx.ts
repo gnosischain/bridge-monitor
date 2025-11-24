@@ -19,41 +19,65 @@ const TRANSACTION_TIMEOUT_HOURS = parseInt(process.env.TRANSACTION_TIMEOUT_HOURS
 const ALERT_STATE_FILE = process.env.ALERT_STATE_FILE || path.join(__dirname, '../../data/stuck-tx-alerts.json')
 const ALERT_CLEANUP_HOURS = parseInt(process.env.ALERT_CLEANUP_HOURS) || 48 // Cleanup resolved alerts after 48 hours
 
+const TRANSACTION_FRAGMENT = gql`
+  fragment TransactionFragment on Transaction {
+    id
+    bridgeName
+    transactionHash
+    initiator
+    initiatorAmount
+    initiatorNetwork
+    initiatorToken
+    receiver
+    receiverToken
+    receiverAmount
+    receiverNetwork
+    transactionStatus
+    timestamp
+    execution {
+      id
+      timestamp
+      transactionHash
+      validatorAddr
+    }
+    validations {
+      id
+      timestamp
+      transactionHash
+      validatorAddr
+    }
+  }
+`
+
 // Query to get all transactions in time range
 const TRANSACTIONS_QUERY = gql`
-  query Transactions($maxDelay: BigInt!, $minDelay: BigInt!) {
-    transactions(
-      where: {
-        and: [
-          { timestamp_not: null }, 
-          { timestamp_gte: $maxDelay },
-          { timestamp_lt: $minDelay}
-        ]
-      }
-      orderBy: timestamp
-      orderDirection: asc
-      first: 200
-    ) {
+  query EnvioTransactions($where: Transaction_bool_exp, $order_by: [Transaction_order_by!], $limit: Int, $offset: Int) {
+    Transaction(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
       id
+      messageId
+      bridgeType
       transactionHash
-      bridgeName
-      transactionStatus
       timestamp
-      initiator
       initiatorNetwork
-      receiverNetwork
+      initiator
       initiatorToken
-      receiverToken
       initiatorAmount
-      validations {
-        id
-        timestamp
-        validatorAddr
-      }
+      receiverNetwork
+      receiver
+      receiverToken
+      receiverAmount
+      transactionStatus
       execution {
         id
+        transactionHash
         timestamp
-        validatorAddr
+        executorAddress
+      }
+      validations {
+        id
+        transactionHash
+        timestamp
+        validatorAddress
       }
     }
   }
@@ -124,12 +148,17 @@ type Transaction = {
 }
 
 type TransactionsResponse = {
-  transactions: Transaction[]
+  Transaction: Transaction[]
 }
 
 type TransactionsVariables = {
-  maxDelay: string
-  minDelay: string
+  where: {
+    _and: Array<{
+      timestamp?: { _is_null?: boolean; _gte?: string; _lt?: string }
+    }>
+  }
+  order_by: Array<{ timestamp: string }>
+  limit: number
 }
 
 type TransactionByIdResponse = {
@@ -315,9 +344,16 @@ const checkStuckTransactions = async (): Promise<Message[]> => {
     const nativeClient = useNativeGraphqlClient()
     const foreignClient = useForeignGraphqlClient()
     
-    const queryVariables = { 
-      maxDelay: Math.floor(maxDelay / 1000).toString(), // Convert to seconds for subgraph
-      minDelay: Math.floor(minDelay / 1000).toString()  // Convert to seconds for subgraph
+    const queryVariables: TransactionsVariables = {
+      where: {
+        _and: [
+          { timestamp: { _is_null: false } }, 
+          { timestamp: { _gte: Math.floor(maxDelay / 1000).toString() } },
+          { timestamp: { _lt: Math.floor(minDelay / 1000).toString() } }
+        ]
+      },
+      order_by: [{ timestamp: "asc" }],
+      limit: 200
     }
     
     // Get all transactions in the time period from both subgraphs
@@ -326,14 +362,14 @@ const checkStuckTransactions = async (): Promise<Message[]> => {
       foreignClient<TransactionsResponse, TransactionsVariables>(TRANSACTIONS_QUERY, queryVariables)
     ])
     
-    console.log(`📊 Native transactions found: ${nativeResponse.transactions.length}`)
-    console.log(`📊 Foreign transactions found: ${foreignResponse.transactions.length}`)
+    console.log(`📊 Native transactions found: ${nativeResponse.Transaction.length}`)
+    console.log(`📊 Foreign transactions found: ${foreignResponse.Transaction.length}`)
     
     const stuckTransactions: StuckTransaction[] = []
     const currentStuckTxIds = new Set<string>()
 
     // Scenario 1: Foreign -> Native (Foreign has INITIATED, Native should have COLLECTING/COMPLETED)
-    for (const foreignTx of foreignResponse.transactions) {
+    for (const foreignTx of foreignResponse.Transaction) {
       if (foreignTx.transactionStatus === 'INITIATED') {
         // Check if this transaction exists in native subgraph
         try {
@@ -365,7 +401,7 @@ const checkStuckTransactions = async (): Promise<Message[]> => {
     }
 
     // Scenario 2: Native -> Foreign (Check if Native transactions are stuck in INITIATED/COLLECTING)
-    for (const nativeTx of nativeResponse.transactions) {
+    for (const nativeTx of nativeResponse.Transaction) {
       if (nativeTx.transactionStatus === 'INITIATED' || nativeTx.transactionStatus === 'COLLECTING') {
         // Check if transaction timestamp is older than timeout threshold
         const now = Date.now()
