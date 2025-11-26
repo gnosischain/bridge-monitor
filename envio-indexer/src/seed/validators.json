@@ -10,14 +10,14 @@
     "address": "0x1312e98995bbcc30fc63db3cef807e20cdd33dca",
     "bridgeType": "XDAI",
     "id": "0x1312e98995bbcc30fc63db3cef807e20cdd33dca-XDAI",
-    "name": "Gnosis Safe",
+    "name": "Safe",
     "removed": false
   },
   {
     "address": "0x258667e543c913264388b33328337257af208a8f",
     "bridgeType": "AMB",
     "id": "0x258667e543c913264388b33328337257af208a8f-AMB",
-    "name": "Gnosis Safe",
+    "name": "Safe",
     "removed": false
   },
   {
@@ -105,16 +105,16 @@
     "removed": false
   },
   {
-    "address": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4",
+    "address": "0x6236925ff8aa09f29f1609a9bcd54af20e4be6b4",
     "bridgeType": "XDAI",
-    "id": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4-XDAI",
+    "id": "0x6236925ff8aa09f29f1609a9bcd54af20e4be6b4-XDAI",
     "name": "Hopr",
     "removed": false
   },
   {
-    "address": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4",
+    "address": "0x6236925ff8aa09f29f1609a9bcd54af20e4be6b4",
     "bridgeType": "AMB",
-    "id": "0x6236925FF8Aa09f29f1609a9BcD54Af20e4be6B4-AMB",
+    "id": "0x6236925ff8aa09f29f1609a9bcd54af20e4be6b4-AMB",
     "name": "Hopr",
     "removed": false
   }

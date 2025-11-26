@@ -38,7 +38,7 @@ export function mockAMBValidators(): void {
 
   // safe
   const safe = new Validator("0x258667e543c913264388b33328337257af208a8f-AMB");
-  safe.name = "Gnosis Safe";
+  safe.name = "Safe";
   safe.bridgeType = "AMB";
   safe.address = Bytes.fromHexString(
     "0x258667e543c913264388b33328337257af208a8f"
@@ -218,7 +218,7 @@ export function mockXDAIValidators(): void {
 
   // safe
   const safe = new Validator("0x1312e98995bbcc30fc63db3cef807e20cdd33dca-XDAI");
-  safe.name = "Gnosis Safe";
+  safe.name = "Safe";
   safe.bridgeType = "XDAI";
   safe.address = Bytes.fromHexString(
     "0x1312e98995bbcc30fc63db3cef807e20cdd33dca"
