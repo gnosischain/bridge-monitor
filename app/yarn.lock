@@ -4616,13 +4616,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uniswap/token-lists@npm:^1.0.0-beta.31":
-  version: 1.0.0-beta.34
-  resolution: "@uniswap/token-lists@npm:1.0.0-beta.34"
-  checksum: 10c0/963319d229555b6444316073ab7861d880f10d4ff7902ff90cd4544976396b3b6c39af007544649c78e744bcc16431daddedceb41032b45fa09d77dc0b84d0e2
-  languageName: node
-  linkType: hard
-
 "@walletconnect/core@npm:2.17.2":
   version: 2.17.2
   resolution: "@walletconnect/core@npm:2.17.2"
@@ -9600,7 +9593,6 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^5.13.0"
     "@typescript-eslint/parser": "npm:^5.13.0"
     "@uniswap/sdk-core": "npm:^4.0.7"
-    "@uniswap/token-lists": "npm:^1.0.0-beta.31"
     "@web3-name-sdk/core": "npm:^0.1.16"
     "@web3-onboard/common": "npm:^2.3.3"
     "@web3-onboard/core": "npm:^2.21.2"
