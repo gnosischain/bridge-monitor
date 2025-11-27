@@ -54,5 +54,13 @@
     "bridgeType": "XDAI",
     "shortName": "H",
     "status": "default"
+  },
+  {
+    "id": 9,
+    "address": "0x90776017057b84bc47D7e7383b65C463C80a6cdd",
+    "name": "Gateway",
+    "bridgeType": "XDAI",
+    "shortName": "GW",
+    "status": "default"
   }
 ]

@@ -31,6 +31,7 @@ const XDAI_VALIDATORS = xdaiValidators as Validator[]
 const AMB_VALIDATORS = ambValidators as Validator[]
 
 export type Validator = {
+  removed?: boolean | null
   address: string
   name: string
   bridgeType: string
@@ -109,26 +110,43 @@ export const getValidationsStatus = (transaction: Transaction, _validators: Vali
 }
 
 export const fetchHomeValidators = async (filter?: ValidatorsQueryVariables) => {
-  if (isEnvioBackend()) {
-    type EnvioValidatorRow = {
-      id?: string
-      name?: string | null
-      bridgeType?: string | null
-      address: string
-      lastActivity?: number | null
-      signed?: Array<{ id: string }>
-      executed?: Array<{ id: string }>
-    }
-    const request = getEnvioGraphqlClient<{ Validator: EnvioValidatorRow[] }>()
-    const res = await request(ENVIO_VALIDATORS_QUERY, {})
-    return res.Validator
+  type EnvioValidatorRow = {
+    id?: string
+    name?: string | null
+    removed?: boolean | null
+    bridgeType?: string | null
+    address: string
+    lastActivity?: number | null
+    signed?: Array<{ id: string }>
+    executed?: Array<{ id: string }>
   }
-  const { validators } = await getHomeGraphqlClient()<ValidatorsQuery, ValidatorsQueryVariables>(
-    VALIDATORS_QUERY,
-    filter,
-  )
-  return validators
+  const request = getEnvioGraphqlClient<{ Validator: EnvioValidatorRow[] }>()
+  const res = await request(ENVIO_VALIDATORS_QUERY, {})
+  return res.Validator
 }
+
+// export const fetchHomeValidators = async (filter?: ValidatorsQueryVariables) => {
+//   if (isEnvioBackend()) {
+//     type EnvioValidatorRow = {
+//       id?: string
+//       name?: string | null
+//       removed?: boolean | null
+//       bridgeType?: string | null
+//       address: string
+//       lastActivity?: number | null
+//       signed?: Array<{ id: string }>
+//       executed?: Array<{ id: string }>
+//     }
+//     const request = getEnvioGraphqlClient<{ Validator: EnvioValidatorRow[] }>()
+//     const res = await request(ENVIO_VALIDATORS_QUERY, {})
+//     return res.Validator
+//   }
+//   const { validators } = await getHomeGraphqlClient()<ValidatorsQuery, ValidatorsQueryVariables>(
+//     VALIDATORS_QUERY,
+//     filter,
+//   )
+//   return validators
+// }
 
 export const getValidatorByAddress = (validatorAddress: string, bridge: BridgesValues) => {
   const bridgeValidators = VALIDATORS_BY_ADDRESS[bridge]
