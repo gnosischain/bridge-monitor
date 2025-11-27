@@ -45,6 +45,8 @@ export const ValidatorIcon: React.FC<Props> = ({ shortName, size, title, ...rest
       ? { image: `${basePath}karpatkey.svg`, size: 36, bgColor: '#221F20' }
       : validator === 'G'
       ? { image: `${basePath}giveth.svg`, size: 30, bgColor: '#fff' }
+      : validator === 'GW'
+      ? { image: `${basePath}gateway.svg`, size: 36, bgColor: '#EDE9EF' }
       : validator === 'TY'
       ? { image: `${basePath}telepathy.svg`, size: 36, bgColor: '#fff' }
       : { image: `${basePath}empty-token.png`, size: 40, bgColor: '#3E6957' }

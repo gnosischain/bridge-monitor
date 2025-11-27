@@ -120,6 +120,7 @@ const XDAIValidators: React.FC = genericSuspense(
       <Columns {...restProps}>
         <Chart bridge={'XDAI'} />
         {xdaiValidators.map((validator, index) => {
+          if (validator.removed) return null
           const todaysSignatures = xdaiTodaysSignedTXs.data?.find((validatorSig) =>
             isSameString(validatorSig.name, validator.name),
           )
@@ -149,6 +150,7 @@ const OmnibridgeValidators: React.FC = genericSuspense(
       <Columns {...restProps}>
         <Chart bridge={'AMB'} />
         {omnibridgeValidators.map((validator, index) => {
+          if (validator.removed) return null
           const todaysSignatures = omnibridgeTodaysSignedTXs.data?.find(
             (signaturesCount: SigsCount) => {
               return signaturesCount.name === validator.name
