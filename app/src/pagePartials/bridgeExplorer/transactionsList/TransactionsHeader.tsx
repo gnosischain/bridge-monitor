@@ -38,11 +38,13 @@ export const TransactionHeader: React.FC<Props> = ({ validators, ...restProps })
       <TH>Receiver</TH>
       {validators && (
         <THValidators className="validators">
-          {validators.filter(validator => !validator.removed).map((validator, index) => (
-            <Tooltip content={validator.name} key={`validator_column_${index}`}>
-              <ValidatorName>{validator.shortName.toUpperCase()}</ValidatorName>
-            </Tooltip>
-          ))}
+          {validators
+            .filter((validator) => !validator.removed)
+            .map((validator, index) => (
+              <Tooltip content={validator.name} key={`validator_column_${index}`}>
+                <ValidatorName>{validator.shortName.toUpperCase()}</ValidatorName>
+              </Tooltip>
+            ))}
         </THValidators>
       )}
       <TH>Status</TH>
