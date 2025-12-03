@@ -49,6 +49,14 @@
   },
   {
     "id": 8,
+    "address": "0x6236925ff8aa09f29f1609a9bcd54af20e4be6b4",
+    "name": "Hopr",
+    "bridgeType": "XDAI",
+    "shortName": "H",
+    "status": "default"
+  },
+  {
+    "id": 9,
     "address": "0x90776017057b84bc47D7e7383b65C463C80a6cdd",
     "name": "Gateway",
     "bridgeType": "XDAI",

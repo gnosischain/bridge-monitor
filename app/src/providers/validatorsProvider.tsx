@@ -56,6 +56,7 @@ const fetcher = async () => {
     const validator: Validator = {
       address: v.address.toLowerCase(),
       name,
+      removed: v.removed,
       bridgeType: String(v.bridgeType || staticVal?.bridgeType || ''),
       shortName,
       status: ValidatorStatusTypes.default,

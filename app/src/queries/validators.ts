@@ -22,9 +22,10 @@ export const VALIDATORS_QUERY = gql`
 
 export const ENVIO_VALIDATORS_QUERY = `
   query EnvioValidators {
-    Validator(where: { removed: { _eq: false } }) {
+    Validator {
       id
       name
+      removed
       bridgeType
       address
       lastActivity
