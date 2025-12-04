@@ -22,6 +22,7 @@ import { InnerCard } from '@/src/components/card/InnerCard'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { ArrowRight } from '@/src/components/assets/ArrowRight'
+import { usdsToken } from '@/src/constants/usdsToken'
 
 const Columns = styled.div`
   display: grid;
@@ -104,7 +105,7 @@ const Placeholder: React.FC = () => (
 export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericSuspense(
   ({ dayNumber }) => {
     const { foreignXdaiInformation } = useForeignXDAIBridgeLimits(dayNumber)
-    const { mainnetDaiToken } = useDaiToken()
+    // const { mainnetDaiToken } = useDaiToken()
 
     return (
       <BridgeLimit
@@ -119,7 +120,8 @@ export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericS
           </TitleWrapper>
         }
         to="Gnosis"
-        token={mainnetDaiToken}
+        // token={mainnetDaiToken}
+        token={usdsToken}
         {...foreignXdaiInformation}
       />
     )
