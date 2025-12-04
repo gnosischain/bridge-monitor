@@ -2,360 +2,354 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
-import type {
-  ForeignBridgeRouter,
-  ForeignBridgeRouterInterface,
-} from "../ForeignBridgeRouter";
+import { Contract, Signer, utils } from 'ethers'
+import type { Provider } from '@ethersproject/providers'
+import type { ForeignBridgeRouter, ForeignBridgeRouterInterface } from '../ForeignBridgeRouter'
 
 const _abi = [
   {
     inputs: [],
-    stateMutability: "nonpayable",
-    type: "constructor",
+    stateMutability: 'nonpayable',
+    type: 'constructor',
   },
   {
     inputs: [],
-    name: "ClaimUsdsNotSupported",
-    type: "error",
+    name: 'ClaimUsdsNotSupported',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidInitialization",
-    type: "error",
+    name: 'InvalidInitialization',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "NotInitializing",
-    type: "error",
+    name: 'NotInitializing',
+    type: 'error',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "owner",
-        type: "address",
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
       },
     ],
-    name: "OwnableInvalidOwner",
-    type: "error",
+    name: 'OwnableInvalidOwner',
+    type: 'error',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
       },
     ],
-    name: "OwnableUnauthorizedAccount",
-    type: "error",
+    name: 'OwnableUnauthorizedAccount',
+    type: 'error',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        internalType: "uint64",
-        name: "version",
-        type: "uint64",
+        internalType: 'uint64',
+        name: 'version',
+        type: 'uint64',
       },
     ],
-    name: "Initialized",
-    type: "event",
+    name: 'Initialized',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "previousOwner",
-        type: "address",
+        internalType: 'address',
+        name: 'previousOwner',
+        type: 'address',
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
       },
     ],
-    name: "OwnershipTransferred",
-    type: "event",
+    name: 'OwnershipTransferred',
+    type: 'event',
   },
   {
     inputs: [],
-    name: "DAI",
+    name: 'DAI',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "FOREIGN_AMB",
+    name: 'FOREIGN_AMB',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "FOREIGN_OMNIBRIDGE",
+    name: 'FOREIGN_OMNIBRIDGE',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "FOREIGN_XDAIBRIDGE",
+    name: 'FOREIGN_XDAIBRIDGE',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "USDS",
+    name: 'USDS',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "WETH_OMNIBRIDGE_ROUTER",
+    name: 'WETH_OMNIBRIDGE_ROUTER',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes",
-        name: "message",
-        type: "bytes",
+        internalType: 'bytes',
+        name: 'message',
+        type: 'bytes',
       },
       {
-        internalType: "bytes",
-        name: "signatures",
-        type: "bytes",
+        internalType: 'bytes',
+        name: 'signatures',
+        type: 'bytes',
       },
     ],
-    name: "executeSignatures",
+    name: 'executeSignatures',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes",
-        name: "message",
-        type: "bytes",
+        internalType: 'bytes',
+        name: 'message',
+        type: 'bytes',
       },
       {
-        internalType: "bytes",
-        name: "signatures",
-        type: "bytes",
+        internalType: 'bytes',
+        name: 'signatures',
+        type: 'bytes',
       },
     ],
-    name: "executeSignaturesUSDS",
+    name: 'executeSignaturesUSDS',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "owner",
-        type: "address",
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
       },
     ],
-    name: "initialize",
+    name: 'initialize',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "owner",
+    name: 'owner',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "token",
-        type: "address",
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
       },
       {
-        internalType: "address",
-        name: "recipient",
-        type: "address",
+        internalType: 'address',
+        name: 'recipient',
+        type: 'address',
       },
       {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
       },
     ],
-    name: "recoverLockedFund",
+    name: 'recoverLockedFund',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_token",
-        type: "address",
+        internalType: 'address',
+        name: '_token',
+        type: 'address',
       },
       {
-        internalType: "address",
-        name: "_receiver",
-        type: "address",
+        internalType: 'address',
+        name: '_receiver',
+        type: 'address',
       },
       {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256',
       },
     ],
-    name: "relayTokens",
+    name: 'relayTokens',
     outputs: [],
-    stateMutability: "payable",
-    type: "function",
+    stateMutability: 'payable',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "renounceOwnership",
+    name: 'renounceOwnership',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes",
-        name: "message",
-        type: "bytes",
+        internalType: 'bytes',
+        name: 'message',
+        type: 'bytes',
       },
       {
-        internalType: "bytes",
-        name: "signatures",
-        type: "bytes",
+        internalType: 'bytes',
+        name: 'signatures',
+        type: 'bytes',
       },
     ],
-    name: "safeExecuteSignaturesWithAutoGasLimit",
+    name: 'safeExecuteSignaturesWithAutoGasLimit',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_token",
-        type: "address",
+        internalType: 'address',
+        name: '_token',
+        type: 'address',
       },
       {
-        internalType: "address",
-        name: "_route",
-        type: "address",
+        internalType: 'address',
+        name: '_route',
+        type: 'address',
       },
     ],
-    name: "setRoute",
+    name: 'setRoute',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    name: "tokenRoutes",
+    name: 'tokenRoutes',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
       },
     ],
-    name: "transferOwnership",
+    name: 'transferOwnership',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
-] as const;
+] as const
 
 export class ForeignBridgeRouter__factory {
-  static readonly abi = _abi;
+  static readonly abi = _abi
   static createInterface(): ForeignBridgeRouterInterface {
-    return new utils.Interface(_abi) as ForeignBridgeRouterInterface;
+    return new utils.Interface(_abi) as ForeignBridgeRouterInterface
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): ForeignBridgeRouter {
-    return new Contract(address, _abi, signerOrProvider) as ForeignBridgeRouter;
+  static connect(address: string, signerOrProvider: Signer | Provider): ForeignBridgeRouter {
+    return new Contract(address, _abi, signerOrProvider) as ForeignBridgeRouter
   }
 }
