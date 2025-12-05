@@ -2,191 +2,184 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Contract, Signer, utils } from 'ethers'
+import type { Provider } from '@ethersproject/providers'
 import type {
   Erc20ToNativeBridgeHelper,
   Erc20ToNativeBridgeHelperInterface,
-} from "../Erc20ToNativeBridgeHelper";
+} from '../Erc20ToNativeBridgeHelper'
 
 const _abi = [
   {
     constant: true,
     inputs: [
       {
-        name: "_msgHash",
-        type: "bytes32",
+        name: '_msgHash',
+        type: 'bytes32',
       },
     ],
-    name: "getMessage",
+    name: 'getMessage',
     outputs: [
       {
-        name: "result",
-        type: "bytes",
+        name: 'result',
+        type: 'bytes',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [
       {
-        name: "_recipient",
-        type: "address",
+        name: '_recipient',
+        type: 'address',
       },
       {
-        name: "_value",
-        type: "uint256",
+        name: '_value',
+        type: 'uint256',
       },
       {
-        name: "_origTxHash",
-        type: "bytes32",
+        name: '_origTxHash',
+        type: 'bytes32',
       },
     ],
-    name: "getMessageHash",
+    name: 'getMessageHash',
     outputs: [
       {
-        name: "",
-        type: "bytes32",
+        name: '',
+        type: 'bytes32',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "foreignBridge",
+    name: 'foreignBridge',
     outputs: [
       {
-        name: "",
-        type: "address",
+        name: '',
+        type: 'address',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "owner",
+    name: 'owner',
     outputs: [
       {
-        name: "",
-        type: "address",
+        name: '',
+        type: 'address',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [
       {
-        name: "_msgHash",
-        type: "bytes32",
+        name: '_msgHash',
+        type: 'bytes32',
       },
     ],
-    name: "getSignatures",
+    name: 'getSignatures',
     outputs: [
       {
-        name: "",
-        type: "bytes",
+        name: '',
+        type: 'bytes',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [
       {
-        name: "_recipient",
-        type: "address",
+        name: '_recipient',
+        type: 'address',
       },
       {
-        name: "_value",
-        type: "uint256",
+        name: '_value',
+        type: 'uint256',
       },
       {
-        name: "_nonce",
-        type: "bytes32",
+        name: '_nonce',
+        type: 'bytes32',
       },
       {
-        name: "_token",
-        type: "address",
+        name: '_token',
+        type: 'address',
       },
     ],
-    name: "getMessageHash",
+    name: 'getMessageHash',
     outputs: [
       {
-        name: "",
-        type: "bytes32",
+        name: '',
+        type: 'bytes32',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "bridge",
+    name: 'bridge',
     outputs: [
       {
-        name: "",
-        type: "address",
+        name: '',
+        type: 'address',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: false,
     inputs: [],
-    name: "clean",
+    name: 'clean',
     outputs: [],
     payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        name: "_homeBridge",
-        type: "address",
+        name: '_homeBridge',
+        type: 'address',
       },
       {
-        name: "_foreignBridge",
-        type: "address",
+        name: '_foreignBridge',
+        type: 'address',
       },
     ],
     payable: false,
-    stateMutability: "nonpayable",
-    type: "constructor",
+    stateMutability: 'nonpayable',
+    type: 'constructor',
   },
-] as const;
+] as const
 
 export class Erc20ToNativeBridgeHelper__factory {
-  static readonly abi = _abi;
+  static readonly abi = _abi
   static createInterface(): Erc20ToNativeBridgeHelperInterface {
-    return new utils.Interface(_abi) as Erc20ToNativeBridgeHelperInterface;
+    return new utils.Interface(_abi) as Erc20ToNativeBridgeHelperInterface
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): Erc20ToNativeBridgeHelper {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as Erc20ToNativeBridgeHelper;
+  static connect(address: string, signerOrProvider: Signer | Provider): Erc20ToNativeBridgeHelper {
+    return new Contract(address, _abi, signerOrProvider) as Erc20ToNativeBridgeHelper
   }
 }

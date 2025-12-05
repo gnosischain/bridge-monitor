@@ -11,113 +11,91 @@ import type {
   PopulatedTransaction,
   Signer,
   utils,
-} from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
-import type {
-  TypedEventFilter,
-  TypedEvent,
-  TypedListener,
-  OnEvent,
-  PromiseOrValue,
-} from "./common";
+} from 'ethers'
+import type { FunctionFragment, Result } from '@ethersproject/abi'
+import type { Listener, Provider } from '@ethersproject/providers'
+import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from './common'
 
 export interface USDSdepositInterface extends utils.Interface {
   functions: {
-    "relayTokens(address)": FunctionFragment;
-    "xDAIBridge()": FunctionFragment;
-  };
+    'relayTokens(address)': FunctionFragment
+    'xDAIBridge()': FunctionFragment
+  }
 
-  getFunction(
-    nameOrSignatureOrTopic: "relayTokens" | "xDAIBridge"
-  ): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: 'relayTokens' | 'xDAIBridge'): FunctionFragment
 
-  encodeFunctionData(
-    functionFragment: "relayTokens",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "xDAIBridge",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: 'relayTokens', values: [PromiseOrValue<string>]): string
+  encodeFunctionData(functionFragment: 'xDAIBridge', values?: undefined): string
 
-  decodeFunctionResult(
-    functionFragment: "relayTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "xDAIBridge", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'relayTokens', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'xDAIBridge', data: BytesLike): Result
 
-  events: {};
+  events: {}
 }
 
 export interface USDSdeposit extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(signerOrProvider: Signer | Provider | string): this
+  attach(addressOrName: string): this
+  deployed(): Promise<this>
 
-  interface: USDSdepositInterface;
+  interface: USDSdepositInterface
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+    toBlock?: string | number | undefined,
+  ): Promise<Array<TEvent>>
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+    eventFilter?: TypedEventFilter<TEvent>,
+  ): Array<TypedListener<TEvent>>
+  listeners(eventName?: string): Array<Listener>
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this
+  removeAllListeners(eventName?: string): this
+  off: OnEvent<this>
+  on: OnEvent<this>
+  once: OnEvent<this>
+  removeListener: OnEvent<this>
 
   functions: {
     relayTokens(
       recipient: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-    xDAIBridge(overrides?: CallOverrides): Promise<[string]>;
-  };
+    xDAIBridge(overrides?: CallOverrides): Promise<[string]>
+  }
 
   relayTokens(
     recipient: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
-  xDAIBridge(overrides?: CallOverrides): Promise<string>;
+  xDAIBridge(overrides?: CallOverrides): Promise<string>
 
   callStatic: {
-    relayTokens(
-      recipient: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    relayTokens(recipient: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>
 
-    xDAIBridge(overrides?: CallOverrides): Promise<string>;
-  };
+    xDAIBridge(overrides?: CallOverrides): Promise<string>
+  }
 
-  filters: {};
+  filters: {}
 
   estimateGas: {
     relayTokens(
       recipient: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
-    xDAIBridge(overrides?: CallOverrides): Promise<BigNumber>;
-  };
+    xDAIBridge(overrides?: CallOverrides): Promise<BigNumber>
+  }
 
   populateTransaction: {
     relayTokens(
       recipient: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
-    xDAIBridge(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-  };
+    xDAIBridge(overrides?: CallOverrides): Promise<PopulatedTransaction>
+  }
 }

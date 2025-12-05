@@ -2,134 +2,132 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Contract, Signer, utils } from 'ethers'
+import type { Provider } from '@ethersproject/providers'
 import type {
   Erc20ToNativeBridgeHelper_beforeUSDSMigration,
   Erc20ToNativeBridgeHelper_beforeUSDSMigrationInterface,
-} from "../Erc20ToNativeBridgeHelper_beforeUSDSMigration";
+} from '../Erc20ToNativeBridgeHelper_beforeUSDSMigration'
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_homeBridge",
-        type: "address",
+        internalType: 'address',
+        name: '_homeBridge',
+        type: 'address',
       },
       {
-        internalType: "address",
-        name: "_foreignBridge",
-        type: "address",
+        internalType: 'address',
+        name: '_foreignBridge',
+        type: 'address',
       },
     ],
-    stateMutability: "nonpayable",
-    type: "constructor",
+    stateMutability: 'nonpayable',
+    type: 'constructor',
   },
   {
     inputs: [],
-    name: "bridge",
+    name: 'bridge',
     outputs: [
       {
-        internalType: "contract IHomeErc20ToNativeBridge",
-        name: "",
-        type: "address",
+        internalType: 'contract IHomeErc20ToNativeBridge',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "clean",
+    name: 'clean',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes32",
-        name: "_msgHash",
-        type: "bytes32",
+        internalType: 'bytes32',
+        name: '_msgHash',
+        type: 'bytes32',
       },
     ],
-    name: "getMessage",
+    name: 'getMessage',
     outputs: [
       {
-        internalType: "bytes",
-        name: "result",
-        type: "bytes",
+        internalType: 'bytes',
+        name: 'result',
+        type: 'bytes',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_recipient",
-        type: "address",
+        internalType: 'address',
+        name: '_recipient',
+        type: 'address',
       },
       {
-        internalType: "uint256",
-        name: "_value",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '_value',
+        type: 'uint256',
       },
       {
-        internalType: "bytes32",
-        name: "_origTxHash",
-        type: "bytes32",
+        internalType: 'bytes32',
+        name: '_origTxHash',
+        type: 'bytes32',
       },
     ],
-    name: "getMessageHash",
+    name: 'getMessageHash',
     outputs: [
       {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes32",
-        name: "_msgHash",
-        type: "bytes32",
+        internalType: 'bytes32',
+        name: '_msgHash',
+        type: 'bytes32',
       },
     ],
-    name: "getSignatures",
+    name: 'getSignatures',
     outputs: [
       {
-        internalType: "bytes",
-        name: "",
-        type: "bytes",
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
-] as const;
+] as const
 
 export class Erc20ToNativeBridgeHelper_beforeUSDSMigration__factory {
-  static readonly abi = _abi;
+  static readonly abi = _abi
   static createInterface(): Erc20ToNativeBridgeHelper_beforeUSDSMigrationInterface {
-    return new utils.Interface(
-      _abi
-    ) as Erc20ToNativeBridgeHelper_beforeUSDSMigrationInterface;
+    return new utils.Interface(_abi) as Erc20ToNativeBridgeHelper_beforeUSDSMigrationInterface
   }
   static connect(
     address: string,
-    signerOrProvider: Signer | Provider
+    signerOrProvider: Signer | Provider,
   ): Erc20ToNativeBridgeHelper_beforeUSDSMigration {
     return new Contract(
       address,
       _abi,
-      signerOrProvider
-    ) as Erc20ToNativeBridgeHelper_beforeUSDSMigration;
+      signerOrProvider,
+    ) as Erc20ToNativeBridgeHelper_beforeUSDSMigration
   }
 }

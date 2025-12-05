@@ -57,6 +57,14 @@
   },
   {
     "id": 9,
+    "address": "0x7117F73aFBDec3221bDD50DdCbf73204b3998302",
+    "name": "Kleros",
+    "bridgeType": "AMB",
+    "shortName": "KL",
+    "status": "default"
+  },
+  {
+    "id": 10,
     "address": "0x3e0A20099626F3d4d4Ea7B0cE0330e88d1Fe65D6",
     "name": "Gateway",
     "bridgeType": "AMB",

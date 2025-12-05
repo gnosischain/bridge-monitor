@@ -117,5 +117,19 @@
     "id": "0x6236925ff8aa09f29f1609a9bcd54af20e4be6b4-AMB",
     "name": "Hopr",
     "removed": false
+  },
+  {
+    "address": "0x7117F73aFBDec3221bDD50DdCbf73204b3998302",
+    "bridgeType": "XDAI",
+    "id": "0x7117F73aFBDec3221bDD50DdCbf73204b3998302-XDAI",
+    "name": "Kleros",
+    "removed": false
+  },
+  {
+    "address": "0x7117F73aFBDec3221bDD50DdCbf73204b3998302",
+    "bridgeType": "AMB",
+    "id": "0x7117F73aFBDec3221bDD50DdCbf73204b3998302-AMB",
+    "name": "Kleros",
+    "removed": false
   }
 ]

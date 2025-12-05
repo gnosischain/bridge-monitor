@@ -2,714 +2,711 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
-import type { ForeignAMB, ForeignAMBInterface } from "../ForeignAMB";
+import { Contract, Signer, utils } from 'ethers'
+import type { Provider } from '@ethersproject/providers'
+import type { ForeignAMB, ForeignAMBInterface } from '../ForeignAMB'
 
 const _abi = [
   {
     constant: true,
     inputs: [],
-    name: "transactionHash",
+    name: 'transactionHash',
     outputs: [
       {
-        name: "",
-        type: "bytes32",
+        name: '',
+        type: 'bytes32',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "sourceChainId",
+    name: 'sourceChainId',
     outputs: [
       {
-        name: "",
-        type: "uint256",
+        name: '',
+        type: 'uint256',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [
       {
-        name: "_txHash",
-        type: "bytes32",
+        name: '_txHash',
+        type: 'bytes32',
       },
     ],
-    name: "relayedMessages",
+    name: 'relayedMessages',
     outputs: [
       {
-        name: "",
-        type: "bool",
+        name: '',
+        type: 'bool',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: false,
     inputs: [
       {
-        name: "_data",
-        type: "bytes",
+        name: '_data',
+        type: 'bytes',
       },
       {
-        name: "_signatures",
-        type: "bytes",
+        name: '_signatures',
+        type: 'bytes',
       },
     ],
-    name: "safeExecuteSignaturesWithAutoGasLimit",
+    name: 'safeExecuteSignaturesWithAutoGasLimit',
     outputs: [],
     payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     constant: false,
     inputs: [
       {
-        name: "_sourceChainId",
-        type: "uint256",
+        name: '_sourceChainId',
+        type: 'uint256',
       },
       {
-        name: "_destinationChainId",
-        type: "uint256",
+        name: '_destinationChainId',
+        type: 'uint256',
       },
       {
-        name: "_validatorContract",
-        type: "address",
+        name: '_validatorContract',
+        type: 'address',
       },
       {
-        name: "_maxGasPerTx",
-        type: "uint256",
+        name: '_maxGasPerTx',
+        type: 'uint256',
       },
       {
-        name: "_gasPrice",
-        type: "uint256",
+        name: '_gasPrice',
+        type: 'uint256',
       },
       {
-        name: "_requiredBlockConfirmations",
-        type: "uint256",
+        name: '_requiredBlockConfirmations',
+        type: 'uint256',
       },
       {
-        name: "_owner",
-        type: "address",
+        name: '_owner',
+        type: 'address',
       },
     ],
-    name: "initialize",
+    name: 'initialize',
     outputs: [
       {
-        name: "",
-        type: "bool",
+        name: '',
+        type: 'bool',
       },
     ],
     payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "isInitialized",
+    name: 'isInitialized',
     outputs: [
       {
-        name: "",
-        type: "bool",
+        name: '',
+        type: 'bool',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "requiredBlockConfirmations",
+    name: 'requiredBlockConfirmations',
     outputs: [
       {
-        name: "",
-        type: "uint256",
+        name: '',
+        type: 'uint256',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: false,
     inputs: [
       {
-        name: "_data",
-        type: "bytes",
+        name: '_data',
+        type: 'bytes',
       },
       {
-        name: "_signatures",
-        type: "bytes",
+        name: '_signatures',
+        type: 'bytes',
       },
     ],
-    name: "executeSignatures",
+    name: 'executeSignatures',
     outputs: [],
     payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [
       {
-        name: "_messageId",
-        type: "bytes32",
+        name: '_messageId',
+        type: 'bytes32',
       },
     ],
-    name: "failedMessageReceiver",
+    name: 'failedMessageReceiver',
     outputs: [
       {
-        name: "",
-        type: "address",
+        name: '',
+        type: 'address',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "getBridgeMode",
+    name: 'getBridgeMode',
     outputs: [
       {
-        name: "_data",
-        type: "bytes4",
+        name: '_data',
+        type: 'bytes4',
       },
     ],
     payable: false,
-    stateMutability: "pure",
-    type: "function",
+    stateMutability: 'pure',
+    type: 'function',
   },
   {
     constant: false,
     inputs: [
       {
-        name: "_sourceChainId",
-        type: "uint256",
+        name: '_sourceChainId',
+        type: 'uint256',
       },
       {
-        name: "_destinationChainId",
-        type: "uint256",
+        name: '_destinationChainId',
+        type: 'uint256',
       },
     ],
-    name: "setChainIds",
+    name: 'setChainIds',
     outputs: [],
     payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [
       {
-        name: "_messageId",
-        type: "bytes32",
+        name: '_messageId',
+        type: 'bytes32',
       },
     ],
-    name: "failedMessageSender",
+    name: 'failedMessageSender',
     outputs: [
       {
-        name: "",
-        type: "address",
+        name: '',
+        type: 'address',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "allowReentrantRequests",
+    name: 'allowReentrantRequests',
     outputs: [
       {
-        name: "",
-        type: "bool",
+        name: '',
+        type: 'bool',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "messageId",
+    name: 'messageId',
     outputs: [
       {
-        name: "id",
-        type: "bytes32",
+        name: 'id',
+        type: 'bytes32',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: false,
     inputs: [
       {
-        name: "_token",
-        type: "address",
+        name: '_token',
+        type: 'address',
       },
       {
-        name: "_to",
-        type: "address",
+        name: '_to',
+        type: 'address',
       },
     ],
-    name: "claimTokens",
+    name: 'claimTokens',
     outputs: [],
     payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     constant: false,
     inputs: [
       {
-        name: "_maxGasPerTx",
-        type: "uint256",
+        name: '_maxGasPerTx',
+        type: 'uint256',
       },
     ],
-    name: "setMaxGasPerTx",
+    name: 'setMaxGasPerTx',
     outputs: [],
     payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "requiredSignatures",
+    name: 'requiredSignatures',
     outputs: [
       {
-        name: "",
-        type: "uint256",
+        name: '',
+        type: 'uint256',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "owner",
+    name: 'owner',
     outputs: [
       {
-        name: "",
-        type: "address",
+        name: '',
+        type: 'address',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "validatorContract",
+    name: 'validatorContract',
     outputs: [
       {
-        name: "",
-        type: "address",
+        name: '',
+        type: 'address',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "deployedAtBlock",
+    name: 'deployedAtBlock',
     outputs: [
       {
-        name: "",
-        type: "uint256",
+        name: '',
+        type: 'uint256',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "getBridgeInterfacesVersion",
+    name: 'getBridgeInterfacesVersion',
     outputs: [
       {
-        name: "major",
-        type: "uint64",
+        name: 'major',
+        type: 'uint64',
       },
       {
-        name: "minor",
-        type: "uint64",
+        name: 'minor',
+        type: 'uint64',
       },
       {
-        name: "patch",
-        type: "uint64",
+        name: 'patch',
+        type: 'uint64',
       },
     ],
     payable: false,
-    stateMutability: "pure",
-    type: "function",
+    stateMutability: 'pure',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "messageSourceChainId",
+    name: 'messageSourceChainId',
     outputs: [
       {
-        name: "id",
-        type: "uint256",
+        name: 'id',
+        type: 'uint256',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: false,
     inputs: [
       {
-        name: "_blockConfirmations",
-        type: "uint256",
+        name: '_blockConfirmations',
+        type: 'uint256',
       },
     ],
-    name: "setRequiredBlockConfirmations",
+    name: 'setRequiredBlockConfirmations',
     outputs: [],
     payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "destinationChainId",
+    name: 'destinationChainId',
     outputs: [
       {
-        name: "",
-        type: "uint256",
+        name: '',
+        type: 'uint256',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: false,
     inputs: [
       {
-        name: "_gasPrice",
-        type: "uint256",
+        name: '_gasPrice',
+        type: 'uint256',
       },
     ],
-    name: "setGasPrice",
+    name: 'setGasPrice',
     outputs: [],
     payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     constant: false,
     inputs: [
       {
-        name: "_enable",
-        type: "bool",
+        name: '_enable',
+        type: 'bool',
       },
     ],
-    name: "setAllowReentrantRequests",
+    name: 'setAllowReentrantRequests',
     outputs: [],
     payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [
       {
-        name: "_messageId",
-        type: "bytes32",
+        name: '_messageId',
+        type: 'bytes32',
       },
     ],
-    name: "messageCallStatus",
+    name: 'messageCallStatus',
     outputs: [
       {
-        name: "",
-        type: "bool",
+        name: '',
+        type: 'bool',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "messageSender",
+    name: 'messageSender',
     outputs: [
       {
-        name: "sender",
-        type: "address",
+        name: 'sender',
+        type: 'address',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "decimalShift",
+    name: 'decimalShift',
     outputs: [
       {
-        name: "",
-        type: "int256",
+        name: '',
+        type: 'int256',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: false,
     inputs: [
       {
-        name: "_contract",
-        type: "address",
+        name: '_contract',
+        type: 'address',
       },
       {
-        name: "_data",
-        type: "bytes",
+        name: '_data',
+        type: 'bytes',
       },
       {
-        name: "_gas",
-        type: "uint256",
+        name: '_gas',
+        type: 'uint256',
       },
     ],
-    name: "requireToPassMessage",
+    name: 'requireToPassMessage',
     outputs: [
       {
-        name: "",
-        type: "bytes32",
+        name: '',
+        type: 'bytes32',
       },
     ],
     payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [
       {
-        name: "_messageId",
-        type: "bytes32",
+        name: '_messageId',
+        type: 'bytes32',
       },
     ],
-    name: "failedMessageDataHash",
+    name: 'failedMessageDataHash',
     outputs: [
       {
-        name: "",
-        type: "bytes32",
+        name: '',
+        type: 'bytes32',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: "maxGasPerTx",
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-      },
-    ],
-    payable: false,
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      {
-        name: "_data",
-        type: "bytes",
-      },
-      {
-        name: "_signatures",
-        type: "bytes",
-      },
-      {
-        name: "_gas",
-        type: "uint32",
-      },
-    ],
-    name: "safeExecuteSignaturesWithGasLimit",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      {
-        name: "_data",
-        type: "bytes",
-      },
-      {
-        name: "_signatures",
-        type: "bytes",
-      },
-    ],
-    name: "safeExecuteSignatures",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    constant: false,
-    inputs: [
-      {
-        name: "newOwner",
-        type: "address",
-      },
-    ],
-    name: "transferOwnership",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     constant: true,
     inputs: [],
-    name: "gasPrice",
+    name: 'maxGasPerTx',
     outputs: [
       {
-        name: "",
-        type: "uint256",
+        name: '',
+        type: 'uint256',
       },
     ],
     payable: false,
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    constant: false,
+    inputs: [
+      {
+        name: '_data',
+        type: 'bytes',
+      },
+      {
+        name: '_signatures',
+        type: 'bytes',
+      },
+      {
+        name: '_gas',
+        type: 'uint32',
+      },
+    ],
+    name: 'safeExecuteSignaturesWithGasLimit',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    constant: false,
+    inputs: [
+      {
+        name: '_data',
+        type: 'bytes',
+      },
+      {
+        name: '_signatures',
+        type: 'bytes',
+      },
+    ],
+    name: 'safeExecuteSignatures',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    constant: false,
+    inputs: [
+      {
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'transferOwnership',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: 'gasPrice',
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    payable: false,
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        name: "messageId",
-        type: "bytes32",
+        name: 'messageId',
+        type: 'bytes32',
       },
       {
         indexed: false,
-        name: "encodedData",
-        type: "bytes",
+        name: 'encodedData',
+        type: 'bytes',
       },
     ],
-    name: "UserRequestForAffirmation",
-    type: "event",
+    name: 'UserRequestForAffirmation',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        name: "sender",
-        type: "address",
+        name: 'sender',
+        type: 'address',
       },
       {
         indexed: true,
-        name: "executor",
-        type: "address",
+        name: 'executor',
+        type: 'address',
       },
       {
         indexed: true,
-        name: "messageId",
-        type: "bytes32",
+        name: 'messageId',
+        type: 'bytes32',
       },
       {
         indexed: false,
-        name: "status",
-        type: "bool",
+        name: 'status',
+        type: 'bool',
       },
     ],
-    name: "RelayedMessage",
-    type: "event",
+    name: 'RelayedMessage',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        name: "gasPrice",
-        type: "uint256",
+        name: 'gasPrice',
+        type: 'uint256',
       },
     ],
-    name: "GasPriceChanged",
-    type: "event",
+    name: 'GasPriceChanged',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        name: "requiredBlockConfirmations",
-        type: "uint256",
+        name: 'requiredBlockConfirmations',
+        type: 'uint256',
       },
     ],
-    name: "RequiredBlockConfirmationChanged",
-    type: "event",
+    name: 'RequiredBlockConfirmationChanged',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        name: "previousOwner",
-        type: "address",
+        name: 'previousOwner',
+        type: 'address',
       },
       {
         indexed: false,
-        name: "newOwner",
-        type: "address",
+        name: 'newOwner',
+        type: 'address',
       },
     ],
-    name: "OwnershipTransferred",
-    type: "event",
+    name: 'OwnershipTransferred',
+    type: 'event',
   },
-] as const;
+] as const
 
 export class ForeignAMB__factory {
-  static readonly abi = _abi;
+  static readonly abi = _abi
   static createInterface(): ForeignAMBInterface {
-    return new utils.Interface(_abi) as ForeignAMBInterface;
+    return new utils.Interface(_abi) as ForeignAMBInterface
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): ForeignAMB {
-    return new Contract(address, _abi, signerOrProvider) as ForeignAMB;
+  static connect(address: string, signerOrProvider: Signer | Provider): ForeignAMB {
+    return new Contract(address, _abi, signerOrProvider) as ForeignAMB
   }
 }

@@ -2,52 +2,49 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
-import type { USDSdeposit, USDSdepositInterface } from "../USDSdeposit";
+import { Contract, Signer, utils } from 'ethers'
+import type { Provider } from '@ethersproject/providers'
+import type { USDSdeposit, USDSdepositInterface } from '../USDSdeposit'
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "recipient",
-        type: "address",
+        internalType: 'address',
+        name: 'recipient',
+        type: 'address',
       },
     ],
-    name: "relayTokens",
+    name: 'relayTokens',
     outputs: [],
-    stateMutability: "payable",
-    type: "function",
+    stateMutability: 'payable',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "xDAIBridge",
+    name: 'xDAIBridge',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    stateMutability: "payable",
-    type: "receive",
+    stateMutability: 'payable',
+    type: 'receive',
   },
-] as const;
+] as const
 
 export class USDSdeposit__factory {
-  static readonly abi = _abi;
+  static readonly abi = _abi
   static createInterface(): USDSdepositInterface {
-    return new utils.Interface(_abi) as USDSdepositInterface;
+    return new utils.Interface(_abi) as USDSdepositInterface
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): USDSdeposit {
-    return new Contract(address, _abi, signerOrProvider) as USDSdeposit;
+  static connect(address: string, signerOrProvider: Signer | Provider): USDSdeposit {
+    return new Contract(address, _abi, signerOrProvider) as USDSdeposit
   }
 }

@@ -2,185 +2,178 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Contract, Signer, utils } from 'ethers'
+import type { Provider } from '@ethersproject/providers'
 import type {
   NativeOmniBridgeMediator,
   NativeOmniBridgeMediatorInterface,
-} from "../NativeOmniBridgeMediator";
+} from '../NativeOmniBridgeMediator'
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "contract IOmnibridge",
-        name: "_bridge",
-        type: "address",
+        internalType: 'contract IOmnibridge',
+        name: '_bridge',
+        type: 'address',
       },
       {
-        internalType: "contract IWETH",
-        name: "_weth",
-        type: "address",
+        internalType: 'contract IWETH',
+        name: '_weth',
+        type: 'address',
       },
       {
-        internalType: "address",
-        name: "_owner",
-        type: "address",
+        internalType: 'address',
+        name: '_owner',
+        type: 'address',
       },
     ],
-    stateMutability: "nonpayable",
-    type: "constructor",
+    stateMutability: 'nonpayable',
+    type: 'constructor',
   },
   {
     inputs: [],
-    name: "WETH",
+    name: 'WETH',
     outputs: [
       {
-        internalType: "contract IWETH",
-        name: "",
-        type: "address",
+        internalType: 'contract IWETH',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "bridge",
+    name: 'bridge',
     outputs: [
       {
-        internalType: "contract IOmnibridge",
-        name: "",
-        type: "address",
+        internalType: 'contract IOmnibridge',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_token",
-        type: "address",
+        internalType: 'address',
+        name: '_token',
+        type: 'address',
       },
       {
-        internalType: "address",
-        name: "_to",
-        type: "address",
+        internalType: 'address',
+        name: '_to',
+        type: 'address',
       },
     ],
-    name: "claimTokens",
+    name: 'claimTokens',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_token",
-        type: "address",
+        internalType: 'address',
+        name: '_token',
+        type: 'address',
       },
       {
-        internalType: "uint256",
-        name: "_value",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '_value',
+        type: 'uint256',
       },
       {
-        internalType: "bytes",
-        name: "_data",
-        type: "bytes",
+        internalType: 'bytes',
+        name: '_data',
+        type: 'bytes',
       },
     ],
-    name: "onTokenBridged",
+    name: 'onTokenBridged',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "owner",
+    name: 'owner',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_newOwner",
-        type: "address",
+        internalType: 'address',
+        name: '_newOwner',
+        type: 'address',
       },
     ],
-    name: "transferOwnership",
+    name: 'transferOwnership',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "wrapAndRelayTokens",
+    name: 'wrapAndRelayTokens',
     outputs: [],
-    stateMutability: "payable",
-    type: "function",
+    stateMutability: 'payable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_receiver",
-        type: "address",
+        internalType: 'address',
+        name: '_receiver',
+        type: 'address',
       },
       {
-        internalType: "bytes",
-        name: "_data",
-        type: "bytes",
+        internalType: 'bytes',
+        name: '_data',
+        type: 'bytes',
       },
     ],
-    name: "wrapAndRelayTokens",
+    name: 'wrapAndRelayTokens',
     outputs: [],
-    stateMutability: "payable",
-    type: "function",
+    stateMutability: 'payable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_receiver",
-        type: "address",
+        internalType: 'address',
+        name: '_receiver',
+        type: 'address',
       },
     ],
-    name: "wrapAndRelayTokens",
+    name: 'wrapAndRelayTokens',
     outputs: [],
-    stateMutability: "payable",
-    type: "function",
+    stateMutability: 'payable',
+    type: 'function',
   },
   {
-    stateMutability: "payable",
-    type: "receive",
+    stateMutability: 'payable',
+    type: 'receive',
   },
-] as const;
+] as const
 
 export class NativeOmniBridgeMediator__factory {
-  static readonly abi = _abi;
+  static readonly abi = _abi
   static createInterface(): NativeOmniBridgeMediatorInterface {
-    return new utils.Interface(_abi) as NativeOmniBridgeMediatorInterface;
+    return new utils.Interface(_abi) as NativeOmniBridgeMediatorInterface
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): NativeOmniBridgeMediator {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as NativeOmniBridgeMediator;
+  static connect(address: string, signerOrProvider: Signer | Provider): NativeOmniBridgeMediator {
+    return new Contract(address, _abi, signerOrProvider) as NativeOmniBridgeMediator
   }
 }

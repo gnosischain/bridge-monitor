@@ -2,218 +2,212 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
-import type {
-  TransmuterEurc,
-  TransmuterEurcInterface,
-} from "../TransmuterEurc";
+import { Contract, Signer, utils } from 'ethers'
+import type { Provider } from '@ethersproject/providers'
+import type { TransmuterEurc, TransmuterEurcInterface } from '../TransmuterEurc'
 
 const _abi = [
   {
     inputs: [],
-    stateMutability: "nonpayable",
-    type: "constructor",
+    stateMutability: 'nonpayable',
+    type: 'constructor',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "depositor",
-        type: "address",
+        internalType: 'address',
+        name: 'depositor',
+        type: 'address',
       },
       {
         indexed: true,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
       },
     ],
-    name: "Deposit",
-    type: "event",
+    name: 'Deposit',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "previousOwner",
-        type: "address",
+        internalType: 'address',
+        name: 'previousOwner',
+        type: 'address',
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
       },
     ],
-    name: "OwnershipTransferred",
-    type: "event",
+    name: 'OwnershipTransferred',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "depositor",
-        type: "address",
+        internalType: 'address',
+        name: 'depositor',
+        type: 'address',
       },
       {
         indexed: true,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
       },
     ],
-    name: "Withdraw",
-    type: "event",
+    name: 'Withdraw',
+    type: 'event',
   },
   {
     inputs: [],
-    name: "HOME_OMNIBRIDGE",
+    name: 'HOME_OMNIBRIDGE',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "USDC_E",
+    name: 'USDC_E',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "USDC_ON_XDAI",
+    name: 'USDC_ON_XDAI',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
       },
     ],
-    name: "deposit",
+    name: 'deposit',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "disableTransmuter",
+    name: 'disableTransmuter',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "isEnabled",
+    name: 'isEnabled',
     outputs: [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "owner",
+    name: 'owner',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "receiver",
-        type: "address",
+        internalType: 'address',
+        name: 'receiver',
+        type: 'address',
       },
     ],
-    name: "rebalanceUSDC",
+    name: 'rebalanceUSDC',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "renounceOwnership",
+    name: 'renounceOwnership',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
       },
     ],
-    name: "transferOwnership",
+    name: 'transferOwnership',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
       },
     ],
-    name: "withdraw",
+    name: 'withdraw',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
-] as const;
+] as const
 
 export class TransmuterEurc__factory {
-  static readonly abi = _abi;
+  static readonly abi = _abi
   static createInterface(): TransmuterEurcInterface {
-    return new utils.Interface(_abi) as TransmuterEurcInterface;
+    return new utils.Interface(_abi) as TransmuterEurcInterface
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): TransmuterEurc {
-    return new Contract(address, _abi, signerOrProvider) as TransmuterEurc;
+  static connect(address: string, signerOrProvider: Signer | Provider): TransmuterEurc {
+    return new Contract(address, _abi, signerOrProvider) as TransmuterEurc
   }
 }

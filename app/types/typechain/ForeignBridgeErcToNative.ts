@@ -12,542 +12,384 @@ import type {
   PopulatedTransaction,
   Signer,
   utils,
-} from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
-import type {
-  TypedEventFilter,
-  TypedEvent,
-  TypedListener,
-  OnEvent,
-  PromiseOrValue,
-} from "./common";
+} from 'ethers'
+import type { FunctionFragment, Result, EventFragment } from '@ethersproject/abi'
+import type { Listener, Provider } from '@ethersproject/providers'
+import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from './common'
 
 export interface ForeignBridgeErcToNativeInterface extends utils.Interface {
   functions: {
-    "relayTokens(address,uint256)": FunctionFragment;
-    "erc20token()": FunctionFragment;
-    "relayedMessages(bytes32)": FunctionFragment;
-    "totalSpentPerDay(uint256)": FunctionFragment;
-    "isInitialized()": FunctionFragment;
-    "setExecutionDailyLimit(uint256)": FunctionFragment;
-    "getCurrentDay()": FunctionFragment;
-    "requiredBlockConfirmations()": FunctionFragment;
-    "executeSignatures(bytes,bytes)": FunctionFragment;
-    "getBridgeMode()": FunctionFragment;
-    "executionDailyLimit()": FunctionFragment;
-    "totalExecutedPerDay(uint256)": FunctionFragment;
-    "dailyLimit()": FunctionFragment;
-    "claimTokens(address,address)": FunctionFragment;
-    "initialize(address,address,uint256,uint256,uint256[3],uint256[2],address,int256,address)": FunctionFragment;
-    "withinExecutionLimit(uint256)": FunctionFragment;
-    "executionMaxPerTx()": FunctionFragment;
-    "requiredSignatures()": FunctionFragment;
-    "owner()": FunctionFragment;
-    "maxAvailablePerTx()": FunctionFragment;
-    "validatorContract()": FunctionFragment;
-    "deployedAtBlock()": FunctionFragment;
-    "getBridgeInterfacesVersion()": FunctionFragment;
-    "setMinPerTx(uint256)": FunctionFragment;
-    "setRequiredBlockConfirmations(uint256)": FunctionFragment;
-    "setDailyLimit(uint256)": FunctionFragment;
-    "setGasPrice(uint256)": FunctionFragment;
-    "setMaxPerTx(uint256)": FunctionFragment;
-    "decimalShift()": FunctionFragment;
-    "minPerTx()": FunctionFragment;
-    "withinLimit(uint256)": FunctionFragment;
-    "setExecutionMaxPerTx(uint256)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
-    "maxPerTx()": FunctionFragment;
-    "gasPrice()": FunctionFragment;
-  };
+    'relayTokens(address,uint256)': FunctionFragment
+    'erc20token()': FunctionFragment
+    'relayedMessages(bytes32)': FunctionFragment
+    'totalSpentPerDay(uint256)': FunctionFragment
+    'isInitialized()': FunctionFragment
+    'setExecutionDailyLimit(uint256)': FunctionFragment
+    'getCurrentDay()': FunctionFragment
+    'requiredBlockConfirmations()': FunctionFragment
+    'executeSignatures(bytes,bytes)': FunctionFragment
+    'getBridgeMode()': FunctionFragment
+    'executionDailyLimit()': FunctionFragment
+    'totalExecutedPerDay(uint256)': FunctionFragment
+    'dailyLimit()': FunctionFragment
+    'claimTokens(address,address)': FunctionFragment
+    'initialize(address,address,uint256,uint256,uint256[3],uint256[2],address,int256,address)': FunctionFragment
+    'withinExecutionLimit(uint256)': FunctionFragment
+    'executionMaxPerTx()': FunctionFragment
+    'requiredSignatures()': FunctionFragment
+    'owner()': FunctionFragment
+    'maxAvailablePerTx()': FunctionFragment
+    'validatorContract()': FunctionFragment
+    'deployedAtBlock()': FunctionFragment
+    'getBridgeInterfacesVersion()': FunctionFragment
+    'setMinPerTx(uint256)': FunctionFragment
+    'setRequiredBlockConfirmations(uint256)': FunctionFragment
+    'setDailyLimit(uint256)': FunctionFragment
+    'setGasPrice(uint256)': FunctionFragment
+    'setMaxPerTx(uint256)': FunctionFragment
+    'decimalShift()': FunctionFragment
+    'minPerTx()': FunctionFragment
+    'withinLimit(uint256)': FunctionFragment
+    'setExecutionMaxPerTx(uint256)': FunctionFragment
+    'transferOwnership(address)': FunctionFragment
+    'maxPerTx()': FunctionFragment
+    'gasPrice()': FunctionFragment
+  }
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "relayTokens"
-      | "erc20token"
-      | "relayedMessages"
-      | "totalSpentPerDay"
-      | "isInitialized"
-      | "setExecutionDailyLimit"
-      | "getCurrentDay"
-      | "requiredBlockConfirmations"
-      | "executeSignatures"
-      | "getBridgeMode"
-      | "executionDailyLimit"
-      | "totalExecutedPerDay"
-      | "dailyLimit"
-      | "claimTokens"
-      | "initialize"
-      | "withinExecutionLimit"
-      | "executionMaxPerTx"
-      | "requiredSignatures"
-      | "owner"
-      | "maxAvailablePerTx"
-      | "validatorContract"
-      | "deployedAtBlock"
-      | "getBridgeInterfacesVersion"
-      | "setMinPerTx"
-      | "setRequiredBlockConfirmations"
-      | "setDailyLimit"
-      | "setGasPrice"
-      | "setMaxPerTx"
-      | "decimalShift"
-      | "minPerTx"
-      | "withinLimit"
-      | "setExecutionMaxPerTx"
-      | "transferOwnership"
-      | "maxPerTx"
-      | "gasPrice"
-  ): FunctionFragment;
+      | 'relayTokens'
+      | 'erc20token'
+      | 'relayedMessages'
+      | 'totalSpentPerDay'
+      | 'isInitialized'
+      | 'setExecutionDailyLimit'
+      | 'getCurrentDay'
+      | 'requiredBlockConfirmations'
+      | 'executeSignatures'
+      | 'getBridgeMode'
+      | 'executionDailyLimit'
+      | 'totalExecutedPerDay'
+      | 'dailyLimit'
+      | 'claimTokens'
+      | 'initialize'
+      | 'withinExecutionLimit'
+      | 'executionMaxPerTx'
+      | 'requiredSignatures'
+      | 'owner'
+      | 'maxAvailablePerTx'
+      | 'validatorContract'
+      | 'deployedAtBlock'
+      | 'getBridgeInterfacesVersion'
+      | 'setMinPerTx'
+      | 'setRequiredBlockConfirmations'
+      | 'setDailyLimit'
+      | 'setGasPrice'
+      | 'setMaxPerTx'
+      | 'decimalShift'
+      | 'minPerTx'
+      | 'withinLimit'
+      | 'setExecutionMaxPerTx'
+      | 'transferOwnership'
+      | 'maxPerTx'
+      | 'gasPrice',
+  ): FunctionFragment
 
   encodeFunctionData(
-    functionFragment: "relayTokens",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
-  ): string;
+    functionFragment: 'relayTokens',
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
+  ): string
+  encodeFunctionData(functionFragment: 'erc20token', values?: undefined): string
   encodeFunctionData(
-    functionFragment: "erc20token",
-    values?: undefined
-  ): string;
+    functionFragment: 'relayedMessages',
+    values: [PromiseOrValue<BytesLike>],
+  ): string
   encodeFunctionData(
-    functionFragment: "relayedMessages",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
+    functionFragment: 'totalSpentPerDay',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
+  encodeFunctionData(functionFragment: 'isInitialized', values?: undefined): string
   encodeFunctionData(
-    functionFragment: "totalSpentPerDay",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+    functionFragment: 'setExecutionDailyLimit',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
+  encodeFunctionData(functionFragment: 'getCurrentDay', values?: undefined): string
+  encodeFunctionData(functionFragment: 'requiredBlockConfirmations', values?: undefined): string
   encodeFunctionData(
-    functionFragment: "isInitialized",
-    values?: undefined
-  ): string;
+    functionFragment: 'executeSignatures',
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
+  ): string
+  encodeFunctionData(functionFragment: 'getBridgeMode', values?: undefined): string
+  encodeFunctionData(functionFragment: 'executionDailyLimit', values?: undefined): string
   encodeFunctionData(
-    functionFragment: "setExecutionDailyLimit",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+    functionFragment: 'totalExecutedPerDay',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
+  encodeFunctionData(functionFragment: 'dailyLimit', values?: undefined): string
   encodeFunctionData(
-    functionFragment: "getCurrentDay",
-    values?: undefined
-  ): string;
+    functionFragment: 'claimTokens',
+    values: [PromiseOrValue<string>, PromiseOrValue<string>],
+  ): string
   encodeFunctionData(
-    functionFragment: "requiredBlockConfirmations",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "executeSignatures",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getBridgeMode",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "executionDailyLimit",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalExecutedPerDay",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "dailyLimit",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "claimTokens",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initialize",
+    functionFragment: 'initialize',
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      [
-        PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>
-      ],
+      [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
       [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
-  ): string;
+      PromiseOrValue<string>,
+    ],
+  ): string
   encodeFunctionData(
-    functionFragment: "withinExecutionLimit",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+    functionFragment: 'withinExecutionLimit',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
+  encodeFunctionData(functionFragment: 'executionMaxPerTx', values?: undefined): string
+  encodeFunctionData(functionFragment: 'requiredSignatures', values?: undefined): string
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string
+  encodeFunctionData(functionFragment: 'maxAvailablePerTx', values?: undefined): string
+  encodeFunctionData(functionFragment: 'validatorContract', values?: undefined): string
+  encodeFunctionData(functionFragment: 'deployedAtBlock', values?: undefined): string
+  encodeFunctionData(functionFragment: 'getBridgeInterfacesVersion', values?: undefined): string
   encodeFunctionData(
-    functionFragment: "executionMaxPerTx",
-    values?: undefined
-  ): string;
+    functionFragment: 'setMinPerTx',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "requiredSignatures",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+    functionFragment: 'setRequiredBlockConfirmations',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "maxAvailablePerTx",
-    values?: undefined
-  ): string;
+    functionFragment: 'setDailyLimit',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "validatorContract",
-    values?: undefined
-  ): string;
+    functionFragment: 'setGasPrice',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "deployedAtBlock",
-    values?: undefined
-  ): string;
+    functionFragment: 'setMaxPerTx',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
+  encodeFunctionData(functionFragment: 'decimalShift', values?: undefined): string
+  encodeFunctionData(functionFragment: 'minPerTx', values?: undefined): string
   encodeFunctionData(
-    functionFragment: "getBridgeInterfacesVersion",
-    values?: undefined
-  ): string;
+    functionFragment: 'withinLimit',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "setMinPerTx",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+    functionFragment: 'setExecutionMaxPerTx',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "setRequiredBlockConfirmations",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setDailyLimit",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setGasPrice",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMaxPerTx",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "decimalShift",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "minPerTx", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "withinLimit",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setExecutionMaxPerTx",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(functionFragment: "maxPerTx", values?: undefined): string;
-  encodeFunctionData(functionFragment: "gasPrice", values?: undefined): string;
+    functionFragment: 'transferOwnership',
+    values: [PromiseOrValue<string>],
+  ): string
+  encodeFunctionData(functionFragment: 'maxPerTx', values?: undefined): string
+  encodeFunctionData(functionFragment: 'gasPrice', values?: undefined): string
 
-  decodeFunctionResult(
-    functionFragment: "relayTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "erc20token", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "relayedMessages",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSpentPerDay",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isInitialized",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setExecutionDailyLimit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getCurrentDay",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "requiredBlockConfirmations",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "executeSignatures",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getBridgeMode",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "executionDailyLimit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalExecutedPerDay",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "dailyLimit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "claimTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "withinExecutionLimit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "executionMaxPerTx",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "requiredSignatures",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "maxAvailablePerTx",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "validatorContract",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "deployedAtBlock",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getBridgeInterfacesVersion",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMinPerTx",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setRequiredBlockConfirmations",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setDailyLimit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setGasPrice",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMaxPerTx",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "decimalShift",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "minPerTx", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "withinLimit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setExecutionMaxPerTx",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "maxPerTx", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "gasPrice", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'relayTokens', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'erc20token', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'relayedMessages', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'totalSpentPerDay', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'isInitialized', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'setExecutionDailyLimit', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'getCurrentDay', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'requiredBlockConfirmations', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'executeSignatures', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'getBridgeMode', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'executionDailyLimit', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'totalExecutedPerDay', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'dailyLimit', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'claimTokens', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'withinExecutionLimit', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'executionMaxPerTx', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'requiredSignatures', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'maxAvailablePerTx', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'validatorContract', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'deployedAtBlock', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'getBridgeInterfacesVersion', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'setMinPerTx', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'setRequiredBlockConfirmations', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'setDailyLimit', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'setGasPrice', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'setMaxPerTx', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'decimalShift', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'minPerTx', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'withinLimit', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'setExecutionMaxPerTx', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'maxPerTx', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'gasPrice', data: BytesLike): Result
 
   events: {
-    "RelayedMessage(address,uint256,bytes32)": EventFragment;
-    "UserRequestForAffirmation(address,uint256)": EventFragment;
-    "DailyLimitChanged(uint256)": EventFragment;
-    "ExecutionDailyLimitChanged(uint256)": EventFragment;
-    "GasPriceChanged(uint256)": EventFragment;
-    "RequiredBlockConfirmationChanged(uint256)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
-  };
+    'RelayedMessage(address,uint256,bytes32)': EventFragment
+    'UserRequestForAffirmation(address,uint256)': EventFragment
+    'DailyLimitChanged(uint256)': EventFragment
+    'ExecutionDailyLimitChanged(uint256)': EventFragment
+    'GasPriceChanged(uint256)': EventFragment
+    'RequiredBlockConfirmationChanged(uint256)': EventFragment
+    'OwnershipTransferred(address,address)': EventFragment
+  }
 
-  getEvent(nameOrSignatureOrTopic: "RelayedMessage"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UserRequestForAffirmation"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "DailyLimitChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ExecutionDailyLimitChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "GasPriceChanged"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "RequiredBlockConfirmationChanged"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'RelayedMessage'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'UserRequestForAffirmation'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'DailyLimitChanged'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'ExecutionDailyLimitChanged'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'GasPriceChanged'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'RequiredBlockConfirmationChanged'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'OwnershipTransferred'): EventFragment
 }
 
 export interface RelayedMessageEventObject {
-  recipient: string;
-  value: BigNumber;
-  transactionHash: string;
+  recipient: string
+  value: BigNumber
+  transactionHash: string
 }
-export type RelayedMessageEvent = TypedEvent<
-  [string, BigNumber, string],
-  RelayedMessageEventObject
->;
+export type RelayedMessageEvent = TypedEvent<[string, BigNumber, string], RelayedMessageEventObject>
 
-export type RelayedMessageEventFilter = TypedEventFilter<RelayedMessageEvent>;
+export type RelayedMessageEventFilter = TypedEventFilter<RelayedMessageEvent>
 
 export interface UserRequestForAffirmationEventObject {
-  recipient: string;
-  value: BigNumber;
+  recipient: string
+  value: BigNumber
 }
 export type UserRequestForAffirmationEvent = TypedEvent<
   [string, BigNumber],
   UserRequestForAffirmationEventObject
->;
+>
 
-export type UserRequestForAffirmationEventFilter =
-  TypedEventFilter<UserRequestForAffirmationEvent>;
+export type UserRequestForAffirmationEventFilter = TypedEventFilter<UserRequestForAffirmationEvent>
 
 export interface DailyLimitChangedEventObject {
-  newLimit: BigNumber;
+  newLimit: BigNumber
 }
-export type DailyLimitChangedEvent = TypedEvent<
-  [BigNumber],
-  DailyLimitChangedEventObject
->;
+export type DailyLimitChangedEvent = TypedEvent<[BigNumber], DailyLimitChangedEventObject>
 
-export type DailyLimitChangedEventFilter =
-  TypedEventFilter<DailyLimitChangedEvent>;
+export type DailyLimitChangedEventFilter = TypedEventFilter<DailyLimitChangedEvent>
 
 export interface ExecutionDailyLimitChangedEventObject {
-  newLimit: BigNumber;
+  newLimit: BigNumber
 }
 export type ExecutionDailyLimitChangedEvent = TypedEvent<
   [BigNumber],
   ExecutionDailyLimitChangedEventObject
->;
+>
 
 export type ExecutionDailyLimitChangedEventFilter =
-  TypedEventFilter<ExecutionDailyLimitChangedEvent>;
+  TypedEventFilter<ExecutionDailyLimitChangedEvent>
 
 export interface GasPriceChangedEventObject {
-  gasPrice: BigNumber;
+  gasPrice: BigNumber
 }
-export type GasPriceChangedEvent = TypedEvent<
-  [BigNumber],
-  GasPriceChangedEventObject
->;
+export type GasPriceChangedEvent = TypedEvent<[BigNumber], GasPriceChangedEventObject>
 
-export type GasPriceChangedEventFilter = TypedEventFilter<GasPriceChangedEvent>;
+export type GasPriceChangedEventFilter = TypedEventFilter<GasPriceChangedEvent>
 
 export interface RequiredBlockConfirmationChangedEventObject {
-  requiredBlockConfirmations: BigNumber;
+  requiredBlockConfirmations: BigNumber
 }
 export type RequiredBlockConfirmationChangedEvent = TypedEvent<
   [BigNumber],
   RequiredBlockConfirmationChangedEventObject
->;
+>
 
 export type RequiredBlockConfirmationChangedEventFilter =
-  TypedEventFilter<RequiredBlockConfirmationChangedEvent>;
+  TypedEventFilter<RequiredBlockConfirmationChangedEvent>
 
 export interface OwnershipTransferredEventObject {
-  previousOwner: string;
-  newOwner: string;
+  previousOwner: string
+  newOwner: string
 }
 export type OwnershipTransferredEvent = TypedEvent<
   [string, string],
   OwnershipTransferredEventObject
->;
+>
 
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
+export type OwnershipTransferredEventFilter = TypedEventFilter<OwnershipTransferredEvent>
 
 export interface ForeignBridgeErcToNative extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(signerOrProvider: Signer | Provider | string): this
+  attach(addressOrName: string): this
+  deployed(): Promise<this>
 
-  interface: ForeignBridgeErcToNativeInterface;
+  interface: ForeignBridgeErcToNativeInterface
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+    toBlock?: string | number | undefined,
+  ): Promise<Array<TEvent>>
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+    eventFilter?: TypedEventFilter<TEvent>,
+  ): Array<TypedListener<TEvent>>
+  listeners(eventName?: string): Array<Listener>
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this
+  removeAllListeners(eventName?: string): this
+  off: OnEvent<this>
+  on: OnEvent<this>
+  once: OnEvent<this>
+  removeListener: OnEvent<this>
 
   functions: {
     relayTokens(
       _receiver: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-    erc20token(overrides?: CallOverrides): Promise<[string]>;
+    erc20token(overrides?: CallOverrides): Promise<[string]>
 
     relayedMessages(
       _txHash: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+      overrides?: CallOverrides,
+    ): Promise<[boolean]>
 
     totalSpentPerDay(
       _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+      overrides?: CallOverrides,
+    ): Promise<[BigNumber]>
 
-    isInitialized(overrides?: CallOverrides): Promise<[boolean]>;
+    isInitialized(overrides?: CallOverrides): Promise<[boolean]>
 
     setExecutionDailyLimit(
       _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-    getCurrentDay(overrides?: CallOverrides): Promise<[BigNumber]>;
+    getCurrentDay(overrides?: CallOverrides): Promise<[BigNumber]>
 
-    requiredBlockConfirmations(overrides?: CallOverrides): Promise<[BigNumber]>;
+    requiredBlockConfirmations(overrides?: CallOverrides): Promise<[BigNumber]>
 
     executeSignatures(
       message: PromiseOrValue<BytesLike>,
       signatures: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-    getBridgeMode(
-      overrides?: CallOverrides
-    ): Promise<[string] & { _data: string }>;
+    getBridgeMode(overrides?: CallOverrides): Promise<[string] & { _data: string }>
 
-    executionDailyLimit(overrides?: CallOverrides): Promise<[BigNumber]>;
+    executionDailyLimit(overrides?: CallOverrides): Promise<[BigNumber]>
 
     totalExecutedPerDay(
       _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+      overrides?: CallOverrides,
+    ): Promise<[BigNumber]>
 
-    dailyLimit(overrides?: CallOverrides): Promise<[BigNumber]>;
+    dailyLimit(overrides?: CallOverrides): Promise<[BigNumber]>
 
     claimTokens(
       _token: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     initialize(
       _validatorContract: PromiseOrValue<string>,
@@ -557,145 +399,140 @@ export interface ForeignBridgeErcToNative extends BaseContract {
       _dailyLimitMaxPerTxMinPerTxArray: [
         PromiseOrValue<BigNumberish>,
         PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>
+        PromiseOrValue<BigNumberish>,
       ],
       _homeDailyLimitHomeMaxPerTxArray: [
         PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>
+        PromiseOrValue<BigNumberish>,
       ],
       _owner: PromiseOrValue<string>,
       _decimalShift: PromiseOrValue<BigNumberish>,
       _bridgeOnOtherSide: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     withinExecutionLimit(
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+      overrides?: CallOverrides,
+    ): Promise<[boolean]>
 
-    executionMaxPerTx(overrides?: CallOverrides): Promise<[BigNumber]>;
+    executionMaxPerTx(overrides?: CallOverrides): Promise<[BigNumber]>
 
-    requiredSignatures(overrides?: CallOverrides): Promise<[BigNumber]>;
+    requiredSignatures(overrides?: CallOverrides): Promise<[BigNumber]>
 
-    owner(overrides?: CallOverrides): Promise<[string]>;
+    owner(overrides?: CallOverrides): Promise<[string]>
 
-    maxAvailablePerTx(overrides?: CallOverrides): Promise<[BigNumber]>;
+    maxAvailablePerTx(overrides?: CallOverrides): Promise<[BigNumber]>
 
-    validatorContract(overrides?: CallOverrides): Promise<[string]>;
+    validatorContract(overrides?: CallOverrides): Promise<[string]>
 
-    deployedAtBlock(overrides?: CallOverrides): Promise<[BigNumber]>;
+    deployedAtBlock(overrides?: CallOverrides): Promise<[BigNumber]>
 
-    getBridgeInterfacesVersion(
-      overrides?: CallOverrides
-    ): Promise<
+    getBridgeInterfacesVersion(overrides?: CallOverrides): Promise<
       [BigNumber, BigNumber, BigNumber] & {
-        major: BigNumber;
-        minor: BigNumber;
-        patch: BigNumber;
+        major: BigNumber
+        minor: BigNumber
+        patch: BigNumber
       }
-    >;
+    >
 
     setMinPerTx(
       _minPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     setRequiredBlockConfirmations(
       _blockConfirmations: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     setDailyLimit(
       _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     setGasPrice(
       _gasPrice: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     setMaxPerTx(
       _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-    decimalShift(overrides?: CallOverrides): Promise<[BigNumber]>;
+    decimalShift(overrides?: CallOverrides): Promise<[BigNumber]>
 
-    minPerTx(overrides?: CallOverrides): Promise<[BigNumber]>;
+    minPerTx(overrides?: CallOverrides): Promise<[BigNumber]>
 
     withinLimit(
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+      overrides?: CallOverrides,
+    ): Promise<[boolean]>
 
     setExecutionMaxPerTx(
       _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-    maxPerTx(overrides?: CallOverrides): Promise<[BigNumber]>;
+    maxPerTx(overrides?: CallOverrides): Promise<[BigNumber]>
 
-    gasPrice(overrides?: CallOverrides): Promise<[BigNumber]>;
-  };
+    gasPrice(overrides?: CallOverrides): Promise<[BigNumber]>
+  }
 
   relayTokens(
     _receiver: PromiseOrValue<string>,
     _amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
-  erc20token(overrides?: CallOverrides): Promise<string>;
+  erc20token(overrides?: CallOverrides): Promise<string>
 
-  relayedMessages(
-    _txHash: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  relayedMessages(_txHash: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>
 
   totalSpentPerDay(
     _day: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>
 
-  isInitialized(overrides?: CallOverrides): Promise<boolean>;
+  isInitialized(overrides?: CallOverrides): Promise<boolean>
 
   setExecutionDailyLimit(
     _dailyLimit: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
-  getCurrentDay(overrides?: CallOverrides): Promise<BigNumber>;
+  getCurrentDay(overrides?: CallOverrides): Promise<BigNumber>
 
-  requiredBlockConfirmations(overrides?: CallOverrides): Promise<BigNumber>;
+  requiredBlockConfirmations(overrides?: CallOverrides): Promise<BigNumber>
 
   executeSignatures(
     message: PromiseOrValue<BytesLike>,
     signatures: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
-  getBridgeMode(overrides?: CallOverrides): Promise<string>;
+  getBridgeMode(overrides?: CallOverrides): Promise<string>
 
-  executionDailyLimit(overrides?: CallOverrides): Promise<BigNumber>;
+  executionDailyLimit(overrides?: CallOverrides): Promise<BigNumber>
 
   totalExecutedPerDay(
     _day: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>
 
-  dailyLimit(overrides?: CallOverrides): Promise<BigNumber>;
+  dailyLimit(overrides?: CallOverrides): Promise<BigNumber>
 
   claimTokens(
     _token: PromiseOrValue<string>,
     _to: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   initialize(
     _validatorContract: PromiseOrValue<string>,
@@ -705,145 +542,134 @@ export interface ForeignBridgeErcToNative extends BaseContract {
     _dailyLimitMaxPerTxMinPerTxArray: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ],
-    _homeDailyLimitHomeMaxPerTxArray: [
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
     ],
+    _homeDailyLimitHomeMaxPerTxArray: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
     _owner: PromiseOrValue<string>,
     _decimalShift: PromiseOrValue<BigNumberish>,
     _bridgeOnOtherSide: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   withinExecutionLimit(
     _amount: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+    overrides?: CallOverrides,
+  ): Promise<boolean>
 
-  executionMaxPerTx(overrides?: CallOverrides): Promise<BigNumber>;
+  executionMaxPerTx(overrides?: CallOverrides): Promise<BigNumber>
 
-  requiredSignatures(overrides?: CallOverrides): Promise<BigNumber>;
+  requiredSignatures(overrides?: CallOverrides): Promise<BigNumber>
 
-  owner(overrides?: CallOverrides): Promise<string>;
+  owner(overrides?: CallOverrides): Promise<string>
 
-  maxAvailablePerTx(overrides?: CallOverrides): Promise<BigNumber>;
+  maxAvailablePerTx(overrides?: CallOverrides): Promise<BigNumber>
 
-  validatorContract(overrides?: CallOverrides): Promise<string>;
+  validatorContract(overrides?: CallOverrides): Promise<string>
 
-  deployedAtBlock(overrides?: CallOverrides): Promise<BigNumber>;
+  deployedAtBlock(overrides?: CallOverrides): Promise<BigNumber>
 
-  getBridgeInterfacesVersion(
-    overrides?: CallOverrides
-  ): Promise<
+  getBridgeInterfacesVersion(overrides?: CallOverrides): Promise<
     [BigNumber, BigNumber, BigNumber] & {
-      major: BigNumber;
-      minor: BigNumber;
-      patch: BigNumber;
+      major: BigNumber
+      minor: BigNumber
+      patch: BigNumber
     }
-  >;
+  >
 
   setMinPerTx(
     _minPerTx: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   setRequiredBlockConfirmations(
     _blockConfirmations: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   setDailyLimit(
     _dailyLimit: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   setGasPrice(
     _gasPrice: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   setMaxPerTx(
     _maxPerTx: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
-  decimalShift(overrides?: CallOverrides): Promise<BigNumber>;
+  decimalShift(overrides?: CallOverrides): Promise<BigNumber>
 
-  minPerTx(overrides?: CallOverrides): Promise<BigNumber>;
+  minPerTx(overrides?: CallOverrides): Promise<BigNumber>
 
-  withinLimit(
-    _amount: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  withinLimit(_amount: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<boolean>
 
   setExecutionMaxPerTx(
     _maxPerTx: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   transferOwnership(
     newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
-  maxPerTx(overrides?: CallOverrides): Promise<BigNumber>;
+  maxPerTx(overrides?: CallOverrides): Promise<BigNumber>
 
-  gasPrice(overrides?: CallOverrides): Promise<BigNumber>;
+  gasPrice(overrides?: CallOverrides): Promise<BigNumber>
 
   callStatic: {
     relayTokens(
       _receiver: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
-    erc20token(overrides?: CallOverrides): Promise<string>;
+    erc20token(overrides?: CallOverrides): Promise<string>
 
-    relayedMessages(
-      _txHash: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    relayedMessages(_txHash: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>
 
     totalSpentPerDay(
       _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
-    isInitialized(overrides?: CallOverrides): Promise<boolean>;
+    isInitialized(overrides?: CallOverrides): Promise<boolean>
 
     setExecutionDailyLimit(
       _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
-    getCurrentDay(overrides?: CallOverrides): Promise<BigNumber>;
+    getCurrentDay(overrides?: CallOverrides): Promise<BigNumber>
 
-    requiredBlockConfirmations(overrides?: CallOverrides): Promise<BigNumber>;
+    requiredBlockConfirmations(overrides?: CallOverrides): Promise<BigNumber>
 
     executeSignatures(
       message: PromiseOrValue<BytesLike>,
       signatures: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
-    getBridgeMode(overrides?: CallOverrides): Promise<string>;
+    getBridgeMode(overrides?: CallOverrides): Promise<string>
 
-    executionDailyLimit(overrides?: CallOverrides): Promise<BigNumber>;
+    executionDailyLimit(overrides?: CallOverrides): Promise<BigNumber>
 
     totalExecutedPerDay(
       _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
-    dailyLimit(overrides?: CallOverrides): Promise<BigNumber>;
+    dailyLimit(overrides?: CallOverrides): Promise<BigNumber>
 
     claimTokens(
       _token: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
     initialize(
       _validatorContract: PromiseOrValue<string>,
@@ -853,197 +679,170 @@ export interface ForeignBridgeErcToNative extends BaseContract {
       _dailyLimitMaxPerTxMinPerTxArray: [
         PromiseOrValue<BigNumberish>,
         PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>
+        PromiseOrValue<BigNumberish>,
       ],
       _homeDailyLimitHomeMaxPerTxArray: [
         PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>
+        PromiseOrValue<BigNumberish>,
       ],
       _owner: PromiseOrValue<string>,
       _decimalShift: PromiseOrValue<BigNumberish>,
       _bridgeOnOtherSide: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+      overrides?: CallOverrides,
+    ): Promise<boolean>
 
     withinExecutionLimit(
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+      overrides?: CallOverrides,
+    ): Promise<boolean>
 
-    executionMaxPerTx(overrides?: CallOverrides): Promise<BigNumber>;
+    executionMaxPerTx(overrides?: CallOverrides): Promise<BigNumber>
 
-    requiredSignatures(overrides?: CallOverrides): Promise<BigNumber>;
+    requiredSignatures(overrides?: CallOverrides): Promise<BigNumber>
 
-    owner(overrides?: CallOverrides): Promise<string>;
+    owner(overrides?: CallOverrides): Promise<string>
 
-    maxAvailablePerTx(overrides?: CallOverrides): Promise<BigNumber>;
+    maxAvailablePerTx(overrides?: CallOverrides): Promise<BigNumber>
 
-    validatorContract(overrides?: CallOverrides): Promise<string>;
+    validatorContract(overrides?: CallOverrides): Promise<string>
 
-    deployedAtBlock(overrides?: CallOverrides): Promise<BigNumber>;
+    deployedAtBlock(overrides?: CallOverrides): Promise<BigNumber>
 
-    getBridgeInterfacesVersion(
-      overrides?: CallOverrides
-    ): Promise<
+    getBridgeInterfacesVersion(overrides?: CallOverrides): Promise<
       [BigNumber, BigNumber, BigNumber] & {
-        major: BigNumber;
-        minor: BigNumber;
-        patch: BigNumber;
+        major: BigNumber
+        minor: BigNumber
+        patch: BigNumber
       }
-    >;
+    >
 
-    setMinPerTx(
-      _minPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setMinPerTx(_minPerTx: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<void>
 
     setRequiredBlockConfirmations(
       _blockConfirmations: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
     setDailyLimit(
       _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
-    setGasPrice(
-      _gasPrice: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setGasPrice(_gasPrice: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<void>
 
-    setMaxPerTx(
-      _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setMaxPerTx(_maxPerTx: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<void>
 
-    decimalShift(overrides?: CallOverrides): Promise<BigNumber>;
+    decimalShift(overrides?: CallOverrides): Promise<BigNumber>
 
-    minPerTx(overrides?: CallOverrides): Promise<BigNumber>;
+    minPerTx(overrides?: CallOverrides): Promise<BigNumber>
 
-    withinLimit(
-      _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    withinLimit(_amount: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<boolean>
 
     setExecutionMaxPerTx(
       _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    transferOwnership(newOwner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>
 
-    maxPerTx(overrides?: CallOverrides): Promise<BigNumber>;
+    maxPerTx(overrides?: CallOverrides): Promise<BigNumber>
 
-    gasPrice(overrides?: CallOverrides): Promise<BigNumber>;
-  };
+    gasPrice(overrides?: CallOverrides): Promise<BigNumber>
+  }
 
   filters: {
-    "RelayedMessage(address,uint256,bytes32)"(
+    'RelayedMessage(address,uint256,bytes32)'(
       recipient?: null,
       value?: null,
-      transactionHash?: null
-    ): RelayedMessageEventFilter;
+      transactionHash?: null,
+    ): RelayedMessageEventFilter
     RelayedMessage(
       recipient?: null,
       value?: null,
-      transactionHash?: null
-    ): RelayedMessageEventFilter;
+      transactionHash?: null,
+    ): RelayedMessageEventFilter
 
-    "UserRequestForAffirmation(address,uint256)"(
+    'UserRequestForAffirmation(address,uint256)'(
       recipient?: null,
-      value?: null
-    ): UserRequestForAffirmationEventFilter;
-    UserRequestForAffirmation(
-      recipient?: null,
-      value?: null
-    ): UserRequestForAffirmationEventFilter;
+      value?: null,
+    ): UserRequestForAffirmationEventFilter
+    UserRequestForAffirmation(recipient?: null, value?: null): UserRequestForAffirmationEventFilter
 
-    "DailyLimitChanged(uint256)"(newLimit?: null): DailyLimitChangedEventFilter;
-    DailyLimitChanged(newLimit?: null): DailyLimitChangedEventFilter;
+    'DailyLimitChanged(uint256)'(newLimit?: null): DailyLimitChangedEventFilter
+    DailyLimitChanged(newLimit?: null): DailyLimitChangedEventFilter
 
-    "ExecutionDailyLimitChanged(uint256)"(
-      newLimit?: null
-    ): ExecutionDailyLimitChangedEventFilter;
-    ExecutionDailyLimitChanged(
-      newLimit?: null
-    ): ExecutionDailyLimitChangedEventFilter;
+    'ExecutionDailyLimitChanged(uint256)'(newLimit?: null): ExecutionDailyLimitChangedEventFilter
+    ExecutionDailyLimitChanged(newLimit?: null): ExecutionDailyLimitChangedEventFilter
 
-    "GasPriceChanged(uint256)"(gasPrice?: null): GasPriceChangedEventFilter;
-    GasPriceChanged(gasPrice?: null): GasPriceChangedEventFilter;
+    'GasPriceChanged(uint256)'(gasPrice?: null): GasPriceChangedEventFilter
+    GasPriceChanged(gasPrice?: null): GasPriceChangedEventFilter
 
-    "RequiredBlockConfirmationChanged(uint256)"(
-      requiredBlockConfirmations?: null
-    ): RequiredBlockConfirmationChangedEventFilter;
+    'RequiredBlockConfirmationChanged(uint256)'(
+      requiredBlockConfirmations?: null,
+    ): RequiredBlockConfirmationChangedEventFilter
     RequiredBlockConfirmationChanged(
-      requiredBlockConfirmations?: null
-    ): RequiredBlockConfirmationChangedEventFilter;
+      requiredBlockConfirmations?: null,
+    ): RequiredBlockConfirmationChangedEventFilter
 
-    "OwnershipTransferred(address,address)"(
+    'OwnershipTransferred(address,address)'(
       previousOwner?: null,
-      newOwner?: null
-    ): OwnershipTransferredEventFilter;
-    OwnershipTransferred(
-      previousOwner?: null,
-      newOwner?: null
-    ): OwnershipTransferredEventFilter;
-  };
+      newOwner?: null,
+    ): OwnershipTransferredEventFilter
+    OwnershipTransferred(previousOwner?: null, newOwner?: null): OwnershipTransferredEventFilter
+  }
 
   estimateGas: {
     relayTokens(
       _receiver: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
-    erc20token(overrides?: CallOverrides): Promise<BigNumber>;
+    erc20token(overrides?: CallOverrides): Promise<BigNumber>
 
     relayedMessages(
       _txHash: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
     totalSpentPerDay(
       _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
-    isInitialized(overrides?: CallOverrides): Promise<BigNumber>;
+    isInitialized(overrides?: CallOverrides): Promise<BigNumber>
 
     setExecutionDailyLimit(
       _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
-    getCurrentDay(overrides?: CallOverrides): Promise<BigNumber>;
+    getCurrentDay(overrides?: CallOverrides): Promise<BigNumber>
 
-    requiredBlockConfirmations(overrides?: CallOverrides): Promise<BigNumber>;
+    requiredBlockConfirmations(overrides?: CallOverrides): Promise<BigNumber>
 
     executeSignatures(
       message: PromiseOrValue<BytesLike>,
       signatures: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
-    getBridgeMode(overrides?: CallOverrides): Promise<BigNumber>;
+    getBridgeMode(overrides?: CallOverrides): Promise<BigNumber>
 
-    executionDailyLimit(overrides?: CallOverrides): Promise<BigNumber>;
+    executionDailyLimit(overrides?: CallOverrides): Promise<BigNumber>
 
     totalExecutedPerDay(
       _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
-    dailyLimit(overrides?: CallOverrides): Promise<BigNumber>;
+    dailyLimit(overrides?: CallOverrides): Promise<BigNumber>
 
     claimTokens(
       _token: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     initialize(
       _validatorContract: PromiseOrValue<string>,
@@ -1053,142 +852,138 @@ export interface ForeignBridgeErcToNative extends BaseContract {
       _dailyLimitMaxPerTxMinPerTxArray: [
         PromiseOrValue<BigNumberish>,
         PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>
+        PromiseOrValue<BigNumberish>,
       ],
       _homeDailyLimitHomeMaxPerTxArray: [
         PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>
+        PromiseOrValue<BigNumberish>,
       ],
       _owner: PromiseOrValue<string>,
       _decimalShift: PromiseOrValue<BigNumberish>,
       _bridgeOnOtherSide: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     withinExecutionLimit(
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
-    executionMaxPerTx(overrides?: CallOverrides): Promise<BigNumber>;
+    executionMaxPerTx(overrides?: CallOverrides): Promise<BigNumber>
 
-    requiredSignatures(overrides?: CallOverrides): Promise<BigNumber>;
+    requiredSignatures(overrides?: CallOverrides): Promise<BigNumber>
 
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
+    owner(overrides?: CallOverrides): Promise<BigNumber>
 
-    maxAvailablePerTx(overrides?: CallOverrides): Promise<BigNumber>;
+    maxAvailablePerTx(overrides?: CallOverrides): Promise<BigNumber>
 
-    validatorContract(overrides?: CallOverrides): Promise<BigNumber>;
+    validatorContract(overrides?: CallOverrides): Promise<BigNumber>
 
-    deployedAtBlock(overrides?: CallOverrides): Promise<BigNumber>;
+    deployedAtBlock(overrides?: CallOverrides): Promise<BigNumber>
 
-    getBridgeInterfacesVersion(overrides?: CallOverrides): Promise<BigNumber>;
+    getBridgeInterfacesVersion(overrides?: CallOverrides): Promise<BigNumber>
 
     setMinPerTx(
       _minPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     setRequiredBlockConfirmations(
       _blockConfirmations: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     setDailyLimit(
       _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     setGasPrice(
       _gasPrice: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     setMaxPerTx(
       _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
-    decimalShift(overrides?: CallOverrides): Promise<BigNumber>;
+    decimalShift(overrides?: CallOverrides): Promise<BigNumber>
 
-    minPerTx(overrides?: CallOverrides): Promise<BigNumber>;
+    minPerTx(overrides?: CallOverrides): Promise<BigNumber>
 
     withinLimit(
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
     setExecutionMaxPerTx(
       _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
-    maxPerTx(overrides?: CallOverrides): Promise<BigNumber>;
+    maxPerTx(overrides?: CallOverrides): Promise<BigNumber>
 
-    gasPrice(overrides?: CallOverrides): Promise<BigNumber>;
-  };
+    gasPrice(overrides?: CallOverrides): Promise<BigNumber>
+  }
 
   populateTransaction: {
     relayTokens(
       _receiver: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
-    erc20token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    erc20token(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
     relayedMessages(
       _txHash: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
     totalSpentPerDay(
       _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
-    isInitialized(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    isInitialized(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
     setExecutionDailyLimit(
       _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
-    getCurrentDay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getCurrentDay(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
-    requiredBlockConfirmations(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    requiredBlockConfirmations(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
     executeSignatures(
       message: PromiseOrValue<BytesLike>,
       signatures: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
-    getBridgeMode(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getBridgeMode(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
-    executionDailyLimit(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    executionDailyLimit(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
     totalExecutedPerDay(
       _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
-    dailyLimit(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    dailyLimit(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
     claimTokens(
       _token: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     initialize(
       _validatorContract: PromiseOrValue<string>,
@@ -1198,87 +993,83 @@ export interface ForeignBridgeErcToNative extends BaseContract {
       _dailyLimitMaxPerTxMinPerTxArray: [
         PromiseOrValue<BigNumberish>,
         PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>
+        PromiseOrValue<BigNumberish>,
       ],
       _homeDailyLimitHomeMaxPerTxArray: [
         PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>
+        PromiseOrValue<BigNumberish>,
       ],
       _owner: PromiseOrValue<string>,
       _decimalShift: PromiseOrValue<BigNumberish>,
       _bridgeOnOtherSide: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     withinExecutionLimit(
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
-    executionMaxPerTx(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    executionMaxPerTx(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
-    requiredSignatures(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    requiredSignatures(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
-    maxAvailablePerTx(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    maxAvailablePerTx(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
-    validatorContract(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    validatorContract(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
-    deployedAtBlock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    deployedAtBlock(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
-    getBridgeInterfacesVersion(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    getBridgeInterfacesVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
     setMinPerTx(
       _minPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     setRequiredBlockConfirmations(
       _blockConfirmations: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     setDailyLimit(
       _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     setGasPrice(
       _gasPrice: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     setMaxPerTx(
       _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
-    decimalShift(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    decimalShift(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
-    minPerTx(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    minPerTx(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
     withinLimit(
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
     setExecutionMaxPerTx(
       _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
-    maxPerTx(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    maxPerTx(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
-    gasPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-  };
+    gasPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>
+  }
 }
