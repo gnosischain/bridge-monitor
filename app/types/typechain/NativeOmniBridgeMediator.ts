@@ -13,299 +13,332 @@ import type {
   PopulatedTransaction,
   Signer,
   utils,
-} from 'ethers'
-import type { FunctionFragment, Result } from '@ethersproject/abi'
-import type { Listener, Provider } from '@ethersproject/providers'
-import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from './common'
+} from "ethers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
+import type {
+  TypedEventFilter,
+  TypedEvent,
+  TypedListener,
+  OnEvent,
+  PromiseOrValue,
+} from "./common";
 
 export interface NativeOmniBridgeMediatorInterface extends utils.Interface {
   functions: {
-    'WETH()': FunctionFragment
-    'bridge()': FunctionFragment
-    'claimTokens(address,address)': FunctionFragment
-    'onTokenBridged(address,uint256,bytes)': FunctionFragment
-    'owner()': FunctionFragment
-    'transferOwnership(address)': FunctionFragment
-    'wrapAndRelayTokens()': FunctionFragment
-    'wrapAndRelayTokens(address,bytes)': FunctionFragment
-    'wrapAndRelayTokens(address)': FunctionFragment
-  }
+    "WETH()": FunctionFragment;
+    "bridge()": FunctionFragment;
+    "claimTokens(address,address)": FunctionFragment;
+    "onTokenBridged(address,uint256,bytes)": FunctionFragment;
+    "owner()": FunctionFragment;
+    "transferOwnership(address)": FunctionFragment;
+    "wrapAndRelayTokens()": FunctionFragment;
+    "wrapAndRelayTokens(address,bytes)": FunctionFragment;
+    "wrapAndRelayTokens(address)": FunctionFragment;
+  };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | 'WETH'
-      | 'bridge'
-      | 'claimTokens'
-      | 'onTokenBridged'
-      | 'owner'
-      | 'transferOwnership'
-      | 'wrapAndRelayTokens()'
-      | 'wrapAndRelayTokens(address,bytes)'
-      | 'wrapAndRelayTokens(address)',
-  ): FunctionFragment
+      | "WETH"
+      | "bridge"
+      | "claimTokens"
+      | "onTokenBridged"
+      | "owner"
+      | "transferOwnership"
+      | "wrapAndRelayTokens()"
+      | "wrapAndRelayTokens(address,bytes)"
+      | "wrapAndRelayTokens(address)"
+  ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: 'WETH', values?: undefined): string
-  encodeFunctionData(functionFragment: 'bridge', values?: undefined): string
+  encodeFunctionData(functionFragment: "WETH", values?: undefined): string;
+  encodeFunctionData(functionFragment: "bridge", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: 'claimTokens',
-    values: [PromiseOrValue<string>, PromiseOrValue<string>],
-  ): string
+    functionFragment: "claimTokens",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'onTokenBridged',
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>],
-  ): string
-  encodeFunctionData(functionFragment: 'owner', values?: undefined): string
+    functionFragment: "onTokenBridged",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: 'transferOwnership',
-    values: [PromiseOrValue<string>],
-  ): string
-  encodeFunctionData(functionFragment: 'wrapAndRelayTokens()', values?: undefined): string
+    functionFragment: "transferOwnership",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'wrapAndRelayTokens(address,bytes)',
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>],
-  ): string
+    functionFragment: "wrapAndRelayTokens()",
+    values?: undefined
+  ): string;
   encodeFunctionData(
-    functionFragment: 'wrapAndRelayTokens(address)',
-    values: [PromiseOrValue<string>],
-  ): string
+    functionFragment: "wrapAndRelayTokens(address,bytes)",
+    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "wrapAndRelayTokens(address)",
+    values: [PromiseOrValue<string>]
+  ): string;
 
-  decodeFunctionResult(functionFragment: 'WETH', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'bridge', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'claimTokens', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'onTokenBridged', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'wrapAndRelayTokens()', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: "WETH", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "bridge", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: 'wrapAndRelayTokens(address,bytes)',
-    data: BytesLike,
-  ): Result
-  decodeFunctionResult(functionFragment: 'wrapAndRelayTokens(address)', data: BytesLike): Result
+    functionFragment: "claimTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "onTokenBridged",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "wrapAndRelayTokens()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "wrapAndRelayTokens(address,bytes)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "wrapAndRelayTokens(address)",
+    data: BytesLike
+  ): Result;
 
-  events: {}
+  events: {};
 }
 
 export interface NativeOmniBridgeMediator extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this
-  attach(addressOrName: string): this
-  deployed(): Promise<this>
+  connect(signerOrProvider: Signer | Provider | string): this;
+  attach(addressOrName: string): this;
+  deployed(): Promise<this>;
 
-  interface: NativeOmniBridgeMediatorInterface
+  interface: NativeOmniBridgeMediatorInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
-  ): Promise<Array<TEvent>>
+    toBlock?: string | number | undefined
+  ): Promise<Array<TEvent>>;
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>,
-  ): Array<TypedListener<TEvent>>
-  listeners(eventName?: string): Array<Listener>
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this
-  removeAllListeners(eventName?: string): this
-  off: OnEvent<this>
-  on: OnEvent<this>
-  once: OnEvent<this>
-  removeListener: OnEvent<this>
+    eventFilter?: TypedEventFilter<TEvent>
+  ): Array<TypedListener<TEvent>>;
+  listeners(eventName?: string): Array<Listener>;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
+  removeAllListeners(eventName?: string): this;
+  off: OnEvent<this>;
+  on: OnEvent<this>;
+  once: OnEvent<this>;
+  removeListener: OnEvent<this>;
 
   functions: {
-    WETH(overrides?: CallOverrides): Promise<[string]>
+    WETH(overrides?: CallOverrides): Promise<[string]>;
 
-    bridge(overrides?: CallOverrides): Promise<[string]>
+    bridge(overrides?: CallOverrides): Promise<[string]>;
 
     claimTokens(
       _token: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     onTokenBridged(
       _token: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    owner(overrides?: CallOverrides): Promise<[string]>
+    owner(overrides?: CallOverrides): Promise<[string]>;
 
     transferOwnership(
       _newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    'wrapAndRelayTokens()'(
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+    "wrapAndRelayTokens()"(
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    'wrapAndRelayTokens(address,bytes)'(
+    "wrapAndRelayTokens(address,bytes)"(
       _receiver: PromiseOrValue<string>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    'wrapAndRelayTokens(address)'(
+    "wrapAndRelayTokens(address)"(
       _receiver: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
-  }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+  };
 
-  WETH(overrides?: CallOverrides): Promise<string>
+  WETH(overrides?: CallOverrides): Promise<string>;
 
-  bridge(overrides?: CallOverrides): Promise<string>
+  bridge(overrides?: CallOverrides): Promise<string>;
 
   claimTokens(
     _token: PromiseOrValue<string>,
     _to: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   onTokenBridged(
     _token: PromiseOrValue<string>,
     _value: PromiseOrValue<BigNumberish>,
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  owner(overrides?: CallOverrides): Promise<string>
+  owner(overrides?: CallOverrides): Promise<string>;
 
   transferOwnership(
     _newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  'wrapAndRelayTokens()'(
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+  "wrapAndRelayTokens()"(
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  'wrapAndRelayTokens(address,bytes)'(
+  "wrapAndRelayTokens(address,bytes)"(
     _receiver: PromiseOrValue<string>,
     _data: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  'wrapAndRelayTokens(address)'(
+  "wrapAndRelayTokens(address)"(
     _receiver: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
-    WETH(overrides?: CallOverrides): Promise<string>
+    WETH(overrides?: CallOverrides): Promise<string>;
 
-    bridge(overrides?: CallOverrides): Promise<string>
+    bridge(overrides?: CallOverrides): Promise<string>;
 
     claimTokens(
       _token: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     onTokenBridged(
       _token: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    owner(overrides?: CallOverrides): Promise<string>
+    owner(overrides?: CallOverrides): Promise<string>;
 
-    transferOwnership(_newOwner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>
+    transferOwnership(
+      _newOwner: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    'wrapAndRelayTokens()'(overrides?: CallOverrides): Promise<void>
+    "wrapAndRelayTokens()"(overrides?: CallOverrides): Promise<void>;
 
-    'wrapAndRelayTokens(address,bytes)'(
+    "wrapAndRelayTokens(address,bytes)"(
       _receiver: PromiseOrValue<string>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    'wrapAndRelayTokens(address)'(
+    "wrapAndRelayTokens(address)"(
       _receiver: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<void>
-  }
+      overrides?: CallOverrides
+    ): Promise<void>;
+  };
 
-  filters: {}
+  filters: {};
 
   estimateGas: {
-    WETH(overrides?: CallOverrides): Promise<BigNumber>
+    WETH(overrides?: CallOverrides): Promise<BigNumber>;
 
-    bridge(overrides?: CallOverrides): Promise<BigNumber>
+    bridge(overrides?: CallOverrides): Promise<BigNumber>;
 
     claimTokens(
       _token: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     onTokenBridged(
       _token: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
-    owner(overrides?: CallOverrides): Promise<BigNumber>
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
       _newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
-    'wrapAndRelayTokens()'(
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
+    "wrapAndRelayTokens()"(
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
-    'wrapAndRelayTokens(address,bytes)'(
+    "wrapAndRelayTokens(address,bytes)"(
       _receiver: PromiseOrValue<string>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
-    'wrapAndRelayTokens(address)'(
+    "wrapAndRelayTokens(address)"(
       _receiver: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-  }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+  };
 
   populateTransaction: {
-    WETH(overrides?: CallOverrides): Promise<PopulatedTransaction>
+    WETH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    bridge(overrides?: CallOverrides): Promise<PopulatedTransaction>
+    bridge(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     claimTokens(
       _token: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     onTokenBridged(
       _token: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transferOwnership(
       _newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
-    'wrapAndRelayTokens()'(
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+    "wrapAndRelayTokens()"(
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
-    'wrapAndRelayTokens(address,bytes)'(
+    "wrapAndRelayTokens(address,bytes)"(
       _receiver: PromiseOrValue<string>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
-    'wrapAndRelayTokens(address)'(
+    "wrapAndRelayTokens(address)"(
       _receiver: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
-  }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+  };
 }

@@ -13,516 +13,617 @@ import type {
   PopulatedTransaction,
   Signer,
   utils,
-} from 'ethers'
-import type { FunctionFragment, Result, EventFragment } from '@ethersproject/abi'
-import type { Listener, Provider } from '@ethersproject/providers'
-import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from './common'
+} from "ethers";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
+import type {
+  TypedEventFilter,
+  TypedEvent,
+  TypedListener,
+  OnEvent,
+  PromiseOrValue,
+} from "./common";
 
 export interface ForeignBridgeRouterInterface extends utils.Interface {
   functions: {
-    'DAI()': FunctionFragment
-    'FOREIGN_AMB()': FunctionFragment
-    'FOREIGN_OMNIBRIDGE()': FunctionFragment
-    'FOREIGN_XDAIBRIDGE()': FunctionFragment
-    'USDS()': FunctionFragment
-    'WETH_OMNIBRIDGE_ROUTER()': FunctionFragment
-    'executeSignatures(bytes,bytes)': FunctionFragment
-    'executeSignaturesUSDS(bytes,bytes)': FunctionFragment
-    'initialize(address)': FunctionFragment
-    'owner()': FunctionFragment
-    'recoverLockedFund(address,address,uint256)': FunctionFragment
-    'relayTokens(address,address,uint256)': FunctionFragment
-    'renounceOwnership()': FunctionFragment
-    'safeExecuteSignaturesWithAutoGasLimit(bytes,bytes)': FunctionFragment
-    'setRoute(address,address)': FunctionFragment
-    'tokenRoutes(address)': FunctionFragment
-    'transferOwnership(address)': FunctionFragment
-  }
+    "DAI()": FunctionFragment;
+    "FOREIGN_AMB()": FunctionFragment;
+    "FOREIGN_OMNIBRIDGE()": FunctionFragment;
+    "FOREIGN_XDAIBRIDGE()": FunctionFragment;
+    "USDS()": FunctionFragment;
+    "WETH_OMNIBRIDGE_ROUTER()": FunctionFragment;
+    "executeSignatures(bytes,bytes)": FunctionFragment;
+    "executeSignaturesUSDS(bytes,bytes)": FunctionFragment;
+    "initialize(address)": FunctionFragment;
+    "owner()": FunctionFragment;
+    "recoverLockedFund(address,address,uint256)": FunctionFragment;
+    "relayTokens(address,address,uint256)": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
+    "safeExecuteSignaturesWithAutoGasLimit(bytes,bytes)": FunctionFragment;
+    "setRoute(address,address)": FunctionFragment;
+    "tokenRoutes(address)": FunctionFragment;
+    "transferOwnership(address)": FunctionFragment;
+  };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | 'DAI'
-      | 'FOREIGN_AMB'
-      | 'FOREIGN_OMNIBRIDGE'
-      | 'FOREIGN_XDAIBRIDGE'
-      | 'USDS'
-      | 'WETH_OMNIBRIDGE_ROUTER'
-      | 'executeSignatures'
-      | 'executeSignaturesUSDS'
-      | 'initialize'
-      | 'owner'
-      | 'recoverLockedFund'
-      | 'relayTokens'
-      | 'renounceOwnership'
-      | 'safeExecuteSignaturesWithAutoGasLimit'
-      | 'setRoute'
-      | 'tokenRoutes'
-      | 'transferOwnership',
-  ): FunctionFragment
+      | "DAI"
+      | "FOREIGN_AMB"
+      | "FOREIGN_OMNIBRIDGE"
+      | "FOREIGN_XDAIBRIDGE"
+      | "USDS"
+      | "WETH_OMNIBRIDGE_ROUTER"
+      | "executeSignatures"
+      | "executeSignaturesUSDS"
+      | "initialize"
+      | "owner"
+      | "recoverLockedFund"
+      | "relayTokens"
+      | "renounceOwnership"
+      | "safeExecuteSignaturesWithAutoGasLimit"
+      | "setRoute"
+      | "tokenRoutes"
+      | "transferOwnership"
+  ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: 'DAI', values?: undefined): string
-  encodeFunctionData(functionFragment: 'FOREIGN_AMB', values?: undefined): string
-  encodeFunctionData(functionFragment: 'FOREIGN_OMNIBRIDGE', values?: undefined): string
-  encodeFunctionData(functionFragment: 'FOREIGN_XDAIBRIDGE', values?: undefined): string
-  encodeFunctionData(functionFragment: 'USDS', values?: undefined): string
-  encodeFunctionData(functionFragment: 'WETH_OMNIBRIDGE_ROUTER', values?: undefined): string
+  encodeFunctionData(functionFragment: "DAI", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: 'executeSignatures',
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-  ): string
+    functionFragment: "FOREIGN_AMB",
+    values?: undefined
+  ): string;
   encodeFunctionData(
-    functionFragment: 'executeSignaturesUSDS',
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-  ): string
-  encodeFunctionData(functionFragment: 'initialize', values: [PromiseOrValue<string>]): string
-  encodeFunctionData(functionFragment: 'owner', values?: undefined): string
+    functionFragment: "FOREIGN_OMNIBRIDGE",
+    values?: undefined
+  ): string;
   encodeFunctionData(
-    functionFragment: 'recoverLockedFund',
-    values: [PromiseOrValue<string>, PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
-  ): string
+    functionFragment: "FOREIGN_XDAIBRIDGE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "USDS", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: 'relayTokens',
-    values: [PromiseOrValue<string>, PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
-  ): string
-  encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string
+    functionFragment: "WETH_OMNIBRIDGE_ROUTER",
+    values?: undefined
+  ): string;
   encodeFunctionData(
-    functionFragment: 'safeExecuteSignaturesWithAutoGasLimit',
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
-  ): string
+    functionFragment: "executeSignatures",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'setRoute',
-    values: [PromiseOrValue<string>, PromiseOrValue<string>],
-  ): string
-  encodeFunctionData(functionFragment: 'tokenRoutes', values: [PromiseOrValue<string>]): string
+    functionFragment: "executeSignaturesUSDS",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'transferOwnership',
-    values: [PromiseOrValue<string>],
-  ): string
+    functionFragment: "initialize",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "recoverLockedFund",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "relayTokens",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "safeExecuteSignaturesWithAutoGasLimit",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRoute",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "tokenRoutes",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [PromiseOrValue<string>]
+  ): string;
 
-  decodeFunctionResult(functionFragment: 'DAI', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'FOREIGN_AMB', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'FOREIGN_OMNIBRIDGE', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'FOREIGN_XDAIBRIDGE', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'USDS', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'WETH_OMNIBRIDGE_ROUTER', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'executeSignatures', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'executeSignaturesUSDS', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'recoverLockedFund', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'relayTokens', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: "DAI", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: 'safeExecuteSignaturesWithAutoGasLimit',
-    data: BytesLike,
-  ): Result
-  decodeFunctionResult(functionFragment: 'setRoute', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'tokenRoutes', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result
+    functionFragment: "FOREIGN_AMB",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "FOREIGN_OMNIBRIDGE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "FOREIGN_XDAIBRIDGE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "USDS", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "WETH_OMNIBRIDGE_ROUTER",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "executeSignatures",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "executeSignaturesUSDS",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "recoverLockedFund",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "relayTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "safeExecuteSignaturesWithAutoGasLimit",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "setRoute", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenRoutes",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
 
   events: {
-    'Initialized(uint64)': EventFragment
-    'OwnershipTransferred(address,address)': EventFragment
-  }
+    "Initialized(uint64)": EventFragment;
+    "OwnershipTransferred(address,address)": EventFragment;
+  };
 
-  getEvent(nameOrSignatureOrTopic: 'Initialized'): EventFragment
-  getEvent(nameOrSignatureOrTopic: 'OwnershipTransferred'): EventFragment
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
 
 export interface InitializedEventObject {
-  version: BigNumber
+  version: BigNumber;
 }
-export type InitializedEvent = TypedEvent<[BigNumber], InitializedEventObject>
+export type InitializedEvent = TypedEvent<[BigNumber], InitializedEventObject>;
 
-export type InitializedEventFilter = TypedEventFilter<InitializedEvent>
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface OwnershipTransferredEventObject {
-  previousOwner: string
-  newOwner: string
+  previousOwner: string;
+  newOwner: string;
 }
 export type OwnershipTransferredEvent = TypedEvent<
   [string, string],
   OwnershipTransferredEventObject
->
+>;
 
-export type OwnershipTransferredEventFilter = TypedEventFilter<OwnershipTransferredEvent>
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface ForeignBridgeRouter extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this
-  attach(addressOrName: string): this
-  deployed(): Promise<this>
+  connect(signerOrProvider: Signer | Provider | string): this;
+  attach(addressOrName: string): this;
+  deployed(): Promise<this>;
 
-  interface: ForeignBridgeRouterInterface
+  interface: ForeignBridgeRouterInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
-  ): Promise<Array<TEvent>>
+    toBlock?: string | number | undefined
+  ): Promise<Array<TEvent>>;
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>,
-  ): Array<TypedListener<TEvent>>
-  listeners(eventName?: string): Array<Listener>
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this
-  removeAllListeners(eventName?: string): this
-  off: OnEvent<this>
-  on: OnEvent<this>
-  once: OnEvent<this>
-  removeListener: OnEvent<this>
+    eventFilter?: TypedEventFilter<TEvent>
+  ): Array<TypedListener<TEvent>>;
+  listeners(eventName?: string): Array<Listener>;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
+  removeAllListeners(eventName?: string): this;
+  off: OnEvent<this>;
+  on: OnEvent<this>;
+  once: OnEvent<this>;
+  removeListener: OnEvent<this>;
 
   functions: {
-    DAI(overrides?: CallOverrides): Promise<[string]>
+    DAI(overrides?: CallOverrides): Promise<[string]>;
 
-    FOREIGN_AMB(overrides?: CallOverrides): Promise<[string]>
+    FOREIGN_AMB(overrides?: CallOverrides): Promise<[string]>;
 
-    FOREIGN_OMNIBRIDGE(overrides?: CallOverrides): Promise<[string]>
+    FOREIGN_OMNIBRIDGE(overrides?: CallOverrides): Promise<[string]>;
 
-    FOREIGN_XDAIBRIDGE(overrides?: CallOverrides): Promise<[string]>
+    FOREIGN_XDAIBRIDGE(overrides?: CallOverrides): Promise<[string]>;
 
-    USDS(overrides?: CallOverrides): Promise<[string]>
+    USDS(overrides?: CallOverrides): Promise<[string]>;
 
-    WETH_OMNIBRIDGE_ROUTER(overrides?: CallOverrides): Promise<[string]>
+    WETH_OMNIBRIDGE_ROUTER(overrides?: CallOverrides): Promise<[string]>;
 
     executeSignatures(
       message: PromiseOrValue<BytesLike>,
       signatures: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     executeSignaturesUSDS(
       message: PromiseOrValue<BytesLike>,
       signatures: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     initialize(
       owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    owner(overrides?: CallOverrides): Promise<[string]>
+    owner(overrides?: CallOverrides): Promise<[string]>;
 
     recoverLockedFund(
       token: PromiseOrValue<string>,
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     relayTokens(
       _token: PromiseOrValue<string>,
       _receiver: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     safeExecuteSignaturesWithAutoGasLimit(
       message: PromiseOrValue<BytesLike>,
       signatures: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setRoute(
       _token: PromiseOrValue<string>,
       _route: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    tokenRoutes(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[string]>
+    tokenRoutes(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
-  }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+  };
 
-  DAI(overrides?: CallOverrides): Promise<string>
+  DAI(overrides?: CallOverrides): Promise<string>;
 
-  FOREIGN_AMB(overrides?: CallOverrides): Promise<string>
+  FOREIGN_AMB(overrides?: CallOverrides): Promise<string>;
 
-  FOREIGN_OMNIBRIDGE(overrides?: CallOverrides): Promise<string>
+  FOREIGN_OMNIBRIDGE(overrides?: CallOverrides): Promise<string>;
 
-  FOREIGN_XDAIBRIDGE(overrides?: CallOverrides): Promise<string>
+  FOREIGN_XDAIBRIDGE(overrides?: CallOverrides): Promise<string>;
 
-  USDS(overrides?: CallOverrides): Promise<string>
+  USDS(overrides?: CallOverrides): Promise<string>;
 
-  WETH_OMNIBRIDGE_ROUTER(overrides?: CallOverrides): Promise<string>
+  WETH_OMNIBRIDGE_ROUTER(overrides?: CallOverrides): Promise<string>;
 
   executeSignatures(
     message: PromiseOrValue<BytesLike>,
     signatures: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   executeSignaturesUSDS(
     message: PromiseOrValue<BytesLike>,
     signatures: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   initialize(
     owner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  owner(overrides?: CallOverrides): Promise<string>
+  owner(overrides?: CallOverrides): Promise<string>;
 
   recoverLockedFund(
     token: PromiseOrValue<string>,
     recipient: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   relayTokens(
     _token: PromiseOrValue<string>,
     _receiver: PromiseOrValue<string>,
     _amount: PromiseOrValue<BigNumberish>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   safeExecuteSignaturesWithAutoGasLimit(
     message: PromiseOrValue<BytesLike>,
     signatures: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setRoute(
     _token: PromiseOrValue<string>,
     _route: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  tokenRoutes(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>
+  tokenRoutes(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   transferOwnership(
     newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
-    DAI(overrides?: CallOverrides): Promise<string>
+    DAI(overrides?: CallOverrides): Promise<string>;
 
-    FOREIGN_AMB(overrides?: CallOverrides): Promise<string>
+    FOREIGN_AMB(overrides?: CallOverrides): Promise<string>;
 
-    FOREIGN_OMNIBRIDGE(overrides?: CallOverrides): Promise<string>
+    FOREIGN_OMNIBRIDGE(overrides?: CallOverrides): Promise<string>;
 
-    FOREIGN_XDAIBRIDGE(overrides?: CallOverrides): Promise<string>
+    FOREIGN_XDAIBRIDGE(overrides?: CallOverrides): Promise<string>;
 
-    USDS(overrides?: CallOverrides): Promise<string>
+    USDS(overrides?: CallOverrides): Promise<string>;
 
-    WETH_OMNIBRIDGE_ROUTER(overrides?: CallOverrides): Promise<string>
-
-    executeSignatures(
-      message: PromiseOrValue<BytesLike>,
-      signatures: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<void>
-
-    executeSignaturesUSDS(
-      message: PromiseOrValue<BytesLike>,
-      signatures: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<void>
-
-    initialize(owner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>
-
-    owner(overrides?: CallOverrides): Promise<string>
-
-    recoverLockedFund(
-      token: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<void>
-
-    relayTokens(
-      _token: PromiseOrValue<string>,
-      _receiver: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<void>
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>
-
-    safeExecuteSignaturesWithAutoGasLimit(
-      message: PromiseOrValue<BytesLike>,
-      signatures: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<void>
-
-    setRoute(
-      _token: PromiseOrValue<string>,
-      _route: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<void>
-
-    tokenRoutes(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>
-
-    transferOwnership(newOwner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>
-  }
-
-  filters: {
-    'Initialized(uint64)'(version?: null): InitializedEventFilter
-    Initialized(version?: null): InitializedEventFilter
-
-    'OwnershipTransferred(address,address)'(
-      previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null,
-    ): OwnershipTransferredEventFilter
-    OwnershipTransferred(
-      previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null,
-    ): OwnershipTransferredEventFilter
-  }
-
-  estimateGas: {
-    DAI(overrides?: CallOverrides): Promise<BigNumber>
-
-    FOREIGN_AMB(overrides?: CallOverrides): Promise<BigNumber>
-
-    FOREIGN_OMNIBRIDGE(overrides?: CallOverrides): Promise<BigNumber>
-
-    FOREIGN_XDAIBRIDGE(overrides?: CallOverrides): Promise<BigNumber>
-
-    USDS(overrides?: CallOverrides): Promise<BigNumber>
-
-    WETH_OMNIBRIDGE_ROUTER(overrides?: CallOverrides): Promise<BigNumber>
+    WETH_OMNIBRIDGE_ROUTER(overrides?: CallOverrides): Promise<string>;
 
     executeSignatures(
       message: PromiseOrValue<BytesLike>,
       signatures: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     executeSignaturesUSDS(
       message: PromiseOrValue<BytesLike>,
       signatures: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     initialize(
       owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    owner(overrides?: CallOverrides): Promise<BigNumber>
-
-    recoverLockedFund(
-      token: PromiseOrValue<string>,
-      recipient: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    relayTokens(
-      _token: PromiseOrValue<string>,
-      _receiver: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>
-
-    safeExecuteSignaturesWithAutoGasLimit(
-      message: PromiseOrValue<BytesLike>,
-      signatures: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    setRoute(
-      _token: PromiseOrValue<string>,
-      _route: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    tokenRoutes(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
-
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-  }
-
-  populateTransaction: {
-    DAI(overrides?: CallOverrides): Promise<PopulatedTransaction>
-
-    FOREIGN_AMB(overrides?: CallOverrides): Promise<PopulatedTransaction>
-
-    FOREIGN_OMNIBRIDGE(overrides?: CallOverrides): Promise<PopulatedTransaction>
-
-    FOREIGN_XDAIBRIDGE(overrides?: CallOverrides): Promise<PopulatedTransaction>
-
-    USDS(overrides?: CallOverrides): Promise<PopulatedTransaction>
-
-    WETH_OMNIBRIDGE_ROUTER(overrides?: CallOverrides): Promise<PopulatedTransaction>
-
-    executeSignatures(
-      message: PromiseOrValue<BytesLike>,
-      signatures: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
-
-    executeSignaturesUSDS(
-      message: PromiseOrValue<BytesLike>,
-      signatures: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
-
-    initialize(
-      owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
-
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>
+    owner(overrides?: CallOverrides): Promise<string>;
 
     recoverLockedFund(
       token: PromiseOrValue<string>,
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     relayTokens(
       _token: PromiseOrValue<string>,
       _receiver: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     safeExecuteSignaturesWithAutoGasLimit(
       message: PromiseOrValue<BytesLike>,
       signatures: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setRoute(
       _token: PromiseOrValue<string>,
       _route: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     tokenRoutes(
       arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
-  }
+      overrides?: CallOverrides
+    ): Promise<void>;
+  };
+
+  filters: {
+    "Initialized(uint64)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
+    OwnershipTransferred(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
+  };
+
+  estimateGas: {
+    DAI(overrides?: CallOverrides): Promise<BigNumber>;
+
+    FOREIGN_AMB(overrides?: CallOverrides): Promise<BigNumber>;
+
+    FOREIGN_OMNIBRIDGE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    FOREIGN_XDAIBRIDGE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    USDS(overrides?: CallOverrides): Promise<BigNumber>;
+
+    WETH_OMNIBRIDGE_ROUTER(overrides?: CallOverrides): Promise<BigNumber>;
+
+    executeSignatures(
+      message: PromiseOrValue<BytesLike>,
+      signatures: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    executeSignaturesUSDS(
+      message: PromiseOrValue<BytesLike>,
+      signatures: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    initialize(
+      owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    recoverLockedFund(
+      token: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    relayTokens(
+      _token: PromiseOrValue<string>,
+      _receiver: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    safeExecuteSignaturesWithAutoGasLimit(
+      message: PromiseOrValue<BytesLike>,
+      signatures: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setRoute(
+      _token: PromiseOrValue<string>,
+      _route: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    tokenRoutes(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+  };
+
+  populateTransaction: {
+    DAI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    FOREIGN_AMB(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    FOREIGN_OMNIBRIDGE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    FOREIGN_XDAIBRIDGE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    USDS(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    WETH_OMNIBRIDGE_ROUTER(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    executeSignatures(
+      message: PromiseOrValue<BytesLike>,
+      signatures: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    executeSignaturesUSDS(
+      message: PromiseOrValue<BytesLike>,
+      signatures: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    initialize(
+      owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    recoverLockedFund(
+      token: PromiseOrValue<string>,
+      recipient: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    relayTokens(
+      _token: PromiseOrValue<string>,
+      _receiver: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    safeExecuteSignaturesWithAutoGasLimit(
+      message: PromiseOrValue<BytesLike>,
+      signatures: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setRoute(
+      _token: PromiseOrValue<string>,
+      _route: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    tokenRoutes(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+  };
 }

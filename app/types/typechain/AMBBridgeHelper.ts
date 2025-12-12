@@ -11,98 +11,137 @@ import type {
   PopulatedTransaction,
   Signer,
   utils,
-} from 'ethers'
-import type { FunctionFragment, Result } from '@ethersproject/abi'
-import type { Listener, Provider } from '@ethersproject/providers'
-import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from './common'
+} from "ethers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
+import type {
+  TypedEventFilter,
+  TypedEvent,
+  TypedListener,
+  OnEvent,
+  PromiseOrValue,
+} from "./common";
 
 export interface AMBBridgeHelperInterface extends utils.Interface {
   functions: {
-    'AMBcontract()': FunctionFragment
-    'clean()': FunctionFragment
-    'getSignatures(bytes)': FunctionFragment
-  }
+    "AMBcontract()": FunctionFragment;
+    "clean()": FunctionFragment;
+    "getSignatures(bytes)": FunctionFragment;
+  };
 
-  getFunction(nameOrSignatureOrTopic: 'AMBcontract' | 'clean' | 'getSignatures'): FunctionFragment
+  getFunction(
+    nameOrSignatureOrTopic: "AMBcontract" | "clean" | "getSignatures"
+  ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: 'AMBcontract', values?: undefined): string
-  encodeFunctionData(functionFragment: 'clean', values?: undefined): string
-  encodeFunctionData(functionFragment: 'getSignatures', values: [PromiseOrValue<BytesLike>]): string
+  encodeFunctionData(
+    functionFragment: "AMBcontract",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "clean", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getSignatures",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
 
-  decodeFunctionResult(functionFragment: 'AMBcontract', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'clean', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'getSignatures', data: BytesLike): Result
+  decodeFunctionResult(
+    functionFragment: "AMBcontract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "clean", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getSignatures",
+    data: BytesLike
+  ): Result;
 
-  events: {}
+  events: {};
 }
 
 export interface AMBBridgeHelper extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this
-  attach(addressOrName: string): this
-  deployed(): Promise<this>
+  connect(signerOrProvider: Signer | Provider | string): this;
+  attach(addressOrName: string): this;
+  deployed(): Promise<this>;
 
-  interface: AMBBridgeHelperInterface
+  interface: AMBBridgeHelperInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
-  ): Promise<Array<TEvent>>
+    toBlock?: string | number | undefined
+  ): Promise<Array<TEvent>>;
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>,
-  ): Array<TypedListener<TEvent>>
-  listeners(eventName?: string): Array<Listener>
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this
-  removeAllListeners(eventName?: string): this
-  off: OnEvent<this>
-  on: OnEvent<this>
-  once: OnEvent<this>
-  removeListener: OnEvent<this>
+    eventFilter?: TypedEventFilter<TEvent>
+  ): Array<TypedListener<TEvent>>;
+  listeners(eventName?: string): Array<Listener>;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
+  removeAllListeners(eventName?: string): this;
+  off: OnEvent<this>;
+  on: OnEvent<this>;
+  once: OnEvent<this>;
+  removeListener: OnEvent<this>;
 
   functions: {
-    AMBcontract(overrides?: CallOverrides): Promise<[string]>
+    AMBcontract(overrides?: CallOverrides): Promise<[string]>;
 
-    clean(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>
+    clean(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    getSignatures(_message: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string]>
-  }
+    getSignatures(
+      _message: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+  };
 
-  AMBcontract(overrides?: CallOverrides): Promise<string>
+  AMBcontract(overrides?: CallOverrides): Promise<string>;
 
-  clean(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>
+  clean(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  getSignatures(_message: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string>
+  getSignatures(
+    _message: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   callStatic: {
-    AMBcontract(overrides?: CallOverrides): Promise<string>
+    AMBcontract(overrides?: CallOverrides): Promise<string>;
 
-    clean(overrides?: CallOverrides): Promise<void>
+    clean(overrides?: CallOverrides): Promise<void>;
 
-    getSignatures(_message: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string>
-  }
+    getSignatures(
+      _message: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+  };
 
-  filters: {}
+  filters: {};
 
   estimateGas: {
-    AMBcontract(overrides?: CallOverrides): Promise<BigNumber>
+    AMBcontract(overrides?: CallOverrides): Promise<BigNumber>;
 
-    clean(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>
+    clean(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     getSignatures(
       _message: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
-  }
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+  };
 
   populateTransaction: {
-    AMBcontract(overrides?: CallOverrides): Promise<PopulatedTransaction>
+    AMBcontract(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    clean(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>
+    clean(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     getSignatures(
       _message: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
-  }
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+  };
 }
