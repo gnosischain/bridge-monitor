@@ -12,155 +12,186 @@ import type {
   PopulatedTransaction,
   Signer,
   utils,
-} from 'ethers'
-import type { FunctionFragment, Result, EventFragment } from '@ethersproject/abi'
-import type { Listener, Provider } from '@ethersproject/providers'
-import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from './common'
+} from "ethers";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
+import type {
+  TypedEventFilter,
+  TypedEvent,
+  TypedListener,
+  OnEvent,
+  PromiseOrValue,
+} from "./common";
 
 export interface HomeOmniMediatorInterface extends utils.Interface {
   functions: {
-    'bridgeContract()': FunctionFragment
-    'bridgedTokenAddress(address)': FunctionFragment
-    'claimTokens(address,address)': FunctionFragment
-    'claimTokensFromTokenContract(address,address,address)': FunctionFragment
-    'dailyLimit(address)': FunctionFragment
-    'deployAndHandleBridgedTokens(address,string,string,uint8,address,uint256)': FunctionFragment
-    'deployAndHandleBridgedTokensAndCall(address,string,string,uint8,address,uint256,bytes)': FunctionFragment
-    'executionDailyLimit(address)': FunctionFragment
-    'executionMaxPerTx(address)': FunctionFragment
-    'feeManager()': FunctionFragment
-    'fixFailedMessage(bytes32)': FunctionFragment
-    'fixMediatorBalance(address,address)': FunctionFragment
-    'foreignTokenAddress(address)': FunctionFragment
-    'forwardingRulesManager()': FunctionFragment
-    'gasLimitManager()': FunctionFragment
-    'getBridgeInterfacesVersion()': FunctionFragment
-    'getBridgeMode()': FunctionFragment
-    'getCurrentDay()': FunctionFragment
-    'handleBridgedTokens(address,address,uint256)': FunctionFragment
-    'handleBridgedTokensAndCall(address,address,uint256,bytes)': FunctionFragment
-    'handleNativeTokens(address,address,uint256)': FunctionFragment
-    'handleNativeTokensAndCall(address,address,uint256,bytes)': FunctionFragment
-    'homeTokenAddress(address)': FunctionFragment
-    'initialize(address,address,uint256[3],uint256[2],address,address,address,address,address)': FunctionFragment
-    'isBridgedTokenDeployAcknowledged(address)': FunctionFragment
-    'isInitialized()': FunctionFragment
-    'isRegisteredAsNativeToken(address)': FunctionFragment
-    'isTokenRegistered(address)': FunctionFragment
-    'maxAvailablePerTx(address)': FunctionFragment
-    'maxPerTx(address)': FunctionFragment
-    'mediatorBalance(address)': FunctionFragment
-    'mediatorContractOnOtherSide()': FunctionFragment
-    'messageFixed(bytes32)': FunctionFragment
-    'migrateTo_3_3_0(address,address,address,address)': FunctionFragment
-    'minPerTx(address)': FunctionFragment
-    'nativeTokenAddress(address)': FunctionFragment
-    'onTokenTransfer(address,uint256,bytes)': FunctionFragment
-    'owner()': FunctionFragment
-    'relayTokens(address,uint256)': FunctionFragment
-    'relayTokens(address,address,uint256)': FunctionFragment
-    'relayTokensAndCall(address,address,uint256,bytes)': FunctionFragment
-    'requestFailedMessageFix(bytes32)': FunctionFragment
-    'setBridgeContract(address)': FunctionFragment
-    'setCustomTokenAddressPair(address,address)': FunctionFragment
-    'setDailyLimit(address,uint256)': FunctionFragment
-    'setExecutionDailyLimit(address,uint256)': FunctionFragment
-    'setExecutionMaxPerTx(address,uint256)': FunctionFragment
-    'setFeeManager(address)': FunctionFragment
-    'setForwardingRulesManager(address)': FunctionFragment
-    'setGasLimitManager(address)': FunctionFragment
-    'setMaxPerTx(address,uint256)': FunctionFragment
-    'setMediatorContractOnOtherSide(address)': FunctionFragment
-    'setMinPerTx(address,uint256)': FunctionFragment
-    'setTokenFactory(address)': FunctionFragment
-    'tokenFactory()': FunctionFragment
-    'totalExecutedPerDay(address,uint256)': FunctionFragment
-    'totalSpentPerDay(address,uint256)': FunctionFragment
-    'transferOwnership(address)': FunctionFragment
-    'withinExecutionLimit(address,uint256)': FunctionFragment
-    'withinLimit(address,uint256)': FunctionFragment
-  }
+    "bridgeContract()": FunctionFragment;
+    "bridgedTokenAddress(address)": FunctionFragment;
+    "claimTokens(address,address)": FunctionFragment;
+    "claimTokensFromTokenContract(address,address,address)": FunctionFragment;
+    "dailyLimit(address)": FunctionFragment;
+    "deployAndHandleBridgedTokens(address,string,string,uint8,address,uint256)": FunctionFragment;
+    "deployAndHandleBridgedTokensAndCall(address,string,string,uint8,address,uint256,bytes)": FunctionFragment;
+    "executionDailyLimit(address)": FunctionFragment;
+    "executionMaxPerTx(address)": FunctionFragment;
+    "feeManager()": FunctionFragment;
+    "fixFailedMessage(bytes32)": FunctionFragment;
+    "fixMediatorBalance(address,address)": FunctionFragment;
+    "foreignTokenAddress(address)": FunctionFragment;
+    "forwardingRulesManager()": FunctionFragment;
+    "gasLimitManager()": FunctionFragment;
+    "getBridgeInterfacesVersion()": FunctionFragment;
+    "getBridgeMode()": FunctionFragment;
+    "getCurrentDay()": FunctionFragment;
+    "handleBridgedTokens(address,address,uint256)": FunctionFragment;
+    "handleBridgedTokensAndCall(address,address,uint256,bytes)": FunctionFragment;
+    "handleNativeTokens(address,address,uint256)": FunctionFragment;
+    "handleNativeTokensAndCall(address,address,uint256,bytes)": FunctionFragment;
+    "homeTokenAddress(address)": FunctionFragment;
+    "initialize(address,address,uint256[3],uint256[2],address,address,address,address,address)": FunctionFragment;
+    "isBridgedTokenDeployAcknowledged(address)": FunctionFragment;
+    "isInitialized()": FunctionFragment;
+    "isRegisteredAsNativeToken(address)": FunctionFragment;
+    "isTokenRegistered(address)": FunctionFragment;
+    "maxAvailablePerTx(address)": FunctionFragment;
+    "maxPerTx(address)": FunctionFragment;
+    "mediatorBalance(address)": FunctionFragment;
+    "mediatorContractOnOtherSide()": FunctionFragment;
+    "messageFixed(bytes32)": FunctionFragment;
+    "migrateTo_3_3_0(address,address,address,address)": FunctionFragment;
+    "minPerTx(address)": FunctionFragment;
+    "nativeTokenAddress(address)": FunctionFragment;
+    "onTokenTransfer(address,uint256,bytes)": FunctionFragment;
+    "owner()": FunctionFragment;
+    "relayTokens(address,uint256)": FunctionFragment;
+    "relayTokens(address,address,uint256)": FunctionFragment;
+    "relayTokensAndCall(address,address,uint256,bytes)": FunctionFragment;
+    "requestFailedMessageFix(bytes32)": FunctionFragment;
+    "setBridgeContract(address)": FunctionFragment;
+    "setCustomTokenAddressPair(address,address)": FunctionFragment;
+    "setDailyLimit(address,uint256)": FunctionFragment;
+    "setExecutionDailyLimit(address,uint256)": FunctionFragment;
+    "setExecutionMaxPerTx(address,uint256)": FunctionFragment;
+    "setFeeManager(address)": FunctionFragment;
+    "setForwardingRulesManager(address)": FunctionFragment;
+    "setGasLimitManager(address)": FunctionFragment;
+    "setMaxPerTx(address,uint256)": FunctionFragment;
+    "setMediatorContractOnOtherSide(address)": FunctionFragment;
+    "setMinPerTx(address,uint256)": FunctionFragment;
+    "setTokenFactory(address)": FunctionFragment;
+    "tokenFactory()": FunctionFragment;
+    "totalExecutedPerDay(address,uint256)": FunctionFragment;
+    "totalSpentPerDay(address,uint256)": FunctionFragment;
+    "transferOwnership(address)": FunctionFragment;
+    "withinExecutionLimit(address,uint256)": FunctionFragment;
+    "withinLimit(address,uint256)": FunctionFragment;
+  };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | 'bridgeContract'
-      | 'bridgedTokenAddress'
-      | 'claimTokens'
-      | 'claimTokensFromTokenContract'
-      | 'dailyLimit'
-      | 'deployAndHandleBridgedTokens'
-      | 'deployAndHandleBridgedTokensAndCall'
-      | 'executionDailyLimit'
-      | 'executionMaxPerTx'
-      | 'feeManager'
-      | 'fixFailedMessage'
-      | 'fixMediatorBalance'
-      | 'foreignTokenAddress'
-      | 'forwardingRulesManager'
-      | 'gasLimitManager'
-      | 'getBridgeInterfacesVersion'
-      | 'getBridgeMode'
-      | 'getCurrentDay'
-      | 'handleBridgedTokens'
-      | 'handleBridgedTokensAndCall'
-      | 'handleNativeTokens'
-      | 'handleNativeTokensAndCall'
-      | 'homeTokenAddress'
-      | 'initialize'
-      | 'isBridgedTokenDeployAcknowledged'
-      | 'isInitialized'
-      | 'isRegisteredAsNativeToken'
-      | 'isTokenRegistered'
-      | 'maxAvailablePerTx'
-      | 'maxPerTx'
-      | 'mediatorBalance'
-      | 'mediatorContractOnOtherSide'
-      | 'messageFixed'
-      | 'migrateTo_3_3_0'
-      | 'minPerTx'
-      | 'nativeTokenAddress'
-      | 'onTokenTransfer'
-      | 'owner'
-      | 'relayTokens(address,uint256)'
-      | 'relayTokens(address,address,uint256)'
-      | 'relayTokensAndCall'
-      | 'requestFailedMessageFix'
-      | 'setBridgeContract'
-      | 'setCustomTokenAddressPair'
-      | 'setDailyLimit'
-      | 'setExecutionDailyLimit'
-      | 'setExecutionMaxPerTx'
-      | 'setFeeManager'
-      | 'setForwardingRulesManager'
-      | 'setGasLimitManager'
-      | 'setMaxPerTx'
-      | 'setMediatorContractOnOtherSide'
-      | 'setMinPerTx'
-      | 'setTokenFactory'
-      | 'tokenFactory'
-      | 'totalExecutedPerDay'
-      | 'totalSpentPerDay'
-      | 'transferOwnership'
-      | 'withinExecutionLimit'
-      | 'withinLimit',
-  ): FunctionFragment
+      | "bridgeContract"
+      | "bridgedTokenAddress"
+      | "claimTokens"
+      | "claimTokensFromTokenContract"
+      | "dailyLimit"
+      | "deployAndHandleBridgedTokens"
+      | "deployAndHandleBridgedTokensAndCall"
+      | "executionDailyLimit"
+      | "executionMaxPerTx"
+      | "feeManager"
+      | "fixFailedMessage"
+      | "fixMediatorBalance"
+      | "foreignTokenAddress"
+      | "forwardingRulesManager"
+      | "gasLimitManager"
+      | "getBridgeInterfacesVersion"
+      | "getBridgeMode"
+      | "getCurrentDay"
+      | "handleBridgedTokens"
+      | "handleBridgedTokensAndCall"
+      | "handleNativeTokens"
+      | "handleNativeTokensAndCall"
+      | "homeTokenAddress"
+      | "initialize"
+      | "isBridgedTokenDeployAcknowledged"
+      | "isInitialized"
+      | "isRegisteredAsNativeToken"
+      | "isTokenRegistered"
+      | "maxAvailablePerTx"
+      | "maxPerTx"
+      | "mediatorBalance"
+      | "mediatorContractOnOtherSide"
+      | "messageFixed"
+      | "migrateTo_3_3_0"
+      | "minPerTx"
+      | "nativeTokenAddress"
+      | "onTokenTransfer"
+      | "owner"
+      | "relayTokens(address,uint256)"
+      | "relayTokens(address,address,uint256)"
+      | "relayTokensAndCall"
+      | "requestFailedMessageFix"
+      | "setBridgeContract"
+      | "setCustomTokenAddressPair"
+      | "setDailyLimit"
+      | "setExecutionDailyLimit"
+      | "setExecutionMaxPerTx"
+      | "setFeeManager"
+      | "setForwardingRulesManager"
+      | "setGasLimitManager"
+      | "setMaxPerTx"
+      | "setMediatorContractOnOtherSide"
+      | "setMinPerTx"
+      | "setTokenFactory"
+      | "tokenFactory"
+      | "totalExecutedPerDay"
+      | "totalSpentPerDay"
+      | "transferOwnership"
+      | "withinExecutionLimit"
+      | "withinLimit"
+  ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: 'bridgeContract', values?: undefined): string
   encodeFunctionData(
-    functionFragment: 'bridgedTokenAddress',
-    values: [PromiseOrValue<string>],
-  ): string
+    functionFragment: "bridgeContract",
+    values?: undefined
+  ): string;
   encodeFunctionData(
-    functionFragment: 'claimTokens',
-    values: [PromiseOrValue<string>, PromiseOrValue<string>],
-  ): string
+    functionFragment: "bridgedTokenAddress",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'claimTokensFromTokenContract',
-    values: [PromiseOrValue<string>, PromiseOrValue<string>, PromiseOrValue<string>],
-  ): string
-  encodeFunctionData(functionFragment: 'dailyLimit', values: [PromiseOrValue<string>]): string
+    functionFragment: "claimTokens",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'deployAndHandleBridgedTokens',
+    functionFragment: "claimTokensFromTokenContract",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "dailyLimit",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "deployAndHandleBridgedTokens",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "deployAndHandleBridgedTokensAndCall",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
@@ -168,449 +199,679 @@ export interface HomeOmniMediatorInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
-    ],
-  ): string
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'deployAndHandleBridgedTokensAndCall',
+    functionFragment: "executionDailyLimit",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "executionMaxPerTx",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "feeManager",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "fixFailedMessage",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "fixMediatorBalance",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "foreignTokenAddress",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "forwardingRulesManager",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "gasLimitManager",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getBridgeInterfacesVersion",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getBridgeMode",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getCurrentDay",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "handleBridgedTokens",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-    ],
-  ): string
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'executionDailyLimit',
-    values: [PromiseOrValue<string>],
-  ): string
-  encodeFunctionData(
-    functionFragment: 'executionMaxPerTx',
-    values: [PromiseOrValue<string>],
-  ): string
-  encodeFunctionData(functionFragment: 'feeManager', values?: undefined): string
-  encodeFunctionData(
-    functionFragment: 'fixFailedMessage',
-    values: [PromiseOrValue<BytesLike>],
-  ): string
-  encodeFunctionData(
-    functionFragment: 'fixMediatorBalance',
-    values: [PromiseOrValue<string>, PromiseOrValue<string>],
-  ): string
-  encodeFunctionData(
-    functionFragment: 'foreignTokenAddress',
-    values: [PromiseOrValue<string>],
-  ): string
-  encodeFunctionData(functionFragment: 'forwardingRulesManager', values?: undefined): string
-  encodeFunctionData(functionFragment: 'gasLimitManager', values?: undefined): string
-  encodeFunctionData(functionFragment: 'getBridgeInterfacesVersion', values?: undefined): string
-  encodeFunctionData(functionFragment: 'getBridgeMode', values?: undefined): string
-  encodeFunctionData(functionFragment: 'getCurrentDay', values?: undefined): string
-  encodeFunctionData(
-    functionFragment: 'handleBridgedTokens',
-    values: [PromiseOrValue<string>, PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
-  ): string
-  encodeFunctionData(
-    functionFragment: 'handleBridgedTokensAndCall',
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-    ],
-  ): string
-  encodeFunctionData(
-    functionFragment: 'handleNativeTokens',
-    values: [PromiseOrValue<string>, PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
-  ): string
-  encodeFunctionData(
-    functionFragment: 'handleNativeTokensAndCall',
+    functionFragment: "handleBridgedTokensAndCall",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-    ],
-  ): string
-  encodeFunctionData(functionFragment: 'homeTokenAddress', values: [PromiseOrValue<string>]): string
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'initialize',
+    functionFragment: "handleNativeTokens",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "handleNativeTokensAndCall",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "homeTokenAddress",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      [
+        PromiseOrValue<BigNumberish>,
+        PromiseOrValue<BigNumberish>,
+        PromiseOrValue<BigNumberish>
+      ],
       [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>,
-    ],
-  ): string
+      PromiseOrValue<string>
+    ]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'isBridgedTokenDeployAcknowledged',
-    values: [PromiseOrValue<string>],
-  ): string
-  encodeFunctionData(functionFragment: 'isInitialized', values?: undefined): string
+    functionFragment: "isBridgedTokenDeployAcknowledged",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'isRegisteredAsNativeToken',
-    values: [PromiseOrValue<string>],
-  ): string
+    functionFragment: "isInitialized",
+    values?: undefined
+  ): string;
   encodeFunctionData(
-    functionFragment: 'isTokenRegistered',
-    values: [PromiseOrValue<string>],
-  ): string
+    functionFragment: "isRegisteredAsNativeToken",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'maxAvailablePerTx',
-    values: [PromiseOrValue<string>],
-  ): string
-  encodeFunctionData(functionFragment: 'maxPerTx', values: [PromiseOrValue<string>]): string
-  encodeFunctionData(functionFragment: 'mediatorBalance', values: [PromiseOrValue<string>]): string
-  encodeFunctionData(functionFragment: 'mediatorContractOnOtherSide', values?: undefined): string
-  encodeFunctionData(functionFragment: 'messageFixed', values: [PromiseOrValue<BytesLike>]): string
+    functionFragment: "isTokenRegistered",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'migrateTo_3_3_0',
+    functionFragment: "maxAvailablePerTx",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "maxPerTx",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "mediatorBalance",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "mediatorContractOnOtherSide",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "messageFixed",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "migrateTo_3_3_0",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "minPerTx",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "nativeTokenAddress",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "onTokenTransfer",
+    values: [
       PromiseOrValue<string>,
-    ],
-  ): string
-  encodeFunctionData(functionFragment: 'minPerTx', values: [PromiseOrValue<string>]): string
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: 'nativeTokenAddress',
-    values: [PromiseOrValue<string>],
-  ): string
+    functionFragment: "relayTokens(address,uint256)",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'onTokenTransfer',
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>],
-  ): string
-  encodeFunctionData(functionFragment: 'owner', values?: undefined): string
+    functionFragment: "relayTokens(address,address,uint256)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'relayTokens(address,uint256)',
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
-  ): string
-  encodeFunctionData(
-    functionFragment: 'relayTokens(address,address,uint256)',
-    values: [PromiseOrValue<string>, PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
-  ): string
-  encodeFunctionData(
-    functionFragment: 'relayTokensAndCall',
+    functionFragment: "relayTokensAndCall",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>,
-    ],
-  ): string
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'requestFailedMessageFix',
-    values: [PromiseOrValue<BytesLike>],
-  ): string
+    functionFragment: "requestFailedMessageFix",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'setBridgeContract',
-    values: [PromiseOrValue<string>],
-  ): string
+    functionFragment: "setBridgeContract",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'setCustomTokenAddressPair',
-    values: [PromiseOrValue<string>, PromiseOrValue<string>],
-  ): string
+    functionFragment: "setCustomTokenAddressPair",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'setDailyLimit',
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
-  ): string
+    functionFragment: "setDailyLimit",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'setExecutionDailyLimit',
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
-  ): string
+    functionFragment: "setExecutionDailyLimit",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'setExecutionMaxPerTx',
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
-  ): string
-  encodeFunctionData(functionFragment: 'setFeeManager', values: [PromiseOrValue<string>]): string
+    functionFragment: "setExecutionMaxPerTx",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'setForwardingRulesManager',
-    values: [PromiseOrValue<string>],
-  ): string
+    functionFragment: "setFeeManager",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'setGasLimitManager',
-    values: [PromiseOrValue<string>],
-  ): string
+    functionFragment: "setForwardingRulesManager",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'setMaxPerTx',
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
-  ): string
+    functionFragment: "setGasLimitManager",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'setMediatorContractOnOtherSide',
-    values: [PromiseOrValue<string>],
-  ): string
+    functionFragment: "setMaxPerTx",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'setMinPerTx',
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
-  ): string
-  encodeFunctionData(functionFragment: 'setTokenFactory', values: [PromiseOrValue<string>]): string
-  encodeFunctionData(functionFragment: 'tokenFactory', values?: undefined): string
+    functionFragment: "setMediatorContractOnOtherSide",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'totalExecutedPerDay',
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
-  ): string
+    functionFragment: "setMinPerTx",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'totalSpentPerDay',
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
-  ): string
+    functionFragment: "setTokenFactory",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'transferOwnership',
-    values: [PromiseOrValue<string>],
-  ): string
+    functionFragment: "tokenFactory",
+    values?: undefined
+  ): string;
   encodeFunctionData(
-    functionFragment: 'withinExecutionLimit',
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
-  ): string
+    functionFragment: "totalExecutedPerDay",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
-    functionFragment: 'withinLimit',
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>],
-  ): string
+    functionFragment: "totalSpentPerDay",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withinExecutionLimit",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withinLimit",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
 
-  decodeFunctionResult(functionFragment: 'bridgeContract', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'bridgedTokenAddress', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'claimTokens', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'claimTokensFromTokenContract', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'dailyLimit', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'deployAndHandleBridgedTokens', data: BytesLike): Result
   decodeFunctionResult(
-    functionFragment: 'deployAndHandleBridgedTokensAndCall',
-    data: BytesLike,
-  ): Result
-  decodeFunctionResult(functionFragment: 'executionDailyLimit', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'executionMaxPerTx', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'feeManager', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'fixFailedMessage', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'fixMediatorBalance', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'foreignTokenAddress', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'forwardingRulesManager', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'gasLimitManager', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'getBridgeInterfacesVersion', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'getBridgeMode', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'getCurrentDay', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'handleBridgedTokens', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'handleBridgedTokensAndCall', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'handleNativeTokens', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'handleNativeTokensAndCall', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'homeTokenAddress', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result
+    functionFragment: "bridgeContract",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
-    functionFragment: 'isBridgedTokenDeployAcknowledged',
-    data: BytesLike,
-  ): Result
-  decodeFunctionResult(functionFragment: 'isInitialized', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'isRegisteredAsNativeToken', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'isTokenRegistered', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'maxAvailablePerTx', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'maxPerTx', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'mediatorBalance', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'mediatorContractOnOtherSide', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'messageFixed', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'migrateTo_3_3_0', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'minPerTx', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'nativeTokenAddress', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'onTokenTransfer', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'relayTokens(address,uint256)', data: BytesLike): Result
+    functionFragment: "bridgedTokenAddress",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
-    functionFragment: 'relayTokens(address,address,uint256)',
-    data: BytesLike,
-  ): Result
-  decodeFunctionResult(functionFragment: 'relayTokensAndCall', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'requestFailedMessageFix', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'setBridgeContract', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'setCustomTokenAddressPair', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'setDailyLimit', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'setExecutionDailyLimit', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'setExecutionMaxPerTx', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'setFeeManager', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'setForwardingRulesManager', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'setGasLimitManager', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'setMaxPerTx', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'setMediatorContractOnOtherSide', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'setMinPerTx', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'setTokenFactory', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'tokenFactory', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'totalExecutedPerDay', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'totalSpentPerDay', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'withinExecutionLimit', data: BytesLike): Result
-  decodeFunctionResult(functionFragment: 'withinLimit', data: BytesLike): Result
+    functionFragment: "claimTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "claimTokensFromTokenContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "dailyLimit", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "deployAndHandleBridgedTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "deployAndHandleBridgedTokensAndCall",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "executionDailyLimit",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "executionMaxPerTx",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "feeManager", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "fixFailedMessage",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "fixMediatorBalance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "foreignTokenAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "forwardingRulesManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "gasLimitManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getBridgeInterfacesVersion",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getBridgeMode",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getCurrentDay",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "handleBridgedTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "handleBridgedTokensAndCall",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "handleNativeTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "handleNativeTokensAndCall",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "homeTokenAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "isBridgedTokenDeployAcknowledged",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isInitialized",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRegisteredAsNativeToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isTokenRegistered",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "maxAvailablePerTx",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "maxPerTx", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "mediatorBalance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "mediatorContractOnOtherSide",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "messageFixed",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "migrateTo_3_3_0",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "minPerTx", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "nativeTokenAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "onTokenTransfer",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "relayTokens(address,uint256)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "relayTokens(address,address,uint256)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "relayTokensAndCall",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "requestFailedMessageFix",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setBridgeContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setCustomTokenAddressPair",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setDailyLimit",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setExecutionDailyLimit",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setExecutionMaxPerTx",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setFeeManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setForwardingRulesManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setGasLimitManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMaxPerTx",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMediatorContractOnOtherSide",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMinPerTx",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setTokenFactory",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenFactory",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalExecutedPerDay",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalSpentPerDay",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withinExecutionLimit",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withinLimit",
+    data: BytesLike
+  ): Result;
 
   events: {
-    'DailyLimitChanged(address,uint256)': EventFragment
-    'ExecutionDailyLimitChanged(address,uint256)': EventFragment
-    'FailedMessageFixed(bytes32,address,address,uint256)': EventFragment
-    'FeeDistributed(uint256,address,bytes32)': EventFragment
-    'FeeDistributionFailed(address,uint256)': EventFragment
-    'NewTokenRegistered(address,address)': EventFragment
-    'OwnershipTransferred(address,address)': EventFragment
-    'TokensBridged(address,address,uint256,bytes32)': EventFragment
-    'TokensBridgingInitiated(address,address,uint256,bytes32)': EventFragment
-  }
+    "DailyLimitChanged(address,uint256)": EventFragment;
+    "ExecutionDailyLimitChanged(address,uint256)": EventFragment;
+    "FailedMessageFixed(bytes32,address,address,uint256)": EventFragment;
+    "FeeDistributed(uint256,address,bytes32)": EventFragment;
+    "FeeDistributionFailed(address,uint256)": EventFragment;
+    "NewTokenRegistered(address,address)": EventFragment;
+    "OwnershipTransferred(address,address)": EventFragment;
+    "TokensBridged(address,address,uint256,bytes32)": EventFragment;
+    "TokensBridgingInitiated(address,address,uint256,bytes32)": EventFragment;
+  };
 
-  getEvent(nameOrSignatureOrTopic: 'DailyLimitChanged'): EventFragment
-  getEvent(nameOrSignatureOrTopic: 'ExecutionDailyLimitChanged'): EventFragment
-  getEvent(nameOrSignatureOrTopic: 'FailedMessageFixed'): EventFragment
-  getEvent(nameOrSignatureOrTopic: 'FeeDistributed'): EventFragment
-  getEvent(nameOrSignatureOrTopic: 'FeeDistributionFailed'): EventFragment
-  getEvent(nameOrSignatureOrTopic: 'NewTokenRegistered'): EventFragment
-  getEvent(nameOrSignatureOrTopic: 'OwnershipTransferred'): EventFragment
-  getEvent(nameOrSignatureOrTopic: 'TokensBridged'): EventFragment
-  getEvent(nameOrSignatureOrTopic: 'TokensBridgingInitiated'): EventFragment
+  getEvent(nameOrSignatureOrTopic: "DailyLimitChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ExecutionDailyLimitChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FailedMessageFixed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FeeDistributed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FeeDistributionFailed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "NewTokenRegistered"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokensBridged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokensBridgingInitiated"): EventFragment;
 }
 
 export interface DailyLimitChangedEventObject {
-  token: string
-  newLimit: BigNumber
+  token: string;
+  newLimit: BigNumber;
 }
-export type DailyLimitChangedEvent = TypedEvent<[string, BigNumber], DailyLimitChangedEventObject>
+export type DailyLimitChangedEvent = TypedEvent<
+  [string, BigNumber],
+  DailyLimitChangedEventObject
+>;
 
-export type DailyLimitChangedEventFilter = TypedEventFilter<DailyLimitChangedEvent>
+export type DailyLimitChangedEventFilter =
+  TypedEventFilter<DailyLimitChangedEvent>;
 
 export interface ExecutionDailyLimitChangedEventObject {
-  token: string
-  newLimit: BigNumber
+  token: string;
+  newLimit: BigNumber;
 }
 export type ExecutionDailyLimitChangedEvent = TypedEvent<
   [string, BigNumber],
   ExecutionDailyLimitChangedEventObject
->
+>;
 
 export type ExecutionDailyLimitChangedEventFilter =
-  TypedEventFilter<ExecutionDailyLimitChangedEvent>
+  TypedEventFilter<ExecutionDailyLimitChangedEvent>;
 
 export interface FailedMessageFixedEventObject {
-  messageId: string
-  token: string
-  recipient: string
-  value: BigNumber
+  messageId: string;
+  token: string;
+  recipient: string;
+  value: BigNumber;
 }
 export type FailedMessageFixedEvent = TypedEvent<
   [string, string, string, BigNumber],
   FailedMessageFixedEventObject
->
+>;
 
-export type FailedMessageFixedEventFilter = TypedEventFilter<FailedMessageFixedEvent>
+export type FailedMessageFixedEventFilter =
+  TypedEventFilter<FailedMessageFixedEvent>;
 
 export interface FeeDistributedEventObject {
-  fee: BigNumber
-  token: string
-  messageId: string
+  fee: BigNumber;
+  token: string;
+  messageId: string;
 }
-export type FeeDistributedEvent = TypedEvent<[BigNumber, string, string], FeeDistributedEventObject>
+export type FeeDistributedEvent = TypedEvent<
+  [BigNumber, string, string],
+  FeeDistributedEventObject
+>;
 
-export type FeeDistributedEventFilter = TypedEventFilter<FeeDistributedEvent>
+export type FeeDistributedEventFilter = TypedEventFilter<FeeDistributedEvent>;
 
 export interface FeeDistributionFailedEventObject {
-  token: string
-  fee: BigNumber
+  token: string;
+  fee: BigNumber;
 }
 export type FeeDistributionFailedEvent = TypedEvent<
   [string, BigNumber],
   FeeDistributionFailedEventObject
->
+>;
 
-export type FeeDistributionFailedEventFilter = TypedEventFilter<FeeDistributionFailedEvent>
+export type FeeDistributionFailedEventFilter =
+  TypedEventFilter<FeeDistributionFailedEvent>;
 
 export interface NewTokenRegisteredEventObject {
-  nativeToken: string
-  bridgedToken: string
+  nativeToken: string;
+  bridgedToken: string;
 }
-export type NewTokenRegisteredEvent = TypedEvent<[string, string], NewTokenRegisteredEventObject>
+export type NewTokenRegisteredEvent = TypedEvent<
+  [string, string],
+  NewTokenRegisteredEventObject
+>;
 
-export type NewTokenRegisteredEventFilter = TypedEventFilter<NewTokenRegisteredEvent>
+export type NewTokenRegisteredEventFilter =
+  TypedEventFilter<NewTokenRegisteredEvent>;
 
 export interface OwnershipTransferredEventObject {
-  previousOwner: string
-  newOwner: string
+  previousOwner: string;
+  newOwner: string;
 }
 export type OwnershipTransferredEvent = TypedEvent<
   [string, string],
   OwnershipTransferredEventObject
->
+>;
 
-export type OwnershipTransferredEventFilter = TypedEventFilter<OwnershipTransferredEvent>
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface TokensBridgedEventObject {
-  token: string
-  recipient: string
-  value: BigNumber
-  messageId: string
+  token: string;
+  recipient: string;
+  value: BigNumber;
+  messageId: string;
 }
 export type TokensBridgedEvent = TypedEvent<
   [string, string, BigNumber, string],
   TokensBridgedEventObject
->
+>;
 
-export type TokensBridgedEventFilter = TypedEventFilter<TokensBridgedEvent>
+export type TokensBridgedEventFilter = TypedEventFilter<TokensBridgedEvent>;
 
 export interface TokensBridgingInitiatedEventObject {
-  token: string
-  sender: string
-  value: BigNumber
-  messageId: string
+  token: string;
+  sender: string;
+  value: BigNumber;
+  messageId: string;
 }
 export type TokensBridgingInitiatedEvent = TypedEvent<
   [string, string, BigNumber, string],
   TokensBridgingInitiatedEventObject
->
+>;
 
-export type TokensBridgingInitiatedEventFilter = TypedEventFilter<TokensBridgingInitiatedEvent>
+export type TokensBridgingInitiatedEventFilter =
+  TypedEventFilter<TokensBridgingInitiatedEvent>;
 
 export interface HomeOmniMediator extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this
-  attach(addressOrName: string): this
-  deployed(): Promise<this>
+  connect(signerOrProvider: Signer | Provider | string): this;
+  attach(addressOrName: string): this;
+  deployed(): Promise<this>;
 
-  interface: HomeOmniMediatorInterface
+  interface: HomeOmniMediatorInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
-  ): Promise<Array<TEvent>>
+    toBlock?: string | number | undefined
+  ): Promise<Array<TEvent>>;
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>,
-  ): Array<TypedListener<TEvent>>
-  listeners(eventName?: string): Array<Listener>
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this
-  removeAllListeners(eventName?: string): this
-  off: OnEvent<this>
-  on: OnEvent<this>
-  once: OnEvent<this>
-  removeListener: OnEvent<this>
+    eventFilter?: TypedEventFilter<TEvent>
+  ): Array<TypedListener<TEvent>>;
+  listeners(eventName?: string): Array<Listener>;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
+  removeAllListeners(eventName?: string): this;
+  off: OnEvent<this>;
+  on: OnEvent<this>;
+  once: OnEvent<this>;
+  removeListener: OnEvent<this>;
 
   functions: {
-    bridgeContract(overrides?: CallOverrides): Promise<[string]>
+    bridgeContract(overrides?: CallOverrides): Promise<[string]>;
 
     bridgedTokenAddress(
       _nativeToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<[string]>
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     claimTokens(
       _token: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     claimTokensFromTokenContract(
       _bridgedToken: PromiseOrValue<string>,
       _token: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    dailyLimit(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[BigNumber]>
+    dailyLimit(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     deployAndHandleBridgedTokens(
       _token: PromiseOrValue<string>,
@@ -619,8 +880,8 @@ export interface HomeOmniMediator extends BaseContract {
       _decimals: PromiseOrValue<BigNumberish>,
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     deployAndHandleBridgedTokensAndCall(
       _token: PromiseOrValue<string>,
@@ -630,87 +891,91 @@ export interface HomeOmniMediator extends BaseContract {
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     executionDailyLimit(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<[BigNumber]>
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     executionMaxPerTx(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<[BigNumber]>
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
-    feeManager(overrides?: CallOverrides): Promise<[string]>
+    feeManager(overrides?: CallOverrides): Promise<[string]>;
 
     fixFailedMessage(
       _messageId: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     fixMediatorBalance(
       _token: PromiseOrValue<string>,
       _receiver: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     foreignTokenAddress(
       _homeToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<[string]>
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
-    forwardingRulesManager(overrides?: CallOverrides): Promise<[string]>
+    forwardingRulesManager(overrides?: CallOverrides): Promise<[string]>;
 
-    gasLimitManager(overrides?: CallOverrides): Promise<[string]>
+    gasLimitManager(overrides?: CallOverrides): Promise<[string]>;
 
-    getBridgeInterfacesVersion(overrides?: CallOverrides): Promise<
+    getBridgeInterfacesVersion(
+      overrides?: CallOverrides
+    ): Promise<
       [BigNumber, BigNumber, BigNumber] & {
-        major: BigNumber
-        minor: BigNumber
-        patch: BigNumber
+        major: BigNumber;
+        minor: BigNumber;
+        patch: BigNumber;
       }
-    >
+    >;
 
-    getBridgeMode(overrides?: CallOverrides): Promise<[string] & { _data: string }>
+    getBridgeMode(
+      overrides?: CallOverrides
+    ): Promise<[string] & { _data: string }>;
 
-    getCurrentDay(overrides?: CallOverrides): Promise<[BigNumber]>
+    getCurrentDay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     handleBridgedTokens(
       _token: PromiseOrValue<string>,
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     handleBridgedTokensAndCall(
       _token: PromiseOrValue<string>,
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     handleNativeTokens(
       _token: PromiseOrValue<string>,
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     handleNativeTokensAndCall(
       _token: PromiseOrValue<string>,
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     homeTokenAddress(
       _foreignToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<[string]>
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     initialize(
       _bridgeContract: PromiseOrValue<string>,
@@ -718,219 +983,234 @@ export interface HomeOmniMediator extends BaseContract {
       _dailyLimitMaxPerTxMinPerTxArray: [
         PromiseOrValue<BigNumberish>,
         PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>,
+        PromiseOrValue<BigNumberish>
       ],
       _executionDailyLimitExecutionMaxPerTxArray: [
         PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>,
+        PromiseOrValue<BigNumberish>
       ],
       _gasLimitManager: PromiseOrValue<string>,
       _owner: PromiseOrValue<string>,
       _tokenFactory: PromiseOrValue<string>,
       _feeManager: PromiseOrValue<string>,
       _forwardingRulesManager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     isBridgedTokenDeployAcknowledged(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<[boolean]>
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
-    isInitialized(overrides?: CallOverrides): Promise<[boolean]>
+    isInitialized(overrides?: CallOverrides): Promise<[boolean]>;
 
     isRegisteredAsNativeToken(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<[boolean]>
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
-    isTokenRegistered(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>
+    isTokenRegistered(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     maxAvailablePerTx(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<[BigNumber]>
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
-    maxPerTx(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[BigNumber]>
+    maxPerTx(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
-    mediatorBalance(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[BigNumber]>
+    mediatorBalance(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
-    mediatorContractOnOtherSide(overrides?: CallOverrides): Promise<[string]>
+    mediatorContractOnOtherSide(overrides?: CallOverrides): Promise<[string]>;
 
     messageFixed(
       _messageId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<[boolean]>
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     migrateTo_3_3_0(
       _tokenFactory: PromiseOrValue<string>,
       _forwardingRulesManager: PromiseOrValue<string>,
       _gasLimitManager: PromiseOrValue<string>,
       _feeManager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    minPerTx(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[BigNumber]>
+    minPerTx(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     nativeTokenAddress(
       _bridgedToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<[string]>
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     onTokenTransfer(
       _from: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    owner(overrides?: CallOverrides): Promise<[string]>
+    owner(overrides?: CallOverrides): Promise<[string]>;
 
-    'relayTokens(address,uint256)'(
+    "relayTokens(address,uint256)"(
       token: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    'relayTokens(address,address,uint256)'(
+    "relayTokens(address,address,uint256)"(
       token: PromiseOrValue<string>,
       _receiver: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     relayTokensAndCall(
       token: PromiseOrValue<string>,
       _receiver: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     requestFailedMessageFix(
       _messageId: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setBridgeContract(
       _bridgeContract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setCustomTokenAddressPair(
       _nativeToken: PromiseOrValue<string>,
       _bridgedToken: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setDailyLimit(
       _token: PromiseOrValue<string>,
       _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setExecutionDailyLimit(
       _token: PromiseOrValue<string>,
       _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setExecutionMaxPerTx(
       _token: PromiseOrValue<string>,
       _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setFeeManager(
       _feeManager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setForwardingRulesManager(
       _manager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setGasLimitManager(
       _manager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setMaxPerTx(
       _token: PromiseOrValue<string>,
       _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setMediatorContractOnOtherSide(
       _mediatorContract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setMinPerTx(
       _token: PromiseOrValue<string>,
       _minPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setTokenFactory(
       _tokenFactory: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    tokenFactory(overrides?: CallOverrides): Promise<[string]>
+    tokenFactory(overrides?: CallOverrides): Promise<[string]>;
 
     totalExecutedPerDay(
       _token: PromiseOrValue<string>,
       _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<[BigNumber]>
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     totalSpentPerDay(
       _token: PromiseOrValue<string>,
       _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<[BigNumber]>
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<ContractTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     withinExecutionLimit(
       _token: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<[boolean]>
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     withinLimit(
       _token: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<[boolean]>
-  }
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+  };
 
-  bridgeContract(overrides?: CallOverrides): Promise<string>
+  bridgeContract(overrides?: CallOverrides): Promise<string>;
 
   bridgedTokenAddress(
     _nativeToken: PromiseOrValue<string>,
-    overrides?: CallOverrides,
-  ): Promise<string>
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   claimTokens(
     _token: PromiseOrValue<string>,
     _to: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   claimTokensFromTokenContract(
     _bridgedToken: PromiseOrValue<string>,
     _token: PromiseOrValue<string>,
     _to: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  dailyLimit(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
+  dailyLimit(
+    _token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   deployAndHandleBridgedTokens(
     _token: PromiseOrValue<string>,
@@ -939,8 +1219,8 @@ export interface HomeOmniMediator extends BaseContract {
     _decimals: PromiseOrValue<BigNumberish>,
     _recipient: PromiseOrValue<string>,
     _value: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   deployAndHandleBridgedTokensAndCall(
     _token: PromiseOrValue<string>,
@@ -950,81 +1230,89 @@ export interface HomeOmniMediator extends BaseContract {
     _recipient: PromiseOrValue<string>,
     _value: PromiseOrValue<BigNumberish>,
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  executionDailyLimit(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
+  executionDailyLimit(
+    _token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
-  executionMaxPerTx(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
+  executionMaxPerTx(
+    _token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
-  feeManager(overrides?: CallOverrides): Promise<string>
+  feeManager(overrides?: CallOverrides): Promise<string>;
 
   fixFailedMessage(
     _messageId: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   fixMediatorBalance(
     _token: PromiseOrValue<string>,
     _receiver: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   foreignTokenAddress(
     _homeToken: PromiseOrValue<string>,
-    overrides?: CallOverrides,
-  ): Promise<string>
+    overrides?: CallOverrides
+  ): Promise<string>;
 
-  forwardingRulesManager(overrides?: CallOverrides): Promise<string>
+  forwardingRulesManager(overrides?: CallOverrides): Promise<string>;
 
-  gasLimitManager(overrides?: CallOverrides): Promise<string>
+  gasLimitManager(overrides?: CallOverrides): Promise<string>;
 
-  getBridgeInterfacesVersion(overrides?: CallOverrides): Promise<
+  getBridgeInterfacesVersion(
+    overrides?: CallOverrides
+  ): Promise<
     [BigNumber, BigNumber, BigNumber] & {
-      major: BigNumber
-      minor: BigNumber
-      patch: BigNumber
+      major: BigNumber;
+      minor: BigNumber;
+      patch: BigNumber;
     }
-  >
+  >;
 
-  getBridgeMode(overrides?: CallOverrides): Promise<string>
+  getBridgeMode(overrides?: CallOverrides): Promise<string>;
 
-  getCurrentDay(overrides?: CallOverrides): Promise<BigNumber>
+  getCurrentDay(overrides?: CallOverrides): Promise<BigNumber>;
 
   handleBridgedTokens(
     _token: PromiseOrValue<string>,
     _recipient: PromiseOrValue<string>,
     _value: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   handleBridgedTokensAndCall(
     _token: PromiseOrValue<string>,
     _recipient: PromiseOrValue<string>,
     _value: PromiseOrValue<BigNumberish>,
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   handleNativeTokens(
     _token: PromiseOrValue<string>,
     _recipient: PromiseOrValue<string>,
     _value: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   handleNativeTokensAndCall(
     _token: PromiseOrValue<string>,
     _recipient: PromiseOrValue<string>,
     _value: PromiseOrValue<BigNumberish>,
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   homeTokenAddress(
     _foreignToken: PromiseOrValue<string>,
-    overrides?: CallOverrides,
-  ): Promise<string>
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   initialize(
     _bridgeContract: PromiseOrValue<string>,
@@ -1032,213 +1320,234 @@ export interface HomeOmniMediator extends BaseContract {
     _dailyLimitMaxPerTxMinPerTxArray: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
     ],
     _executionDailyLimitExecutionMaxPerTxArray: [
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
     ],
     _gasLimitManager: PromiseOrValue<string>,
     _owner: PromiseOrValue<string>,
     _tokenFactory: PromiseOrValue<string>,
     _feeManager: PromiseOrValue<string>,
     _forwardingRulesManager: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   isBridgedTokenDeployAcknowledged(
     _token: PromiseOrValue<string>,
-    overrides?: CallOverrides,
-  ): Promise<boolean>
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
-  isInitialized(overrides?: CallOverrides): Promise<boolean>
+  isInitialized(overrides?: CallOverrides): Promise<boolean>;
 
   isRegisteredAsNativeToken(
     _token: PromiseOrValue<string>,
-    overrides?: CallOverrides,
-  ): Promise<boolean>
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
-  isTokenRegistered(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>
+  isTokenRegistered(
+    _token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
-  maxAvailablePerTx(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
+  maxAvailablePerTx(
+    _token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
-  maxPerTx(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
+  maxPerTx(
+    _token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
-  mediatorBalance(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
+  mediatorBalance(
+    _token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
-  mediatorContractOnOtherSide(overrides?: CallOverrides): Promise<string>
+  mediatorContractOnOtherSide(overrides?: CallOverrides): Promise<string>;
 
-  messageFixed(_messageId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>
+  messageFixed(
+    _messageId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   migrateTo_3_3_0(
     _tokenFactory: PromiseOrValue<string>,
     _forwardingRulesManager: PromiseOrValue<string>,
     _gasLimitManager: PromiseOrValue<string>,
     _feeManager: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  minPerTx(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
+  minPerTx(
+    _token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   nativeTokenAddress(
     _bridgedToken: PromiseOrValue<string>,
-    overrides?: CallOverrides,
-  ): Promise<string>
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   onTokenTransfer(
     _from: PromiseOrValue<string>,
     _value: PromiseOrValue<BigNumberish>,
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  owner(overrides?: CallOverrides): Promise<string>
+  owner(overrides?: CallOverrides): Promise<string>;
 
-  'relayTokens(address,uint256)'(
+  "relayTokens(address,uint256)"(
     token: PromiseOrValue<string>,
     _value: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  'relayTokens(address,address,uint256)'(
+  "relayTokens(address,address,uint256)"(
     token: PromiseOrValue<string>,
     _receiver: PromiseOrValue<string>,
     _value: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   relayTokensAndCall(
     token: PromiseOrValue<string>,
     _receiver: PromiseOrValue<string>,
     _value: PromiseOrValue<BigNumberish>,
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   requestFailedMessageFix(
     _messageId: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setBridgeContract(
     _bridgeContract: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setCustomTokenAddressPair(
     _nativeToken: PromiseOrValue<string>,
     _bridgedToken: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setDailyLimit(
     _token: PromiseOrValue<string>,
     _dailyLimit: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setExecutionDailyLimit(
     _token: PromiseOrValue<string>,
     _dailyLimit: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setExecutionMaxPerTx(
     _token: PromiseOrValue<string>,
     _maxPerTx: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setFeeManager(
     _feeManager: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setForwardingRulesManager(
     _manager: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setGasLimitManager(
     _manager: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setMaxPerTx(
     _token: PromiseOrValue<string>,
     _maxPerTx: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setMediatorContractOnOtherSide(
     _mediatorContract: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setMinPerTx(
     _token: PromiseOrValue<string>,
     _minPerTx: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setTokenFactory(
     _tokenFactory: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  tokenFactory(overrides?: CallOverrides): Promise<string>
+  tokenFactory(overrides?: CallOverrides): Promise<string>;
 
   totalExecutedPerDay(
     _token: PromiseOrValue<string>,
     _day: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides,
-  ): Promise<BigNumber>
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   totalSpentPerDay(
     _token: PromiseOrValue<string>,
     _day: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides,
-  ): Promise<BigNumber>
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   transferOwnership(
     newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
-  ): Promise<ContractTransaction>
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   withinExecutionLimit(
     _token: PromiseOrValue<string>,
     _amount: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides,
-  ): Promise<boolean>
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   withinLimit(
     _token: PromiseOrValue<string>,
     _amount: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides,
-  ): Promise<boolean>
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   callStatic: {
-    bridgeContract(overrides?: CallOverrides): Promise<string>
+    bridgeContract(overrides?: CallOverrides): Promise<string>;
 
     bridgedTokenAddress(
       _nativeToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<string>
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     claimTokens(
       _token: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     claimTokensFromTokenContract(
       _bridgedToken: PromiseOrValue<string>,
       _token: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    dailyLimit(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
+    dailyLimit(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     deployAndHandleBridgedTokens(
       _token: PromiseOrValue<string>,
@@ -1247,8 +1556,8 @@ export interface HomeOmniMediator extends BaseContract {
       _decimals: PromiseOrValue<BigNumberish>,
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     deployAndHandleBridgedTokensAndCall(
       _token: PromiseOrValue<string>,
@@ -1258,84 +1567,89 @@ export interface HomeOmniMediator extends BaseContract {
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     executionDailyLimit(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    executionMaxPerTx(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
+    executionMaxPerTx(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    feeManager(overrides?: CallOverrides): Promise<string>
+    feeManager(overrides?: CallOverrides): Promise<string>;
 
     fixFailedMessage(
       _messageId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     fixMediatorBalance(
       _token: PromiseOrValue<string>,
       _receiver: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     foreignTokenAddress(
       _homeToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<string>
+      overrides?: CallOverrides
+    ): Promise<string>;
 
-    forwardingRulesManager(overrides?: CallOverrides): Promise<string>
+    forwardingRulesManager(overrides?: CallOverrides): Promise<string>;
 
-    gasLimitManager(overrides?: CallOverrides): Promise<string>
+    gasLimitManager(overrides?: CallOverrides): Promise<string>;
 
-    getBridgeInterfacesVersion(overrides?: CallOverrides): Promise<
+    getBridgeInterfacesVersion(
+      overrides?: CallOverrides
+    ): Promise<
       [BigNumber, BigNumber, BigNumber] & {
-        major: BigNumber
-        minor: BigNumber
-        patch: BigNumber
+        major: BigNumber;
+        minor: BigNumber;
+        patch: BigNumber;
       }
-    >
+    >;
 
-    getBridgeMode(overrides?: CallOverrides): Promise<string>
+    getBridgeMode(overrides?: CallOverrides): Promise<string>;
 
-    getCurrentDay(overrides?: CallOverrides): Promise<BigNumber>
+    getCurrentDay(overrides?: CallOverrides): Promise<BigNumber>;
 
     handleBridgedTokens(
       _token: PromiseOrValue<string>,
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     handleBridgedTokensAndCall(
       _token: PromiseOrValue<string>,
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     handleNativeTokens(
       _token: PromiseOrValue<string>,
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     handleNativeTokensAndCall(
       _token: PromiseOrValue<string>,
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     homeTokenAddress(
       _foreignToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<string>
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     initialize(
       _bridgeContract: PromiseOrValue<string>,
@@ -1343,608 +1657,332 @@ export interface HomeOmniMediator extends BaseContract {
       _dailyLimitMaxPerTxMinPerTxArray: [
         PromiseOrValue<BigNumberish>,
         PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>,
+        PromiseOrValue<BigNumberish>
       ],
       _executionDailyLimitExecutionMaxPerTxArray: [
         PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>,
+        PromiseOrValue<BigNumberish>
       ],
       _gasLimitManager: PromiseOrValue<string>,
       _owner: PromiseOrValue<string>,
       _tokenFactory: PromiseOrValue<string>,
       _feeManager: PromiseOrValue<string>,
       _forwardingRulesManager: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<boolean>
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     isBridgedTokenDeployAcknowledged(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<boolean>
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
-    isInitialized(overrides?: CallOverrides): Promise<boolean>
+    isInitialized(overrides?: CallOverrides): Promise<boolean>;
 
     isRegisteredAsNativeToken(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<boolean>
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
-    isTokenRegistered(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>
+    isTokenRegistered(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
-    maxAvailablePerTx(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
+    maxAvailablePerTx(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    maxPerTx(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
+    maxPerTx(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    mediatorBalance(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
+    mediatorBalance(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    mediatorContractOnOtherSide(overrides?: CallOverrides): Promise<string>
+    mediatorContractOnOtherSide(overrides?: CallOverrides): Promise<string>;
 
-    messageFixed(_messageId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>
+    messageFixed(
+      _messageId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     migrateTo_3_3_0(
       _tokenFactory: PromiseOrValue<string>,
       _forwardingRulesManager: PromiseOrValue<string>,
       _gasLimitManager: PromiseOrValue<string>,
       _feeManager: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    minPerTx(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
+    minPerTx(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     nativeTokenAddress(
       _bridgedToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<string>
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     onTokenTransfer(
       _from: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<boolean>
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
-    owner(overrides?: CallOverrides): Promise<string>
+    owner(overrides?: CallOverrides): Promise<string>;
 
-    'relayTokens(address,uint256)'(
+    "relayTokens(address,uint256)"(
       token: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    'relayTokens(address,address,uint256)'(
+    "relayTokens(address,address,uint256)"(
       token: PromiseOrValue<string>,
       _receiver: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     relayTokensAndCall(
       token: PromiseOrValue<string>,
       _receiver: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     requestFailedMessageFix(
       _messageId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setBridgeContract(
       _bridgeContract: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setCustomTokenAddressPair(
       _nativeToken: PromiseOrValue<string>,
       _bridgedToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setDailyLimit(
       _token: PromiseOrValue<string>,
       _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setExecutionDailyLimit(
       _token: PromiseOrValue<string>,
       _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setExecutionMaxPerTx(
       _token: PromiseOrValue<string>,
       _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    setFeeManager(_feeManager: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>
+    setFeeManager(
+      _feeManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setForwardingRulesManager(
       _manager: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    setGasLimitManager(_manager: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>
+    setGasLimitManager(
+      _manager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setMaxPerTx(
       _token: PromiseOrValue<string>,
       _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setMediatorContractOnOtherSide(
       _mediatorContract: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setMinPerTx(
       _token: PromiseOrValue<string>,
       _minPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<void>
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    setTokenFactory(_tokenFactory: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>
+    setTokenFactory(
+      _tokenFactory: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    tokenFactory(overrides?: CallOverrides): Promise<string>
+    tokenFactory(overrides?: CallOverrides): Promise<string>;
 
     totalExecutedPerDay(
       _token: PromiseOrValue<string>,
       _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     totalSpentPerDay(
       _token: PromiseOrValue<string>,
       _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    transferOwnership(newOwner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     withinExecutionLimit(
       _token: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<boolean>
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     withinLimit(
       _token: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<boolean>
-  }
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+  };
 
   filters: {
-    'DailyLimitChanged(address,uint256)'(
+    "DailyLimitChanged(address,uint256)"(
       token?: PromiseOrValue<string> | null,
-      newLimit?: null,
-    ): DailyLimitChangedEventFilter
+      newLimit?: null
+    ): DailyLimitChangedEventFilter;
     DailyLimitChanged(
       token?: PromiseOrValue<string> | null,
-      newLimit?: null,
-    ): DailyLimitChangedEventFilter
+      newLimit?: null
+    ): DailyLimitChangedEventFilter;
 
-    'ExecutionDailyLimitChanged(address,uint256)'(
+    "ExecutionDailyLimitChanged(address,uint256)"(
       token?: PromiseOrValue<string> | null,
-      newLimit?: null,
-    ): ExecutionDailyLimitChangedEventFilter
+      newLimit?: null
+    ): ExecutionDailyLimitChangedEventFilter;
     ExecutionDailyLimitChanged(
       token?: PromiseOrValue<string> | null,
-      newLimit?: null,
-    ): ExecutionDailyLimitChangedEventFilter
+      newLimit?: null
+    ): ExecutionDailyLimitChangedEventFilter;
 
-    'FailedMessageFixed(bytes32,address,address,uint256)'(
+    "FailedMessageFixed(bytes32,address,address,uint256)"(
       messageId?: PromiseOrValue<BytesLike> | null,
       token?: null,
       recipient?: null,
-      value?: null,
-    ): FailedMessageFixedEventFilter
+      value?: null
+    ): FailedMessageFixedEventFilter;
     FailedMessageFixed(
       messageId?: PromiseOrValue<BytesLike> | null,
       token?: null,
       recipient?: null,
-      value?: null,
-    ): FailedMessageFixedEventFilter
+      value?: null
+    ): FailedMessageFixedEventFilter;
 
-    'FeeDistributed(uint256,address,bytes32)'(
+    "FeeDistributed(uint256,address,bytes32)"(
       fee?: null,
       token?: PromiseOrValue<string> | null,
-      messageId?: PromiseOrValue<BytesLike> | null,
-    ): FeeDistributedEventFilter
+      messageId?: PromiseOrValue<BytesLike> | null
+    ): FeeDistributedEventFilter;
     FeeDistributed(
       fee?: null,
       token?: PromiseOrValue<string> | null,
-      messageId?: PromiseOrValue<BytesLike> | null,
-    ): FeeDistributedEventFilter
+      messageId?: PromiseOrValue<BytesLike> | null
+    ): FeeDistributedEventFilter;
 
-    'FeeDistributionFailed(address,uint256)'(
+    "FeeDistributionFailed(address,uint256)"(
       token?: PromiseOrValue<string> | null,
-      fee?: null,
-    ): FeeDistributionFailedEventFilter
+      fee?: null
+    ): FeeDistributionFailedEventFilter;
     FeeDistributionFailed(
       token?: PromiseOrValue<string> | null,
-      fee?: null,
-    ): FeeDistributionFailedEventFilter
+      fee?: null
+    ): FeeDistributionFailedEventFilter;
 
-    'NewTokenRegistered(address,address)'(
+    "NewTokenRegistered(address,address)"(
       nativeToken?: PromiseOrValue<string> | null,
-      bridgedToken?: PromiseOrValue<string> | null,
-    ): NewTokenRegisteredEventFilter
+      bridgedToken?: PromiseOrValue<string> | null
+    ): NewTokenRegisteredEventFilter;
     NewTokenRegistered(
       nativeToken?: PromiseOrValue<string> | null,
-      bridgedToken?: PromiseOrValue<string> | null,
-    ): NewTokenRegisteredEventFilter
+      bridgedToken?: PromiseOrValue<string> | null
+    ): NewTokenRegisteredEventFilter;
 
-    'OwnershipTransferred(address,address)'(
+    "OwnershipTransferred(address,address)"(
       previousOwner?: null,
-      newOwner?: null,
-    ): OwnershipTransferredEventFilter
-    OwnershipTransferred(previousOwner?: null, newOwner?: null): OwnershipTransferredEventFilter
+      newOwner?: null
+    ): OwnershipTransferredEventFilter;
+    OwnershipTransferred(
+      previousOwner?: null,
+      newOwner?: null
+    ): OwnershipTransferredEventFilter;
 
-    'TokensBridged(address,address,uint256,bytes32)'(
+    "TokensBridged(address,address,uint256,bytes32)"(
       token?: PromiseOrValue<string> | null,
       recipient?: PromiseOrValue<string> | null,
       value?: null,
-      messageId?: PromiseOrValue<BytesLike> | null,
-    ): TokensBridgedEventFilter
+      messageId?: PromiseOrValue<BytesLike> | null
+    ): TokensBridgedEventFilter;
     TokensBridged(
       token?: PromiseOrValue<string> | null,
       recipient?: PromiseOrValue<string> | null,
       value?: null,
-      messageId?: PromiseOrValue<BytesLike> | null,
-    ): TokensBridgedEventFilter
+      messageId?: PromiseOrValue<BytesLike> | null
+    ): TokensBridgedEventFilter;
 
-    'TokensBridgingInitiated(address,address,uint256,bytes32)'(
+    "TokensBridgingInitiated(address,address,uint256,bytes32)"(
       token?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null,
       value?: null,
-      messageId?: PromiseOrValue<BytesLike> | null,
-    ): TokensBridgingInitiatedEventFilter
+      messageId?: PromiseOrValue<BytesLike> | null
+    ): TokensBridgingInitiatedEventFilter;
     TokensBridgingInitiated(
       token?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null,
       value?: null,
-      messageId?: PromiseOrValue<BytesLike> | null,
-    ): TokensBridgingInitiatedEventFilter
-  }
+      messageId?: PromiseOrValue<BytesLike> | null
+    ): TokensBridgingInitiatedEventFilter;
+  };
 
   estimateGas: {
-    bridgeContract(overrides?: CallOverrides): Promise<BigNumber>
+    bridgeContract(overrides?: CallOverrides): Promise<BigNumber>;
 
     bridgedTokenAddress(
       _nativeToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     claimTokens(
       _token: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     claimTokensFromTokenContract(
       _bridgedToken: PromiseOrValue<string>,
       _token: PromiseOrValue<string>,
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    dailyLimit(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
-
-    deployAndHandleBridgedTokens(
-      _token: PromiseOrValue<string>,
-      _name: PromiseOrValue<string>,
-      _symbol: PromiseOrValue<string>,
-      _decimals: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _value: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    deployAndHandleBridgedTokensAndCall(
-      _token: PromiseOrValue<string>,
-      _name: PromiseOrValue<string>,
-      _symbol: PromiseOrValue<string>,
-      _decimals: PromiseOrValue<BigNumberish>,
-      _recipient: PromiseOrValue<string>,
-      _value: PromiseOrValue<BigNumberish>,
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    executionDailyLimit(
-      _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
-
-    executionMaxPerTx(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
-
-    feeManager(overrides?: CallOverrides): Promise<BigNumber>
-
-    fixFailedMessage(
-      _messageId: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    fixMediatorBalance(
-      _token: PromiseOrValue<string>,
-      _receiver: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    foreignTokenAddress(
-      _homeToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
-
-    forwardingRulesManager(overrides?: CallOverrides): Promise<BigNumber>
-
-    gasLimitManager(overrides?: CallOverrides): Promise<BigNumber>
-
-    getBridgeInterfacesVersion(overrides?: CallOverrides): Promise<BigNumber>
-
-    getBridgeMode(overrides?: CallOverrides): Promise<BigNumber>
-
-    getCurrentDay(overrides?: CallOverrides): Promise<BigNumber>
-
-    handleBridgedTokens(
-      _token: PromiseOrValue<string>,
-      _recipient: PromiseOrValue<string>,
-      _value: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    handleBridgedTokensAndCall(
-      _token: PromiseOrValue<string>,
-      _recipient: PromiseOrValue<string>,
-      _value: PromiseOrValue<BigNumberish>,
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    handleNativeTokens(
-      _token: PromiseOrValue<string>,
-      _recipient: PromiseOrValue<string>,
-      _value: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    handleNativeTokensAndCall(
-      _token: PromiseOrValue<string>,
-      _recipient: PromiseOrValue<string>,
-      _value: PromiseOrValue<BigNumberish>,
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    homeTokenAddress(
-      _foreignToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
-
-    initialize(
-      _bridgeContract: PromiseOrValue<string>,
-      _mediatorContract: PromiseOrValue<string>,
-      _dailyLimitMaxPerTxMinPerTxArray: [
-        PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>,
-      ],
-      _executionDailyLimitExecutionMaxPerTxArray: [
-        PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>,
-      ],
-      _gasLimitManager: PromiseOrValue<string>,
-      _owner: PromiseOrValue<string>,
-      _tokenFactory: PromiseOrValue<string>,
-      _feeManager: PromiseOrValue<string>,
-      _forwardingRulesManager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    isBridgedTokenDeployAcknowledged(
-      _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
-
-    isInitialized(overrides?: CallOverrides): Promise<BigNumber>
-
-    isRegisteredAsNativeToken(
-      _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
-
-    isTokenRegistered(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
-
-    maxAvailablePerTx(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
-
-    maxPerTx(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
-
-    mediatorBalance(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
-
-    mediatorContractOnOtherSide(overrides?: CallOverrides): Promise<BigNumber>
-
-    messageFixed(
-      _messageId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
-
-    migrateTo_3_3_0(
-      _tokenFactory: PromiseOrValue<string>,
-      _forwardingRulesManager: PromiseOrValue<string>,
-      _gasLimitManager: PromiseOrValue<string>,
-      _feeManager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    minPerTx(_token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>
-
-    nativeTokenAddress(
-      _bridgedToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
-
-    onTokenTransfer(
-      _from: PromiseOrValue<string>,
-      _value: PromiseOrValue<BigNumberish>,
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    owner(overrides?: CallOverrides): Promise<BigNumber>
-
-    'relayTokens(address,uint256)'(
-      token: PromiseOrValue<string>,
-      _value: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    'relayTokens(address,address,uint256)'(
-      token: PromiseOrValue<string>,
-      _receiver: PromiseOrValue<string>,
-      _value: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    relayTokensAndCall(
-      token: PromiseOrValue<string>,
-      _receiver: PromiseOrValue<string>,
-      _value: PromiseOrValue<BigNumberish>,
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    requestFailedMessageFix(
-      _messageId: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    setBridgeContract(
-      _bridgeContract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    setCustomTokenAddressPair(
-      _nativeToken: PromiseOrValue<string>,
-      _bridgedToken: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    setDailyLimit(
-      _token: PromiseOrValue<string>,
-      _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    setExecutionDailyLimit(
-      _token: PromiseOrValue<string>,
-      _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    setExecutionMaxPerTx(
-      _token: PromiseOrValue<string>,
-      _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    setFeeManager(
-      _feeManager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    setForwardingRulesManager(
-      _manager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    setGasLimitManager(
-      _manager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    setMaxPerTx(
-      _token: PromiseOrValue<string>,
-      _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    setMediatorContractOnOtherSide(
-      _mediatorContract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    setMinPerTx(
-      _token: PromiseOrValue<string>,
-      _minPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    setTokenFactory(
-      _tokenFactory: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    tokenFactory(overrides?: CallOverrides): Promise<BigNumber>
-
-    totalExecutedPerDay(
-      _token: PromiseOrValue<string>,
-      _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
-
-    totalSpentPerDay(
-      _token: PromiseOrValue<string>,
-      _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
-
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<BigNumber>
-
-    withinExecutionLimit(
-      _token: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
-
-    withinLimit(
-      _token: PromiseOrValue<string>,
-      _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>
-  }
-
-  populateTransaction: {
-    bridgeContract(overrides?: CallOverrides): Promise<PopulatedTransaction>
-
-    bridgedTokenAddress(
-      _nativeToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
-
-    claimTokens(
-      _token: PromiseOrValue<string>,
-      _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
-
-    claimTokensFromTokenContract(
-      _bridgedToken: PromiseOrValue<string>,
-      _token: PromiseOrValue<string>,
-      _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     dailyLimit(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     deployAndHandleBridgedTokens(
       _token: PromiseOrValue<string>,
@@ -1953,8 +1991,8 @@ export interface HomeOmniMediator extends BaseContract {
       _decimals: PromiseOrValue<BigNumberish>,
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     deployAndHandleBridgedTokensAndCall(
       _token: PromiseOrValue<string>,
@@ -1964,81 +2002,81 @@ export interface HomeOmniMediator extends BaseContract {
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     executionDailyLimit(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     executionMaxPerTx(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    feeManager(overrides?: CallOverrides): Promise<PopulatedTransaction>
+    feeManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     fixFailedMessage(
       _messageId: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     fixMediatorBalance(
       _token: PromiseOrValue<string>,
       _receiver: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     foreignTokenAddress(
       _homeToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    forwardingRulesManager(overrides?: CallOverrides): Promise<PopulatedTransaction>
+    forwardingRulesManager(overrides?: CallOverrides): Promise<BigNumber>;
 
-    gasLimitManager(overrides?: CallOverrides): Promise<PopulatedTransaction>
+    gasLimitManager(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getBridgeInterfacesVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>
+    getBridgeInterfacesVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getBridgeMode(overrides?: CallOverrides): Promise<PopulatedTransaction>
+    getBridgeMode(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getCurrentDay(overrides?: CallOverrides): Promise<PopulatedTransaction>
+    getCurrentDay(overrides?: CallOverrides): Promise<BigNumber>;
 
     handleBridgedTokens(
       _token: PromiseOrValue<string>,
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     handleBridgedTokensAndCall(
       _token: PromiseOrValue<string>,
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     handleNativeTokens(
       _token: PromiseOrValue<string>,
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     handleNativeTokensAndCall(
       _token: PromiseOrValue<string>,
       _recipient: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     homeTokenAddress(
       _foreignToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     initialize(
       _bridgeContract: PromiseOrValue<string>,
@@ -2046,207 +2084,543 @@ export interface HomeOmniMediator extends BaseContract {
       _dailyLimitMaxPerTxMinPerTxArray: [
         PromiseOrValue<BigNumberish>,
         PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>,
+        PromiseOrValue<BigNumberish>
       ],
       _executionDailyLimitExecutionMaxPerTxArray: [
         PromiseOrValue<BigNumberish>,
-        PromiseOrValue<BigNumberish>,
+        PromiseOrValue<BigNumberish>
       ],
       _gasLimitManager: PromiseOrValue<string>,
       _owner: PromiseOrValue<string>,
       _tokenFactory: PromiseOrValue<string>,
       _feeManager: PromiseOrValue<string>,
       _forwardingRulesManager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     isBridgedTokenDeployAcknowledged(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    isInitialized(overrides?: CallOverrides): Promise<PopulatedTransaction>
+    isInitialized(overrides?: CallOverrides): Promise<BigNumber>;
 
     isRegisteredAsNativeToken(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     isTokenRegistered(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     maxAvailablePerTx(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     maxPerTx(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     mediatorBalance(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    mediatorContractOnOtherSide(overrides?: CallOverrides): Promise<PopulatedTransaction>
+    mediatorContractOnOtherSide(overrides?: CallOverrides): Promise<BigNumber>;
 
     messageFixed(
       _messageId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     migrateTo_3_3_0(
       _tokenFactory: PromiseOrValue<string>,
       _forwardingRulesManager: PromiseOrValue<string>,
       _gasLimitManager: PromiseOrValue<string>,
       _feeManager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     minPerTx(
       _token: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     nativeTokenAddress(
       _bridgedToken: PromiseOrValue<string>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     onTokenTransfer(
       _from: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    'relayTokens(address,uint256)'(
+    "relayTokens(address,uint256)"(
       token: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
-    'relayTokens(address,address,uint256)'(
+    "relayTokens(address,address,uint256)"(
       token: PromiseOrValue<string>,
       _receiver: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     relayTokensAndCall(
       token: PromiseOrValue<string>,
       _receiver: PromiseOrValue<string>,
       _value: PromiseOrValue<BigNumberish>,
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     requestFailedMessageFix(
       _messageId: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     setBridgeContract(
       _bridgeContract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     setCustomTokenAddressPair(
       _nativeToken: PromiseOrValue<string>,
       _bridgedToken: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     setDailyLimit(
       _token: PromiseOrValue<string>,
       _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     setExecutionDailyLimit(
       _token: PromiseOrValue<string>,
       _dailyLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     setExecutionMaxPerTx(
       _token: PromiseOrValue<string>,
       _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     setFeeManager(
       _feeManager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     setForwardingRulesManager(
       _manager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     setGasLimitManager(
       _manager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     setMaxPerTx(
       _token: PromiseOrValue<string>,
       _maxPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     setMediatorContractOnOtherSide(
       _mediatorContract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     setMinPerTx(
       _token: PromiseOrValue<string>,
       _minPerTx: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     setTokenFactory(
       _tokenFactory: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
-    tokenFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>
+    tokenFactory(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalExecutedPerDay(
       _token: PromiseOrValue<string>,
       _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     totalSpentPerDay(
       _token: PromiseOrValue<string>,
       _day: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
-    ): Promise<PopulatedTransaction>
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     withinExecutionLimit(
       _token: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     withinLimit(
       _token: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>
-  }
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+  };
+
+  populateTransaction: {
+    bridgeContract(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    bridgedTokenAddress(
+      _nativeToken: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    claimTokens(
+      _token: PromiseOrValue<string>,
+      _to: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    claimTokensFromTokenContract(
+      _bridgedToken: PromiseOrValue<string>,
+      _token: PromiseOrValue<string>,
+      _to: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    dailyLimit(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    deployAndHandleBridgedTokens(
+      _token: PromiseOrValue<string>,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
+      _decimals: PromiseOrValue<BigNumberish>,
+      _recipient: PromiseOrValue<string>,
+      _value: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    deployAndHandleBridgedTokensAndCall(
+      _token: PromiseOrValue<string>,
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
+      _decimals: PromiseOrValue<BigNumberish>,
+      _recipient: PromiseOrValue<string>,
+      _value: PromiseOrValue<BigNumberish>,
+      _data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    executionDailyLimit(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    executionMaxPerTx(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    feeManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    fixFailedMessage(
+      _messageId: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    fixMediatorBalance(
+      _token: PromiseOrValue<string>,
+      _receiver: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    foreignTokenAddress(
+      _homeToken: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    forwardingRulesManager(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    gasLimitManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getBridgeInterfacesVersion(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getBridgeMode(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getCurrentDay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    handleBridgedTokens(
+      _token: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
+      _value: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    handleBridgedTokensAndCall(
+      _token: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
+      _value: PromiseOrValue<BigNumberish>,
+      _data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    handleNativeTokens(
+      _token: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
+      _value: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    handleNativeTokensAndCall(
+      _token: PromiseOrValue<string>,
+      _recipient: PromiseOrValue<string>,
+      _value: PromiseOrValue<BigNumberish>,
+      _data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    homeTokenAddress(
+      _foreignToken: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    initialize(
+      _bridgeContract: PromiseOrValue<string>,
+      _mediatorContract: PromiseOrValue<string>,
+      _dailyLimitMaxPerTxMinPerTxArray: [
+        PromiseOrValue<BigNumberish>,
+        PromiseOrValue<BigNumberish>,
+        PromiseOrValue<BigNumberish>
+      ],
+      _executionDailyLimitExecutionMaxPerTxArray: [
+        PromiseOrValue<BigNumberish>,
+        PromiseOrValue<BigNumberish>
+      ],
+      _gasLimitManager: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
+      _tokenFactory: PromiseOrValue<string>,
+      _feeManager: PromiseOrValue<string>,
+      _forwardingRulesManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    isBridgedTokenDeployAcknowledged(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isInitialized(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isRegisteredAsNativeToken(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isTokenRegistered(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    maxAvailablePerTx(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    maxPerTx(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    mediatorBalance(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    mediatorContractOnOtherSide(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    messageFixed(
+      _messageId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    migrateTo_3_3_0(
+      _tokenFactory: PromiseOrValue<string>,
+      _forwardingRulesManager: PromiseOrValue<string>,
+      _gasLimitManager: PromiseOrValue<string>,
+      _feeManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    minPerTx(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    nativeTokenAddress(
+      _bridgedToken: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    onTokenTransfer(
+      _from: PromiseOrValue<string>,
+      _value: PromiseOrValue<BigNumberish>,
+      _data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "relayTokens(address,uint256)"(
+      token: PromiseOrValue<string>,
+      _value: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "relayTokens(address,address,uint256)"(
+      token: PromiseOrValue<string>,
+      _receiver: PromiseOrValue<string>,
+      _value: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    relayTokensAndCall(
+      token: PromiseOrValue<string>,
+      _receiver: PromiseOrValue<string>,
+      _value: PromiseOrValue<BigNumberish>,
+      _data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    requestFailedMessageFix(
+      _messageId: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setBridgeContract(
+      _bridgeContract: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setCustomTokenAddressPair(
+      _nativeToken: PromiseOrValue<string>,
+      _bridgedToken: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setDailyLimit(
+      _token: PromiseOrValue<string>,
+      _dailyLimit: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setExecutionDailyLimit(
+      _token: PromiseOrValue<string>,
+      _dailyLimit: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setExecutionMaxPerTx(
+      _token: PromiseOrValue<string>,
+      _maxPerTx: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setFeeManager(
+      _feeManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setForwardingRulesManager(
+      _manager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setGasLimitManager(
+      _manager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMaxPerTx(
+      _token: PromiseOrValue<string>,
+      _maxPerTx: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMediatorContractOnOtherSide(
+      _mediatorContract: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMinPerTx(
+      _token: PromiseOrValue<string>,
+      _minPerTx: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setTokenFactory(
+      _tokenFactory: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    tokenFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    totalExecutedPerDay(
+      _token: PromiseOrValue<string>,
+      _day: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    totalSpentPerDay(
+      _token: PromiseOrValue<string>,
+      _day: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withinExecutionLimit(
+      _token: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    withinLimit(
+      _token: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+  };
 }
