@@ -27,7 +27,11 @@ interface Props {
 export const Validators: React.FC<Props> = ({ transaction, ...restProps }) => {
   const { validators } = useValidators(transaction.bridgeName as BridgesValues)
   const validationsStatus = useMemo(
-    () => getValidationsStatus(transaction, validators.filter((validator) => !validator.removed)),
+    () =>
+      getValidationsStatus(
+        transaction,
+        validators.filter((validator) => !validator.removed),
+      ),
     [transaction, validators],
   )
 
