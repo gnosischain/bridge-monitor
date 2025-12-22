@@ -4,7 +4,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "analyze": "ANALYZE=true yarn build",
+    "analyze": "ANALYZE=true pnpm build",
     "build": "next build",
     "export": "next build && next export",
     "dev": "next dev",
@@ -15,7 +15,7 @@
     "start": "next start",
     "typechain": "typechain --target=ethers-v5 ./src/abis/**/*.json --out-dir ./types/typechain/",
     "subgraph-codegen": "graphql-codegen --config ./subgraph-config.js",
-    "postinstall-local": "yarn typechain && yarn subgraph-codegen"
+    "postinstall-local": "pnpm typechain && pnpm subgraph-codegen"
   },
   "dependencies": {
     "@babel/traverse": "7.23.2",
