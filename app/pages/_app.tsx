@@ -24,6 +24,9 @@ const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3Connect
 import 'sanitize.css'
 import 'react-tooltip/dist/react-tooltip.css'
 import 'react-datepicker/dist/react-datepicker.css'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { wagmiConfig } from '@/src/providers/wagmi'
+import { WagmiProvider } from 'wagmi'
 
 export type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode
@@ -89,6 +92,8 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     }
   }, [router])
 
+  const queryClient = new QueryClient()
+
   return (
     <>
       <GoogleAnalytics />
@@ -99,20 +104,24 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
           revalidateOnFocus: false,
         }}
       >
-        <Web3ConnectionProvider>
-          <ThemeProvider>
-            <SafeSuspense>
-              <Header />
-              {/* <SafeSuspense> */}
-              <TransactionNotificationProvider>
-                {getLayout(<Component {...pageProps} />)}
-                <Toast />
-              </TransactionNotificationProvider>
-            </SafeSuspense>
-            <TooltipConfig />
-            <Footer />
-          </ThemeProvider>
-        </Web3ConnectionProvider>
+        <WagmiProvider config={wagmiConfig}>
+          <QueryClientProvider client={queryClient}>
+            <Web3ConnectionProvider>
+              <ThemeProvider>
+                <SafeSuspense>
+                  <Header />
+                  {/* <SafeSuspense> */}
+                  <TransactionNotificationProvider>
+                    {getLayout(<Component {...pageProps} />)}
+                    <Toast />
+                  </TransactionNotificationProvider>
+                </SafeSuspense>
+                <TooltipConfig />
+                <Footer />
+              </ThemeProvider>
+            </Web3ConnectionProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
       </SWRConfig>
     </>
   )
