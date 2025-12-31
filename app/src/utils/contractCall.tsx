@@ -18,6 +18,7 @@ export default async function contractCall<
     const result = Array.isArray(params) ? await contractMethod(...params) : await contractMethod()
     return result
   } catch (e) {
+    console.error(e)
     return null
   }
 }

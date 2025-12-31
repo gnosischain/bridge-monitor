@@ -22,6 +22,12 @@
 .prettierignore
 tsconfig.json
 next.config.js
+subgraph-config.js
+hardhat.config.js
+
+# generated files
+types/generated/
+types/typechain/
 
 # debug
 npm-debug.log*

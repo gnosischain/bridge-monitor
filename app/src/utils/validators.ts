@@ -12,19 +12,13 @@ import { getHomeGraphqlClient } from '@/src/constants/config/subgraph'
 import { getEnvioGraphqlClient, isEnvioBackend } from '@/src/constants/config/indexer'
 import { BalanceType, ValidatorStatusTypes } from '@/src/constants/types'
 import { TRANSACTION_QUERY } from '@/src/queries/transactions'
-import {
-  ENVIO_VALIDATORS_ACTIVITY_QUERY,
-  ENVIO_VALIDATORS_QUERY,
-  VALIDATORS_QUERY,
-} from '@/src/queries/validators'
+import { ENVIO_VALIDATORS_ACTIVITY_QUERY, ENVIO_VALIDATORS_QUERY } from '@/src/queries/validators'
 import {
   OrderDirection,
   QueryTransactionsArgs,
   TransactionStatus,
   Transaction_OrderBy,
   TransactionsQuery,
-  ValidatorsQuery,
-  ValidatorsQueryVariables,
 } from '@/types/generated/subgraph'
 
 const XDAI_VALIDATORS = xdaiValidators as Validator[]
@@ -109,7 +103,7 @@ export const getValidationsStatus = (transaction: Transaction, _validators: Vali
   return Object.values(validators)
 }
 
-export const fetchHomeValidators = async (filter?: ValidatorsQueryVariables) => {
+export const fetchHomeValidators = async () => {
   type EnvioValidatorRow = {
     id?: string
     name?: string | null
