@@ -1,9 +1,18 @@
 import { HTMLAttributes } from 'react'
 import ReactDOM from 'react-dom'
-import styled, { css } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
 import { Close as BaseClose } from '@/src/components/assets/Close'
 import { BaseCard } from '@/src/components/card/BaseCard'
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`
 
 const Wrapper = styled.div`
   align-items: center;
@@ -18,16 +27,18 @@ const Wrapper = styled.div`
   width: 100vw;
   z-index: 100;
   overflow: auto;
+  animation: ${fadeIn} 0.2s ease-out;
 `
 
 const Card = styled(BaseCard)<{ size?: modalSize }>`
   background-color: ${({ theme: { colors } }) => colors.creamLight};
-  border-color: ${({ theme: { colors } }) => colors.creamLight};
+  border: 0;
   display: flex;
   flex-direction: column;
   margin: auto;
   max-width: 100%;
-  padding: 30px 25px;
+  padding: 0;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   position: relative;
   width: ${({ size }) =>
     size === 'sm' ? '325px' : size === 'md' ? '500px' : size === 'lg' ? '720px' : `${size}`};
@@ -123,7 +134,6 @@ export const Modal: React.FC<Props> = ({
         <Card
           className="modalCard"
           onClick={(e) => {
-            e.preventDefault()
             e.stopPropagation()
           }}
           size={size}

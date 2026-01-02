@@ -32,7 +32,7 @@ export const ModalSwitchNetwork: React.FC<{ onClose: () => void }> = ({
   const chainOptions = getSupportedNetworks()
 
   const handleChangeNetwork = async (chainConfig: ChainConfig) => {
-    const isSwitchedSuccess = await pushNetwork({ chainId: chainConfig.chainIdHex })
+    const isSwitchedSuccess = await pushNetwork(chainConfig.chainId)
     if (isSwitchedSuccess) {
       setAppChainId(chainConfig.chainId)
       onClose()

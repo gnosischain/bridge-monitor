@@ -37,7 +37,7 @@ export default function WrongNetwork() {
     useWeb3Connection()
   const appChain = getNetworkConfig(appChainId)
   return isWalletConnected && !isWalletNetworkSupported ? (
-    <ButtonPrimary onClick={() => pushNetwork({ chainId: appChain.chainIdHex })}>
+    <ButtonPrimary onClick={() => pushNetwork(appChain.chainId)}>
       <Content>Swich to valid network</Content>
     </ButtonPrimary>
   ) : null

@@ -19,7 +19,6 @@ import {
 } from '@/types/typechain'
 import { Interface } from '@ethersproject/abi'
 import { JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
-import { WalletState } from '@web3-onboard/core'
 import { useState } from 'react'
 import styled from 'styled-components'
 import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
@@ -158,18 +157,14 @@ export const ClaimButton = ({
 
     // if not connected, show a modal to connect
     if (!isWalletConnected) {
-      const walletStates = await connectWallet()
-
-      if (!walletStates?.length) {
-        notify({
-          type: ToastStates.failed,
-          message: 'Failed to connect wallet',
-          id: 'connectWallet',
-        })
-        console.error('you need to connect your wallet in order to claim')
-        setIsWorking(false)
-        return
-      }
+      connectWallet()
+      notify({
+        type: ToastStates.failed,
+        message: 'Please connect your wallet to claim',
+        id: 'connectWallet',
+      })
+      setIsWorking(false)
+      return
     }
 
     const currentAppChain = getNetworkConfig(appChainId)
@@ -179,9 +174,7 @@ export const ClaimButton = ({
       !isWalletNetworkSupported ||
       transaction.receiverNetwork !== currentAppChain.shortName.toLowerCase()
     ) {
-      const networkSwitched = await pushNetwork({
-        chainId: chainsConfig[Chains.mainnet].chainIdHex,
-      })
+      const networkSwitched = await pushNetwork(Chains.mainnet)
 
       if (!networkSwitched) {
         notify({
@@ -202,9 +195,7 @@ export const ClaimButton = ({
       id: 'claim',
     })
 
-    const wallet: WalletState = window.onboard.state.get().wallets[0]
-    const provider = new Web3Provider(wallet.provider)
-    const claim = await getClaimTx(provider)
+    const claim = await getClaimTx(web3Provider)
 
     try {
       const receipt = await sendTx(claim)
@@ -214,7 +205,7 @@ export const ClaimButton = ({
       updateInMemoryTransaction(transaction)
 
       // once executed, if the page is still open, bring new state from the SG.
-      await provider.waitForTransaction(receipt.hash)
+      await web3Provider.waitForTransaction(receipt.hash)
 
       // give some time the SG to index
       setTimeout(() => {

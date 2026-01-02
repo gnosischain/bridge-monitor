@@ -5,51 +5,31 @@ import {
   ReactNode,
   SetStateAction,
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from 'react'
-
-import { JsonRpcBatchProvider, JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
-import { OnboardAPI, WalletState } from '@web3-onboard/core'
-import injectedModule from '@web3-onboard/injected-wallets'
-import { init, useConnectWallet, useSetChain, useWallets } from '@web3-onboard/react'
-import walletConnectModule from '@web3-onboard/walletconnect'
 import nullthrows from 'nullthrows'
+import {
+  useConnection,
+  useChainId,
+  useSwitchChain,
+} from 'wagmi'
 
 import { INITIAL_APP_CHAIN_ID, chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
-import { WALLET_CONNECT_DAPP_URL, WALLET_CONNECT_PROJECT_ID } from '@/src/constants/config/common'
-import { ChainConfig, Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
+import { Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 import {
   recoverLocalStorageKey,
-  removeLocalStorageKey,
   setLocalStorageKey,
+  removeLocalStorageKey,
 } from '@/src/hooks/usePersistedState'
 import { getSupportedNetworks } from '@/src/utils/getSupportedNetworks'
-import { hexToNumber, isValidChain } from '@/src/utils/tools'
+import { isValidChain } from '@/src/utils/tools'
 import { RequiredNonNull } from '@/types/utils'
-import { ModalCSS } from '@/src/theme/onBoard'
-import safeModule from '@web3-onboard/gnosis'
 
-const STORAGE_CONNECTED_WALLET = 'onboard_selectedWallet'
-
-declare type SetChainOptions = {
-  chainId: string
-  chainNamespace?: string
-}
-
-let onBoardApi: OnboardAPI
-
-const chainsForOnboard = Object.values(chainsConfig).map(
-  ({ blockExplorerUrls, chainIdHex, name, rpcUrl, token }: ChainConfig) => ({
-    id: chainIdHex,
-    label: name,
-    token,
-    rpcUrl,
-    blockExplorerUrl: blockExplorerUrls[0],
-  }),
-)
+const STORAGE_CONNECTED_WALLET = 'wagmi_connectedWallet'
 
 // Default chain id from env var
 nullthrows(
@@ -57,64 +37,21 @@ nullthrows(
   'No default chain ID is defined or is not supported',
 )
 
-const injected = injectedModule()
-
-const walletConnect = walletConnectModule({
-  dappUrl: WALLET_CONNECT_DAPP_URL,
-  projectId: WALLET_CONNECT_PROJECT_ID,
-  requiredChains: getSupportedNetworks().map(({ id }) => id),
-  version: 2,
-})
-
-const safe = safeModule()
-
-export function initOnboard() {
-  if (typeof window === 'undefined' || window?.onboard || onBoardApi) return
-
-  onBoardApi = init({
-    wallets: [injected, walletConnect, safe],
-    chains: chainsForOnboard,
-    notify: {
-      enabled: false,
-    },
-    appMetadata: {
-      name: 'Gnosis Bridge',
-      icon: '<svg><svg/>', // brand icon
-      description: 'Gnosis Bridge',
-    },
-    // Account center put an interactive menu in the UI to manage your account.
-    accountCenter: {
-      desktop: {
-        enabled: false,
-      },
-      mobile: {
-        enabled: false,
-      },
-    },
-    // i18n: {} change all texts in the onboard modal
-  })
-  window.onboard = onBoardApi
-}
-
 export type Web3Context = {
   address: string | null
   appChainId: ChainsValues
-  balance?: Record<string, string> | null
-  connectWallet: () => Promise<WalletState[] | void>
+  connectWallet: () => void
   connectingWallet: boolean
   disconnectWallet: () => Promise<void>
   getExplorerUrl: (hash: string, network?: ChainsKeys) => string
   isAppConnected: boolean
-  isOnboardChangingChain: boolean
   isWalletConnected: boolean
   isWalletNetworkSupported: boolean
-  pushNetwork: (options: SetChainOptions) => Promise<boolean>
-  readOnlyAppProvider: JsonRpcProvider
-  readOnlyAppBatchProvider: JsonRpcBatchProvider
+  pushNetwork: (chainId: number) => Promise<boolean>
   setAppChainId: Dispatch<SetStateAction<ChainsValues>>
-  wallet: WalletState | null
   walletChainId: number | null
-  web3Provider: Web3Provider | null
+  walletLabel: string | null
+  isOnboardChangingChain: boolean
 }
 
 export type Web3Connected = RequiredNonNull<Web3Context>
@@ -125,99 +62,35 @@ type Props = {
   children: ReactNode
 }
 
-// Initialize onboarding
-initOnboard()
-
-/**
- * This is a workaround (hacky shit) to add custom CSS to the onboard modal
- */
-const setCSSStyles = () => {
-  const style = document.createElement('style')
-
-  style.innerHTML = ModalCSS
-
-  const onboardV2 = document.querySelector('onboard-v2')
-
-  if (onboardV2 && onboardV2.shadowRoot) {
-    onboardV2.shadowRoot.appendChild(style)
-  }
-}
-
 export default function Web3ConnectionProvider({ children }: Props) {
-  const [{ connecting: connectingWallet, wallet }, connect, disconnect] = useConnectWallet()
-  const [{ connectedChain, settingChain }, setChain] = useSetChain()
-  const connectedWallets = useWallets()
+  const { address: wagmiAddress, connector, isConnecting, isConnected } = useConnection()
+  const chainId = useChainId()
+  const { mutateAsync: switchChainAsync, isPending: isSwitchingChain } = useSwitchChain()
+
   const [appChainId, setAppChainId] = useState(INITIAL_APP_CHAIN_ID)
-  const [address, setAddress] = useState<string | null>(null)
-  const web3Provider = wallet?.provider != null ? new Web3Provider(wallet.provider) : null
-  const walletChainId = hexToNumber(connectedChain?.id)
-  const isWalletConnected = web3Provider != null && address != null
+
+  const address = wagmiAddress ?? null
+  const walletChainId = chainId ?? null
+
+  const isWalletConnected = isConnected && address != null
   const isAppConnected = isWalletConnected && walletChainId === appChainId
   const isWalletNetworkSupported = getSupportedNetworks().some(({ id }) => {
-    if (connectedChain) {
-      return id === +connectedChain?.id
-    }
+    return id === walletChainId
   })
 
-  const readOnlyAppProvider = useMemo(
-    () => new JsonRpcProvider(getNetworkConfig(appChainId)?.rpcUrl, appChainId),
-    [appChainId],
-  )
-
-  const readOnlyAppBatchProvider = useMemo(
-    () => new JsonRpcBatchProvider(getNetworkConfig(appChainId)?.rpcUrl, appChainId),
-    [appChainId],
-  )
-
+  // Sync app chain with wallet chain when on supported network
   useEffect(() => {
     if (isWalletNetworkSupported && walletChainId) {
       setAppChainId(walletChainId as SetStateAction<ChainsValues>)
     }
   }, [walletChainId, isWalletNetworkSupported])
 
-  // Save connected wallets to localstorage
+  // Save connected wallet label to localstorage
   useEffect(() => {
-    if (!connectedWallets.length) return
-
-    const connectedWalletsLabelArray = connectedWallets.map(({ label }) => label)
-    setLocalStorageKey(STORAGE_CONNECTED_WALLET, connectedWalletsLabelArray)
-  }, [connectedWallets, wallet])
-
-  // Set user address when connect wallet
-  useEffect(() => {
-    if (wallet?.accounts.length) {
-      setAddress(wallet.accounts[0].address)
-    } else {
-      setAddress(null)
+    if (connector && isConnected) {
+      setLocalStorageKey(STORAGE_CONNECTED_WALLET, connector.name)
     }
-  }, [wallet])
-
-  // Auto connect wallet if localStorage has values
-  useEffect(() => {
-    const previouslyConnectedWallets = recoverLocalStorageKey(STORAGE_CONNECTED_WALLET, [])
-    if (previouslyConnectedWallets?.length && !connectedWallets.length) {
-      const setWalletFromLocalStorage = async () =>
-        await connect({
-          autoSelect: { label: previouslyConnectedWallets[0], disableModals: true },
-        })
-
-      setWalletFromLocalStorage()
-    }
-  }, [connect, connectedWallets.length])
-
-  // autoconnect if it's inside Safe app
-  useEffect(() => {
-    const connectToSafe = async () => {
-      if (window.top !== window.self) {
-        // is it an iframe?
-        await connect({
-          autoSelect: { label: 'Safe', disableModals: true },
-        })
-      }
-    }
-
-    connectToSafe()
-  }, [connect])
+  }, [connector, isConnected])
 
   const getExplorerUrl = useMemo(() => {
     return (hash: string, network = 'mainnet') => {
@@ -245,41 +118,40 @@ export default function Web3ConnectionProvider({ children }: Props) {
   }, [])
 
   const handleDisconnectWallet = async () => {
-    if (wallet) {
-      removeLocalStorageKey(STORAGE_CONNECTED_WALLET)
-      await disconnect(wallet)
-    }
+    removeLocalStorageKey(STORAGE_CONNECTED_WALLET)
+    connector?.disconnect()
   }
 
-  const handleConnectWallet = async () => {
-    if (window.onboard) {
-      return connect()
-    }
-  }
+  const handleConnectWallet = useCallback(() => {
+    // Dispatch a custom event that the modal can listen to
+    window.dispatchEvent(new CustomEvent('openConnectModal'))
+  }, [])
 
-  setCSSStyles()
+  const pushNetwork = useCallback(async (targetChainId: number): Promise<boolean> => {
+    try {
+      await switchChainAsync({ chainId: targetChainId })
+      return true
+    } catch (error) {
+      console.error('Failed to switch network:', error)
+      return false
+    }
+  }, [switchChainAsync])
 
   const value = {
     address,
     appChainId,
-    balance: wallet?.accounts[0]?.balance,
     connectWallet: handleConnectWallet,
-    connectedChain,
-    connectingWallet,
+    connectingWallet: isConnecting,
     disconnectWallet: handleDisconnectWallet,
     getExplorerUrl,
     isAppConnected,
-    isOnboardChangingChain: settingChain,
+    isOnboardChangingChain: isSwitchingChain,
     isWalletConnected,
     isWalletNetworkSupported,
-    pushNetwork: setChain,
-    readOnlyAppProvider,
-    readOnlyAppBatchProvider,
+    pushNetwork,
     setAppChainId,
-    settingChain,
-    wallet,
     walletChainId,
-    web3Provider,
+    walletLabel: connector?.name ?? null,
   }
 
   return <Web3ContextConnection.Provider value={value}>{children}</Web3ContextConnection.Provider>

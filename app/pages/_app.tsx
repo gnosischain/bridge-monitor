@@ -21,6 +21,10 @@ const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3Connect
   ssr: false,
 })
 
+const ModalConnectWallet = dynamic(
+  () => import('@/src/components/modal/ModalConnectWallet').then((mod) => mod.ModalConnectWallet)
+)
+
 import 'sanitize.css'
 import 'react-tooltip/dist/react-tooltip.css'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -118,6 +122,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                 </SafeSuspense>
                 <TooltipConfig />
                 <Footer />
+                <ModalConnectWallet />
               </ThemeProvider>
             </Web3ConnectionProvider>
           </QueryClientProvider>
