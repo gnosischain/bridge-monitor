@@ -20,6 +20,9 @@ const cspHeader = `
 /** @type {import("next").NextConfig} */
 module.exports = withBundleAnalyzer({
   reactStrictMode: false,
+  compiler: {
+    styledComponents: true,
+  },
   i18n: {
     locales: ['en'],
     defaultLocale: 'en',
