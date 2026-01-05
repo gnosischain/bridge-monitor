@@ -7,9 +7,9 @@ const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline';
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    img-src 'self' blob: data:;
-    font-src 'self';
-    connect-src 'self' https://indexer.hyperindex.xyz https://rpc.gnosischain.com/ https://rpc.ankr.com/eth https://tokens.coingecko.com/uniswap/all.json https://ethereum-rpc.publicnode.com/;
+    img-src 'self' blob: data: https://assets.coingecko.com;
+    font-src 'self' https://fonts.gstatic.com;
+    connect-src 'self' https://indexer.hyperindex.xyz https://rpc.gnosischain.com/ https://tokens.coingecko.com https://rpc.ankr.com/eth https://ethereum-rpc.publicnode.com/;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
