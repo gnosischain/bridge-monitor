@@ -35,7 +35,11 @@ export const useBridgeFee = ({
     address: contracts.omnibridgeFeeManager.address[Chains.gnosis] as Address,
     abi: OmniBridgeFeeManager__factory.abi,
     functionName: 'calculateFee',
-    args: [isFromHome ? homeToForeignFeeKey : foreignToHomeFeeKey, token.address as Address, amount],
+    args: [
+      isFromHome ? homeToForeignFeeKey : foreignToHomeFeeKey,
+      token.address as Address,
+      amount,
+    ],
     chainId: Chains.gnosis,
     query: {
       enabled: !isNativeBridge,

@@ -1,6 +1,5 @@
 import { BigNumber } from 'ethers'
 import { Token } from '@/types/token'
-import useSWR from 'swr'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 import { useTokenMode } from '@/src/hooks/bridge/useTokenMode'
