@@ -1,4 +1,3 @@
-import { BigNumber, Contract, Signer } from 'ethers'
 import { ChainsValues } from '@/src/constants/config/types'
 import useSWR from 'swr'
 import { Token } from '@/types/token'
@@ -53,18 +52,16 @@ import { USDS_ADDRESS } from '@/src/constants/config/common'
 const handleNativeTokenFromForeign = async ({
   amount,
   bridgeContract,
-  signer,
   walletAddress,
 }: {
   bridgeContract: NativeOmniBridgeMediator
-  signer: Signer
-  amount: BigNumber
+  amount: bigint
   walletAddress: string
 }) => {
   // Using the default estimateGas calculation using the minimum ETH amount (0.000000000000000001) to avoid crash when the user tries to bridge all the balance of the native tokens
   // TODO: There should be a better way to handle this.
   const gasLimit = await bridgeContract.estimateGas['wrapAndRelayTokens(address)'](
-    walletAddress || signer.getAddress(),
+    walletAddress,
     {
       value: amount.toString(),
     },
@@ -73,7 +70,7 @@ const handleNativeTokenFromForeign = async ({
   return {
     gasLimit,
     tx: async function () {
-      return bridgeContract['wrapAndRelayTokens(address)'](walletAddress || signer.getAddress(), {
+      return bridgeContract['wrapAndRelayTokens(address)'](walletAddress, {
         value: amount.toString(),
         gasLimit,
       })
@@ -85,7 +82,6 @@ const handleNativeTokenFromForeign = async ({
  * Handles the transfer of native tokens from the home bridge contract.
  *
  * @param bridgeContract - The HomeBridgeErcToNative contract instance (xDAI Bridge).
- * @param signer - The signer object used for signing transactions.
  * @param amount - The amount of tokens to transfer.
  * @param recipient - Optional recipient address for the transfer.
  * @returns An object containing the gas limit and a transaction function.
@@ -95,13 +91,11 @@ const handleNativeTokenFromHome = async ({
   bridgeContract,
   fromChainId,
   recipient,
-  signer,
   toTokenAddress,
   userAddress,
 }: {
   bridgeContract: HomeBridgeErcToNative
-  signer: Signer
-  amount: BigNumber
+  amount: bigint
   userAddress: string
   fromChainId: ChainsValues
   recipient?: string
@@ -163,7 +157,6 @@ const handleNativeTokenFromHome = async ({
  * Handles the transfer of ERC20 tokens from foreign chain.
  * If the token is DAI, the transfer will be made using the xDAI bridge.
  * @param bridgeContract The bridge contract instance (ForeignOmniMediator or ForeignBridgeErcToNative).
- * @param signer The signer instance.
  * @param amount The amount of tokens to transfer.
  * @param tokenAddress The address of the ERC20 token.
  * @param isDAI Optional. Indicates if the token is DAI.
@@ -176,16 +169,14 @@ const handleERC20TokenFromForeign = async ({
   bridgeContract,
   isDAI,
   recipient,
-  signer,
   tokenAddress,
   tokenMode,
   userAddress,
 }: {
   bridgeContract: ForeignOmniMediator | ForeignBridgeErcToNative
-  signer: Signer
-  amount: BigNumber
+  amount: bigint
   tokenAddress: string
-  allowance: BigNumber
+  allowance: bigint
   tokenMode: TOKEN_MODE
   recipient: string | undefined
   userAddress: string
@@ -206,9 +197,9 @@ const handleERC20TokenFromForeign = async ({
     ? ERC677__factory.connect(tokenAddress, signer)
     : ERC20__factory.connect(tokenAddress, signer)
 
-  let gasLimit: BigNumber
+  let gasLimit: bigint
   if (isDAI) {
-    if (amount.gt(allowance)) {
+    if (amount > allowance) {
       gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
     } else {
       gasLimit = await (bridgeContract as ForeignBridgeErcToNative).estimateGas.relayTokens(
@@ -231,11 +222,11 @@ const handleERC20TokenFromForeign = async ({
     }
   }
 
-  if (!isERC677 && amount.gt(allowance)) {
+  if (!isERC677 && amount > allowance) {
     try {
       gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
     } catch (error) {
-      gasLimit = BigNumber.from(0)
+      gasLimit = 0n
       console.log('error', error)
     }
     // gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
@@ -288,7 +279,6 @@ const handleERC20TokenFromForeign = async ({
  * Handles the transfer of ERC20 tokens from home.
  * If the token is compatible with ERC677/ERC827, it uses the transferAndCall method and avoids the approve step.
  * @param bridgeContract The HomeOmniMediator contract instance.
- * @param signer The signer object used for signing transactions.
  * @param amount The amount of tokens to transfer.
  * @param tokenAddress The address of the token contract.
  * @param walletAddress Optional. The address of the recipient. If not provided, the tokens will be transferred to the bridge contract.
@@ -301,22 +291,20 @@ const handleERC20TokenFromHome = async ({
   bridgeContract,
   receiveNativeToken,
   recipient,
-  signer,
   toChainId,
   tokenAddress,
   tokenMode,
   userAddress,
 }: {
   bridgeContract: HomeOmniMediator
-  signer: Signer
-  amount: BigNumber
+  amount: bigint
   tokenAddress: string
   tokenMode: TOKEN_MODE
   userAddress: string
   toChainId: ChainsValues
   recipient?: string
   receiveNativeToken?: boolean
-  allowance?: BigNumber
+  allowance?: bigint
 }) => {
   // Here we have two cases. If the token is compatible with ERC677/ERC827 we should use transferAndCall method and avoid the approve step.
   const isERC677 = tokenMode === 'ERC677'
@@ -370,7 +358,7 @@ const handleERC20TokenFromHome = async ({
   }
 
   // ERC20
-  if (allowance && amount.gt(allowance)) {
+  if (allowance && amount > allowance) {
     return {
       gasLimit: await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString()),
       tx: async function () {
@@ -398,7 +386,6 @@ const handleERC20TokenFromHome = async ({
 /**
  * Handles the transfer of ERC20 tokens from foreign chain.
  * @param bridgeContract The bridge contract instance (ForeignOmniMediator).
- * @param signer The signer instance.
  * @param amount The amount of tokens to transfer.
  * @param tokenAddress The address of the ERC20 token.
  * @param isDAI Optional. Indicates if the token is DAI.
@@ -410,16 +397,14 @@ const handleUsdceFromHome = async ({
   amount,
   bridgeContract,
   recipient,
-  signer,
   tokenAddress,
   tokenMode,
   userAddress,
 }: {
   bridgeContract: HomeOmniMediator
-  signer: Signer
-  amount: BigNumber
+  amount: bigint
   tokenAddress: string
-  allowance: BigNumber
+  allowance: bigint
   tokenMode: TOKEN_MODE
   recipient: string | undefined
   userAddress: string
@@ -438,11 +423,11 @@ const handleUsdceFromHome = async ({
     ? ERC677__factory.connect(tokenAddress, signer)
     : ERC20__factory.connect(tokenAddress, signer)
 
-  let gasLimit: BigNumber
+  let gasLimit: bigint
 
   const bytesData = defaultAbiCoder.encode(['address'], [walletAddress])
 
-  if (!isERC677 && amount.gt(allowance)) {
+  if (!isERC677 && amount > allowance) {
     gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
   } else {
     gasLimit = await bridgeContract.estimateGas.relayTokensAndCall(
@@ -469,7 +454,6 @@ const handleUsdceFromHome = async ({
 /**
  * Handles the transfer of ERC20 tokens from foreign chain.
  * @param bridgeContract The bridge contract instance (ForeignOmniMediator).
- * @param signer The signer instance.
  * @param amount The amount of tokens to transfer.
  * @param tokenAddress The address of the ERC20 token.
  * @param isDAI Optional. Indicates if the token is DAI.
@@ -481,16 +465,14 @@ const handleUsdcFromForeign = async ({
   amount,
   bridgeContract,
   recipient,
-  signer,
   tokenAddress,
   tokenMode,
   userAddress,
 }: {
   bridgeContract: ForeignOmniMediator
-  signer: Signer
-  amount: BigNumber
+  amount: bigint
   tokenAddress: string
-  allowance: BigNumber
+  allowance: bigint
   tokenMode: TOKEN_MODE
   recipient: string | undefined
   userAddress: string
@@ -509,11 +491,11 @@ const handleUsdcFromForeign = async ({
     ? ERC677__factory.connect(tokenAddress, signer)
     : ERC20__factory.connect(tokenAddress, signer)
 
-  let gasLimit: BigNumber
+  let gasLimit: bigint
 
   const bytesData = defaultAbiCoder.encode(['address'], [walletAddress])
 
-  if (!isERC677 && amount.gt(allowance)) {
+  if (!isERC677 && amount > allowance) {
     gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
   } else {
     gasLimit = await bridgeContract.estimateGas.relayTokensAndCall(
@@ -540,7 +522,6 @@ const handleUsdcFromForeign = async ({
 /**
  * Handles the transfer of Dai and USDS tokens from foreign chain trough BridgeRouter
  * @param bridgeContract The bridge contract instance (ForeignBridgeRouter).
- * @param signer The signer instance.
  * @param amount The amount of tokens to transfer.
  * @param tokenAddress The address of the ERC20 token.
  * @param recipient Optional. The recipient address.
@@ -551,23 +532,21 @@ const handleUsdsOrDaiFromForeign = async ({
   amount,
   bridgeContract,
   recipient,
-  signer,
   tokenAddress,
   userAddress,
 }: {
   bridgeContract: ForeignBridgeRouter
-  signer: Signer
-  amount: BigNumber
+  amount: bigint
   tokenAddress: string
-  allowance: BigNumber
+  allowance: bigint
   recipient: string | undefined
   userAddress: string
 }) => {
   const tokenContract = ERC20__factory.connect(tokenAddress, signer)
-  let gasLimit: BigNumber
+  let gasLimit: bigint
   const bridgeRouterContract = contracts.BridgeRouter.address[1]
 
-  if (amount.gt(allowance)) {
+  if (amount > allowance) {
     gasLimit = await tokenContract.estimateGas.approve(bridgeRouterContract, amount.toString())
   } else {
     gasLimit = await bridgeContract.estimateGas.relayTokens(
@@ -600,28 +579,26 @@ export const getBridgeTx = async ({
   fromChainId,
   receiveNativeToken,
   recipient,
-  signer,
   toChainId,
   toTokenAddress,
   tokenAddress,
   tokenMode,
 }: {
-  signer: Signer
   account: string
-  amount: BigNumber
-  allowance: BigNumber
+  amount: bigint
+  allowance: bigint
   fromChainId: ChainsValues
   toChainId: ChainsValues
   tokenAddress: string
   tokenMode: TOKEN_MODE
-  balance: BigNumber
+  balance: bigint
   receiveNativeToken?: boolean
   recipient?: string
   toTokenAddress?: string
 }) => {
   const bridgeContract = getBridgeContract(fromChainId, toChainId, tokenAddress).connect(signer)
 
-  if (amount.lte(0) || !account) {
+  if (amount <= 0n || !account) {
     return {
       gasLimit: ZERO_BN,
       gasPrice: ZERO_BN,
@@ -645,7 +622,6 @@ export const getBridgeTx = async ({
     isUsdsEth || isDaiEth
       ? await handleUsdsOrDaiFromForeign({
           bridgeContract: bridgeContract as ForeignBridgeRouter,
-          signer,
           amount,
           tokenAddress,
           userAddress: account,
@@ -655,7 +631,6 @@ export const getBridgeTx = async ({
       : isUsdceGnosis
       ? await handleUsdceFromHome({
           bridgeContract: bridgeContract as HomeOmniMediator,
-          signer,
           amount,
           tokenAddress,
           userAddress: account,
@@ -666,7 +641,6 @@ export const getBridgeTx = async ({
       : isUsdcEth
       ? await handleUsdcFromForeign({
           bridgeContract: bridgeContract as ForeignOmniMediator,
-          signer,
           amount,
           tokenAddress,
           allowance,
@@ -678,7 +652,6 @@ export const getBridgeTx = async ({
       ? isFromHome
         ? await handleNativeTokenFromHome({
             bridgeContract: bridgeContract as HomeBridgeErcToNative,
-            signer,
             amount,
             recipient,
             fromChainId,
@@ -687,14 +660,12 @@ export const getBridgeTx = async ({
           })
         : await handleNativeTokenFromForeign({
             bridgeContract: bridgeContract as NativeOmniBridgeMediator,
-            signer,
             amount,
             walletAddress: recipient || account,
           })
       : isFromHome
       ? await handleERC20TokenFromHome({
           bridgeContract: bridgeContract as HomeOmniMediator,
-          signer,
           amount,
           tokenAddress,
           toChainId,
@@ -706,7 +677,6 @@ export const getBridgeTx = async ({
         })
       : await handleERC20TokenFromForeign({
           bridgeContract: bridgeContract as ForeignOmniMediator,
-          signer,
           amount,
           tokenAddress,
           allowance,
@@ -736,15 +706,13 @@ export const useBridgeTransactionInfo = ({
   userAddress: string
   fromChainId: ChainsValues
   toChainId: ChainsValues
-  amount: BigNumber
+  amount: bigint
   receiveNativeToken: boolean
   recipient?: string
   token: Token
   toToken?: Token
 }) => {
-  const { walletChainId, web3Provider } = useWeb3Connection()
-  if (!web3Provider) throw new Error('No web3 provider available')
-  const signer = web3Provider.getSigner()
+  const { walletChainId } = useWeb3Connection()
   if (walletChainId !== fromChainId) throw new Error('Invalid chain')
 
   const { data: tokenMode } = useTokenMode(fromChainId, toChainId, token)
@@ -785,7 +753,6 @@ export const useBridgeTransactionInfo = ({
         account: userAddress,
         amount: _amount,
         fromChainId: _fromChainId,
-        signer,
         toChainId: _toChainId,
         tokenAddress: _token.address,
         recipient: _recipient,
