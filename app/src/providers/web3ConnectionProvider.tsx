@@ -12,18 +12,14 @@ import {
   useState,
 } from 'react'
 import nullthrows from 'nullthrows'
-import {
-  useConnection,
-  useChainId,
-  useSwitchChain,
-} from 'wagmi'
+import { useChainId, useConnection, useSwitchChain } from 'wagmi'
 
 import { INITIAL_APP_CHAIN_ID, chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
 import { Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 import {
   recoverLocalStorageKey,
-  setLocalStorageKey,
   removeLocalStorageKey,
+  setLocalStorageKey,
 } from '@/src/hooks/usePersistedState'
 import { getSupportedNetworks } from '@/src/utils/getSupportedNetworks'
 import { isValidChain } from '@/src/utils/tools'
@@ -63,9 +59,9 @@ type Props = {
 }
 
 export default function Web3ConnectionProvider({ children }: Props) {
-  const { address: wagmiAddress, connector, isConnecting, isConnected } = useConnection()
+  const { address: wagmiAddress, connector, isConnected, isConnecting } = useConnection()
   const chainId = useChainId()
-  const { mutateAsync: switchChainAsync, isPending: isSwitchingChain } = useSwitchChain()
+  const { isPending: isSwitchingChain, mutateAsync: switchChainAsync } = useSwitchChain()
 
   const [appChainId, setAppChainId] = useState(INITIAL_APP_CHAIN_ID)
 
@@ -127,15 +123,18 @@ export default function Web3ConnectionProvider({ children }: Props) {
     window.dispatchEvent(new CustomEvent('openConnectModal'))
   }, [])
 
-  const pushNetwork = useCallback(async (targetChainId: number): Promise<boolean> => {
-    try {
-      await switchChainAsync({ chainId: targetChainId })
-      return true
-    } catch (error) {
-      console.error('Failed to switch network:', error)
-      return false
-    }
-  }, [switchChainAsync])
+  const pushNetwork = useCallback(
+    async (targetChainId: number): Promise<boolean> => {
+      try {
+        await switchChainAsync({ chainId: targetChainId })
+        return true
+      } catch (error) {
+        console.error('Failed to switch network:', error)
+        return false
+      }
+    },
+    [switchChainAsync],
+  )
 
   const value = {
     address,

@@ -21,8 +21,8 @@ const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3Connect
   ssr: false,
 })
 
-const ModalConnectWallet = dynamic(
-  () => import('@/src/components/modal/ModalConnectWallet').then((mod) => mod.ModalConnectWallet)
+const ModalConnectWallet = dynamic(() =>
+  import('@/src/components/modal/ModalConnectWallet').then((mod) => mod.ModalConnectWallet),
 )
 
 import 'sanitize.css'

@@ -10,7 +10,7 @@ const Container = styled.div`
   flex-direction: row;
   min-width: 700px;
   min-height: 350px;
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
     min-width: 100%;
@@ -25,7 +25,7 @@ const Sidebar = styled.div`
   background: ${({ theme }) => theme.colors.creamDark};
   width: 40%;
   flex-shrink: 0;
-  
+
   @media (max-width: 768px) {
     width: 100%;
     padding: 24px;
@@ -56,7 +56,7 @@ const DontHaveWallet = styled.a`
   align-items: center;
   gap: 6px;
   text-decoration: none;
-  
+
   &:hover {
     text-decoration: underline;
   }
@@ -68,7 +68,7 @@ const Content = styled.div`
   padding: 24px;
   background: ${({ theme }) => theme.colors.cream};
   width: 60%;
-  
+
   @media (max-width: 768px) {
     width: 100%;
   }
@@ -192,7 +192,8 @@ export function SelectWallet() {
         <Sidebar>
           <SidebarTitle>Connect your wallet</SidebarTitle>
           <SidebarDescription>
-            Connecting your wallet is like "logging in" to Web3. Select your wallet from the options to get started.
+            Connecting your wallet is like "logging in" to Web3. Select your wallet from the options
+            to get started.
           </SidebarDescription>
         </Sidebar>
         <Content>
@@ -210,12 +211,13 @@ export function SelectWallet() {
       <Sidebar>
         <SidebarTitle>Connect your wallet</SidebarTitle>
         <SidebarDescription>
-          Connecting your wallet is like "logging in" to Web3. Select your wallet from the options to get started.
+          Connecting your wallet is like "logging in" to Web3. Select your wallet from the options
+          to get started.
         </SidebarDescription>
         <DontHaveWallet
           href="https://ethereum.org/en/wallets/find-wallet/"
-          target="_blank"
           rel="noopener noreferrer"
+          target="_blank"
         >
           I don't have a wallet <InfoBadge>i</InfoBadge>
         </DontHaveWallet>
@@ -235,7 +237,7 @@ export function SelectWallet() {
             >
               <IconWrapper>
                 {connector.icon ? (
-                  <img src={connector.icon} alt={connector.name} />
+                  <img alt={connector.name} src={connector.icon} />
                 ) : (
                   <DefaultIcon>{connector.name.charAt(0).toUpperCase()}</DefaultIcon>
                 )}

@@ -241,8 +241,8 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
     disconnectWallet,
     getExplorerUrl,
     isWalletNetworkSupported,
-    walletLabel,
     walletChainId,
+    walletLabel,
   } = useWeb3Connection()
   const currentNetwork = useMemo(() => chainsConfig[walletChainId as ChainsValues], [walletChainId])
   const [showNetworkModal, setShowNetworkModal] = useState(false)
