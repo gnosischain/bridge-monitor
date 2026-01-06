@@ -711,7 +711,7 @@ export const useBridgeTransactionInfo = ({
   const { data: tokenMode } = useTokenMode(fromChainId, toChainId, token)
   const { data: userBalancesData } = useUserTokenBalances({
     userAddress: userAddress,
-    allowanceAddress: getBridgeContract(fromChainId, toChainId, token.address).address,
+    allowanceAddress: getBridgeContractAddress(fromChainId, toChainId, token.address),
     chainId: fromChainId,
     tokenAddress: token.address,
   })

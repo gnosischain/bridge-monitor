@@ -8,7 +8,6 @@ import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactio
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { formatUnits } from 'ethers/lib/utils'
 import { ChainsValues } from '@/src/constants/config/types'
-import { BigNumber } from 'ethers'
 import { Token } from '@/types/token'
 import { ZERO_BN } from '@/src/constants/misc'
 import { fromBN } from '@/src/utils/bigNumber'
@@ -98,7 +97,7 @@ export const TxPreview: React.FC<{
   fromChainId: ChainsValues
   toChainId: ChainsValues
   token: Token
-  amount: BigNumber
+  amount: bigint
   receiveNativeToken: boolean
   recipient: string
   tokenOut: Token
@@ -124,7 +123,7 @@ export const TxPreview: React.FC<{
     const { data: requiredBlocks } = useBridgeRequiredBlocks(fromChainId, isNativeBridge)
     if (!requiredBlocks) throw new Error('Required blocks are not available')
 
-    const { data: feeInfo } = useBridgeFee({
+    const feeInfo = useBridgeFee({
       amount,
       isFromHome,
       isNativeBridge,
@@ -166,7 +165,7 @@ export const TxPreview: React.FC<{
       )
     }
 
-    const tokenOutAmount = formatUnits(amount.sub(feeInfo || ZERO_BN), tokenOut?.decimals)
+    const tokenOutAmount = formatUnits(amount - (feeInfo || ZERO_BN), tokenOut?.decimals)
     const estimatedTime = requiredBlocks.estimatedTimeInSeconds || 0
     const estimatedTotalGas = `${fromBN(
       transactionData.gasLimit.mul(transactionData.gasPrice),
