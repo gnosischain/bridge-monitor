@@ -7,7 +7,7 @@ import {
 } from 'wagmi'
 import { Address } from 'viem'
 import { toast } from 'react-hot-toast'
-import { useWallet } from '../context/WalletContext'
+import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 
 export interface TransactionCall {
   to: Address
@@ -43,7 +43,7 @@ const initialProgress: TransactionProgress = {
 }
 
 export function useTransaction(options?: UseTransactionOptions): UseTransactionReturn {
-  const { canBatch } = useWallet()
+  const { canBatch } = useWeb3Connection()
   const { data: callsData, error: sendCallsError, mutate: mutateCalls } = useSendCalls()
   const { data: txHash, error: sendTxError, mutate: mutateTransaction } = useSendTransaction()
 

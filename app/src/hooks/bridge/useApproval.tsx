@@ -1,34 +1,48 @@
-import useTransaction from '@/src/hooks/useTransaction'
+import { TransactionCall, useTransaction } from '@/src/hooks/useTransaction'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { ERC20__factory } from '@/types/typechain/factories/ERC20__factory'
-import { BigNumberish } from 'ethers'
 import { useCallback } from 'react'
+import { encodeFunctionData } from 'viem'
 
 type Approval = {
-  tokenAddress: string
-  amount: BigNumberish
-  spenderAddress: string | null
+  tokenAddress: `0x${string}`
+  amount: bigint
+  spenderAddress: `0x${string}` | null
   infinite?: boolean
 }
 
+const buildApproveCall = (
+  tokenAddress: `0x${string}`,
+  spenderAddress: `0x${string}`,
+  amount: bigint,
+): TransactionCall => {
+  const callData = encodeFunctionData({
+    abi: ERC20__factory.abi,
+    functionName: 'approve',
+    args: [spenderAddress, amount],
+  })
+  return {
+    to: tokenAddress,
+    data: callData,
+    title: 'Approve token',
+  }
+}
+
 export const useApproval = () => {
-  const { address, web3Provider } = useWeb3Connection()
-  const sendTx = useTransaction()
-  const signer = web3Provider?.getSigner()
+  const { address } = useWeb3Connection()
+  const { execute } = useTransaction()
 
   return useCallback(
     async ({ amount, spenderAddress = address, tokenAddress }: Approval) => {
-      if (!signer || !spenderAddress) {
-        throw new Error('No signer or spenderAddress or tokenAddress found')
+      if (!spenderAddress) {
+        throw new Error('No spenderAddress or tokenAddress found')
       }
-      const erc20 = ERC20__factory.connect(tokenAddress, signer)
-      const approve = () => erc20.approve(spenderAddress, amount)
       try {
-        return sendTx(approve)
+        return execute([buildApproveCall(tokenAddress, spenderAddress, amount)])
       } catch (e) {
         console.error(e)
       }
     },
-    [address, sendTx, signer],
+    [address, execute],
   )
 }
