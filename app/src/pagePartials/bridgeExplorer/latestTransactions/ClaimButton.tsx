@@ -215,6 +215,7 @@ export const ClaimButton = ({
     } catch (e) {
       // If the method reverts, the withdrawal was likely already executed.
       // In this case, the user should be notified that the withdrawal was already executed.
+      console.log('e', e)
       notify({
         type: ToastStates.failed,
         message: 'Failed to claim - it might have already been claimed',

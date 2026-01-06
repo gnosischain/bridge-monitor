@@ -14,13 +14,9 @@ import {
 import nullthrows from 'nullthrows'
 import { useChainId, useConnection, useSwitchChain } from 'wagmi'
 
-import { INITIAL_APP_CHAIN_ID, chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
+import { INITIAL_APP_CHAIN_ID, chainsConfig } from '@/src/constants/config/chains'
 import { Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
-import {
-  recoverLocalStorageKey,
-  removeLocalStorageKey,
-  setLocalStorageKey,
-} from '@/src/hooks/usePersistedState'
+import { removeLocalStorageKey, setLocalStorageKey } from '@/src/hooks/usePersistedState'
 import { getSupportedNetworks } from '@/src/utils/getSupportedNetworks'
 import { isValidChain } from '@/src/utils/tools'
 import { RequiredNonNull } from '@/types/utils'

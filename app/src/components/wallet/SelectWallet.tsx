@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { gnosis } from 'viem/chains'
 import { Connector, useConnect, useConnectors } from 'wagmi'
 import styled from 'styled-components'
+import Image from 'next/image'
 
 const Container = styled.div`
   display: flex;
@@ -237,7 +238,7 @@ export function SelectWallet() {
             >
               <IconWrapper>
                 {connector.icon ? (
-                  <img alt={connector.name} src={connector.icon} />
+                  <Image alt={connector.name} src={connector.icon} />
                 ) : (
                   <DefaultIcon>{connector.name.charAt(0).toUpperCase()}</DefaultIcon>
                 )}
