@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
-import { BigNumber } from 'ethers'
 import { ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
-import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
+import { getBridgeContractAddress } from '@/src/hooks/bridge/useBridgeContracts'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { Button } from './Button'
 import { ButtonPlaceholderWithWarning } from './ButtonPlaceholderWithWarning'
@@ -13,7 +12,7 @@ interface ApproveButtonProps {
   fromChainId: ChainsValues
   toChainId: ChainsValues
   token: Token
-  amount: BigNumber
+  amount: bigint
 }
 
 export const ApproveButton: React.FC<ApproveButtonProps> = ({
@@ -27,8 +26,7 @@ export const ApproveButton: React.FC<ApproveButtonProps> = ({
 
   const approve = useApproval()
 
-  const bridgeContract = getBridgeContract(fromChainId, toChainId, token.address)
-  const bridgeAddress = bridgeContract.address
+  const bridgeAddress = getBridgeContractAddress(fromChainId, toChainId, token.address)
 
   const { mutate: refreshBalance } = useUserTokenBalances({
     userAddress,

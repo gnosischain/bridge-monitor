@@ -10,7 +10,7 @@ import useBridgeLimits from '@/src/hooks/bridge/useBridgeLimits'
 import { EURCe_GNOSIS, USDCe_GNOSIS, ZERO_BN } from '@/src/constants/misc'
 import { formatNumber } from '@/src/utils/format'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
-import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
+import { getBridgeContractAddress } from '@/src/hooks/bridge/useBridgeContracts'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
 import useWeb3Name from '../useWeb3Name'
@@ -32,14 +32,8 @@ export const useBridgeValidations = ({
   toToken: Token | undefined
   recipient?: string
 }) => {
-  const { readOnlyAppProvider } = useWeb3Connection()
+  const { isSCWallet } = useWeb3Connection()
 
-  const isSCWallet = useSWR(
-    userAddress && readOnlyAppProvider
-      ? [`isSCWallet-${userAddress}`, userAddress, readOnlyAppProvider]
-      : null,
-    ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
-  )
   const { data: bridgeLimits, isLoading } = useBridgeLimits(
     fromChainId,
     toChainId,
@@ -50,13 +44,12 @@ export const useBridgeValidations = ({
 
   const { data: tokenMode } = useTokenMode(fromChainId, toChainId, fromToken)
 
-  const bridgeContract = getBridgeContract(fromChainId, toChainId, fromToken.address)
-  const bridgeAddress = bridgeContract.address
+  const bridgeContractAddress = getBridgeContractAddress(fromChainId, toChainId, fromToken.address)
 
   const { data: userBalanceData } = useUserTokenBalances({
     userAddress,
     chainId: fromChainId,
-    allowanceAddress: bridgeAddress,
+    allowanceAddress: bridgeContractAddress,
     tokenAddress: fromToken.address,
   })
   if (!userBalanceData) throw new Error('User balance data is not available')
@@ -98,7 +91,7 @@ export const useBridgeValidations = ({
       }
 
       // is the wallet is a smart contract wallet, we need to request a recipient
-      if (isSCWallet !== undefined && isSCWallet.data && !recipient) {
+      if (isSCWallet && !recipient) {
         throw Error('Please specify a recipient address')
       }
       if (!isValidAmount) {
@@ -161,7 +154,6 @@ export const useBridgeValidations = ({
   const isValidToSend = !errorMessage && isValidAmount && isValidToken && !isCustomERC20Home
 
   return {
-    isSCWallet: isSCWallet?.data,
     errorMessage,
     shouldApprove: tokenMode !== 'ERC677' && userBalanceData.allowance && amount && approvalNeeded,
     isValidToSend,

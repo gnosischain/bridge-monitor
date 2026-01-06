@@ -12,7 +12,7 @@ import {
   useState,
 } from 'react'
 import nullthrows from 'nullthrows'
-import { useCapabilities, useChainId, useConnection, useSwitchChain } from 'wagmi'
+import { useBytecode, useCapabilities, useChainId, useConnection, useSwitchChain } from 'wagmi'
 
 import { INITIAL_APP_CHAIN_ID, chainsConfig } from '@/src/constants/config/chains'
 import { Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
@@ -42,6 +42,7 @@ export type Web3Context = {
   walletLabel: string | null
   isOnboardChangingChain: boolean
   canBatch: boolean
+  isSCWallet: boolean
 }
 
 export type Web3Connected = RequiredNonNull<Web3Context>
@@ -57,6 +58,8 @@ export default function Web3ConnectionProvider({ children }: Props) {
   const chainId = useChainId()
   const { isPending: isSwitchingChain, mutateAsync: switchChainAsync } = useSwitchChain()
   const capabilities = useCapabilities({ account: wagmiAddress })
+  const { data: byteCode } = useBytecode({ address: wagmiAddress })
+  const isSCWallet = byteCode !== '0x' && byteCode !== undefined && !byteCode.startsWith('0xef0100')
 
   const [appChainId, setAppChainId] = useState(INITIAL_APP_CHAIN_ID)
 
@@ -141,6 +144,7 @@ export default function Web3ConnectionProvider({ children }: Props) {
     canBatch:
       capabilities?.data?.[chainId ?? 0]?.atomic?.status === 'supported' ||
       capabilities?.data?.[chainId ?? 0]?.atomic?.status === 'ready',
+    isSCWallet,
   }
 
   return <Web3ContextConnection.Provider value={value}>{children}</Web3ContextConnection.Provider>

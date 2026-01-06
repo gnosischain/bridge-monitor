@@ -7,7 +7,7 @@ import { Token } from '@/types/token'
 import { BigNumber } from 'ethers'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import React from 'react'
-import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
+import { getBridgeContractAddress } from '@/src/hooks/bridge/useBridgeContracts'
 import useWeb3Name from '@/src/hooks/useWeb3Name'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
 
@@ -31,8 +31,7 @@ export const BridgeSummary: React.FC<{
     tokenOut,
     userAddress,
   }) => {
-    const bridgeContract = getBridgeContract(fromChainId, toChainId, token.address)
-    const bridgeAddress = bridgeContract.address
+    const bridgeContractAddress = getBridgeContractAddress(fromChainId, toChainId, token.address)
 
     const { resolvedAddress } = useWeb3Name({
       name: isValidDomainName(recipient) ? recipient : undefined,
@@ -41,7 +40,7 @@ export const BridgeSummary: React.FC<{
 
     const { data: addressBalances } = useUserTokenBalances({
       userAddress,
-      allowanceAddress: bridgeAddress,
+      allowanceAddress: bridgeContractAddress,
       chainId: fromChainId,
       tokenAddress: token.address,
     })

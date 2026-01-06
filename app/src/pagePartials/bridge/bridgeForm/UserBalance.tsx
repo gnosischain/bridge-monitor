@@ -9,7 +9,7 @@ import { formatUnits } from 'ethers/lib/utils'
 import styled from 'styled-components'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
-import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
+import { getBridgeContractAddress } from '@/src/hooks/bridge/useBridgeContracts'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -68,7 +68,7 @@ const Balance: React.FC<{
         </BalanceWrapper>
         {$onMax && (
           <MaxButton
-            disabled={balance?.isZero()}
+            disabled={balance === 0n}
             onClick={() => $onMax(formatUnits(balance, $token.decimals))}
           />
         )}
@@ -123,12 +123,12 @@ export const UserBalance: React.FC<{
     )
   }
 
-  const bridgeContract = getBridgeContract($fromChainId, $toChainId, $token.address)
+  const bridgeContractAddress = getBridgeContractAddress($fromChainId, $toChainId, $token.address)
 
   return (
     <Balance
       $address={$address}
-      $allowanceAddress={bridgeContract.address}
+      $allowanceAddress={bridgeContractAddress}
       $chainId={$fromChainId}
       $onMax={$onMax}
       $token={$token}
