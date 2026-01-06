@@ -6,7 +6,7 @@ import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { getNetworkConfig } from '@/src/constants/config/chains'
 import { useEffect, useState } from 'react'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
-import useTransaction from '@/src/hooks/useTransaction'
+import { useTransaction } from '@/src/hooks/useTransaction'
 import { BigNumber } from 'ethers'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import useWeb3Name from '@/src/hooks/useWeb3Name'
@@ -15,7 +15,6 @@ import { TokenUsdc } from './types'
 import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { useTransmuterTxInfo } from '@/src/hooks/usdcTransmuter/useTransmuterTxInfo'
 import { usdcTokens } from '@/src/constants/usdcTokens'
-import useSWR from 'swr'
 
 const Button = styled(ButtonFull)`
   margin: 0 auto;
@@ -40,11 +39,7 @@ export const ButtonPlaceholder: React.FC = () => <Button disabled>Loading...</Bu
 export const ButtonPlaceholderWithWarning: React.FC<{
   action: string
 }> = ({ action }) => {
-  const { address, readOnlyAppProvider } = useWeb3Connection()
-  const isSCWallet = useSWR(
-    address && readOnlyAppProvider ? [`isSCWallet-${address}`, address, readOnlyAppProvider] : null,
-    ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
-  ).data
+  const { isSCWallet } = useWeb3Connection()
 
   return (
     <>
@@ -68,7 +63,7 @@ export const DisabledTransButton = () => (
 const ApproveButton: React.FC<{
   userAddress: string
   token: TokenUsdc
-  amount: BigNumber
+  amount: bigint
 }> = ({ amount, token, userAddress }) => {
   const [isSending, setIsSending] = useState(false)
   const [isComponentMounted, setIsComponentMounted] = useState(true)
@@ -128,7 +123,7 @@ const ApproveButton: React.FC<{
 }
 
 const TriggerTransButton: React.FC<{
-  amount: BigNumber
+  amount: bigint
   token: TokenUsdc
   userAddress: string
   clearForm: () => void
@@ -136,8 +131,7 @@ const TriggerTransButton: React.FC<{
   const [isSending, setIsSending] = useState(false)
   const [isComponentMounted, setIsComponentMounted] = useState(true)
 
-  const { walletChainId, web3Provider } = useWeb3Connection()
-  if (!web3Provider) throw new Error('No web3 provider available')
+  const { walletChainId } = useWeb3Connection()
   if (walletChainId !== Chains.gnosis) throw new Error('Invalid chain')
 
   const sendTx = useTransaction()
@@ -206,7 +200,7 @@ const TriggerTransButton: React.FC<{
 }
 
 export const TransButton: React.FC<{
-  amount: BigNumber
+  amount: bigint
   fromToken: TokenUsdc
   userAddress: string
   clearForm: () => void

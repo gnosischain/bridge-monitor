@@ -1,4 +1,4 @@
-import { BigNumber, Signer, ethers } from 'ethers'
+import { ethers } from 'ethers'
 import { Chains } from '@/src/constants/config/types'
 import useSWR from 'swr'
 import { USDC_XDAI_OLD, ZERO_BN } from '@/src/constants/misc'
@@ -11,12 +11,10 @@ export const getTransTx = async ({
   account,
   amount,
   returnZero,
-  signer,
   tokenAddress,
 }: {
   account: string
-  amount: BigNumber
-  signer: Signer
+  amount: bigint
   tokenAddress: string
   returnZero?: boolean
 }) => {
@@ -31,7 +29,7 @@ export const getTransTx = async ({
     }
   }
 
-  if (amount.lte(0) || !account) {
+  if (amount <= 0n || !account) {
     return {
       gasLimit: ZERO_BN,
       gasPrice: ZERO_BN,
@@ -68,14 +66,12 @@ export const useTransmuterTxInfo = ({
   token,
   userAddress,
 }: {
-  amount: BigNumber
+  amount: bigint
   token: TokenUsdc
   userAddress: string
   returnZero?: boolean
 }) => {
-  const { walletChainId, web3Provider } = useWeb3Connection()
-  if (!web3Provider) throw new Error('No web3 provider available')
-  const signer = web3Provider.getSigner()
+  const { walletChainId } = useWeb3Connection()
   if (walletChainId !== Chains.gnosis) throw new Error('Invalid chain')
 
   const { data: transactionData } = useSWR(
@@ -89,7 +85,7 @@ export const useTransmuterTxInfo = ({
         }
       }
 
-      if (_amount.lte(0)) {
+      if (_amount <= 0n) {
         return {
           gasLimit: ZERO_BN,
           gasPrice: ZERO_BN,
@@ -99,7 +95,6 @@ export const useTransmuterTxInfo = ({
       const { gasLimit, gasPrice, tx } = await getTransTx({
         account: _userAddress,
         amount: _amount,
-        signer,
         tokenAddress: _token.address,
       })
 

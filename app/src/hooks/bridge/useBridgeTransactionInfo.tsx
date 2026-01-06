@@ -8,7 +8,7 @@ import {
   ERC677__factory,
   ForeignBridgeErcToNative,
   ForeignOmniMediator,
-  HomeOmniMediator
+  HomeOmniMediator,
 } from '@/types/typechain'
 import { contracts } from '@/src/constants/config/contracts'
 import { TOKEN_MODE, useTokenMode } from '@/src/hooks/bridge/useTokenMode'
@@ -57,12 +57,9 @@ const handleNativeTokenFromForeign = async ({
 }) => {
   // Using the default estimateGas calculation using the minimum ETH amount (0.000000000000000001) to avoid crash when the user tries to bridge all the balance of the native tokens
   // TODO: There should be a better way to handle this.
-  const gasLimit = await bridgeContract.estimateGas['wrapAndRelayTokens(address)'](
-    walletAddress,
-    {
-      value: amount.toString(),
-    },
-  )
+  const gasLimit = await bridgeContract.estimateGas['wrapAndRelayTokens(address)'](walletAddress, {
+    value: amount.toString(),
+  })
 
   return {
     gasLimit,

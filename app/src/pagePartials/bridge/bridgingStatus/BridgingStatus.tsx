@@ -18,7 +18,6 @@ import { formatNumber } from '@/src/utils/format'
 import { formatUnits } from 'ethers/lib/utils'
 import { useTokenInfo } from '@/src/hooks/bridge/useTokenInfo'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import useSWR from 'swr'
 
 const InnerWrapper = styled.div`
   max-width: 644px;
@@ -234,12 +233,8 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
 
   const isBridgeComplete = progressData?.progress === 100
 
-  const { address, readOnlyAppProvider } = useWeb3Connection()
+  const { address, isSCWallet } = useWeb3Connection()
 
-  const isSCWallet = useSWR(
-    address && readOnlyAppProvider ? [`isSCWallet-${address}`, address, readOnlyAppProvider] : null,
-    ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
-  ).data
   const myTxsLink = `/bridge-explorer/my-transactions?hash=${address}`
 
   return (
