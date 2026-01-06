@@ -16,12 +16,9 @@ import { useChainId, useConnection, useSwitchChain } from 'wagmi'
 
 import { INITIAL_APP_CHAIN_ID, chainsConfig } from '@/src/constants/config/chains'
 import { Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
-import { removeLocalStorageKey, setLocalStorageKey } from '@/src/hooks/usePersistedState'
 import { getSupportedNetworks } from '@/src/utils/getSupportedNetworks'
 import { isValidChain } from '@/src/utils/tools'
 import { RequiredNonNull } from '@/types/utils'
-
-const STORAGE_CONNECTED_WALLET = 'wagmi_connectedWallet'
 
 // Default chain id from env var
 nullthrows(
@@ -77,13 +74,6 @@ export default function Web3ConnectionProvider({ children }: Props) {
     }
   }, [walletChainId, isWalletNetworkSupported])
 
-  // Save connected wallet label to localstorage
-  useEffect(() => {
-    if (connector && isConnected) {
-      setLocalStorageKey(STORAGE_CONNECTED_WALLET, connector.name)
-    }
-  }, [connector, isConnected])
-
   const getExplorerUrl = useMemo(() => {
     return (hash: string, network = 'mainnet') => {
       const chain = Object.entries(Chains).find(
@@ -110,7 +100,6 @@ export default function Web3ConnectionProvider({ children }: Props) {
   }, [])
 
   const handleDisconnectWallet = async () => {
-    removeLocalStorageKey(STORAGE_CONNECTED_WALLET)
     connector?.disconnect()
   }
 
