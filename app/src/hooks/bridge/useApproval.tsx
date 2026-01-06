@@ -5,24 +5,24 @@ import { useCallback } from 'react'
 import { encodeFunctionData } from 'viem'
 
 type Approval = {
-  tokenAddress: `0x${string}`
+  tokenAddress: string
   amount: bigint
-  spenderAddress: `0x${string}` | null
+  spenderAddress: string | null
   infinite?: boolean
 }
 
 const buildApproveCall = (
-  tokenAddress: `0x${string}`,
-  spenderAddress: `0x${string}`,
+  tokenAddress: string,
+  spenderAddress: string,
   amount: bigint,
 ): TransactionCall => {
   const callData = encodeFunctionData({
     abi: ERC20__factory.abi,
     functionName: 'approve',
-    args: [spenderAddress, amount],
+    args: [spenderAddress as `0x${string}`, amount],
   })
   return {
-    to: tokenAddress,
+    to: tokenAddress as `0x${string}`,
     data: callData,
     title: 'Approve token',
   }
