@@ -7,17 +7,14 @@ import {
   ERC677,
   ERC677__factory,
   ForeignBridgeErcToNative,
-  ForeignBridgeRouter,
   ForeignOmniMediator,
-  HomeBridgeErcToNative,
-  HomeOmniMediator,
-  NativeOmniBridgeMediator,
+  HomeOmniMediator
 } from '@/types/typechain'
 import { contracts } from '@/src/constants/config/contracts'
 import { TOKEN_MODE, useTokenMode } from '@/src/hooks/bridge/useTokenMode'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
-import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
+import { getBridgeContractAddress } from '@/src/hooks/bridge/useBridgeContracts'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { isSameString } from '@/src/utils/tools'
 import { defaultAbiCoder } from 'ethers/lib/utils'
@@ -43,7 +40,7 @@ import { USDS_ADDRESS } from '@/src/constants/config/common'
 /**
  * Handles the wrapping and relaying of native tokens from the foreign chain to the home chain using the bridge contract.
  *
- * @param bridgeContract - NativeOmniBridgeMediator (Native Omni Bridge)
+ * @param bridgeContractAddress - NativeOmniBridgeMediator (Native Omni Bridge)
  * @param signer - The signer object used for signing transactions.
  * @param amount - The amount of tokens to be wrapped and relayed.
  * @param walletAddress - (Optional) The recipient address on the home chain. If not provided, the signer's address will be used.
@@ -51,10 +48,10 @@ import { USDS_ADDRESS } from '@/src/constants/config/common'
  */
 const handleNativeTokenFromForeign = async ({
   amount,
-  bridgeContract,
+  bridgeContractAddress,
   walletAddress,
 }: {
-  bridgeContract: NativeOmniBridgeMediator
+  bridgeContractAddress: string
   amount: bigint
   walletAddress: string
 }) => {
@@ -81,20 +78,20 @@ const handleNativeTokenFromForeign = async ({
 /**
  * Handles the transfer of native tokens from the home bridge contract.
  *
- * @param bridgeContract - The HomeBridgeErcToNative contract instance (xDAI Bridge).
+ * @param bridgeContractAddress - The HomeBridgeErcToNative contract instance (xDAI Bridge).
  * @param amount - The amount of tokens to transfer.
  * @param recipient - Optional recipient address for the transfer.
  * @returns An object containing the gas limit and a transaction function.
  */
 const handleNativeTokenFromHome = async ({
   amount,
-  bridgeContract,
+  bridgeContractAddress,
   fromChainId,
   recipient,
   toTokenAddress,
   userAddress,
 }: {
-  bridgeContract: HomeBridgeErcToNative
+  bridgeContractAddress: string
   amount: bigint
   userAddress: string
   fromChainId: ChainsValues
@@ -103,7 +100,6 @@ const handleNativeTokenFromHome = async ({
 }) => {
   // Using the default estimateGas calculation using the minimum xDAI amount (10) to avoid crash when the user tries to bridge all the balance of the native tokens
   // TODO: There should be a better way to handle this.
-
   if (toTokenAddress && isSameString(toTokenAddress, USDS_ADDRESS)) {
     const usdsDepositAddress = contracts.USDSDeposit.address[fromChainId]
     if (!usdsDepositAddress) {
@@ -156,7 +152,7 @@ const handleNativeTokenFromHome = async ({
 /**
  * Handles the transfer of ERC20 tokens from foreign chain.
  * If the token is DAI, the transfer will be made using the xDAI bridge.
- * @param bridgeContract The bridge contract instance (ForeignOmniMediator or ForeignBridgeErcToNative).
+ * @param bridgeContractAddress The bridge contract instance (ForeignOmniMediator or ForeignBridgeErcToNative).
  * @param amount The amount of tokens to transfer.
  * @param tokenAddress The address of the ERC20 token.
  * @param isDAI Optional. Indicates if the token is DAI.
@@ -166,14 +162,14 @@ const handleNativeTokenFromHome = async ({
 const handleERC20TokenFromForeign = async ({
   allowance,
   amount,
-  bridgeContract,
+  bridgeContractAddress,
   isDAI,
   recipient,
   tokenAddress,
   tokenMode,
   userAddress,
 }: {
-  bridgeContract: ForeignOmniMediator | ForeignBridgeErcToNative
+  bridgeContractAddress: string
   amount: bigint
   tokenAddress: string
   allowance: bigint
@@ -278,7 +274,7 @@ const handleERC20TokenFromForeign = async ({
 /**
  * Handles the transfer of ERC20 tokens from home.
  * If the token is compatible with ERC677/ERC827, it uses the transferAndCall method and avoids the approve step.
- * @param bridgeContract The HomeOmniMediator contract instance.
+ * @param bridgeContractAddress The HomeOmniMediator contract instance.
  * @param amount The amount of tokens to transfer.
  * @param tokenAddress The address of the token contract.
  * @param walletAddress Optional. The address of the recipient. If not provided, the tokens will be transferred to the bridge contract.
@@ -288,7 +284,7 @@ const handleERC20TokenFromForeign = async ({
 const handleERC20TokenFromHome = async ({
   allowance,
   amount,
-  bridgeContract,
+  bridgeContractAddress,
   receiveNativeToken,
   recipient,
   toChainId,
@@ -296,7 +292,7 @@ const handleERC20TokenFromHome = async ({
   tokenMode,
   userAddress,
 }: {
-  bridgeContract: HomeOmniMediator
+  bridgeContractAddress: string
   amount: bigint
   tokenAddress: string
   tokenMode: TOKEN_MODE
@@ -385,7 +381,7 @@ const handleERC20TokenFromHome = async ({
 
 /**
  * Handles the transfer of ERC20 tokens from foreign chain.
- * @param bridgeContract The bridge contract instance (ForeignOmniMediator).
+ * @param bridgeContractAddress The bridge contract instance (ForeignOmniMediator).
  * @param amount The amount of tokens to transfer.
  * @param tokenAddress The address of the ERC20 token.
  * @param isDAI Optional. Indicates if the token is DAI.
@@ -395,13 +391,13 @@ const handleERC20TokenFromHome = async ({
 const handleUsdceFromHome = async ({
   allowance,
   amount,
-  bridgeContract,
+  bridgeContractAddress,
   recipient,
   tokenAddress,
   tokenMode,
   userAddress,
 }: {
-  bridgeContract: HomeOmniMediator
+  bridgeContractAddress: string
   amount: bigint
   tokenAddress: string
   allowance: bigint
@@ -453,7 +449,7 @@ const handleUsdceFromHome = async ({
 
 /**
  * Handles the transfer of ERC20 tokens from foreign chain.
- * @param bridgeContract The bridge contract instance (ForeignOmniMediator).
+ * @param bridgeContractAddress The bridge contract instance (ForeignOmniMediator).
  * @param amount The amount of tokens to transfer.
  * @param tokenAddress The address of the ERC20 token.
  * @param isDAI Optional. Indicates if the token is DAI.
@@ -463,13 +459,13 @@ const handleUsdceFromHome = async ({
 const handleUsdcFromForeign = async ({
   allowance,
   amount,
-  bridgeContract,
+  bridgeContractAddress,
   recipient,
   tokenAddress,
   tokenMode,
   userAddress,
 }: {
-  bridgeContract: ForeignOmniMediator
+  bridgeContractAddress: string
   amount: bigint
   tokenAddress: string
   allowance: bigint
@@ -521,7 +517,7 @@ const handleUsdcFromForeign = async ({
 
 /**
  * Handles the transfer of Dai and USDS tokens from foreign chain trough BridgeRouter
- * @param bridgeContract The bridge contract instance (ForeignBridgeRouter).
+ * @param bridgeContractAddress The bridge contract instance (ForeignBridgeRouter).
  * @param amount The amount of tokens to transfer.
  * @param tokenAddress The address of the ERC20 token.
  * @param recipient Optional. The recipient address.
@@ -530,12 +526,12 @@ const handleUsdcFromForeign = async ({
 const handleUsdsOrDaiFromForeign = async ({
   allowance,
   amount,
-  bridgeContract,
+  bridgeContractAddress,
   recipient,
   tokenAddress,
   userAddress,
 }: {
-  bridgeContract: ForeignBridgeRouter
+  bridgeContractAddress: string
   amount: bigint
   tokenAddress: string
   allowance: bigint
@@ -596,7 +592,7 @@ export const getBridgeTx = async ({
   recipient?: string
   toTokenAddress?: string
 }) => {
-  const bridgeContract = getBridgeContract(fromChainId, toChainId, tokenAddress).connect(signer)
+  const bridgeContractAddress = getBridgeContractAddress(fromChainId, toChainId, tokenAddress)
 
   if (amount <= 0n || !account) {
     return {
@@ -621,7 +617,7 @@ export const getBridgeTx = async ({
   const { gasLimit, tx } =
     isUsdsEth || isDaiEth
       ? await handleUsdsOrDaiFromForeign({
-          bridgeContract: bridgeContract as ForeignBridgeRouter,
+          bridgeContractAddress,
           amount,
           tokenAddress,
           userAddress: account,
@@ -630,7 +626,7 @@ export const getBridgeTx = async ({
         })
       : isUsdceGnosis
       ? await handleUsdceFromHome({
-          bridgeContract: bridgeContract as HomeOmniMediator,
+          bridgeContractAddress,
           amount,
           tokenAddress,
           userAddress: account,
@@ -640,7 +636,7 @@ export const getBridgeTx = async ({
         })
       : isUsdcEth
       ? await handleUsdcFromForeign({
-          bridgeContract: bridgeContract as ForeignOmniMediator,
+          bridgeContractAddress,
           amount,
           tokenAddress,
           allowance,
@@ -651,7 +647,7 @@ export const getBridgeTx = async ({
       : isNativeToken
       ? isFromHome
         ? await handleNativeTokenFromHome({
-            bridgeContract: bridgeContract as HomeBridgeErcToNative,
+            bridgeContractAddress,
             amount,
             recipient,
             fromChainId,
@@ -659,13 +655,13 @@ export const getBridgeTx = async ({
             toTokenAddress,
           })
         : await handleNativeTokenFromForeign({
-            bridgeContract: bridgeContract as NativeOmniBridgeMediator,
+            bridgeContractAddress,
             amount,
             walletAddress: recipient || account,
           })
       : isFromHome
       ? await handleERC20TokenFromHome({
-          bridgeContract: bridgeContract as HomeOmniMediator,
+          bridgeContractAddress,
           amount,
           tokenAddress,
           toChainId,
@@ -676,7 +672,7 @@ export const getBridgeTx = async ({
           allowance,
         })
       : await handleERC20TokenFromForeign({
-          bridgeContract: bridgeContract as ForeignOmniMediator,
+          bridgeContractAddress,
           amount,
           tokenAddress,
           allowance,
