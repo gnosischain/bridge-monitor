@@ -6,9 +6,10 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline';
-    style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data:;
-    font-src 'self';
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    img-src 'self' blob: data: https://assets.coingecko.com;
+    font-src 'self' https://fonts.gstatic.com;
+    connect-src 'self' https://indexer.hyperindex.xyz https://rpc.gnosischain.com/ https://tokens.coingecko.com https://rpc.ankr.com/eth https://ethereum-rpc.publicnode.com/;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
@@ -19,6 +20,9 @@ const cspHeader = `
 /** @type {import("next").NextConfig} */
 module.exports = withBundleAnalyzer({
   reactStrictMode: false,
+  compiler: {
+    styledComponents: true,
+  },
   i18n: {
     locales: ['en'],
     defaultLocale: 'en',
