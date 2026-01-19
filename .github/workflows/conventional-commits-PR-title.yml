@@ -12,6 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Lint pull request title
-        uses: jef/conventional-commits-pr-action@8f48e69558162e9b8dd9c28acec97879629cd247 # v1.1.1
+        uses: jef/conventional-commits-pr-action@2ee589f151916f92da5e2887c38d5fe6402e803c # v1.3.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
