@@ -34,7 +34,8 @@ export const useLookupBridgedToken = ({
   const normalizedTokenAddress = tokenAddress?.toLowerCase() as `0x${string}`
   const isXdaiBridge = (bridgeName ?? '').toUpperCase() === 'XDAI'
   const isNativeAddress =
-    normalizedTokenAddress === ZERO_ADDRESS || isSameString(normalizedTokenAddress, NATIVE_TOKEN_ADDRESS)
+    normalizedTokenAddress === ZERO_ADDRESS ||
+    isSameString(normalizedTokenAddress, NATIVE_TOKEN_ADDRESS)
   const isNativeInXdaiBridge = isXdaiBridge && isNativeAddress
   const xDaiBridgedToken = isNativeInXdaiBridge ? mainnetDaiToken : gnosisXdaiToken
 
@@ -93,7 +94,11 @@ export const useLookupBridgedToken = ({
 
     const [nameResult, symbolResult, decimalsResult] = contractData
 
-    if (nameResult?.status !== 'success' || symbolResult?.status !== 'success' || decimalsResult?.status !== 'success') {
+    if (
+      nameResult?.status !== 'success' ||
+      symbolResult?.status !== 'success' ||
+      decimalsResult?.status !== 'success'
+    ) {
       return undefined
     }
 
@@ -121,9 +126,7 @@ export const useLookupBridgedToken = ({
 
   const value = useMemo(
     () =>
-      token && tokenValue
-        ? formatNumber(Number(formatUnits(tokenValue, token.decimals)))
-        : '',
+      token && tokenValue ? formatNumber(Number(formatUnits(tokenValue, token.decimals))) : '',
     [token, tokenValue],
   )
   const initiatorToken = useMemo(() => token ?? defaultToken, [defaultToken, token])
