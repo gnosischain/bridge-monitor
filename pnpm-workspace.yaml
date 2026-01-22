@@ -1,0 +1,7 @@
+packages:
+  - "app"
+  - "envio-indexer"
+  - "subgraph"
+
+minimumReleaseAge: 4320
+trustPolicy: no-downgrade

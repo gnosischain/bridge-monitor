@@ -6,6 +6,9 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 /** @type {import("next").NextConfig} */
 module.exports = withBundleAnalyzer({
   reactStrictMode: false,
+  compiler: {
+    styledComponents: true,
+  },
   i18n: {
     locales: ['en'],
     defaultLocale: 'en',
@@ -31,5 +34,5 @@ module.exports = withBundleAnalyzer({
       },
     ],
   },
-  transpilePackages: ['@web3-name-sdk/core'],
+  transpilePackages: ['@web3-name-sdk/core']
 })

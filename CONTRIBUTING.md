@@ -59,13 +59,13 @@ The repository is a **monorepo**, containing:
 
    ```bash
    nvm use
-   yarn install
+   pnpm install
    ```
 
 3. Start the project:
 
    ```bash
-   yarn run dev
+   pnpm run dev
    ```
 
 This will launch the React application in development mode. Changes are reflected live.
@@ -104,7 +104,7 @@ To manually create a release, use the GitHub interface or CLI to tag the codebas
 
 Follow these guidelines to maintain consistency:
 
-- **Code**: Adhere to the project's linting and formatting rules. Run `yarn lint` to check for issues before submitting a PR.
+- **Code**: Adhere to the project's linting and formatting rules. Run `pnpm lint` to check for issues before submitting a PR.
 - **Documentation**: Ensure all new features and updates are reflected in the `README` or relevant documentation files.
 
 Refer to:
@@ -140,7 +140,7 @@ Refer to:
 3. Run the test suite:
 
    ```bash
-   yarn test
+   pnpm test
    ```
 
 ---
