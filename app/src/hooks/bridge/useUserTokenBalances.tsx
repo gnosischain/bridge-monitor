@@ -1,78 +1,83 @@
-import useSWR from 'swr'
 import { MAX_UINT_256, ZERO_BN } from '@/src/constants/misc'
-import { ERC20__factory } from '@/types/typechain'
-import { ChainsValues } from '@/src/constants/config/types'
-import { getNetworkConfig } from '@/src/constants/config/chains'
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { isNativeToken } from '@/src/utils/tools'
-import { BigNumber } from 'ethers'
+import { useBalance, useGasPrice, useReadContracts } from 'wagmi'
+import { erc20Abi } from 'viem'
 
 export const useUserTokenBalances = ({
   allowanceAddress,
-  chainId,
   tokenAddress,
   userAddress,
 }: {
   userAddress: string
-  chainId: ChainsValues
   allowanceAddress?: string
   tokenAddress?: string
 }) => {
-  return useSWR(
-    tokenAddress
-      ? ['tokenUserBalance', userAddress, tokenAddress, allowanceAddress, chainId]
-      : null,
-    async ([, _address, _tokenAddress, _allowanceAddress, _chainId]) => {
-      const _isNativeToken = isNativeToken(_tokenAddress)
+  const _isNativeToken = tokenAddress ? isNativeToken(tokenAddress) : false
 
-      const fromRpcProvider = new JsonRpcBatchProvider(getNetworkConfig(_chainId).rpcUrl)
-
-      try {
-        if (!_isNativeToken) {
-          const erc20 = ERC20__factory.connect(_tokenAddress, fromRpcProvider)
-
-          if (_allowanceAddress) {
-            const [balance, allowance] = await Promise.all([
-              erc20.balanceOf(_address),
-              erc20.allowance(_address, _allowanceAddress),
-            ])
-            return {
-              balance,
-              allowance,
-            }
-          } else {
-            const balance = await erc20.balanceOf(_address)
-            return {
-              balance,
-              allowance: MAX_UINT_256,
-            }
-          }
-        } else {
-          const gasPrice = await fromRpcProvider.getGasPrice()
-          const conservativeGasLimit = BigNumber.from('21000') // Adjust based on expected transaction complexity
-
-          const nativeBalance = await fromRpcProvider.getBalance(_address)
-          // Calculate the max sendable amount by subtracting the gas cost buffer from the balance
-          const maxSendableAmount = nativeBalance.sub(conservativeGasLimit.mul(gasPrice))
-
-          return {
-            balance: maxSendableAmount.gt(ZERO_BN) ? maxSendableAmount : ZERO_BN,
-            allowance: MAX_UINT_256,
-          }
-        }
-      } catch (error) {
-        console.log('Error fetching user token balances', error)
-        console.log('Params with error', {
-          allowanceAddress,
-          chainId,
-          tokenAddress,
-          userAddress,
-        })
-        return {
-          balance: ZERO_BN,
-          allowance: MAX_UINT_256,
-        }
-      }
+  // ERC20 token balance and allowance
+  const {
+    data: contractData,
+    error: contractError,
+    isLoading: isLoadingContracts,
+  } = useReadContracts({
+    contracts: [
+      {
+        address: tokenAddress as `0x${string}`,
+        abi: erc20Abi,
+        functionName: 'balanceOf',
+        args: [userAddress as `0x${string}`],
+      },
+      {
+        address: tokenAddress as `0x${string}`,
+        abi: erc20Abi,
+        functionName: 'allowance',
+        args: [userAddress as `0x${string}`, allowanceAddress as `0x${string}`],
+      },
+    ],
+    query: {
+      enabled: !!tokenAddress && !!userAddress && !_isNativeToken,
     },
-  )
+  })
+
+  // Native token balance
+  const { data: nativeBalance, isLoading: isLoadingNativeBalance, error: nativeBalanceError } = useBalance({
+    address: userAddress as `0x${string}`,
+    query: {
+      enabled: !!userAddress && _isNativeToken,
+    },
+  })
+
+  // Gas price for calculating max sendable amount
+  const { data: gasPrice } = useGasPrice({
+    query: {
+      enabled: _isNativeToken,
+    },
+  })
+
+  if (_isNativeToken) {
+    const conservativeGasLimit = 21000n
+    const maxSendableAmount =
+      nativeBalance?.value && gasPrice ? nativeBalance.value - conservativeGasLimit * gasPrice : 0n
+
+    return {
+      data: {
+        balance: maxSendableAmount > 0n ? maxSendableAmount : ZERO_BN,
+        allowance: MAX_UINT_256,
+      },
+      isLoading: isLoadingNativeBalance,
+      error: nativeBalanceError,
+    }
+  }
+
+  const balance = contractData?.[0]?.result ?? ZERO_BN
+  const allowance = allowanceAddress ? contractData?.[1]?.result ?? ZERO_BN : MAX_UINT_256
+
+  return {
+    data: {
+      balance,
+      allowance,
+    },
+    isLoading: isLoadingContracts,
+    error: contractError,
+  }
 }
