@@ -1,28 +1,17 @@
-import { useContractInstance } from '@/src/hooks/useContractInstance'
 import { Chains } from '@/src/constants/config/chains'
-import { ForeignBridgeErcToNative, ForeignBridgeErcToNative__factory } from '@/types/typechain'
-import { useContractCall } from '@/src/hooks/useContractCall'
+import { contracts } from '@/src/constants/config/contracts'
+import { ForeignBridgeErcToNative__factory } from '@/types/typechain'
 import { USDS_ADDRESS } from '@/src/constants/config/common'
 import { isSameString } from '@/src/utils/tools'
-import { useMemo } from 'react'
+import { useReadContract } from 'wagmi'
 
 export const useIsUsdsEnabled = () => {
-  const foreignXDAI = useContractInstance(
-    ForeignBridgeErcToNative__factory,
-    'XDAIBridge',
-    Chains.mainnet,
-  )
+  const { data: erc20Address } = useReadContract({
+    address: contracts.XDAIBridge.address[Chains.mainnet],
+    abi: ForeignBridgeErcToNative__factory.abi,
+    functionName: 'erc20token',
+    chainId: Chains.mainnet,
+  })
 
-  const erc20AddressCalls = [foreignXDAI.erc20token] as const
-  const [{ data: foreignXDAIContext }] = useContractCall<
-    ForeignBridgeErcToNative,
-    typeof erc20AddressCalls
-  >(erc20AddressCalls, [[]], 'foreignXDAIContext')
-
-  const isUsdsEnabled = useMemo(
-    () => isSameString(foreignXDAIContext?.[0], USDS_ADDRESS),
-    [foreignXDAIContext],
-  )
-
-  return isUsdsEnabled
+  return isSameString(erc20Address, USDS_ADDRESS)
 }
