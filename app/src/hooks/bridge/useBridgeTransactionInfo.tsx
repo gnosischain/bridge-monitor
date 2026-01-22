@@ -8,7 +8,10 @@ import {
   ERC677__factory,
   ForeignBridgeErcToNative,
   ForeignOmniMediator,
+  HomeBridgeErcToNative__factory,
   HomeOmniMediator,
+  NativeOmniBridgeMediator__factory,
+  USDSdeposit__factory,
 } from '@/types/typechain'
 import { contracts } from '@/src/constants/config/contracts'
 import { TOKEN_MODE, useTokenMode } from '@/src/hooks/bridge/useTokenMode'
@@ -17,10 +20,10 @@ import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { getBridgeContractAddress } from '@/src/hooks/bridge/useBridgeContracts'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { isSameString } from '@/src/utils/tools'
-import { defaultAbiCoder } from 'ethers/lib/utils'
 import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { USDS_ADDRESS } from '@/src/constants/config/common'
+import { encodeFunctionData } from 'viem'
 
 /**
  * isNativeToken && isFromForeign: use wrapAndRelayTokens (nativeOmniBridgeMediator) (no need approve: infinite approve) -> ETH -> WETH
@@ -46,7 +49,7 @@ import { USDS_ADDRESS } from '@/src/constants/config/common'
  * @param walletAddress - (Optional) The recipient address on the home chain. If not provided, the signer's address will be used.
  * @returns An object containing the gas limit and a transaction function.
  */
-const handleNativeTokenFromForeign = async ({
+const handleNativeTokenFromForeign = ({
   amount,
   bridgeContractAddress,
   walletAddress,
@@ -55,20 +58,16 @@ const handleNativeTokenFromForeign = async ({
   amount: bigint
   walletAddress: string
 }) => {
-  // Using the default estimateGas calculation using the minimum ETH amount (0.000000000000000001) to avoid crash when the user tries to bridge all the balance of the native tokens
-  // TODO: There should be a better way to handle this.
-  const gasLimit = await bridgeContract.estimateGas['wrapAndRelayTokens(address)'](walletAddress, {
-    value: amount.toString(),
+  const callData = encodeFunctionData({
+    abi: NativeOmniBridgeMediator__factory.abi,
+    functionName: 'wrapAndRelayTokens',
+    args: [walletAddress as `0x${string}`],
   })
-
   return {
-    gasLimit,
-    tx: async function () {
-      return bridgeContract['wrapAndRelayTokens(address)'](walletAddress, {
-        value: amount.toString(),
-        gasLimit,
-      })
-    },
+    to: bridgeContractAddress as `0x${string}`,
+    value: amount.toString(),
+    data: callData,
+    title: 'Wrap and relay tokens',
   }
 }
 
@@ -103,46 +102,39 @@ const handleNativeTokenFromHome = async ({
       throw new Error('USDSDeposit address not configured for this chain')
     }
 
-    const usdsDeposit = new Contract(usdsDepositAddress, contracts.USDSDeposit.abi, signer)
     const targetRecipient = recipient || userAddress
 
-    const gasLimit = await usdsDeposit.estimateGas.relayTokens(targetRecipient, {
-      value: amount.toString(),
+    const callData = encodeFunctionData({
+      abi: USDSdeposit__factory.abi,
+      functionName: 'relayTokens',
+      args: [targetRecipient as `0x${string}`],
     })
-
     return {
-      gasLimit,
-      tx: async function () {
-        return usdsDeposit.relayTokens(targetRecipient, {
-          value: amount.toString(),
-          gasLimit,
-        })
-      },
+      to: usdsDepositAddress as `0x${string}`,
+      value: amount.toString(),
+      data: callData,
+      title: 'Relay tokens',
     }
   }
 
-  const gasLimit = recipient
-    ? await bridgeContract.estimateGas.relayTokens(recipient, {
-        value: amount.toString(),
-      })
-    : await signer.estimateGas({
-        to: bridgeContract.address,
-        from: userAddress,
-        value: amount.toString(),
-      })
-
-  return {
-    gasLimit,
-    tx: async function () {
-      return recipient
-        ? bridgeContract.relayTokens(recipient, {
-            value: amount.toString(),
-          })
-        : signer.sendTransaction({
-            to: bridgeContract.address,
-            value: amount.toString(),
-          })
-    },
+  if (recipient) {
+    const callData = encodeFunctionData({
+      abi: HomeBridgeErcToNative__factory.abi,
+      functionName: 'relayTokens',
+      args: [recipient as `0x${string}`],
+    })
+    return {
+      to: bridgeContractAddress as `0x${string}`,
+      value: amount.toString(),
+      data: callData,
+      title: 'Relay tokens',
+    }
+  } else {
+    return {
+      to: bridgeContractAddress as `0x${string}`,
+      value: amount.toString(),
+      title: 'Send tokens',
+    }
   }
 }
 
