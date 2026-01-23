@@ -77,8 +77,8 @@ importers:
         specifier: 16.8.1
         version: 16.8.1
       graphql-request:
-        specifier: 4.0.0
-        version: 4.0.0(encoding@0.1.13)(graphql@16.8.1)
+        specifier: 7.4.0
+        version: 7.4.0(graphql@16.8.1)
       graphql-tag:
         specifier: 2.12.6
         version: 2.12.6(graphql@16.8.1)
@@ -160,7 +160,7 @@ importers:
         version: 4.0.1(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-codegen/typescript-graphql-request':
         specifier: 4.4.3
-        version: 4.4.3(encoding@0.1.13)(graphql-request@4.0.0(encoding@0.1.13)(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)
+        version: 4.4.3(encoding@0.1.13)(graphql-request@7.4.0(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)
       '@graphql-codegen/typescript-operations':
         specifier: 4.0.1
         version: 4.0.1(encoding@0.1.13)(graphql@16.8.1)
@@ -235,7 +235,7 @@ importers:
         version: 5.0.4
       typescript-graphql-request:
         specifier: 4.4.6
-        version: 4.4.6(encoding@0.1.13)(graphql-request@4.0.0(encoding@0.1.13)(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)
+        version: 4.4.6(encoding@0.1.13)(graphql-request@7.4.0(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)
 
   envio-indexer:
     dependencies:
@@ -5513,6 +5513,11 @@ packages:
     peerDependencies:
       graphql: 14 - 16
 
+  graphql-request@7.4.0:
+    resolution: {integrity: sha512-xfr+zFb/QYbs4l4ty0dltqiXIp07U6sl+tOKAb0t50/EnQek6CVVBLjETXi+FghElytvgaAWtIOt3EV7zLzIAQ==}
+    peerDependencies:
+      graphql: 14 - 16
+
   graphql-tag@2.12.6:
     resolution: {integrity: sha512-FdSNcu2QQcWnM2VNvSCCDCVS5PpPqpzgFT8+GXzqJuoDd0CBncxCY278u4mhRO7tMgo2JjgJA5aZ+nWSQ/Z+xg==}
     engines: {node: '>=10'}
@@ -10024,7 +10029,7 @@ snapshots:
       '@types/node': 20.5.1
       chalk: 4.1.2
       cosmiconfig: 8.3.6(typescript@5.2.2)
-      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.2.2))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.2.2))(typescript@5.2.2)
+      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.0.4))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.0.4))(typescript@5.2.2)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -11646,13 +11651,13 @@ snapshots:
       graphql: 16.8.1
       tslib: 2.6.3
 
-  '@graphql-codegen/typescript-graphql-request@4.4.3(encoding@0.1.13)(graphql-request@4.0.0(encoding@0.1.13)(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)':
+  '@graphql-codegen/typescript-graphql-request@4.4.3(encoding@0.1.13)(graphql-request@7.4.0(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 2.7.2(graphql@16.8.1)
       '@graphql-codegen/visitor-plugin-common': 2.7.4(encoding@0.1.13)(graphql@16.8.1)
       auto-bind: 4.0.0
       graphql: 16.8.1
-      graphql-request: 4.0.0(encoding@0.1.13)(graphql@16.8.1)
+      graphql-request: 7.4.0(graphql@16.8.1)
       graphql-tag: 2.12.6(graphql@16.8.1)
       tslib: 2.3.1
     transitivePeerDependencies:
@@ -15695,7 +15700,7 @@ snapshots:
 
   core-util-is@1.0.3: {}
 
-  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.2.2))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.2.2))(typescript@5.2.2):
+  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.0.4))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.0.4))(typescript@5.2.2):
     dependencies:
       '@types/node': 20.5.1
       cosmiconfig: 8.3.6(typescript@5.2.2)
@@ -17429,6 +17434,11 @@ snapshots:
       graphql: 16.8.1
     transitivePeerDependencies:
       - encoding
+
+  graphql-request@7.4.0(graphql@16.8.1):
+    dependencies:
+      '@graphql-typed-document-node/core': 3.2.0(graphql@16.8.1)
+      graphql: 16.8.1
 
   graphql-tag@2.12.6(graphql@16.8.1):
     dependencies:
@@ -20772,13 +20782,13 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typescript-graphql-request@4.4.6(encoding@0.1.13)(graphql-request@4.0.0(encoding@0.1.13)(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1):
+  typescript-graphql-request@4.4.6(encoding@0.1.13)(graphql-request@7.4.0(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1):
     dependencies:
       '@graphql-codegen/plugin-helpers': 2.7.2(graphql@16.8.1)
       '@graphql-codegen/visitor-plugin-common': 2.7.4(encoding@0.1.13)(graphql@16.8.1)
       auto-bind: 4.0.0
       graphql: 16.8.1
-      graphql-request: 4.0.0(encoding@0.1.13)(graphql@16.8.1)
+      graphql-request: 7.4.0(graphql@16.8.1)
       graphql-tag: 2.12.6(graphql@16.8.1)
       tslib: 2.3.1
     transitivePeerDependencies:
