@@ -1,4 +1,4 @@
-import { Contract, ContractInterface } from '@ethersproject/contracts'
+import { Contract, ContractInterface } from 'ethers'
 import { JsonRpcProvider, JsonRpcSigner } from '@ethersproject/providers'
 
 export default async function contractCall<

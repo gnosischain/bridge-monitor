@@ -100,7 +100,10 @@ export const TokenAddress: React.FC<Props> = ({
         )}
       </AddressText>
       {address && copy && (
-        <CopyButton className="copyButton" onClick={(e) => copyToClipboard(e, address)}>
+        <CopyButton
+          className="copyButton"
+          onClick={(e: React.MouseEvent) => copyToClipboard(e, address)}
+        >
           <IconCopy height={bigIcons ? 21 : 14} width={bigIcons ? 21 : 14} />
         </CopyButton>
       )}
@@ -108,7 +111,7 @@ export const TokenAddress: React.FC<Props> = ({
         <Link
           className="externalLink"
           height={bigIcons ? 21 : 14}
-          onClick={(e) => openLink(e, href)}
+          onClick={(e: React.MouseEvent) => openLink(e, href)}
           width={bigIcons ? 21 : 14}
         />
       )}
