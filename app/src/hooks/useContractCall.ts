@@ -1,4 +1,4 @@
-import { BaseContract } from '@ethersproject/contracts'
+import { BaseContract } from 'ethers'
 import useSWR, { SWRConfiguration } from 'swr'
 
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'

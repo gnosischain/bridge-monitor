@@ -6,6 +6,14 @@ settings:
 
 overrides:
   ethers: 5.6.9
+  '@ethersproject/abi': 5.6.4
+  '@ethersproject/abstract-provider': 5.6.1
+  '@ethersproject/abstract-signer': 5.6.2
+  '@ethersproject/address': 5.6.1
+  '@ethersproject/bignumber': 5.6.2
+  '@ethersproject/bytes': 5.6.1
+  '@ethersproject/contracts': 5.6.2
+  '@ethersproject/providers': 5.6.8
   '@types/react': 17.0.2
   '@types/react-dom': 17.0.2
   viem: 2.21.0
@@ -23,9 +31,24 @@ importers:
       '@emotion/is-prop-valid':
         specifier: 1.3.1
         version: 1.3.1
+      '@ethersproject/abi':
+        specifier: 5.6.4
+        version: 5.6.4
+      '@ethersproject/address':
+        specifier: 5.6.1
+        version: 5.6.1
+      '@ethersproject/bignumber':
+        specifier: 5.6.2
+        version: 5.6.2
+      '@ethersproject/bytes':
+        specifier: 5.6.1
+        version: 5.6.1
+      '@ethersproject/contracts':
+        specifier: 5.6.2
+        version: 5.6.2
       '@ethersproject/providers':
-        specifier: 5.7.2
-        version: 5.7.2(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+        specifier: 5.6.8
+        version: 5.6.8(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@graphprotocol/graph-cli':
         specifier: 0.60.0
         version: 0.60.0(@types/node@20.5.1)(bufferutil@4.1.0)(encoding@0.1.13)(node-fetch@2.7.0(encoding@0.1.13))(typescript@5.0.4)(utf-8-validate@5.0.10)
@@ -81,8 +104,8 @@ importers:
         specifier: 16.8.1
         version: 16.8.1
       graphql-request:
-        specifier: 7.4.0
-        version: 7.4.0(graphql@16.8.1)
+        specifier: 4.0.0
+        version: 4.0.0(encoding@0.1.13)(graphql@16.8.1)
       graphql-tag:
         specifier: 2.12.6
         version: 2.12.6(graphql@16.8.1)
@@ -161,7 +184,7 @@ importers:
         version: 4.0.1(encoding@0.1.13)(graphql@16.8.1)
       '@graphql-codegen/typescript-graphql-request':
         specifier: 4.4.3
-        version: 4.4.3(encoding@0.1.13)(graphql-request@7.4.0(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)
+        version: 4.4.3(encoding@0.1.13)(graphql-request@4.0.0(encoding@0.1.13)(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)
       '@graphql-codegen/typescript-operations':
         specifier: 4.0.1
         version: 4.0.1(encoding@0.1.13)(graphql@16.8.1)
@@ -170,7 +193,7 @@ importers:
         version: 12.2.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@typechain/ethers-v5':
         specifier: 10.1.0
-        version: 10.1.0(@ethersproject/abi@5.8.0)(@ethersproject/bytes@5.8.0)(@ethersproject/providers@5.7.2(bufferutil@4.1.0)(utf-8-validate@5.0.10))(ethers@5.6.9(bufferutil@4.1.0)(utf-8-validate@5.0.10))(typechain@8.1.0(typescript@5.0.4))(typescript@5.0.4)
+        version: 10.1.0(@ethersproject/abi@5.6.4)(@ethersproject/bytes@5.6.1)(@ethersproject/providers@5.6.8(bufferutil@4.1.0)(utf-8-validate@5.0.10))(ethers@5.6.9(bufferutil@4.1.0)(utf-8-validate@5.0.10))(typechain@8.1.0(typescript@5.0.4))(typescript@5.0.4)
       '@types/lodash':
         specifier: 4.14.182
         version: 4.14.182
@@ -236,7 +259,7 @@ importers:
         version: 5.0.4
       typescript-graphql-request:
         specifier: 4.4.6
-        version: 4.4.6(encoding@0.1.13)(graphql-request@7.4.0(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)
+        version: 4.4.6(encoding@0.1.13)(graphql-request@4.0.0(encoding@0.1.13)(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)
 
   envio-indexer:
     dependencies:
@@ -1087,32 +1110,17 @@ packages:
     resolution: {integrity: sha512-XXrH9Uarn0stsyldqDYq8r++mROmWRI1xKMXa640Bb//SY1+ECYX6VzT6Lcx5frD0V30XieqJ0oX9I2Xj5aoMA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  '@ethersproject/abi@5.0.7':
-    resolution: {integrity: sha512-Cqktk+hSIckwP/W8O47Eef60VwmoSC/L3lY0+dIBhQPCNn9E4V7rwmm2aFrNRRDJfFlGuZ1khkQUOc3oBX+niw==}
-
   '@ethersproject/abi@5.6.4':
     resolution: {integrity: sha512-TTeZUlCeIHG6527/2goZA6gW5F8Emoc7MrZDC7hhP84aRGvW3TEdTnZR08Ls88YXM1m2SuK42Osw/jSi3uO8gg==}
-
-  '@ethersproject/abi@5.8.0':
-    resolution: {integrity: sha512-b9YS/43ObplgyV6SlyQsG53/vkSal0MNA1fskSC4mbnCMi8R+NkcH8K9FPYNESf6jUefBUniE4SOKms0E/KK1Q==}
 
   '@ethersproject/abstract-provider@5.6.1':
     resolution: {integrity: sha512-BxlIgogYJtp1FS8Muvj8YfdClk3unZH0vRMVX791Z9INBNT/kuACZ9GzaY1Y4yFq+YSy6/w4gzj3HCRKrK9hsQ==}
 
-  '@ethersproject/abstract-provider@5.8.0':
-    resolution: {integrity: sha512-wC9SFcmh4UK0oKuLJQItoQdzS/qZ51EJegK6EmAWlh+OptpQ/npECOR3QqECd8iGHC0RJb4WKbVdSfif4ammrg==}
-
   '@ethersproject/abstract-signer@5.6.2':
     resolution: {integrity: sha512-n1r6lttFBG0t2vNiI3HoWaS/KdOt8xyDjzlP2cuevlWLG6EX0OwcKLyG/Kp/cuwNxdy/ous+R/DEMdTUwWQIjQ==}
 
-  '@ethersproject/abstract-signer@5.8.0':
-    resolution: {integrity: sha512-N0XhZTswXcmIZQdYtUnd79VJzvEwXQw6PK0dTl9VoYrEBxxCPXqS0Eod7q5TNKRxe1/5WUMuR0u0nqTF/avdCA==}
-
   '@ethersproject/address@5.6.1':
     resolution: {integrity: sha512-uOgF0kS5MJv9ZvCz7x6T2EXJSzotiybApn4XlOgoTX0xdtyVIJ7pF+6cGPxiEq/dpBiTfMiw7Yc81JcwhSYA0Q==}
-
-  '@ethersproject/address@5.8.0':
-    resolution: {integrity: sha512-GhH/abcC46LJwshoN+uBNoKVFPxUuZm6dA257z0vZkKmU1+t8xTn8oK7B9qrj8W2rFRMch4gbJl6PmVxjxBEBA==}
 
   '@ethersproject/base64@5.6.1':
     resolution: {integrity: sha512-qB76rjop6a0RIYYMiB4Eh/8n+Hxu2NIZm8S/Q7kNo5pmZfXhHGHmS4MinUainiBC54SCyRnwzL+KZjj8zbsSsw==}
@@ -1129,14 +1137,8 @@ packages:
   '@ethersproject/bignumber@5.6.2':
     resolution: {integrity: sha512-v7+EEUbhGqT3XJ9LMPsKvXYHFc8eHxTowFCG/HgJErmq4XHJ2WR7aeyICg3uTOAQ7Icn0GFHAohXEhxQHq4Ubw==}
 
-  '@ethersproject/bignumber@5.8.0':
-    resolution: {integrity: sha512-ZyaT24bHaSeJon2tGPKIiHszWjD/54Sz8t57Toch475lCLljC6MgPmxk7Gtzz+ddNN5LuHea9qhAe0x3D+uYPA==}
-
   '@ethersproject/bytes@5.6.1':
     resolution: {integrity: sha512-NwQt7cKn5+ZE4uDn+X5RAXLp46E1chXoaMmrxAyA0rblpxz8t58lVkrHXoRIn0lz1joQElQ8410GqhTqMOwc6g==}
-
-  '@ethersproject/bytes@5.8.0':
-    resolution: {integrity: sha512-vTkeohgJVCPVHu5c25XWaWQOZ4v+DkGoC42/TS2ond+PARCxTJvgTFUNDZovyQ/uAQ4EcpqqowKydcdmRKjg7A==}
 
   '@ethersproject/constants@5.6.1':
     resolution: {integrity: sha512-QSq9WVnZbxXYFftrjSjZDUshp6/eKp6qrtdBtUCm0QxCV5z1fG/w3kdlcsjMCQuQHUnAclKoK7XpXMezhRDOLg==}
@@ -1188,9 +1190,6 @@ packages:
 
   '@ethersproject/providers@5.6.8':
     resolution: {integrity: sha512-Wf+CseT/iOJjrGtAOf3ck9zS7AgPmr2fZ3N97r4+YXN3mBePTG2/bJ8DApl9mVwYL+RpYbNxMEkEp4mPGdwG/w==}
-
-  '@ethersproject/providers@5.7.2':
-    resolution: {integrity: sha512-g34EWZ1WWAVgr4aptGlVBF8mhl3VWjv+8hoAnzStu8Ah22VHBsuGzP17eb6xDVRzw895G4W7vvx60lFFur/1Rg==}
 
   '@ethersproject/random@5.6.1':
     resolution: {integrity: sha512-/wtPNHwbmng+5yi3fkipA8YBT59DdkGRoC2vWk09Dci/q5DlgnMkhIycjHlavrvrjJBkFjO/ueLyT+aUDfc4lA==}
@@ -2870,9 +2869,9 @@ packages:
   '@typechain/ethers-v5@10.1.0':
     resolution: {integrity: sha512-3LIb+eUpV3mNCrjUKT5oqp8PBsZYSnVrkfk6pY/ZM0boRs2mKxjFZ7bktx42vfDye8PPz3NxtW4DL5NsNsFqlg==}
     peerDependencies:
-      '@ethersproject/abi': ^5.0.0
-      '@ethersproject/bytes': ^5.0.0
-      '@ethersproject/providers': ^5.0.0
+      '@ethersproject/abi': 5.6.4
+      '@ethersproject/bytes': 5.6.1
+      '@ethersproject/providers': 5.6.8
       ethers: 5.6.9
       typechain: ^8.1.0
       typescript: '>=4.3.0'
@@ -5371,18 +5370,13 @@ packages:
     peerDependencies:
       graphql: '*'
 
-  graphql-request@4.3.0:
-    resolution: {integrity: sha512-2v6hQViJvSsifK606AliqiNiijb1uwWp6Re7o0RTyH+uRTv/u7Uqm2g4Fjq/LgZIzARB38RZEvVBFOQOVdlBow==}
+  graphql-request@4.0.0:
+    resolution: {integrity: sha512-cdqQLCXlBGkaLdkLYRl4LtkwaZU6TfpE7/tnUQFl3wXfUPWN74Ov+Q61VuIh+AltS789YfGB6whghmCmeXLvTw==}
     peerDependencies:
       graphql: 14 - 16
 
   graphql-request@6.1.0:
     resolution: {integrity: sha512-p+XPfS4q7aIpKVcgmnZKhMNqhltk20hfXtkaIkTfjjmiKMJ5xrt5c743cL03y/K7y1rg3WrIC49xGiEQ4mxdNw==}
-    peerDependencies:
-      graphql: 14 - 16
-
-  graphql-request@7.4.0:
-    resolution: {integrity: sha512-xfr+zFb/QYbs4l4ty0dltqiXIp07U6sl+tOKAb0t50/EnQek6CVVBLjETXi+FghElytvgaAWtIOt3EV7zLzIAQ==}
     peerDependencies:
       graphql: 14 - 16
 
@@ -9403,7 +9397,7 @@ snapshots:
       '@types/node': 20.5.1
       chalk: 4.1.2
       cosmiconfig: 8.3.6(typescript@5.2.2)
-      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.0.4))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.0.4))(typescript@5.2.2)
+      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.2.2))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.2.2))(typescript@5.2.2)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -9949,35 +9943,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@ethersproject/abi@5.0.7':
-    dependencies:
-      '@ethersproject/address': 5.8.0
-      '@ethersproject/bignumber': 5.8.0
-      '@ethersproject/bytes': 5.8.0
-      '@ethersproject/constants': 5.8.0
-      '@ethersproject/hash': 5.8.0
-      '@ethersproject/keccak256': 5.8.0
-      '@ethersproject/logger': 5.8.0
-      '@ethersproject/properties': 5.8.0
-      '@ethersproject/strings': 5.8.0
-
   '@ethersproject/abi@5.6.4':
     dependencies:
       '@ethersproject/address': 5.6.1
       '@ethersproject/bignumber': 5.6.2
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/constants': 5.6.1
-      '@ethersproject/hash': 5.6.1
-      '@ethersproject/keccak256': 5.6.1
-      '@ethersproject/logger': 5.6.0
-      '@ethersproject/properties': 5.6.0
-      '@ethersproject/strings': 5.6.1
-
-  '@ethersproject/abi@5.8.0':
-    dependencies:
-      '@ethersproject/address': 5.8.0
-      '@ethersproject/bignumber': 5.8.0
-      '@ethersproject/bytes': 5.8.0
       '@ethersproject/constants': 5.8.0
       '@ethersproject/hash': 5.8.0
       '@ethersproject/keccak256': 5.8.0
@@ -9989,35 +9959,17 @@ snapshots:
     dependencies:
       '@ethersproject/bignumber': 5.6.2
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/logger': 5.6.0
-      '@ethersproject/networks': 5.6.4
-      '@ethersproject/properties': 5.6.0
-      '@ethersproject/transactions': 5.6.2
-      '@ethersproject/web': 5.6.1
-
-  '@ethersproject/abstract-provider@5.8.0':
-    dependencies:
-      '@ethersproject/bignumber': 5.8.0
-      '@ethersproject/bytes': 5.8.0
       '@ethersproject/logger': 5.8.0
-      '@ethersproject/networks': 5.8.0
+      '@ethersproject/networks': 5.6.4
       '@ethersproject/properties': 5.8.0
       '@ethersproject/transactions': 5.8.0
-      '@ethersproject/web': 5.8.0
+      '@ethersproject/web': 5.6.1
 
   '@ethersproject/abstract-signer@5.6.2':
     dependencies:
       '@ethersproject/abstract-provider': 5.6.1
       '@ethersproject/bignumber': 5.6.2
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/logger': 5.6.0
-      '@ethersproject/properties': 5.6.0
-
-  '@ethersproject/abstract-signer@5.8.0':
-    dependencies:
-      '@ethersproject/abstract-provider': 5.8.0
-      '@ethersproject/bignumber': 5.8.0
-      '@ethersproject/bytes': 5.8.0
       '@ethersproject/logger': 5.8.0
       '@ethersproject/properties': 5.8.0
 
@@ -10025,14 +9977,6 @@ snapshots:
     dependencies:
       '@ethersproject/bignumber': 5.6.2
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/keccak256': 5.6.1
-      '@ethersproject/logger': 5.6.0
-      '@ethersproject/rlp': 5.6.1
-
-  '@ethersproject/address@5.8.0':
-    dependencies:
-      '@ethersproject/bignumber': 5.8.0
-      '@ethersproject/bytes': 5.8.0
       '@ethersproject/keccak256': 5.8.0
       '@ethersproject/logger': 5.8.0
       '@ethersproject/rlp': 5.8.0
@@ -10043,35 +9987,25 @@ snapshots:
 
   '@ethersproject/base64@5.8.0':
     dependencies:
-      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/bytes': 5.6.1
 
   '@ethersproject/basex@5.6.1':
     dependencies:
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/properties': 5.6.0
+      '@ethersproject/properties': 5.8.0
 
   '@ethersproject/basex@5.8.0':
     dependencies:
-      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/bytes': 5.6.1
       '@ethersproject/properties': 5.8.0
 
   '@ethersproject/bignumber@5.6.2':
     dependencies:
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/logger': 5.6.0
-      bn.js: 5.2.2
-
-  '@ethersproject/bignumber@5.8.0':
-    dependencies:
-      '@ethersproject/bytes': 5.8.0
       '@ethersproject/logger': 5.8.0
       bn.js: 5.2.2
 
   '@ethersproject/bytes@5.6.1':
-    dependencies:
-      '@ethersproject/logger': 5.6.0
-
-  '@ethersproject/bytes@5.8.0':
     dependencies:
       '@ethersproject/logger': 5.8.0
 
@@ -10081,7 +10015,7 @@ snapshots:
 
   '@ethersproject/constants@5.8.0':
     dependencies:
-      '@ethersproject/bignumber': 5.8.0
+      '@ethersproject/bignumber': 5.6.2
 
   '@ethersproject/contracts@5.6.2':
     dependencies:
@@ -10091,10 +10025,10 @@ snapshots:
       '@ethersproject/address': 5.6.1
       '@ethersproject/bignumber': 5.6.2
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/constants': 5.6.1
-      '@ethersproject/logger': 5.6.0
-      '@ethersproject/properties': 5.6.0
-      '@ethersproject/transactions': 5.6.2
+      '@ethersproject/constants': 5.8.0
+      '@ethersproject/logger': 5.8.0
+      '@ethersproject/properties': 5.8.0
+      '@ethersproject/transactions': 5.8.0
 
   '@ethersproject/hash@5.6.1':
     dependencies:
@@ -10102,18 +10036,18 @@ snapshots:
       '@ethersproject/address': 5.6.1
       '@ethersproject/bignumber': 5.6.2
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/keccak256': 5.6.1
-      '@ethersproject/logger': 5.6.0
-      '@ethersproject/properties': 5.6.0
-      '@ethersproject/strings': 5.6.1
+      '@ethersproject/keccak256': 5.8.0
+      '@ethersproject/logger': 5.8.0
+      '@ethersproject/properties': 5.8.0
+      '@ethersproject/strings': 5.8.0
 
   '@ethersproject/hash@5.8.0':
     dependencies:
-      '@ethersproject/abstract-signer': 5.8.0
-      '@ethersproject/address': 5.8.0
+      '@ethersproject/abstract-signer': 5.6.2
+      '@ethersproject/address': 5.6.1
       '@ethersproject/base64': 5.8.0
-      '@ethersproject/bignumber': 5.8.0
-      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/bignumber': 5.6.2
+      '@ethersproject/bytes': 5.6.1
       '@ethersproject/keccak256': 5.8.0
       '@ethersproject/logger': 5.8.0
       '@ethersproject/properties': 5.8.0
@@ -10125,13 +10059,13 @@ snapshots:
       '@ethersproject/basex': 5.6.1
       '@ethersproject/bignumber': 5.6.2
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/logger': 5.6.0
+      '@ethersproject/logger': 5.8.0
       '@ethersproject/pbkdf2': 5.6.1
-      '@ethersproject/properties': 5.6.0
+      '@ethersproject/properties': 5.8.0
       '@ethersproject/sha2': 5.6.1
       '@ethersproject/signing-key': 5.6.2
-      '@ethersproject/strings': 5.6.1
-      '@ethersproject/transactions': 5.6.2
+      '@ethersproject/strings': 5.8.0
+      '@ethersproject/transactions': 5.8.0
       '@ethersproject/wordlists': 5.6.1
 
   '@ethersproject/json-wallets@5.6.1':
@@ -10140,13 +10074,13 @@ snapshots:
       '@ethersproject/address': 5.6.1
       '@ethersproject/bytes': 5.6.1
       '@ethersproject/hdnode': 5.6.2
-      '@ethersproject/keccak256': 5.6.1
-      '@ethersproject/logger': 5.6.0
+      '@ethersproject/keccak256': 5.8.0
+      '@ethersproject/logger': 5.8.0
       '@ethersproject/pbkdf2': 5.6.1
-      '@ethersproject/properties': 5.6.0
+      '@ethersproject/properties': 5.8.0
       '@ethersproject/random': 5.6.1
-      '@ethersproject/strings': 5.6.1
-      '@ethersproject/transactions': 5.6.2
+      '@ethersproject/strings': 5.8.0
+      '@ethersproject/transactions': 5.8.0
       aes-js: 3.0.0
       scrypt-js: 3.0.1
 
@@ -10157,7 +10091,7 @@ snapshots:
 
   '@ethersproject/keccak256@5.8.0':
     dependencies:
-      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/bytes': 5.6.1
       js-sha3: 0.8.0
 
   '@ethersproject/logger@5.6.0': {}
@@ -10166,7 +10100,7 @@ snapshots:
 
   '@ethersproject/networks@5.6.4':
     dependencies:
-      '@ethersproject/logger': 5.6.0
+      '@ethersproject/logger': 5.8.0
 
   '@ethersproject/networks@5.8.0':
     dependencies:
@@ -10179,7 +10113,7 @@ snapshots:
 
   '@ethersproject/properties@5.6.0':
     dependencies:
-      '@ethersproject/logger': 5.6.0
+      '@ethersproject/logger': 5.8.0
 
   '@ethersproject/properties@5.8.0':
     dependencies:
@@ -10190,36 +10124,10 @@ snapshots:
       '@ethersproject/abstract-provider': 5.6.1
       '@ethersproject/abstract-signer': 5.6.2
       '@ethersproject/address': 5.6.1
-      '@ethersproject/base64': 5.6.1
-      '@ethersproject/basex': 5.6.1
-      '@ethersproject/bignumber': 5.6.2
-      '@ethersproject/bytes': 5.6.1
-      '@ethersproject/constants': 5.6.1
-      '@ethersproject/hash': 5.6.1
-      '@ethersproject/logger': 5.6.0
-      '@ethersproject/networks': 5.6.4
-      '@ethersproject/properties': 5.6.0
-      '@ethersproject/random': 5.6.1
-      '@ethersproject/rlp': 5.6.1
-      '@ethersproject/sha2': 5.6.1
-      '@ethersproject/strings': 5.6.1
-      '@ethersproject/transactions': 5.6.2
-      '@ethersproject/web': 5.6.1
-      bech32: 1.1.4
-      ws: 7.4.6(bufferutil@4.1.0)(utf-8-validate@5.0.10)
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
-  '@ethersproject/providers@5.7.2(bufferutil@4.1.0)(utf-8-validate@5.0.10)':
-    dependencies:
-      '@ethersproject/abstract-provider': 5.8.0
-      '@ethersproject/abstract-signer': 5.8.0
-      '@ethersproject/address': 5.8.0
       '@ethersproject/base64': 5.8.0
       '@ethersproject/basex': 5.8.0
-      '@ethersproject/bignumber': 5.8.0
-      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/bignumber': 5.6.2
+      '@ethersproject/bytes': 5.6.1
       '@ethersproject/constants': 5.8.0
       '@ethersproject/hash': 5.8.0
       '@ethersproject/logger': 5.8.0
@@ -10240,47 +10148,47 @@ snapshots:
   '@ethersproject/random@5.6.1':
     dependencies:
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/logger': 5.6.0
+      '@ethersproject/logger': 5.8.0
 
   '@ethersproject/random@5.8.0':
     dependencies:
-      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/bytes': 5.6.1
       '@ethersproject/logger': 5.8.0
 
   '@ethersproject/rlp@5.6.1':
     dependencies:
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/logger': 5.6.0
+      '@ethersproject/logger': 5.8.0
 
   '@ethersproject/rlp@5.8.0':
     dependencies:
-      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/bytes': 5.6.1
       '@ethersproject/logger': 5.8.0
 
   '@ethersproject/sha2@5.6.1':
     dependencies:
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/logger': 5.6.0
+      '@ethersproject/logger': 5.8.0
       hash.js: 1.1.7
 
   '@ethersproject/sha2@5.8.0':
     dependencies:
-      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/bytes': 5.6.1
       '@ethersproject/logger': 5.8.0
       hash.js: 1.1.7
 
   '@ethersproject/signing-key@5.6.2':
     dependencies:
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/logger': 5.6.0
-      '@ethersproject/properties': 5.6.0
+      '@ethersproject/logger': 5.8.0
+      '@ethersproject/properties': 5.8.0
       bn.js: 5.2.2
       elliptic: 6.5.4
       hash.js: 1.1.7
 
   '@ethersproject/signing-key@5.8.0':
     dependencies:
-      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/bytes': 5.6.1
       '@ethersproject/logger': 5.8.0
       '@ethersproject/properties': 5.8.0
       bn.js: 5.2.2
@@ -10291,20 +10199,20 @@ snapshots:
     dependencies:
       '@ethersproject/bignumber': 5.6.2
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/keccak256': 5.6.1
-      '@ethersproject/logger': 5.6.0
+      '@ethersproject/keccak256': 5.8.0
+      '@ethersproject/logger': 5.8.0
       '@ethersproject/sha2': 5.6.1
-      '@ethersproject/strings': 5.6.1
+      '@ethersproject/strings': 5.8.0
 
   '@ethersproject/strings@5.6.1':
     dependencies:
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/constants': 5.6.1
-      '@ethersproject/logger': 5.6.0
+      '@ethersproject/constants': 5.8.0
+      '@ethersproject/logger': 5.8.0
 
   '@ethersproject/strings@5.8.0':
     dependencies:
-      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/bytes': 5.6.1
       '@ethersproject/constants': 5.8.0
       '@ethersproject/logger': 5.8.0
 
@@ -10313,18 +10221,18 @@ snapshots:
       '@ethersproject/address': 5.6.1
       '@ethersproject/bignumber': 5.6.2
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/constants': 5.6.1
-      '@ethersproject/keccak256': 5.6.1
-      '@ethersproject/logger': 5.6.0
-      '@ethersproject/properties': 5.6.0
-      '@ethersproject/rlp': 5.6.1
+      '@ethersproject/constants': 5.8.0
+      '@ethersproject/keccak256': 5.8.0
+      '@ethersproject/logger': 5.8.0
+      '@ethersproject/properties': 5.8.0
+      '@ethersproject/rlp': 5.8.0
       '@ethersproject/signing-key': 5.6.2
 
   '@ethersproject/transactions@5.8.0':
     dependencies:
-      '@ethersproject/address': 5.8.0
-      '@ethersproject/bignumber': 5.8.0
-      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/address': 5.6.1
+      '@ethersproject/bignumber': 5.6.2
+      '@ethersproject/bytes': 5.6.1
       '@ethersproject/constants': 5.8.0
       '@ethersproject/keccak256': 5.8.0
       '@ethersproject/logger': 5.8.0
@@ -10335,12 +10243,12 @@ snapshots:
   '@ethersproject/units@5.6.1':
     dependencies:
       '@ethersproject/bignumber': 5.6.2
-      '@ethersproject/constants': 5.6.1
-      '@ethersproject/logger': 5.6.0
+      '@ethersproject/constants': 5.8.0
+      '@ethersproject/logger': 5.8.0
 
   '@ethersproject/units@5.8.0':
     dependencies:
-      '@ethersproject/bignumber': 5.8.0
+      '@ethersproject/bignumber': 5.6.2
       '@ethersproject/constants': 5.8.0
       '@ethersproject/logger': 5.8.0
 
@@ -10351,29 +10259,29 @@ snapshots:
       '@ethersproject/address': 5.6.1
       '@ethersproject/bignumber': 5.6.2
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/hash': 5.6.1
+      '@ethersproject/hash': 5.8.0
       '@ethersproject/hdnode': 5.6.2
       '@ethersproject/json-wallets': 5.6.1
-      '@ethersproject/keccak256': 5.6.1
-      '@ethersproject/logger': 5.6.0
-      '@ethersproject/properties': 5.6.0
+      '@ethersproject/keccak256': 5.8.0
+      '@ethersproject/logger': 5.8.0
+      '@ethersproject/properties': 5.8.0
       '@ethersproject/random': 5.6.1
       '@ethersproject/signing-key': 5.6.2
-      '@ethersproject/transactions': 5.6.2
+      '@ethersproject/transactions': 5.8.0
       '@ethersproject/wordlists': 5.6.1
 
   '@ethersproject/web@5.6.1':
     dependencies:
       '@ethersproject/base64': 5.6.1
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/logger': 5.6.0
-      '@ethersproject/properties': 5.6.0
-      '@ethersproject/strings': 5.6.1
+      '@ethersproject/logger': 5.8.0
+      '@ethersproject/properties': 5.8.0
+      '@ethersproject/strings': 5.8.0
 
   '@ethersproject/web@5.8.0':
     dependencies:
       '@ethersproject/base64': 5.8.0
-      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/bytes': 5.6.1
       '@ethersproject/logger': 5.8.0
       '@ethersproject/properties': 5.8.0
       '@ethersproject/strings': 5.8.0
@@ -10381,10 +10289,10 @@ snapshots:
   '@ethersproject/wordlists@5.6.1':
     dependencies:
       '@ethersproject/bytes': 5.6.1
-      '@ethersproject/hash': 5.6.1
-      '@ethersproject/logger': 5.6.0
-      '@ethersproject/properties': 5.6.0
-      '@ethersproject/strings': 5.6.1
+      '@ethersproject/hash': 5.8.0
+      '@ethersproject/logger': 5.8.0
+      '@ethersproject/properties': 5.8.0
+      '@ethersproject/strings': 5.8.0
 
   '@fastify/busboy@2.1.1': {}
 
@@ -10611,13 +10519,13 @@ snapshots:
       graphql: 16.8.1
       tslib: 2.6.3
 
-  '@graphql-codegen/typescript-graphql-request@4.4.3(encoding@0.1.13)(graphql-request@7.4.0(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)':
+  '@graphql-codegen/typescript-graphql-request@4.4.3(encoding@0.1.13)(graphql-request@4.0.0(encoding@0.1.13)(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 2.7.2(graphql@16.8.1)
       '@graphql-codegen/visitor-plugin-common': 2.7.4(encoding@0.1.13)(graphql@16.8.1)
       auto-bind: 4.0.0
       graphql: 16.8.1
-      graphql-request: 7.4.0(graphql@16.8.1)
+      graphql-request: 4.0.0(encoding@0.1.13)(graphql@16.8.1)
       graphql-tag: 2.12.6(graphql@16.8.1)
       tslib: 2.3.1
     transitivePeerDependencies:
@@ -11679,7 +11587,7 @@ snapshots:
 
   '@nomicfoundation/ethereumjs-evm@2.0.2(bufferutil@4.1.0)(utf-8-validate@5.0.10)':
     dependencies:
-      '@ethersproject/providers': 5.7.2(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      '@ethersproject/providers': 5.6.8(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@nomicfoundation/ethereumjs-common': 4.0.2
       '@nomicfoundation/ethereumjs-tx': 5.0.2(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@nomicfoundation/ethereumjs-util': 9.0.2
@@ -11718,7 +11626,7 @@ snapshots:
   '@nomicfoundation/ethereumjs-tx@5.0.2(bufferutil@4.1.0)(utf-8-validate@5.0.10)':
     dependencies:
       '@chainsafe/ssz': 0.9.4
-      '@ethersproject/providers': 5.7.2(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      '@ethersproject/providers': 5.6.8(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@nomicfoundation/ethereumjs-common': 4.0.2
       '@nomicfoundation/ethereumjs-rlp': 5.0.2
       '@nomicfoundation/ethereumjs-util': 9.0.2
@@ -13100,11 +13008,11 @@ snapshots:
 
   '@tsconfig/node16@1.0.4': {}
 
-  '@typechain/ethers-v5@10.1.0(@ethersproject/abi@5.8.0)(@ethersproject/bytes@5.8.0)(@ethersproject/providers@5.7.2(bufferutil@4.1.0)(utf-8-validate@5.0.10))(ethers@5.6.9(bufferutil@4.1.0)(utf-8-validate@5.0.10))(typechain@8.1.0(typescript@5.0.4))(typescript@5.0.4)':
+  '@typechain/ethers-v5@10.1.0(@ethersproject/abi@5.6.4)(@ethersproject/bytes@5.6.1)(@ethersproject/providers@5.6.8(bufferutil@4.1.0)(utf-8-validate@5.0.10))(ethers@5.6.9(bufferutil@4.1.0)(utf-8-validate@5.0.10))(typechain@8.1.0(typescript@5.0.4))(typescript@5.0.4)':
     dependencies:
-      '@ethersproject/abi': 5.8.0
-      '@ethersproject/bytes': 5.8.0
-      '@ethersproject/providers': 5.7.2(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      '@ethersproject/abi': 5.6.4
+      '@ethersproject/bytes': 5.6.1
+      '@ethersproject/providers': 5.6.8(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       ethers: 5.6.9(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       lodash: 4.17.21
       ts-essentials: 7.0.3(typescript@5.0.4)
@@ -13347,7 +13255,7 @@ snapshots:
 
   '@uniswap/sdk-core@4.0.7':
     dependencies:
-      '@ethersproject/address': 5.8.0
+      '@ethersproject/address': 5.6.1
       big.js: 5.2.2
       decimal.js-light: 2.5.1
       jsbi: 3.2.5
@@ -15119,7 +15027,7 @@ snapshots:
 
   core-util-is@1.0.3: {}
 
-  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.0.4))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.0.4))(typescript@5.2.2):
+  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.2.2))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.2.2))(typescript@5.2.2):
     dependencies:
       '@types/node': 20.5.1
       cosmiconfig: 8.3.6(typescript@5.2.2)
@@ -16680,7 +16588,7 @@ snapshots:
       '@graphql-codegen/visitor-plugin-common': 2.13.8(encoding@0.1.13)(graphql@16.8.1)
       '@types/micromatch': 4.0.10
       graphql: 16.8.1
-      graphql-request: 4.3.0(encoding@0.1.13)(graphql@16.8.1)
+      graphql-request: 4.0.0(encoding@0.1.13)(graphql@16.8.1)
       micromatch: 4.0.8
       pascal-case: 3.1.2
       swr: 1.3.0(react@18.3.1)
@@ -16717,7 +16625,7 @@ snapshots:
     dependencies:
       graphql: 16.8.1
 
-  graphql-request@4.3.0(encoding@0.1.13)(graphql@16.8.1):
+  graphql-request@4.0.0(encoding@0.1.13)(graphql@16.8.1):
     dependencies:
       cross-fetch: 3.2.0(encoding@0.1.13)
       extract-files: 9.0.0
@@ -16733,11 +16641,6 @@ snapshots:
       graphql: 16.8.1
     transitivePeerDependencies:
       - encoding
-
-  graphql-request@7.4.0(graphql@16.8.1):
-    dependencies:
-      '@graphql-typed-document-node/core': 3.2.0(graphql@16.8.1)
-      graphql: 16.8.1
 
   graphql-tag@2.12.6(graphql@16.8.1):
     dependencies:
@@ -16784,7 +16687,7 @@ snapshots:
 
   hardhat@2.19.2(bufferutil@4.1.0)(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.2.2))(typescript@5.0.4)(utf-8-validate@5.0.10):
     dependencies:
-      '@ethersproject/abi': 5.8.0
+      '@ethersproject/abi': 5.6.4
       '@metamask/eth-sig-util': 4.0.1
       '@nomicfoundation/ethereumjs-block': 5.0.2(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@nomicfoundation/ethereumjs-blockchain': 7.0.2(bufferutil@4.1.0)(utf-8-validate@5.0.10)
@@ -20015,13 +19918,13 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typescript-graphql-request@4.4.6(encoding@0.1.13)(graphql-request@7.4.0(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1):
+  typescript-graphql-request@4.4.6(encoding@0.1.13)(graphql-request@4.0.0(encoding@0.1.13)(graphql@16.8.1))(graphql-tag@2.12.6(graphql@16.8.1))(graphql@16.8.1):
     dependencies:
       '@graphql-codegen/plugin-helpers': 2.7.2(graphql@16.8.1)
       '@graphql-codegen/visitor-plugin-common': 2.7.4(encoding@0.1.13)(graphql@16.8.1)
       auto-bind: 4.0.0
       graphql: 16.8.1
-      graphql-request: 7.4.0(graphql@16.8.1)
+      graphql-request: 4.0.0(encoding@0.1.13)(graphql@16.8.1)
       graphql-tag: 2.12.6(graphql@16.8.1)
       tslib: 2.3.1
     transitivePeerDependencies:
@@ -20287,7 +20190,7 @@ snapshots:
 
   web3-eth-abi@1.7.0:
     dependencies:
-      '@ethersproject/abi': 5.0.7
+      '@ethersproject/abi': 5.6.4
       web3-utils: 1.7.0
 
   web3-eth-abi@4.4.1(typescript@5.2.2)(zod@3.25.76):
