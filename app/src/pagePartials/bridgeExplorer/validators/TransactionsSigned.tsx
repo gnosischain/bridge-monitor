@@ -208,7 +208,7 @@ const BaseChart: React.FC<{ timePeriod: number; bridge: string; theme: any }> = 
 )
 
 // const Chart = withTheme(BaseChart)
-const Chart = withTheme(BaseChart) as React.FC<{ bridge: string; timePeriod: number }>
+const Chart = withTheme(BaseChart) as unknown as React.FC<{ bridge: string; timePeriod: number }>
 
 const _1DayBeforeInSeconds = get1DayBeforeInSeconds()
 const _1WeekBeforeInSeconds = get7DaysBeforeInSeconds()

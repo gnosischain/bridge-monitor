@@ -3,9 +3,11 @@ import styled, { css } from 'styled-components'
 import { StatusColors } from '@/src/pagePartials/bridgeExplorer/common/StatusColors'
 import { TransactionStatus as TxStatusEnum } from '@/types/generated/subgraph'
 
+type WrapperProps = { status: TxStatusEnum }
+
 const Wrapper = styled.div.withConfig({
   shouldForwardProp: (prop) => !['status'].includes(prop),
-})<{ status: TxStatusEnum }>`
+})<WrapperProps>`
   align-items: center;
   column-gap: var(--theme-common-space);
   display: flex;
@@ -16,12 +18,12 @@ const Wrapper = styled.div.withConfig({
   line-height: 1.2rem;
   text-transform: capitalize;
 
-  ${({ status }) =>
+  ${({ status }: WrapperProps) =>
     css`
       color: ${StatusColors[status] ?? StatusColors.DEFAULT};
     `};
 
-  ${({ status }) =>
+  ${({ status }: WrapperProps) =>
     status !== TxStatusEnum.Initiated &&
     css`
       &:before {
