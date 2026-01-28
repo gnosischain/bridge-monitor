@@ -1,7 +1,12 @@
 import useSWR from 'swr'
-import { createWeb3Name } from '@web3-name-sdk/core'
+import { createPublicClient, http } from 'viem'
+import { gnosis } from 'viem/chains'
+import { normalize } from 'viem/ens'
 
-const web3name = createWeb3Name({ rpcUrl: process.env.NEXT_PUBLIC_RPC_MAINNET })
+const client = createPublicClient({
+  chain: gnosis,
+  transport: http(process.env.NEXT_PUBLIC_RPC_GNOSIS),
+})
 
 interface UseWeb3NameProps {
   address?: string
@@ -9,15 +14,16 @@ interface UseWeb3NameProps {
 }
 
 const fetchName = async (address: string) => {
-  const resolvedName = await web3name.getDomainName({
-    address,
-    queryTldList: ['gno'],
+  const resolvedName = await client.getEnsName({
+    address: address as `0x${string}`,
   })
   return resolvedName
 }
 
 const fetchAddress = async (name: string) => {
-  const resolvedAddress = await web3name.getAddress(name)
+  const resolvedAddress = await client.getEnsAddress({
+    name: normalize(name),
+  })
   return resolvedAddress
 }
 
