@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, http, namehash, parseAbi } from 'viem'
 import { gnosis } from 'viem/chains'
 import { normalize } from 'viem/ens'
 
@@ -8,23 +8,53 @@ const client = createPublicClient({
   transport: http(process.env.NEXT_PUBLIC_RPC_GNOSIS),
 })
 
+const SPACE_ID_REAL_CONTRACT = '0x6D3B3F99177FB2A5de7F9E928a9BD807bF7b5BAD'
+
+const resolverAbi = parseAbi([
+  'function name(bytes32 node) view returns (string)',
+  'function addr(bytes32 node) view returns (address)',
+])
+
 interface UseWeb3NameProps {
   address?: string
   name?: string
 }
 
 const fetchName = async (address: string) => {
-  const resolvedName = await client.getEnsName({
-    address: address as `0x${string}`,
-  })
-  return resolvedName
+  try {
+    const cleanAddress = address.toLowerCase().substring(2)
+    const reverseNode = namehash(`${cleanAddress}.addr.reverse`)
+
+    const name = await client.readContract({
+      address: SPACE_ID_REAL_CONTRACT,
+      abi: resolverAbi,
+      functionName: 'name',
+      args: [reverseNode],
+    })
+
+    return name || null
+  } catch (err) {
+    console.error('Error fetching name directly:', err)
+    return null
+  }
 }
 
 const fetchAddress = async (name: string) => {
-  const resolvedAddress = await client.getEnsAddress({
-    name: normalize(name),
-  })
-  return resolvedAddress
+  try {
+    const node = namehash(normalize(name))
+
+    const resolvedAddress = await client.readContract({
+      address: SPACE_ID_REAL_CONTRACT,
+      abi: resolverAbi,
+      functionName: 'addr',
+      args: [node],
+    })
+
+    return resolvedAddress
+  } catch (err) {
+    console.error('Error fetching address directly:', err)
+    return null
+  }
 }
 
 const useWeb3Name = ({ address, name }: UseWeb3NameProps) => {
