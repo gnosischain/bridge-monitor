@@ -30,7 +30,6 @@
     "@safe-global/safe-apps-provider": "0.18.3",
     "@safe-global/safe-apps-sdk": "9.1.0",
     "@uniswap/sdk-core": "4.0.7",
-    "@web3-name-sdk/core": "0.3.0",
     "@web3-onboard/common": "2.3.3",
     "@web3-onboard/core": "2.21.2",
     "@web3-onboard/gnosis": "2.3.1",
@@ -48,7 +47,7 @@
     "graphql-tag": "2.12.6",
     "loader-utils": "2.0.4",
     "lodash": "4.17.21",
-    "next": "15.4.10",
+    "next": "15.4.11",
     "nextjs-google-analytics": "1.2.0",
     "nullthrows": "1.1.1",
     "polished": "4.2.2",
@@ -65,7 +64,8 @@
     "styled-components": "6.3.8",
     "stylis": "4.0.0",
     "swr": "2.0.0",
-    "use-debounce": "10.0.0"
+    "use-debounce": "10.0.0",
+    "viem": "^2.37.8"
   },
   "devDependencies": {
     "@commitlint/cli": "17.0.2",
