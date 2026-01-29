@@ -4,7 +4,7 @@ FROM base AS deps
 RUN apk add --update --no-cache
 RUN apk add --no-cache libc6-compat
 RUN apk add python3 make g++
-RUN yarn policies set-version v1.22.19
+RUN pnpm policies set-version v1.22.19
 RUN npm version
 WORKDIR /app
 
@@ -26,13 +26,13 @@ ARG NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS
 ARG NEXT_PUBLIC_ALCHEMY_API_KEY
 ARG NEXT_PUBLIC_ENVIO_INDEXER_URL
 ARG NEXT_PUBLIC_INDEXER_BACKEND
-COPY package.json yarn.lock subgraph-config.js ./
+COPY package.json pnpm-lock.yaml subgraph-config.js ./
 COPY /src ./src
 
-# Cleaning the cache of yarn
-RUN  yarn cache clean
+# Cleaning the cache of pnpm
+RUN  pnpm cache clean
 
-RUN  yarn install
+RUN  pnpm install
 
 FROM base AS builder
 WORKDIR /app
@@ -58,7 +58,7 @@ ARG NEXT_PUBLIC_ALCHEMY_API_KEY
 ARG NEXT_PUBLIC_ENVIO_INDEXER_URL
 ARG NEXT_PUBLIC_INDEXER_BACKEND
 
-RUN yarn build
+RUN pnpm build
 
 FROM base AS runner
 WORKDIR /app
@@ -69,7 +69,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder --chown=nextjs:nodejs /app/package.json /app/yarn.lock ./
+COPY --from=builder --chown=nextjs:nodejs /app/package.json /app/pnpm-lock.yaml ./
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/next.config.js  ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
@@ -82,4 +82,4 @@ EXPOSE 3000
 
 ENV PORT 3000
 
-CMD ["yarn", "start"]
+CMD ["pnpm", "start"]
