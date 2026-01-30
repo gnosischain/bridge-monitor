@@ -95,7 +95,7 @@ jobs:
         if: inputs.environment == 'develop'
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
         with:
-          context: ./app
+          context: .
           file: ./app/Dockerfile
           push: true
           tags: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/bridge/bridge:develop
@@ -121,7 +121,7 @@ jobs:
         if: inputs.environment == 'staging'
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
         with:
-          context: ./app
+          context: .
           file: ./app/Dockerfile
           push: true
           tags: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/bridge/bridge:staging
