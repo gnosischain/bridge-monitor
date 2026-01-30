@@ -25,8 +25,6 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # Copy app source
 COPY app ./app
 
-WORKDIR /workspace/app
-
 ENV NEXT_TELEMETRY_DISABLED 1
 
 ARG NEXT_PUBLIC_APP_NAME
@@ -45,7 +43,7 @@ ARG NEXT_PUBLIC_ALCHEMY_API_KEY
 ARG NEXT_PUBLIC_ENVIO_INDEXER_URL
 ARG NEXT_PUBLIC_INDEXER_BACKEND
 
-RUN pnpm build
+RUN pnpm --filter gnosis-bridge-explorer build
 
 FROM base AS runner
 WORKDIR /app
