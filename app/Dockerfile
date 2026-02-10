@@ -1,4 +1,5 @@
 FROM node:22.13.1-alpine AS base
+RUN npm install -g corepack@0.34.6
 RUN corepack enable && corepack prepare pnpm@9.6.0 --activate
 
 FROM base AS deps
