@@ -4,7 +4,7 @@ import tseslint from 'typescript-eslint'
 import prettierRecommended from 'eslint-plugin-prettier/recommended'
 import reactHooks from 'eslint-plugin-react-hooks'
 import sortDestructureKeys from 'eslint-plugin-sort-destructure-keys'
-// import jsxA11y from "eslint-plugin-jsx-a11y"; not yet compatible with eslint 10
+import jsxA11y from 'eslint-plugin-jsx-a11y'
 
 import nextPlugin from '@next/eslint-plugin-next'
 import reactPlugin from 'eslint-plugin-react'
@@ -43,7 +43,7 @@ export default [
 
   js.configs.recommended,
   ...tseslint.configs.recommended,
-  // jsxA11y.flatConfigs.recommended,
+  jsxA11y.flatConfigs.recommended,
   reactPlugin.configs.flat.recommended,
 
   {
