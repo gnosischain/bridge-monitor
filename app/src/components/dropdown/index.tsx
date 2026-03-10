@@ -259,7 +259,7 @@ export const Dropdown: React.FC<Props> = (props) => {
         return
       }
       setIsOpen(false)
-      onClose && onClose()
+      onClose?.()
     }
 
     document.addEventListener('mousedown', handleClick)
@@ -304,7 +304,7 @@ export const Dropdown: React.FC<Props> = (props) => {
 
                 if (item.props.closeOnClick) {
                   setIsOpen(false)
-                  onClose && onClose()
+                  onClose?.()
                 }
 
                 if (!item.props.onClick) {
