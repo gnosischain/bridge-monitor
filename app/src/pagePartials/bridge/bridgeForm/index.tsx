@@ -4,7 +4,7 @@ import { AmountTokenInput } from '@/src/pagePartials/bridge/bridgeForm/AmountTok
 import { ButtonPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/button/ButtonPlaceholder'
 import { RecipientAddress } from '@/src/pagePartials/bridge/bridgeForm/RecipientAddress'
 import { CardPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/CardPlaceholder'
-import { Chains } from '@/src/constants/config/types'
+import { Chains, ChainsKeys } from '@/src/constants/config/types'
 import { Header } from '@/src/pagePartials/bridge/bridgeForm/Header'
 import { InnerCard } from '@/src/pagePartials/bridge/bridgeForm/InnerCard'
 import { UnwrapFirst } from '@/src/pagePartials/bridge/bridgeForm/warnings/UnwrapFirst'
@@ -48,6 +48,9 @@ import { UnifiedBridgeButton } from './button/UnifiedBridgeButton'
 import { useRouter } from 'next/router'
 import { useSanitizedQuery } from '@/src/hooks/useSanitizedQuery'
 import { isBlockedToken } from '@/src/utils/blockedTokens'
+import { TokenAddress } from '@/src/components/token/TokenAddress'
+import { getChainKey } from '@/src/constants/config/chains'
+import { ShowTokenAddress } from './ShowTokenAddress'
 
 const Title = styled.h2`
   align-items: center;
@@ -149,7 +152,7 @@ const initialState: BridgeFormState = {
 
 const Main = () => {
   const router = useRouter()
-  const { address, walletChainId } = useWeb3Connection()
+  const { address, getExplorerUrl, walletChainId } = useWeb3Connection()
   const { tokensByNetwork } = useBridgedTokens()
 
   const sanitizedQuery = useSanitizedQuery(tokensByNetwork)
@@ -283,6 +286,15 @@ const Main = () => {
                   value={formState.amount}
                 />
               </BridgedToken>
+
+              <ShowTokenAddress
+                address={formState.token?.address || ''}
+                explorerUrl={getExplorerUrl(
+                  formState.token?.address || '',
+                  getChainKey(formState.fromChainId),
+                )}
+              />
+
               <Switch onClick={() => handleFromChainIdChange()} />
             </InnerCardFrom>
             <InnerCard>
@@ -324,6 +336,13 @@ const Main = () => {
                       tokenOut={tokenOut}
                     />
                   </BridgedToken>
+                  <ShowTokenAddress
+                    address={tokenOut?.address || ''}
+                    explorerUrl={getExplorerUrl(
+                      tokenOut?.address || '',
+                      getChainKey(formState.toChainId),
+                    )}
+                  />
                   <RecipientAddress
                     onChange={(event) => dispatch({ ...formState, recipient: event.target.value })}
                     recipient={formState.recipient}
