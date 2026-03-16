@@ -1,7 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { loadEnvConfig } = require('@next/env')
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const subgraphEndpoints = require('./src/constants/config/subgraph-endpoints.json')
+import { loadEnvConfig } from '@next/env'
+import subgraphEndpoints from './src/constants/config/subgraph-endpoints.json'
 const codeGenOutDir = 'types/generated/subgraph.ts'
 
 if (!Object.keys(subgraphEndpoints).length) {

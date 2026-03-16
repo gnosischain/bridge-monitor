@@ -1,7 +1,19 @@
 import useSWR from 'swr'
-import { createWeb3Name } from '@web3-name-sdk/core'
+import { createPublicClient, http, namehash, parseAbi } from 'viem'
+import { gnosis } from 'viem/chains'
+import { normalize } from 'viem/ens'
 
-const web3name = createWeb3Name({ rpcUrl: process.env.NEXT_PUBLIC_RPC_MAINNET })
+const client = createPublicClient({
+  chain: gnosis,
+  transport: http(process.env.NEXT_PUBLIC_RPC_GNOSIS),
+})
+
+const SPACE_ID_REAL_CONTRACT = '0x6D3B3F99177FB2A5de7F9E928a9BD807bF7b5BAD'
+
+const resolverAbi = parseAbi([
+  'function name(bytes32 node) view returns (string)',
+  'function addr(bytes32 node) view returns (address)',
+])
 
 interface UseWeb3NameProps {
   address?: string
@@ -9,16 +21,40 @@ interface UseWeb3NameProps {
 }
 
 const fetchName = async (address: string) => {
-  const resolvedName = await web3name.getDomainName({
-    address,
-    queryTldList: ['gno'],
-  })
-  return resolvedName
+  try {
+    const cleanAddress = address.toLowerCase().substring(2)
+    const reverseNode = namehash(`${cleanAddress}.addr.reverse`)
+
+    const name = await client.readContract({
+      address: SPACE_ID_REAL_CONTRACT,
+      abi: resolverAbi,
+      functionName: 'name',
+      args: [reverseNode],
+    })
+
+    return name || null
+  } catch (err) {
+    console.error('Error fetching name directly:', err)
+    return null
+  }
 }
 
 const fetchAddress = async (name: string) => {
-  const resolvedAddress = await web3name.getAddress(name)
-  return resolvedAddress
+  try {
+    const node = namehash(normalize(name))
+
+    const resolvedAddress = await client.readContract({
+      address: SPACE_ID_REAL_CONTRACT,
+      abi: resolverAbi,
+      functionName: 'addr',
+      args: [node],
+    })
+
+    return resolvedAddress
+  } catch (err) {
+    console.error('Error fetching address directly:', err)
+    return null
+  }
 }
 
 const useWeb3Name = ({ address, name }: UseWeb3NameProps) => {

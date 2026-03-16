@@ -31,7 +31,6 @@ const SearchWrapper = styled.div`
   width: 100%;
 `
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 // const Textfield: any = styled(DebounceInput)`
 const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
   element: 'input',

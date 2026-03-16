@@ -122,7 +122,7 @@ export const Modal: React.FC<Props> = ({
       <Wrapper className="modal" onClick={close} {...restProps}>
         <Card
           className="modalCard"
-          onClick={(e) => {
+          onClick={(e: React.MouseEvent) => {
             e.preventDefault()
             e.stopPropagation()
           }}
