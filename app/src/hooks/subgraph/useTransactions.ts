@@ -9,13 +9,6 @@ import { BridgesValues } from '@/src/constants/config/bridges'
 import { msToSeconds } from '@/src/utils/date'
 import { Transaction, TxsInMemoryFilters, fetchTransactions } from '@/src/utils/transactions'
 import { getValidatorByName } from '@/src/utils/validators'
-import {
-  OrderDirection,
-  QueryTransactionsArgs,
-  TransactionStatus,
-  Transaction_Filter,
-  Transaction_OrderBy,
-} from '@/types/generated/subgraph'
 import { isTransactionHash } from '@/src/utils/tools'
 import differenceInDays from 'date-fns/differenceInDays'
 import { MAX_DAYS_TO_FILTER } from '@/src/constants/misc'
@@ -47,12 +40,12 @@ export const useFetchTransactions = (
   const { data, error, isLoading, isValidating, mutate } = useSWR<Transaction[]>(
     query
       ? [
-          'useFetchTransactions',
-          JSON.stringify(query),
-          query,
-          JSON.stringify(inMemoryFilters),
-          inMemoryFilters,
-        ]
+        'useFetchTransactions',
+        JSON.stringify(query),
+        query,
+        JSON.stringify(inMemoryFilters),
+        inMemoryFilters,
+      ]
       : null,
     async ([, , _query, , _inMemoryFilters]: [
       string,

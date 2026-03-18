@@ -2,7 +2,6 @@ import { fromSubgraphTimestamp } from '@/src/utils/date'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { Chains } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
-import { getForeignGraphqlClient, getHomeGraphqlClient } from '@/src/constants/config/subgraph'
 import { getEnvioGraphqlClient, isEnvioBackend } from '@/src/constants/config/indexer'
 import { ENVIO_TRANSACTIONS_QUERY, TRANSACTION_QUERY } from '@/src/queries/transactions'
 import {
@@ -138,114 +137,6 @@ const prepareTransactionForView = (tx: TransactionSG): Transaction => {
   }
 
   return res
-}
-
-const fetchHomeTransaction = async (query?: QueryTransactionsArgs) => {
-  let skip = 0
-  let transactions: TransactionsQuery['transactions'] = []
-  let shouldIterate = true
-
-  while (shouldIterate) {
-    const { transactions: newTransactions } = await getHomeGraphqlClient()<
-      TransactionsQuery,
-      QueryTransactionsArgs
-    >(TRANSACTION_QUERY, { ...query, skip, first: defaultRequestLimit })
-
-    transactions = [...transactions, ...newTransactions]
-    skip += query?.first ?? defaultRequestLimit
-    shouldIterate = newTransactions.length == (query?.first ?? defaultRequestLimit)
-  }
-
-  return transactions
-}
-
-const fetchForeignTransaction = async (query?: QueryTransactionsArgs) => {
-  let skip = 0
-  let transactions: TransactionsQuery['transactions'] = []
-  let shouldIterate = true
-
-  while (shouldIterate) {
-    const { transactions: newTransactions } = await getForeignGraphqlClient()<
-      TransactionsQuery,
-      QueryTransactionsArgs
-    >(TRANSACTION_QUERY, { ...query, skip, first: defaultRequestLimit })
-
-    transactions = [...transactions, ...newTransactions]
-    skip += query?.first ?? defaultRequestLimit
-    shouldIterate = newTransactions.length == (query?.first ?? defaultRequestLimit)
-  }
-
-  return transactions
-}
-
-export const unifyTransactions = async (
-  _homeTxs: TransactionSG[],
-  _foreignTxs: TransactionSG[],
-) => {
-  let homeTxs = [..._homeTxs]
-  let foreignTxs = [..._foreignTxs]
-
-  // Some filters like tx.hash or tx.timestamp will filter txs only on one side.
-  // We use the tx id from one side to bring the tx from the other side.
-  const foreignTxsIds = foreignTxs.map((tx) => tx.id)
-  const homeTxsIds = homeTxs.map((tx) => tx.id)
-
-  // all the txs that are on home but not on foreign
-  const missingForeignIds = homeTxsIds.filter((id) => !foreignTxsIds.includes(id))
-  // all the txs that are on foreign but not on home
-  const missingHomeIds = foreignTxsIds.filter((id) => !homeTxsIds.includes(id))
-
-  // if there are missing txs on home, we fetch them and assign them to homeTxs
-  if (missingHomeIds.length > 0) {
-    const missingTxs = (await fetchHomeTransaction({
-      where: { id_in: missingHomeIds },
-    })) as TransactionSG[]
-
-    homeTxs = [...homeTxs, ...missingTxs]
-  }
-
-  // if there are missing txs on foreign, we fetch them and assign them to foreignTxs
-  if (missingForeignIds.length > 0) {
-    const missingTxs = (await fetchForeignTransaction({
-      where: { id_in: missingForeignIds },
-    })) as TransactionSG[]
-
-    foreignTxs = [...foreignTxs, ...missingTxs]
-  }
-
-  // 1. initiate with homeTxs.
-  const allTransactions: Record<string, TransactionSG> = homeTxs.reduce((acc, tx) => {
-    acc[tx.id] = tx
-    return acc
-  }, {} as Record<string, TransactionSG>)
-
-  // 2. hydrate with foreign txs
-  foreignTxs.forEach((foreignTx) => {
-    if (!allTransactions[foreignTx.id]) {
-      // initiated on foreign but home is not aware of it yet
-      allTransactions[foreignTx.id] = foreignTx
-    } else {
-      const hydratedTx = allTransactions[foreignTx.id]
-
-      if (foreignTx.initiatorNetwork == 'gnosis') {
-        // get execution info from foreign
-        if (foreignTx.execution) {
-          hydratedTx.transactionStatus = foreignTx.transactionStatus
-          hydratedTx.execution = foreignTx.execution
-        }
-      } else {
-        // get initiator info from foreign
-        hydratedTx.transactionHash = foreignTx.transactionHash
-        hydratedTx.timestamp = foreignTx.timestamp
-        hydratedTx.initiator = foreignTx.initiator
-        hydratedTx.initiatorAmount = foreignTx.initiatorAmount
-        hydratedTx.initiatorNetwork = foreignTx.initiatorNetwork
-        hydratedTx.initiatorToken = foreignTx.initiatorToken
-      }
-    }
-  })
-
-  return Object.values(allTransactions).sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
 }
 
 const toEnvioWhere = (where?: unknown): Record<string, unknown> | undefined => {
@@ -462,22 +353,22 @@ const fetchTransactionsEnvio = async (
       transactionStatus: row.transactionStatus,
       execution: row.execution
         ? {
-            __typename: 'TransactionExecution' as const,
-            id: row.execution.id,
-            timestamp: row.execution.timestamp,
-            transactionHash: row.execution.transactionHash,
-            // map executorAddress -> validatorAddr
-            validatorAddr: row.execution.executorAddress,
-          }
+          __typename: 'TransactionExecution' as const,
+          id: row.execution.id,
+          timestamp: row.execution.timestamp,
+          transactionHash: row.execution.transactionHash,
+          // map executorAddress -> validatorAddr
+          validatorAddr: row.execution.executorAddress,
+        }
         : null,
       validations: Array.isArray(row.validations)
         ? row.validations.map((v) => ({
-            __typename: 'TransactionValidation' as const,
-            id: v.id,
-            timestamp: v.timestamp,
-            transactionHash: v.transactionHash,
-            validatorAddr: v.validatorAddress,
-          }))
+          __typename: 'TransactionValidation' as const,
+          id: v.id,
+          timestamp: v.timestamp,
+          transactionHash: v.transactionHash,
+          validatorAddr: v.validatorAddress,
+        }))
         : [],
     } as unknown as TransactionSG
   })
@@ -509,32 +400,4 @@ export const fetchTransactions = async (
   if (isEnvioBackend()) {
     return fetchTransactionsEnvio(query, inMemoryFilters)
   }
-  const [homeTxs, foreignTxs] = await Promise.all([
-    fetchHomeTransaction(query),
-    fetchForeignTransaction(query),
-  ])
-
-  let transactions = await unifyTransactions(
-    homeTxs as TransactionSG[],
-    foreignTxs as TransactionSG[],
-  )
-
-  if (inMemoryFilters.validator) {
-    transactions = transactions
-      .filter((tx) => tx.validations)
-      .filter((tx) =>
-        tx.validations?.some((validation) =>
-          isSameString(validation.validatorAddr, inMemoryFilters.validator ?? ''),
-        ),
-      )
-  }
-
-  if (inMemoryFilters.executor) {
-    transactions = transactions
-      .filter((tx) => !!tx.execution?.validatorAddr)
-      .filter((tx) => isSameString(tx.execution?.validatorAddr, inMemoryFilters.executor ?? ''))
-  }
-
-  const res = transactions.map(prepareTransactionForView)
-  return res
 }

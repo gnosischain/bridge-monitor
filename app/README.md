@@ -10,10 +10,6 @@ from within this folder run
 
 http://localhost:3000
 
-## Subgraph Dynamic URL Configuration
-
-For configuring dynamic URLs based on network IDs and environment variables, please refer to the [Subgraph Dynamic URL Configuration](docs/subgraph-dynamic-url-configuration.md) documentation.
-
 ## Adding New Validators
 
 ### Fetching Validators Info
