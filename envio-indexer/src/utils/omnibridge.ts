@@ -3,18 +3,14 @@
  * - [0..66):    0x + messageId (32 bytes = 64 hex)
  * - [66..106):  origin mediator (20 bytes = 40 hex)
  * - [106..146): destination mediator (20 bytes = 40 hex)
- * - [146..162): gasLimit (8 bytes = 16 hex)
- * - [162..168): chainLengths + dataType (3 bytes = 6 hex)
- * - [168..~172): chainIds (variable, typically 2-4 hex chars each)
- * - [~172+]:    calldata for handleBridgedTokens(token, receiver, value)
- *               - selector: 4 bytes
- *               - token: 32 bytes (address padded)
- *               - receiver: 32 bytes (address padded, last 20 bytes are the address)
- *               - value: 32 bytes
- *
- * The receiver position varies based on chain ID encoding. Common positions:
- * - ~[268..308) for short chain IDs (1-byte each)
- * - May shift for longer chain IDs
+ * - [146..154): gasLimit (4 bytes = 8 hex)   ← 4 bytes, not 8!
+ * - [154..160): chainLengths + dataType (3 bytes = 6 hex)
+ * - [160..164): chainIds (2×1-byte for ETH/GC = 4 hex)
+ * - [164..]:    calldata for handleBridgedTokens(token, receiver, value)
+ *               - selector: 4 bytes  [164..172)
+ *               - token: 32 bytes    [172..236), address at [196..236)
+ *               - receiver: 32 bytes [236..300), address at [260..300)
+ *               - value: 32 bytes    [300..364)
  */
 
 // Known OmniBridge mediator addresses (lowercased)
@@ -98,10 +94,10 @@ export function isZeroishAddress(addr?: string): boolean {
 export function extractReceiverFromEncodedData(encodedData?: string): string | undefined {
   if (!encodedData || encodedData.length < 308) return undefined;
 
-  // Try the most common offset first (for short 1-byte chain IDs)
-  // Calldata starts around position 172, receiver is the 2nd param (after 4-byte selector + 32-byte token)
-  // Receiver address is last 40 chars of the 64-char padded field
-  const offsets = [268, 260, 276]; // Try multiple offsets due to variable chain ID lengths
+  // Receiver address occupies the last 40 chars of the 2nd calldata param [236..300)
+  // gasLimit is 4 bytes (not 8), so calldata starts at char 164 → receiver address at [260..300)
+  // Try nearby offsets as fallback for edge cases (different chain ID lengths)
+  const offsets = [260, 268, 252];
 
   for (const offset of offsets) {
     if (encodedData.length >= offset + 40) {
