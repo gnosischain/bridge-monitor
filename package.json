@@ -1,13 +1,26 @@
 {
   "name": "gnosis-bridge",
   "version": "3.0.17",
+  "scripts": {
+    "app:dev": "pnpm --filter gnosis-bridge-explorer dev",
+    "app:build": "pnpm --filter gnosis-bridge-explorer build",
+    "app:start": "pnpm --filter gnosis-bridge-explorer start",
+    "app:lint": "pnpm --filter gnosis-bridge-explorer lint",
+    "app:lint:fix": "pnpm --filter gnosis-bridge-explorer lint:fix",
+    "indexer:dev": "pnpm --filter envio-indexer dev",
+    "indexer:build": "pnpm --filter envio-indexer build",
+    "indexer:codegen": "pnpm --filter envio-indexer codegen",
+    "indexer:start": "pnpm --filter envio-indexer start"
+  },
   "license": "MIT",
   "private": true,
   "workspaces": {
     "packages": [
       "app",
       "alerts",
-      "subgraph"
+      "subgraph",
+      "envio-indexer",
+      "envio-indexer/generated"
     ]
   },
   "packageManager": "pnpm@9.6.0",
