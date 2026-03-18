@@ -1,9 +1,20 @@
 /**
  * encodedData layout (hex string):
- * - [0..66):  0x + 64 hex (messageId)
- * - [66..106): origin mediator (40 hex, no 0x)
- * - [106..146): destination mediator (40 hex, no 0x)
- * - receiver is later in payload; subgraph slices [260..300)
+ * - [0..66):    0x + messageId (32 bytes = 64 hex)
+ * - [66..106):  origin mediator (20 bytes = 40 hex)
+ * - [106..146): destination mediator (20 bytes = 40 hex)
+ * - [146..162): gasLimit (8 bytes = 16 hex)
+ * - [162..168): chainLengths + dataType (3 bytes = 6 hex)
+ * - [168..~172): chainIds (variable, typically 2-4 hex chars each)
+ * - [~172+]:    calldata for handleBridgedTokens(token, receiver, value)
+ *               - selector: 4 bytes
+ *               - token: 32 bytes (address padded)
+ *               - receiver: 32 bytes (address padded, last 20 bytes are the address)
+ *               - value: 32 bytes
+ *
+ * The receiver position varies based on chain ID encoding. Common positions:
+ * - ~[268..308) for short chain IDs (1-byte each)
+ * - May shift for longer chain IDs
  */
 
 // Known OmniBridge mediator addresses (lowercased)
@@ -35,6 +46,21 @@ const FOREIGN_MEDIATORS = new Set<string>([
   "0x41a4ee2855a7dc328524babb07d7f505b201133e",
 ]);
 
+// Router/wrapper contracts that shouldn't be shown as receiver
+// When these are detected as receiver, we should fall back to sender
+const ROUTER_CONTRACTS = new Set<string>([
+  // WETHOmnibridgeRouter on Ethereum - wraps/unwraps ETH<>WETH
+  "0xa6439ca0fcba1d0f80df0be6a17220fed9c9038a",
+]);
+
+/**
+ * Check if an address is a router/wrapper contract that shouldn't be shown as final receiver
+ */
+export function isRouterContract(addr?: string): boolean {
+  if (!addr) return false;
+  return ROUTER_CONTRACTS.has(addr.toLowerCase());
+}
+
 // Returns true if encodedData indicates OmniBridge usage (canonical or override mediators)
 export function isOmniBridgeUsage(encodedData?: string): boolean {
   if (!encodedData || encodedData.length < 146) return false;
@@ -50,10 +76,43 @@ export function isOmniBridgeUsage(encodedData?: string): boolean {
   return (originIsHome && destIsForeign) || (originIsForeign && destIsHome);
 }
 
-// Extract receiver from encodedData (subgraph uses slice [260..300))
+/**
+ * Check if an address is "zero-ish" (mostly zeros, likely invalid extraction)
+ * Examples: 0x00000000000000000000000000000000000000c0
+ */
+export function isZeroishAddress(addr?: string): boolean {
+  if (!addr) return true;
+  const withoutPrefix = addr.toLowerCase().replace("0x", "");
+  if (withoutPrefix.length !== 40) return true;
+  // Count non-zero characters - a valid address should have more than 4
+  const nonZeroChars = withoutPrefix.replace(/0/g, "");
+  return nonZeroChars.length <= 4;
+}
+
+/**
+ * Extract receiver from encodedData.
+ * The receiver is in the calldata portion which calls handleBridgedTokens(token, receiver, value).
+ * Position varies based on chain ID encoding in the AMB header.
+ * Returns undefined if extraction fails or produces an invalid address.
+ */
 export function extractReceiverFromEncodedData(encodedData?: string): string | undefined {
-  if (!encodedData || encodedData.length < 300) return undefined;
-  return "0x" + encodedData.slice(260, 300);
+  if (!encodedData || encodedData.length < 308) return undefined;
+
+  // Try the most common offset first (for short 1-byte chain IDs)
+  // Calldata starts around position 172, receiver is the 2nd param (after 4-byte selector + 32-byte token)
+  // Receiver address is last 40 chars of the 64-char padded field
+  const offsets = [268, 260, 276]; // Try multiple offsets due to variable chain ID lengths
+
+  for (const offset of offsets) {
+    if (encodedData.length >= offset + 40) {
+      const candidate = "0x" + encodedData.slice(offset, offset + 40);
+      if (!isZeroishAddress(candidate)) {
+        return candidate;
+      }
+    }
+  }
+
+  return undefined;
 }
 
 /** Parse messageId (bytes32) from AMB encodedData bytes hex (first 32 bytes after 0x) */

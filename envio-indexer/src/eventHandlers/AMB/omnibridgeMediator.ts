@@ -2,6 +2,7 @@ import { OmniBridgeForeignMediator, OmniBridgeHomeMediator, ERC677BridgeHomeMedi
 import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { getTokenForBridge } from "../../utils/erc677TokenMapping";
 import { toLower } from "../../utils/toLower";
+import { isRouterContract } from "../../utils/omnibridge";
 
 // [Home] Gnosis - OmniBridge Mediator
 OmniBridgeHomeMediator.TokensBridgingInitiated.handler(async ({ event, context }) => {
@@ -137,6 +138,9 @@ OmniBridgeHomeMediator.TokensBridged.handler(async ({ event, context }) => {
   const recipient = toLower(event.params.recipient);
   const amount = event.params.value;
 
+  // Don't store router contracts as recipient - they're intermediaries, not final destinations
+  const finalRecipient = isRouterContract(recipient) ? undefined : recipient;
+
   const existing = await context.AMBTransfer.get(messageId);
   if (!existing) {
     context.AMBTransfer.set({
@@ -145,23 +149,27 @@ OmniBridgeHomeMediator.TokensBridged.handler(async ({ event, context }) => {
       token: token!,
       sender: undefined,
       amount,
-      recipient: recipient,
+      recipient: finalRecipient,
     });
   } else {
     context.AMBTransfer.set({
       ...existing,
       token: token!,
-      recipient: recipient,
+      recipient: finalRecipient ?? existing.recipient,
       amount,
     });
   }
 
   // Early backfill: if Transaction exists, set receiver fields immediately
+  // Don't override existing receiver with a router contract address
   const tx = await context.Transaction.get(messageId);
   if (tx) {
+    const newReceiver = isRouterContract(recipient)
+      ? tx.receiver?.toLowerCase()
+      : (tx.receiver?.toLowerCase() ?? recipient?.toLowerCase());
     const updated = {
       ...tx,
-      receiver: tx.receiver?.toLowerCase() ?? recipient?.toLowerCase(),
+      receiver: newReceiver,
       receiverToken: tx.receiverToken ?? token!,
       receiverAmount: tx.receiverAmount ?? amount,
     };
@@ -174,11 +182,14 @@ ERC677BridgeHomeMediator.TokensBridged.handler(async ({ event, context }) => {
   const messageId = event.params.messageId;
 
   const token = getTokenForBridge(event.srcAddress);
-if (!token) {
+  if (!token) {
     return;
-}
+  }
   const recipient = toLower(event.params.recipient);
   const amount = event.params.value;
+
+  // Don't store router contracts as recipient - they're intermediaries, not final destinations
+  const finalRecipient = isRouterContract(recipient) ? undefined : recipient;
 
   const existing = await context.AMBTransfer.get(messageId);
   if (!existing) {
@@ -188,23 +199,27 @@ if (!token) {
       token: token!,
       sender: undefined,
       amount,
-      recipient: recipient,
+      recipient: finalRecipient,
     });
   } else {
     context.AMBTransfer.set({
       ...existing,
       token: token!,
-      recipient: recipient,
+      recipient: finalRecipient ?? existing.recipient,
       amount,
     });
   }
 
   // Early backfill: if Transaction exists, set receiver fields immediately
+  // Don't override existing receiver with a router contract address
   const tx = await context.Transaction.get(messageId);
   if (tx) {
+    const newReceiver = isRouterContract(recipient)
+      ? tx.receiver?.toLowerCase()
+      : (tx.receiver?.toLowerCase() ?? recipient);
     const updated = {
       ...tx,
-      receiver: tx.receiver?.toLowerCase() ?? recipient,
+      receiver: newReceiver,
       receiverToken: tx.receiverToken ?? token!,
       receiverAmount: tx.receiverAmount ?? amount,
     };
@@ -343,6 +358,9 @@ OmniBridgeForeignMediator.TokensBridged.handler(async ({ event, context }) => {
   const recipient = toLower(event.params.recipient);
   const amount = event.params.value;
 
+  // Don't store router contracts as recipient - they're intermediaries, not final destinations
+  const finalRecipient = isRouterContract(recipient) ? undefined : recipient;
+
   const existing = await context.AMBTransfer.get(messageId);
   if (!existing) {
     context.AMBTransfer.set({
@@ -351,23 +369,27 @@ OmniBridgeForeignMediator.TokensBridged.handler(async ({ event, context }) => {
       token: token!,
       sender: undefined,
       amount,
-      recipient: recipient,
+      recipient: finalRecipient,
     });
   } else {
     context.AMBTransfer.set({
       ...existing,
       token: token!,
-      recipient: recipient,
+      recipient: finalRecipient ?? existing.recipient,
       amount,
     });
   }
 
   // Early backfill: if Transaction exists, set receiver fields immediately
+  // Don't override existing receiver with a router contract address
   const tx = await context.Transaction.get(messageId);
   if (tx) {
+    const newReceiver = isRouterContract(recipient)
+      ? tx.receiver?.toLowerCase()
+      : (tx.receiver?.toLowerCase() ?? recipient);
     const updated = {
       ...tx,
-      receiver: tx.receiver?.toLowerCase() ?? recipient,
+      receiver: newReceiver,
       receiverToken: tx.receiverToken ?? token!,
       receiverAmount: tx.receiverAmount ?? amount,
     };
@@ -381,11 +403,14 @@ ERC677BridgeForeignMediator.TokensBridged.handler(async ({ event, context }) => 
   const messageId = event.params.messageId;
 
   const token = getTokenForBridge(event.srcAddress);
-if (!token) {
+  if (!token) {
     return;
-}
+  }
   const recipient = toLower(event.params.recipient);
   const amount = event.params.value;
+
+  // Don't store router contracts as recipient - they're intermediaries, not final destinations
+  const finalRecipient = isRouterContract(recipient) ? undefined : recipient;
 
   const existing = await context.AMBTransfer.get(messageId);
   if (!existing) {
@@ -395,23 +420,27 @@ if (!token) {
       token: token!,
       sender: undefined,
       amount,
-      recipient: recipient,
+      recipient: finalRecipient,
     });
   } else {
     context.AMBTransfer.set({
       ...existing,
       token: token!,
-      recipient: recipient,
+      recipient: finalRecipient ?? existing.recipient,
       amount,
     });
   }
 
   // Early backfill: if Transaction exists, set receiver fields immediately
+  // Don't override existing receiver with a router contract address
   const tx = await context.Transaction.get(messageId);
   if (tx) {
+    const newReceiver = isRouterContract(recipient)
+      ? tx.receiver?.toLowerCase()
+      : (tx.receiver?.toLowerCase() ?? recipient);
     const updated = {
       ...tx,
-      receiver: tx.receiver?.toLowerCase() ?? recipient,
+      receiver: newReceiver,
       receiverToken: tx.receiverToken ?? token!,
       receiverAmount: tx.receiverAmount ?? amount,
     };
