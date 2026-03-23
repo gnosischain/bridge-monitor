@@ -235,6 +235,7 @@ const handleERC20TokenFromForeign = async ({
     try {
       gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
     } catch (error) {
+      console.log('error', error)
       gasLimit = BigNumber.from(0)
     }
     // gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())

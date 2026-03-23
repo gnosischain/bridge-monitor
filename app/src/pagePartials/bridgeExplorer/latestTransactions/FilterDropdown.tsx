@@ -22,10 +22,12 @@ const Button = styled(ButtonDropdown)<{ $activeFilter: boolean }>`
     `}
 `
 
-const LittleCircleOfExtraClarification = styled.div<{ $status: TransactionStatus }>`
+type CircleProps = { $status: TransactionStatus }
+
+const LittleCircleOfExtraClarification = styled.div<CircleProps>`
   --size: 8px;
 
-  background-color: ${({ $status }) => StatusColors[$status] ?? StatusColors.DEFAULT};
+  background-color: ${({ $status }: CircleProps) => StatusColors[$status] ?? StatusColors.DEFAULT};
   align-items: center;
   border-radius: 50%;
   height: var(--size);
