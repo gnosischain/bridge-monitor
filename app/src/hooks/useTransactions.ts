@@ -7,13 +7,19 @@ import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import { BridgeDirection } from '@/src/pagePartials/bridgeExplorer/latestTransactions/Filters'
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { msToSeconds } from '@/src/utils/date'
-import { Transaction, TxsInMemoryFilters, fetchTransactions } from '@/src/utils/transactions'
+import {
+  EnvioQueryArgs,
+  Transaction,
+  TxsInMemoryFilters,
+  fetchTransactions,
+} from '@/src/utils/transactions'
 import { getValidatorByName } from '@/src/utils/validators'
 import { isTransactionHash } from '@/src/utils/tools'
 import differenceInDays from 'date-fns/differenceInDays'
 import { MAX_DAYS_TO_FILTER } from '@/src/constants/misc'
 import { getForeignTransactions, setForeignTransaction } from '@/src/utils/localTransactions'
-import useWeb3Name from '../useWeb3Name'
+import { TransactionStatus } from '@/src/utils/transactions'
+import useWeb3Name from './useWeb3Name'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
 
 export type UpdateInMemoryTx = (transaction?: Transaction) => void
@@ -35,22 +41,22 @@ const modifyTxs = (txs: Transaction[]) => {
 
 export const useFetchTransactions = (
   inMemoryFilters: TxsInMemoryFilters,
-  query?: QueryTransactionsArgs,
+  query?: EnvioQueryArgs,
 ) => {
   const { data, error, isLoading, isValidating, mutate } = useSWR<Transaction[]>(
     query
       ? [
-        'useFetchTransactions',
-        JSON.stringify(query),
-        query,
-        JSON.stringify(inMemoryFilters),
-        inMemoryFilters,
-      ]
+          'useFetchTransactions',
+          JSON.stringify(query),
+          query,
+          JSON.stringify(inMemoryFilters),
+          inMemoryFilters,
+        ]
       : null,
     async ([, , _query, , _inMemoryFilters]: [
       string,
       string,
-      QueryTransactionsArgs,
+      EnvioQueryArgs,
       string,
       TxsInMemoryFilters,
     ]) => fetchTransactions(_query, _inMemoryFilters),
@@ -62,7 +68,6 @@ export const useFetchTransactions = (
       mutate()
     } else {
       setForeignTransaction(transaction.id)
-      // update in-memory txs
       mutate(
         (txs: Transaction[] | undefined) =>
           txs?.map((tx: Transaction) =>
@@ -85,7 +90,7 @@ export const useFetchTransactions = (
 
 export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   const [page, setPage] = useState(1)
-  const [query, setQuery] = useState<QueryTransactionsArgs>()
+  const [query, setQuery] = useState<EnvioQueryArgs>()
   const [inMemoryFilters, setInMemoryFilters] = useState<TxsInMemoryFilters>({})
   const { isLoading, isValidating, transactions, updateInMemoryTransaction } = useFetchTransactions(
     inMemoryFilters,
@@ -98,15 +103,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   })
 
   useEffect(() => {
-    const _where: Transaction_Filter = {
-      and: [],
-    }
-
-    const inMemoryFiltersAux: TxsInMemoryFilters = { validator: undefined, executor: undefined }
-
-    let updated = false
-
-    // if the date rage is bigger than MAX_DAYS_TO_FILTER, abort the query
+    // if the date range is bigger than MAX_DAYS_TO_FILTER, abort the query
     if (
       filters?.endTimestamp &&
       filters?.startTimestamp &&
@@ -115,39 +112,38 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
       return
     }
 
+    const andClauses: Array<Record<string, unknown>> = []
+    const inMemoryFiltersAux: TxsInMemoryFilters = { validator: undefined, executor: undefined }
+    let updated = false
+
     if (filters.hash) {
-      const hash = resolvedAddress ?? filters.hash // check
+      const hash = (resolvedAddress ?? filters.hash).toLowerCase()
       const isTxHash = isTransactionHash(hash)
-      const text = hash.toLowerCase()
       if (isTxHash) {
-        _where.and?.push({ transactionHash: text })
-      } else if (isAddress(text) || isDomainName) {
-        _where.and?.push({ or: [{ initiator: text }, { receiver: text }] })
+        andClauses.push({ transactionHash: { _eq: hash } })
+      } else if (isAddress(hash) || isDomainName) {
+        andClauses.push({ _or: [{ initiator: { _eq: hash } }, { receiver: { _eq: hash } }] })
       }
       updated = true
     }
     if (filters.bridge) {
       if (!filters.bridge.includes('All')) {
-        _where.and?.push({ bridgeName_contains_nocase: filters.bridge.toUpperCase() })
+        const val = filters.bridge.toUpperCase()
+        const enumVal = val.includes('XDAI') ? 'XDAI' : 'AMB'
+        andClauses.push({ bridgeType: { _eq: enumVal } })
       }
       updated = true
     }
     if (filters.bridgeDirection) {
-      if (!filters.bridgeDirection.includes('All')) {
-        updated = true
-      }
-      if (BridgeDirection.gnosis2mainnet === filters.bridgeDirection) {
-        _where.and?.push({ initiatorNetwork: 'gnosis' })
-      }
-      if (BridgeDirection.mainnet2gnosis === filters.bridgeDirection) {
-        _where.and?.push({ initiatorNetwork: 'mainnet' })
+      if (filters.bridgeDirection === BridgeDirection.gnosis2mainnet) {
+        andClauses.push({ initiatorNetwork: { _eq: 100 } })
+      } else if (filters.bridgeDirection === BridgeDirection.mainnet2gnosis) {
+        andClauses.push({ initiatorNetwork: { _eq: 1 } })
       }
       updated = true
     }
     if (filters.signedBy) {
-      if (filters.signedBy.includes('All')) {
-        inMemoryFiltersAux['validator'] = undefined
-      } else {
+      if (!filters.signedBy.includes('All')) {
         const bridgeValue = filters.bridge.toUpperCase() as BridgesValues
         const validator = getValidatorByName(filters.signedBy, bridgeValue)
         if (validator) {
@@ -156,9 +152,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
       }
     }
     if (filters.executedBy) {
-      if (filters.executedBy.includes('All')) {
-        inMemoryFiltersAux['executor'] = undefined
-      } else {
+      if (!filters.executedBy.includes('All')) {
         const bridgeValue = filters.bridge.toUpperCase() as BridgesValues
         const validator = getValidatorByName(filters.executedBy, bridgeValue)
         if (validator) {
@@ -167,23 +161,21 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
       }
     }
     if (filters.startTimestamp) {
-      _where.and?.push({ timestamp_gte: msToSeconds(filters.startTimestamp.getTime()) })
+      andClauses.push({ timestamp: { _gte: msToSeconds(filters.startTimestamp.getTime()) } })
       updated = true
     }
     if (filters.endTimestamp) {
-      _where.and?.push({ timestamp_lte: msToSeconds(filters.endTimestamp.getTime()) })
+      andClauses.push({ timestamp: { _lte: msToSeconds(filters.endTimestamp.getTime()) } })
       updated = true
     }
     if (updated) {
       setPage(1)
-      setQuery((q) => ({
-        ...q,
-        orderBy: Transaction_OrderBy.Timestamp,
-        orderDirection: OrderDirection.Desc,
-        first: PAGE_SIZE,
-        skip: 0,
-        where: _where,
-      }))
+      setQuery({
+        where: andClauses.length ? { _and: andClauses } : undefined,
+        order_by: [{ timestamp: 'desc' }],
+        limit: PAGE_SIZE,
+        offset: 0,
+      })
     }
     setInMemoryFilters(inMemoryFiltersAux)
   }, [
@@ -205,14 +197,8 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   const loadMore = useCallback(() => {
     const nextPage = page + 1
     setPage(nextPage)
-    setQuery((q) => ({
-      ...q,
-      orderBy: Transaction_OrderBy.Timestamp,
-      orderDirection: OrderDirection.Desc,
-      skip: 0,
-      first: nextPage * PAGE_SIZE,
-    }))
-  }, [setQuery, setPage, page])
+    setQuery((q) => (q ? { ...q, limit: nextPage * PAGE_SIZE } : q))
+  }, [page])
 
   const filteredTransactions =
     !filters.status || filters.status == 'All Status'
