@@ -1,12 +1,26 @@
 {
   "name": "gnosis-bridge",
   "version": "3.0.17",
+  "scripts": {
+    "app:dev": "pnpm --filter gnosis-bridge-explorer dev",
+    "app:build": "pnpm --filter gnosis-bridge-explorer build",
+    "app:start": "pnpm --filter gnosis-bridge-explorer start",
+    "app:lint": "pnpm --filter gnosis-bridge-explorer lint",
+    "app:lint:fix": "pnpm --filter gnosis-bridge-explorer lint:fix",
+    "indexer:dev": "pnpm --filter envio-indexer dev",
+    "indexer:build": "pnpm --filter envio-indexer build",
+    "indexer:codegen": "pnpm --filter envio-indexer codegen",
+    "indexer:start": "pnpm --filter envio-indexer start"
+  },
   "license": "MIT",
   "private": true,
   "workspaces": {
     "packages": [
       "app",
-      "alerts"
+      "alerts",
+      "subgraph",
+      "envio-indexer",
+      "envio-indexer/generated"
     ]
   },
   "packageManager": "pnpm@9.6.0",
@@ -24,7 +38,7 @@
       "@types/react": "17.0.2",
       "@types/react-dom": "17.0.2",
       "viem": "2.21.0",
-      "h3": "1.15.5",
+      "h3": "1.15.6",
       "ejs": "3.1.10",
       "crypto-es": "2.1.0",
       "elliptic": "6.6.1",
@@ -39,7 +53,10 @@
       "tar": "7.5.10",
       "serialize-javascript": "7.0.3",
       "immutable": "5.1.5",
-      "undici": "7.24.0"
+      "undici": "7.24.0",
+      "flatted": "3.4.2",
+      "body-parser": "1.20.3",
+      "path-to-regexp": "0.1.12"
     }
   }
 }
