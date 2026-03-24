@@ -18,16 +18,6 @@ Validators are fetched from each Bridge Validator Contract
 - XDAI [0xb289f0e6fbdff8eee340498a56e1787b303f1b6d](https://gnosisscan.io/address/0xb289f0e6fbdff8eee340498a56e1787b303f1b6d)
 - AMB [0xa280fed8d7cad9a76c8b50ca5c33c2534ffa5008](https://gnosisscan.io/address/0xa280fed8d7cad9a76c8b50ca5c33c2534ffa5008)
 
-If Bridges Validator Contracts change, their addresses must be updated at `subgraph/config/`
-- `gnosis.json` for Home Events
-- `mainnet.json` for Foreign Events
-
-For the subgraphs to listen ValidatorAdded` and `ValidatorRemoved` events
-
-### Registering new Validator for Transaction Info
-Before a Validator is added to Bridge Validator Contract, they must be registered within the subgraph config files.
-This will let Transaction Validation listeners have all required information and keep track of Validators' activity within the TXs. 
-
 ### Displaying Validator
 For the Explorer to render their information and list them, validators must be registered at:
 
