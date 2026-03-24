@@ -1,6 +1,8 @@
 packages:
   - "app"
   - "envio-indexer"
+  - "envio-indexer/generated"
+  - "subgraph"
 
 minimumReleaseAge: 4320
 trustPolicy: no-downgrade
