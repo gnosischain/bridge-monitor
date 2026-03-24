@@ -1,4 +1,4 @@
-import { fromSubgraphTimestamp } from '@/src/utils/date'
+import { fromSecondsTimestamp } from '@/src/utils/date'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { Chains } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
@@ -107,7 +107,7 @@ const prepareTransactionForView = (row: EnvioTx): Transaction => {
     id: row.id,
     bridgeName: bridgeTypeToName(row.bridgeType),
     transactionHash: row.transactionHash ?? '',
-    timestamp: fromSubgraphTimestamp(row.timestamp ?? 0),
+    timestamp: fromSecondsTimestamp(row.timestamp ?? 0),
     initiator: row.initiator ?? '',
     initiatorAmount: row.initiatorAmount ?? constants.Zero.toString(),
     initiatorNetwork,
@@ -122,7 +122,7 @@ const prepareTransactionForView = (row: EnvioTx): Transaction => {
     validations: Array.isArray(row.validations)
       ? row.validations.map((v) => ({
           id: v.id,
-          timestamp: fromSubgraphTimestamp(v.timestamp),
+          timestamp: fromSecondsTimestamp(v.timestamp),
           transactionHash: v.transactionHash,
           validatorAddr: v.validatorAddress,
           scanUrl: getTxScanUrl(v.transactionHash, GNOSIS),
@@ -131,7 +131,7 @@ const prepareTransactionForView = (row: EnvioTx): Transaction => {
     execution: row.execution
       ? {
           id: row.execution.id,
-          timestamp: fromSubgraphTimestamp(row.execution.timestamp),
+          timestamp: fromSecondsTimestamp(row.execution.timestamp),
           transactionHash: row.execution.transactionHash,
           validatorAddr: row.execution.executorAddress ?? undefined,
           scanUrl: getTxScanUrl(row.execution.transactionHash, GNOSIS),
