@@ -184,11 +184,11 @@ export const ToastComponent: React.FC<{
           {title && <Title>{title}</Title>}
           {message && messageTooLong ? (
             <>
-              <Code onClick={(e) => copy(e, message)}>
+              <Code onClick={(e: React.MouseEvent) => copy(e, message)}>
                 <div>{message.slice(0, maxLength)}[...]</div>
               </Code>
               <Text>
-                <ClickToCopy onClick={(e) => copy(e, message)}>
+                <ClickToCopy onClick={(e: React.MouseEvent) => copy(e, message)}>
                   Click to copy
                   <IconCopy />
                 </ClickToCopy>

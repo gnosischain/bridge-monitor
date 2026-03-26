@@ -10,7 +10,7 @@ import { Ok } from '@/src/components/assets/Ok'
 import { getChainKey, getNetworkConfig } from '@/src/constants/config/chains'
 import { transactionBaseURL } from '@/src/constants/sections'
 import { useEffect } from 'react'
-import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
+import { useFetchTransactions } from '@/src/hooks/useTransactions'
 import { useRouter } from 'next/router'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
@@ -173,7 +173,7 @@ const ButtonExploreTransaction = ({
   const { isLoading, transactions, updateInMemoryTransaction } = useFetchTransactions(
     {},
     {
-      where: { transactionHash },
+      where: { transactionHash: { _eq: transactionHash.toLowerCase() } },
     },
   )
 

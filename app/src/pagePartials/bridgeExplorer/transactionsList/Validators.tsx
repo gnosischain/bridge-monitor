@@ -70,7 +70,7 @@ export const Validators: React.FC<Props> = ({ transaction, ...restProps }) => {
           key={`validator_status_${transaction.id}_${index}`}
         >
           <ValidatorStatus
-            onClick={(e) =>
+            onClick={(e: React.MouseEvent<HTMLSpanElement, MouseEvent>) =>
               status === 'notRequired' || status === 'default' || status === 'pending'
                 ? undefined
                 : openLink(e, scanUrl)

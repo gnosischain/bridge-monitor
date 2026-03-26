@@ -34,14 +34,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Enable Corepack
+        run: |
+          npm install -g corepack@0.34.6
+          corepack enable
+
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
-
-      - name: Enable Corepack
-        run: corepack enable
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -85,7 +87,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@885d1462b80bc1c1c7f0b00334ad271f09369c55 # v2
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Configure Docker for Artifact Registry
         run: |
@@ -93,9 +95,9 @@ jobs:
 
       - name: Build and push DEVELOP to Artifact Registry
         if: inputs.environment == 'develop'
-        uses: docker/build-push-action@1104d471370f9806843c095c1db02b5a90c5f8b6 # v3
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
         with:
-          context: ./app
+          context: .
           file: ./app/Dockerfile
           push: true
           tags: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/bridge/bridge:develop
@@ -110,18 +112,15 @@ jobs:
             "NEXT_PUBLIC_RPC_GNOSIS=${{ secrets.DEV_RPC_GNOSIS }}"
             "NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL=${{ secrets.WALLET_CONNECT_URL }}"
             "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }}"
-            "NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT=development"
-            "NEXT_PUBLIC_SUBGRAPH_ACCESS_ID=${{ secrets.GRAPH_ORG }}"
-            "NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS=100:version/latest,1:version/latest"
             "NEXT_PUBLIC_ALCHEMY_API_KEY=${{ secrets.DEV_NEXT_PUBLIC_ALCHEMY_API_KEY }}"
             "NEXT_PUBLIC_ENVIO_INDEXER_URL=${{ secrets.DEV_ENVIO_INDEXER_URL }}"
             "NEXT_PUBLIC_INDEXER_BACKEND=${{ secrets.DEV_INDEXER_BACKEND }}"
 
       - name: Build and push STAGING to Artifact Registry
         if: inputs.environment == 'staging'
-        uses: docker/build-push-action@1104d471370f9806843c095c1db02b5a90c5f8b6 # v3
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
         with:
-          context: ./app
+          context: .
           file: ./app/Dockerfile
           push: true
           tags: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/bridge/bridge:staging
@@ -136,9 +135,6 @@ jobs:
             "NEXT_PUBLIC_RPC_GNOSIS=${{ secrets.PROD_RPC_GNOSIS }}"
             "NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL=${{ secrets.WALLET_CONNECT_URL }}"
             "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }}"
-            "NEXT_PUBLIC_SUBGRAPH_ENVIRONMENT=production"
-            "NEXT_PUBLIC_SUBGRAPH_ACCESS_ID=${{ secrets.THEGRAPH_READ_API_KEY }}"
-            "NEXT_PUBLIC_SUBGRAPH_CHAINS_RESOURCE_IDS=100:2ths6FTZhCBggnyakh7PL5KH91zjRv8xPNfzaCRKogJ,1:9W7Ye5xFfefNYDxXD4StqAuj7TU8eLq5PLmuPUnhFbeQ"
             "NEXT_PUBLIC_ALCHEMY_API_KEY=${{ secrets.PROD_NEXT_PUBLIC_ALCHEMY_API_KEY }}"
             "NEXT_PUBLIC_ENVIO_INDEXER_URL=${{ secrets.PROD_ENVIO_INDEXER_URL }}"
             "NEXT_PUBLIC_INDEXER_BACKEND=${{ secrets.PROD_INDEXER_BACKEND }}"

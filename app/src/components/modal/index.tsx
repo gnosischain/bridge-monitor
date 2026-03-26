@@ -30,7 +30,7 @@ const Wrapper = styled.div`
   animation: ${fadeIn} 0.2s ease-out;
 `
 
-const Card = styled(BaseCard)<{ size?: modalSize }>`
+const Card = styled(BaseCard) <{ size?: modalSize }>`
   background-color: ${({ theme: { colors } }) => colors.creamLight};
   border: 0;
   display: flex;
@@ -133,7 +133,8 @@ export const Modal: React.FC<Props> = ({
       <Wrapper className="modal" onClick={close} {...restProps}>
         <Card
           className="modalCard"
-          onClick={(e) => {
+          onClick={(e: React.MouseEvent) => {
+            e.preventDefault()
             e.stopPropagation()
           }}
           size={size}

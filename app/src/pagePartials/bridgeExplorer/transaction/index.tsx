@@ -9,9 +9,9 @@ import { Summary, SummaryPlaceholder } from '@/src/pagePartials/bridgeExplorer/t
 import { Validations } from '@/src/pagePartials/bridgeExplorer/transaction/Validations'
 import { DelayWarning } from '@/src/pagePartials/bridgeExplorer/transaction/DelayWarning'
 import { DetailsRow } from '@/src/pagePartials/bridgeExplorer/transaction/DetailsRow'
-import { useFetchTransactions } from '@/src/hooks/subgraph/useTransactions'
+import { useFetchTransactions } from '@/src/hooks/useTransactions'
 import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
-import { TransactionStatus } from '@/types/generated/subgraph'
+import { TransactionStatus } from '@/src/utils/transactions'
 import { getChainIconName } from '@/src/utils/icons'
 import { isSameString } from '@/src/utils/tools'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
@@ -126,7 +126,7 @@ export const Transaction: React.FC = ({ ...restProps }) => {
     {},
     {
       // transactionId is txHash in on the network that originated the bridge
-      where: { id: transactionId },
+      where: { id: { _eq: transactionId.toLowerCase() } },
     },
   )
 

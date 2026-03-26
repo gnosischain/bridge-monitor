@@ -5,10 +5,12 @@
 This monorepository contains the following folders:
 
 - /app: React Application repository
-- /subgraph: Subgraph repository
 - /envio-indexer: Envio Indexer repository
 - /alerts: Alert repository
 - /tests: Test plan and records
+
+deleted:
+- /subgraph: Subgraph repository on commit 270f27bec9b80386cceba1fb5dee67b9ad5c5430 and replace with envio-indexer
 
 ## Deploy Bridge-Explorer Pipeline
 
@@ -28,9 +30,9 @@ To execute the pipeline:
  - Push changes to the develop or staging branches, or create a new tag.
  - Monitor the pipeline execution and check the deployment status in the respective environment:
    - **Development Environment:**
-     - [https://bridge-explorer.dev.gnosisdev.com/](https://bridge-explorer.dev.gnosisdev.com/)
+     - [https://dev.bridge.gnosisdev.com/](https://dev.bridge.gnosisdev.com/)
    - **Staging Environment:**
-     - [https://bridge-explorer.staging.gnosisdev.com/](https://bridge-explorer.staging.gnosisdev.com/)
+     - [https://staging.bridge.gnosisdev.com/](https://staging.bridge.gnosisdev.com/)
    - **Production Environment:**
      - [https://bridge.gnosischain.com/](https://bridge.gnosischain.com/)
 

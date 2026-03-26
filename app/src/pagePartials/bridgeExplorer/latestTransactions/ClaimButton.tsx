@@ -21,7 +21,7 @@ import { Interface } from '@ethersproject/abi'
 import { JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
 import { useState } from 'react'
 import styled from 'styled-components'
-import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
+import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
 import { useIsUsdsEnabled } from '@/src/hooks/contracts/useIsUsdsEnabled'
 
 const Wrapper = styled.button`
@@ -105,11 +105,11 @@ export const ClaimButton = ({
 
       const messageHash = await (isUsdsEnabled
         ? (erc20ToNativeBridgeHelper as Erc20ToNativeBridgeHelper)[
-            'getMessageHash(address,uint256,bytes32,address)'
-          ](transaction.receiver, transaction.receiverAmount, modifiedId, transaction.receiverToken)
+          'getMessageHash(address,uint256,bytes32,address)'
+        ](transaction.receiver, transaction.receiverAmount, modifiedId, transaction.receiverToken)
         : (
-            erc20ToNativeBridgeHelper as Erc20ToNativeBridgeHelper_beforeUSDSMigration
-          ).getMessageHash(transaction.receiver, transaction.receiverAmount, modifiedId))
+          erc20ToNativeBridgeHelper as Erc20ToNativeBridgeHelper_beforeUSDSMigration
+        ).getMessageHash(transaction.receiver, transaction.receiverAmount, modifiedId))
       const [message, signatures] = await Promise.all([
         erc20ToNativeBridgeHelper.getMessage(messageHash),
         erc20ToNativeBridgeHelper.getSignatures(messageHash),
@@ -215,7 +215,7 @@ export const ClaimButton = ({
     } catch (e) {
       // If the method reverts, the withdrawal was likely already executed.
       // In this case, the user should be notified that the withdrawal was already executed.
-      console.log('e', e)
+      console.log('error', e)
       notify({
         type: ToastStates.failed,
         message: 'Failed to claim - it might have already been claimed',

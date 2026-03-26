@@ -43,11 +43,10 @@ export const TransactionNotificationProvider: React.FC = ({ children }) => {
 
   const removeTxFromStorage = useCallback(
     (txHash: string) => {
-      if (transactionStore) {
-        setTransactionStore(
-          transactionStore.filter((tx: TransactionStorageItem) => tx.txHash !== txHash),
-        )
-      }
+      if (!transactionStore) return
+      setTransactionStore(
+        transactionStore.filter((tx: TransactionStorageItem) => tx.txHash !== txHash),
+      )
     },
     [setTransactionStore, transactionStore],
   )
@@ -67,9 +66,8 @@ export const TransactionNotificationProvider: React.FC = ({ children }) => {
 
   const notifyWaitingForTxMined = (txHash: string) => {
     toast.remove('waitingForSignature')
-    if (transactionStore && address) {
-      setTransactionStore([...transactionStore, { chainId: appChainId, address, txHash }])
-    }
+    if (!transactionStore || !address) return
+    setTransactionStore([...transactionStore, { chainId: appChainId, address, txHash }])
 
     notify({
       type: ToastStates.waiting,

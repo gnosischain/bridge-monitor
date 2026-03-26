@@ -5,7 +5,7 @@ import { Bridges as BridgesConfig } from '@/src/constants/config/bridges'
 import {
   useFetchValidatorsExecutions,
   useFetchValidatorsSignatures,
-} from '@/src/hooks/subgraph/useValidators'
+} from '@/src/hooks/useValidators'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { get1DayBeforeInSeconds } from '@/src/utils/date'

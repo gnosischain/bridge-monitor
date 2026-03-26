@@ -118,7 +118,6 @@ export const TokenOut: React.FC<{
     const [selectedNativeToken, setSelectedNativeToken] = useState(wethOptions[0].label)
     const [selectedXDaiToken, setSelectedXDaiToken] = useState(xdaiOptions[0].label)
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const tokenOutAmount = formatUnits(amount.sub(feeInfo!), tokenOut?.decimals)
 
     const handleSwitchDaiUsds = (event: React.ChangeEvent<HTMLInputElement>) => {
