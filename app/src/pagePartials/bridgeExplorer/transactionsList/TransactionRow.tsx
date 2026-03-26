@@ -10,7 +10,7 @@ import { StatusCell } from '@/src/pagePartials/bridgeExplorer/transactionsList/S
 import { Transaction } from '@/src/utils/transactions'
 import { TD, TR } from '@/src/components/table'
 import Link from 'next/link'
-import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
+import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
 import { useMemo } from 'react'
 import { transactionBaseURL } from '@/src/constants/sections'
 

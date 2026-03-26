@@ -6,7 +6,7 @@ import { ShareResults } from '@/src/pagePartials/bridgeExplorer/search/ShareResu
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import { TransactionsList } from '@/src/pagePartials/bridgeExplorer/transactionsList'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useTransactionsWithFilters } from '@/src/hooks/subgraph/useTransactions'
+import { useTransactionsWithFilters } from '@/src/hooks/useTransactions'
 import { bridgeExplorerBaseURL } from '@/src/constants/sections'
 
 const Wrapper = styled.div`
