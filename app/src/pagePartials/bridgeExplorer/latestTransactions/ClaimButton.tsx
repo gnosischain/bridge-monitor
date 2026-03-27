@@ -105,11 +105,11 @@ export const ClaimButton = ({
 
       const messageHash = await (isUsdsEnabled
         ? (erc20ToNativeBridgeHelper as Erc20ToNativeBridgeHelper)[
-          'getMessageHash(address,uint256,bytes32,address)'
-        ](transaction.receiver, transaction.receiverAmount, modifiedId, transaction.receiverToken)
+            'getMessageHash(address,uint256,bytes32,address)'
+          ](transaction.receiver, transaction.receiverAmount, modifiedId, transaction.receiverToken)
         : (
-          erc20ToNativeBridgeHelper as Erc20ToNativeBridgeHelper_beforeUSDSMigration
-        ).getMessageHash(transaction.receiver, transaction.receiverAmount, modifiedId))
+            erc20ToNativeBridgeHelper as Erc20ToNativeBridgeHelper_beforeUSDSMigration
+          ).getMessageHash(transaction.receiver, transaction.receiverAmount, modifiedId))
       const [message, signatures] = await Promise.all([
         erc20ToNativeBridgeHelper.getMessage(messageHash),
         erc20ToNativeBridgeHelper.getSignatures(messageHash),

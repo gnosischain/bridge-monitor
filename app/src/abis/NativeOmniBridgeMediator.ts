@@ -1,85 +1,85 @@
 export default [
   {
-    "inputs": [
-      { "internalType": "contract IOmnibridge", "name": "_bridge", "type": "address" },
-      { "internalType": "contract IWETH", "name": "_weth", "type": "address" },
-      { "internalType": "address", "name": "_owner", "type": "address" }
+    inputs: [
+      { internalType: 'contract IOmnibridge', name: '_bridge', type: 'address' },
+      { internalType: 'contract IWETH', name: '_weth', type: 'address' },
+      { internalType: 'address', name: '_owner', type: 'address' },
     ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
+    stateMutability: 'nonpayable',
+    type: 'constructor',
   },
   {
-    "inputs": [],
-    "name": "WETH",
-    "outputs": [{ "internalType": "contract IWETH", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
+    inputs: [],
+    name: 'WETH',
+    outputs: [{ internalType: 'contract IWETH', name: '', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    "inputs": [],
-    "name": "bridge",
-    "outputs": [{ "internalType": "contract IOmnibridge", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
+    inputs: [],
+    name: 'bridge',
+    outputs: [{ internalType: 'contract IOmnibridge', name: '', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "_token", "type": "address" },
-      { "internalType": "address", "name": "_to", "type": "address" }
+    inputs: [
+      { internalType: 'address', name: '_token', type: 'address' },
+      { internalType: 'address', name: '_to', type: 'address' },
     ],
-    "name": "claimTokens",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: 'claimTokens',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "_token", "type": "address" },
-      { "internalType": "uint256", "name": "_value", "type": "uint256" },
-      { "internalType": "bytes", "name": "_data", "type": "bytes" }
+    inputs: [
+      { internalType: 'address', name: '_token', type: 'address' },
+      { internalType: 'uint256', name: '_value', type: 'uint256' },
+      { internalType: 'bytes', name: '_data', type: 'bytes' },
     ],
-    "name": "onTokenBridged",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: 'onTokenBridged',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
-    "inputs": [],
-    "name": "owner",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
+    inputs: [],
+    name: 'owner',
+    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    "inputs": [{ "internalType": "address", "name": "_newOwner", "type": "address" }],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    inputs: [{ internalType: 'address', name: '_newOwner', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
-    "inputs": [],
-    "name": "wrapAndRelayTokens",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
+    inputs: [],
+    name: 'wrapAndRelayTokens',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "_receiver", "type": "address" },
-      { "internalType": "bytes", "name": "_data", "type": "bytes" }
+    inputs: [
+      { internalType: 'address', name: '_receiver', type: 'address' },
+      { internalType: 'bytes', name: '_data', type: 'bytes' },
     ],
-    "name": "wrapAndRelayTokens",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
+    name: 'wrapAndRelayTokens',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
   },
   {
-    "inputs": [{ "internalType": "address", "name": "_receiver", "type": "address" }],
-    "name": "wrapAndRelayTokens",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
+    inputs: [{ internalType: 'address', name: '_receiver', type: 'address' }],
+    name: 'wrapAndRelayTokens',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
   },
-  { "stateMutability": "payable", "type": "receive" }
+  { stateMutability: 'payable', type: 'receive' },
 ] as const

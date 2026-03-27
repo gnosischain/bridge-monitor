@@ -30,7 +30,7 @@ const Wrapper = styled.div`
   animation: ${fadeIn} 0.2s ease-out;
 `
 
-const Card = styled(BaseCard) <{ size?: modalSize }>`
+const Card = styled(BaseCard)<{ size?: modalSize }>`
   background-color: ${({ theme: { colors } }) => colors.creamLight};
   border: 0;
   display: flex;

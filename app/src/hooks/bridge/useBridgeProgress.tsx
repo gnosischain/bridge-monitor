@@ -35,9 +35,7 @@ export const useBridgeProgress = (
     }
 
     const progress =
-      confirmations > requiredBlocks
-        ? 100
-        : Math.round((confirmations / requiredBlocks) * 100)
+      confirmations > requiredBlocks ? 100 : Math.round((confirmations / requiredBlocks) * 100)
 
     return {
       isMined: !!tx?.blockNumber,

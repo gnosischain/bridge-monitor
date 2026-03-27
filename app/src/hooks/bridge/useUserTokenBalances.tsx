@@ -40,7 +40,11 @@ export const useUserTokenBalances = ({
   })
 
   // Native token balance
-  const { data: nativeBalance, isLoading: isLoadingNativeBalance, error: nativeBalanceError } = useBalance({
+  const {
+    data: nativeBalance,
+    error: nativeBalanceError,
+    isLoading: isLoadingNativeBalance,
+  } = useBalance({
     address: userAddress as `0x${string}`,
     query: {
       enabled: !!userAddress && _isNativeToken,
