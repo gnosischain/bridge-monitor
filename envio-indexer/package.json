@@ -13,17 +13,17 @@
     "stop": "envio stop"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.11",
+    "@types/chai": "4.3.11",
     "@types/mocha": "10.0.6",
     "@types/node": "20.8.8",
     "chai": "4.3.10",
     "mocha": "11.7.5",
-    "ts-mocha": "^10.0.0",
+    "ts-mocha": "10.0.0",
     "typescript": "5.2.2"
   },
   "dependencies": {
-    "envio": "2.31.0",
-    "viem": "^2.37.8"
+    "envio": "2.32.10",
+    "viem": "2.37.8"
   },
   "optionalDependencies": {
     "generated": "./generated"
