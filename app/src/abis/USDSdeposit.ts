@@ -1,4 +1,4 @@
-[
+export default [
   {
     "inputs": [{ "internalType": "address", "name": "recipient", "type": "address" }],
     "name": "relayTokens",
@@ -14,4 +14,4 @@
     "type": "function"
   },
   { "stateMutability": "payable", "type": "receive" }
-]
+] as const

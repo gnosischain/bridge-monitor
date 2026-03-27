@@ -1,4 +1,4 @@
-[
+export default [
   {
     "constant": true,
     "inputs": [{ "name": "_msgHash", "type": "bytes32" }],
@@ -89,4 +89,4 @@
     "stateMutability": "nonpayable",
     "type": "constructor"
   }
-]
+] as const

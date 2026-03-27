@@ -1,4 +1,4 @@
-[
+export default [
   {
     "inputs": [
       { "internalType": "contract IOmnibridge", "name": "_bridge", "type": "address" },
@@ -82,4 +82,4 @@
     "type": "function"
   },
   { "stateMutability": "payable", "type": "receive" }
-]
+] as const

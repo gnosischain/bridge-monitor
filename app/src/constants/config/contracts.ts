@@ -1,13 +1,13 @@
-import XDAI_abi from '@/src/abis/HomeBridgeErcToNative.json' // TODO: maybe we can unified the names of the ABI files too.
-import OMNI_abi from '@/src/abis/HomeOmniMediator.json' // TODO: maybe we can unified the names of the ABI files too.
-import BridgeHelper_beforeUsdsMigration_abi from '@/src/abis/Erc20ToNativeBridgeHelper_beforeUSDSMigration.json'
-import BridgeHelper_abi from '@/src/abis/Erc20ToNativeBridgeHelper.json'
-import AMB_abi from '@/src/abis/HomeAMB.json' // TODO: maybe we can unified the names of the ABI files too.
-import OMNI_FEE_MANAGER_abi from '@/src/abis/OmniBridgeFeeManager.json'
-import AMBBridgeHelper_abi from '@/src/abis/AMBBridgeHelper.json'
-import NativeOmniBridgeMediator_abi from '@/src/abis/NativeOmniBridgeMediator.json'
-import USDSDeposit_abi from '@/src/abis/USDSdeposit.json'
-import ERC20_abi from '@/src/abis/ERC20.json'
+import XDAI_abi from '@/src/abis/HomeBridgeErcToNative' // TODO: maybe we can unified the names of the ABI files too.
+import OMNI_abi from '@/src/abis/HomeOmniMediator' // TODO: maybe we can unified the names of the ABI files too.
+import BridgeHelper_beforeUsdsMigration_abi from '@/src/abis/Erc20ToNativeBridgeHelper_beforeUSDSMigration'
+import BridgeHelper_abi from '@/src/abis/Erc20ToNativeBridgeHelper'
+import AMB_abi from '@/src/abis/HomeAMB' // TODO: maybe we can unified the names of the ABI files too.
+import OMNI_FEE_MANAGER_abi from '@/src/abis/OmniBridgeFeeManager'
+import AMBBridgeHelper_abi from '@/src/abis/AMBBridgeHelper'
+import NativeOmniBridgeMediator_abi from '@/src/abis/NativeOmniBridgeMediator'
+import USDSDeposit_abi from '@/src/abis/USDSdeposit'
+import { erc20Abi } from 'viem'
 import { Chains } from '@/src/constants/config/types'
 
 export const contracts = {
@@ -16,7 +16,7 @@ export const contracts = {
       [Chains.mainnet]: '',
       [Chains.gnosis]: '',
     },
-    abi: ERC20_abi,
+    abi: erc20Abi,
   },
   XDAIBridge: {
     address: {

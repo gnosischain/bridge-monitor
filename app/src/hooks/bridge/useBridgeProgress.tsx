@@ -1,81 +1,56 @@
-import { useState } from 'react'
+import { useMemo } from 'react'
 import { ChainsValues } from '@/src/constants/config/types'
-import useSWR from 'swr'
-import { chainsConfig } from '@/src/constants/config/chains'
-import { JsonRpcProvider } from '@ethersproject/providers'
 import { useBridgeRequiredBlocks } from '@/src/hooks/bridge/useBridgeRequiredBlocks'
+import { useBlockNumber, useTransaction } from 'wagmi'
 
 export const useBridgeProgress = (
   chainId: ChainsValues,
   isNativeBridge: boolean,
   transactionId: string,
 ) => {
-  const provider = new JsonRpcProvider(chainsConfig[chainId].rpcUrl)
-  const [shouldPolling, setShouldPolling] = useState(true)
-
   const { data: bridgeBlockInfo, isLoading: isLoadingBlockInfo } = useBridgeRequiredBlocks(
     chainId,
     isNativeBridge,
   )
 
-  // get the progress of the transaction. It will be updated every 5 seconds
-  // to run this fetcher, the bridgeBlockInfo must be defined
-  const {
-    data: progressData,
-    isLoading,
-    mutate,
-  } = useSWR(
-    bridgeBlockInfo ? ['bridgeProgress', transactionId, bridgeBlockInfo] : null,
-    async ([, _transactionId, _bridgeBlockInfo]) => {
-      let tx
-      try {
-        tx = await provider.getTransaction(_transactionId)
-      } catch (error) {
-        console.log('tx', tx, error)
-      }
+  const { data: tx, isLoading: isLoadingTx } = useTransaction({
+    hash: transactionId as `0x${string}`,
+    chainId,
+    query: { enabled: !!transactionId && !!bridgeBlockInfo },
+  })
 
-      const currentBlock = await provider.getBlockNumber()
-      const { estimatedTimeInSeconds, requiredBlocks } = _bridgeBlockInfo
-      // blocks since the transaction was mined
-      // confirmations always >= 0
-      let confirmations = 0
-      if (tx?.blockNumber) {
-        confirmations = currentBlock - tx.blockNumber
-      }
+  const { data: blockNumber, isLoading: isLoadingBlock } = useBlockNumber({
+    chainId,
+    watch: !!tx?.blockNumber,
+    query: { enabled: !!tx?.blockNumber },
+  })
 
-      let progress: number
-      if (confirmations > requiredBlocks) {
-        progress = 100
-      } else {
-        // progress in percentage
-        progress = Math.round((confirmations / requiredBlocks) * 100)
-      }
+  const finalProgressData = useMemo(() => {
+    if (!bridgeBlockInfo) return undefined
+    const { estimatedTimeInSeconds, requiredBlocks } = bridgeBlockInfo
 
-      return {
-        isMined: !!tx?.blockNumber,
-        progress,
-        confirmations,
-        requiredBlocks,
-        estimatedTimeInSeconds,
-      }
-    },
+    let confirmations = 0
+    if (tx?.blockNumber && blockNumber) {
+      confirmations = Number(blockNumber - tx.blockNumber)
+    }
 
-    {
-      suspense: false,
-      refreshInterval: shouldPolling ? 5000 : 0,
-      onSuccess: ({ progress }) => {
-        // stop polling when the progress is 100%
-        if (progress === 100) {
-          setShouldPolling(false)
-        }
-      },
-    },
-  )
+    const progress =
+      confirmations > requiredBlocks
+        ? 100
+        : Math.round((confirmations / requiredBlocks) * 100)
+
+    return {
+      isMined: !!tx?.blockNumber,
+      progress,
+      confirmations,
+      requiredBlocks,
+      estimatedTimeInSeconds,
+    }
+  }, [bridgeBlockInfo, tx?.blockNumber, blockNumber])
 
   return {
-    isLoading: isLoading || isLoadingBlockInfo,
-    progressData,
-    mutate,
+    isLoading: isLoadingBlockInfo || isLoadingTx || isLoadingBlock,
+    progressData: finalProgressData,
   }
 }
 

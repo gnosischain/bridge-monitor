@@ -1,4 +1,4 @@
-[
+export default [
   {
     "inputs": [
       { "internalType": "address", "name": "_mediator", "type": "address" },
@@ -139,4 +139,4 @@
     "stateMutability": "nonpayable",
     "type": "function"
   }
-]
+] as const
