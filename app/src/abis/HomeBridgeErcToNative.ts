@@ -1,9 +1,19 @@
 export default [
   {
     constant: true,
-    inputs: [{ name: '_message', type: 'bytes32' }],
+    inputs: [
+      {
+        name: '_message',
+        type: 'bytes32',
+      },
+    ],
     name: 'numMessagesSigned',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -12,7 +22,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'totalBurntCoins',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -20,18 +35,34 @@ export default [
   {
     constant: true,
     inputs: [
-      { name: '_hash', type: 'bytes32' },
-      { name: '_index', type: 'uint256' },
+      {
+        name: '_hash',
+        type: 'bytes32',
+      },
+      {
+        name: '_index',
+        type: 'uint256',
+      },
     ],
     name: 'signature',
-    outputs: [{ name: '', type: 'bytes' }],
+    outputs: [
+      {
+        name: '',
+        type: 'bytes',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
     constant: false,
-    inputs: [{ name: '_blockReward', type: 'address' }],
+    inputs: [
+      {
+        name: '_blockReward',
+        type: 'address',
+      },
+    ],
     name: 'setBlockRewardContract',
     outputs: [],
     payable: false,
@@ -40,7 +71,12 @@ export default [
   },
   {
     constant: false,
-    inputs: [{ name: '_fee', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_fee',
+        type: 'uint256',
+      },
+    ],
     name: 'setForeignFee',
     outputs: [],
     payable: false,
@@ -49,16 +85,31 @@ export default [
   },
   {
     constant: true,
-    inputs: [{ name: '_day', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_day',
+        type: 'uint256',
+      },
+    ],
     name: 'totalSpentPerDay',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
     constant: false,
-    inputs: [{ name: '_fee', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_fee',
+        type: 'uint256',
+      },
+    ],
     name: 'setHomeFee',
     outputs: [],
     payable: false,
@@ -69,14 +120,24 @@ export default [
     constant: true,
     inputs: [],
     name: 'isInitialized',
-    outputs: [{ name: '', type: 'bool' }],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
     constant: false,
-    inputs: [{ name: '_dailyLimit', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_dailyLimit',
+        type: 'uint256',
+      },
+    ],
     name: 'setExecutionDailyLimit',
     outputs: [],
     payable: false,
@@ -87,7 +148,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'getCurrentDay',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -96,7 +162,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'requiredBlockConfirmations',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -105,7 +176,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'requiredMessageLength',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -114,7 +190,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'getBridgeMode',
-    outputs: [{ name: '_data', type: 'bytes4' }],
+    outputs: [
+      {
+        name: '_data',
+        type: 'bytes4',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -123,25 +204,50 @@ export default [
     constant: true,
     inputs: [],
     name: 'executionDailyLimit',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
     constant: true,
-    inputs: [{ name: '_hash', type: 'bytes32' }],
+    inputs: [
+      {
+        name: '_hash',
+        type: 'bytes32',
+      },
+    ],
     name: 'message',
-    outputs: [{ name: '', type: 'bytes' }],
+    outputs: [
+      {
+        name: '',
+        type: 'bytes',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
     constant: true,
-    inputs: [{ name: '_day', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_day',
+        type: 'uint256',
+      },
+    ],
     name: 'totalExecutedPerDay',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -150,14 +256,24 @@ export default [
     constant: true,
     inputs: [],
     name: 'blockRewardContract',
-    outputs: [{ name: '', type: 'address' }],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
     constant: false,
-    inputs: [{ name: '_receiver', type: 'address' }],
+    inputs: [
+      {
+        name: '_receiver',
+        type: 'address',
+      },
+    ],
     name: 'relayTokens',
     outputs: [],
     payable: true,
@@ -166,7 +282,12 @@ export default [
   },
   {
     constant: false,
-    inputs: [{ name: '_feeManager', type: 'address' }],
+    inputs: [
+      {
+        name: '_feeManager',
+        type: 'address',
+      },
+    ],
     name: 'setFeeManagerContract',
     outputs: [],
     payable: false,
@@ -176,8 +297,14 @@ export default [
   {
     constant: false,
     inputs: [
-      { name: 'signature', type: 'bytes' },
-      { name: 'message', type: 'bytes' },
+      {
+        name: 'signature',
+        type: 'bytes',
+      },
+      {
+        name: 'message',
+        type: 'bytes',
+      },
     ],
     name: 'submitSignature',
     outputs: [],
@@ -189,7 +316,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'dailyLimit',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -197,8 +329,14 @@ export default [
   {
     constant: false,
     inputs: [
-      { name: '_token', type: 'address' },
-      { name: '_to', type: 'address' },
+      {
+        name: '_token',
+        type: 'address',
+      },
+      {
+        name: '_to',
+        type: 'address',
+      },
     ],
     name: 'claimTokens',
     outputs: [],
@@ -208,18 +346,38 @@ export default [
   },
   {
     constant: true,
-    inputs: [{ name: '_withdrawal', type: 'bytes32' }],
+    inputs: [
+      {
+        name: '_withdrawal',
+        type: 'bytes32',
+      },
+    ],
     name: 'numAffirmationsSigned',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
     constant: true,
-    inputs: [{ name: '_withdrawal', type: 'bytes32' }],
+    inputs: [
+      {
+        name: '_withdrawal',
+        type: 'bytes32',
+      },
+    ],
     name: 'affirmationsSigned',
-    outputs: [{ name: '', type: 'bool' }],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -227,26 +385,65 @@ export default [
   {
     constant: false,
     inputs: [
-      { name: '_validatorContract', type: 'address' },
-      { name: '_dailyLimitMaxPerTxMinPerTxArray', type: 'uint256[3]' },
-      { name: '_homeGasPrice', type: 'uint256' },
-      { name: '_requiredBlockConfirmations', type: 'uint256' },
-      { name: '_blockReward', type: 'address' },
-      { name: '_foreignDailyLimitForeignMaxPerTxArray', type: 'uint256[2]' },
-      { name: '_owner', type: 'address' },
-      { name: '_decimalShift', type: 'int256' },
+      {
+        name: '_validatorContract',
+        type: 'address',
+      },
+      {
+        name: '_dailyLimitMaxPerTxMinPerTxArray',
+        type: 'uint256[3]',
+      },
+      {
+        name: '_homeGasPrice',
+        type: 'uint256',
+      },
+      {
+        name: '_requiredBlockConfirmations',
+        type: 'uint256',
+      },
+      {
+        name: '_blockReward',
+        type: 'address',
+      },
+      {
+        name: '_foreignDailyLimitForeignMaxPerTxArray',
+        type: 'uint256[2]',
+      },
+      {
+        name: '_owner',
+        type: 'address',
+      },
+      {
+        name: '_decimalShift',
+        type: 'int256',
+      },
     ],
     name: 'initialize',
-    outputs: [{ name: '', type: 'bool' }],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+      },
+    ],
     payable: false,
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     constant: true,
-    inputs: [{ name: '_amount', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_amount',
+        type: 'uint256',
+      },
+    ],
     name: 'withinExecutionLimit',
-    outputs: [{ name: '', type: 'bool' }],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -255,7 +452,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'executionMaxPerTx',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -264,7 +466,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'requiredSignatures',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -273,25 +480,50 @@ export default [
     constant: true,
     inputs: [],
     name: 'owner',
-    outputs: [{ name: '', type: 'address' }],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
     constant: true,
-    inputs: [{ name: '_message', type: 'bytes32' }],
+    inputs: [
+      {
+        name: '_message',
+        type: 'bytes32',
+      },
+    ],
     name: 'messagesSigned',
-    outputs: [{ name: '', type: 'bool' }],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
     constant: true,
-    inputs: [{ name: '_value', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_value',
+        type: 'uint256',
+      },
+    ],
     name: 'getAmountToBurn',
-    outputs: [{ name: 'amount', type: 'uint256' }],
+    outputs: [
+      {
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -300,7 +532,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'getHomeFee',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -309,7 +546,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'maxAvailablePerTx',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -318,7 +560,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'validatorContract',
-    outputs: [{ name: '', type: 'address' }],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -326,9 +573,18 @@ export default [
   {
     constant: false,
     inputs: [
-      { name: 'recipient', type: 'address' },
-      { name: 'value', type: 'uint256' },
-      { name: 'transactionHash', type: 'bytes32' },
+      {
+        name: 'recipient',
+        type: 'address',
+      },
+      {
+        name: 'value',
+        type: 'uint256',
+      },
+      {
+        name: 'transactionHash',
+        type: 'bytes32',
+      },
     ],
     name: 'executeAffirmation',
     outputs: [],
@@ -340,7 +596,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'deployedAtBlock',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -350,9 +611,18 @@ export default [
     inputs: [],
     name: 'getBridgeInterfacesVersion',
     outputs: [
-      { name: 'major', type: 'uint64' },
-      { name: 'minor', type: 'uint64' },
-      { name: 'patch', type: 'uint64' },
+      {
+        name: 'major',
+        type: 'uint64',
+      },
+      {
+        name: 'minor',
+        type: 'uint64',
+      },
+      {
+        name: 'patch',
+        type: 'uint64',
+      },
     ],
     payable: false,
     stateMutability: 'view',
@@ -362,14 +632,24 @@ export default [
     constant: true,
     inputs: [],
     name: 'outOfLimitAmount',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
     constant: false,
-    inputs: [{ name: '_minPerTx', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_minPerTx',
+        type: 'uint256',
+      },
+    ],
     name: 'setMinPerTx',
     outputs: [],
     payable: false,
@@ -379,9 +659,18 @@ export default [
   {
     constant: false,
     inputs: [
-      { name: 'hashMsg', type: 'bytes32' },
-      { name: 'unlockOnForeign', type: 'bool' },
-      { name: 'valueToUnlock', type: 'uint256' },
+      {
+        name: 'hashMsg',
+        type: 'bytes32',
+      },
+      {
+        name: 'unlockOnForeign',
+        type: 'bool',
+      },
+      {
+        name: 'valueToUnlock',
+        type: 'uint256',
+      },
     ],
     name: 'fixAssetsAboveLimits',
     outputs: [],
@@ -391,7 +680,12 @@ export default [
   },
   {
     constant: false,
-    inputs: [{ name: '_blockConfirmations', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_blockConfirmations',
+        type: 'uint256',
+      },
+    ],
     name: 'setRequiredBlockConfirmations',
     outputs: [],
     payable: false,
@@ -400,7 +694,12 @@ export default [
   },
   {
     constant: false,
-    inputs: [{ name: '_dailyLimit', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_dailyLimit',
+        type: 'uint256',
+      },
+    ],
     name: 'setDailyLimit',
     outputs: [],
     payable: false,
@@ -409,7 +708,12 @@ export default [
   },
   {
     constant: false,
-    inputs: [{ name: '_gasPrice', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_gasPrice',
+        type: 'uint256',
+      },
+    ],
     name: 'setGasPrice',
     outputs: [],
     payable: false,
@@ -418,7 +722,12 @@ export default [
   },
   {
     constant: false,
-    inputs: [{ name: '_maxPerTx', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_maxPerTx',
+        type: 'uint256',
+      },
+    ],
     name: 'setMaxPerTx',
     outputs: [],
     payable: false,
@@ -429,7 +738,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'decimalShift',
-    outputs: [{ name: '', type: 'int256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'int256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -438,7 +752,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'feeManagerContract',
-    outputs: [{ name: '', type: 'address' }],
+    outputs: [
+      {
+        name: '',
+        type: 'address',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -447,7 +766,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'minPerTx',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -455,35 +779,85 @@ export default [
   {
     constant: false,
     inputs: [
-      { name: '_validatorContract', type: 'address' },
-      { name: '_dailyLimitMaxPerTxMinPerTxArray', type: 'uint256[3]' },
-      { name: '_homeGasPrice', type: 'uint256' },
-      { name: '_requiredBlockConfirmations', type: 'uint256' },
-      { name: '_blockReward', type: 'address' },
-      { name: '_foreignDailyLimitForeignMaxPerTxArray', type: 'uint256[2]' },
-      { name: '_owner', type: 'address' },
-      { name: '_feeManager', type: 'address' },
-      { name: '_homeFeeForeignFeeArray', type: 'uint256[2]' },
-      { name: '_decimalShift', type: 'int256' },
+      {
+        name: '_validatorContract',
+        type: 'address',
+      },
+      {
+        name: '_dailyLimitMaxPerTxMinPerTxArray',
+        type: 'uint256[3]',
+      },
+      {
+        name: '_homeGasPrice',
+        type: 'uint256',
+      },
+      {
+        name: '_requiredBlockConfirmations',
+        type: 'uint256',
+      },
+      {
+        name: '_blockReward',
+        type: 'address',
+      },
+      {
+        name: '_foreignDailyLimitForeignMaxPerTxArray',
+        type: 'uint256[2]',
+      },
+      {
+        name: '_owner',
+        type: 'address',
+      },
+      {
+        name: '_feeManager',
+        type: 'address',
+      },
+      {
+        name: '_homeFeeForeignFeeArray',
+        type: 'uint256[2]',
+      },
+      {
+        name: '_decimalShift',
+        type: 'int256',
+      },
     ],
     name: 'rewardableInitialize',
-    outputs: [{ name: '', type: 'bool' }],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+      },
+    ],
     payable: false,
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     constant: true,
-    inputs: [{ name: '_amount', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_amount',
+        type: 'uint256',
+      },
+    ],
     name: 'withinLimit',
-    outputs: [{ name: '', type: 'bool' }],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
     constant: false,
-    inputs: [{ name: '_maxPerTx', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_maxPerTx',
+        type: 'uint256',
+      },
+    ],
     name: 'setExecutionMaxPerTx',
     outputs: [],
     payable: false,
@@ -494,14 +868,24 @@ export default [
     constant: true,
     inputs: [],
     name: 'getFeeManagerMode',
-    outputs: [{ name: 'mode', type: 'bytes4' }],
+    outputs: [
+      {
+        name: 'mode',
+        type: 'bytes4',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
     constant: false,
-    inputs: [{ name: 'newOwner', type: 'address' }],
+    inputs: [
+      {
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
     name: 'transferOwnership',
     outputs: [],
     payable: false,
@@ -512,7 +896,12 @@ export default [
     constant: true,
     inputs: [],
     name: 'maxPerTx',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -521,16 +910,31 @@ export default [
     constant: true,
     inputs: [],
     name: 'gasPrice',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
   },
   {
     constant: true,
-    inputs: [{ name: '_number', type: 'uint256' }],
+    inputs: [
+      {
+        name: '_number',
+        type: 'uint256',
+      },
+    ],
     name: 'isAlreadyProcessed',
-    outputs: [{ name: '', type: 'bool' }],
+    outputs: [
+      {
+        name: '',
+        type: 'bool',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
@@ -539,17 +943,34 @@ export default [
     constant: true,
     inputs: [],
     name: 'getForeignFee',
-    outputs: [{ name: '', type: 'uint256' }],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+      },
+    ],
     payable: false,
     stateMutability: 'view',
     type: 'function',
   },
-  { payable: true, stateMutability: 'payable', type: 'fallback' },
+  {
+    payable: true,
+    stateMutability: 'payable',
+    type: 'fallback',
+  },
   {
     anonymous: false,
     inputs: [
-      { indexed: false, name: 'recipient', type: 'address' },
-      { indexed: false, name: 'value', type: 'uint256' },
+      {
+        indexed: false,
+        name: 'recipient',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
     ],
     name: 'UserRequestForSignature',
     type: 'event',
@@ -557,9 +978,21 @@ export default [
   {
     anonymous: false,
     inputs: [
-      { indexed: false, name: 'recipient', type: 'address' },
-      { indexed: false, name: 'value', type: 'uint256' },
-      { indexed: false, name: 'transactionHash', type: 'bytes32' },
+      {
+        indexed: false,
+        name: 'recipient',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        name: 'transactionHash',
+        type: 'bytes32',
+      },
     ],
     name: 'AffirmationCompleted',
     type: 'event',
@@ -567,8 +1000,16 @@ export default [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, name: 'signer', type: 'address' },
-      { indexed: false, name: 'messageHash', type: 'bytes32' },
+      {
+        indexed: true,
+        name: 'signer',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'messageHash',
+        type: 'bytes32',
+      },
     ],
     name: 'SignedForUserRequest',
     type: 'event',
@@ -576,8 +1017,16 @@ export default [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, name: 'signer', type: 'address' },
-      { indexed: false, name: 'transactionHash', type: 'bytes32' },
+      {
+        indexed: true,
+        name: 'signer',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'transactionHash',
+        type: 'bytes32',
+      },
     ],
     name: 'SignedForAffirmation',
     type: 'event',
@@ -585,42 +1034,86 @@ export default [
   {
     anonymous: false,
     inputs: [
-      { indexed: false, name: 'authorityResponsibleForRelay', type: 'address' },
-      { indexed: false, name: 'messageHash', type: 'bytes32' },
-      { indexed: false, name: 'NumberOfCollectedSignatures', type: 'uint256' },
+      {
+        indexed: false,
+        name: 'authorityResponsibleForRelay',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'messageHash',
+        type: 'bytes32',
+      },
+      {
+        indexed: false,
+        name: 'NumberOfCollectedSignatures',
+        type: 'uint256',
+      },
     ],
     name: 'CollectedSignatures',
     type: 'event',
   },
   {
     anonymous: false,
-    inputs: [{ indexed: false, name: 'newLimit', type: 'uint256' }],
+    inputs: [
+      {
+        indexed: false,
+        name: 'newLimit',
+        type: 'uint256',
+      },
+    ],
     name: 'DailyLimitChanged',
     type: 'event',
   },
   {
     anonymous: false,
-    inputs: [{ indexed: false, name: 'newLimit', type: 'uint256' }],
+    inputs: [
+      {
+        indexed: false,
+        name: 'newLimit',
+        type: 'uint256',
+      },
+    ],
     name: 'ExecutionDailyLimitChanged',
     type: 'event',
   },
   {
     anonymous: false,
-    inputs: [{ indexed: false, name: 'gasPrice', type: 'uint256' }],
+    inputs: [
+      {
+        indexed: false,
+        name: 'gasPrice',
+        type: 'uint256',
+      },
+    ],
     name: 'GasPriceChanged',
     type: 'event',
   },
   {
     anonymous: false,
-    inputs: [{ indexed: false, name: 'requiredBlockConfirmations', type: 'uint256' }],
+    inputs: [
+      {
+        indexed: false,
+        name: 'requiredBlockConfirmations',
+        type: 'uint256',
+      },
+    ],
     name: 'RequiredBlockConfirmationChanged',
     type: 'event',
   },
   {
     anonymous: false,
     inputs: [
-      { indexed: false, name: 'feeAmount', type: 'uint256' },
-      { indexed: true, name: 'transactionHash', type: 'bytes32' },
+      {
+        indexed: false,
+        name: 'feeAmount',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        name: 'transactionHash',
+        type: 'bytes32',
+      },
     ],
     name: 'FeeDistributedFromAffirmation',
     type: 'event',
@@ -628,8 +1121,16 @@ export default [
   {
     anonymous: false,
     inputs: [
-      { indexed: false, name: 'feeAmount', type: 'uint256' },
-      { indexed: true, name: 'transactionHash', type: 'bytes32' },
+      {
+        indexed: false,
+        name: 'feeAmount',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        name: 'transactionHash',
+        type: 'bytes32',
+      },
     ],
     name: 'FeeDistributedFromSignatures',
     type: 'event',
@@ -637,8 +1138,16 @@ export default [
   {
     anonymous: false,
     inputs: [
-      { indexed: false, name: 'previousOwner', type: 'address' },
-      { indexed: false, name: 'newOwner', type: 'address' },
+      {
+        indexed: false,
+        name: 'previousOwner',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'newOwner',
+        type: 'address',
+      },
     ],
     name: 'OwnershipTransferred',
     type: 'event',
@@ -646,9 +1155,21 @@ export default [
   {
     anonymous: false,
     inputs: [
-      { indexed: false, name: 'recipient', type: 'address' },
-      { indexed: false, name: 'value', type: 'uint256' },
-      { indexed: true, name: 'messageId', type: 'bytes32' },
+      {
+        indexed: false,
+        name: 'recipient',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        name: 'messageId',
+        type: 'bytes32',
+      },
     ],
     name: 'MediatorAmountLimitExceeded',
     type: 'event',
@@ -656,10 +1177,26 @@ export default [
   {
     anonymous: false,
     inputs: [
-      { indexed: false, name: 'recipient', type: 'address' },
-      { indexed: false, name: 'value', type: 'uint256' },
-      { indexed: true, name: 'transactionHash', type: 'bytes32' },
-      { indexed: false, name: 'messageId', type: 'bytes32' },
+      {
+        indexed: false,
+        name: 'recipient',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        name: 'transactionHash',
+        type: 'bytes32',
+      },
+      {
+        indexed: false,
+        name: 'messageId',
+        type: 'bytes32',
+      },
     ],
     name: 'AmountLimitExceeded',
     type: 'event',
@@ -667,9 +1204,21 @@ export default [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, name: 'messageId', type: 'bytes32' },
-      { indexed: false, name: 'value', type: 'uint256' },
-      { indexed: false, name: 'remaining', type: 'uint256' },
+      {
+        indexed: true,
+        name: 'messageId',
+        type: 'bytes32',
+      },
+      {
+        indexed: false,
+        name: 'value',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        name: 'remaining',
+        type: 'uint256',
+      },
     ],
     name: 'AssetAboveLimitsFixed',
     type: 'event',

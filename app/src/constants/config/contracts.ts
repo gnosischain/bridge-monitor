@@ -7,17 +7,9 @@ import OMNI_FEE_MANAGER_abi from '@/src/abis/OmniBridgeFeeManager'
 import AMBBridgeHelper_abi from '@/src/abis/AMBBridgeHelper'
 import NativeOmniBridgeMediator_abi from '@/src/abis/NativeOmniBridgeMediator'
 import USDSDeposit_abi from '@/src/abis/USDSdeposit'
-import { erc20Abi } from 'viem'
 import { Chains } from '@/src/constants/config/types'
 
 export const contracts = {
-  ERC20: {
-    address: {
-      [Chains.mainnet]: '',
-      [Chains.gnosis]: '',
-    },
-    abi: erc20Abi,
-  },
   XDAIBridge: {
     address: {
       [Chains.mainnet]: '0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016', // foreignXdaiBridge
