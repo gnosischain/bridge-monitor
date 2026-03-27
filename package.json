@@ -10,7 +10,8 @@
     "indexer:dev": "pnpm --filter envio-indexer dev",
     "indexer:build": "pnpm --filter envio-indexer build",
     "indexer:codegen": "pnpm --filter envio-indexer codegen",
-    "indexer:start": "pnpm --filter envio-indexer start"
+    "indexer:start": "pnpm --filter envio-indexer start",
+    "indexer:stop": "pnpm --filter envio-indexer stop"
   },
   "license": "MIT",
   "private": true,

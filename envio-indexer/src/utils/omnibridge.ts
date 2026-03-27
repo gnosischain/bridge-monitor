@@ -90,16 +90,40 @@ export function isZeroishAddress(addr?: string): boolean {
  * The receiver is in the calldata portion which calls handleBridgedTokens(token, receiver, value).
  * Position varies based on chain ID encoding in the AMB header.
  * Returns undefined if extraction fails or produces an invalid address.
+ *
+ * Special case — WETH GC→ETH: the AMB message calls
+ * handleBridgedTokensAndCall(token, router, value, data) where the actual recipient
+ * is NOT the router at [260..300) but a raw 20-byte address (abi.encodePacked)
+ * inside the `data` field at [492..532). We skip router addresses in the primary
+ * loop and fall back to that offset so callers always receive the real recipient.
  */
 export function extractReceiverFromEncodedData(encodedData?: string): string | undefined {
   if (!encodedData || encodedData.length < 308) return undefined;
 
-  // Receiver address occupies the last 40 chars of the 2nd calldata param [236..300)
+  // Primary offset: receiver address is the last 40 chars of the 2nd calldata param [236..300)
   // gasLimit is 4 bytes (not 8), so calldata starts at char 164 → receiver address at [260..300)
-  // Try nearby offsets as fallback for edge cases (different chain ID lengths)
-  const offsets = [260, 268, 252];
+  if (encodedData.length >= 300) {
+    const primary = "0x" + encodedData.slice(260, 300);
+    if (!isZeroishAddress(primary)) {
+      if (!isRouterContract(primary)) {
+        return primary;
+      }
+      // Router at primary offset → WETH GC→ETH: actual recipient is
+      // abi.encodePacked(address) in the `data` field, left-aligned at [492..532).
+      // Skip fallback offsets — they would slice mid-router-address producing garbage.
+      if (encodedData.length >= 532) {
+        const wethCandidate = "0x" + encodedData.slice(492, 532);
+        if (!isZeroishAddress(wethCandidate)) {
+          return wethCandidate;
+        }
+      }
+      return undefined;
+    }
+  }
 
-  for (const offset of offsets) {
+  // Fallback offsets for edge cases where chain ID encoding shifts the calldata
+  // (only reached when primary offset [260..300) is zero-ish, not a router case)
+  for (const offset of [268, 252]) {
     if (encodedData.length >= offset + 40) {
       const candidate = "0x" + encodedData.slice(offset, offset + 40);
       if (!isZeroishAddress(candidate)) {
