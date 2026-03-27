@@ -1,9 +1,10 @@
-import { Chains } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
-import { contracts } from '@/src/constants/config/contracts'
+import {
+  homeXdaiBridgeContract,
+  omniBridgeFeeManagerContract,
+} from '@/src/constants/config/contracts'
 import { useReadContract } from 'wagmi'
 import { Address } from 'viem'
-import { HomeBridgeErcToNative__factory, OmniBridgeFeeManager__factory } from '@/types/typechain'
 
 export const foreignToHomeFeeKey =
   '0x03be2b2875cb41e0e77355e802a16769bb8dfcf825061cde185c73bf94f12625'
@@ -22,25 +23,21 @@ export const useBridgeFee = ({
   token: Token
 }) => {
   const { data: nativeBridgeFee } = useReadContract({
-    address: contracts.XDAIBridge.address[Chains.gnosis] as Address,
-    abi: HomeBridgeErcToNative__factory.abi,
+    ...homeXdaiBridgeContract,
     functionName: isFromHome ? 'getHomeFee' : 'getForeignFee',
-    chainId: Chains.gnosis,
     query: {
       enabled: isNativeBridge,
     },
   })
 
   const { data: omniBridgeFee } = useReadContract({
-    address: contracts.omnibridgeFeeManager.address[Chains.gnosis] as Address,
-    abi: OmniBridgeFeeManager__factory.abi,
+    ...omniBridgeFeeManagerContract,
     functionName: 'calculateFee',
     args: [
       isFromHome ? homeToForeignFeeKey : foreignToHomeFeeKey,
       token.address as Address,
       amount,
     ],
-    chainId: Chains.gnosis,
     query: {
       enabled: !isNativeBridge,
     },

@@ -1,9 +1,5 @@
 import { useReadContracts } from 'wagmi'
-import { formatEther } from 'viem'
-import {
-  foreignXdaiBridgeContract,
-  homeXdaiBridgeContract,
-} from '@/src/constants/config/wagmiContracts'
+import { foreignXdaiBridgeContract, homeXdaiBridgeContract } from '@/src/constants/config/contracts'
 
 export const useHomeXDAIBridgeLimits = () => {
   const { data } = useReadContracts({
