@@ -1,116 +1,84 @@
-import { Chains } from '@/src/constants/config/types'
-import { useContractCall } from '@/src/hooks/useContractCall'
-import { useContractInstance } from '@/src/hooks/useContractInstance'
-import { fromWei } from '@/src/utils/bigNumber'
+import { useReadContracts } from 'wagmi'
+import { formatEther } from 'viem'
 import {
-  ForeignBridgeErcToNative,
-  ForeignBridgeErcToNative__factory,
-  HomeBridgeErcToNative,
-  HomeBridgeErcToNative__factory,
-} from '@/types/typechain'
-import { BigNumberish } from '@ethersproject/bignumber'
+  foreignXdaiBridgeContract,
+  homeXdaiBridgeContract,
+} from '@/src/constants/config/wagmiContracts'
 
-export const useHomeXDAIBridgeLimits = (currentDay: BigNumberish = '0') => {
-  const homeXDAI = useContractInstance(HomeBridgeErcToNative__factory, 'XDAIBridge', Chains.gnosis)
+export const useHomeXDAIBridgeLimits = () => {
+  const { data } = useReadContracts({
+    contracts: [
+      { ...homeXdaiBridgeContract, functionName: 'getCurrentDay' },
+      { ...homeXdaiBridgeContract, functionName: 'dailyLimit' },
+      { ...homeXdaiBridgeContract, functionName: 'executionDailyLimit' },
+      { ...homeXdaiBridgeContract, functionName: 'minPerTx' },
+      { ...homeXdaiBridgeContract, functionName: 'maxPerTx' },
+      { ...homeXdaiBridgeContract, functionName: 'executionMaxPerTx' },
+    ],
+  })
 
-  const contextCalls = [homeXDAI.getCurrentDay] as const
-  const [{ data: homeXDAIContext }] = useContractCall<HomeBridgeErcToNative, typeof contextCalls>(
-    contextCalls,
-    [[]],
-    'homeXDAIContext',
-  )
-  currentDay = homeXDAIContext?.[0] ?? currentDay
+  const [currentDay, dailyLimit, executionDailyLimit, minPerTx, maxPerTx, executionMaxPerTx] =
+    data?.map((r) => (r.status === 'success' ? (r.result as bigint) : undefined)) ?? []
 
-  const limitsCalls = [
-    homeXDAI.dailyLimit,
-    homeXDAI.executionDailyLimit,
-    homeXDAI.minPerTx,
-    homeXDAI.maxPerTx,
-    homeXDAI.executionMaxPerTx,
-  ] as const
-  const [{ data: homeXDAILimits }] = useContractCall<HomeBridgeErcToNative, typeof limitsCalls>(
-    limitsCalls,
-    [[], [], [], [], []],
-    'homeXDAILimits',
-  )
-  const [
-    dailyLimit = 0,
-    executionDailyLimit = 0,
-    minPerTx = 0,
-    maxPerTx = 0,
-    executionMaxPerTx = 0,
-  ] = homeXDAILimits?.map(fromWei) ?? []
+  const { data: totalsData } = useReadContracts({
+    contracts: [
+      { ...homeXdaiBridgeContract, functionName: 'totalSpentPerDay', args: [currentDay!] },
+      { ...homeXdaiBridgeContract, functionName: 'totalExecutedPerDay', args: [currentDay!] },
+    ],
+    query: { enabled: currentDay !== undefined },
+  })
 
-  const totalsCalls = [homeXDAI.totalSpentPerDay, homeXDAI.totalExecutedPerDay] as const
-  const [{ data: homeXDAITotals }] = useContractCall<HomeBridgeErcToNative, typeof totalsCalls>(
-    totalsCalls,
-    [[currentDay], [currentDay]],
-    'homeXDAITotals',
-  )
-  const [totalSpentPerDay = 0, totalExecutedPerDay = 0] = homeXDAITotals?.map(fromWei) ?? []
+  const [totalSpentPerDay, totalExecutedPerDay] =
+    totalsData?.map((r) => (r.status === 'success' ? (r.result as bigint) : undefined)) ?? []
 
   return {
     homeXdaiInformation: {
-      dailyLimit,
-      totalSpentPerDay,
-      executionDailyLimit,
-      totalExecutedPerDay,
-      minPerTx,
-      maxPerTx,
-      executionMaxPerTx,
+      dailyLimit: dailyLimit,
+      executionDailyLimit: executionDailyLimit,
+      minPerTx: minPerTx,
+      maxPerTx: maxPerTx,
+      executionMaxPerTx: executionMaxPerTx,
+      totalSpentPerDay: totalSpentPerDay,
+      totalExecutedPerDay: totalExecutedPerDay,
     },
   }
 }
 
-export const useForeignXDAIBridgeLimits = (currentDay: BigNumberish = '0') => {
-  const foreignXDAI = useContractInstance(
-    ForeignBridgeErcToNative__factory,
-    'XDAIBridge',
-    Chains.mainnet,
-  )
+export const useForeignXDAIBridgeLimits = () => {
+  const { data } = useReadContracts({
+    contracts: [
+      { ...foreignXdaiBridgeContract, functionName: 'getCurrentDay' },
+      { ...foreignXdaiBridgeContract, functionName: 'dailyLimit' },
+      { ...foreignXdaiBridgeContract, functionName: 'executionDailyLimit' },
+      { ...foreignXdaiBridgeContract, functionName: 'minPerTx' },
+      { ...foreignXdaiBridgeContract, functionName: 'maxPerTx' },
+      { ...foreignXdaiBridgeContract, functionName: 'executionMaxPerTx' },
+    ],
+  })
 
-  const contextCalls = [foreignXDAI.getCurrentDay] as const
-  const [{ data: foreignXDAIContext }] = useContractCall<
-    ForeignBridgeErcToNative,
-    typeof contextCalls
-  >(contextCalls, [[]], 'foreignXDAIContext')
-  currentDay = foreignXDAIContext?.[0] ?? currentDay
+  const [currentDay, dailyLimit, executionDailyLimit, minPerTx, maxPerTx, executionMaxPerTx] =
+    data?.map((r) => (r.status === 'success' ? (r.result as bigint) : undefined)) ?? []
 
-  const limitsCalls = [
-    foreignXDAI.dailyLimit,
-    foreignXDAI.executionDailyLimit,
-    foreignXDAI.minPerTx,
-    foreignXDAI.maxPerTx,
-    foreignXDAI.executionMaxPerTx,
-  ] as const
-  const [{ data: foreignXDAILimits }] = useContractCall<
-    ForeignBridgeErcToNative,
-    typeof limitsCalls
-  >(limitsCalls, [[], [], [], [], []], 'foreignXDAILimits')
-  const [
-    dailyLimit = 0,
-    executionDailyLimit = 0,
-    minPerTx = 0,
-    maxPerTx = 0,
-    executionMaxPerTx = 0,
-  ] = foreignXDAILimits?.map(fromWei) ?? []
+  const { data: totalsData } = useReadContracts({
+    contracts: [
+      { ...foreignXdaiBridgeContract, functionName: 'totalSpentPerDay', args: [currentDay!] },
+      { ...foreignXdaiBridgeContract, functionName: 'totalExecutedPerDay', args: [currentDay!] },
+    ],
+    query: { enabled: currentDay !== undefined },
+  })
 
-  const totalsCalls = [foreignXDAI.totalSpentPerDay, foreignXDAI.totalExecutedPerDay] as const
-  const [{ data: foreignXDAITotals }] = useContractCall<
-    ForeignBridgeErcToNative,
-    typeof totalsCalls
-  >(totalsCalls, [[currentDay], [currentDay]], 'foreignXDAITotals')
-  const [totalSpentPerDay = 0, totalExecutedPerDay = 0] = foreignXDAITotals?.map(fromWei) ?? []
+  const [totalSpentPerDay, totalExecutedPerDay] =
+    totalsData?.map((r) => (r.status === 'success' ? (r.result as bigint) : undefined)) ?? []
 
   return {
     foreignXdaiInformation: {
-      dailyLimit,
-      totalSpentPerDay,
-      executionDailyLimit,
-      totalExecutedPerDay,
-      minPerTx,
-      maxPerTx,
-      executionMaxPerTx,
+      dailyLimit: dailyLimit,
+      executionDailyLimit: executionDailyLimit,
+      minPerTx: minPerTx,
+      maxPerTx: maxPerTx,
+      executionMaxPerTx: executionMaxPerTx,
+      totalSpentPerDay: totalSpentPerDay,
+      totalExecutedPerDay: totalExecutedPerDay,
     },
   }
 }

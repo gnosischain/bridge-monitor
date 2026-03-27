@@ -47,7 +47,6 @@ export const useBridgeValidations = ({
 
   const { data: userBalanceData } = useUserTokenBalances({
     userAddress,
-    chainId: fromChainId,
     allowanceAddress: bridgeContractAddress,
     tokenAddress: fromToken.address,
   })
