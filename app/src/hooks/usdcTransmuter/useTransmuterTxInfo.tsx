@@ -1,64 +1,9 @@
-import { ethers } from 'ethers'
+import { useWriteContract } from 'wagmi'
 import { Chains } from '@/src/constants/config/types'
-import useSWR from 'swr'
-import { USDC_XDAI_OLD, ZERO_BN } from '@/src/constants/misc'
+import { USDC_XDAI_OLD } from '@/src/constants/misc'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { TokenUsdc } from '@/src/pagePartials/usdc/types'
-import TransmuterAbi from '@/src/abis/TransmuterEurc.json'
-
-export const getTransTx = async ({
-  account,
-  amount,
-  returnZero,
-  tokenAddress,
-}: {
-  account: string
-  amount: bigint
-  tokenAddress: string
-  returnZero?: boolean
-}) => {
-  const transmuteContract = new ethers.Contract(TRANSMUTER_ADDRESS, TransmuterAbi, signer)
-  const transMethod = tokenAddress === USDC_XDAI_OLD ? 'deposit' : 'withdraw'
-
-  if (returnZero) {
-    return {
-      gasLimit: ZERO_BN,
-      gasPrice: ZERO_BN,
-      tx: null,
-    }
-  }
-
-  if (amount <= 0n || !account) {
-    return {
-      gasLimit: ZERO_BN,
-      gasPrice: ZERO_BN,
-      tx: null,
-    }
-  }
-
-  const gasPrice = await transmuteContract.provider.getGasPrice()
-  try {
-    const gasLimit = await transmuteContract.estimateGas[transMethod](amount)
-
-    return {
-      gasLimit,
-      gasPrice,
-      tx: async function () {
-        return transmuteContract[transMethod](amount, {
-          gasLimit: gasLimit,
-        })
-      },
-    }
-  } catch (error) {
-    console.error('Error getting swap transaction info', error)
-    return {
-      gasLimit: ZERO_BN,
-      gasPrice: ZERO_BN,
-      tx: null,
-    }
-  }
-}
+import { transmuterContract } from '@/src/constants/config/contracts'
 
 export const useTransmuterTxInfo = ({
   amount,
@@ -74,37 +19,16 @@ export const useTransmuterTxInfo = ({
   const { walletChainId } = useWeb3Connection()
   if (walletChainId !== Chains.gnosis) throw new Error('Invalid chain')
 
-  const { data: transactionData } = useSWR(
-    ['transactionInfo', token, amount, userAddress, returnZero || false],
-    async ([, _token, _amount, _userAddress, _returnZero]) => {
-      if (_returnZero) {
-        return {
-          gasLimit: ZERO_BN,
-          gasPrice: ZERO_BN,
-          tx: null,
-        }
-      }
+  const { mutateAsync } = useWriteContract()
 
-      if (_amount <= 0n) {
-        return {
-          gasLimit: ZERO_BN,
-          gasPrice: ZERO_BN,
-          tx: null,
-        }
-      }
-      const { gasLimit, gasPrice, tx } = await getTransTx({
-        account: _userAddress,
-        amount: _amount,
-        tokenAddress: _token.address,
-      })
+  const functionName = (token.address === USDC_XDAI_OLD ? 'deposit' : 'withdraw') as
+    | 'deposit'
+    | 'withdraw'
+  const enabled = !returnZero && amount > 0n && !!userAddress
 
-      return {
-        gasLimit,
-        gasPrice,
-        tx,
-      }
-    },
-  )
+  const tx = enabled
+    ? () => mutateAsync({ ...transmuterContract, functionName, args: [amount] })
+    : null
 
-  return transactionData
+  return { tx }
 }

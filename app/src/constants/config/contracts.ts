@@ -8,6 +8,7 @@ import OMNI_FEE_MANAGER_abi from '@/src/abis/OmniBridgeFeeManager'
 import AMBBridgeHelper_abi from '@/src/abis/AMBBridgeHelper'
 import NativeOmniBridgeMediator_abi from '@/src/abis/NativeOmniBridgeMediator'
 import USDSDeposit_abi from '@/src/abis/USDSdeposit'
+import TransmuterAbi from '@/src/abis/TransmuterEurc.json'
 import { Chains } from '@/src/constants/config/types'
 
 export const contracts = {
@@ -149,5 +150,11 @@ export const ambBridgeHelperContract = {
 export const usdsDepositContract = {
   address: contracts.USDSDeposit.address[Chains.gnosis] as `0x${string}`,
   abi: contracts.USDSDeposit.abi,
+  chainId: Chains.gnosis,
+} as const
+
+export const transmuterContract = {
+  address: '0x0392A2F5Ac47388945D8c84212469F545fAE52B2' as `0x${string}`,
+  abi: TransmuterAbi,
   chainId: Chains.gnosis,
 } as const
