@@ -1,11 +1,8 @@
 import { ChainsValues } from '@/src/constants/config/types'
-import { ZERO_BN } from '@/src/constants/misc'
+import { formatUnits } from 'viem'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { MaxButton } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
-import { fromBN } from '@/src/utils/bigNumber'
-import { formatNumber } from '@/src/utils/format'
 import { Token } from '@/types/token'
-import { formatUnits } from 'ethers/lib/utils'
 import styled from 'styled-components'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
@@ -42,21 +39,19 @@ const BalanceTitle = () => <Title>Balance:</Title>
 
 const Balance: React.FC<{
   $address: string
-  $chainId: ChainsValues
   $token: Token
   $allowanceAddress?: string
   $onMax?: (value: string) => void
 }> = genericSuspense(
-  ({ $address, $allowanceAddress, $chainId, $onMax, $token, ...restProps }) => {
+  ({ $address, $allowanceAddress, $onMax, $token, ...restProps }) => {
     const { data } = useUserTokenBalances({
       userAddress: $address,
       allowanceAddress: $allowanceAddress,
-      chainId: $chainId,
       tokenAddress: $token.address,
     })
 
-    const balance = data?.balance || ZERO_BN
-    const value = formatNumber(Number(fromBN(balance, $token?.decimals)))
+    const balance = data?.balance ?? 0n
+    const value = formatUnits(balance, $token?.decimals ?? 18)
 
     return (
       <Wrapper {...restProps}>
@@ -129,7 +124,6 @@ export const UserBalance: React.FC<{
     <Balance
       $address={$address}
       $allowanceAddress={bridgeContractAddress}
-      $chainId={$fromChainId}
       $onMax={$onMax}
       $token={$token}
       {...restProps}

@@ -1,9 +1,8 @@
 import { Chains } from '@/src/constants/config/chains'
 import { bridgePagesBaseURL } from '@/src/constants/sections'
 import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactionInfo'
-import useTransaction from '@/src/hooks/useTransaction'
+import { useTransaction } from '@/src/hooks/useTransaction'
 import { Token } from '@/types/token'
-import { BigNumber } from 'ethers'
 import router from 'next/router'
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
@@ -47,7 +46,7 @@ const Wrapper = styled.button`
 `
 
 type BridgeProps = {
-  amount: BigNumber
+  amount: bigint
   bridgeStatus: Step
   recipient: string
   setStatus: (status: Step[]) => void
@@ -96,8 +95,7 @@ const BridgeActive: React.FC<BridgeProps> = ({
         if (tx) {
           setStatus(steps.completed)
           router.push(
-            `${bridgePagesBaseURL}/${tx.hash}?fromChainId=${fromChainId}&isNativeBridge=${
-              isNativeBridge ? 1 : 0
+            `${bridgePagesBaseURL}/${tx.hash}?fromChainId=${fromChainId}&isNativeBridge=${isNativeBridge ? 1 : 0
             }&tokenAddress=${token?.address}&amount=${amount}&toChainId=${toChainId}`,
           )
         } else {

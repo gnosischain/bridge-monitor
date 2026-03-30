@@ -1,8 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 // import { Tooltip } from '@/src/components/tooltip'
-import { formatUnits } from 'ethers/lib/utils'
-import { BigNumber } from 'ethers'
+import { formatUnits } from 'viem'
 import { Loading } from '@/src/components/loading'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { TokenUsdc } from './types'
@@ -52,7 +51,7 @@ export const TxPreviewLoading: React.FC = ({ ...restProps }) => {
 export const TxPreview: React.FC<{
   userAddress: string
   token: TokenUsdc
-  amount: BigNumber
+  amount: bigint
   tokenOut: TokenUsdc
 }> = genericSuspense(
   ({ amount, token, tokenOut, ...restProps }) => {

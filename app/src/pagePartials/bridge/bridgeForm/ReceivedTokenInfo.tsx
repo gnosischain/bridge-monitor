@@ -1,7 +1,6 @@
 import { ChainsValues } from '@/src/constants/config/types'
 import { NoTokenOut, TokenOut } from '@/src/pagePartials/bridge/bridgeForm/TokenOut'
 import { Token } from '@/types/token'
-import { BigNumber } from 'ethers'
 import { genericSuspense } from '@/src/components/safeSuspense'
 
 export const ReceivedTokenInfo: React.FC<{
@@ -10,25 +9,17 @@ export const ReceivedTokenInfo: React.FC<{
   setReceiveNativeToken: (receiveNative: boolean) => void
   setReceiveUsds: (receiveUsds: boolean) => void
   token: Token | undefined
-  amountBN: BigNumber
+  amount: bigint
   tokenOut?: Token
 }> = genericSuspense(
-  ({
-    amountBN,
-    fromChainId,
-    setReceiveNativeToken,
-    setReceiveUsds,
-    toChainId,
-    token,
-    tokenOut,
-  }) => {
+  ({ amount, fromChainId, setReceiveNativeToken, setReceiveUsds, toChainId, token, tokenOut }) => {
     return (
       <>
         {!token || !tokenOut ? (
           <NoTokenOut />
         ) : (
           <TokenOut
-            amount={amountBN}
+            amount={amount}
             fromChainId={fromChainId}
             setReceiveNativeToken={setReceiveNativeToken}
             setReceiveUsds={setReceiveUsds}

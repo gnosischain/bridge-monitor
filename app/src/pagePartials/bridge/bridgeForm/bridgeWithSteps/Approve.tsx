@@ -1,13 +1,11 @@
 import { TRANSMUTER_ADDRESS, USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
-import { BigNumber } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { Step, statuses, steps } from './const'
 import { StatusDetails } from './StatusDetails'
 import { Status } from '@/src/pagePartials/bridgeExplorer/transaction/IconStatus'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
-import { Chains } from '@/src/constants/config/chains'
 import { Token } from '@/types/token'
 
 const Wrapper = styled.button`
@@ -45,7 +43,7 @@ const Wrapper = styled.button`
 `
 
 type ApproveProps = {
-  amount: BigNumber
+  amount: bigint
   approveStatus: Step
   userAddress: string
   tokenIn: Token
@@ -64,16 +62,15 @@ export const Approve = ({
   const [isWorking, setIsWorking] = useState(false)
   const [showButton, setShowButton] = useState(false)
 
-  const { data: userBalanceData, mutate: refreshBalanceToken } = useUserTokenBalances({
+  const { data: userBalanceData, refetch: refreshBalanceToken } = useUserTokenBalances({
     userAddress: userAddress || ZERO_ADDRESS,
-    chainId: Chains.gnosis,
     allowanceAddress: TRANSMUTER_ADDRESS,
     tokenAddress: tokenIn.address,
   })
 
   if (!userBalanceData) throw new Error('User balance data is not available')
 
-  const shouldApprove = amount.gt(userBalanceData.allowance) && amount.lte(userBalanceData.balance)
+  const shouldApprove = amount > userBalanceData.allowance && amount <= userBalanceData.balance
 
   useEffect(() => {
     if (shouldApprove && approveStatus === 'now' && !showButton) {
@@ -89,14 +86,11 @@ export const Approve = ({
     () => async () => {
       setIsWorking(true)
       try {
-        const receipt = await approve({
+        await approve({
           amount,
           spenderAddress: TRANSMUTER_ADDRESS,
           tokenAddress: USDCe_GNOSIS,
         })
-        if (!receipt) throw new Error('No receipt')
-
-        await receipt.wait()
         setStatus(steps.swapping)
         refreshBalanceToken()
         if (showButton) setShowButton(false)

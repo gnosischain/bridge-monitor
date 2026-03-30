@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import get from 'lodash/get'
-import { isAddress } from '@ethersproject/address'
+import { formatUnits, isAddress } from 'viem'
 import { DebounceInput } from 'react-debounce-input'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown as BaseDropdown, DropdownItem, DropdownPosition } from '@/src/components/dropdown'
@@ -21,8 +21,6 @@ import { ERC165__factory } from '@/types/typechain/factories/ERC165__factory'
 import { USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
 import { useUserTokenListBalances } from '@/src/hooks/bridge/useUserTokenListBalances'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { fromBN } from '@/src/utils/bigNumber'
-import { formatNumber } from '@/src/utils/format'
 import { usdsToken } from '@/src/constants/usdsToken'
 import { xdaiToken } from '@/src/constants/xdaiToken'
 
@@ -524,7 +522,7 @@ const Dropdown: React.FC<Props> = ({
                 </TokenInfo>
                 {balances && balances[item.address] && (
                   <TokenAmount>
-                    {formatNumber(Number(fromBN(balances[item.address], item?.decimals)))}
+                    {formatUnits(balances[item.address], item?.decimals ?? 18)}
                   </TokenAmount>
                 )}
               </DropdownBridgeItem>

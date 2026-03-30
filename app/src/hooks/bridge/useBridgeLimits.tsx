@@ -1,121 +1,16 @@
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
-import { contracts } from '@/src/constants/config/contracts'
-import { Chains, ChainsValues } from '@/src/constants/config/types'
+import { useReadContracts } from 'wagmi'
 import {
-  HomeBridgeErcToNative,
-  HomeBridgeErcToNative__factory,
-  HomeOmniMediator,
-  HomeOmniMediator__factory,
-} from '@/types/typechain'
-import useSWR from 'swr'
+  contracts,
+  homeOmniBridgeContract,
+  homeXdaiBridgeContract,
+} from '@/src/constants/config/contracts'
+import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
-import { ZERO_ADDRESS, ZERO_BN } from '@/src/constants/misc'
+import { ZERO_ADDRESS } from '@/src/constants/misc'
 import { isSameString } from '@/src/utils/tools'
 import { Token } from '@/types/token'
-import { BigNumber } from 'ethers'
 import { TokenOverrideManager } from '@/src/utils/token-overrides'
-
-/**
- * Retrieves the default token limits for a bridge transaction.
- * Used when doesnt exists a destination token.
- * @param decimals - The number of decimal places for the token.
- * @param fromChainId - The ID of the chain where the token is being transferred from.
- * @param toChainId - The ID of the chain where the token is being transferred to.
- * @returns An object containing the minimum per transaction, maximum per transaction, daily limit, and total spent per day.
- */
-const getDefaultTokenLimits = async (
-  decimals: number,
-  fromChainId: ChainsValues,
-  toChainId: ChainsValues,
-) => {
-  try {
-    const [fromMediatorContract, toMediatorContract] = [
-      HomeOmniMediator__factory.connect(
-        contracts.OmniBridge.address[fromChainId],
-        new JsonRpcBatchProvider(chainsConfig[fromChainId].rpcUrl),
-      ),
-      HomeOmniMediator__factory.connect(
-        contracts.OmniBridge.address[toChainId],
-        new JsonRpcBatchProvider(chainsConfig[toChainId].rpcUrl),
-      ),
-    ]
-
-    let [minPerTx, maxPerTx, dailyLimit] = await Promise.all([
-      fromMediatorContract.minPerTx(ZERO_ADDRESS),
-      toMediatorContract.executionMaxPerTx(ZERO_ADDRESS),
-      fromMediatorContract.executionDailyLimit(ZERO_ADDRESS),
-    ])
-
-    if (decimals < 18) {
-      const factor = BigNumber.from(10).pow(18 - decimals)
-
-      minPerTx = minPerTx.div(factor)
-      maxPerTx = maxPerTx.div(factor)
-      dailyLimit = dailyLimit.div(factor)
-
-      if (minPerTx.eq(0)) {
-        minPerTx = BigNumber.from(1)
-        if (maxPerTx.lte(minPerTx)) {
-          maxPerTx = BigNumber.from(100)
-          if (dailyLimit.lte(maxPerTx)) {
-            dailyLimit = BigNumber.from(10000)
-          }
-        }
-      }
-    } else {
-      const factor = BigNumber.from(10).pow(decimals - 18)
-
-      minPerTx = minPerTx.mul(factor)
-      maxPerTx = maxPerTx.mul(factor)
-      dailyLimit = dailyLimit.mul(factor)
-    }
-
-    return {
-      minPerTx,
-      maxPerTx,
-      dailyLimit,
-      totalSpentPerDay: ZERO_BN,
-    }
-  } catch (error) {
-    console.log(error)
-    return {
-      minPerTx: BigNumber.from(0),
-      maxPerTx: BigNumber.from(0),
-      dailyLimit: BigNumber.from(0),
-      totalSpentPerDay: ZERO_BN,
-    }
-  }
-}
-
-const getBridgeLimits = async (
-  contract: HomeBridgeErcToNative | HomeOmniMediator,
-  tokenAddress: string | undefined,
-) => {
-  const currentDay = await contract.getCurrentDay()
-
-  if (tokenAddress) {
-    contract = contract as HomeOmniMediator
-    const [dailyLimit, minPerTx, maxPerTx, totalSpentPerDay] = await Promise.all([
-      contract.dailyLimit(tokenAddress),
-      contract.minPerTx(tokenAddress),
-      contract.maxPerTx(tokenAddress),
-      contract.totalSpentPerDay(tokenAddress, currentDay),
-    ])
-
-    return { dailyLimit, minPerTx, maxPerTx, totalSpentPerDay }
-  } else {
-    contract = contract as HomeBridgeErcToNative
-    const [dailyLimit, minPerTx, maxPerTx, totalSpentPerDay] = await Promise.all([
-      contract.dailyLimit(),
-      contract.minPerTx(),
-      contract.maxPerTx(),
-      contract.totalSpentPerDay(currentDay),
-    ])
-
-    return { dailyLimit, minPerTx, maxPerTx, totalSpentPerDay }
-  }
-}
 
 const useBridgeLimits = (
   fromChainId: ChainsValues,
@@ -123,73 +18,178 @@ const useBridgeLimits = (
   fromToken: Token | undefined,
   toToken: Token | undefined,
 ) => {
-  // Hardcoded condition
-  // For Mainnet ETH, the address comes as 0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-  // and we need to use 0x.
   const fromTokenAddress =
     fromToken?.address == NATIVE_TOKEN_ADDRESS.toLowerCase() ? ZERO_ADDRESS : fromToken?.address
 
   const toTokenAddress =
     toToken?.address == NATIVE_TOKEN_ADDRESS.toLowerCase() ? ZERO_ADDRESS : toToken?.address
 
-  return useSWR(
-    fromChainId && fromTokenAddress
-      ? [
-          `bridgeLimits-${fromTokenAddress}-${fromChainId}`,
-          fromTokenAddress,
-          toTokenAddress,
-          fromChainId,
-        ]
-      : null,
-    async ([, _fromTokenAddress, _toTokenAddress, _fromChainId]) => {
-      const rpcUrl = new JsonRpcBatchProvider(chainsConfig[_fromChainId].rpcUrl)
+  const overwrittenMediator = fromTokenAddress
+    ? TokenOverrideManager.isMediatorOverridden(fromTokenAddress, fromChainId)
+    : false
 
-      // mediator overrides uses the same methods than "HomeBridgeErcToNative" to get the limits
-      const overwrittenMediator = TokenOverrideManager.isMediatorOverridden(
-        _fromTokenAddress,
-        _fromChainId,
-      )
-      const isGnosisXDai =
-        _fromChainId == Chains.gnosis && isSameString(_fromTokenAddress, ZERO_ADDRESS)
-      const isForeignDAI =
-        _fromChainId != Chains.gnosis &&
-        isSameString(_fromTokenAddress, chainsConfig[_fromChainId].bridge.DAI)
-      const isForeignUSDS =
-        _fromChainId != Chains.gnosis &&
-        isSameString(_fromTokenAddress, chainsConfig[_fromChainId].bridge.USDS)
+  const isGnosisXDai =
+    fromChainId == Chains.gnosis && isSameString(fromTokenAddress ?? '', ZERO_ADDRESS)
+  const isForeignDAI =
+    fromChainId != Chains.gnosis &&
+    isSameString(fromTokenAddress ?? '', chainsConfig[fromChainId].bridge.DAI)
+  const isForeignUSDS =
+    fromChainId != Chains.gnosis &&
+    isSameString(fromTokenAddress ?? '', chainsConfig[fromChainId].bridge.USDS)
 
-      if (isGnosisXDai || isForeignDAI || overwrittenMediator || isForeignUSDS) {
-        const contractAddress = overwrittenMediator
-          ? TokenOverrideManager.getOverride(_fromTokenAddress).mediator // use the overridden mediator address.
-          : contracts.XDAIBridge.address[_fromChainId]
+  const isXdaiBridgeCase = isGnosisXDai || isForeignDAI || overwrittenMediator || isForeignUSDS
+  const isOmniBridgeCase = !isXdaiBridgeCase && !!toTokenAddress
+  const isDefaultCase = !isXdaiBridgeCase && !toTokenAddress && !!fromTokenAddress
 
-        const contract = HomeBridgeErcToNative__factory.connect(contractAddress, rpcUrl)
+  const xdaiBridgeAddress = (
+    overwrittenMediator && fromTokenAddress
+      ? TokenOverrideManager.getOverride(fromTokenAddress).mediator
+      : contracts.XDAIBridge.address[fromChainId]
+  ) as `0x${string}`
 
-        const { dailyLimit, maxPerTx, minPerTx, totalSpentPerDay } = await getBridgeLimits(
-          contract,
-          undefined,
-        )
+  const omniBridgeFromAddress = contracts.OmniBridge.address[fromChainId] as `0x${string}`
+  const omniBridgeToAddress = contracts.OmniBridge.address[toChainId] as `0x${string}`
+  const tokenAddr = (fromTokenAddress ?? ZERO_ADDRESS) as `0x${string}`
 
-        return { dailyLimit, minPerTx, maxPerTx, totalSpentPerDay }
-      } else if (_toTokenAddress) {
-        const contract = HomeOmniMediator__factory.connect(
-          contracts.OmniBridge.address[_fromChainId],
-          rpcUrl,
-        )
+  const xdai = { ...homeXdaiBridgeContract, address: xdaiBridgeAddress, chainId: fromChainId }
+  const omniFrom = {
+    ...homeOmniBridgeContract,
+    address: omniBridgeFromAddress,
+    chainId: fromChainId,
+  }
+  const omniTo = { ...homeOmniBridgeContract, address: omniBridgeToAddress, chainId: toChainId }
 
-        const { dailyLimit, maxPerTx, minPerTx, totalSpentPerDay } = await getBridgeLimits(
-          contract,
-          _fromTokenAddress,
-        )
+  // --- XDAI bridge ---
+  const { data: xdaiData, isLoading: xdaiLoading } = useReadContracts({
+    contracts: [
+      { ...xdai, functionName: 'getCurrentDay' },
+      { ...xdai, functionName: 'dailyLimit' },
+      { ...xdai, functionName: 'minPerTx' },
+      { ...xdai, functionName: 'maxPerTx' },
+    ],
+    query: { enabled: isXdaiBridgeCase },
+  })
 
-        return { dailyLimit, minPerTx, maxPerTx, totalSpentPerDay }
+  const [xdaiCurrentDayR, xdaiDailyLimitR, xdaiMinPerTxR, xdaiMaxPerTxR] = xdaiData ?? []
+  const xdaiCurrentDay =
+    xdaiCurrentDayR?.status === 'success' ? (xdaiCurrentDayR.result as bigint) : undefined
+
+  const { data: xdaiTotalsData, isLoading: xdaiTotalsLoading } = useReadContracts({
+    contracts: [{ ...xdai, functionName: 'totalSpentPerDay', args: [xdaiCurrentDay!] }],
+    query: { enabled: isXdaiBridgeCase && xdaiCurrentDay !== undefined },
+  })
+
+  // --- OmniBridge ---
+  const { data: omniData, isLoading: omniLoading } = useReadContracts({
+    contracts: [
+      { ...omniFrom, functionName: 'getCurrentDay' },
+      { ...omniFrom, functionName: 'dailyLimit', args: [tokenAddr] },
+      { ...omniFrom, functionName: 'minPerTx', args: [tokenAddr] },
+      { ...omniFrom, functionName: 'maxPerTx', args: [tokenAddr] },
+    ],
+    query: { enabled: isOmniBridgeCase },
+  })
+
+  const [omniCurrentDayR, omniDailyLimitR, omniMinPerTxR, omniMaxPerTxR] = omniData ?? []
+  const omniCurrentDay = omniCurrentDayR?.status === 'success' ? omniCurrentDayR.result : undefined
+
+  const { data: omniTotalsData, isLoading: omniTotalsLoading } = useReadContracts({
+    contracts: [
+      { ...omniFrom, functionName: 'totalSpentPerDay', args: [tokenAddr, omniCurrentDay!] },
+    ],
+    query: { enabled: isOmniBridgeCase && omniCurrentDay !== undefined },
+  })
+
+  // --- Default case (no destination token) ---
+  const { data: defaultData, isLoading: defaultLoading } = useReadContracts({
+    contracts: [
+      { ...omniFrom, functionName: 'minPerTx', args: [ZERO_ADDRESS] },
+      { ...omniTo, functionName: 'executionMaxPerTx', args: [ZERO_ADDRESS] },
+      { ...omniFrom, functionName: 'executionDailyLimit', args: [ZERO_ADDRESS] },
+    ],
+    query: { enabled: isDefaultCase },
+  })
+
+  // --- Assemble result ---
+  if (isXdaiBridgeCase) {
+    const dailyLimit = xdaiDailyLimitR?.status === 'success' ? xdaiDailyLimitR.result : undefined
+    const minPerTx = xdaiMinPerTxR?.status === 'success' ? xdaiMinPerTxR.result : undefined
+    const maxPerTx = xdaiMaxPerTxR?.status === 'success' ? xdaiMaxPerTxR.result : undefined
+    const totalSpentPerDay =
+      xdaiTotalsData?.[0]?.status === 'success' ? xdaiTotalsData[0].result : undefined
+
+    const isLoading = xdaiLoading || xdaiTotalsLoading
+    const data =
+      dailyLimit !== undefined &&
+      minPerTx !== undefined &&
+      maxPerTx !== undefined &&
+      totalSpentPerDay !== undefined
+        ? { dailyLimit, minPerTx, maxPerTx, totalSpentPerDay }
+        : undefined
+
+    return { data, isLoading }
+  }
+
+  if (isOmniBridgeCase) {
+    const dailyLimit = omniDailyLimitR?.status === 'success' ? omniDailyLimitR.result : undefined
+    const minPerTx = omniMinPerTxR?.status === 'success' ? omniMinPerTxR.result : undefined
+    const maxPerTx = omniMaxPerTxR?.status === 'success' ? omniMaxPerTxR.result : undefined
+    const totalSpentPerDay =
+      omniTotalsData?.[0]?.status === 'success' ? omniTotalsData[0].result : undefined
+
+    const isLoading = omniLoading || omniTotalsLoading
+    const data =
+      dailyLimit !== undefined &&
+      minPerTx !== undefined &&
+      maxPerTx !== undefined &&
+      totalSpentPerDay !== undefined
+        ? { dailyLimit, minPerTx, maxPerTx, totalSpentPerDay }
+        : undefined
+
+    return { data, isLoading }
+  }
+
+  if (isDefaultCase) {
+    const [defaultMinR, defaultMaxR, defaultDailyR] = defaultData ?? []
+    let minPerTx = defaultMinR?.status === 'success' ? defaultMinR.result : undefined
+    let maxPerTx = defaultMaxR?.status === 'success' ? defaultMaxR.result : undefined
+    let dailyLimit = defaultDailyR?.status === 'success' ? defaultDailyR.result : undefined
+
+    const decimals = fromToken?.decimals ?? 18
+
+    if (minPerTx !== undefined && maxPerTx !== undefined && dailyLimit !== undefined) {
+      if (decimals < 18) {
+        const factor = 10n ** BigInt(18 - decimals)
+        minPerTx = minPerTx / factor
+        maxPerTx = maxPerTx / factor
+        dailyLimit = dailyLimit / factor
+
+        if (minPerTx === 0n) {
+          minPerTx = 1n
+          if (maxPerTx <= minPerTx) {
+            maxPerTx = 100n
+            if (dailyLimit <= maxPerTx) {
+              dailyLimit = 10000n
+            }
+          }
+        }
+      } else {
+        const factor = 10n ** BigInt(decimals - 18)
+        minPerTx = minPerTx * factor
+        maxPerTx = maxPerTx * factor
+        dailyLimit = dailyLimit * factor
       }
+    }
 
-      // This branch is used when the destination token does not exist.
-      // It's the first time a tokens is bridged.
-      return getDefaultTokenLimits(fromToken?.decimals || 18, _fromChainId, toChainId)
-    },
-  )
+    const data =
+      minPerTx !== undefined && maxPerTx !== undefined && dailyLimit !== undefined
+        ? { minPerTx, maxPerTx, dailyLimit, totalSpentPerDay: 0n }
+        : undefined
+
+    return { data, isLoading: defaultLoading }
+  }
+
+  return { data: undefined, isLoading: false }
 }
 
 export default useBridgeLimits

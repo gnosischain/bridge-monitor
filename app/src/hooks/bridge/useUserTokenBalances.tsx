@@ -19,6 +19,7 @@ export const useUserTokenBalances = ({
     data: contractData,
     error: contractError,
     isLoading: isLoadingContracts,
+    refetch: refetchContracts,
   } = useReadContracts({
     contracts: [
       {
@@ -44,6 +45,7 @@ export const useUserTokenBalances = ({
     data: nativeBalance,
     error: nativeBalanceError,
     isLoading: isLoadingNativeBalance,
+    refetch: refetchNative,
   } = useBalance({
     address: userAddress as `0x${string}`,
     query: {
@@ -70,6 +72,7 @@ export const useUserTokenBalances = ({
       },
       isLoading: isLoadingNativeBalance,
       error: nativeBalanceError,
+      refetch: refetchNative,
     }
   }
 
@@ -83,5 +86,6 @@ export const useUserTokenBalances = ({
     },
     isLoading: isLoadingContracts,
     error: contractError,
+    refetch: refetchContracts,
   }
 }

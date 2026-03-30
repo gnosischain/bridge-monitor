@@ -1,8 +1,7 @@
 import { TransactionCall, useTransaction } from '@/src/hooks/useTransaction'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { ERC20__factory } from '@/types/typechain/factories/ERC20__factory'
 import { useCallback } from 'react'
-import { encodeFunctionData } from 'viem'
+import { encodeFunctionData, erc20Abi } from 'viem'
 
 type Approval = {
   tokenAddress: string
@@ -17,7 +16,7 @@ const buildApproveCall = (
   amount: bigint,
 ): TransactionCall => {
   const callData = encodeFunctionData({
-    abi: ERC20__factory.abi,
+    abi: erc20Abi,
     functionName: 'approve',
     args: [spenderAddress as `0x${string}`, amount],
   })

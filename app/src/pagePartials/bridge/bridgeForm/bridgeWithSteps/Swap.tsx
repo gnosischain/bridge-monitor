@@ -69,7 +69,7 @@ export const Swap = ({
   const sendTx = useTransaction()
   const disabled = swapStatus !== 'now' && swapStatus !== 'pending'
 
-  const { mutate: refreshBalanceToken } = useUserTokenBalances({
+  const { refetch: refreshBalanceToken } = useUserTokenBalances({
     userAddress: userAddress || ZERO_ADDRESS,
     chainId: Chains.gnosis,
     allowanceAddress: TRANSMUTER_ADDRESS,
