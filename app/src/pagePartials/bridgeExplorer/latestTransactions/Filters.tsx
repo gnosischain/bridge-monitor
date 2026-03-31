@@ -1,7 +1,7 @@
 import React, { HTMLAttributes, useCallback, useEffect, useState } from 'react'
 import styled, { css } from 'styled-components'
 
-import { isAddress } from '@ethersproject/address'
+import { isAddress } from 'viem'
 import { TextfieldStatus } from '@/src/components/form/Textfield'
 import { SearchDebounceInput } from '@/src/pagePartials/bridgeExplorer/latestTransactions/SearchDebounceInput'
 import { FilterDropdown } from '@/src/pagePartials/bridgeExplorer/latestTransactions/FilterDropdown'

@@ -1,3 +1,4 @@
+import ForeignBridgeRouter_abi from '@/src/abis/ForeignBridgeRouter.json'
 import XDAI_abi from '@/src/abis/HomeBridgeErcToNative' // TODO: maybe we can unified the names of the ABI files too.
 import FOREIGN_XDAI_abi from '@/src/abis/ForeignBridgeErcToNative'
 import OMNI_abi from '@/src/abis/HomeOmniMediator' // TODO: maybe we can unified the names of the ABI files too.
@@ -145,6 +146,12 @@ export const ambBridgeHelperContract = {
   address: contracts.AMBBridgeHelper.address[Chains.gnosis] as `0x${string}`,
   abi: contracts.AMBBridgeHelper.abi,
   chainId: Chains.gnosis,
+} as const
+
+export const foreignBridgeRouterContract = {
+  address: contracts.BridgeRouter.address[Chains.mainnet] as `0x${string}`,
+  abi: ForeignBridgeRouter_abi,
+  chainId: Chains.mainnet,
 } as const
 
 export const usdsDepositContract = {

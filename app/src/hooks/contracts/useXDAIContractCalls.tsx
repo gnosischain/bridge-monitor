@@ -14,7 +14,7 @@ export const useHomeXDAIBridgeLimits = () => {
   })
 
   const [currentDay, dailyLimit, executionDailyLimit, minPerTx, maxPerTx, executionMaxPerTx] =
-    data?.map((r) => (r.status === 'success' ? (r.result) : undefined)) ?? []
+    data?.map((r) => (r.status === 'success' ? r.result : undefined)) ?? []
 
   const { data: totalsData } = useReadContracts({
     contracts: [
@@ -25,7 +25,7 @@ export const useHomeXDAIBridgeLimits = () => {
   })
 
   const [totalSpentPerDay, totalExecutedPerDay] =
-    totalsData?.map((r) => (r.status === 'success' ? (r.result) : undefined)) ?? []
+    totalsData?.map((r) => (r.status === 'success' ? r.result : undefined)) ?? []
 
   return {
     homeXdaiInformation: {
@@ -53,7 +53,7 @@ export const useForeignXDAIBridgeLimits = () => {
   })
 
   const [currentDay, dailyLimit, executionDailyLimit, minPerTx, maxPerTx, executionMaxPerTx] =
-    data?.map((r) => (r.status === 'success' ? (r.result) : undefined)) ?? []
+    data?.map((r) => (r.status === 'success' ? r.result : undefined)) ?? []
 
   const { data: totalsData } = useReadContracts({
     contracts: [
@@ -64,7 +64,7 @@ export const useForeignXDAIBridgeLimits = () => {
   })
 
   const [totalSpentPerDay, totalExecutedPerDay] =
-    totalsData?.map((r) => (r.status === 'success' ? (r.result) : undefined)) ?? []
+    totalsData?.map((r) => (r.status === 'success' ? r.result : undefined)) ?? []
 
   return {
     foreignXdaiInformation: {

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
+import { formatUnits } from 'viem'
 
 import { IconLink } from '@/src/components/assets/IconLink'
 import { InnerCard } from '@/src/components/card/InnerCard'
@@ -143,6 +144,17 @@ export const BridgeLimit: React.FC<Props> = ({
   ...restProps
 }) => {
   const { getExplorerUrl } = useWeb3Connection()
+  const decimals = token?.decimals ?? 18
+  const toNum = (v: bigint) => Number(formatUnits(v, decimals))
+
+  const dailyLimitNum = toNum(dailyLimit)
+  const executionDailyLimitNum = toNum(executionDailyLimit)
+  const minPerTxNum = toNum(minPerTx)
+  const maxPerTxNum = toNum(maxPerTx)
+  const executionMaxPerTxNum = toNum(executionMaxPerTx)
+  const totalSpentPerDayNum = toNum(totalSpentPerDay)
+  const totalExecutedPerDayNum = toNum(totalExecutedPerDay)
+
   bridgeReset = useMemo(() => {
     if (bridgeReset) {
       return bridgeReset
@@ -178,36 +190,36 @@ export const BridgeLimit: React.FC<Props> = ({
         <>
           <ContractLimit
             darkBackground
-            funds={dailyLimit}
-            percentage={percentageNumber(totalSpentPerDay, dailyLimit)}
+            funds={dailyLimitNum}
+            percentage={percentageNumber(totalSpentPerDayNum, dailyLimitNum)}
             title={`${token?.symbol.toUpperCase() || 'DAI'} deposits per day`}
             tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that users can bridge from ${from} to ${to} in a day`}
-            used={{ value: totalSpentPerDay, title: 'Deposited' }}
+            used={{ value: totalSpentPerDayNum, title: 'Deposited' }}
           />
           <ContractLimit
             darkBackground
-            funds={executionDailyLimit}
-            percentage={percentageNumber(totalExecutedPerDay, executionDailyLimit)}
+            funds={executionDailyLimitNum}
+            percentage={percentageNumber(totalExecutedPerDayNum, executionDailyLimitNum)}
             title={`${token?.symbol.toUpperCase() || 'DAI'} withdrawals per day`}
             tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that bridge validators can execute and bridge from ${to} to ${from} in a day`}
-            used={{ value: totalExecutedPerDay, title: 'Withdrawn' }}
+            used={{ value: totalExecutedPerDayNum, title: 'Withdrawn' }}
           />
           <Grid>
             <TransactionLimit
               title="Min. deposit per transaction"
               tooltip={`Minimum amount of ${token?.symbol.toUpperCase()} that users can bridge in a single transaction`}
-              value={formatNumber(minPerTx)}
+              value={formatNumber(minPerTxNum)}
             />
             <TransactionLimit
               title="Max. deposit per transaction"
               tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that users can bridge in a single transaction`}
-              value={formatNumber(maxPerTx)}
+              value={formatNumber(maxPerTxNum)}
             />
           </Grid>
           <TransactionLimit
             title="Max. withdrawal per transaction"
             tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that validators can execute in a single transaction`}
-            value={formatNumber(executionMaxPerTx)}
+            value={formatNumber(executionMaxPerTxNum)}
           />
           <TimeLeft time={bridgeReset} />
         </>

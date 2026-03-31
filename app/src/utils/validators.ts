@@ -1,7 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { cloneDeep } from 'lodash'
-
-import { fromBNtoNumber } from '@/src/utils/bigNumber'
 import { formatNumber } from '@/src/utils/format'
 import { Transaction } from '@/src/utils/transactions'
 import ambValidators from '@/src/utils/validators/amb.json'

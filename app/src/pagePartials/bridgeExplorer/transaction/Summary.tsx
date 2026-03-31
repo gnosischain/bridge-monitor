@@ -13,7 +13,6 @@ import {
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Transaction } from '@/src/utils/transactions'
 import { ArrowRight } from '@/src/components/assets/ArrowRight'
-import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
 
 const Wrapper = styled.div`
   column-gap: calc(var(--theme-common-space) * 2);
@@ -137,7 +136,7 @@ interface Props {
   $timestampStarted: number
   $transaction?: Transaction
   $transactionStatus: TransactionStatus
-  $updateInMemoryTransaction: UpdateInMemoryTx
+  $updateInMemoryTransaction: () => void
 }
 
 export const Summary: React.FC<Props> = ({
@@ -193,7 +192,7 @@ export const Summary: React.FC<Props> = ({
             bridgeName={$bridgeName}
             initiatorNetwork={$initiatorNetwork}
             token={$initiatorToken}
-            tokenValue={$initiatorAmount}
+            tokenValue={BigInt($initiatorAmount)}
           />
           {$bridgeName.toLowerCase() === 'xdai' && (
             <>
@@ -203,7 +202,7 @@ export const Summary: React.FC<Props> = ({
                 initiatorNetwork={$initiatorNetwork}
                 receiverToken={$receiverToken}
                 token={$initiatorToken}
-                tokenValue={$initiatorAmount}
+                tokenValue={BigInt($initiatorAmount)}
               />
             </>
           )}

@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
-
-import { isAddress } from '@ethersproject/address'
 import { DebounceInput } from 'react-debounce-input'
-
 import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { ChevronDown as BaseChevronDown } from '@/src/components/assets/ChevronDown'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
@@ -17,6 +14,7 @@ import { getToChainId } from '@/src/utils/tools'
 import { ERC165__factory, HomeOmniMediator__factory } from '@/types/typechain'
 import { getNetworkConfig } from '@/src/constants/config/chains'
 import { contracts } from '@/src/constants/config/contracts'
+import { isAddress } from 'viem'
 
 const Wrapper = styled(BaseDropdown)`
   --inner-padding: calc(var(--theme-common-space) / 2);

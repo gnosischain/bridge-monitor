@@ -102,10 +102,37 @@ const Placeholder: React.FC = () => (
   </SkeletonLoading>
 )
 
+const isLoaded = (info: {
+  dailyLimit: bigint | undefined
+  executionDailyLimit: bigint | undefined
+  minPerTx: bigint | undefined
+  maxPerTx: bigint | undefined
+  executionMaxPerTx: bigint | undefined
+  totalSpentPerDay: bigint | undefined
+  totalExecutedPerDay: bigint | undefined
+}): info is {
+  dailyLimit: bigint
+  executionDailyLimit: bigint
+  minPerTx: bigint
+  maxPerTx: bigint
+  executionMaxPerTx: bigint
+  totalSpentPerDay: bigint
+  totalExecutedPerDay: bigint
+} =>
+  info.dailyLimit !== undefined &&
+  info.executionDailyLimit !== undefined &&
+  info.minPerTx !== undefined &&
+  info.maxPerTx !== undefined &&
+  info.executionMaxPerTx !== undefined &&
+  info.totalSpentPerDay !== undefined &&
+  info.totalExecutedPerDay !== undefined
+
 export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericSuspense(
-  ({ dayNumber }) => {
+  () => {
     const { foreignXdaiInformation } = useForeignXDAIBridgeLimits()
     // const { mainnetDaiToken } = useDaiToken()
+
+    if (!isLoaded(foreignXdaiInformation)) return <Placeholder />
 
     return (
       <BridgeLimit
@@ -130,9 +157,11 @@ export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericS
 )
 
 export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericSuspense(
-  ({ dayNumber }) => {
+  () => {
     const { homeXdaiInformation } = useHomeXDAIBridgeLimits()
     const { gnosisXdaiToken } = useDaiToken()
+
+    if (!isLoaded(homeXdaiInformation)) return <Placeholder />
 
     return (
       <BridgeLimit
@@ -159,8 +188,10 @@ export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericS
 
 const OmnibridgeMainnetToGnosisChain: React.FC<{ token: Token; dayNumber: string | undefined }> =
   genericSuspense(
-    ({ dayNumber, token }) => {
+    ({ token }) => {
       const { foreignOmniInformation } = useForeignOMNIBridgeLimits(token)
+
+      if (!isLoaded(foreignOmniInformation)) return <Placeholder />
 
       return (
         <BridgeLimit
@@ -185,8 +216,10 @@ const OmnibridgeMainnetToGnosisChain: React.FC<{ token: Token; dayNumber: string
 
 const OmnibridgeGnosisChainToMainnet: React.FC<{ token: Token; dayNumber: string | undefined }> =
   genericSuspense(
-    ({ dayNumber, token }) => {
+    ({ token }) => {
       const { homeOmniInformation } = useHomeOMNIBridgeLimits(token)
+
+      if (!isLoaded(homeOmniInformation)) return <Placeholder />
 
       return (
         <BridgeLimit

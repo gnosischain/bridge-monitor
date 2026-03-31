@@ -104,7 +104,6 @@ const ApproveButton: React.FC<{
     })
 
     if (tx) {
-      await tx.wait()
       await refreshBalanceToken()
       // await refreshBalanceTokenOut()
     }
@@ -133,7 +132,7 @@ const TriggerTransButton: React.FC<{
   const { walletChainId } = useWeb3Connection()
   if (walletChainId !== Chains.gnosis) throw new Error('Invalid chain')
 
-  const sendTx = useTransaction()
+  const { execute } = useTransaction()
   // const router = useRouter()
 
   const { refetch: refreshBalanceToken } = useUserTokenBalances({
@@ -170,9 +169,8 @@ const TriggerTransButton: React.FC<{
     setIsSending(true)
 
     try {
-      const tx = await sendTx(transactionData.tx)
+      const tx = await execute([transactionData.tx])
       if (tx) {
-        await tx.wait()
         clearForm()
         Promise.all([refreshBalanceToken(), refreshBalanceTokenOut()])
       } else {
@@ -230,8 +228,8 @@ export const TransButton: React.FC<{
 
   if (!userBalanceData) throw new Error('User balance data is not available')
 
-  const isValidToSend = amount.gt(0) && amount.lte(userBalanceData.balance)
-  const shouldApprove = amount.gt(userBalanceData.allowance) && amount.lte(userBalanceData.balance)
+  const isValidToSend = amount > 0n && amount <= userBalanceData.balance
+  const shouldApprove = amount > userBalanceData.allowance && amount <= userBalanceData.balance
 
   if (!isValidToSend) {
     return <DisabledTransButton />

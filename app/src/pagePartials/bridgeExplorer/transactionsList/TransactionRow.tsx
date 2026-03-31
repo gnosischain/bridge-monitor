@@ -164,7 +164,7 @@ export const TransactionRow: React.FC<Props> = ({
             bridgeName={bridgeName}
             initiatorNetwork={initiatorNetwork}
             token={initiatorToken}
-            tokenValue={initiatorAmount}
+            tokenValue={BigInt(initiatorAmount)}
           />
         </TD>
         <TDArrow>
@@ -185,7 +185,7 @@ export const TransactionRow: React.FC<Props> = ({
               initiatorNetwork={initiatorNetwork}
               receiverToken={receiverToken}
               token={initiatorToken}
-              tokenValue={initiatorAmount}
+              tokenValue={BigInt(initiatorAmount)}
             />
           )}
         </TD>

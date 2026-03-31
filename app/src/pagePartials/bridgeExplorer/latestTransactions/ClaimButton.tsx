@@ -1,28 +1,22 @@
 import { notify } from '@/src/components/toast'
-import { chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
-import { contracts } from '@/src/constants/config/contracts'
+import { getNetworkConfig } from '@/src/constants/config/chains'
 import { Chains } from '@/src/constants/config/types'
 import { ToastStates } from '@/src/constants/types'
-import { useContractInstance } from '@/src/hooks/useContractInstance'
-import useTransaction from '@/src/hooks/useTransaction'
+import {
+  ambBridgeHelperContract,
+  bridgeHelperBeforeUsdsMigrationContract,
+  bridgeHelperContract,
+  foreignBridgeRouterContract,
+  homeAmbContract,
+} from '@/src/constants/config/contracts'
+import { useTransaction } from '@/src/hooks/useTransaction'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { Transaction } from '@/src/utils/transactions'
-import {
-  AMBBridgeHelper__factory,
-  Erc20ToNativeBridgeHelper,
-  Erc20ToNativeBridgeHelper__factory,
-  Erc20ToNativeBridgeHelper_beforeUSDSMigration,
-  Erc20ToNativeBridgeHelper_beforeUSDSMigration__factory,
-  ForeignAMB,
-  ForeignBridgeRouter,
-  ForeignBridgeRouter__factory,
-} from '@/types/typechain'
-import { Interface } from '@ethersproject/abi'
-import { JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
+import { useIsUsdsEnabled } from '@/src/hooks/contracts/useIsUsdsEnabled'
 import { useState } from 'react'
 import styled from 'styled-components'
-import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
-import { useIsUsdsEnabled } from '@/src/hooks/contracts/useIsUsdsEnabled'
+import { decodeEventLog, encodeFunctionData } from 'viem'
+import { usePublicClient } from 'wagmi'
 
 const Wrapper = styled.button`
   align-items: center;
@@ -57,7 +51,7 @@ const Wrapper = styled.button`
 
 type ClaimButtonProps = {
   transaction: Transaction
-  updateInMemoryTransaction: UpdateInMemoryTx
+  updateInMemoryTransaction: () => void
 }
 
 export const ClaimButton = ({
@@ -69,67 +63,76 @@ export const ClaimButton = ({
     useWeb3Connection()
   const [isWorking, setIsWorking] = useState(false)
   const isUsdsEnabled = useIsUsdsEnabled()
-  const erc20ToNativeBridgeHelper = useContractInstance(
-    isUsdsEnabled
-      ? Erc20ToNativeBridgeHelper__factory
-      : Erc20ToNativeBridgeHelper_beforeUSDSMigration__factory,
-    isUsdsEnabled ? 'BridgeHelper' : 'BridgeHelper__beforeUsdsMigration',
-    Chains.gnosis,
-  )
+  const { execute } = useTransaction()
 
-  const ambBridgeHelper = useContractInstance(
-    AMBBridgeHelper__factory,
-    'AMBBridgeHelper',
-    Chains.gnosis,
-  )
-
-  const sendTx = useTransaction({ skipConnectionCheck: true })
+  const gnosisClient = usePublicClient({ chainId: Chains.gnosis })
+  if (!gnosisClient) {
+    throw new Error('Gnosis client not found')
+  }
 
   const isXDAI = transaction.bridgeName.toUpperCase() === 'XDAI'
 
-  const getClaimTx = async (
-    provider: Web3Provider,
-  ): Promise<
-    | (() => ReturnType<ForeignBridgeRouter['executeSignatures']>)
-    | (() => ReturnType<ForeignAMB['safeExecuteSignaturesWithAutoGasLimit']>)
-  > => {
-    const address = contracts.BridgeRouter.address[Chains.mainnet]
+  const buildClaimTxData = async () => {
+    const helperContract = isUsdsEnabled
+      ? bridgeHelperContract
+      : bridgeHelperBeforeUsdsMigrationContract
 
-    const foreignBridgeRouter = ForeignBridgeRouter__factory.connect(address, provider.getSigner())
     if (isXDAI) {
-      // XDAI Bridge
-      // recover message and signatures
       const modifiedId = transaction.id.startsWith('0x00000064')
         ? '0x00000000' + transaction.id.substring(10)
         : transaction.transactionHash
 
-      const messageHash = await (isUsdsEnabled
-        ? (erc20ToNativeBridgeHelper as Erc20ToNativeBridgeHelper)[
-            'getMessageHash(address,uint256,bytes32,address)'
-          ](transaction.receiver, transaction.receiverAmount, modifiedId, transaction.receiverToken)
-        : (
-            erc20ToNativeBridgeHelper as Erc20ToNativeBridgeHelper_beforeUSDSMigration
-          ).getMessageHash(transaction.receiver, transaction.receiverAmount, modifiedId))
+      const messageHashArgs = isUsdsEnabled
+        ? ([
+            transaction.receiver,
+            transaction.receiverAmount,
+            modifiedId,
+            transaction.receiverToken,
+          ] as const)
+        : ([transaction.receiver, transaction.receiverAmount, modifiedId] as const)
+
+      const messageHash = await gnosisClient!.readContract({
+        ...helperContract,
+        functionName: isUsdsEnabled
+          ? 'getMessageHash(address,uint256,bytes32,address)'
+          : 'getMessageHash',
+        args: messageHashArgs,
+      } as Parameters<typeof gnosisClient.readContract>[0])
+
       const [message, signatures] = await Promise.all([
-        erc20ToNativeBridgeHelper.getMessage(messageHash),
-        erc20ToNativeBridgeHelper.getSignatures(messageHash),
+        gnosisClient!.readContract({
+          ...helperContract,
+          functionName: 'getMessage',
+          args: [messageHash as `0x${string}`],
+        } as Parameters<typeof gnosisClient.readContract>[0]),
+        gnosisClient!.readContract({
+          ...helperContract,
+          functionName: 'getSignatures',
+          args: [messageHash as `0x${string}`],
+        } as Parameters<typeof gnosisClient.readContract>[0]),
       ])
 
-      return () => foreignBridgeRouter.executeSignatures(message, signatures)
+      return {
+        to: foreignBridgeRouterContract.address,
+        data: encodeFunctionData({
+          abi: foreignBridgeRouterContract.abi,
+          functionName: 'executeSignatures',
+          args: [message as `0x${string}`, signatures as `0x${string}`],
+        }),
+        title: 'Claim',
+      }
     } else {
       // AMB Bridge
-      // recover message and signatures
-      const gnosisProvider = new JsonRpcProvider(chainsConfig[Chains.gnosis].rpcUrl, Chains.gnosis)
-      const initialTx = await gnosisProvider.getTransactionReceipt(transaction.transactionHash)
-      const AMBInterface = new Interface(contracts.AMB.abi)
+      const receipt = await gnosisClient!.getTransactionReceipt({
+        hash: transaction.transactionHash as `0x${string}`,
+      })
+
       const USER_REQUEST_FOR_SIGNATURE_TOPIC0 =
         '0x520d2afde79cbd5db58755ac9480f81bc658e5c517fcae7365a3d832590b0183'
-      const userRequestForSignatureEvent =
-        initialTx && initialTx.logs
-          ? initialTx.logs.find((log) => log.topics[0] === USER_REQUEST_FOR_SIGNATURE_TOPIC0)
-          : undefined
 
-      if (!userRequestForSignatureEvent) {
+      const log = receipt?.logs.find((l) => l.topics[0] === USER_REQUEST_FOR_SIGNATURE_TOPIC0)
+
+      if (!log) {
         notify({
           type: ToastStates.failed,
           message: 'Failed to claim - unable to build claim tx',
@@ -137,25 +140,41 @@ export const ClaimButton = ({
         })
         console.error(
           'Unable to build claim tx. Log for UserRequestForSignatures not found',
-          initialTx,
+          receipt,
         )
-        setIsWorking(false)
-        return () => {
-          throw new Error('Unable to build claim tx. Log for UserRequestForSignatures not found')
-        }
+        throw new Error('Unable to build claim tx. Log for UserRequestForSignatures not found')
       }
 
-      const message = AMBInterface.parseLog(userRequestForSignatureEvent).args.encodedData
-      const signatures = await ambBridgeHelper.getSignatures(message)
+      const { args } = decodeEventLog({
+        abi: homeAmbContract.abi,
+        eventName: 'UserRequestForSignature',
+        data: log.data,
+        topics: log.topics,
+      })
 
-      return () => foreignBridgeRouter.safeExecuteSignaturesWithAutoGasLimit(message, signatures)
+      const message = (args as { encodedData: `0x${string}` }).encodedData
+
+      const signatures = await gnosisClient!.readContract({
+        ...ambBridgeHelperContract,
+        functionName: 'getSignatures',
+        args: [message],
+      } as Parameters<typeof gnosisClient.readContract>[0])
+
+      return {
+        to: foreignBridgeRouterContract.address,
+        data: encodeFunctionData({
+          abi: foreignBridgeRouterContract.abi,
+          functionName: 'safeExecuteSignaturesWithAutoGasLimit',
+          args: [message, signatures as `0x${string}`],
+        }),
+        title: 'Claim',
+      }
     }
   }
 
   const executeClaim = async (): Promise<void> => {
     setIsWorking(true)
 
-    // if not connected, show a modal to connect
     if (!isWalletConnected) {
       connectWallet()
       notify({
@@ -169,7 +188,6 @@ export const ClaimButton = ({
 
     const currentAppChain = getNetworkConfig(appChainId)
 
-    // if not on the right network, show a modal to switch
     if (
       !isWalletNetworkSupported ||
       transaction.receiverNetwork !== currentAppChain.shortName.toLowerCase()
@@ -195,32 +213,18 @@ export const ClaimButton = ({
       id: 'claim',
     })
 
-    const claim = await getClaimTx(web3Provider)
-
     try {
-      const receipt = await sendTx(claim)
-      if (!receipt) throw new Error('No receipt')
-
-      // update tx to reflect claiming in progress
-      updateInMemoryTransaction(transaction)
-
-      // once executed, if the page is still open, bring new state from the SG.
-      await web3Provider.waitForTransaction(receipt.hash)
-
-      // give some time the SG to index
-      setTimeout(() => {
-        updateInMemoryTransaction()
-        setIsWorking(false)
-      }, 5000)
+      const txData = await buildClaimTxData()
+      await execute([txData])
+      updateInMemoryTransaction()
     } catch (e) {
-      // If the method reverts, the withdrawal was likely already executed.
-      // In this case, the user should be notified that the withdrawal was already executed.
       console.log('error', e)
       notify({
         type: ToastStates.failed,
         message: 'Failed to claim - it might have already been claimed',
         id: 'claim',
       })
+    } finally {
       setIsWorking(false)
     }
   }
