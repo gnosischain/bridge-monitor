@@ -48,6 +48,7 @@ const Balance: React.FC<{
       userAddress: $address,
       allowanceAddress: $allowanceAddress,
       tokenAddress: $token.address,
+      chainId: $token.chainId,
     })
 
     const balance = data?.balance ?? 0n

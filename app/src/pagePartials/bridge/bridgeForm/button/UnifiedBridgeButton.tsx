@@ -1,5 +1,4 @@
 import React from 'react'
-import { BigNumber } from 'ethers'
 import SafeSuspense from '@/src/components/safeSuspense'
 import { DisabledBridgeButton } from './DisabledBridgeButton'
 import { BridgeButton } from './BridgeButton'
@@ -11,7 +10,7 @@ import { ButtonPlaceholder } from './ButtonPlaceholder'
 export interface UnifiedBridgeButtonProps {
   fromChainId: ChainsValues
   toChainId: ChainsValues
-  amount: BigNumber
+  amount: bigint
   recipient: string
   fromToken?: Token
   isUsdceGC: boolean
@@ -43,7 +42,7 @@ export const UnifiedBridgeButton: React.FC<UnifiedBridgeButtonProps> = ({
     toToken.chainId === 1 &&
     toToken.extensions?.bridgeInfo?.[1]?.tokenAddress === ZERO_ADDRESS
 
-  if (!fromToken || !userAddress || amount.eq(0) || sendToExternalBridge || isNotBridgedErc20) {
+  if (!fromToken || !userAddress || amount === 0n || sendToExternalBridge || isNotBridgedErc20) {
     return <DisabledBridgeButton />
   }
 

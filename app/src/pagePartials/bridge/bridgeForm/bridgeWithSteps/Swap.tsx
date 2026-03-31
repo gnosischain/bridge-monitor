@@ -1,9 +1,8 @@
 import { TRANSMUTER_ADDRESS, USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
 import { useTransmuterTxInfo } from '@/src/hooks/usdcTransmuter/useTransmuterTxInfo'
-import useTransaction from '@/src/hooks/useTransaction'
+import { useTransaction } from '@/src/hooks/useTransaction'
 import { TokenUsdc } from '@/src/pagePartials/usdc/types'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { BigNumber } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { Step, statuses, steps } from './const'
@@ -48,7 +47,7 @@ const Wrapper = styled.button`
 `
 
 type SwapProps = {
-  amount: BigNumber
+  amount: bigint
   userAddress: string
   tokenIn: Token
   setStatus: (status: Step[]) => void
@@ -66,7 +65,7 @@ export const Swap = ({
   const [isWorking, setIsWorking] = useState(false)
   const { address } = useWeb3Connection()
   const [showButton, setShowButton] = useState(false)
-  const sendTx = useTransaction()
+  const { execute } = useTransaction()
   const disabled = swapStatus !== 'now' && swapStatus !== 'pending'
 
   const { refetch: refreshBalanceToken } = useUserTokenBalances({
@@ -85,18 +84,13 @@ export const Swap = ({
 
   const runSwap = useMemo(
     () => async () => {
-      if (!swapTxData || !swapTxData.tx) return
+      if (!swapTxData?.tx) return
       setIsWorking(true)
 
       try {
-        const tx = await sendTx(swapTxData.tx)
-        if (tx) {
-          await tx.wait()
-          refreshBalanceToken()
-          setStatus(steps.bridging)
-        } else {
-          throw new Error('Failed to swap')
-        }
+        await execute([swapTxData.tx])
+        refreshBalanceToken()
+        setStatus(steps.bridging)
       } catch (error) {
         console.error(error)
         setStatus(steps.swap)
@@ -105,7 +99,7 @@ export const Swap = ({
         setIsWorking(false)
       }
     },
-    [refreshBalanceToken, sendTx, setStatus, swapTxData],
+    [refreshBalanceToken, execute, setStatus, swapTxData],
   )
 
   const handleSwap = async (e?: React.MouseEvent<HTMLButtonElement>) => {

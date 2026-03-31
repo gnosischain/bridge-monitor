@@ -1,9 +1,7 @@
 import { ChainsValues } from '@/src/constants/config/types'
-import useSWR from 'swr'
 import { Token } from '@/types/token'
 import { USDC_ETHEREUM, USDCe_GNOSIS } from '@/src/constants/misc'
 import {
-  ERC20__factory,
   ERC677__factory,
   ForeignBridgeErcToNative__factory,
   ForeignBridgeRouter__factory,
@@ -13,6 +11,7 @@ import {
   NativeOmniBridgeMediator__factory,
   USDSdeposit__factory,
 } from '@/types/typechain'
+import { useMemo } from 'react'
 import { contracts } from '@/src/constants/config/contracts'
 import { TOKEN_MODE, useTokenMode } from '@/src/hooks/bridge/useTokenMode'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
@@ -23,7 +22,7 @@ import { isSameString } from '@/src/utils/tools'
 import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { USDS_ADDRESS } from '@/src/constants/config/common'
-import { encodeAbiParameters, encodeFunctionData } from 'viem'
+import { encodeAbiParameters, encodeFunctionData, erc20Abi } from 'viem'
 
 /**
  * isNativeToken && isFromForeign: use wrapAndRelayTokens (nativeOmniBridgeMediator) (no need approve: infinite approve) -> ETH -> WETH
@@ -64,7 +63,7 @@ const handleNativeTokenFromForeign = ({
   })
   return {
     to: bridgeContractAddress as `0x${string}`,
-    value: amount.toString(),
+    value: amount,
     data: callData,
     title: 'Wrap and relay tokens',
   }
@@ -110,7 +109,7 @@ const handleNativeTokenFromHome = ({
     })
     return {
       to: usdsDepositAddress as `0x${string}`,
-      value: amount.toString(),
+      value: amount,
       data: callData,
       title: 'Relay tokens',
     }
@@ -124,7 +123,7 @@ const handleNativeTokenFromHome = ({
     })
     return {
       to: bridgeContractAddress as `0x${string}`,
-      value: amount.toString(),
+      value: amount,
       data: callData,
       title: 'Relay tokens',
     }
@@ -132,7 +131,7 @@ const handleNativeTokenFromHome = ({
 
   return {
     to: bridgeContractAddress as `0x${string}`,
-    value: amount.toString(),
+    value: amount,
     title: 'Send tokens',
   }
 }
@@ -182,7 +181,7 @@ const handleERC20TokenFromForeign = ({
   if (isDAI) {
     if (amount > allowance) {
       const callData = encodeFunctionData({
-        abi: ERC20__factory.abi,
+        abi: erc20Abi,
         functionName: 'approve',
         args: [bridgeContractAddress as `0x${string}`, amount],
       })
@@ -212,7 +211,7 @@ const handleERC20TokenFromForeign = ({
 
   if (!isERC677 && amount > allowance) {
     const callData = encodeFunctionData({
-      abi: ERC20__factory.abi,
+      abi: erc20Abi,
       functionName: 'approve',
       args: [bridgeContractAddress as `0x${string}`, amount],
     })
@@ -340,7 +339,7 @@ const handleERC20TokenFromHome = ({
   // ERC20
   if (allowance && amount > allowance) {
     const callData = encodeFunctionData({
-      abi: ERC20__factory.abi,
+      abi: erc20Abi,
       functionName: 'approve',
       args: [bridgeContractAddress as `0x${string}`, amount],
     })
@@ -406,7 +405,7 @@ const handleUsdceFromHome = ({
   // ERC20 needs approval
   if (!isERC677 && amount > allowance) {
     const callData = encodeFunctionData({
-      abi: ERC20__factory.abi,
+      abi: erc20Abi,
       functionName: 'approve',
       args: [bridgeContractAddress as `0x${string}`, amount],
     })
@@ -472,7 +471,7 @@ const handleUsdcFromForeign = ({
   // ERC20 needs approval
   if (!isERC677 && amount > allowance) {
     const callData = encodeFunctionData({
-      abi: ERC20__factory.abi,
+      abi: erc20Abi,
       functionName: 'approve',
       args: [bridgeContractAddress as `0x${string}`, amount],
     })
@@ -523,7 +522,7 @@ const handleUsdsOrDaiFromForeign = ({
 
   if (amount > allowance) {
     const callData = encodeFunctionData({
-      abi: ERC20__factory.abi,
+      abi: erc20Abi,
       functionName: 'approve',
       args: [bridgeRouterContract as `0x${string}`, amount],
     })
@@ -698,51 +697,40 @@ export const useBridgeTransactionInfo = ({
     userAddress: userAddress,
     allowanceAddress: getBridgeContractAddress(fromChainId, toChainId, token.address),
     tokenAddress: token.address,
+    chainId: fromChainId,
   })
   if (!userBalancesData) throw new Error('User balances are not available')
 
   const toTokenAddress = toToken ? toToken.address : undefined
 
-  return useSWR(
-    [
-      'transactionInfo',
-      token,
+  const txData = useMemo(() => {
+    if (!tokenMode) return null
+    return getBridgeTx({
+      account: userAddress,
+      amount,
       fromChainId,
       toChainId,
-      amount,
+      tokenAddress: token.address,
       recipient,
       tokenMode,
       receiveNativeToken,
+      allowance: userBalancesData.allowance,
+      balance: userBalancesData.balance,
       toTokenAddress,
-    ],
-    async ([
-      ,
-      _token,
-      _fromChainId,
-      _toChainId,
-      _amount,
-      _recipient,
-      _tokenMode,
-      _receiveNativeToken,
-      _toTokenAddress,
-    ]) => {
-      const txData = await getBridgeTx({
-        account: userAddress,
-        amount: _amount,
-        fromChainId: _fromChainId,
-        toChainId: _toChainId,
-        tokenAddress: _token.address,
-        recipient: _recipient,
-        tokenMode: _tokenMode,
-        receiveNativeToken: _receiveNativeToken,
-        allowance: userBalancesData.allowance,
-        balance: userBalancesData.balance,
-        toTokenAddress: _toTokenAddress,
-      })
+    })
+  }, [
+    userAddress,
+    amount,
+    fromChainId,
+    toChainId,
+    token.address,
+    recipient,
+    tokenMode,
+    receiveNativeToken,
+    userBalancesData.allowance,
+    userBalancesData.balance,
+    toTokenAddress,
+  ])
 
-      return {
-        txData,
-      }
-    },
-  )
+  return { data: { txData } }
 }

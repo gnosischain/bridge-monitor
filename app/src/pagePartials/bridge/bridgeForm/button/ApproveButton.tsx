@@ -28,7 +28,7 @@ export const ApproveButton: React.FC<ApproveButtonProps> = ({
 
   const bridgeAddress = getBridgeContractAddress(fromChainId, toChainId, token.address)
 
-  const { mutate: refreshBalance } = useUserTokenBalances({
+  const { refetch: refreshBalance } = useUserTokenBalances({
     userAddress,
     chainId: fromChainId,
     allowanceAddress: bridgeAddress,
@@ -45,7 +45,6 @@ export const ApproveButton: React.FC<ApproveButtonProps> = ({
     })
 
     if (tx) {
-      await tx.wait()
       await refreshBalance()
     }
 

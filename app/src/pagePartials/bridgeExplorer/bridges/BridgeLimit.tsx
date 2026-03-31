@@ -106,21 +106,21 @@ const Grid = styled.div`
 interface Props {
   bridgeReset?: number
   chainId: ChainsValues
-  dailyLimit: number
-  executionDailyLimit: number
-  executionMaxPerTx: number
+  dailyLimit: bigint
+  executionDailyLimit: bigint
+  executionMaxPerTx: bigint
   from: string
   isNativeToken?: boolean | undefined
   isTokenRegistered?: boolean
-  maxPerTx: number
-  minPerTx: number
+  maxPerTx: bigint
+  minPerTx: bigint
   networkName: ChainsKeys
   title: string | React.ReactNode
   to: string
   token: Token
   tokenTooltip?: string | undefined
-  totalExecutedPerDay: number
-  totalSpentPerDay: number
+  totalExecutedPerDay: bigint
+  totalSpentPerDay: bigint
 }
 
 export const BridgeLimit: React.FC<Props> = ({

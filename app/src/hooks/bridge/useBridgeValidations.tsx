@@ -48,6 +48,7 @@ export const useBridgeValidations = ({
     userAddress,
     allowanceAddress: bridgeContractAddress,
     tokenAddress: fromToken.address,
+    chainId: fromChainId,
   })
   if (!userBalanceData) throw new Error('User balance data is not available')
 

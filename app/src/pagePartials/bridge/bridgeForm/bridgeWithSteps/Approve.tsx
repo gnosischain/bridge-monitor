@@ -66,6 +66,7 @@ export const Approve = ({
     userAddress: userAddress || ZERO_ADDRESS,
     allowanceAddress: TRANSMUTER_ADDRESS,
     tokenAddress: tokenIn.address,
+    chainId: tokenIn.chainId,
   })
 
   if (!userBalanceData) throw new Error('User balance data is not available')

@@ -65,7 +65,7 @@ const BridgeActive: React.FC<BridgeProps> = ({
 }) => {
   const [isWorking, setIsWorking] = useState(false)
   const [showButton, setShowButton] = useState(false)
-  const sendTx = useTransaction()
+  const { execute } = useTransaction()
 
   const fromChainId = Chains.gnosis
   const toChainId = Chains.mainnet
@@ -84,18 +84,19 @@ const BridgeActive: React.FC<BridgeProps> = ({
 
   const runBridge = useMemo(
     () => async () => {
-      if (!transactionData || !transactionData.tx) {
-        console.error('No transactionData.tx')
+      if (!transactionData?.txData) {
+        console.error('No transactionData.txData')
         return
       }
       setIsWorking(true)
 
       try {
-        const tx = await sendTx(transactionData.tx)
-        if (tx) {
+        const hash = await execute([transactionData.txData])
+        if (hash) {
           setStatus(steps.completed)
           router.push(
-            `${bridgePagesBaseURL}/${tx.hash}?fromChainId=${fromChainId}&isNativeBridge=${isNativeBridge ? 1 : 0
+            `${bridgePagesBaseURL}/${hash}?fromChainId=${fromChainId}&isNativeBridge=${
+              isNativeBridge ? 1 : 0
             }&tokenAddress=${token?.address}&amount=${amount}&toChainId=${toChainId}`,
           )
         } else {
@@ -113,10 +114,10 @@ const BridgeActive: React.FC<BridgeProps> = ({
       amount,
       fromChainId,
       isNativeBridge,
-      sendTx,
       setStatus,
       toChainId,
       token?.address,
+      execute,
       transactionData,
     ],
   )

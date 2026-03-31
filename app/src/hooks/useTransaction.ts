@@ -11,7 +11,7 @@ import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 
 export interface TransactionCall {
   to: Address
-  data: `0x${string}`
+  data?: `0x${string}`
   value?: bigint
   title?: string
 }
@@ -32,7 +32,7 @@ export interface UseTransactionOptions {
 }
 
 interface UseTransactionReturn {
-  execute: (calls: TransactionCall[]) => void
+  execute: (calls: TransactionCall[]) => Promise<`0x${string}` | undefined>
   isPending: boolean
 }
 
@@ -44,8 +44,8 @@ const initialProgress: TransactionProgress = {
 
 export function useTransaction(options?: UseTransactionOptions): UseTransactionReturn {
   const { canBatch } = useWeb3Connection()
-  const { data: callsData, error: sendCallsError, mutate: mutateCalls } = useSendCalls()
-  const { data: txHash, error: sendTxError, mutate: mutateTransaction } = useSendTransaction()
+  const { data: callsData, error: sendCallsError, mutateAsync: mutateCalls } = useSendCalls()
+  const { data: txHash, error: sendTxError, mutateAsync: mutateTransaction } = useSendTransaction()
 
   const { isSuccess: isTxConfirmed } = useWaitForTransactionReceipt({
     hash: txHash,
@@ -133,23 +133,23 @@ export function useTransaction(options?: UseTransactionOptions): UseTransactionR
   }, [sendCallsError, sendTxError])
 
   const execute = useCallback(
-    (callsInput: TransactionCall[]) => {
+    async (callsInput: TransactionCall[]): Promise<`0x${string}` | undefined> => {
       setCurrentCalls(callsInput)
       setProgress({ currentIndex: 0, total: callsInput.length, status: 'pending' })
       hasCalledOnSuccess.current = false
 
       if (canBatch) {
         console.log('Executing batch of', callsInput.length, 'calls...')
-        mutateCalls({ calls: callsInput, capabilities: {} })
+        await mutateCalls({ calls: callsInput, capabilities: {} })
+        return undefined
       } else {
-        console.log('Executing', callsInput.length, 'calls in parallel...')
-        callsInput.forEach((call) => {
-          mutateTransaction({
-            to: call.to,
-            data: call.data,
-            value: call.value,
-          })
-        })
+        console.log('Executing', callsInput.length, 'calls...')
+        const [first, ...rest] = callsInput
+        const hash = await mutateTransaction({ to: first.to, data: first.data, value: first.value })
+        rest.forEach((call) =>
+          mutateTransaction({ to: call.to, data: call.data, value: call.value }),
+        )
+        return hash
       }
     },
     [canBatch, mutateCalls, mutateTransaction],

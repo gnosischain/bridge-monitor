@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
-import { BigNumber } from 'ethers'
 import { useRouter } from 'next/router'
-import useTransaction from '@/src/hooks/useTransaction'
 import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactionInfo'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { bridgePagesBaseURL } from '@/src/constants/sections'
@@ -11,13 +9,14 @@ import { Button } from './Button'
 import { ButtonPlaceholderWithWarning } from './ButtonPlaceholderWithWarning'
 import { isSameString } from '@/src/utils/tools'
 import { USDC_ETHEREUM } from '@/src/constants/misc'
+import { useTransaction } from '@/src/hooks/useTransaction'
 
 interface TriggerBridgeButtonProps {
   userAddress: string
   fromChainId: ChainsValues
   toChainId: ChainsValues
   token: Token
-  amount: BigNumber
+  amount: bigint
   recipient: string
   receiveNativeToken: boolean
   toToken?: Token
@@ -34,7 +33,7 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
   userAddress,
 }) => {
   const [isSending, setIsSending] = useState(false)
-  const sendTx = useTransaction()
+  const { execute } = useTransaction()
   const router = useRouter()
 
   const { data: transactionData } = useBridgeTransactionInfo({
@@ -57,18 +56,16 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
   })
 
   const handleBridgeTx = async () => {
+    if (!transactionData.txData) {
+      throw new Error('Transaction data is not available')
+    }
     setIsSending(true)
 
-    if (!transactionData.tx) {
-      console.error('No transactionData.tx')
-      return
-    }
-
     try {
-      const tx = await sendTx(transactionData.tx)
-      if (tx) {
+      const hash = await execute([transactionData.txData])
+      if (hash) {
         router.push(
-          `${bridgePagesBaseURL}/${tx.hash}?fromChainId=${fromChainId}&isNativeBridge=${
+          `${bridgePagesBaseURL}/${hash}?fromChainId=${fromChainId}&isNativeBridge=${
             isNativeBridge ? 1 : 0
           }&tokenAddress=${token.address}&amount=${amount}&toChainId=${toChainId}`,
         )

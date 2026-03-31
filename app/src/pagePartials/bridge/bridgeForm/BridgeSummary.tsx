@@ -41,6 +41,7 @@ export const BridgeSummary: React.FC<{
       userAddress,
       allowanceAddress: bridgeContractAddress,
       tokenAddress: token.address,
+      chainId: fromChainId,
     })
     if (!addressBalances) throw new Error('Address balances are not available')
 

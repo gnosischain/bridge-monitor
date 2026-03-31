@@ -5,12 +5,14 @@ import { erc20Abi } from 'viem'
 
 export const useUserTokenBalances = ({
   allowanceAddress,
+  chainId,
   tokenAddress,
   userAddress,
 }: {
   userAddress: string
   allowanceAddress?: string
   tokenAddress?: string
+  chainId: number
 }) => {
   const _isNativeToken = tokenAddress ? isNativeToken(tokenAddress) : false
 
@@ -27,12 +29,14 @@ export const useUserTokenBalances = ({
         abi: erc20Abi,
         functionName: 'balanceOf',
         args: [userAddress as `0x${string}`],
+        chainId,
       },
       {
         address: tokenAddress as `0x${string}`,
         abi: erc20Abi,
         functionName: 'allowance',
         args: [userAddress as `0x${string}`, allowanceAddress as `0x${string}`],
+        chainId,
       },
     ],
     query: {
@@ -48,6 +52,7 @@ export const useUserTokenBalances = ({
     refetch: refetchNative,
   } = useBalance({
     address: userAddress as `0x${string}`,
+    chainId,
     query: {
       enabled: !!userAddress && _isNativeToken,
     },
@@ -55,6 +60,7 @@ export const useUserTokenBalances = ({
 
   // Gas price for calculating max sendable amount
   const { data: gasPrice } = useGasPrice({
+    chainId,
     query: {
       enabled: _isNativeToken,
     },

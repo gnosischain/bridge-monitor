@@ -1,7 +1,6 @@
 import { Modal } from '@/src/components/modal'
 import styled from 'styled-components'
 import { useState } from 'react'
-import { BigNumber } from 'ethers'
 import { Approve } from './Approve'
 import { Swap } from './Swap'
 import { Bridge } from './Bridge'
@@ -26,7 +25,7 @@ const StatusList = styled.div`
 type BridgeWithStepsProps = {
   tokenIn: Token
   tokenOut: Token
-  amount: BigNumber
+  amount: bigint
   onClose: () => void
   recipient: string
   userAddress: string
