@@ -1,4 +1,4 @@
-import { TransactionStatus } from '@/types/generated/subgraph'
+import { TransactionStatus } from '@/src/utils/transactions'
 import styled, { css } from 'styled-components'
 
 import { ChainsInitiatorReceiver } from '@/src/pagePartials/bridgeExplorer/common/ChainsInitiatorReceiver'
@@ -13,7 +13,7 @@ import {
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Transaction } from '@/src/utils/transactions'
 import { ArrowRight } from '@/src/components/assets/ArrowRight'
-import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
+import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
 
 const Wrapper = styled.div`
   column-gap: calc(var(--theme-common-space) * 2);

@@ -3,9 +3,7 @@ import { GraphQLClient, RequestDocument, Variables } from 'graphql-request'
 const DEFAULT_ENVIO_URL =
   process.env.NEXT_PUBLIC_ENVIO_INDEXER_URL || 'http://localhost:8080/v1/graphql'
 
-const BACKEND = (process.env.NEXT_PUBLIC_INDEXER_BACKEND || 'envio').toLowerCase() as
-  | 'envio'
-  | 'subgraph'
+const BACKEND = (process.env.NEXT_PUBLIC_INDEXER_BACKEND || 'envio').toLowerCase() as 'envio'
 
 export const isEnvioBackend = () => BACKEND === 'envio'
 

@@ -5,10 +5,12 @@
 This monorepository contains the following folders:
 
 - /app: React Application repository
-- /subgraph: Subgraph repository
 - /envio-indexer: Envio Indexer repository
 - /alerts: Alert repository
 - /tests: Test plan and records
+
+deleted:
+- /subgraph: Subgraph repository on commit 270f27bec9b80386cceba1fb5dee67b9ad5c5430 and replace with envio-indexer
 
 ## Deploy Bridge-Explorer Pipeline
 

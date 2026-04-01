@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
 
 import { StatusColors } from '@/src/pagePartials/bridgeExplorer/common/StatusColors'
-import { TransactionStatus as TxStatusEnum } from '@/types/generated/subgraph'
+import { TransactionStatus as TxStatusEnum } from '@/src/utils/transactions'
 
 type WrapperProps = { status: TxStatusEnum }
 
