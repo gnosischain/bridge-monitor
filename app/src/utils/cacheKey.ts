@@ -1,8 +1,6 @@
-import { BigNumberish } from '@ethersproject/bignumber'
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type CacheKey<T extends any[]> = {
-  [Key in keyof T]: T[Key] extends null ? undefined : T[Key] extends BigNumberish ? string : T[Key]
+  [Key in keyof T]: T[Key] extends null ? undefined : T[Key] extends bigint ? string : T[Key]
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

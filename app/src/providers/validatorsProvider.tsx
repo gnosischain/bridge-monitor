@@ -4,7 +4,7 @@ import useSWR from 'swr'
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { fetchHomeValidators, getBalance, getValidatorByAddress } from '@/src/utils/validators'
 import { Validator } from '@/src/utils/validators'
-import { gnosisBatch } from '@/src/constants/config/rpc-providers'
+import { gnosisBatchClient } from '@/src/constants/config/rpc-providers'
 import { fromSecondsTimestamp } from '@/src/utils/date'
 import { Chains, chainsConfig } from '@/src/constants/config/chains'
 import cloneDeep from 'lodash/cloneDeep'
@@ -34,8 +34,13 @@ const ValidatorsContext = createContext<ValidatorsContextType>({
   refetch: () => undefined,
 })
 
+// TODO(wagmi-migration): replace this SWR fetcher + gnosisBatch with wagmi hooks.
+// Drop useSWR entirely, migrate fetchHomeValidators() to useQuery, and move balance
+// fetching to per-validator useBalance() calls in the component tree. wagmi's http
+// transport with batch:true preserves the batching behavior of JsonRpcBatchProvider,
+// and rpc-providers.ts can be deleted
 const fetcher = async () => {
-  const homeProvider = gnosisBatch()
+  const homeProvider = gnosisBatchClient
   const validatorsData = await fetchHomeValidators()
 
   const validatorsPromises = validatorsData.map(async (v) => {

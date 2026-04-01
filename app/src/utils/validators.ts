@@ -1,4 +1,3 @@
-import { JsonRpcProvider } from '@ethersproject/providers'
 import { cloneDeep } from 'lodash'
 import { formatNumber } from '@/src/utils/format'
 import { Transaction } from '@/src/utils/transactions'
@@ -10,6 +9,7 @@ import { getEnvioGraphqlClient, isEnvioBackend } from '@/src/constants/config/in
 import { BalanceType, ValidatorStatusTypes } from '@/src/constants/types'
 import { ENVIO_VALIDATORS_ACTIVITY_QUERY, ENVIO_VALIDATORS_QUERY } from '@/src/queries/validators'
 import { TransactionStatus } from '@/src/utils/transactions'
+import { PublicClient, formatEther } from 'viem'
 
 const XDAI_VALIDATORS = xdaiValidators as Validator[]
 const AMB_VALIDATORS = ambValidators as Validator[]
@@ -125,9 +125,9 @@ export const getValidatorByName = (validatorName: string, bridge: BridgesValues)
   return bridgeValidators[lowerCaseAddress]
 }
 
-export const getBalance = async (address: string, provider: JsonRpcProvider) => {
-  const balance = await provider.getBalance(address)
-  return formatNumber(fromBNtoNumber(balance) ?? 0)
+export const getBalance = async (address: string, provider: PublicClient) => {
+  const balance = await provider.getBalance({ address: address as `0x${string}` })
+  return formatNumber(Number(formatEther(balance)))
 }
 
 export const fetchSignedTransactions = async (bridge: BridgesValues, afterDate: number) => {

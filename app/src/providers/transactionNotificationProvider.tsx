@@ -1,14 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
-
-import { TransactionResponse } from '@ethersproject/providers'
+import { usePublicClient } from 'wagmi'
 import toast from 'react-hot-toast'
 
-import { notify } from '@/src/components/toast'
 import { ChainsValues } from '@/src/constants/config/types'
-import { ToastStates } from '@/src/constants/types'
 import { usePersistedState } from '@/src/hooks/usePersistedState'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { getChainKey } from '@/src/constants/config/chains'
 
 type TransactionStorageItem = {
   chainId: ChainsValues
@@ -17,10 +13,7 @@ type TransactionStorageItem = {
 }
 
 type TransactionContextValue = {
-  notifyTxMined: (txHash: string, isSuccess?: boolean) => void
-  notifyWaitingForSignature: () => void
-  notifyWaitingForTxMined: (txHash: string) => void
-  notifyRejectSignature: (msg: string) => void
+  storeBridgeTx: (txHash: string) => void
   state: TransactionStorageItem[]
 }
 
@@ -28,132 +21,89 @@ const TransactionContext = createContext<TransactionContextValue | undefined>(un
 
 const TRANSACTIONS_STORE = 'pending-transactions'
 
-export const TransactionNotificationProvider: React.FC = ({ children }) => {
-  const { address, appChainId, getExplorerUrl, readOnlyAppProvider } = useWeb3Connection()
+export const TransactionNotificationProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const { address, appChainId } = useWeb3Connection()
+  const publicClient = usePublicClient()
   const [isRan, setIsRan] = useState(false)
 
-  const chainKey = getChainKey(appChainId)
-
-  const initialState: TransactionStorageItem[] = []
-
-  const [transactionStore, setTransactionStore] = usePersistedState(
+  const [transactionStore, setTransactionStore] = usePersistedState<TransactionStorageItem[]>(
     TRANSACTIONS_STORE,
-    initialState,
+    [],
   )
 
   const removeTxFromStorage = useCallback(
     (txHash: string) => {
       if (!transactionStore) return
-      setTransactionStore(
-        transactionStore.filter((tx: TransactionStorageItem) => tx.txHash !== txHash),
-      )
+      setTransactionStore(transactionStore.filter((tx) => tx.txHash !== txHash))
     },
     [setTransactionStore, transactionStore],
   )
 
-  const notifyWaitingForSignature = () => {
-    notify({
-      type: ToastStates.waiting,
-      message: 'Waiting for signature',
-      id: 'waitingForSignature',
-    })
-  }
-
-  const notifyRejectSignature = (msg: string) => {
-    toast.remove('waitingForSignature')
-    notify({ type: ToastStates.failed, message: msg })
-  }
-
-  const notifyWaitingForTxMined = (txHash: string) => {
-    toast.remove('waitingForSignature')
-    if (!transactionStore || !address) return
-    setTransactionStore([...transactionStore, { chainId: appChainId, address, txHash }])
-
-    notify({
-      type: ToastStates.waiting,
-      explorerUrl: getExplorerUrl(txHash, chainKey),
-      id: txHash,
-    })
-  }
-
-  const notifyTxMined = useCallback(
-    (txHash: string, isSuccess?: boolean) => {
-      if (isSuccess) {
-        notify({
-          type: ToastStates.success,
-          explorerUrl: getExplorerUrl(txHash, chainKey),
-          id: txHash,
-        })
-
-        removeTxFromStorage(txHash)
-      } else {
-        notify({
-          type: ToastStates.failed,
-          explorerUrl: getExplorerUrl(txHash, chainKey),
-          id: txHash,
-        })
-
-        removeTxFromStorage(txHash)
-      }
+  const storeBridgeTx = useCallback(
+    (txHash: string) => {
+      if (!address || !transactionStore) return
+      setTransactionStore([...transactionStore, { chainId: appChainId, address, txHash }])
+      toast.loading('Bridge transaction pending...', { id: txHash })
     },
-    [chainKey, getExplorerUrl, removeTxFromStorage],
+    [address, appChainId, setTransactionStore, transactionStore],
   )
 
-  // Check if there are previous tx on the storage
+  // On mount, recover pending bridge txs from storage and wait for them
   useEffect(() => {
-    if (!address || !appChainId || isRan) return
+    if (!address || !appChainId || !publicClient || isRan) return
     setIsRan(true)
+
     const recoverTxStatus = async () => {
-      // recover txHashes from storage
-      const txsStatus: Promise<TransactionResponse>[] = (transactionStore || [])
-        .filter((tx) => address === tx.address && appChainId === tx.chainId && tx.txHash)
-        .map((tx) => readOnlyAppProvider?.getTransaction(tx.txHash))
+      const pendingTxs = (transactionStore ?? []).filter(
+        (tx) => address === tx.address && appChainId === tx.chainId && tx.txHash,
+      )
 
-      // check txHashes status
-      const hashes = (await Promise.all(txsStatus)).map((status) => {
-        const { blockNumber } = status
-        if (blockNumber) {
-          removeTxFromStorage(status.hash)
-          return null
-        }
-        return status.hash
-      })
+      const statuses = await Promise.all(
+        pendingTxs.map(async (tx) => {
+          const transaction = await publicClient.getTransaction({
+            hash: tx.txHash as `0x${string}`,
+          })
+          return { txHash: tx.txHash, blockNumber: transaction.blockNumber }
+        }),
+      )
 
-      // get not mined txHashes
-      const pendingHashes = hashes.filter((txHash) => txHash !== null)
-      if (pendingHashes.length > 0) {
-        notify({
-          type: ToastStates.waiting,
-          message: `There are ${pendingHashes.length} pending transactions`,
-        })
+      // Clear already-mined txs silently
+      statuses.filter((s) => s.blockNumber !== null).forEach((s) => removeTxFromStorage(s.txHash))
+
+      const pending = statuses.filter((s) => s.blockNumber === null)
+
+      if (pending.length > 0) {
+        toast(
+          `${pending.length} bridge transaction${pending.length > 1 ? 's' : ''} still pending`,
+          {
+            icon: '⏳',
+          },
+        )
       }
 
-      // wait for txs to be executed
-      const promises = pendingHashes.map(async (txHash) => {
-        const res = await readOnlyAppProvider.waitForTransaction(txHash as string, 1)
-        notifyTxMined(txHash as string, res.status === 1)
-      })
-
-      await Promise.allSettled(promises)
+      await Promise.allSettled(
+        pending.map(async ({ txHash }) => {
+          const receipt = await publicClient.waitForTransactionReceipt({
+            hash: txHash as `0x${string}`,
+          })
+          if (receipt.status === 'success') {
+            toast.success('Bridge transaction confirmed', { id: txHash })
+          } else {
+            toast.error('Bridge transaction failed', { id: txHash })
+          }
+          removeTxFromStorage(txHash)
+        }),
+      )
     }
 
     recoverTxStatus()
-  }, [
-    address,
-    appChainId,
-    isRan,
-    notifyTxMined,
-    readOnlyAppProvider,
-    removeTxFromStorage,
-    transactionStore,
-  ])
+  }, [address, appChainId, isRan, publicClient, removeTxFromStorage, transactionStore])
 
   const values: TransactionContextValue = {
-    state: transactionStore as TransactionStorageItem[],
-    notifyTxMined,
-    notifyWaitingForSignature,
-    notifyWaitingForTxMined,
-    notifyRejectSignature,
+    state: (transactionStore ?? []) as TransactionStorageItem[],
+    storeBridgeTx,
   }
 
   return <TransactionContext.Provider value={values}>{children}</TransactionContext.Provider>

@@ -1,12 +1,8 @@
 import useSWR from 'swr'
-import { createPublicClient, http, namehash, parseAbi } from 'viem'
-import { gnosis } from 'viem/chains'
+import { namehash, parseAbi } from 'viem'
 import { normalize } from 'viem/ens'
 
-const client = createPublicClient({
-  chain: gnosis,
-  transport: http(process.env.NEXT_PUBLIC_RPC_GNOSIS),
-})
+import { gnosisBatchClient } from '@/src/constants/config/rpc-providers'
 
 const SPACE_ID_REAL_CONTRACT = '0x6D3B3F99177FB2A5de7F9E928a9BD807bF7b5BAD'
 
@@ -25,7 +21,7 @@ const fetchName = async (address: string) => {
     const cleanAddress = address.toLowerCase().substring(2)
     const reverseNode = namehash(`${cleanAddress}.addr.reverse`)
 
-    const name = await client.readContract({
+    const name = await gnosisBatchClient.readContract({
       address: SPACE_ID_REAL_CONTRACT,
       abi: resolverAbi,
       functionName: 'name',
@@ -43,7 +39,7 @@ const fetchAddress = async (name: string) => {
   try {
     const node = namehash(normalize(name))
 
-    const resolvedAddress = await client.readContract({
+    const resolvedAddress = await gnosisBatchClient.readContract({
       address: SPACE_ID_REAL_CONTRACT,
       abi: resolverAbi,
       functionName: 'addr',

@@ -1,15 +1,14 @@
-import { chainsConfig } from '@/src/constants/config/chains'
 import { NATIVE_TOKEN_ADDRESS, USDS_ADDRESS } from '@/src/constants/config/common'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { isSameString } from '@/src/utils/tools'
-import { HomeOmniMediator, HomeOmniMediator__factory } from '@/types/typechain'
 import useSWR from 'swr/immutable'
-import { JsonRpcProvider } from '@ethersproject/providers'
 import { Token } from '@/types/token'
 import { TokenOverrideManager } from '@/src/utils/token-overrides'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
-import { contracts } from '@/src/constants/config/contracts'
+import { chainsConfig } from '@/src/constants/config/chains'
+import { homeOmniBridgeContract } from '@/src/constants/config/contracts'
+import { gnosisBatchClient } from '@/src/constants/config/rpc-providers'
 import { USDC_ETHEREUM, USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
 import { usdcTokens } from '@/src/constants/usdcTokens'
 import { xdaiToken } from '@/src/constants/xdaiToken'
@@ -26,7 +25,6 @@ import { usdsToken } from '@/src/constants/usdsToken'
  */
 const getReceivedTokenInfo = async ({
   fromChainId,
-  omniBridgeInstance,
   receiveNativeToken,
   receiveUsds,
   toChainId,
@@ -35,7 +33,6 @@ const getReceivedTokenInfo = async ({
   toChainId: ChainsValues
   fromChainId: ChainsValues
   tokenAddress: string
-  omniBridgeInstance: HomeOmniMediator
   receiveNativeToken: boolean
   receiveUsds: boolean
 }): Promise<{ tokenOutAddress: string; canReceiveNativeToken?: boolean }> => {
@@ -75,7 +72,11 @@ const getReceivedTokenInfo = async ({
 
     // default to ERC20
     return {
-      tokenOutAddress: await omniBridgeInstance.homeTokenAddress(tokenAddress),
+      tokenOutAddress: await gnosisBatchClient.readContract({
+        ...homeOmniBridgeContract,
+        functionName: 'homeTokenAddress',
+        args: [tokenAddress as `0x${string}`],
+      }),
       canReceiveNativeToken: false,
     }
   }
@@ -111,7 +112,11 @@ const getReceivedTokenInfo = async ({
 
     // default to ERC20
     return {
-      tokenOutAddress: await omniBridgeInstance.foreignTokenAddress(tokenAddress),
+      tokenOutAddress: await gnosisBatchClient.readContract({
+        ...homeOmniBridgeContract,
+        functionName: 'foreignTokenAddress',
+        args: [tokenAddress as `0x${string}`],
+      }),
       canReceiveNativeToken: false,
     }
   }
@@ -167,13 +172,7 @@ export const useBridgeTokenOutInfo = ({
       }
 
       try {
-        const omniBridgeInstance = HomeOmniMediator__factory.connect(
-          contracts.OmniBridge.address[Chains.gnosis],
-          new JsonRpcProvider(chainsConfig[Chains.gnosis].rpcUrl),
-        )
-
         const tokenOutInfo = await getReceivedTokenInfo({
-          omniBridgeInstance,
           toChainId: _toChainId,
           tokenAddress: _token.address,
           fromChainId: _fromChainId,

@@ -1,30 +1,26 @@
-import { JsonRpcBatchProvider, JsonRpcProvider } from '@ethersproject/providers'
+import { createPublicClient, http } from 'viem'
+import { gnosis } from 'viem/chains'
 
-import { chainsConfig } from './chains'
-import { RPC_GNOSIS, RPC_MAINNET } from './common'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
+
+if (!process.env.NEXT_PUBLIC_RPC_MAINNET || !process.env.NEXT_PUBLIC_RPC_GNOSIS) {
+  throw new Error('Missing RPC_MAINNET or RPC_GNOSIS environment variable')
+}
 
 export const getProviderUrl = (chainId: ChainsValues) => {
   switch (chainId) {
     case Chains.mainnet:
-      return RPC_MAINNET
+      return process.env.NEXT_PUBLIC_RPC_MAINNET!
     case Chains.gnosis:
-      return RPC_GNOSIS
+      return process.env.NEXT_PUBLIC_RPC_GNOSIS!
     default:
       throw Error('Token provider could not be found')
   }
 }
 
-export const mainnet = () => {
-  return new JsonRpcProvider(chainsConfig[Chains.mainnet].rpcUrl, Chains.mainnet)
-}
-export const gnosis = () => {
-  return new JsonRpcProvider(chainsConfig[Chains.gnosis].rpcUrl, Chains.gnosis)
-}
-
-export const mainnetBatch = () => {
-  return new JsonRpcBatchProvider(chainsConfig[Chains.mainnet].rpcUrl, Chains.mainnet)
-}
-export const gnosisBatch = () => {
-  return new JsonRpcBatchProvider(chainsConfig[Chains.gnosis].rpcUrl, Chains.gnosis)
-}
+export const gnosisBatchClient = createPublicClient({
+  chain: gnosis,
+  transport: http(process.env.NEXT_PUBLIC_RPC_GNOSIS, {
+    batch: true,
+  }),
+})
