@@ -12,8 +12,8 @@ import { useRouter } from 'next/router'
 import { SCLink, SCText, SCTitle, SidebarCard } from '@/src/components/card/SidebarCard'
 import Link from 'next/link'
 import { isTransactionHash } from '@/src/utils/tools'
-import { isAddress } from 'ethers/lib/utils'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
+import { isAddress } from 'viem'
 
 const Wrapper = styled(SidebarCard)`
   padding-top: calc(var(--theme-common-space) * 5);

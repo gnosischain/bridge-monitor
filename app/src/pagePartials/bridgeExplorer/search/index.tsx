@@ -3,12 +3,12 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Results } from '@/src/pagePartials/bridgeExplorer/search/Results'
 import { SimpleSearch } from '@/src/pagePartials/bridgeExplorer/search/SimpleSearch'
 import { TextfieldStatus } from '@/src/components/form/Textfield'
-import { isAddress } from 'ethers/lib/utils'
 import { isTransactionHash } from '@/src/utils/tools'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/router'
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
+import { isAddress } from 'viem'
 
 const Wrapper = styled.div`
   --wrapper-width: 1080px;

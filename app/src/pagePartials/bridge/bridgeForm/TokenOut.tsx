@@ -5,7 +5,6 @@ import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { useBridgeFee } from '@/src/hooks/bridge/useBridgeFee'
-import { formatUnits } from 'ethers/lib/utils'
 import { ReceiveTokenSwitcher } from '@/src/pagePartials/bridge/bridgeForm/ReceiveTokenSwitcher'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { genericSuspense } from '@/src/components/safeSuspense'
@@ -13,6 +12,7 @@ import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { isSameString } from '@/src/utils/tools'
 import React, { useState } from 'react'
 import { useIsUsdsEnabled } from '@/src/hooks/contracts/useIsUsdsEnabled'
+import { formatUnits } from 'viem'
 
 const NoTokenSelected = styled.span`
   font-size: 1.5rem;
