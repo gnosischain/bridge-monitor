@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { DebounceInput } from 'react-debounce-input'
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
+import { erc20Abi } from 'viem'
 import { ChevronDown as BaseChevronDown } from '@/src/components/assets/ChevronDown'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown as BaseDropdown, DropdownPosition } from '@/src/components/dropdown'
@@ -11,9 +11,8 @@ import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { getToChainId } from '@/src/utils/tools'
-import { ERC165__factory, HomeOmniMediator__factory } from '@/types/typechain'
-import { getNetworkConfig } from '@/src/constants/config/chains'
-import { contracts } from '@/src/constants/config/contracts'
+import { homeOmniBridgeContract } from '@/src/constants/config/contracts'
+import { gnosisBatchClient, mainnetBatchClient } from '@/src/constants/config/rpc-providers'
 import { isAddress } from 'viem'
 
 const Wrapper = styled(BaseDropdown)`
@@ -202,20 +201,29 @@ const Dropdown: React.FC<Props> = ({
       setIsLoading(true)
 
       const isFromGnosis = chainId == Chains.gnosis
-      const erc20 = ERC165__factory.connect(
-        value,
-        new JsonRpcBatchProvider(getNetworkConfig(chainId)?.rpcUrl),
-      )
-      const omni = HomeOmniMediator__factory.connect(
-        contracts.OmniBridge.address[Chains.gnosis],
-        new JsonRpcBatchProvider(getNetworkConfig(Chains.gnosis)?.rpcUrl),
-      )
+      const fromChainClient = isFromGnosis ? gnosisBatchClient : mainnetBatchClient
 
       Promise.all([
-        erc20.name(),
-        erc20.symbol(),
-        erc20.decimals(),
-        isFromGnosis ? omni.foreignTokenAddress(value) : omni.homeTokenAddress(value),
+        fromChainClient.readContract({
+          address: value as `0x${string}`,
+          abi: erc20Abi,
+          functionName: 'name',
+        }),
+        fromChainClient.readContract({
+          address: value as `0x${string}`,
+          abi: erc20Abi,
+          functionName: 'symbol',
+        }),
+        fromChainClient.readContract({
+          address: value as `0x${string}`,
+          abi: erc20Abi,
+          functionName: 'decimals',
+        }),
+        gnosisBatchClient.readContract({
+          ...homeOmniBridgeContract,
+          functionName: isFromGnosis ? 'foreignTokenAddress' : 'homeTokenAddress',
+          args: [value as `0x${string}`],
+        }),
       ])
         .then(([name, symbol, decimals, _address]) => {
           if (!name || !symbol || !decimals || !_address) return

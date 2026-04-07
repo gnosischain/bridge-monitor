@@ -1,4 +1,4 @@
-import ForeignBridgeRouter_abi from '@/src/abis/ForeignBridgeRouter.json'
+import ForeignBridgeRouter_abi from '@/src/abis/ForeignBridgeRouter'
 import XDAI_abi from '@/src/abis/HomeBridgeErcToNative' // TODO: maybe we can unified the names of the ABI files too.
 import FOREIGN_XDAI_abi from '@/src/abis/ForeignBridgeErcToNative'
 import OMNI_abi from '@/src/abis/HomeOmniMediator' // TODO: maybe we can unified the names of the ABI files too.

@@ -1,4 +1,3 @@
-import { Contract } from '@ethersproject/contracts'
 import { KeyedMutator } from 'swr'
 
 export type ObjectValues<T> = T[keyof T]
@@ -18,20 +17,6 @@ export type UnwrapReturnType<T> = T extends (...args: any) => any ? Awaited<Retu
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type UnwrapParametersType<T> = T extends (...args: any) => any ? Parameters<T> : never
-
-export type TupleReturnType<MyContract extends Contract, Tuple extends unknown[]> = Tuple extends [
-  infer Head,
-  ...infer Tail,
-]
-  ? [UnwrapReturnType<Head>, ...TupleReturnType<MyContract, Tail>]
-  : []
-
-export type TupleParametersType<
-  MyContract extends Contract,
-  Tuple extends unknown[],
-> = Tuple extends [infer Head, ...infer Tail]
-  ? [UnwrapParametersType<Head>, ...TupleParametersType<MyContract, Tail>]
-  : []
 
 export const isFulfilled = <T>(
   input: PromiseSettledResult<T>,

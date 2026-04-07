@@ -4,7 +4,7 @@ import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInf
 import { TokenOverrideManager } from '@/src/utils/token-overrides'
 import { Token } from '@/types/token'
 import useSWR from 'swr/immutable'
-import { homeOmniBridgeContract, foreignOmniBridgeContract } from '@/src/constants/config/contracts'
+import { foreignOmniBridgeContract, homeOmniBridgeContract } from '@/src/constants/config/contracts'
 import { gnosisBatchClient, mainnetBatchClient } from '@/src/constants/config/rpc-providers'
 import { isSameString } from '@/src/utils/tools'
 
