@@ -1,9 +1,8 @@
-import { ChainsValues } from '@/src/constants/config/types'
+import { Chains, ChainsValues } from '@/src/constants/config/types'
 import useSWR from 'swr/immutable'
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
-import { chainsConfig } from '@/src/constants/config/chains'
-import { ERC20__factory } from '@/types/typechain'
+import { erc20Abi } from 'viem'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
+import { gnosisBatchClient, mainnetBatchClient } from '@/src/constants/config/rpc-providers'
 import { Token } from '@/types/token'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { xdaiToken } from '@/src/constants/xdaiToken'
@@ -22,14 +21,25 @@ export const useTokenInfo = (tokenAddress: string, chainId: ChainsValues) => {
       return token
     }
 
-    const provider = new JsonRpcBatchProvider(chainsConfig[_chainId].rpcUrl)
-    const tokenContract = ERC20__factory.connect(_token, provider)
+    const client = _chainId === Chains.gnosis ? gnosisBatchClient : mainnetBatchClient
 
     try {
       const [name, symbol, decimals] = await Promise.all([
-        tokenContract.name(),
-        tokenContract.symbol(),
-        tokenContract.decimals(),
+        client.readContract({
+          address: _token as `0x${string}`,
+          abi: erc20Abi,
+          functionName: 'name',
+        }),
+        client.readContract({
+          address: _token as `0x${string}`,
+          abi: erc20Abi,
+          functionName: 'symbol',
+        }),
+        client.readContract({
+          address: _token as `0x${string}`,
+          abi: erc20Abi,
+          functionName: 'decimals',
+        }),
       ])
 
       return {

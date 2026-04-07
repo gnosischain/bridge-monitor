@@ -90,7 +90,7 @@ export type ContractsKeys = keyof typeof contracts
 
 export const homeXdaiBridgeContract = {
   address: contracts.XDAIBridge.address[Chains.gnosis] as `0x${string}`,
-  abi: contracts.XDAIBridge.abi,
+  abi: XDAI_abi,
   chainId: Chains.gnosis,
 } as const
 
@@ -164,4 +164,10 @@ export const transmuterContract = {
   address: '0x0392A2F5Ac47388945D8c84212469F545fAE52B2' as `0x${string}`,
   abi: TransmuterAbi,
   chainId: Chains.gnosis,
+} as const
+
+export const nativeOmniBridgeMediatorContract = {
+  address: contracts.omniBridgeNativeToken.address[Chains.mainnet] as `0x${string}`,
+  abi: NativeOmniBridgeMediator_abi,
+  chainId: Chains.mainnet,
 } as const

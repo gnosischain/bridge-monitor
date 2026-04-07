@@ -1,13 +1,11 @@
-import { chainsConfig } from '@/src/constants/config/chains'
-import { ChainsValues } from '@/src/constants/config/types'
+import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { EURCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { TokenOverrideManager } from '@/src/utils/token-overrides'
 import { Token } from '@/types/token'
-import { HomeOmniMediator__factory } from '@/types/typechain'
 import useSWR from 'swr/immutable'
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
-import { contracts } from '@/src/constants/config/contracts'
+import { homeOmniBridgeContract, foreignOmniBridgeContract } from '@/src/constants/config/contracts'
+import { gnosisBatchClient, mainnetBatchClient } from '@/src/constants/config/rpc-providers'
 import { isSameString } from '@/src/utils/tools'
 
 // This hook is used to determine what kind of token is being used in the bridge.
@@ -34,12 +32,15 @@ export const useTokenMode = (fromChainId: ChainsValues, toChainId: ChainsValues,
           return 'ERC20'
         }
 
-        const omniBridge = HomeOmniMediator__factory.connect(
-          contracts.OmniBridge.address[fromChainId],
-          new JsonRpcBatchProvider(chainsConfig[fromChainId].rpcUrl),
-        )
+        const isFromGnosis = fromChainId === Chains.gnosis
+        const client = isFromGnosis ? gnosisBatchClient : mainnetBatchClient
+        const omniBridgeContract = isFromGnosis ? homeOmniBridgeContract : foreignOmniBridgeContract
 
-        const nativeTokenAddress = await omniBridge.nativeTokenAddress(_token.address)
+        const nativeTokenAddress = await client.readContract({
+          ...omniBridgeContract,
+          functionName: 'nativeTokenAddress',
+          args: [_token.address as `0x${string}`],
+        })
 
         // override token mode
         if (TokenOverrideManager.isOverridden(_token.address)) {

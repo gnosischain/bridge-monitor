@@ -1,5 +1,5 @@
 import { createPublicClient, http } from 'viem'
-import { gnosis } from 'viem/chains'
+import { gnosis, mainnet } from 'viem/chains'
 
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 
@@ -21,6 +21,13 @@ export const getProviderUrl = (chainId: ChainsValues) => {
 export const gnosisBatchClient = createPublicClient({
   chain: gnosis,
   transport: http(process.env.NEXT_PUBLIC_RPC_GNOSIS, {
+    batch: true,
+  }),
+})
+
+export const mainnetBatchClient = createPublicClient({
+  chain: mainnet,
+  transport: http(process.env.NEXT_PUBLIC_RPC_MAINNET, {
     batch: true,
   }),
 })

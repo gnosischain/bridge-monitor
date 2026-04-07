@@ -1,18 +1,14 @@
 import { ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { USDC_ETHEREUM, USDCe_GNOSIS } from '@/src/constants/misc'
-import {
-  ERC677__factory,
-  ForeignBridgeErcToNative__factory,
-  ForeignBridgeRouter__factory,
-  ForeignOmniMediator__factory,
-  HomeBridgeErcToNative__factory,
-  HomeOmniMediator__factory,
-  NativeOmniBridgeMediator__factory,
-  USDSdeposit__factory,
-} from '@/types/typechain'
 import { useMemo } from 'react'
-import { contracts } from '@/src/constants/config/contracts'
+import {
+  contracts,
+  foreignXdaiBridgeContract,
+  homeXdaiBridgeContract,
+  nativeOmniBridgeMediatorContract,
+  usdsDepositContract,
+} from '@/src/constants/config/contracts'
 import { TOKEN_MODE, useTokenMode } from '@/src/hooks/bridge/useTokenMode'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
@@ -23,6 +19,10 @@ import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { USDS_ADDRESS } from '@/src/constants/config/common'
 import { encodeAbiParameters, encodeFunctionData, erc20Abi } from 'viem'
+import erc677Abi from '@/src/abis/ERC677'
+import foreignOmniMediatorAbi from '@/src/abis/ForeignOmniMediator'
+import homeOmniMediatorAbi from '@/src/abis/HomeOmniMediator'
+import foreignBridgeRouterAbi from '@/src/abis/ForeignBridgeRouter'
 
 /**
  * isNativeToken && isFromForeign: use wrapAndRelayTokens (nativeOmniBridgeMediator) (no need approve: infinite approve) -> ETH -> WETH
@@ -57,7 +57,7 @@ const handleNativeTokenFromForeign = ({
   walletAddress: string
 }) => {
   const callData = encodeFunctionData({
-    abi: NativeOmniBridgeMediator__factory.abi,
+    abi: nativeOmniBridgeMediatorContract.abi,
     functionName: 'wrapAndRelayTokens',
     args: [walletAddress as `0x${string}`],
   })
@@ -103,7 +103,7 @@ const handleNativeTokenFromHome = ({
     const targetRecipient = recipient || userAddress
 
     const callData = encodeFunctionData({
-      abi: USDSdeposit__factory.abi,
+      abi: usdsDepositContract.abi,
       functionName: 'relayTokens',
       args: [targetRecipient as `0x${string}`],
     })
@@ -117,7 +117,7 @@ const handleNativeTokenFromHome = ({
 
   if (recipient) {
     const callData = encodeFunctionData({
-      abi: HomeBridgeErcToNative__factory.abi,
+      abi: homeXdaiBridgeContract.abi,
       functionName: 'relayTokens',
       args: [recipient as `0x${string}`],
     })
@@ -193,7 +193,7 @@ const handleERC20TokenFromForeign = ({
     }
 
     const callData = encodeFunctionData({
-      abi: ForeignBridgeErcToNative__factory.abi,
+      abi: foreignXdaiBridgeContract.abi,
       functionName: 'relayTokens',
       args: [
         recipient
@@ -225,7 +225,7 @@ const handleERC20TokenFromForeign = ({
   // ERC677: transferAndCall
   if (isERC677) {
     const callData = encodeFunctionData({
-      abi: ERC677__factory.abi,
+      abi: erc677Abi,
       functionName: 'transferAndCall',
       args: [bridgeContractAddress as `0x${string}`, amount, walletAddress as `0x${string}`],
     })
@@ -239,7 +239,7 @@ const handleERC20TokenFromForeign = ({
   // Dedicated ERC20: relayTokens(address, uint256)
   if (isDedicatedERC20) {
     const callData = encodeFunctionData({
-      abi: ForeignOmniMediator__factory.abi,
+      abi: foreignOmniMediatorAbi,
       functionName: 'relayTokens',
       args: [walletAddress as `0x${string}`, amount],
     })
@@ -252,7 +252,7 @@ const handleERC20TokenFromForeign = ({
 
   // Standard ERC20: relayTokens(address, address, uint256)
   const callData = encodeFunctionData({
-    abi: ForeignOmniMediator__factory.abi,
+    abi: foreignOmniMediatorAbi,
     functionName: 'relayTokens',
     args: [tokenAddress as `0x${string}`, walletAddress as `0x${string}`, amount],
   })
@@ -312,7 +312,7 @@ const handleERC20TokenFromHome = ({
   //
   if (isERC677) {
     const callData = encodeFunctionData({
-      abi: ERC677__factory.abi,
+      abi: erc677Abi,
       functionName: 'transferAndCall',
       args: [bridgeContractAddress as `0x${string}`, amount, bytesData as `0x${string}`],
     })
@@ -325,7 +325,7 @@ const handleERC20TokenFromHome = ({
 
   if (isDedicatedERC20) {
     const callData = encodeFunctionData({
-      abi: HomeOmniMediator__factory.abi,
+      abi: homeOmniMediatorAbi,
       functionName: 'relayTokens',
       args: [walletAddress as `0x${string}`, amount],
     })
@@ -352,7 +352,7 @@ const handleERC20TokenFromHome = ({
 
   // Standard ERC20: relayTokens(address, address, uint256)
   const callData = encodeFunctionData({
-    abi: HomeOmniMediator__factory.abi,
+    abi: homeOmniMediatorAbi,
     functionName: 'relayTokens',
     args: [tokenAddress as `0x${string}`, (recipient || walletAddress) as `0x${string}`, amount],
   })
@@ -418,7 +418,7 @@ const handleUsdceFromHome = ({
 
   // relayTokensAndCall
   const callData = encodeFunctionData({
-    abi: HomeOmniMediator__factory.abi,
+    abi: homeOmniMediatorAbi,
     functionName: 'relayTokensAndCall',
     args: [tokenAddress as `0x${string}`, TRANSMUTER_ADDRESS as `0x${string}`, amount, bytesData],
   })
@@ -484,7 +484,7 @@ const handleUsdcFromForeign = ({
 
   // relayTokensAndCall
   const callData = encodeFunctionData({
-    abi: ForeignOmniMediator__factory.abi,
+    abi: foreignOmniMediatorAbi,
     functionName: 'relayTokensAndCall',
     args: [tokenAddress as `0x${string}`, TRANSMUTER_ADDRESS as `0x${string}`, amount, bytesData],
   })
@@ -534,7 +534,7 @@ const handleUsdsOrDaiFromForeign = ({
   }
 
   const callData = encodeFunctionData({
-    abi: ForeignBridgeRouter__factory.abi,
+    abi: foreignBridgeRouterAbi,
     functionName: 'relayTokens',
     args: [
       tokenAddress as `0x${string}`,
