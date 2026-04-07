@@ -29,6 +29,8 @@ import 'sanitize.css'
 import 'react-tooltip/dist/react-tooltip.css'
 import 'react-datepicker/dist/react-datepicker.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
 import { wagmiConfig } from '@/src/providers/wagmi'
 import { WagmiProvider } from 'wagmi'
 
@@ -95,8 +97,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       window.removeEventListener('scroll', onScroll)
     }
   }, [router])
-
-  const queryClient = new QueryClient()
 
   return (
     <>

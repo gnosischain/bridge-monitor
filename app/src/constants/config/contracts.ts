@@ -9,7 +9,7 @@ import OMNI_FEE_MANAGER_abi from '@/src/abis/OmniBridgeFeeManager'
 import AMBBridgeHelper_abi from '@/src/abis/AMBBridgeHelper'
 import NativeOmniBridgeMediator_abi from '@/src/abis/NativeOmniBridgeMediator'
 import USDSDeposit_abi from '@/src/abis/USDSdeposit'
-import TransmuterAbi from '@/src/abis/TransmuterEurc.json'
+import TransmuterAbi from '@/src/abis/TransmuterEurc'
 import { Chains } from '@/src/constants/config/types'
 
 export const contracts = {
