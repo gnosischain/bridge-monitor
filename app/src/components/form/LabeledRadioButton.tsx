@@ -30,6 +30,7 @@ const Label = styled.span`
 
 export const LabeledRadioButton: React.FC<{
   active?: boolean
+  children?: React.ReactNode
   disabled?: boolean
   onClick?: () => void
 }> = ({ active, children, disabled, onClick, ...restProps }) => (
