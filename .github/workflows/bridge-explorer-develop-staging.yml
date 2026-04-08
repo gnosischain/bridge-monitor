@@ -157,11 +157,18 @@ jobs:
         run: |
           gcloud components install gke-gcloud-auth-plugin
 
+      # Connect to Twingate to reach the GKE API server (MANs restricted)
+      - name: Connect to Twingate
+        uses: twingate/github-action@v1
+        with:
+          service-key: ${{ secrets.TWINGATE_SERVICE_KEY_STAGING }}
+
       - name: Configure kubectl
         run: |
           gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} \
             --region ${{ env.GCP_REGION }} \
-            --project ${{ env.GCP_PROJECT }}
+            --project ${{ env.GCP_PROJECT }} \
+            --internal-ip
 
       - name: Verify deployment exists
         run: |
