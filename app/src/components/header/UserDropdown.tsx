@@ -43,7 +43,9 @@ const Wrapper = styled(Dropdown)`
       )
     );
     border-radius: var(--dropdown-items-border-radius);
-    box-shadow: 0 38.519px 25.481px 0 rgba(0, 0, 0, 0.12), 0 100px 80px 0 rgba(0, 0, 0, 0.2);
+    box-shadow:
+      0 38.519px 25.481px 0 rgba(0, 0, 0, 0.12),
+      0 100px 80px 0 rgba(0, 0, 0, 0.2);
     flex-direction: column;
     max-height: none;
     width: 400px;
@@ -300,8 +302,8 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
                     currentNetwork?.chainId === 100
                       ? '/images/icons/gnosis.svg'
                       : currentNetwork?.chainId === 1
-                      ? '/images/icons/ethToken.svg'
-                      : '/images/icons/empty-token.png'
+                        ? '/images/icons/ethToken.svg'
+                        : '/images/icons/empty-token.png'
                   }
                 />
               </ChainIconWrapper>

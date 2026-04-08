@@ -23,10 +23,10 @@ export const IconStatus: React.FC<Props> = ({ statusIcon, ...restProps }) => {
     statusIcon === 'success'
       ? 'icon-success.svg'
       : statusIcon === 'waiting'
-      ? 'icon-waiting.svg'
-      : statusIcon === 'warning'
-      ? 'icon-warning.svg'
-      : 'icon-not-required.svg'
+        ? 'icon-waiting.svg'
+        : statusIcon === 'warning'
+          ? 'icon-warning.svg'
+          : 'icon-not-required.svg'
 
   return (
     <Wrapper {...restProps}>

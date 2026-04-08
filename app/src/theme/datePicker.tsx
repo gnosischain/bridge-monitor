@@ -9,7 +9,9 @@ export const datePickerCSS = css`
       background-color: ${({ theme }) => theme.colors.cream};
       border: none;
       border-radius: var(--datepicker-border-radius);
-      box-shadow: 0 51px 80px rgba(0, 0, 0, 0.17), 0 19.6444px 25.4815px rgba(0, 0, 0, 0.103259),
+      box-shadow:
+        0 51px 80px rgba(0, 0, 0, 0.17),
+        0 19.6444px 25.4815px rgba(0, 0, 0, 0.103259),
         0 4.15556px 6.51852px rgba(0, 0, 0, 0.0667407);
     }
 

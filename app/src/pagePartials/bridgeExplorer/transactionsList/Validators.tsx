@@ -56,14 +56,14 @@ export const Validators: React.FC<Props> = ({ transaction, ...restProps }) => {
                 {status === 'pending'
                   ? 'Pending'
                   : status === 'submitted'
-                  ? 'Submitted'
-                  : status === 'submittedExecuted'
-                  ? 'Submitted + executed'
-                  : status === 'executed'
-                  ? 'Executed'
-                  : status === 'notRequired'
-                  ? 'Not Required'
-                  : 'Not Required'}
+                    ? 'Submitted'
+                    : status === 'submittedExecuted'
+                      ? 'Submitted + executed'
+                      : status === 'executed'
+                        ? 'Executed'
+                        : status === 'notRequired'
+                          ? 'Not Required'
+                          : 'Not Required'}
               </div>
             </>
           }

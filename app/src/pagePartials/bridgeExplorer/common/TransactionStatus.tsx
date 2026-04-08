@@ -18,10 +18,9 @@ const Wrapper = styled.div.withConfig({
   line-height: 1.2rem;
   text-transform: capitalize;
 
-  ${({ status }: WrapperProps) =>
-    css`
-      color: ${StatusColors[status] ?? StatusColors.DEFAULT};
-    `};
+  ${({ status }: WrapperProps) => css`
+    color: ${StatusColors[status] ?? StatusColors.DEFAULT};
+  `};
 
   ${({ status }: WrapperProps) =>
     status !== TxStatusEnum.Initiated &&
