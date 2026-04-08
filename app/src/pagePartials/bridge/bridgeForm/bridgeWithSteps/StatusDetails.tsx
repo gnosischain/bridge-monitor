@@ -133,6 +133,7 @@ const Description = styled.p`
 `
 
 interface Props {
+  children?: React.ReactNode
   description: string
   title: string
   transactionStatus: string

@@ -31,6 +31,7 @@ const Status = styled(TransactionStatus)`
 `
 
 interface Props {
+  children?: React.ReactNode
   subTitle?: string
   title: string
   transaction?: Transaction

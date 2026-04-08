@@ -41,7 +41,8 @@ const Value = styled.span`
   gap: var(--theme-common-space);
 `
 
-export const TxPreviewLoading: React.FC = ({ ...restProps }) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const TxPreviewLoading: React.FC<Record<string, any>> = ({ ...restProps }) => {
   return (
     <Wrapper as="div" {...restProps}>
       <Loading />
