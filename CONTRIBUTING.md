@@ -32,7 +32,6 @@ Welcome to the Gnosis Bridge project! We value contributions from the community 
 The repository is a **monorepo**, containing:
 
 - `/app`: React application repository.
-- `/subgraph`: Subgraph repository.
 - `/alerts`: Alert repository.
 - `/tests`: Test plans and records.
 
@@ -43,7 +42,7 @@ The repository is a **monorepo**, containing:
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/en/download/) version 18.20.1 or higher.
-- [Docker](https://www.docker.com/) for running subgraph services.
+- [Docker](https://www.docker.com/)
 - Any required environment variables for your local setup.
 
 ### Installation

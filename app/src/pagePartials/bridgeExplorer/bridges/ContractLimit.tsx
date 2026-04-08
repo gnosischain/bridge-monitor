@@ -29,10 +29,10 @@ const ProgressBar = styled.div<{ status: string; width: number }>`
     props.status === HealthStatusTypes.success
       ? ({ theme }) => theme.colors.success
       : props.status === HealthStatusTypes.warning
-      ? ({ theme }) => theme.colors.warning
-      : props.status === HealthStatusTypes.error
-      ? ({ theme }) => theme.colors.error
-      : ({ theme }) => theme.colors.warning};
+        ? ({ theme }) => theme.colors.warning
+        : props.status === HealthStatusTypes.error
+          ? ({ theme }) => theme.colors.error
+          : ({ theme }) => theme.colors.warning};
   border-radius: var(--border-radius);
   height: 100%;
   left: 0;

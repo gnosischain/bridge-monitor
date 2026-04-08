@@ -13,22 +13,22 @@ export const getIcon = (name?: string) => {
   return iconName === 'eth'
     ? ETHIcon
     : iconName === 'mainnetbig'
-    ? ETHIconBig
-    : iconName === 'mainnet'
-    ? ETHIconBig
-    : iconName === 'gnosis'
-    ? GnosisIcon
-    : iconName === 'gnosisbig'
-    ? GnosisIconBig
-    : iconName === 'xdai'
-    ? XDAIIcon
-    : iconName === 'dai'
-    ? DAIIcon
-    : iconName === '1inch'
-    ? InchIcon
-    : iconName === 'usds'
-    ? USDSIcon
-    : ''
+      ? ETHIconBig
+      : iconName === 'mainnet'
+        ? ETHIconBig
+        : iconName === 'gnosis'
+          ? GnosisIcon
+          : iconName === 'gnosisbig'
+            ? GnosisIconBig
+            : iconName === 'xdai'
+              ? XDAIIcon
+              : iconName === 'dai'
+                ? DAIIcon
+                : iconName === '1inch'
+                  ? InchIcon
+                  : iconName === 'usds'
+                    ? USDSIcon
+                    : ''
 }
 
 export const getChainIconName = (chain?: string) => {

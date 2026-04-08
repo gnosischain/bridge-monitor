@@ -2,12 +2,12 @@ import styled from 'styled-components'
 import { TransactionStatus } from '@/src/pagePartials/bridgeExplorer/common/TransactionStatus'
 import { ClaimButton } from '@/src/pagePartials/bridgeExplorer/latestTransactions/ClaimButton'
 import { Transaction } from '@/src/utils/transactions'
-import { TransactionStatus as TxStatusEnum } from '@/types/generated/subgraph'
+import { TransactionStatus as TxStatusEnum } from '@/src/utils/transactions'
 import { Warning } from '@/src/components/assets/Warning'
 import { StatusColors } from '@/src/pagePartials/bridgeExplorer/common/StatusColors'
 import { Tooltip } from '@/src/components/tooltip'
 import { txTime } from '@/src/utils/txTime'
-import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
+import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
 
 const Wrapper = styled.div`
   align-items: center;

@@ -11,10 +11,6 @@ export const ExternalLinks: React.FC = ({ ...restProps }) => {
       url: 'https://relay.link/bridge/gnosis',
     },
     {
-      name: 'debridge.finance',
-      url: 'https://app.debridge.finance/',
-    },
-    {
       name: 'jumper.exchange',
       url: 'https://jumper.exchange/',
     },
@@ -29,10 +25,6 @@ export const ExternalLinks: React.FC = ({ ...restProps }) => {
     {
       name: 'symbiosis.finance',
       url: 'https://app.symbiosis.finance/swap',
-    },
-    {
-      name: 'swaps.io',
-      url: 'https://swaps.io/',
     },
     {
       name: 'squid',

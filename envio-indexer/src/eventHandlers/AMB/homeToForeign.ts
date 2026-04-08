@@ -1,7 +1,7 @@
 import { AMBForeign, AMBHome } from "generated";
 import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { getValidator } from "../../utils/getValidator";
-import { isOmniBridgeUsage, extractReceiverFromEncodedData, parseMessageIdFromEncodedData } from "../../utils/omnibridge";
+import { isOmniBridgeUsage, extractReceiverFromEncodedData, isRouterContract } from "../../utils/omnibridge";
 import { decodeFunctionData, parseAbiItem } from 'viem'
 
 /**
@@ -28,8 +28,15 @@ AMBHome.UserRequestForSignature.handler(async ({ event, context }) => {
   // AMBTransfer may or may not be persisted yet (mediator handlers could run after)
   const transfer = await context.AMBTransfer.get(messageId);
 
-  // Extract receiver from encoded data
-  const receiver = extractReceiverFromEncodedData(encodedData);
+  // Extract receiver from encoded data, fall back to sender if extraction fails
+  // or if receiver is a router contract (e.g., WETHOmnibridgeRouter)
+  // Most users bridge to themselves, so sender == receiver is a reasonable fallback
+  const extractedReceiver = extractReceiverFromEncodedData(encodedData);
+  const sender = transfer?.sender?.toLowerCase();
+  const isRouterReceiver = isRouterContract(extractedReceiver);
+  const receiver = (extractedReceiver && !isRouterReceiver)
+    ? extractedReceiver.toLowerCase()
+    : sender;
 
   const existing = await context.Transaction.get(messageId);
   if (!existing) {
@@ -44,12 +51,12 @@ AMBHome.UserRequestForSignature.handler(async ({ event, context }) => {
       execution_id: undefined,
 
       initiatorNetwork: CHAIN.HOME.ID,
-      initiator: transfer?.sender?.toLowerCase(),
+      initiator: sender,
       initiatorToken: transfer?.token,
       initiatorAmount: transfer?.amount,
 
       receiverNetwork: CHAIN.FOREIGN.ID,
-      receiver: receiver?.toLowerCase(),
+      receiver,
       receiverToken: transfer?.token,
       receiverAmount: transfer?.amount,
     };
