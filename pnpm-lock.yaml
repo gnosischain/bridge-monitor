@@ -257,7 +257,7 @@ importers:
     dependencies:
       '@rescript/react':
         specifier: 0.12.1
-        version: 0.12.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 0.12.1(react-dom@18.3.1(react@18.2.0))(react@18.2.0)
       bignumber.js:
         specifier: 9.1.2
         version: 9.1.2
@@ -268,8 +268,8 @@ importers:
         specifier: 16.4.5
         version: 16.4.5
       envio:
-        specifier: 2.31.0
-        version: 2.31.0(bufferutil@4.1.0)(typescript@5.6.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+        specifier: 2.30.1
+        version: 2.30.1(bufferutil@4.1.0)(typescript@5.6.3)(utf-8-validate@6.0.6)(zod@3.25.76)
       ethers:
         specifier: 6.8.0
         version: 6.8.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
@@ -278,13 +278,13 @@ importers:
         version: 4.19.2
       ink:
         specifier: 3.2.0
-        version: 3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.3.1)(utf-8-validate@6.0.6)
+        version: 3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.2.0)(utf-8-validate@6.0.6)
       ink-big-text:
         specifier: 1.2.0
-        version: 1.2.0(ink@3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.3.1)(utf-8-validate@6.0.6))(react@18.3.1)
+        version: 1.2.0(ink@3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.2.0)(utf-8-validate@6.0.6))(react@18.2.0)
       ink-spinner:
         specifier: 4.0.3
-        version: 4.0.3(ink@3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.3.1)(utf-8-validate@6.0.6))(react@18.3.1)
+        version: 4.0.3(ink@3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.2.0)(utf-8-validate@6.0.6))(react@18.2.0)
       js-sdsl:
         specifier: 4.4.2
         version: 4.4.2
@@ -298,8 +298,8 @@ importers:
         specifier: 15.0.0
         version: 15.0.0
       react:
-        specifier: 18.3.1
-        version: 18.3.1
+        specifier: 18.2.0
+        version: 18.2.0
       rescript:
         specifier: 11.1.3
         version: 11.1.3
@@ -3156,8 +3156,8 @@ packages:
     resolution: {integrity: sha512-yjNnPr315/FjS4zIsUxYguYUPP2e1NK4d7E7ZOLiyYCcbFBiTMyID+2wvm2w6+pZ/odMA7cRkjhsPbltwBOrLg==}
     engines: {node: '>=8.6'}
 
-  envio-darwin-arm64@2.31.0:
-    resolution: {integrity: sha512-7Qrn6PC0BE9iUROfK1a1azDNen8mFzpGbEGApQIP1u8wjYZkAnki0/WaJjOefwtVBFywRCng6YE9d2fEpXR8lQ==}
+  envio-darwin-arm64@2.30.1:
+    resolution: {integrity: sha512-KzCe9NKz7HB2Mgt1NnpLHNB96/coYwysIyqNfvoa4/Nh8FNgffnHK+8jx2FSJp8kRiGUBHREVdaVplpyrxVHfw==}
     cpu: [arm64]
     os: [darwin]
 
@@ -3166,8 +3166,8 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
-  envio-darwin-x64@2.31.0:
-    resolution: {integrity: sha512-Kq0UIdC23MLcL6T4i7hHdj+bGIHiMDvfF2hMTDGRt5tv4WJ9uMiPV+DKLwfSbygxjiqqLPxB/ZwSCVbtUqplcw==}
+  envio-darwin-x64@2.30.1:
+    resolution: {integrity: sha512-n003JDG0NozfZYIKAqSzpXY3zLueXQHT/Zi/Ipcws7fW1wPUHlXlO/0S8iUjDYji8E4s6UKO6biciV1RJOEAWw==}
     cpu: [x64]
     os: [darwin]
 
@@ -3176,8 +3176,8 @@ packages:
     cpu: [x64]
     os: [darwin]
 
-  envio-linux-arm64@2.31.0:
-    resolution: {integrity: sha512-eieQHpqt8YlNd/z+uMFNjuOj4HLgh2YaxiT3HT0+XB2f5LK+V0Tkbohm5PdIe3MKe6Kxzw6d7rfH72KdynW8Cw==}
+  envio-linux-arm64@2.30.1:
+    resolution: {integrity: sha512-zOZ8Cq/gkDDLULpAeZkzwn5DieE4k0RX6NOC5kNgH4B/4/6sg+1mMXT7Hr3Z9s04TpNu/+BOyZ0m1Xze2OuIIw==}
     cpu: [arm64]
     os: [linux]
 
@@ -3186,8 +3186,8 @@ packages:
     cpu: [arm64]
     os: [linux]
 
-  envio-linux-x64@2.31.0:
-    resolution: {integrity: sha512-FzDxWH23Hz7E6vQ0+QEKgPonJJJH8g83XSxKf7Q2qYNCqM89zfMQhDuk8KM4L3k2U7M+96K29daYIcraTbJF4g==}
+  envio-linux-x64@2.30.1:
+    resolution: {integrity: sha512-tFU+RcAvjTJFD1S1+CbVeoc23WZseSK0pkmbPjF4Xhwk9yH4YlR1lZgYbrg3R94OHt/uZuerlOTuIIrJKpNdYA==}
     cpu: [x64]
     os: [linux]
 
@@ -3196,8 +3196,8 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  envio@2.31.0:
-    resolution: {integrity: sha512-JygGxP9yZLApF9vC205T/JQeU+u1vcqU1bZwAzG5XCNy3hwaKcc0Xivx8Q6Xx3g0BjeDbUUbrkkNTiZ6wb+gQQ==}
+  envio@2.30.1:
+    resolution: {integrity: sha512-V64BchyEwllV1COAcc5Vm6qiWoup0fqLu3HCfzivfdR5c57GsRVanANsNIj7i1vxrrHce7p0IojaEXj+VLKvwA==}
     hasBin: true
 
   envio@2.32.10:
@@ -5001,6 +5001,10 @@ packages:
     peerDependencies:
       react: '>=15.0.0'
       react-dom: '>=15.0.0'
+
+  react@18.2.0:
+    resolution: {integrity: sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==}
+    engines: {node: '>=0.10.0'}
 
   react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
@@ -7841,10 +7845,10 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@rescript/react@0.12.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@rescript/react@0.12.1(react-dom@18.3.1(react@18.2.0))(react@18.2.0)':
     dependencies:
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react: 18.2.0
+      react-dom: 18.3.1(react@18.2.0)
 
   '@rtsao/scc@1.1.0': {}
 
@@ -10224,31 +10228,31 @@ snapshots:
       ansi-colors: 4.1.3
     optional: true
 
-  envio-darwin-arm64@2.31.0:
+  envio-darwin-arm64@2.30.1:
     optional: true
 
   envio-darwin-arm64@2.32.10:
     optional: true
 
-  envio-darwin-x64@2.31.0:
+  envio-darwin-x64@2.30.1:
     optional: true
 
   envio-darwin-x64@2.32.10:
     optional: true
 
-  envio-linux-arm64@2.31.0:
+  envio-linux-arm64@2.30.1:
     optional: true
 
   envio-linux-arm64@2.32.10:
     optional: true
 
-  envio-linux-x64@2.31.0:
+  envio-linux-x64@2.30.1:
     optional: true
 
   envio-linux-x64@2.32.10:
     optional: true
 
-  envio@2.31.0(bufferutil@4.1.0)(typescript@5.6.3)(utf-8-validate@6.0.6)(zod@3.25.76):
+  envio@2.30.1(bufferutil@4.1.0)(typescript@5.6.3)(utf-8-validate@6.0.6)(zod@3.25.76):
     dependencies:
       '@elastic/ecs-pino-format': 1.4.0
       '@envio-dev/hyperfuel-client': 1.2.2
@@ -10261,10 +10265,10 @@ snapshots:
       rescript-schema: 9.3.0(rescript@11.1.3)
       viem: 2.21.0(bufferutil@4.1.0)(typescript@5.6.3)(utf-8-validate@6.0.6)(zod@3.25.76)
     optionalDependencies:
-      envio-darwin-arm64: 2.31.0
-      envio-darwin-x64: 2.31.0
-      envio-linux-arm64: 2.31.0
-      envio-linux-x64: 2.31.0
+      envio-darwin-arm64: 2.30.1
+      envio-darwin-x64: 2.30.1
+      envio-linux-arm64: 2.30.1
+      envio-linux-x64: 2.30.1
     transitivePeerDependencies:
       - bufferutil
       - typescript
@@ -11307,20 +11311,20 @@ snapshots:
 
   ini@1.3.8: {}
 
-  ink-big-text@1.2.0(ink@3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.3.1)(utf-8-validate@6.0.6))(react@18.3.1):
+  ink-big-text@1.2.0(ink@3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.2.0)(utf-8-validate@6.0.6))(react@18.2.0):
     dependencies:
       cfonts: 2.10.1
-      ink: 3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.3.1)(utf-8-validate@6.0.6)
+      ink: 3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.2.0)(utf-8-validate@6.0.6)
       prop-types: 15.8.1
-      react: 18.3.1
+      react: 18.2.0
 
-  ink-spinner@4.0.3(ink@3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.3.1)(utf-8-validate@6.0.6))(react@18.3.1):
+  ink-spinner@4.0.3(ink@3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.2.0)(utf-8-validate@6.0.6))(react@18.2.0):
     dependencies:
       cli-spinners: 2.9.2
-      ink: 3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.3.1)(utf-8-validate@6.0.6)
-      react: 18.3.1
+      ink: 3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.2.0)(utf-8-validate@6.0.6)
+      react: 18.2.0
 
-  ink@3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.3.1)(utf-8-validate@6.0.6):
+  ink@3.2.0(@types/react@18.3.24)(bufferutil@4.1.0)(react@18.2.0)(utf-8-validate@6.0.6):
     dependencies:
       ansi-escapes: 4.3.2
       auto-bind: 4.0.0
@@ -11333,9 +11337,9 @@ snapshots:
       is-ci: 2.0.0
       lodash: 4.18.1
       patch-console: 1.0.0
-      react: 18.3.1
+      react: 18.2.0
       react-devtools-core: 4.28.5(bufferutil@4.1.0)(utf-8-validate@6.0.6)
-      react-reconciler: 0.26.2(react@18.3.1)
+      react-reconciler: 0.26.2(react@18.2.0)
       scheduler: 0.20.2
       signal-exit: 3.0.7
       slice-ansi: 3.0.0
@@ -12426,6 +12430,12 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
+  react-dom@18.3.1(react@18.2.0):
+    dependencies:
+      loose-envify: 1.4.0
+      react: 18.2.0
+      scheduler: 0.23.2
+
   react-dom@18.3.1(react@18.3.1):
     dependencies:
       loose-envify: 1.4.0
@@ -12470,11 +12480,11 @@ snapshots:
       react-fast-compare: 3.2.2
       warning: 4.0.3
 
-  react-reconciler@0.26.2(react@18.3.1):
+  react-reconciler@0.26.2(react@18.2.0):
     dependencies:
       loose-envify: 1.4.0
       object-assign: 4.1.1
-      react: 18.3.1
+      react: 18.2.0
       scheduler: 0.20.2
 
   react-resize-detector@7.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
@@ -12506,6 +12516,10 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       react-lifecycles-compat: 3.0.4
+
+  react@18.2.0:
+    dependencies:
+      loose-envify: 1.4.0
 
   react@18.3.1:
     dependencies:

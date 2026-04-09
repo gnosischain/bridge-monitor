@@ -28,7 +28,7 @@
     "@ethersproject/contracts": "5.7.0",
     "@ethersproject/providers": "5.7.1",
     "@slack/web-api": "6.7.2",
-    "dotenv": "16.0.3",
+    "dotenv": "17.2.3",
     "ethers": "5.7.1",
     "graphql": "16.6.0",
     "graphql-request": "5.2.0",
@@ -36,11 +36,11 @@
     "node-cron": "3.0.3"
   },
   "devDependencies": {
-    "@typechain/ethers-v5": "10.1.0",
-    "@types/node": "18.8.3",
+    "@typechain/ethers-v5": "11.1.2",
+    "@types/node": "25.0.10",
     "@types/node-cron": "3.0.11",
     "@types/node-fetch": "2.6.13",
-    "ts-node": "10.9.1",
+    "ts-node": "10.9.2",
     "typechain": "8.1.0",
     "typescript": "4.8.4"
   }
