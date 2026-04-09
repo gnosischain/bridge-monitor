@@ -22,7 +22,7 @@ import { JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
 import { WalletState } from '@web3-onboard/core'
 import { useState } from 'react'
 import styled from 'styled-components'
-import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
+import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
 import { useIsUsdsEnabled } from '@/src/hooks/contracts/useIsUsdsEnabled'
 
 const Wrapper = styled.button`
@@ -224,6 +224,7 @@ export const ClaimButton = ({
     } catch (e) {
       // If the method reverts, the withdrawal was likely already executed.
       // In this case, the user should be notified that the withdrawal was already executed.
+      console.log('error', e)
       notify({
         type: ToastStates.failed,
         message: 'Failed to claim - it might have already been claimed',

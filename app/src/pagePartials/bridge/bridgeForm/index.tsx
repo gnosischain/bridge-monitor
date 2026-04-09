@@ -48,6 +48,8 @@ import { UnifiedBridgeButton } from './button/UnifiedBridgeButton'
 import { useRouter } from 'next/router'
 import { useSanitizedQuery } from '@/src/hooks/useSanitizedQuery'
 import { isBlockedToken } from '@/src/utils/blockedTokens'
+import { getChainKey } from '@/src/constants/config/chains'
+import { ShowTokenAddress } from './ShowTokenAddress'
 
 const Title = styled.h2`
   align-items: center;
@@ -149,7 +151,7 @@ const initialState: BridgeFormState = {
 
 const Main = () => {
   const router = useRouter()
-  const { address, walletChainId } = useWeb3Connection()
+  const { address, getExplorerUrl, walletChainId } = useWeb3Connection()
   const { tokensByNetwork } = useBridgedTokens()
 
   const sanitizedQuery = useSanitizedQuery(tokensByNetwork)
@@ -283,6 +285,15 @@ const Main = () => {
                   value={formState.amount}
                 />
               </BridgedToken>
+
+              <ShowTokenAddress
+                address={formState.token?.address || ''}
+                explorerUrl={getExplorerUrl(
+                  formState.token?.address || '',
+                  getChainKey(formState.fromChainId),
+                )}
+              />
+
               <Switch onClick={() => handleFromChainIdChange()} />
             </InnerCardFrom>
             <InnerCard>
@@ -324,6 +335,13 @@ const Main = () => {
                       tokenOut={tokenOut}
                     />
                   </BridgedToken>
+                  <ShowTokenAddress
+                    address={tokenOut?.address || ''}
+                    explorerUrl={getExplorerUrl(
+                      tokenOut?.address || '',
+                      getChainKey(formState.toChainId),
+                    )}
+                  />
                   <RecipientAddress
                     onChange={(event) => dispatch({ ...formState, recipient: event.target.value })}
                     recipient={formState.recipient}

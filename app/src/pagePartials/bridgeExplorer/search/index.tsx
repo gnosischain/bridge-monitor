@@ -28,7 +28,9 @@ const Card = styled.div`
   background: rgba(248, 245, 237, 0.7);
   border-radius: calc(var(--theme-common-space) * 2);
   border: 1px solid ${({ theme: { colors } }) => colors.cream};
-  box-shadow: 0 10.2px 7.8px 0 rgba(0, 0, 0, 0.01), 0 25.819px 20.925px 0 rgba(0, 0, 0, 0.02),
+  box-shadow:
+    0 10.2px 7.8px 0 rgba(0, 0, 0, 0.01),
+    0 25.819px 20.925px 0 rgba(0, 0, 0, 0.02),
     0 51px 48px 0 rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
@@ -46,11 +48,8 @@ const SearchBox = styled.div`
   --search-box-padding: 30px 20px;
 
   backdrop-filter: blur(7.5px);
-  background: linear-gradient(
-      142deg,
-      rgba(240, 235, 222, 0) 30.63%,
-      rgba(240, 235, 222, 0.2) 84.81%
-    ),
+  background:
+    linear-gradient(142deg, rgba(240, 235, 222, 0) 30.63%, rgba(240, 235, 222, 0.2) 84.81%),
     linear-gradient(203deg, #6cac91 14.77%, #4b886e 85.24%), rgba(255, 255, 255, 0.2);
   border-radius: calc(var(--theme-common-space) * 2);
   backdrop-filter: blur(7.5px);

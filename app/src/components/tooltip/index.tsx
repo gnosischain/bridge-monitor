@@ -10,7 +10,7 @@ const Wrapper = styled.span`
   max-width: fit-content;
 `
 
-interface Props extends HTMLAttributes<HTMLSpanElement> {
+interface Props extends Omit<HTMLAttributes<HTMLSpanElement>, 'content'> {
   content: React.ReactElement | string
 }
 

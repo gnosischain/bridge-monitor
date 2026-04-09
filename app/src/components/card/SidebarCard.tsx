@@ -49,7 +49,9 @@ export const SCLink = styled.a`
   padding: var(--theme-common-space) calc(20px - var(--theme-common-space) * 4)
     var(--theme-common-space) calc(var(--theme-common-space) * 2);
   text-decoration: none;
-  transition: background-color 0.15s linear, color 0.15s linear;
+  transition:
+    background-color 0.15s linear,
+    color 0.15s linear;
 
   &:hover {
     background-color: ${({ theme: { colors } }) => colors.creamDarker};

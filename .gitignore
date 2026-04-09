@@ -1,1 +1,6 @@
 .local
+.env
+.env.local
+node_modules
+settings.local.json
+.pnpm-store

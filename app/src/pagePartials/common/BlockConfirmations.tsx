@@ -10,8 +10,11 @@ import { getNetworkConfig } from '@/src/constants/config/chains'
 const Wrapper = styled.div`
   background-color: ${({ theme: { colors } }) => colors.creamLight};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
-  box-shadow: 0 2.231px 2.775px 0px rgba(0, 0, 0, 0.01), 0 10.2px 7.8px 0 rgba(0, 0, 0, 0.01),
-    0 25.819px 20.925px 0 rgba(0, 0, 0, 0.02), 0 51px 48px 0 rgba(0, 0, 0, 0.03);
+  box-shadow:
+    0 2.231px 2.775px 0px rgba(0, 0, 0, 0.01),
+    0 10.2px 7.8px 0 rgba(0, 0, 0, 0.01),
+    0 25.819px 20.925px 0 rgba(0, 0, 0, 0.02),
+    0 51px 48px 0 rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
   padding: calc(var(--theme-common-space) * 5) 0 calc(var(--theme-common-space) * 3);

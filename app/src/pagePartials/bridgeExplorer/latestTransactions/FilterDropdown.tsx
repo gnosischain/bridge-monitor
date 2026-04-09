@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components'
 import { ButtonDropdown } from '@/src/components/buttons/ButtonDropdown'
 import { Dropdown as BaseDropdown, DropdownItem } from '@/src/components/dropdown'
 import { StatusColors } from '@/src/pagePartials/bridgeExplorer/common/StatusColors'
-import { TransactionStatus } from '@/types/generated/subgraph'
+import { TransactionStatus } from '@/src/utils/transactions'
 
 const Dropdown = styled(BaseDropdown)`
   .dropdownItems {
@@ -22,10 +22,12 @@ const Button = styled(ButtonDropdown)<{ $activeFilter: boolean }>`
     `}
 `
 
-const LittleCircleOfExtraClarification = styled.div<{ $status: TransactionStatus }>`
+type CircleProps = { $status: TransactionStatus }
+
+const LittleCircleOfExtraClarification = styled.div<CircleProps>`
   --size: 8px;
 
-  background-color: ${({ $status }) => StatusColors[$status] ?? StatusColors.DEFAULT};
+  background-color: ${({ $status }: CircleProps) => StatusColors[$status] ?? StatusColors.DEFAULT};
   align-items: center;
   border-radius: 50%;
   height: var(--size);

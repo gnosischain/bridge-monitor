@@ -27,7 +27,11 @@ interface Props {
 export const Validators: React.FC<Props> = ({ transaction, ...restProps }) => {
   const { validators } = useValidators(transaction.bridgeName as BridgesValues)
   const validationsStatus = useMemo(
-    () => getValidationsStatus(transaction, validators),
+    () =>
+      getValidationsStatus(
+        transaction,
+        validators.filter((validator) => !validator.removed),
+      ),
     [transaction, validators],
   )
 
@@ -52,21 +56,21 @@ export const Validators: React.FC<Props> = ({ transaction, ...restProps }) => {
                 {status === 'pending'
                   ? 'Pending'
                   : status === 'submitted'
-                  ? 'Submitted'
-                  : status === 'submittedExecuted'
-                  ? 'Submitted + executed'
-                  : status === 'executed'
-                  ? 'Executed'
-                  : status === 'notRequired'
-                  ? 'Not Required'
-                  : 'Not Required'}
+                    ? 'Submitted'
+                    : status === 'submittedExecuted'
+                      ? 'Submitted + executed'
+                      : status === 'executed'
+                        ? 'Executed'
+                        : status === 'notRequired'
+                          ? 'Not Required'
+                          : 'Not Required'}
               </div>
             </>
           }
           key={`validator_status_${transaction.id}_${index}`}
         >
           <ValidatorStatus
-            onClick={(e) =>
+            onClick={(e: React.MouseEvent<HTMLSpanElement, MouseEvent>) =>
               status === 'notRequired' || status === 'default' || status === 'pending'
                 ? undefined
                 : openLink(e, scanUrl)

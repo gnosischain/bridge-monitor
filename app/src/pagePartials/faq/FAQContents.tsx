@@ -82,11 +82,6 @@ export const FAQContents: React.FC = () => {
             </a>
           </li>
           <li>
-            <a href="https://app.debridge.finance/" rel="noreferrer" target="_blank">
-              deBridge
-            </a>
-          </li>
-          <li>
             <a href="https://app.shapeshift.com/#/trade" rel="noreferrer" target="_blank">
               ShapeShift.com
             </a>
@@ -94,11 +89,6 @@ export const FAQContents: React.FC = () => {
           <li>
             <a href="https://app.symbiosis.finance/swap" rel="noreferrer" target="_blank">
               Symbiosis
-            </a>
-          </li>
-          <li>
-            <a href="https://swaps.io/" rel="noreferrer" target="_blank">
-              Swaps.io
             </a>
           </li>
           <li>

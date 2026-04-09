@@ -28,7 +28,9 @@ const TransactionContext = createContext<TransactionContextValue | undefined>(un
 
 const TRANSACTIONS_STORE = 'pending-transactions'
 
-export const TransactionNotificationProvider: React.FC = ({ children }) => {
+export const TransactionNotificationProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { address, appChainId, getExplorerUrl, readOnlyAppProvider } = useWeb3Connection()
   const [isRan, setIsRan] = useState(false)
 
@@ -43,10 +45,10 @@ export const TransactionNotificationProvider: React.FC = ({ children }) => {
 
   const removeTxFromStorage = useCallback(
     (txHash: string) => {
-      transactionStore &&
-        setTransactionStore(
-          transactionStore.filter((tx: TransactionStorageItem) => tx.txHash !== txHash),
-        )
+      if (!transactionStore) return
+      setTransactionStore(
+        transactionStore.filter((tx: TransactionStorageItem) => tx.txHash !== txHash),
+      )
     },
     [setTransactionStore, transactionStore],
   )
@@ -66,9 +68,8 @@ export const TransactionNotificationProvider: React.FC = ({ children }) => {
 
   const notifyWaitingForTxMined = (txHash: string) => {
     toast.remove('waitingForSignature')
-    transactionStore &&
-      address &&
-      setTransactionStore([...transactionStore, { chainId: appChainId, address, txHash }])
+    if (!transactionStore || !address) return
+    setTransactionStore([...transactionStore, { chainId: appChainId, address, txHash }])
 
     notify({
       type: ToastStates.waiting,

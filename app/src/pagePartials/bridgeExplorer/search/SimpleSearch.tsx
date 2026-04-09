@@ -18,13 +18,15 @@ const Wrapper = styled.div`
   --border-radius: 8px;
 
   border-radius: var(--border-radius);
-  box-shadow: 0 2.231px 2.775px 0 rgba(0, 0, 0, 0.01), 0 10.2px 7.8px 0 rgba(0, 0, 0, 0.01),
-    0 25.819px 20.925px 0 rgba(0, 0, 0, 0.02), 0 51px 48px 0 rgba(0, 0, 0, 0.03);
+  box-shadow:
+    0 2.231px 2.775px 0 rgba(0, 0, 0, 0.01),
+    0 10.2px 7.8px 0 rgba(0, 0, 0, 0.01),
+    0 25.819px 20.925px 0 rgba(0, 0, 0, 0.02),
+    0 51px 48px 0 rgba(0, 0, 0, 0.03);
   height: 64px;
   position: relative;
 `
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 // const Textfield: any = styled(DebounceInput)`
 const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
   element: 'input',

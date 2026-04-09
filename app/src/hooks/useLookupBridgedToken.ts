@@ -108,9 +108,9 @@ export const useLookupBridgedToken = ({
         isNativeInXdaiBridge
           ? gnosisXdaiToken
           : tokenAddress
-          ? tokensByAddress[tokenAddress] ??
-            tokenList.find(({ address }) => isSameString(address, tokenAddress))
-          : undefined,
+            ? (tokensByAddress[tokenAddress] ??
+              tokenList.find(({ address }) => isSameString(address, tokenAddress)))
+            : undefined,
       )
     }
   }, [

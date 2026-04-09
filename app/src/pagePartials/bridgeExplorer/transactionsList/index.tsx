@@ -4,7 +4,7 @@ import { Transaction } from '@/src/utils/transactions'
 import { TransactionHeader } from '@/src/pagePartials/bridgeExplorer/transactionsList/TransactionsHeader'
 import { Validator } from '@/src/utils/validators'
 import { Table } from '@/src/components/table'
-import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
+import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
 
 interface Props {
   goBackURL?: string

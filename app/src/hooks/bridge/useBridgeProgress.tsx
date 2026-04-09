@@ -31,7 +31,7 @@ export const useBridgeProgress = (
       try {
         tx = await provider.getTransaction(_transactionId)
       } catch (error) {
-        console.log('tx', tx)
+        console.log('tx', tx, error)
       }
 
       const currentBlock = await provider.getBlockNumber()

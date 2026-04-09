@@ -88,7 +88,7 @@ export const useLocalStorage = <T>(name: string, initialState: T): [T, SetValue<
 
   // From https://usehooks.com/useLocalStorage/
   const setValue = useCallback(
-    (value) => {
+    (value: SetStateAction<T>) => {
       // Allow value to be a function so we have same API as useState
       const valueToStore = value instanceof Function ? value(storedValue) : value
       // Save state

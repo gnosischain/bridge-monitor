@@ -54,7 +54,7 @@ export const ShareResults: React.FC<Props> = ({
   const { copy } = useCopyToast()
 
   return (
-    <Wrapper onClick={(e) => copy(e, value)} {...restProps}>
+    <Wrapper onClick={(e: React.MouseEvent) => copy(e, value)} {...restProps}>
       <Icon />
       {text}
     </Wrapper>

@@ -235,6 +235,7 @@ const handleERC20TokenFromForeign = async ({
     try {
       gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
     } catch (error) {
+      console.log('error', error)
       gasLimit = BigNumber.from(0)
     }
     // gasLimit = await tokenContract.estimateGas.approve(bridgeContract.address, amount.toString())
@@ -269,16 +270,16 @@ const handleERC20TokenFromForeign = async ({
             amount.toString(),
           )
         : isERC677
-        ? (tokenContract as ERC677).transferAndCall(
-            bridgeContract.address,
-            amount.toString(),
-            walletAddress,
-          )
-        : (bridgeContract as ForeignOmniMediator)['relayTokens(address,address,uint256)'](
-            tokenAddress,
-            walletAddress,
-            amount.toString(),
-          )
+          ? (tokenContract as ERC677).transferAndCall(
+              bridgeContract.address,
+              amount.toString(),
+              walletAddress,
+            )
+          : (bridgeContract as ForeignOmniMediator)['relayTokens(address,address,uint256)'](
+              tokenAddress,
+              walletAddress,
+              amount.toString(),
+            )
     },
   }
 }
@@ -652,68 +653,68 @@ export const getBridgeTx = async ({
           allowance,
         })
       : isUsdceGnosis
-      ? await handleUsdceFromHome({
-          bridgeContract: bridgeContract as HomeOmniMediator,
-          signer,
-          amount,
-          tokenAddress,
-          userAddress: account,
-          recipient,
-          allowance,
-          tokenMode,
-        })
-      : isUsdcEth
-      ? await handleUsdcFromForeign({
-          bridgeContract: bridgeContract as ForeignOmniMediator,
-          signer,
-          amount,
-          tokenAddress,
-          allowance,
-          tokenMode,
-          recipient,
-          userAddress: account,
-        })
-      : isNativeToken
-      ? isFromHome
-        ? await handleNativeTokenFromHome({
-            bridgeContract: bridgeContract as HomeBridgeErcToNative,
+        ? await handleUsdceFromHome({
+            bridgeContract: bridgeContract as HomeOmniMediator,
             signer,
             amount,
-            recipient,
-            fromChainId,
+            tokenAddress,
             userAddress: account,
-            toTokenAddress,
+            recipient,
+            allowance,
+            tokenMode,
           })
-        : await handleNativeTokenFromForeign({
-            bridgeContract: bridgeContract as NativeOmniBridgeMediator,
-            signer,
-            amount,
-            walletAddress: recipient || account,
-          })
-      : isFromHome
-      ? await handleERC20TokenFromHome({
-          bridgeContract: bridgeContract as HomeOmniMediator,
-          signer,
-          amount,
-          tokenAddress,
-          toChainId,
-          tokenMode,
-          userAddress: account,
-          recipient,
-          receiveNativeToken,
-          allowance,
-        })
-      : await handleERC20TokenFromForeign({
-          bridgeContract: bridgeContract as ForeignOmniMediator,
-          signer,
-          amount,
-          tokenAddress,
-          allowance,
-          tokenMode,
-          recipient,
-          userAddress: account,
-          isDAI: isNativeBridge, // use nativeBridge for DAI
-        })
+        : isUsdcEth
+          ? await handleUsdcFromForeign({
+              bridgeContract: bridgeContract as ForeignOmniMediator,
+              signer,
+              amount,
+              tokenAddress,
+              allowance,
+              tokenMode,
+              recipient,
+              userAddress: account,
+            })
+          : isNativeToken
+            ? isFromHome
+              ? await handleNativeTokenFromHome({
+                  bridgeContract: bridgeContract as HomeBridgeErcToNative,
+                  signer,
+                  amount,
+                  recipient,
+                  fromChainId,
+                  userAddress: account,
+                  toTokenAddress,
+                })
+              : await handleNativeTokenFromForeign({
+                  bridgeContract: bridgeContract as NativeOmniBridgeMediator,
+                  signer,
+                  amount,
+                  walletAddress: recipient || account,
+                })
+            : isFromHome
+              ? await handleERC20TokenFromHome({
+                  bridgeContract: bridgeContract as HomeOmniMediator,
+                  signer,
+                  amount,
+                  tokenAddress,
+                  toChainId,
+                  tokenMode,
+                  userAddress: account,
+                  recipient,
+                  receiveNativeToken,
+                  allowance,
+                })
+              : await handleERC20TokenFromForeign({
+                  bridgeContract: bridgeContract as ForeignOmniMediator,
+                  signer,
+                  amount,
+                  tokenAddress,
+                  allowance,
+                  tokenMode,
+                  recipient,
+                  userAddress: account,
+                  isDAI: isNativeBridge, // use nativeBridge for DAI
+                })
 
   return {
     gasLimit,
