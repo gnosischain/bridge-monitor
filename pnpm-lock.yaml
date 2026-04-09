@@ -221,8 +221,8 @@ importers:
   envio-indexer:
     dependencies:
       envio:
-        specifier: 2.32.10
-        version: 2.32.10(bufferutil@4.1.0)(typescript@5.6.3)(utf-8-validate@6.0.6)(zod@3.25.76)
+        specifier: 2.32.12
+        version: 2.32.12(bufferutil@4.1.0)(typescript@5.6.3)(utf-8-validate@6.0.6)(zod@3.25.76)
       viem:
         specifier: 2.37.8
         version: 2.37.8(bufferutil@4.1.0)(typescript@5.6.3)(utf-8-validate@6.0.6)(zod@3.25.76)
@@ -572,8 +572,8 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
-  '@envio-dev/hypersync-client-darwin-arm64@1.1.0':
-    resolution: {integrity: sha512-WO/yxYiN9nz7pHw7xLs/4hnEHQM5OVcTwvtxZTZHox7It3n7aeBzsJfrGYYqYW1bPxDwSYwb6x9l0/fQc59xeA==}
+  '@envio-dev/hypersync-client-darwin-arm64@1.3.0':
+    resolution: {integrity: sha512-JZwiVRbMSuJnKsVUpfjTHc3YgAMvGlyuqWQxVc7Eok4Xp/sZLUCXRQUykbCh6fOUWRmoa2JG/ykP/NotoTRCBg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
@@ -584,8 +584,8 @@ packages:
     cpu: [x64]
     os: [darwin]
 
-  '@envio-dev/hypersync-client-darwin-x64@1.1.0':
-    resolution: {integrity: sha512-BOD4gaZ6NAyLDDVgfIhpD25ikjEQpTXNBqbIYuTjWS1D0NiQD5mmyZCFcSMmaJJ0j4iobBQV1LMiNX8nDLahPA==}
+  '@envio-dev/hypersync-client-darwin-x64@1.3.0':
+    resolution: {integrity: sha512-2eSzQqqqFBMK2enVucYGcny5Ep4DEKYxf3Xme7z9qp2d3c6fMcbVvM4Gt8KOzb7ySjwJ2gU+qY2h545T2NiJXQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
@@ -596,8 +596,8 @@ packages:
     cpu: [arm64]
     os: [linux]
 
-  '@envio-dev/hypersync-client-linux-arm64-gnu@1.1.0':
-    resolution: {integrity: sha512-TDRpAGbfuI4u83Swy50IkGZSMaWXZw/SNC8BiMqLBmYVt1GqFDB1VGrkecf4AhQBPlQk8iDTOxxIKNuOCsY//A==}
+  '@envio-dev/hypersync-client-linux-arm64-gnu@1.3.0':
+    resolution: {integrity: sha512-gsjMp3WKekwnA89HvJXvcTM3BE5wVFG/qTF4rmk3rGiXhZ+MGaZQKrYRAhnzQZblueFtF/xnnBYpO35Z3ZFThg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
@@ -608,8 +608,8 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@envio-dev/hypersync-client-linux-x64-gnu@1.1.0':
-    resolution: {integrity: sha512-ooOdLfrhq8W3J76pcJDWuXIpu9cTBjZR86XkkHaheDNkYQlBZ7h5oG3IhNTLnooFkih+6+9dfcfOdG4NMmylGA==}
+  '@envio-dev/hypersync-client-linux-x64-gnu@1.3.0':
+    resolution: {integrity: sha512-Lkvi4lRVwCyFOXf9LYH2X91zmW2l1vbfojKhTwKgqFWv6PMN5atlYjt+/NcUCAAhk5EUavWGjoikwnvLp870cg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
@@ -620,8 +620,8 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@envio-dev/hypersync-client-linux-x64-musl@1.1.0':
-    resolution: {integrity: sha512-WS717WyRyTZPRMfYmscRslRIhxWNKzdQR3SLugqQs0z1W7wo58WMufhr5EpzID5/GR10zexz+Y3a4HWMAGiu+Q==}
+  '@envio-dev/hypersync-client-linux-x64-musl@1.3.0':
+    resolution: {integrity: sha512-UIjB/gUX2sl23EMXLBxqtkgMnOjNSiaHK+CSU5vXMXkzL3fOGbz24bvyaPsSv82cxCFEE0yTwlSKkCX6/L8o6Q==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
@@ -636,8 +636,8 @@ packages:
     resolution: {integrity: sha512-0r4lPFtk49zB94uvZiONV0SWdr9kigdNIYfYTYcSSuZ396E77tjskjMigDwimZsAA5Qf64x6MsIyzUYIzk/KPg==}
     engines: {node: '>= 10'}
 
-  '@envio-dev/hypersync-client@1.1.0':
-    resolution: {integrity: sha512-tTCW/fvYPFYIcL6SLcWd5Fe6uPCcXQbLgZaYL3NSvkhvrpw5VSx3M2QbHdpIrhmzoDkZdpIYyFD+pdZhC6Y75g==}
+  '@envio-dev/hypersync-client@1.3.0':
+    resolution: {integrity: sha512-wUdfZzbsFPbGq6n/1mmUMsWuiAil+m+fL/GBX5LGUyMJV86TXy2SBtAqYYNyDxWLO6gvGr6PYKrP8pLVAUZDZg==}
     engines: {node: '>= 10'}
 
   '@esbuild/aix-ppc64@0.19.12':
@@ -3161,8 +3161,8 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
-  envio-darwin-arm64@2.32.10:
-    resolution: {integrity: sha512-dqwC6Oduur1Micwbv9KSgtVyoNmGTVnucndJ3PFzUnen0VLR3gVn52VxbzF4h264dyS0lQ47PBpHeapuDVqNjA==}
+  envio-darwin-arm64@2.32.12:
+    resolution: {integrity: sha512-TLs9jjXUHVqKcBReMHgD7C06lbfWfnMkit3uT55XmgiJYc8zS85T0XmDCnCX4BRbZN7uzMNORqnUc2J3/LR9sQ==}
     cpu: [arm64]
     os: [darwin]
 
@@ -3171,8 +3171,8 @@ packages:
     cpu: [x64]
     os: [darwin]
 
-  envio-darwin-x64@2.32.10:
-    resolution: {integrity: sha512-6rJkn1yDTt0fPwLvh+h15VGrON/aMIbcg2Wf3caTzTk0W+UpcW4JDagMSd5Tp5DocDziEkpo0h3DTiYqtwrsBw==}
+  envio-darwin-x64@2.32.12:
+    resolution: {integrity: sha512-JfKU3LaqxO/aabEAIvpHGKhDGNEiVGvcmmi98cZfG1/vP4S5lO+8KDEp563CaB986N6KtGJRKnDWivvCsseZMw==}
     cpu: [x64]
     os: [darwin]
 
@@ -3181,8 +3181,8 @@ packages:
     cpu: [arm64]
     os: [linux]
 
-  envio-linux-arm64@2.32.10:
-    resolution: {integrity: sha512-6gBkRsEJtri5QTuh9c8AHahK+8oXt2Y3/yMbEde+NcrpSq6xdtW9sva8CkOwfm1hSlCK6vgRV3Kh9AzOH5tBbA==}
+  envio-linux-arm64@2.32.12:
+    resolution: {integrity: sha512-3sBfuR6JLcAkrFcoEfw2WiaPU3VyXGy4kf26HB5BJE/iJUqha+wHoDbv46MfFGuaC0QyM34QvlG0yGRES0ohPw==}
     cpu: [arm64]
     os: [linux]
 
@@ -3191,8 +3191,8 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  envio-linux-x64@2.32.10:
-    resolution: {integrity: sha512-wByqjv8eAaWz/lCf53n/+YCgSk/dBcmIDjoYub0X6mcVP8xoAFJlSj+PihMUPH93ADM/u45hCHj64kJWiFC2+w==}
+  envio-linux-x64@2.32.12:
+    resolution: {integrity: sha512-886q+yztKVrhgkwOfoFKARDStbjk1032YBtA6tqrCN8uWjqgzAf30ZDPurJGlq26hQqYNKRp2LhgxChpivsvFw==}
     cpu: [x64]
     os: [linux]
 
@@ -3200,8 +3200,8 @@ packages:
     resolution: {integrity: sha512-JygGxP9yZLApF9vC205T/JQeU+u1vcqU1bZwAzG5XCNy3hwaKcc0Xivx8Q6Xx3g0BjeDbUUbrkkNTiZ6wb+gQQ==}
     hasBin: true
 
-  envio@2.32.10:
-    resolution: {integrity: sha512-ESx4+70p8XtjpBadavb7jqUE8hBxqtlQ7sWYqHx+fmARH7crKWGTwCJ4VopTvag+wG2XehkNb6s6Um5zFIbXFw==}
+  envio@2.32.12:
+    resolution: {integrity: sha512-bk9y/AjU+kYxO1a9c/jg8RFDrKKKWU0wCffnwtoXo7KGKmPDKq1WyNzVw6sTeboSfGB0i82hJ97WgSAwRAnR1Q==}
     hasBin: true
 
   error-ex@1.3.4:
@@ -6089,7 +6089,7 @@ snapshots:
       '@babel/types': 7.29.0
       '@jridgewell/remapping': 2.3.5
       convert-source-map: 2.0.0
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@9.4.0)
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -6180,7 +6180,7 @@ snapshots:
       '@babel/helper-split-export-declaration': 7.24.7
       '@babel/parser': 7.29.0
       '@babel/types': 7.29.0
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@9.4.0)
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -6193,7 +6193,7 @@ snapshots:
       '@babel/parser': 7.29.0
       '@babel/template': 7.28.6
       '@babel/types': 7.29.0
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@9.4.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -6436,31 +6436,31 @@ snapshots:
   '@envio-dev/hypersync-client-darwin-arm64@0.6.6':
     optional: true
 
-  '@envio-dev/hypersync-client-darwin-arm64@1.1.0':
+  '@envio-dev/hypersync-client-darwin-arm64@1.3.0':
     optional: true
 
   '@envio-dev/hypersync-client-darwin-x64@0.6.6':
     optional: true
 
-  '@envio-dev/hypersync-client-darwin-x64@1.1.0':
+  '@envio-dev/hypersync-client-darwin-x64@1.3.0':
     optional: true
 
   '@envio-dev/hypersync-client-linux-arm64-gnu@0.6.6':
     optional: true
 
-  '@envio-dev/hypersync-client-linux-arm64-gnu@1.1.0':
+  '@envio-dev/hypersync-client-linux-arm64-gnu@1.3.0':
     optional: true
 
   '@envio-dev/hypersync-client-linux-x64-gnu@0.6.6':
     optional: true
 
-  '@envio-dev/hypersync-client-linux-x64-gnu@1.1.0':
+  '@envio-dev/hypersync-client-linux-x64-gnu@1.3.0':
     optional: true
 
   '@envio-dev/hypersync-client-linux-x64-musl@0.6.6':
     optional: true
 
-  '@envio-dev/hypersync-client-linux-x64-musl@1.1.0':
+  '@envio-dev/hypersync-client-linux-x64-musl@1.3.0':
     optional: true
 
   '@envio-dev/hypersync-client-win32-x64-msvc@0.6.6':
@@ -6475,13 +6475,13 @@ snapshots:
       '@envio-dev/hypersync-client-linux-x64-musl': 0.6.6
       '@envio-dev/hypersync-client-win32-x64-msvc': 0.6.6
 
-  '@envio-dev/hypersync-client@1.1.0':
+  '@envio-dev/hypersync-client@1.3.0':
     optionalDependencies:
-      '@envio-dev/hypersync-client-darwin-arm64': 1.1.0
-      '@envio-dev/hypersync-client-darwin-x64': 1.1.0
-      '@envio-dev/hypersync-client-linux-arm64-gnu': 1.1.0
-      '@envio-dev/hypersync-client-linux-x64-gnu': 1.1.0
-      '@envio-dev/hypersync-client-linux-x64-musl': 1.1.0
+      '@envio-dev/hypersync-client-darwin-arm64': 1.3.0
+      '@envio-dev/hypersync-client-darwin-x64': 1.3.0
+      '@envio-dev/hypersync-client-linux-arm64-gnu': 1.3.0
+      '@envio-dev/hypersync-client-linux-x64-gnu': 1.3.0
+      '@envio-dev/hypersync-client-linux-x64-musl': 1.3.0
 
   '@esbuild/aix-ppc64@0.19.12':
     optional: true
@@ -6562,7 +6562,7 @@ snapshots:
   '@eslint/config-array@0.18.0':
     dependencies:
       '@eslint/object-schema': 2.1.7
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@9.4.0)
       minimatch: 3.1.5
     transitivePeerDependencies:
       - supports-color
@@ -6576,7 +6576,7 @@ snapshots:
   '@eslint/eslintrc@3.3.5':
     dependencies:
       ajv: 6.14.0
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@9.4.0)
       espree: 10.4.0
       globals: 14.0.0
       ignore: 5.3.2
@@ -8605,7 +8605,7 @@ snapshots:
       '@typescript-eslint/types': 8.56.1
       '@typescript-eslint/typescript-estree': 8.56.1(typescript@5.6.3)
       '@typescript-eslint/visitor-keys': 8.56.1
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@9.4.0)
       eslint: 9.14.0
       typescript: 5.6.3
     transitivePeerDependencies:
@@ -8615,7 +8615,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/tsconfig-utils': 8.56.1(typescript@5.6.3)
       '@typescript-eslint/types': 8.56.1
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@9.4.0)
       typescript: 5.6.3
     transitivePeerDependencies:
       - supports-color
@@ -8634,7 +8634,7 @@ snapshots:
       '@typescript-eslint/types': 8.56.1
       '@typescript-eslint/typescript-estree': 8.56.1(typescript@5.6.3)
       '@typescript-eslint/utils': 8.56.1(eslint@9.14.0)(typescript@5.6.3)
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@9.4.0)
       eslint: 9.14.0
       ts-api-utils: 2.4.0(typescript@5.6.3)
       typescript: 5.6.3
@@ -8649,7 +8649,7 @@ snapshots:
       '@typescript-eslint/tsconfig-utils': 8.56.1(typescript@5.6.3)
       '@typescript-eslint/types': 8.56.1
       '@typescript-eslint/visitor-keys': 8.56.1
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@9.4.0)
       minimatch: 10.2.4
       semver: 7.7.4
       tinyglobby: 0.2.15
@@ -10227,25 +10227,25 @@ snapshots:
   envio-darwin-arm64@2.31.0:
     optional: true
 
-  envio-darwin-arm64@2.32.10:
+  envio-darwin-arm64@2.32.12:
     optional: true
 
   envio-darwin-x64@2.31.0:
     optional: true
 
-  envio-darwin-x64@2.32.10:
+  envio-darwin-x64@2.32.12:
     optional: true
 
   envio-linux-arm64@2.31.0:
     optional: true
 
-  envio-linux-arm64@2.32.10:
+  envio-linux-arm64@2.32.12:
     optional: true
 
   envio-linux-x64@2.31.0:
     optional: true
 
-  envio-linux-x64@2.32.10:
+  envio-linux-x64@2.32.12:
     optional: true
 
   envio@2.31.0(bufferutil@4.1.0)(typescript@5.6.3)(utf-8-validate@6.0.6)(zod@3.25.76):
@@ -10271,11 +10271,11 @@ snapshots:
       - utf-8-validate
       - zod
 
-  envio@2.32.10(bufferutil@4.1.0)(typescript@5.6.3)(utf-8-validate@6.0.6)(zod@3.25.76):
+  envio@2.32.12(bufferutil@4.1.0)(typescript@5.6.3)(utf-8-validate@6.0.6)(zod@3.25.76):
     dependencies:
       '@elastic/ecs-pino-format': 1.4.0
       '@envio-dev/hyperfuel-client': 1.2.2
-      '@envio-dev/hypersync-client': 1.1.0
+      '@envio-dev/hypersync-client': 1.3.0
       bignumber.js: 9.1.2
       eventsource: 4.1.0
       pino: 8.16.1
@@ -10285,10 +10285,10 @@ snapshots:
       rescript-schema: 9.3.0(rescript@11.1.3)
       viem: 2.21.0(bufferutil@4.1.0)(typescript@5.6.3)(utf-8-validate@6.0.6)(zod@3.25.76)
     optionalDependencies:
-      envio-darwin-arm64: 2.32.10
-      envio-darwin-x64: 2.32.10
-      envio-linux-arm64: 2.32.10
-      envio-linux-x64: 2.32.10
+      envio-darwin-arm64: 2.32.12
+      envio-darwin-x64: 2.32.12
+      envio-linux-arm64: 2.32.12
+      envio-linux-x64: 2.32.12
     transitivePeerDependencies:
       - bufferutil
       - typescript
@@ -10508,7 +10508,7 @@ snapshots:
   eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.14.0):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@9.4.0)
       eslint: 9.14.0
       get-tsconfig: 4.13.6
       is-bun-module: 2.0.0
@@ -10649,7 +10649,7 @@ snapshots:
       ajv: 6.14.0
       chalk: 4.1.2
       cross-spawn: 7.0.6
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@9.4.0)
       escape-string-regexp: 4.0.0
       eslint-scope: 8.4.0
       eslint-visitor-keys: 4.2.1
@@ -13270,7 +13270,7 @@ snapshots:
   typechain@8.1.0(typescript@5.6.3):
     dependencies:
       '@types/prettier': 2.7.3
-      debug: 4.4.3(supports-color@8.1.1)
+      debug: 4.4.3(supports-color@9.4.0)
       fs-extra: 7.0.1
       glob: 7.1.7
       js-sha3: 0.8.0
