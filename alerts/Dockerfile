@@ -1,15 +1,10 @@
 # Production stage
-FROM node:18-alpine
-
+FROM node:22-alpine
 
 # Accept build arguments
-ARG SUBGRAPH_API_FOREIGN
-ARG SUBGRAPH_API_NATIVE
+ARG ENVIO_INDEXER_URL
 
-
-ENV SUBGRAPH_API_FOREIGN=$SUBGRAPH_API_FOREIGN
-ENV SUBGRAPH_API_NATIVE=$SUBGRAPH_API_NATIVE
-
+ENV ENVIO_INDEXER_URL=$ENVIO_INDEXER_URL
 
 # Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
@@ -19,26 +14,24 @@ WORKDIR /app
 
 # Copy package files
 COPY package.json ./
-COPY yarn.lock ./
-COPY .yarnrc.yml ./
 
-# Install dependencies
-RUN yarn install && \
-    yarn cache clean
+# Install dependencies using pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+COPY pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
 COPY . .
 
 # Generate types
-RUN yarn typechain
-RUN yarn build
-
+RUN pnpm typechain
+RUN pnpm build
 
 # Create data directory with correct ownership
-RUN mkdir -p /app/data    
+RUN mkdir -p /app/data
 
 # Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]
 
 # Default command
-CMD ["yarn", "start"]
+CMD ["pnpm", "start"]
