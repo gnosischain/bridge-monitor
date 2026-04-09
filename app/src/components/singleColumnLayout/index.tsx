@@ -16,7 +16,7 @@ export const Main = styled.main`
   width: 100%;
 `
 
-export const SingleColumnLayout: React.FC = ({ children }) => {
+export const SingleColumnLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter()
   const easing = [0.175, 0.85, 0.42, 0.96]
   const variantsMain = {

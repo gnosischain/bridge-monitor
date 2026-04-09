@@ -31,7 +31,7 @@ export default function SafeSuspense({
   )
 }
 
-export function genericSuspense<T extends Props>(Element: FC<T>, fallback?: FC<T>) {
+export function genericSuspense<T extends object>(Element: FC<T>, fallback?: FC<T>) {
   return function GenericSuspenseReturnFunction(props: T) {
     return (
       <ErrorBoundary

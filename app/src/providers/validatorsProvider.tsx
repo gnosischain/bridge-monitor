@@ -88,7 +88,7 @@ const fetcher = async () => {
   return res
 }
 
-export const ValidatorsProvider: React.FC = ({ children }) => {
+export const ValidatorsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const res = useSWR('validators', fetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,

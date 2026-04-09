@@ -242,7 +242,7 @@ export const Dropdown: React.FC<Props> = (props) => {
   const node = createRef<HTMLDivElement>()
 
   const onButtonClick = useCallback(
-    (e) => {
+    (e: React.MouseEvent) => {
       e.stopPropagation()
 
       if (disabled) {

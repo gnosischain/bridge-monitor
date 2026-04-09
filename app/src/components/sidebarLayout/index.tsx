@@ -56,6 +56,7 @@ Main.defaultProps = {
 }
 
 interface Props {
+  children?: React.ReactNode
   $sidebarContents: React.ReactNode
   $sidebarPlacement?: SidebarPlacement
 }

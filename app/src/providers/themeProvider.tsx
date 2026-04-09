@@ -6,7 +6,7 @@ import { GlobalStyles } from '@/src/theme/globalStyles'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ThemeContext = createContext({} as any)
 
-const ThemeContextProvider: React.FC = ({ children }) => {
+const ThemeContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const currentThemeJSON = theme
 
   return (
