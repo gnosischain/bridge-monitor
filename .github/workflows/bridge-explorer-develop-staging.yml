@@ -12,12 +12,6 @@ on:
           - staging
           - develop
 
-env:
-  GCP_PROJECT: gnosischain-staging
-  GCP_REGION: europe-west1
-  GKE_CLUSTER: gnosischain-staging
-  NAMESPACE: gc-tools
-
 # Permission can be added at job level or workflow level
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -91,7 +85,7 @@ jobs:
 
       - name: Configure Docker for Artifact Registry
         run: |
-          gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev --quiet
+          gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
 
       - name: Build and push DEVELOP to Artifact Registry
         if: inputs.environment == 'develop'
@@ -100,7 +94,7 @@ jobs:
           context: .
           file: ./app/Dockerfile
           push: true
-          tags: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/bridge/bridge:develop
+          tags: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/bridge/bridge:develop
           platforms: linux/amd64
           build-args: |
             "NEXT_PUBLIC_APP_NAME=GnosisBridge"
@@ -123,7 +117,7 @@ jobs:
           context: .
           file: ./app/Dockerfile
           push: true
-          tags: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/bridge/bridge:staging
+          tags: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/bridge/bridge:staging
           platforms: linux/amd64
           build-args: |
             "NEXT_PUBLIC_APP_NAME=GnosisBridge"
@@ -165,35 +159,35 @@ jobs:
 
       - name: Configure kubectl
         run: |
-          gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} \
-            --region ${{ env.GCP_REGION }} \
-            --project ${{ env.GCP_PROJECT }} \
+          gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER }} \
+            --region ${{ secrets.GCP_REGION }} \
+            --project ${{ secrets.GCP_PROJECT }} \
             --internal-ip
 
       - name: Verify deployment exists
         run: |
-          if ! kubectl get deployment/${{ needs.build-and-push.outputs.deployment_name }} -n ${{ env.NAMESPACE }} &> /dev/null; then
-            echo "Deployment ${{ needs.build-and-push.outputs.deployment_name }} does not exist in namespace ${{ env.NAMESPACE }}"
+          if ! kubectl get deployment/${{ needs.build-and-push.outputs.deployment_name }} -n ${{ secrets.NAMESPACE }} &> /dev/null; then
+            echo "Deployment ${{ needs.build-and-push.outputs.deployment_name }} does not exist in namespace ${{ secrets.NAMESPACE }}"
             echo "Please ensure Terraform has been applied first to create the deployment"
             exit 1
           fi
 
       - name: Restart deployment
         run: |
-          kubectl rollout restart deployment/${{ needs.build-and-push.outputs.deployment_name }} -n ${{ env.NAMESPACE }}
+          kubectl rollout restart deployment/${{ needs.build-and-push.outputs.deployment_name }} -n ${{ secrets.NAMESPACE }}
           
       - name: Wait for rollout to complete
         run: |
-          kubectl rollout status deployment/${{ needs.build-and-push.outputs.deployment_name }} -n ${{ env.NAMESPACE }} --timeout=5m
+          kubectl rollout status deployment/${{ needs.build-and-push.outputs.deployment_name }} -n ${{ secrets.NAMESPACE }} --timeout=5m
 
       - name: Get deployment status
         if: always()
         run: |
           echo "=== Deployment Status ==="
-          kubectl get deployment/${{ needs.build-and-push.outputs.deployment_name }} -n ${{ env.NAMESPACE }}
+          kubectl get deployment/${{ needs.build-and-push.outputs.deployment_name }} -n ${{ secrets.NAMESPACE }}
           echo ""
           echo "=== Pod Status ==="
-          kubectl get pods -n ${{ env.NAMESPACE }} -l app=${{ needs.build-and-push.outputs.deployment_name }}
+          kubectl get pods -n ${{ secrets.NAMESPACE }} -l app=${{ needs.build-and-push.outputs.deployment_name }}
           echo ""
           echo "=== Recent Events ==="
-          kubectl get events -n ${{ env.NAMESPACE }} --sort-by='.lastTimestamp' | tail -20
+          kubectl get events -n ${{ secrets.NAMESPACE }} --sort-by='.lastTimestamp' | tail -20
