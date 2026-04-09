@@ -64,10 +64,10 @@ export const IconStatus: React.FC<Props> = ({ statusIcon, ...restProps }) => {
     statusIcon === 'success'
       ? 'icon-success.svg'
       : statusIcon === 'pending'
-      ? 'icon-waiting.svg'
-      : statusIcon === 'warning'
-      ? 'icon-warning.svg'
-      : 'icon-not-required.svg'
+        ? 'icon-waiting.svg'
+        : statusIcon === 'warning'
+          ? 'icon-warning.svg'
+          : 'icon-not-required.svg'
 
   if (statusIcon === 'waiting') return <WrapperBordered {...restProps} />
   if (statusIcon === 'none') return <Wrapper {...restProps} />

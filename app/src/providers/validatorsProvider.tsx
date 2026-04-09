@@ -5,7 +5,7 @@ import { BridgesValues } from '@/src/constants/config/bridges'
 import { fetchHomeValidators, getBalance, getValidatorByAddress } from '@/src/utils/validators'
 import { Validator } from '@/src/utils/validators'
 import { gnosisBatch } from '@/src/constants/config/rpc-providers'
-import { fromSubgraphTimestamp } from '@/src/utils/date'
+import { fromSecondsTimestamp } from '@/src/utils/date'
 import { Chains, chainsConfig } from '@/src/constants/config/chains'
 import cloneDeep from 'lodash/cloneDeep'
 import { ValidatorStatusTypes } from '@/src/constants/types'
@@ -60,7 +60,7 @@ const fetcher = async () => {
       bridgeType: String(v.bridgeType || staticVal?.bridgeType || ''),
       shortName,
       status: ValidatorStatusTypes.default,
-      lastSeen: fromSubgraphTimestamp(v.lastActivity),
+      lastSeen: fromSecondsTimestamp(v.lastActivity ?? 0),
       signed: Array.isArray(v.signed) ? v.signed.length : 0,
       executed: Array.isArray(v.executed) ? v.executed.length : 0,
       balanceHome: {
@@ -88,7 +88,7 @@ const fetcher = async () => {
   return res
 }
 
-export const ValidatorsProvider: React.FC = ({ children }) => {
+export const ValidatorsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const res = useSWR('validators', fetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,

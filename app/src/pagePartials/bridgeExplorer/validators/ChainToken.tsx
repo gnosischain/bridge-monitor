@@ -26,6 +26,7 @@ const Wrapper = styled.div<{ withNames?: boolean }>`
 `
 
 interface Props {
+  children?: React.ReactNode
   name: string
   showName?: boolean
 }

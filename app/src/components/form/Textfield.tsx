@@ -55,8 +55,8 @@ export const TextfieldPartsCSS = css<TextfieldCSSProps>`
       status === TextfieldStatus.error
         ? textField.errorColor
         : status === TextfieldStatus.success
-        ? textField.successColor
-        : textField.active.borderColor};
+          ? textField.successColor
+          : textField.active.borderColor};
     box-shadow: ${({ theme: { textField } }) => textField.active.boxShadow};
     color: ${({ status, theme: { textField } }) =>
       status === TextfieldStatus.error ? textField.errorColor : textField.color};
@@ -123,8 +123,8 @@ export const TextfieldCSS = css<TextfieldCSSProps>`
     status === TextfieldStatus.error
       ? textField.errorColor
       : status === TextfieldStatus.success
-      ? textField.successColor
-      : textField.borderColor};
+        ? textField.successColor
+        : textField.borderColor};
   border-radius: var(--textfield-border-radius);
   border-style: solid;
   border-width: 0.5px;
@@ -138,7 +138,9 @@ export const TextfieldCSS = css<TextfieldCSSProps>`
   overflow: hidden;
   padding: var(--textfield-padding);
   text-overflow: ellipsis;
-  transition: border-color 0.15s linear, background-color 0.15s linear;
+  transition:
+    border-color 0.15s linear,
+    background-color 0.15s linear;
   white-space: nowrap;
   width: 100%;
 

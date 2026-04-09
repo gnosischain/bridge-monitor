@@ -1,9 +1,16 @@
 /**
  * encodedData layout (hex string):
- * - [0..66):  0x + 64 hex (messageId)
- * - [66..106): origin mediator (40 hex, no 0x)
- * - [106..146): destination mediator (40 hex, no 0x)
- * - receiver is later in payload; subgraph slices [260..300)
+ * - [0..66):    0x + messageId (32 bytes = 64 hex)
+ * - [66..106):  origin mediator (20 bytes = 40 hex)
+ * - [106..146): destination mediator (20 bytes = 40 hex)
+ * - [146..154): gasLimit (4 bytes = 8 hex)   ← 4 bytes, not 8!
+ * - [154..160): chainLengths + dataType (3 bytes = 6 hex)
+ * - [160..164): chainIds (2×1-byte for ETH/GC = 4 hex)
+ * - [164..]:    calldata for handleBridgedTokens(token, receiver, value)
+ *               - selector: 4 bytes  [164..172)
+ *               - token: 32 bytes    [172..236), address at [196..236)
+ *               - receiver: 32 bytes [236..300), address at [260..300)
+ *               - value: 32 bytes    [300..364)
  */
 
 // Known OmniBridge mediator addresses (lowercased)
@@ -35,6 +42,21 @@ const FOREIGN_MEDIATORS = new Set<string>([
   "0x41a4ee2855a7dc328524babb07d7f505b201133e",
 ]);
 
+// Router/wrapper contracts that shouldn't be shown as receiver
+// When these are detected as receiver, we should fall back to sender
+const ROUTER_CONTRACTS = new Set<string>([
+  // WETHOmnibridgeRouter on Ethereum - wraps/unwraps ETH<>WETH
+  "0xa6439ca0fcba1d0f80df0be6a17220fed9c9038a",
+]);
+
+/**
+ * Check if an address is a router/wrapper contract that shouldn't be shown as final receiver
+ */
+export function isRouterContract(addr?: string): boolean {
+  if (!addr) return false;
+  return ROUTER_CONTRACTS.has(addr.toLowerCase());
+}
+
 // Returns true if encodedData indicates OmniBridge usage (canonical or override mediators)
 export function isOmniBridgeUsage(encodedData?: string): boolean {
   if (!encodedData || encodedData.length < 146) return false;
@@ -50,10 +72,67 @@ export function isOmniBridgeUsage(encodedData?: string): boolean {
   return (originIsHome && destIsForeign) || (originIsForeign && destIsHome);
 }
 
-// Extract receiver from encodedData (subgraph uses slice [260..300))
+/**
+ * Check if an address is "zero-ish" (mostly zeros, likely invalid extraction)
+ * Examples: 0x00000000000000000000000000000000000000c0
+ */
+export function isZeroishAddress(addr?: string): boolean {
+  if (!addr) return true;
+  const withoutPrefix = addr.toLowerCase().replace("0x", "");
+  if (withoutPrefix.length !== 40) return true;
+  // Count non-zero characters - a valid address should have more than 4
+  const nonZeroChars = withoutPrefix.replace(/0/g, "");
+  return nonZeroChars.length <= 4;
+}
+
+/**
+ * Extract receiver from encodedData.
+ * The receiver is in the calldata portion which calls handleBridgedTokens(token, receiver, value).
+ * Position varies based on chain ID encoding in the AMB header.
+ * Returns undefined if extraction fails or produces an invalid address.
+ *
+ * Special case — WETH GC→ETH: the AMB message calls
+ * handleBridgedTokensAndCall(token, router, value, data) where the actual recipient
+ * is NOT the router at [260..300) but a raw 20-byte address (abi.encodePacked)
+ * inside the `data` field at [492..532). We skip router addresses in the primary
+ * loop and fall back to that offset so callers always receive the real recipient.
+ */
 export function extractReceiverFromEncodedData(encodedData?: string): string | undefined {
-  if (!encodedData || encodedData.length < 300) return undefined;
-  return "0x" + encodedData.slice(260, 300);
+  if (!encodedData || encodedData.length < 308) return undefined;
+
+  // Primary offset: receiver address is the last 40 chars of the 2nd calldata param [236..300)
+  // gasLimit is 4 bytes (not 8), so calldata starts at char 164 → receiver address at [260..300)
+  if (encodedData.length >= 300) {
+    const primary = "0x" + encodedData.slice(260, 300);
+    if (!isZeroishAddress(primary)) {
+      if (!isRouterContract(primary)) {
+        return primary;
+      }
+      // Router at primary offset → WETH GC→ETH: actual recipient is
+      // abi.encodePacked(address) in the `data` field, left-aligned at [492..532).
+      // Skip fallback offsets — they would slice mid-router-address producing garbage.
+      if (encodedData.length >= 532) {
+        const wethCandidate = "0x" + encodedData.slice(492, 532);
+        if (!isZeroishAddress(wethCandidate)) {
+          return wethCandidate;
+        }
+      }
+      return undefined;
+    }
+  }
+
+  // Fallback offsets for edge cases where chain ID encoding shifts the calldata
+  // (only reached when primary offset [260..300) is zero-ish, not a router case)
+  for (const offset of [268, 252]) {
+    if (encodedData.length >= offset + 40) {
+      const candidate = "0x" + encodedData.slice(offset, offset + 40);
+      if (!isZeroishAddress(candidate)) {
+        return candidate;
+      }
+    }
+  }
+
+  return undefined;
 }
 
 /** Parse messageId (bytes32) from AMB encodedData bytes hex (first 32 bytes after 0x) */

@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { Info } from '@/src/pagePartials/bridgeExplorer/latestTransactions/Info'
 import { TransactionsList } from '@/src/pagePartials/bridgeExplorer/transactionsList'
-import { useTransactionsWithFilters } from '@/src/hooks/subgraph/useTransactions'
+import { useTransactionsWithFilters } from '@/src/hooks/useTransactions'
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import { Loading } from '@/src/components/loading'
 import { useValidators } from '@/src/providers/validatorsProvider'

@@ -28,7 +28,9 @@ const TransactionContext = createContext<TransactionContextValue | undefined>(un
 
 const TRANSACTIONS_STORE = 'pending-transactions'
 
-export const TransactionNotificationProvider: React.FC = ({ children }) => {
+export const TransactionNotificationProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { address, appChainId, getExplorerUrl, readOnlyAppProvider } = useWeb3Connection()
   const [isRan, setIsRan] = useState(false)
 

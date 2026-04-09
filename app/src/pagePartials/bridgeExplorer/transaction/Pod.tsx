@@ -4,7 +4,7 @@ import { Badge } from '@/src/pagePartials/bridgeExplorer/transaction/Badge'
 import { InnerCard } from '@/src/components/card/InnerCard'
 import { TransactionStatus } from '@/src/pagePartials/bridgeExplorer/common/TransactionStatus'
 import { Transaction } from '@/src/utils/transactions'
-import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
+import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
 
 const Wrapper = styled(InnerCard)`
   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
@@ -31,6 +31,7 @@ const Status = styled(TransactionStatus)`
 `
 
 interface Props {
+  children?: React.ReactNode
   subTitle?: string
   title: string
   transaction?: Transaction

@@ -22,7 +22,7 @@ import { JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
 import { WalletState } from '@web3-onboard/core'
 import { useState } from 'react'
 import styled from 'styled-components'
-import { UpdateInMemoryTx } from '@/src/hooks/subgraph/useTransactions'
+import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
 import { useIsUsdsEnabled } from '@/src/hooks/contracts/useIsUsdsEnabled'
 
 const Wrapper = styled.button`

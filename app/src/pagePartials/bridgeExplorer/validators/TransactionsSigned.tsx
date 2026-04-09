@@ -11,7 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { useFetchValidatorsSignatures } from '@/src/hooks/subgraph/useValidators'
+import { useFetchValidatorsSignatures } from '@/src/hooks/useValidators'
 import { ChevronDown } from '@/src/components/assets/ChevronDown'
 import { Dropdown as BaseDropdown, DropdownItem, DropdownPosition } from '@/src/components/dropdown'
 import { genericSuspense } from '@/src/components/safeSuspense'

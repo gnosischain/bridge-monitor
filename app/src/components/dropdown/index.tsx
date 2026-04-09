@@ -89,8 +89,11 @@ const Items = styled.div<ItemProps>`
   background: ${({ theme: { dropdown } }) => dropdown.background};
   border-radius: ${({ theme: { dropdown } }) => dropdown.borderRadius};
   border: 1px solid ${({ theme: { dropdown } }) => dropdown.borderColor};
-  box-shadow: 0 63px 80px rgba(0, 0, 0, 0.07), 0 31.8937px 34.875px rgba(0, 0, 0, 0.04725),
-    0 12.6px 13px rgba(0, 0, 0, 0.035), 0 2.75625px 4.625px rgba(0, 0, 0, 0.02275);
+  box-shadow:
+    0 63px 80px rgba(0, 0, 0, 0.07),
+    0 31.8937px 34.875px rgba(0, 0, 0, 0.04725),
+    0 12.6px 13px rgba(0, 0, 0, 0.035),
+    0 2.75625px 4.625px rgba(0, 0, 0, 0.02275);
   display: ${(props) => (props.$isOpen ? 'block' : 'none')};
   min-width: 150px;
   max-height: 260px;
@@ -239,7 +242,7 @@ export const Dropdown: React.FC<Props> = (props) => {
   const node = createRef<HTMLDivElement>()
 
   const onButtonClick = useCallback(
-    (e) => {
+    (e: React.MouseEvent) => {
       e.stopPropagation()
 
       if (disabled) {

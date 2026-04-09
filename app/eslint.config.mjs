@@ -3,7 +3,6 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 import prettierRecommended from 'eslint-plugin-prettier/recommended'
 import reactHooks from 'eslint-plugin-react-hooks'
-import sortDestructureKeys from 'eslint-plugin-sort-destructure-keys'
 import jsxA11y from 'eslint-plugin-jsx-a11y'
 
 import nextPlugin from '@next/eslint-plugin-next'
@@ -62,7 +61,6 @@ export default [
     },
     plugins: {
       'react-hooks': reactHooks,
-      'sort-destructure-keys': sortDestructureKeys,
       '@next/next': nextPlugin,
       import: importPlugin,
     },
@@ -83,7 +81,6 @@ export default [
       'react/prop-types': 'off',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'error',
-      'sort-destructure-keys/sort-destructure-keys': 2,
       'sort-imports': ['error', { ignoreDeclarationSort: true }],
       '@typescript-eslint/no-use-before-define': [
         'error',
