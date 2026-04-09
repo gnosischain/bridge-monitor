@@ -13,8 +13,8 @@ The alerts that will be sent are:
 
 ```shell
 cp .env.example .env
-yarn install && yarn typechain & yarn subgraph & yarn build
-yarn dev # or yarn start
+pnpm install && pnpm typechain && pnpm build
+pnpm dev # or pnpm start
 ```
 
 # Run docker
@@ -45,10 +45,10 @@ Remember to configure Slack App:
 
 - Setup Env Variables
   - cp .env.example .env
-- Install npm dependencies
-  - yarn install
+- Install dependencies
+  - pnpm install
 - Run script
-  - yarn dev
+  - pnpm dev
 
 ### References
 
