@@ -10,5 +10,10 @@
 # custom logs
 /logs
 
+# alert state data
+/data
+
 #types
 src/types/
+
+/dist
