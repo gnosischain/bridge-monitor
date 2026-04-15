@@ -16,6 +16,11 @@ import { Header } from '@/src/components/header'
 import { Footer } from '@/src/components/footer'
 
 import dynamic from 'next/dynamic'
+import { WagmiProvider } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { wagmiConfig } from '@/src/providers/wagmi'
+
+const queryClient = new QueryClient()
 
 const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3ConnectionProvider'), {
   ssr: false,
@@ -93,27 +98,30 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     <>
       <GoogleAnalytics />
       <Head />
-      <SWRConfig
-        value={{
-          suspense: true,
-          revalidateOnFocus: false,
-        }}
-      >
-        <Web3ConnectionProvider>
-          <ThemeProvider>
-            <SafeSuspense>
-              <Header />
-              {/* <SafeSuspense> */}
-              <TransactionNotificationProvider>
-                {getLayout(<Component {...pageProps} />)}
-                <Toast />
-              </TransactionNotificationProvider>
-            </SafeSuspense>
-            <TooltipConfig />
-            <Footer />
-          </ThemeProvider>
-        </Web3ConnectionProvider>
-      </SWRConfig>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <SWRConfig
+            value={{
+              suspense: true,
+              revalidateOnFocus: false,
+            }}
+          >
+            <ThemeProvider>
+              <Web3ConnectionProvider>
+                <SafeSuspense>
+                  <Header />
+                  <TransactionNotificationProvider>
+                    {getLayout(<Component {...pageProps} />)}
+                    <Toast />
+                  </TransactionNotificationProvider>
+                </SafeSuspense>
+                <TooltipConfig />
+                <Footer />
+              </Web3ConnectionProvider>
+            </ThemeProvider>
+          </SWRConfig>
+        </QueryClientProvider>
+      </WagmiProvider>
     </>
   )
 }

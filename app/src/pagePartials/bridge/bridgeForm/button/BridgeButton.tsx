@@ -94,7 +94,7 @@ export const BridgeButton: React.FC<BridgeButtonProps> = ({
 
   if (hasToSwitchNetwork) {
     return (
-      <Button onClick={() => pushNetwork({ chainId: appChainConfig.chainIdHex })}>
+      <Button onClick={() => pushNetwork(appChainConfig.chainId)}>
         {`Switch to ${appChainConfig.name}`}
       </Button>
     )

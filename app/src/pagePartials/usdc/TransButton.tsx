@@ -267,7 +267,7 @@ export const TransButton: React.FC<{
 
   if (hasToSwitchNetwork) {
     return (
-      <Button onClick={() => pushNetwork({ chainId: appChainConfig.chainIdHex })}>
+      <Button onClick={() => pushNetwork(appChainConfig.chainId)}>
         {`Switch to ${appChainConfig.name}`}
       </Button>
     )

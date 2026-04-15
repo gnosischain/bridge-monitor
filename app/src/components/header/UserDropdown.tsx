@@ -243,7 +243,7 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
     disconnectWallet,
     getExplorerUrl,
     isWalletNetworkSupported,
-    wallet,
+    walletLabel,
     walletChainId,
   } = useWeb3Connection()
   const currentNetwork = useMemo(() => chainsConfig[walletChainId as ChainsValues], [walletChainId])
@@ -278,7 +278,7 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
         dropdownPosition={DropdownPosition.right}
         items={[
           <Item $closeOnClick={false} $flexDirection="column" key="userDropdown_item_0">
-            <Title>Connected with {wallet?.label}</Title>
+            <Title>Connected with {walletLabel}</Title>
             {address && (
               <WalletAddress
                 address={address}
