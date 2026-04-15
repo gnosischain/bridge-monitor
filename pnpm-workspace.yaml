@@ -1,5 +1,6 @@
 packages:
   - "app"
+  - "alerts"
   - "envio-indexer"
   - "envio-indexer/generated"
   - "subgraph"
