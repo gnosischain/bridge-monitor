@@ -11,7 +11,8 @@
     "indexer:build": "pnpm --filter envio-indexer build",
     "indexer:codegen": "pnpm --filter envio-indexer codegen",
     "indexer:start": "pnpm --filter envio-indexer start",
-    "indexer:stop": "pnpm --filter envio-indexer stop"
+    "indexer:stop": "pnpm --filter envio-indexer stop",
+    "audit": "pnpm audit --audit-level=high"
   },
   "license": "MIT",
   "private": true,
@@ -39,9 +40,10 @@
       "serialize-javascript": "7.0.3",
       "body-parser": "1.20.3",
       "path-to-regexp": "0.1.13",
-    "defu": "6.1.7",
-    "lodash": "4.18.1",
-      "picomatch": "4.0.4"
+      "defu": "6.1.7",
+      "lodash": "4.18.1",
+      "picomatch": "4.0.4",
+      "axios": "1.15.0"
     }
   }
 }

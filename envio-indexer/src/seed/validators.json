@@ -49,16 +49,16 @@
     "removed": false
   },
   {
-    "address": "0x587c0d02b40822f15f05301d87c16f6a08aaddde",
+    "address": "0xAeE7C90Ef0fC461ec63c4d451B12c340642bc656",
     "bridgeType": "XDAI",
-    "id": "0x587c0d02b40822f15f05301d87c16f6a08aaddde-XDAI",
+    "id": "0xAeE7C90Ef0fC461ec63c4d451B12c340642bc656-XDAI",
     "name": "Cow Protocol",
     "removed": false
   },
   {
-    "address": "0x674c97db4ce6cac04a124d745979f3e4cba0e9f0",
+    "address": "0xCC46a3873BfCaa08a6a946a308bB621535D6E6Dd",
     "bridgeType": "AMB",
-    "id": "0x674c97db4ce6cac04a124d745979f3e4cba0e9f0-AMB",
+    "id": "0xCC46a3873BfCaa08a6a946a308bB621535D6E6Dd-AMB",
     "name": "Cow Protocol",
     "removed": false
   },
