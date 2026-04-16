@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { gnosis } from 'viem/chains'
 import { Connector, useConnect, useConnectors } from 'wagmi'
 import styled from 'styled-components'
@@ -148,15 +147,6 @@ const InfoBadge = styled.span`
   margin-left: 2px;
 `
 
-const LoadingContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 32px;
-  gap: 8px;
-  color: ${({ theme }) => theme.colors.textColor};
-`
-
 const DefaultIcon = styled.div`
   width: 28px;
   height: 28px;
@@ -171,14 +161,8 @@ const DefaultIcon = styled.div`
 `
 
 export function SelectWallet() {
-  const [isMounted, setIsMounted] = useState(false)
   const { mutate: connect } = useConnect()
   const connectors = useConnectors()
-  console.log('Available connectors:', connectors)
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
 
   const uniqueConnectors = connectors.reduce<Connector[]>((acc, connector) => {
     const names = acc.map((c) => c.name)
@@ -193,26 +177,6 @@ export function SelectWallet() {
   const availableConnectors = uniqueConnectors.filter((connector) =>
     acceptedConnectors.includes(connector.name.toLowerCase()),
   )
-
-  if (!isMounted) {
-    return (
-      <Container>
-        <Sidebar>
-          <SidebarTitle>Connect your wallet</SidebarTitle>
-          <SidebarDescription>
-            Connecting your wallet is like "logging in" to Web3. Select your wallet from the options
-            to get started.
-          </SidebarDescription>
-        </Sidebar>
-        <Content>
-          <Title>Available Wallets</Title>
-          <LoadingContainer>
-            <span>Loading wallets...</span>
-          </LoadingContainer>
-        </Content>
-      </Container>
-    )
-  }
 
   return (
     <Container>
@@ -246,6 +210,13 @@ export function SelectWallet() {
               <IconWrapper>
                 {connector.icon ? (
                   <Image alt={connector.name} height={28} src={connector.icon} width={28} />
+                ) : connector.name === 'WalletConnect' ? (
+                  <Image
+                    alt={connector.name}
+                    height={28}
+                    src="/images/icons/wallet-connect.svg"
+                    width={28}
+                  />
                 ) : (
                   <DefaultIcon>{connector.name.charAt(0).toUpperCase()}</DefaultIcon>
                 )}
