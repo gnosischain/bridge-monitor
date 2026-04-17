@@ -14,7 +14,8 @@ import {
 import { JsonRpcBatchProvider, JsonRpcProvider } from '@ethersproject/providers'
 import type { providers } from 'ethers'
 import nullthrows from 'nullthrows'
-import { useCapabilities, useConnection, useConnectorClient, useSwitchChain } from 'wagmi'
+import { useConnection, useConnectorClient, usePublicClient, useSwitchChain } from 'wagmi'
+import { useQuery } from '@tanstack/react-query'
 
 import { INITIAL_APP_CHAIN_ID, chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
 import { Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
@@ -40,13 +41,12 @@ export type Web3Context = {
   isAppConnected: boolean
   isWalletConnected: boolean
   isWalletNetworkSupported: boolean
+  isSCWallet: boolean | undefined
   pushNetwork: (chainId: number) => Promise<boolean>
   setAppChainId: Dispatch<SetStateAction<ChainsValues>>
   walletChainId: number | null
   walletLabel: string | null
   isOnboardChangingChain: boolean
-  canBatch: boolean
-  isSCWallet: boolean
   readOnlyAppProvider: JsonRpcProvider
   readOnlyAppBatchProvider: JsonRpcBatchProvider
   web3Provider: providers.Web3Provider | null
@@ -62,10 +62,19 @@ export default function Web3ConnectionProvider({ children }: Props) {
   const { address: wagmiAddress, chainId, connector, isConnected, isConnecting } = useConnection()
   const { data: connectorClient } = useConnectorClient()
   const { isPending: isSwitchingChain, mutateAsync: switchChainAsync } = useSwitchChain()
-  const capabilities = useCapabilities({ account: wagmiAddress })
 
   const [appChainId, setAppChainId] = useState(INITIAL_APP_CHAIN_ID)
   const [showWalletModal, setShowWalletModal] = useState(false)
+
+  const publicClient = usePublicClient({ chainId: appChainId })
+  const { data: isSCWallet } = useQuery({
+    queryKey: ['isSCWallet', wagmiAddress],
+    queryFn: async () => {
+      const code = await publicClient!.getCode({ address: wagmiAddress! })
+      return !!code && code !== '0x'
+    },
+    enabled: !!wagmiAddress && !!publicClient,
+  })
 
   const address = wagmiAddress ?? null
   const walletChainId = chainId ?? null
@@ -151,11 +160,6 @@ export default function Web3ConnectionProvider({ children }: Props) {
     [appChainId],
   )
 
-  const canBatch =
-    capabilities?.data?.[chainId ?? 0]?.atomic?.status === 'supported' ||
-    capabilities?.data?.[chainId ?? 0]?.atomic?.status === 'ready'
-  const isSCWallet = canBatch
-
   const value: Web3Context = {
     address,
     appChainId,
@@ -165,14 +169,13 @@ export default function Web3ConnectionProvider({ children }: Props) {
     getExplorerUrl,
     isAppConnected,
     isOnboardChangingChain: isSwitchingChain,
+    isSCWallet,
     isWalletConnected,
     isWalletNetworkSupported,
     pushNetwork,
     setAppChainId,
     walletChainId,
     walletLabel: connector?.name ?? null,
-    canBatch,
-    isSCWallet,
     readOnlyAppProvider,
     readOnlyAppBatchProvider,
     web3Provider,

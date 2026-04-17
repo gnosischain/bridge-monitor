@@ -1,6 +1,5 @@
 import { BigNumber } from 'ethers'
 import { Token } from '@/types/token'
-import useSWR from 'swr'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 import { useTokenMode } from '@/src/hooks/bridge/useTokenMode'
@@ -32,14 +31,7 @@ export const useBridgeValidations = ({
   toToken: Token | undefined
   recipient?: string
 }) => {
-  const { readOnlyAppProvider } = useWeb3Connection()
-
-  const isSCWallet = useSWR(
-    userAddress && readOnlyAppProvider
-      ? [`isSCWallet-${userAddress}`, userAddress, readOnlyAppProvider]
-      : null,
-    ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
-  )
+  const { isSCWallet } = useWeb3Connection()
   const { data: bridgeLimits, isLoading } = useBridgeLimits(
     fromChainId,
     toChainId,
@@ -98,7 +90,7 @@ export const useBridgeValidations = ({
       }
 
       // is the wallet is a smart contract wallet, we need to request a recipient
-      if (isSCWallet !== undefined && isSCWallet.data && !recipient) {
+      if (isSCWallet && !recipient) {
         throw Error('Please specify a recipient address')
       }
       if (!isValidAmount) {
@@ -161,7 +153,6 @@ export const useBridgeValidations = ({
   const isValidToSend = !errorMessage && isValidAmount && isValidToken && !isCustomERC20Home
 
   return {
-    isSCWallet: isSCWallet?.data,
     errorMessage,
     shouldApprove: tokenMode !== 'ERC677' && userBalanceData.allowance && amount && approvalNeeded,
     isValidToSend,

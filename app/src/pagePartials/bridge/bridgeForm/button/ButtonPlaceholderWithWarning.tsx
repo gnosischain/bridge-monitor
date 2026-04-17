@@ -1,5 +1,4 @@
 import React from 'react'
-import useSWR from 'swr'
 import styled from 'styled-components'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { ButtonPlaceholder } from './ButtonPlaceholder'
@@ -24,11 +23,7 @@ interface ButtonPlaceholderWithWarningProps {
 export const ButtonPlaceholderWithWarning: React.FC<ButtonPlaceholderWithWarningProps> = ({
   action,
 }) => {
-  const { address, readOnlyAppProvider } = useWeb3Connection()
-  const isSCWallet = useSWR(
-    address && readOnlyAppProvider ? [`isSCWallet-${address}`, address, readOnlyAppProvider] : null,
-    ([, addr, provider]) => provider.getCode(addr).then((code) => code !== '0x'),
-  ).data
+  const { address, isSCWallet } = useWeb3Connection()
   const myTxsLink = `/bridge-explorer/my-transactions?hash=${address}`
 
   return (

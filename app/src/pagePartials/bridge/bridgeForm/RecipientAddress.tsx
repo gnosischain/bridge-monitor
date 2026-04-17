@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react'
 import { SendToDifferentWallet } from '@/src/pagePartials/bridge/bridgeForm/SendToDifferentWallet'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import useSWR from 'swr'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 
 const Wrapper = styled.div`
@@ -70,13 +69,7 @@ export const RecipientAddress: React.FC<{
 }> = genericSuspense(
   ({ onChange, recipient }) => {
     const [isLoading, setIsLoading] = useState(true)
-    const { address, readOnlyAppProvider } = useWeb3Connection()
-    const isSCWallet = useSWR(
-      address && readOnlyAppProvider
-        ? [`isSCWallet-${address}`, address, readOnlyAppProvider]
-        : null,
-      ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
-    ).data
+    const { isSCWallet } = useWeb3Connection()
 
     const [isDifferentWalletOpen, setIsDifferentWalletOpen] = useState(isSCWallet || false)
 
