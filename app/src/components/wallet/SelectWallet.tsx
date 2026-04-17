@@ -1,6 +1,5 @@
 'use client'
 
-import { gnosis } from 'viem/chains'
 import { Connector, useConnect, useConnectors } from 'wagmi'
 import styled from 'styled-components'
 import Image from 'next/image'
@@ -172,10 +171,8 @@ export function SelectWallet() {
     return acc
   }, [])
 
-  const acceptedConnectors = ['metamask', 'rabby wallet', 'walletconnect']
-
-  const availableConnectors = uniqueConnectors.filter((connector) =>
-    acceptedConnectors.includes(connector.name.toLowerCase()),
+  const availableConnectors = uniqueConnectors.filter(
+    (connector) => connector.id !== 'safe' && connector.id !== 'injected',
   )
 
   return (
@@ -203,7 +200,6 @@ export function SelectWallet() {
               onClick={() =>
                 connect({
                   connector: connector,
-                  chainId: gnosis.id,
                 })
               }
             >
