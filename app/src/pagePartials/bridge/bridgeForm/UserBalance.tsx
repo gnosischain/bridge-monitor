@@ -1,5 +1,4 @@
 import { ChainsValues } from '@/src/constants/config/types'
-import { ZERO_BN } from '@/src/constants/misc'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { MaxButton } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
 import { fromBN } from '@/src/utils/bigNumber'
@@ -55,7 +54,7 @@ const Balance: React.FC<{
       tokenAddress: $token.address,
     })
 
-    const balance = data?.balance || ZERO_BN
+    const balance = data?.balance || 0n
     const value = formatNumber(Number(fromBN(balance, $token?.decimals)))
 
     return (

@@ -1,11 +1,11 @@
 import useSWR from 'swr'
-import { MAX_UINT_256, ZERO_BN } from '@/src/constants/misc'
 import { ERC20__factory } from '@/types/typechain'
 import { ChainsValues } from '@/src/constants/config/types'
 import { getNetworkConfig } from '@/src/constants/config/chains'
 import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { isNativeToken } from '@/src/utils/tools'
-import { BigNumber } from 'ethers'
+import { bnToBigInt } from '@/src/utils/bigNumber'
+import { MAX_UINT_256 } from '@/src/constants/misc'
 
 export const useUserTokenBalances = ({
   allowanceAddress,
@@ -33,30 +33,30 @@ export const useUserTokenBalances = ({
 
           if (_allowanceAddress) {
             const [balance, allowance] = await Promise.all([
-              erc20.balanceOf(_address),
-              erc20.allowance(_address, _allowanceAddress),
+              erc20.balanceOf(_address).then(bnToBigInt),
+              erc20.allowance(_address, _allowanceAddress).then(bnToBigInt),
             ])
             return {
               balance,
               allowance,
             }
           } else {
-            const balance = await erc20.balanceOf(_address)
+            const balance = await erc20.balanceOf(_address).then(bnToBigInt)
             return {
               balance,
               allowance: MAX_UINT_256,
             }
           }
         } else {
-          const gasPrice = await fromRpcProvider.getGasPrice()
-          const conservativeGasLimit = BigNumber.from('21000') // Adjust based on expected transaction complexity
+          const gasPrice = await fromRpcProvider.getGasPrice().then(bnToBigInt)
+          const conservativeGasLimit = 21000n // Adjust based on expected transaction complexity
 
-          const nativeBalance = await fromRpcProvider.getBalance(_address)
+          const nativeBalance = await fromRpcProvider.getBalance(_address).then(bnToBigInt)
           // Calculate the max sendable amount by subtracting the gas cost buffer from the balance
-          const maxSendableAmount = nativeBalance.sub(conservativeGasLimit.mul(gasPrice))
+          const maxSendableAmount = nativeBalance - conservativeGasLimit * gasPrice
 
           return {
-            balance: maxSendableAmount.gt(ZERO_BN) ? maxSendableAmount : ZERO_BN,
+            balance: maxSendableAmount > 0n ? maxSendableAmount : 0n,
             allowance: MAX_UINT_256,
           }
         }
@@ -69,7 +69,7 @@ export const useUserTokenBalances = ({
           userAddress,
         })
         return {
-          balance: ZERO_BN,
+          balance: 0n,
           allowance: MAX_UINT_256,
         }
       }

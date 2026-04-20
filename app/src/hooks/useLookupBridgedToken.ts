@@ -1,6 +1,5 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { TokenInfo as UniswapToken } from '@/types/token'
-import { BigNumber, BigNumberish, FixedNumber, constants } from 'ethers'
 import memoize from 'lodash/memoize'
 import { useEffect, useMemo, useState } from 'react'
 
@@ -11,6 +10,7 @@ import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { formatNumber } from '@/src/utils/format'
 import { isSameString } from '@/src/utils/tools'
 import { ERC20__factory } from '@/types/typechain'
+import { formatUnits, zeroAddress } from 'viem'
 
 const lookupToken = memoize(
   async (tokenAddress: string, isMainnetToken: boolean, tokenList: Array<UniswapToken>) => {
@@ -70,7 +70,7 @@ export const useLookupBridgedToken = ({
   bridgeName: string
   initiatorNetwork: string
   tokenAddress: string
-  tokenValue: BigNumberish
+  tokenValue: bigint
 }) => {
   const { gnosisXdaiToken, mainnetDaiToken } = useDaiToken()
   const { tokenList, tokensByAddress } = useBridgedTokens()
@@ -79,7 +79,7 @@ export const useLookupBridgedToken = ({
   tokenAddress = tokenAddress?.toLowerCase()
   const isXdaiBridge = (bridgeName ?? '').toUpperCase() === 'XDAI'
   const isNativeAddress =
-    tokenAddress === constants.AddressZero || isSameString(tokenAddress, NATIVE_TOKEN_ADDRESS)
+    tokenAddress === zeroAddress || isSameString(tokenAddress, NATIVE_TOKEN_ADDRESS)
   const isNativeInXdaiBridge = isXdaiBridge && isNativeAddress
   const [token, setToken] = useState<UniswapToken | undefined>()
   const xDaiBridgedToken = isNativeInXdaiBridge ? mainnetDaiToken : gnosisXdaiToken
@@ -136,11 +136,7 @@ export const useLookupBridgedToken = ({
 
   const value = useMemo(
     () =>
-      token && tokenValue
-        ? formatNumber(
-            +FixedNumber.fromValue(BigNumber.from(tokenValue), token.decimals).round(4).toString(),
-          )
-        : '',
+      token && tokenValue ? formatNumber(parseFloat(formatUnits(tokenValue, token.decimals))) : '',
     [token, tokenValue],
   )
   const initiatorToken = useMemo(() => token ?? defaultToken, [defaultToken, token])

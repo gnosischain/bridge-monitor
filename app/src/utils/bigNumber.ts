@@ -36,6 +36,10 @@ const sanitizeAmount = (amount: string, decimals: number) => {
   return `${parts[0]}.${decimalPart}`
 }
 
+// TODO(wagmi-migration): remove once all typechain contract calls are replaced with
+// viem readContract, which returns bigint natively. Usage: `.then(bnToBigInt)`
+export const bnToBigInt = (value: { toBigInt(): bigint }): bigint => value.toBigInt()
+
 export const toBN = (amount: string, decimals: number) => {
   // Default to 0 if amount is only a decimal point or is falsy
   if (amount === '.' || !amount) {

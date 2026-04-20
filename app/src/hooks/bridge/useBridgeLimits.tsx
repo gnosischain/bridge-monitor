@@ -10,11 +10,11 @@ import {
 import useSWR from 'swr'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
-import { ZERO_ADDRESS, ZERO_BN } from '@/src/constants/misc'
 import { isSameString } from '@/src/utils/tools'
 import { Token } from '@/types/token'
-import { BigNumber } from 'ethers'
 import { TokenOverrideManager } from '@/src/utils/token-overrides'
+import { zeroAddress } from 'viem'
+import { bnToBigInt } from '@/src/utils/bigNumber'
 
 /**
  * Retrieves the default token limits for a bridge transaction.
@@ -42,48 +42,48 @@ const getDefaultTokenLimits = async (
     ]
 
     let [minPerTx, maxPerTx, dailyLimit] = await Promise.all([
-      fromMediatorContract.minPerTx(ZERO_ADDRESS),
-      toMediatorContract.executionMaxPerTx(ZERO_ADDRESS),
-      fromMediatorContract.executionDailyLimit(ZERO_ADDRESS),
+      fromMediatorContract.minPerTx(zeroAddress).then(bnToBigInt),
+      toMediatorContract.executionMaxPerTx(zeroAddress).then(bnToBigInt),
+      fromMediatorContract.executionDailyLimit(zeroAddress).then(bnToBigInt),
     ])
 
     if (decimals < 18) {
-      const factor = BigNumber.from(10).pow(18 - decimals)
+      const factor = 10n ** (18n - BigInt(decimals))
 
-      minPerTx = minPerTx.div(factor)
-      maxPerTx = maxPerTx.div(factor)
-      dailyLimit = dailyLimit.div(factor)
+      minPerTx = minPerTx / factor
+      maxPerTx = maxPerTx / factor
+      dailyLimit = dailyLimit / factor
 
-      if (minPerTx.eq(0)) {
-        minPerTx = BigNumber.from(1)
-        if (maxPerTx.lte(minPerTx)) {
-          maxPerTx = BigNumber.from(100)
-          if (dailyLimit.lte(maxPerTx)) {
-            dailyLimit = BigNumber.from(10000)
+      if (minPerTx === 0n) {
+        minPerTx = 1n
+        if (maxPerTx <= minPerTx) {
+          maxPerTx = 100n
+          if (dailyLimit <= maxPerTx) {
+            dailyLimit = 10000n
           }
         }
       }
     } else {
-      const factor = BigNumber.from(10).pow(decimals - 18)
+      const factor = 10n ** (BigInt(decimals) - 18n)
 
-      minPerTx = minPerTx.mul(factor)
-      maxPerTx = maxPerTx.mul(factor)
-      dailyLimit = dailyLimit.mul(factor)
+      minPerTx = minPerTx * factor
+      maxPerTx = maxPerTx * factor
+      dailyLimit = dailyLimit * factor
     }
 
     return {
       minPerTx,
       maxPerTx,
       dailyLimit,
-      totalSpentPerDay: ZERO_BN,
+      totalSpentPerDay: 0n,
     }
   } catch (error) {
     console.log(error)
     return {
-      minPerTx: BigNumber.from(0),
-      maxPerTx: BigNumber.from(0),
-      dailyLimit: BigNumber.from(0),
-      totalSpentPerDay: ZERO_BN,
+      minPerTx: 0n,
+      maxPerTx: 0n,
+      dailyLimit: 0n,
+      totalSpentPerDay: 0n,
     }
   }
 }
@@ -97,20 +97,20 @@ const getBridgeLimits = async (
   if (tokenAddress) {
     contract = contract as HomeOmniMediator
     const [dailyLimit, minPerTx, maxPerTx, totalSpentPerDay] = await Promise.all([
-      contract.dailyLimit(tokenAddress),
-      contract.minPerTx(tokenAddress),
-      contract.maxPerTx(tokenAddress),
-      contract.totalSpentPerDay(tokenAddress, currentDay),
+      contract.dailyLimit(tokenAddress).then(bnToBigInt),
+      contract.minPerTx(tokenAddress).then(bnToBigInt),
+      contract.maxPerTx(tokenAddress).then(bnToBigInt),
+      contract.totalSpentPerDay(tokenAddress, currentDay).then(bnToBigInt),
     ])
 
     return { dailyLimit, minPerTx, maxPerTx, totalSpentPerDay }
   } else {
     contract = contract as HomeBridgeErcToNative
     const [dailyLimit, minPerTx, maxPerTx, totalSpentPerDay] = await Promise.all([
-      contract.dailyLimit(),
-      contract.minPerTx(),
-      contract.maxPerTx(),
-      contract.totalSpentPerDay(currentDay),
+      contract.dailyLimit().then(bnToBigInt),
+      contract.minPerTx().then(bnToBigInt),
+      contract.maxPerTx().then(bnToBigInt),
+      contract.totalSpentPerDay(currentDay).then(bnToBigInt),
     ])
 
     return { dailyLimit, minPerTx, maxPerTx, totalSpentPerDay }
@@ -127,10 +127,10 @@ const useBridgeLimits = (
   // For Mainnet ETH, the address comes as 0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
   // and we need to use 0x.
   const fromTokenAddress =
-    fromToken?.address == NATIVE_TOKEN_ADDRESS.toLowerCase() ? ZERO_ADDRESS : fromToken?.address
+    fromToken?.address == NATIVE_TOKEN_ADDRESS.toLowerCase() ? zeroAddress : fromToken?.address
 
   const toTokenAddress =
-    toToken?.address == NATIVE_TOKEN_ADDRESS.toLowerCase() ? ZERO_ADDRESS : toToken?.address
+    toToken?.address == NATIVE_TOKEN_ADDRESS.toLowerCase() ? zeroAddress : toToken?.address
 
   return useSWR(
     fromChainId && fromTokenAddress
@@ -150,7 +150,7 @@ const useBridgeLimits = (
         _fromChainId,
       )
       const isGnosisXDai =
-        _fromChainId == Chains.gnosis && isSameString(_fromTokenAddress, ZERO_ADDRESS)
+        _fromChainId == Chains.gnosis && isSameString(_fromTokenAddress, zeroAddress)
       const isForeignDAI =
         _fromChainId != Chains.gnosis &&
         isSameString(_fromTokenAddress, chainsConfig[_fromChainId].bridge.DAI)
