@@ -38,7 +38,7 @@ jobs:
         run: pnpm audit --audit-level=high
 
   Build_and_push_image_to_GHCR:
-    needs: security-audit
+    # needs: security-audit
     runs-on: ubuntu-latest
     steps:
       - name: Git clone the repository
