@@ -22,12 +22,13 @@ const Wrapper = styled.div`
 
 const Card = styled(BaseCard)<{ size?: modalSize }>`
   background-color: ${({ theme: { colors } }) => colors.creamLight};
-  border-color: ${({ theme: { colors } }) => colors.creamLight};
+  border: 0;
   display: flex;
   flex-direction: column;
   margin: auto;
   max-width: 100%;
-  padding: 30px 25px;
+  padding: 0;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   position: relative;
   width: ${({ size }) =>
     size === 'sm' ? '325px' : size === 'md' ? '500px' : size === 'lg' ? '720px' : `${size}`};

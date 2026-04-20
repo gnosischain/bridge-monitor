@@ -1,5 +1,4 @@
 import { createGlobalStyle } from 'styled-components'
-import { onBoardCSS } from '@/src/theme/onBoard'
 import { datePickerCSS } from '@/src/theme/datePicker'
 import { tooltipCSS } from '@/src/theme/tooltip'
 
@@ -111,7 +110,6 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
     font-family: ${({ theme: { fonts } }) => fonts.familyCode};
   }
 
-  ${onBoardCSS}
   ${datePickerCSS}
   ${tooltipCSS}
 `

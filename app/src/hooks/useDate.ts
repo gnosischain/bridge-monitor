@@ -63,7 +63,7 @@ export const useDate = (date: Date) => {
       updateTime()
     }, INTERVAL_TIME)
     return () => clearInterval(intervals)
-  })
+  }, [updateTime])
 
   const getSuffix = useMemo(() => (duration?.interval === 1 ? '' : 's'), [duration])
   const getSuffixRemaining = useMemo(() => (remaining?.interval === 1 ? '' : 's'), [remaining])

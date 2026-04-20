@@ -15,7 +15,6 @@ import { TokenUsdc } from './types'
 import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { useTransmuterTxInfo } from '@/src/hooks/usdcTransmuter/useTransmuterTxInfo'
 import { usdcTokens } from '@/src/constants/usdcTokens'
-import useSWR from 'swr'
 
 const Button = styled(ButtonFull)`
   margin: 0 auto;
@@ -40,11 +39,7 @@ export const ButtonPlaceholder: React.FC = () => <Button disabled>Loading...</Bu
 export const ButtonPlaceholderWithWarning: React.FC<{
   action: string
 }> = ({ action }) => {
-  const { address, readOnlyAppProvider } = useWeb3Connection()
-  const isSCWallet = useSWR(
-    address && readOnlyAppProvider ? [`isSCWallet-${address}`, address, readOnlyAppProvider] : null,
-    ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
-  ).data
+  const { isSCWallet } = useWeb3Connection()
 
   return (
     <>
@@ -267,7 +262,7 @@ export const TransButton: React.FC<{
 
   if (hasToSwitchNetwork) {
     return (
-      <Button onClick={() => pushNetwork({ chainId: appChainConfig.chainIdHex })}>
+      <Button onClick={() => pushNetwork(appChainConfig.chainId)}>
         {`Switch to ${appChainConfig.name}`}
       </Button>
     )
