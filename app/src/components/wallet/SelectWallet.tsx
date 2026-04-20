@@ -131,15 +131,15 @@ const WalletName = styled.span`
 `
 
 const InfoBadge = styled.span`
-  width: 20px;
-  height: 20px;
-  background: #f5a623;
+  width: 14px;
+  height: 15px;
+  background: ${({ theme }) => theme.colors.textColor};
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.2rem;
+  font-size: 0.8rem;
   font-weight: 600;
   margin-left: 2px;
 `
