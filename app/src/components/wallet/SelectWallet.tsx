@@ -1,5 +1,3 @@
-'use client'
-
 import { Connector, useConnect, useConnectors } from 'wagmi'
 import styled from 'styled-components'
 import Image from 'next/image'
