@@ -28,14 +28,6 @@ export const toNumber = (decimals: number) => (value?: BigNumberish) =>
  */
 export const fromWei = toNumber(18)
 
-const sanitizeAmount = (amount: string, decimals: number) => {
-  if (!amount.includes('.')) return amount
-
-  const parts = amount.split('.')
-  const decimalPart = parts[1].slice(0, decimals) // Keep only allowed decimal places
-  return `${parts[0]}.${decimalPart}`
-}
-
 // TODO(wagmi-migration): remove once all typechain contract calls are replaced with
 // viem readContract, which returns bigint natively. Usage: `.then(bnToBigInt)`
 export const bnToBigInt = (value: { toBigInt(): bigint }): bigint => value.toBigInt()

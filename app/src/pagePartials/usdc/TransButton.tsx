@@ -7,7 +7,6 @@ import { getNetworkConfig } from '@/src/constants/config/chains'
 import { useEffect, useState } from 'react'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
 import useTransaction from '@/src/hooks/useTransaction'
-import { BigNumber } from 'ethers'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import useWeb3Name from '@/src/hooks/useWeb3Name'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
@@ -63,7 +62,7 @@ export const DisabledTransButton = () => (
 const ApproveButton: React.FC<{
   userAddress: string
   token: TokenUsdc
-  amount: BigNumber
+  amount: bigint
 }> = ({ amount, token, userAddress }) => {
   const [isSending, setIsSending] = useState(false)
   const [isComponentMounted, setIsComponentMounted] = useState(true)
@@ -123,7 +122,7 @@ const ApproveButton: React.FC<{
 }
 
 const TriggerTransButton: React.FC<{
-  amount: BigNumber
+  amount: bigint
   token: TokenUsdc
   userAddress: string
   clearForm: () => void
@@ -201,7 +200,7 @@ const TriggerTransButton: React.FC<{
 }
 
 export const TransButton: React.FC<{
-  amount: BigNumber
+  amount: bigint
   fromToken: TokenUsdc
   userAddress: string
   clearForm: () => void
@@ -232,8 +231,8 @@ export const TransButton: React.FC<{
 
   if (!userBalanceData) throw new Error('User balance data is not available')
 
-  const isValidToSend = amount.gt(0) && amount.lte(userBalanceData.balance)
-  const shouldApprove = amount.gt(userBalanceData.allowance) && amount.lte(userBalanceData.balance)
+  const isValidToSend = amount > 0n && amount <= userBalanceData.balance
+  const shouldApprove = amount > userBalanceData.allowance && amount <= userBalanceData.balance
 
   if (!isValidToSend) {
     return <DisabledTransButton />
