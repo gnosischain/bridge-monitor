@@ -5,8 +5,8 @@ import { DisabledBridgeButton } from './DisabledBridgeButton'
 import { BridgeButton } from './BridgeButton'
 import { ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
-import { ZERO_ADDRESS } from '@/src/constants/misc'
 import { ButtonPlaceholder } from './ButtonPlaceholder'
+import { zeroAddress } from 'viem'
 
 export interface UnifiedBridgeButtonProps {
   fromChainId: ChainsValues
@@ -41,7 +41,7 @@ export const UnifiedBridgeButton: React.FC<UnifiedBridgeButtonProps> = ({
   const isNotBridgedErc20 =
     toToken &&
     toToken.chainId === 1 &&
-    toToken.extensions?.bridgeInfo?.[1]?.tokenAddress === ZERO_ADDRESS
+    toToken.extensions?.bridgeInfo?.[1]?.tokenAddress === zeroAddress
 
   if (!fromToken || !userAddress || amount.eq(0) || sendToExternalBridge || isNotBridgedErc20) {
     return <DisabledBridgeButton />

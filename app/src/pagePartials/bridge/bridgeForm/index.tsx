@@ -21,7 +21,6 @@ import {
   USDC_ETHEREUM,
   USDCe_GNOSIS,
   WXDAI_GNOSIS,
-  ZERO_ADDRESS,
   sDAI_GNOSIS,
 } from '@/src/constants/misc'
 import { chainsConfig } from '@/src/constants/config/chains'
@@ -50,6 +49,7 @@ import { useSanitizedQuery } from '@/src/hooks/useSanitizedQuery'
 import { isBlockedToken } from '@/src/utils/blockedTokens'
 import { getChainKey } from '@/src/constants/config/chains'
 import { ShowTokenAddress } from './ShowTokenAddress'
+import { zeroAddress } from 'viem'
 
 const Title = styled.h2`
   align-items: center;
@@ -163,7 +163,7 @@ const Main = () => {
     }),
     {
       ...initialState,
-      account: address || ZERO_ADDRESS,
+      account: address || zeroAddress,
       ...sanitizedQuery,
     },
   )
@@ -213,7 +213,7 @@ const Main = () => {
 
     dispatch({
       ...initialState,
-      account: address || ZERO_ADDRESS,
+      account: address || zeroAddress,
       fromChainId: newFromChainId,
       toChainId: getToChainId(newFromChainId),
       token,
@@ -244,7 +244,7 @@ const Main = () => {
   })
 
   const isNotBridgedErc20 =
-    (tokenOut?.chainId === 1 && tokenOut.extensions.bridgeInfo[1]?.tokenAddress === ZERO_ADDRESS) ||
+    (tokenOut?.chainId === 1 && tokenOut.extensions.bridgeInfo[1]?.tokenAddress === zeroAddress) ||
     isBlockedToken(formState.token?.address || '')
       ? true
       : false

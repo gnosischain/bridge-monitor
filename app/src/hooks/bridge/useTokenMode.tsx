@@ -1,6 +1,6 @@
 import { chainsConfig } from '@/src/constants/config/chains'
 import { ChainsValues } from '@/src/constants/config/types'
-import { EURCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
+import { EURCe_GNOSIS } from '@/src/constants/misc'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { TokenOverrideManager } from '@/src/utils/token-overrides'
 import { Token } from '@/types/token'
@@ -9,6 +9,7 @@ import useSWR from 'swr/immutable'
 import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { contracts } from '@/src/constants/config/contracts'
 import { isSameString } from '@/src/utils/tools'
+import { zeroAddress } from 'viem'
 
 // This hook is used to determine what kind of token is being used in the bridge.
 // Depends on the result we can detect what method we should use to transfer the token to the bridge contract.
@@ -46,7 +47,7 @@ export const useTokenMode = (fromChainId: ChainsValues, toChainId: ChainsValues,
           return TokenOverrideManager.getOverride(_token.address).mode
         }
 
-        if (nativeTokenAddress !== ZERO_ADDRESS) {
+        if (nativeTokenAddress !== zeroAddress) {
           return 'ERC677'
         }
 

@@ -1,4 +1,4 @@
-import { TRANSMUTER_ADDRESS, USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
+import { TRANSMUTER_ADDRESS, USDCe_GNOSIS } from '@/src/constants/misc'
 import { useTransmuterTxInfo } from '@/src/hooks/usdcTransmuter/useTransmuterTxInfo'
 import useTransaction from '@/src/hooks/useTransaction'
 import { TokenUsdc } from '@/src/pagePartials/usdc/types'
@@ -12,6 +12,7 @@ import { Status } from './IconStatus'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { Token } from '@/types/token'
 import { Chains } from '@/src/constants/config/chains'
+import { zeroAddress } from 'viem'
 
 const Wrapper = styled.button`
   align-items: center;
@@ -70,7 +71,7 @@ export const Swap = ({
   const disabled = swapStatus !== 'now' && swapStatus !== 'pending'
 
   const { mutate: refreshBalanceToken } = useUserTokenBalances({
-    userAddress: userAddress || ZERO_ADDRESS,
+    userAddress: userAddress || zeroAddress,
     chainId: Chains.gnosis,
     allowanceAddress: TRANSMUTER_ADDRESS,
     tokenAddress: tokenIn.address,
@@ -79,7 +80,7 @@ export const Swap = ({
   const swapTxData = useTransmuterTxInfo({
     amount,
     token: { address: USDCe_GNOSIS } as TokenUsdc,
-    userAddress: address || ZERO_ADDRESS,
+    userAddress: address || zeroAddress,
     returnZero: disabled,
   })
 

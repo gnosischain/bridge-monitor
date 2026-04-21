@@ -182,7 +182,7 @@ export const useBridgeTokenOutInfo = ({
           receiveUsds: _receiveUsds,
         })
 
-        // if tokenOutInfo address is ZERO_ADDRESS is a new token on the other chain and we need to handle it
+        // if tokenOutInfo address is ZERO ADDRESS is a new token on the other chain and we need to handle it
         if (tokenOutInfo.tokenOutAddress === zeroAddress) {
           return {
             ...token,
