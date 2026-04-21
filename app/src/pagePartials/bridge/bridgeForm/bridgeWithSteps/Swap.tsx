@@ -3,7 +3,6 @@ import { useTransmuterTxInfo } from '@/src/hooks/usdcTransmuter/useTransmuterTxI
 import useTransaction from '@/src/hooks/useTransaction'
 import { TokenUsdc } from '@/src/pagePartials/usdc/types'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { BigNumber } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { Step, statuses, steps } from './const'
@@ -49,7 +48,7 @@ const Wrapper = styled.button`
 `
 
 type SwapProps = {
-  amount: BigNumber
+  amount: bigint
   userAddress: string
   tokenIn: Token
   setStatus: (status: Step[]) => void

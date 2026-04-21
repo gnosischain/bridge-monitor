@@ -1,6 +1,5 @@
 import { TRANSMUTER_ADDRESS, USDCe_GNOSIS } from '@/src/constants/misc'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
-import { BigNumber } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { Step, statuses, steps } from './const'
@@ -46,7 +45,7 @@ const Wrapper = styled.button`
 `
 
 type ApproveProps = {
-  amount: BigNumber
+  amount: bigint
   approveStatus: Step
   userAddress: string
   tokenIn: Token
@@ -74,7 +73,7 @@ export const Approve = ({
 
   if (!userBalanceData) throw new Error('User balance data is not available')
 
-  const shouldApprove = amount.gt(userBalanceData.allowance) && amount.lte(userBalanceData.balance)
+  const shouldApprove = amount > userBalanceData.allowance && amount <= userBalanceData.balance
 
   useEffect(() => {
     if (shouldApprove && approveStatus === 'now' && !showButton) {

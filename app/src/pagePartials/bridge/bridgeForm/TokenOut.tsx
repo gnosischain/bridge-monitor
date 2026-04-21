@@ -2,7 +2,6 @@ import styled from 'styled-components'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 import { Token } from '@/types/token'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
-import { BigNumber } from 'ethers'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { useBridgeFee } from '@/src/hooks/bridge/useBridgeFee'
@@ -62,7 +61,7 @@ export const NoTokenOut: React.FC<{ loading?: boolean }> = ({ loading }) => (
 )
 
 export const TokenOut: React.FC<{
-  amount: BigNumber
+  amount: bigint
   fromChainId: ChainsValues
   setReceiveNativeToken: (receiveNative: boolean) => void
   setReceiveUsds: (receiveUsds: boolean) => void
@@ -118,7 +117,7 @@ export const TokenOut: React.FC<{
     const [selectedNativeToken, setSelectedNativeToken] = useState(wethOptions[0].label)
     const [selectedXDaiToken, setSelectedXDaiToken] = useState(xdaiOptions[0].label)
 
-    const tokenOutAmount = formatUnits(amount.sub(feeInfo!), tokenOut?.decimals)
+    const tokenOutAmount = formatUnits(amount - feeInfo!, tokenOut?.decimals)
 
     const handleSwitchDaiUsds = (event: React.ChangeEvent<HTMLInputElement>) => {
       setSelectedXDaiToken(event.target.value)

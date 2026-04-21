@@ -4,7 +4,6 @@ import { useBridgeValidations } from '@/src/hooks/bridge/useBridgeValidations'
 import { TxPreview, TxPreviewLoading } from '@/src/pagePartials/bridge/bridgeForm/TxPreview'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { Token } from '@/types/token'
-import { BigNumber } from 'ethers'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import React from 'react'
 import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
@@ -14,7 +13,7 @@ import { isValidDomainName } from '@/src/utils/isValidDomainName'
 export const BridgeSummary: React.FC<{
   receiveNativeToken: boolean
   recipient: string
-  amount: BigNumber
+  amount: bigint
   userAddress: string
   fromChainId: ChainsValues
   toChainId: ChainsValues

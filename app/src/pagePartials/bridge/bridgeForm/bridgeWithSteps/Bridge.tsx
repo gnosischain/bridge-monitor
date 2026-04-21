@@ -3,7 +3,6 @@ import { bridgePagesBaseURL } from '@/src/constants/sections'
 import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactionInfo'
 import useTransaction from '@/src/hooks/useTransaction'
 import { Token } from '@/types/token'
-import { BigNumber } from 'ethers'
 import router from 'next/router'
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
@@ -47,7 +46,7 @@ const Wrapper = styled.button`
 `
 
 type BridgeProps = {
-  amount: BigNumber
+  amount: bigint
   bridgeStatus: Step
   recipient: string
   setStatus: (status: Step[]) => void

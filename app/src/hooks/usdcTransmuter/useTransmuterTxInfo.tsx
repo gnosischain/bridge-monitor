@@ -1,4 +1,4 @@
-import { BigNumber, Signer, ethers } from 'ethers'
+import { Signer, ethers } from 'ethers'
 import { Chains } from '@/src/constants/config/types'
 import useSWR from 'swr'
 import { USDC_XDAI_OLD } from '@/src/constants/misc'
@@ -15,7 +15,7 @@ export const getTransTx = async ({
   tokenAddress,
 }: {
   account: string
-  amount: BigNumber
+  amount: bigint
   signer: Signer
   tokenAddress: string
   returnZero?: boolean
@@ -31,7 +31,7 @@ export const getTransTx = async ({
     }
   }
 
-  if (amount.lte(0) || !account) {
+  if (amount <= 0n || !account) {
     return {
       gasLimit: 0n,
       gasPrice: 0n,
@@ -68,7 +68,7 @@ export const useTransmuterTxInfo = ({
   token,
   userAddress,
 }: {
-  amount: BigNumber
+  amount: bigint
   token: TokenUsdc
   userAddress: string
   returnZero?: boolean
@@ -89,7 +89,7 @@ export const useTransmuterTxInfo = ({
         }
       }
 
-      if (_amount.lte(0)) {
+      if (_amount <= 0n) {
         return {
           gasLimit: 0n,
           gasPrice: 0n,
