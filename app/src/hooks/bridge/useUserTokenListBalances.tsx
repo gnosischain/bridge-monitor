@@ -1,5 +1,4 @@
 import useSWR from 'swr'
-import { BigNumber } from 'ethers'
 
 const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || ''
 
@@ -22,7 +21,7 @@ export const useUserTokenListBalances = ({
 }) => {
   return useSWR(userAddress ? ['tokenUserBalances', userAddress, chainId] : null, async () => {
     try {
-      if (!userAddress || !ALCHEMY_API_KEY) return {} as Record<string, BigNumber>
+      if (!userAddress || !ALCHEMY_API_KEY) return {} as Record<string, bigint>
 
       const body = JSON.stringify({
         jsonrpc: '2.0',
@@ -49,11 +48,11 @@ export const useUserTokenListBalances = ({
       }
 
       const tokenBalances = data.result.tokenBalances
-      const balances: Record<string, BigNumber> = {}
+      const balances: Record<string, bigint> = {}
 
       tokenBalances.forEach((token: { contractAddress: string; tokenBalance: string }) => {
-        const balance = BigNumber.from(token.tokenBalance)
-        if (!balance.isZero()) {
+        const balance = BigInt(token.tokenBalance)
+        if (balance !== 0n) {
           balances[token.contractAddress] = balance
         }
       })
@@ -65,7 +64,7 @@ export const useUserTokenListBalances = ({
         chainId,
         userAddress,
       })
-      return {} as Record<string, BigNumber>
+      return {} as Record<string, bigint>
     }
   })
 }
