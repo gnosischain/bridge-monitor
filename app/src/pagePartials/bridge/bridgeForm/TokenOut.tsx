@@ -5,7 +5,7 @@ import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { useBridgeFee } from '@/src/hooks/bridge/useBridgeFee'
-import { formatUnits } from 'ethers/lib/utils'
+import { formatUnits } from 'viem'
 import { ReceiveTokenSwitcher } from '@/src/pagePartials/bridge/bridgeForm/ReceiveTokenSwitcher'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { genericSuspense } from '@/src/components/safeSuspense'
@@ -117,7 +117,7 @@ export const TokenOut: React.FC<{
     const [selectedNativeToken, setSelectedNativeToken] = useState(wethOptions[0].label)
     const [selectedXDaiToken, setSelectedXDaiToken] = useState(xdaiOptions[0].label)
 
-    const tokenOutAmount = formatUnits(amount - feeInfo!, tokenOut?.decimals)
+    const tokenOutAmount = formatUnits(amount - feeInfo!, tokenOut?.decimals ?? 18)
 
     const handleSwitchDaiUsds = (event: React.ChangeEvent<HTMLInputElement>) => {
       setSelectedXDaiToken(event.target.value)

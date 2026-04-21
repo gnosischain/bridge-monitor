@@ -15,7 +15,7 @@ import { useRouter } from 'next/router'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
 import { formatNumber } from '@/src/utils/format'
-import { formatUnits } from 'ethers/lib/utils'
+import { formatUnits } from 'viem'
 import { useTokenInfo } from '@/src/hooks/bridge/useTokenInfo'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 
@@ -229,7 +229,7 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
     transactionHash,
   )
 
-  const formattedAmount = Number(formatUnits(amount, tokenBridged?.decimals))
+  const formattedAmount = Number(formatUnits(BigInt(amount), tokenBridged?.decimals ?? 18))
 
   const isBridgeComplete = progressData?.progress === 100
 

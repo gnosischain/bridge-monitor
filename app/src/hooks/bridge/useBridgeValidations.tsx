@@ -1,5 +1,5 @@
 import { Token } from '@/types/token'
-import { formatUnits, isAddress } from 'ethers/lib/utils'
+import { formatUnits, isAddress } from 'viem'
 import { useMemo } from 'react'
 import { useTokenMode } from '@/src/hooks/bridge/useTokenMode'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'

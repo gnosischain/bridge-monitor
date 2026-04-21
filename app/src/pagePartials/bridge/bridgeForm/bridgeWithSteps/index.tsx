@@ -6,7 +6,7 @@ import { Swap } from './Swap'
 import { Bridge } from './Bridge'
 import { Token } from '@/types/token'
 import { Step, steps } from './const'
-import { formatUnits } from 'ethers/lib/utils'
+import { formatUnits } from 'viem'
 
 const StatusList = styled.div`
   background-color: ${({ theme: { colors } }) => colors.cream};
@@ -42,7 +42,7 @@ export const BridgeWithSteps: React.FC<BridgeWithStepsProps> = ({
 }) => {
   const [status, setStatus] = useState<Step[]>(steps.approve)
 
-  const formattedAmount = formatUnits(amount, tokenIn?.decimals)
+  const formattedAmount = formatUnits(amount, tokenIn?.decimals ?? 18)
 
   return (
     <Modal
