@@ -64,7 +64,7 @@ interface Props {
   initiatorNetwork: string
   receiverToken?: string
   token: string
-  tokenValue: bigint
+  tokenValue: string
 }
 
 const Loading: React.FC<{

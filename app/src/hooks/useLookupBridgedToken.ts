@@ -70,7 +70,7 @@ export const useLookupBridgedToken = ({
   bridgeName: string
   initiatorNetwork: string
   tokenAddress: string
-  tokenValue: bigint
+  tokenValue: string
 }) => {
   const { gnosisXdaiToken, mainnetDaiToken } = useDaiToken()
   const { tokenList, tokensByAddress } = useBridgedTokens()
@@ -136,7 +136,9 @@ export const useLookupBridgedToken = ({
 
   const value = useMemo(
     () =>
-      token && tokenValue ? formatNumber(parseFloat(formatUnits(tokenValue, token.decimals))) : '',
+      token && tokenValue
+        ? formatNumber(parseFloat(formatUnits(BigInt(tokenValue), token.decimals)))
+        : '',
     [token, tokenValue],
   )
   const initiatorToken = useMemo(() => token ?? defaultToken, [defaultToken, token])
