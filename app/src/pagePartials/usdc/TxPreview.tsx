@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 // import { Tooltip } from '@/src/components/tooltip'
-import { formatUnits } from 'ethers/lib/utils'
+import { formatUnits } from 'viem'
 import { Loading } from '@/src/components/loading'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { TokenUsdc } from './types'
@@ -56,7 +56,7 @@ export const TxPreview: React.FC<{
   tokenOut: TokenUsdc
 }> = genericSuspense(
   ({ amount, token, tokenOut, ...restProps }) => {
-    const tokenOutAmount = formatUnits(amount, token?.decimals)
+    const tokenOutAmount = formatUnits(amount, token.decimals)
 
     return (
       <Wrapper {...restProps}>

@@ -1,8 +1,8 @@
-import { BigNumber } from 'ethers'
 import { Chains } from '@/src/constants/config/types'
 import useSWR from 'swr'
 import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { chainsConfig } from '@/src/constants/config/chains'
+import { bnToBigInt } from '@/src/utils/bigNumber'
 
 export const useClaimFee = ({
   isFromHome,
@@ -19,9 +19,9 @@ export const useClaimFee = ({
       }
 
       const ethRpcProvider = new JsonRpcBatchProvider(chainsConfig[Chains.mainnet].rpcUrl)
-      const claimGasAmount = isNativeBridge ? BigNumber.from(170000) : BigNumber.from(270000)
-      const gasPrice = await ethRpcProvider.getGasPrice()
-      const ethFee = gasPrice.mul(claimGasAmount)
+      const claimGasAmount = isNativeBridge ? 170000n : 270000n
+      const gasPrice = await ethRpcProvider.getGasPrice().then(bnToBigInt)
+      const ethFee = gasPrice * claimGasAmount
       return ethFee
     },
     {

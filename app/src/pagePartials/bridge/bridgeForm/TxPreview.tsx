@@ -6,10 +6,9 @@ import { useBridgeFee } from '@/src/hooks/bridge/useBridgeFee'
 import { useBridgeRequiredBlocks } from '@/src/hooks/bridge/useBridgeRequiredBlocks'
 import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactionInfo'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
-import { formatUnits } from 'ethers/lib/utils'
+import { formatUnits } from 'viem'
 import { ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
-import { fromBN } from '@/src/utils/bigNumber'
 import { getNetworkConfig } from '@/src/constants/config/chains'
 import { Loading } from '@/src/components/loading'
 import { genericSuspense } from '@/src/components/safeSuspense'
@@ -167,13 +166,8 @@ export const TxPreview: React.FC<{
 
     const tokenOutAmount = formatUnits(amount - (feeInfo || 0n), tokenOut?.decimals)
     const estimatedTime = requiredBlocks.estimatedTimeInSeconds || 0
-    const estimatedTotalGas = `${fromBN(
-      transactionData.gasLimit * transactionData.gasPrice,
-      appChainConfig.tokenDecimals,
-    )} ${appChainConfig.token}`
-    const estimatedTotalFee = `${fromBN(feeInfo, appChainConfig.tokenDecimals)} ${
-      appChainConfig.token
-    }`
+    const estimatedTotalGas = `${formatUnits(transactionData.gasLimit * transactionData.gasPrice, appChainConfig.tokenDecimals)} ${appChainConfig.token}`
+    const estimatedTotalFee = `${formatUnits(feeInfo ?? 0n, appChainConfig.tokenDecimals)} ${appChainConfig.token}`
 
     return (
       <Wrapper {...restProps}>
