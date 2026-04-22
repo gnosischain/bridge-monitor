@@ -187,7 +187,7 @@ export const Filters: React.FC<Props> = ({ bridge, filters, onResetFilters, ...r
   const { validators } = useValidators(bridge as BridgesValues)
   const [resetFields, setResetFields] = useState<boolean>(false)
 
-  const validatorNames = validators.map((val) => val.name)
+  const validatorNames = validators.filter((val) => !val.removed).map((val) => val.name)
 
   const statusNames = txStatus.map(
     (status) => status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(),
