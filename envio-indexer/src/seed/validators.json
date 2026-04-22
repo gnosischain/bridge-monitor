@@ -131,5 +131,19 @@
     "id": "0x7117F73aFBDec3221bDD50DdCbf73204b3998302-AMB",
     "name": "Kleros",
     "removed": false
+  },
+  {
+    "address": "0x587c0d02b40822f15f05301d87c16f6a08aaddde",
+    "bridgeType": "XDAI",
+    "id": "0x587c0d02b40822f15f05301d87c16f6a08aaddde-XDAI",
+    "name": "Cow Protocol",
+    "removed": false
+  },
+  {
+    "address": "0x674c97db4ce6cac04a124d745979f3e4cba0e9f0",
+    "bridgeType": "AMB",
+    "id": "0x674c97db4ce6cac04a124d745979f3e4cba0e9f0-AMB",
+    "name": "Cow Protocol",
+    "removed": false
   }
 ]
