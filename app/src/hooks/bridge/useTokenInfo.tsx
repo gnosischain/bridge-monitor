@@ -6,7 +6,7 @@ import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { Token } from '@/types/token'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { xdaiToken } from '@/src/constants/xdaiToken'
-import { ERC20__factory } from '@/types/typechain'
+import { erc20Abi } from 'viem'
 
 export const useTokenInfo = (tokenAddress: string, chainId: ChainsValues) => {
   const { tokensByAddress } = useBridgedTokens()
@@ -18,7 +18,7 @@ export const useTokenInfo = (tokenAddress: string, chainId: ChainsValues) => {
 
   const erc20Contract = {
     address: tokenAddress as `0x${string}`,
-    abi: ERC20__factory.abi,
+    abi: erc20Abi,
     chainId,
   } as const
 
@@ -44,16 +44,18 @@ export const useTokenInfo = (tokenAddress: string, chainId: ChainsValues) => {
       return null
     }
     return {
-      name: name.result as string,
-      symbol: symbol.result as string,
-      decimals: decimals.result as number,
+      name: name.result,
+      symbol: symbol.result,
+      decimals: decimals.result,
+      address: tokenAddress,
+      chainId,
       extensions: {
         bridgeInfo: {
           1: { tokenAddress: chainId === 1 ? tokenAddress : '' },
           100: { tokenAddress: chainId === 100 ? tokenAddress : '' },
         },
       },
-    } as Token
+    }
   }, [isNativeXdai, tokenFromList, contractData, chainId, tokenAddress])
 
   return { data, error, isLoading }
