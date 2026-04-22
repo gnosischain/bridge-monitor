@@ -1,12 +1,11 @@
-import { BigNumber } from 'ethers'
 import { Token } from '@/types/token'
-import { formatUnits, isAddress } from 'ethers/lib/utils'
+import { formatUnits, isAddress } from 'viem'
 import { useMemo } from 'react'
 import { useTokenMode } from '@/src/hooks/bridge/useTokenMode'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { ChainsValues } from '@/src/constants/config/types'
 import useBridgeLimits from '@/src/hooks/bridge/useBridgeLimits'
-import { EURCe_GNOSIS, USDCe_GNOSIS, ZERO_BN } from '@/src/constants/misc'
+import { EURCe_GNOSIS, USDCe_GNOSIS } from '@/src/constants/misc'
 import { formatNumber } from '@/src/utils/format'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
@@ -26,7 +25,7 @@ export const useBridgeValidations = ({
   userAddress: string
   fromChainId: ChainsValues
   toChainId: ChainsValues
-  amount: BigNumber
+  amount: bigint
   fromToken: Token
   toToken: Token | undefined
   recipient?: string
@@ -54,18 +53,17 @@ export const useBridgeValidations = ({
   if (!userBalanceData) throw new Error('User balance data is not available')
 
   const isValidToken = fromToken !== undefined
-  const isValidAmount = amount.gt(0)
-  const approvalNeeded = amount.gt(userBalanceData.allowance) && amount.lte(userBalanceData.balance)
-  const minAmountError = amount.lt(bridgeLimits?.minPerTx || ZERO_BN)
-  const maxAmountError = amount.gt(bridgeLimits?.maxPerTx || ZERO_BN)
-  const dailyLimitReached = amount.gt(
-    bridgeLimits?.dailyLimit.sub(bridgeLimits?.totalSpentPerDay || ZERO_BN) || ZERO_BN,
-  )
+  const isValidAmount = amount > 0n
+  const approvalNeeded = amount > userBalanceData.allowance && amount <= userBalanceData.balance
+  const minAmountError = amount < (bridgeLimits?.minPerTx || 0n)
+  const maxAmountError = amount > (bridgeLimits?.maxPerTx || 0n)
+  const dailyLimitReached =
+    amount > (bridgeLimits?.dailyLimit - (bridgeLimits?.totalSpentPerDay || 0n) || 0n)
   const minPerTxInNumber = Number(
-    formatUnits(bridgeLimits?.minPerTx || ZERO_BN, fromToken?.decimals || 18),
+    formatUnits(bridgeLimits?.minPerTx || 0n, fromToken?.decimals || 18),
   )
   const maxPerTxInNumber = Number(
-    formatUnits(bridgeLimits?.maxPerTx || ZERO_BN, fromToken?.decimals || 18),
+    formatUnits(bridgeLimits?.maxPerTx || 0n, fromToken?.decimals || 18),
   )
 
   const isDomainName = isValidDomainName(recipient || '')
@@ -123,7 +121,7 @@ export const useBridgeValidations = ({
         throw Error(`We've reached the daily bridge limit amount.`)
       }
 
-      if (amount.gt(userBalanceData.balance)) {
+      if (amount > userBalanceData.balance) {
         throw Error('Insufficient balance')
       }
 

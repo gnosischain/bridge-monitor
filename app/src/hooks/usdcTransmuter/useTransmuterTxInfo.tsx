@@ -1,7 +1,7 @@
-import { BigNumber, Signer, ethers } from 'ethers'
+import { Signer, ethers } from 'ethers'
 import { Chains } from '@/src/constants/config/types'
 import useSWR from 'swr'
-import { USDC_XDAI_OLD, ZERO_BN } from '@/src/constants/misc'
+import { USDC_XDAI_OLD } from '@/src/constants/misc'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { TokenUsdc } from '@/src/pagePartials/usdc/types'
@@ -15,7 +15,7 @@ export const getTransTx = async ({
   tokenAddress,
 }: {
   account: string
-  amount: BigNumber
+  amount: bigint
   signer: Signer
   tokenAddress: string
   returnZero?: boolean
@@ -25,16 +25,16 @@ export const getTransTx = async ({
 
   if (returnZero) {
     return {
-      gasLimit: ZERO_BN,
-      gasPrice: ZERO_BN,
+      gasLimit: 0n,
+      gasPrice: 0n,
       tx: null,
     }
   }
 
-  if (amount.lte(0) || !account) {
+  if (amount <= 0n || !account) {
     return {
-      gasLimit: ZERO_BN,
-      gasPrice: ZERO_BN,
+      gasLimit: 0n,
+      gasPrice: 0n,
       tx: null,
     }
   }
@@ -55,8 +55,8 @@ export const getTransTx = async ({
   } catch (error) {
     console.error('Error getting swap transaction info', error)
     return {
-      gasLimit: ZERO_BN,
-      gasPrice: ZERO_BN,
+      gasLimit: 0n,
+      gasPrice: 0n,
       tx: null,
     }
   }
@@ -68,7 +68,7 @@ export const useTransmuterTxInfo = ({
   token,
   userAddress,
 }: {
-  amount: BigNumber
+  amount: bigint
   token: TokenUsdc
   userAddress: string
   returnZero?: boolean
@@ -83,16 +83,16 @@ export const useTransmuterTxInfo = ({
     async ([, _token, _amount, _userAddress, _returnZero]) => {
       if (_returnZero) {
         return {
-          gasLimit: ZERO_BN,
-          gasPrice: ZERO_BN,
+          gasLimit: 0n,
+          gasPrice: 0n,
           tx: null,
         }
       }
 
-      if (_amount.lte(0)) {
+      if (_amount <= 0n) {
         return {
-          gasLimit: ZERO_BN,
-          gasPrice: ZERO_BN,
+          gasLimit: 0n,
+          gasPrice: 0n,
           tx: null,
         }
       }

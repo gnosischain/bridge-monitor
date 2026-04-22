@@ -11,7 +11,7 @@ import {
   TokensByNetwork,
 } from '@/types/token'
 import { isFulfilled } from '@/types/utils'
-import { ZERO_ADDRESS } from '@/src/constants/misc'
+import { zeroAddress } from 'viem'
 
 type TokenListQueryReturn = {
   tokens: Array<Token>
@@ -148,7 +148,7 @@ const useTokenListQuery = () => {
         const isBridgedToNative = isNativeToken(
           (token.extensions.bridgeInfo[1]?.tokenAddress ??
             token.extensions.bridgeInfo[100]?.tokenAddress) ||
-            ZERO_ADDRESS,
+            zeroAddress,
         )
 
         if (!isBridgedToNative) {

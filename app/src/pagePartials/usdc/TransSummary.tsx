@@ -4,7 +4,6 @@ import { Chains } from '@/src/constants/config/types'
 import { TxPreview, TxPreviewLoading } from './TxPreview'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { TokenUsdc } from './types'
-import { BigNumber } from 'ethers'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import React from 'react'
 import useWeb3Name from '@/src/hooks/useWeb3Name'
@@ -12,7 +11,7 @@ import { isValidDomainName } from '@/src/utils/isValidDomainName'
 import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 
 export const TransSummary: React.FC<{
-  amount: BigNumber
+  amount: bigint
   userAddress: string
   token: TokenUsdc
   tokenOut: TokenUsdc
@@ -31,7 +30,7 @@ export const TransSummary: React.FC<{
     })
     if (!addressBalances) throw new Error('Address balances are not available')
 
-    if (amount.gt(addressBalances.balance)) {
+    if (amount > addressBalances.balance) {
       return <AlertMessage text="Insufficient balance" />
     }
 

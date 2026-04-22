@@ -1,9 +1,8 @@
-import { TRANSMUTER_ADDRESS, USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
+import { TRANSMUTER_ADDRESS, USDCe_GNOSIS } from '@/src/constants/misc'
 import { useTransmuterTxInfo } from '@/src/hooks/usdcTransmuter/useTransmuterTxInfo'
 import useTransaction from '@/src/hooks/useTransaction'
 import { TokenUsdc } from '@/src/pagePartials/usdc/types'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { BigNumber } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { Step, statuses, steps } from './const'
@@ -12,6 +11,7 @@ import { Status } from './IconStatus'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { Token } from '@/types/token'
 import { Chains } from '@/src/constants/config/chains'
+import { zeroAddress } from 'viem'
 
 const Wrapper = styled.button`
   align-items: center;
@@ -48,7 +48,7 @@ const Wrapper = styled.button`
 `
 
 type SwapProps = {
-  amount: BigNumber
+  amount: bigint
   userAddress: string
   tokenIn: Token
   setStatus: (status: Step[]) => void
@@ -70,7 +70,7 @@ export const Swap = ({
   const disabled = swapStatus !== 'now' && swapStatus !== 'pending'
 
   const { mutate: refreshBalanceToken } = useUserTokenBalances({
-    userAddress: userAddress || ZERO_ADDRESS,
+    userAddress: userAddress || zeroAddress,
     chainId: Chains.gnosis,
     allowanceAddress: TRANSMUTER_ADDRESS,
     tokenAddress: tokenIn.address,
@@ -79,7 +79,7 @@ export const Swap = ({
   const swapTxData = useTransmuterTxInfo({
     amount,
     token: { address: USDCe_GNOSIS } as TokenUsdc,
-    userAddress: address || ZERO_ADDRESS,
+    userAddress: address || zeroAddress,
     returnZero: disabled,
   })
 

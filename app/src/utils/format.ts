@@ -304,6 +304,7 @@ function getFormatterRule(input: number, type: NumberType) {
   throw new Error(`formatter for type ${type} not configured correctly`)
 }
 
+// @todo: rework to accept bigint and do range comparisons directly on bigint, removing the parseFloat dependency
 export function formatNumber(
   input: Nullish<number>,
   type: NumberType = NumberType.TokenNonTx,

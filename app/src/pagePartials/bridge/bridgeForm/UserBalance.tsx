@@ -1,11 +1,9 @@
 import { ChainsValues } from '@/src/constants/config/types'
-import { ZERO_BN } from '@/src/constants/misc'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { MaxButton } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
-import { fromBN } from '@/src/utils/bigNumber'
 import { formatNumber } from '@/src/utils/format'
 import { Token } from '@/types/token'
-import { formatUnits } from 'ethers/lib/utils'
+import { formatUnits } from 'viem'
 import styled from 'styled-components'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
@@ -55,8 +53,8 @@ const Balance: React.FC<{
       tokenAddress: $token.address,
     })
 
-    const balance = data?.balance || ZERO_BN
-    const value = formatNumber(Number(fromBN(balance, $token?.decimals)))
+    const balance = data?.balance || 0n
+    const value = formatNumber(Number(formatUnits(balance, $token.decimals)))
 
     return (
       <Wrapper {...restProps}>
@@ -68,7 +66,7 @@ const Balance: React.FC<{
         </BalanceWrapper>
         {$onMax && (
           <MaxButton
-            disabled={balance?.isZero()}
+            disabled={balance === 0n}
             onClick={() => $onMax(formatUnits(balance, $token.decimals))}
           />
         )}

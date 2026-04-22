@@ -12,7 +12,7 @@ import { useRouter } from 'next/router'
 import { SCLink, SCText, SCTitle, SidebarCard } from '@/src/components/card/SidebarCard'
 import Link from 'next/link'
 import { isTransactionHash } from '@/src/utils/tools'
-import { isAddress } from 'ethers/lib/utils'
+import { isAddress } from 'viem'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
 
 const Wrapper = styled(SidebarCard)`
