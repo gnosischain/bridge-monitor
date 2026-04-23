@@ -32,7 +32,7 @@ export const useTokenInfo = (tokenAddress: string, chainId: ChainsValues) => {
       { ...erc20Contract, functionName: 'symbol' },
       { ...erc20Contract, functionName: 'decimals' },
     ],
-    query: { enabled: shouldFetchFromChain },
+    query: { enabled: shouldFetchFromChain, staleTime: Infinity },
   })
 
   const data = useMemo((): Token | null | undefined => {

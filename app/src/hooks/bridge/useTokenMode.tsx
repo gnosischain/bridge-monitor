@@ -33,7 +33,7 @@ export const useTokenMode = (fromChainId: ChainsValues, toChainId: ChainsValues,
     functionName: 'nativeTokenAddress',
     args: [token?.address as `0x${string}`],
     chainId: fromChainId,
-    query: { enabled: shouldFetch },
+    query: { enabled: shouldFetch, staleTime: Infinity },
   })
 
   const data = useMemo((): TOKEN_MODE => {

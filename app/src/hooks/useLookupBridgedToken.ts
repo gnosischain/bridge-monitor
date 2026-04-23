@@ -31,22 +31,23 @@ export const useLookupBridgedToken = ({
   const { tokenList, tokensByAddress } = useBridgedTokens()
 
   const isMainnetToken = initiatorNetwork === 'mainnet'
-  tokenAddress = tokenAddress?.toLowerCase()
+  const normalizedAddress = tokenAddress?.toLowerCase()
   const isXdaiBridge = (bridgeName ?? '').toUpperCase() === 'XDAI'
   const isNativeAddress =
-    tokenAddress === zeroAddress || isSameString(tokenAddress, NATIVE_TOKEN_ADDRESS)
+    normalizedAddress === zeroAddress || isSameString(normalizedAddress, NATIVE_TOKEN_ADDRESS)
   const isNativeInXdaiBridge = isXdaiBridge && isNativeAddress
   const xDaiBridgedToken = isNativeInXdaiBridge ? mainnetDaiToken : gnosisXdaiToken
 
   const tokenFromList =
-    tokensByAddress[tokenAddress] ??
-    tokenList.find(({ address }) => isSameString(address, tokenAddress))
+    tokensByAddress[normalizedAddress] ??
+    tokenList.find(({ address }) => isSameString(address, normalizedAddress))
 
   const chainId = isMainnetToken ? Chains.mainnet : Chains.gnosis
-  const shouldFetchFromChain = !isXdaiBridge && !isNativeAddress && !tokenFromList && !!tokenAddress
+  const shouldFetchFromChain =
+    !isXdaiBridge && !isNativeAddress && !tokenFromList && !!normalizedAddress
 
   const erc20Contract = {
-    address: tokenAddress as `0x${string}`,
+    address: normalizedAddress as `0x${string}`,
     abi: erc20Abi,
     chainId,
   } as const
@@ -57,7 +58,7 @@ export const useLookupBridgedToken = ({
       { ...erc20Contract, functionName: 'symbol' },
       { ...erc20Contract, functionName: 'decimals' },
     ],
-    query: { enabled: shouldFetchFromChain },
+    query: { enabled: shouldFetchFromChain, staleTime: Infinity },
   })
 
   const token = useMemo((): UniswapToken | undefined => {
@@ -69,24 +70,32 @@ export const useLookupBridgedToken = ({
       return undefined
     }
     return {
-      address: tokenAddress,
+      address: normalizedAddress,
       chainId,
       name: name.result,
       symbol: symbol.result,
       decimals: decimals.result,
       logoURI: tokenList.find((t) => isSameString(t.symbol, symbol.result))?.logoURI,
     }
-  }, [isNativeInXdaiBridge, gnosisXdaiToken, tokenFromList, contractData, tokenAddress, chainId, tokenList])
+  }, [
+    isNativeInXdaiBridge,
+    gnosisXdaiToken,
+    tokenFromList,
+    contractData,
+    normalizedAddress,
+    chainId,
+    tokenList,
+  ])
 
   const defaultToken: UniswapToken = useMemo(
     () => ({
-      name: tokenAddress,
-      symbol: tokenAddress,
+      name: normalizedAddress,
+      symbol: normalizedAddress,
       decimals: 0,
-      address: tokenAddress,
+      address: normalizedAddress,
       chainId: isMainnetToken ? 1 : 100,
     }),
-    [isMainnetToken, tokenAddress],
+    [isMainnetToken, normalizedAddress],
   )
 
   const value = useMemo(

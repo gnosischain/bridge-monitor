@@ -15,6 +15,7 @@ export const useBridgeRequiredBlocks = (chainId: ChainsValues, isNativeBridge: b
     abi: isNativeBridge ? contracts.XDAIBridge.abi : contracts.AMB.abi,
     functionName: 'requiredBlockConfirmations',
     chainId,
+    query: { staleTime: Infinity },
   })
 
   const data = useMemo(
