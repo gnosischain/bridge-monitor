@@ -1,8 +1,5 @@
+import { useGasPrice } from 'wagmi'
 import { Chains } from '@/src/constants/config/types'
-import useSWR from 'swr'
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
-import { chainsConfig } from '@/src/constants/config/chains'
-import { bnToBigInt } from '@/src/utils/bigNumber'
 
 export const useClaimFee = ({
   isFromHome,
@@ -11,22 +8,20 @@ export const useClaimFee = ({
   isFromHome: boolean
   isNativeBridge: boolean
 }) => {
-  return useSWR(
-    ['claimFee', isFromHome, isNativeBridge],
-    async () => {
-      if (!isFromHome) {
-        return null
-      }
+  const {
+    data: gasPrice,
+    error,
+    isLoading,
+  } = useGasPrice({
+    chainId: Chains.mainnet,
+    query: {
+      enabled: isFromHome,
+      refetchInterval: 12000,
+    },
+  })
 
-      const ethRpcProvider = new JsonRpcBatchProvider(chainsConfig[Chains.mainnet].rpcUrl)
-      const claimGasAmount = isNativeBridge ? 170000n : 270000n
-      const gasPrice = await ethRpcProvider.getGasPrice().then(bnToBigInt)
-      const ethFee = gasPrice * claimGasAmount
-      return ethFee
-    },
-    {
-      refreshInterval: 12000,
-      revalidateOnFocus: true,
-    },
-  )
+  const claimGasAmount = isNativeBridge ? 170000n : 270000n
+  const data = isFromHome && gasPrice !== undefined ? gasPrice * claimGasAmount : null
+
+  return { data, error, isLoading }
 }

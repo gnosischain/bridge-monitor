@@ -11,7 +11,7 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { JsonRpcBatchProvider, JsonRpcProvider } from '@ethersproject/providers'
+import { JsonRpcProvider } from '@ethersproject/providers'
 import type { providers } from 'ethers'
 import nullthrows from 'nullthrows'
 import { useConnection, useConnectorClient, usePublicClient, useSwitchChain } from 'wagmi'
@@ -48,7 +48,6 @@ export type Web3Context = {
   walletLabel: string | null
   isOnboardChangingChain: boolean
   readOnlyAppProvider: JsonRpcProvider
-  readOnlyAppBatchProvider: JsonRpcBatchProvider
   web3Provider: providers.Web3Provider | null
 }
 
@@ -155,11 +154,6 @@ export default function Web3ConnectionProvider({ children }: Props) {
     [appChainId],
   )
 
-  const readOnlyAppBatchProvider = useMemo(
-    () => new JsonRpcBatchProvider(getNetworkConfig(appChainId)?.rpcUrl, appChainId),
-    [appChainId],
-  )
-
   const value: Web3Context = {
     address,
     appChainId,
@@ -177,7 +171,6 @@ export default function Web3ConnectionProvider({ children }: Props) {
     walletChainId,
     walletLabel: connector?.name ?? null,
     readOnlyAppProvider,
-    readOnlyAppBatchProvider,
     web3Provider,
   }
 
