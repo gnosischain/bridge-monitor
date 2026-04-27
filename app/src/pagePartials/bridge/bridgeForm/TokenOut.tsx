@@ -117,7 +117,7 @@ export const TokenOut: React.FC<{
     const [selectedNativeToken, setSelectedNativeToken] = useState(wethOptions[0].label)
     const [selectedXDaiToken, setSelectedXDaiToken] = useState(xdaiOptions[0].label)
 
-    const tokenOutAmount = formatUnits(amount - feeInfo!, tokenOut?.decimals ?? 18)
+    const tokenOutAmount = formatUnits(amount - (feeInfo ?? 0n), tokenOut?.decimals ?? 18)
 
     const handleSwitchDaiUsds = (event: React.ChangeEvent<HTMLInputElement>) => {
       setSelectedXDaiToken(event.target.value)
