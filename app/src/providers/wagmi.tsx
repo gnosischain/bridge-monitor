@@ -1,11 +1,7 @@
 import { createConfig, http } from 'wagmi'
 import { gnosis, mainnet } from 'wagmi/chains'
 import { injected, safe, walletConnect } from 'wagmi/connectors'
-import {
-  RPC_GNOSIS,
-  RPC_MAINNET,
-  WALLET_CONNECT_PROJECT_ID,
-} from '@/src/constants/config/common'
+import { RPC_GNOSIS, RPC_MAINNET, WALLET_CONNECT_PROJECT_ID } from '@/src/constants/config/common'
 
 export const wagmiConfig = createConfig({
   chains: [mainnet, gnosis],
