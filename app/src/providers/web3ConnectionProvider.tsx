@@ -65,14 +65,18 @@ export default function Web3ConnectionProvider({ children }: Props) {
   const [appChainId, setAppChainId] = useState(INITIAL_APP_CHAIN_ID)
   const [showWalletModal, setShowWalletModal] = useState(false)
 
-  const publicClient = usePublicClient({ chainId: appChainId })
+  const walletPublicClient = usePublicClient({ chainId })
   const { data: isSCWallet } = useQuery({
-    queryKey: ['isSCWallet', wagmiAddress],
+    queryKey: ['isSCWallet', wagmiAddress, chainId],
     queryFn: async () => {
-      const code = await publicClient!.getCode({ address: wagmiAddress! })
-      return !!code && code !== '0x'
+      if (!walletPublicClient || !wagmiAddress) return false
+      const code = await walletPublicClient.getCode({ address: wagmiAddress })
+      if (!code) return false
+      // EIP-7702: an EOA with a delegation has code `0xef0100 || delegate` — still an EOA
+      if (code.toLowerCase().startsWith('0xef0100')) return false
+      return true
     },
-    enabled: !!wagmiAddress && !!publicClient,
+    enabled: !!wagmiAddress && !!walletPublicClient,
   })
 
   const address = wagmiAddress ?? null

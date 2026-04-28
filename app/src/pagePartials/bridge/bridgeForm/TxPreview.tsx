@@ -119,8 +119,10 @@ export const TxPreview: React.FC<{
       tokenAddress: token.address || '',
     })
 
-    const { data: requiredBlocks } = useBridgeRequiredBlocks(fromChainId, isNativeBridge)
-    if (!requiredBlocks) throw new Error('Required blocks are not available')
+    const { data: requiredBlocks, isLoading: isLoadingRequiredBlocks } = useBridgeRequiredBlocks(
+      fromChainId,
+      isNativeBridge,
+    )
 
     const { data: feeInfo } = useBridgeFee({
       amount,
@@ -143,6 +145,9 @@ export const TxPreview: React.FC<{
       isFromHome,
       isNativeBridge,
     })
+
+    if (isLoadingRequiredBlocks) return <TxPreviewLoading {...restProps} />
+    if (!requiredBlocks) throw new Error('Required blocks are not available')
 
     if (!transactionData) throw new Error('Transaction data is not available')
 
