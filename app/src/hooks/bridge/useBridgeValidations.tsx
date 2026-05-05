@@ -44,17 +44,20 @@ export const useBridgeValidations = ({
   const bridgeContract = getBridgeContract(fromChainId, toChainId, fromToken.address)
   const bridgeAddress = bridgeContract.address
 
-  const { data: userBalanceData } = useUserTokenBalances({
+  const { data: userBalanceData, isLoading: isLoadingBalance } = useUserTokenBalances({
     userAddress,
     chainId: fromChainId,
     allowanceAddress: bridgeAddress,
     tokenAddress: fromToken.address,
   })
-  if (!userBalanceData) throw new Error('User balance data is not available')
+
+  const balance = userBalanceData?.balance
+  const allowance = userBalanceData?.allowance
 
   const isValidToken = fromToken !== undefined
   const isValidAmount = amount > 0n
-  const approvalNeeded = amount > userBalanceData.allowance && amount <= userBalanceData.balance
+  const approvalNeeded =
+    balance !== undefined && allowance !== undefined && amount > allowance && amount <= balance
   const minAmountError = amount < (bridgeLimits?.minPerTx || 0n)
   const maxAmountError = amount > (bridgeLimits?.maxPerTx || 0n)
   const dailyLimitReached =
@@ -121,7 +124,7 @@ export const useBridgeValidations = ({
         throw Error(`We've reached the daily bridge limit amount.`)
       }
 
-      if (amount > userBalanceData.balance) {
+      if (balance !== undefined && amount > balance) {
         throw Error('Insufficient balance')
       }
 
@@ -140,7 +143,7 @@ export const useBridgeValidations = ({
     maxAmountError,
     dailyLimitReached,
     amount,
-    userBalanceData.balance,
+    balance,
     minPerTxInNumber,
     fromToken.symbol,
     maxPerTxInNumber,
@@ -148,7 +151,8 @@ export const useBridgeValidations = ({
     resolvedAddress,
   ])
 
-  const isValidToSend = !errorMessage && isValidAmount && isValidToken && !isCustomERC20Home
+  const isValidToSend =
+    !errorMessage && isValidAmount && isValidToken && !isCustomERC20Home && balance !== undefined
 
   return {
     errorMessage,
@@ -159,6 +163,6 @@ export const useBridgeValidations = ({
     amountIsGreaterThanBalance: approvalNeeded,
     amountisLessThanMinPerTx: minAmountError,
     amountisGreaterThanMaxPerTx: maxAmountError,
-    isLoading,
+    isLoading: isLoading || isLoadingBalance,
   }
 }

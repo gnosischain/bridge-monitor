@@ -31,7 +31,11 @@ export const useUserTokenBalances = ({
     query: { enabled: isNative && !!userAddress, placeholderData: keepPreviousData },
   })
 
-  const { data: gasPrice, isLoading: isLoadingGasPrice } = useGasPrice({
+  const {
+    data: gasPrice,
+    isLoading: isLoadingGasPrice,
+    refetch: refetchGasPrice,
+  } = useGasPrice({
     chainId,
     query: { enabled: isNative, placeholderData: keepPreviousData },
   })
@@ -79,12 +83,13 @@ export const useUserTokenBalances = ({
     }
 
     if (erc20Balance === undefined) return undefined
-    if (allowanceAddress && erc20Allowance === undefined) return undefined
 
-    return {
-      balance: erc20Balance,
-      allowance: allowanceAddress ? (erc20Allowance as bigint) : MAX_UINT_256,
+    if (allowanceAddress) {
+      if (erc20Allowance === undefined) return undefined
+      return { balance: erc20Balance, allowance: erc20Allowance }
     }
+
+    return { balance: erc20Balance, allowance: MAX_UINT_256 }
   }, [
     tokenAddress,
     isNative,
@@ -101,6 +106,7 @@ export const useUserTokenBalances = ({
   const refetch = async () => {
     if (isNative) {
       await refetchNativeBalance()
+      await refetchGasPrice()
     } else {
       await Promise.all([refetchErc20Balance(), refetchErc20Allowance()])
     }
