@@ -44,7 +44,7 @@ export const BridgeSummary: React.FC<{
       chainId: fromChainId,
       tokenAddress: token.address,
     })
-    if (!addressBalances) throw new Error('Address balances are not available')
+    if (!addressBalances) return <TxPreviewLoading />
 
     const { errorMessage } = useBridgeValidations({
       amount,
