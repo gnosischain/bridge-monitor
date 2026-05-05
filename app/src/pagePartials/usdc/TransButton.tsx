@@ -77,7 +77,7 @@ const ApproveButton: React.FC<{
 
   const approve = useApproval()
 
-  const { mutate: refreshBalanceToken } = useUserTokenBalances({
+  const { refetch: refreshBalanceToken } = useUserTokenBalances({
     userAddress,
     chainId: Chains.gnosis,
     allowanceAddress: TRANSMUTER_ADDRESS,
@@ -137,7 +137,7 @@ const TriggerTransButton: React.FC<{
   const sendTx = useTransaction()
   // const router = useRouter()
 
-  const { mutate: refreshBalanceToken } = useUserTokenBalances({
+  const { refetch: refreshBalanceToken } = useUserTokenBalances({
     userAddress,
     chainId: Chains.gnosis,
     allowanceAddress: TRANSMUTER_ADDRESS,
@@ -148,7 +148,7 @@ const TriggerTransButton: React.FC<{
     token.address === usdcTokens.usdcXdaiOld.address
       ? usdcTokens.usdceGnosis.address
       : usdcTokens.usdcXdaiOld.address
-  const { mutate: refreshBalanceTokenOut } = useUserTokenBalances({
+  const { refetch: refreshBalanceTokenOut } = useUserTokenBalances({
     userAddress,
     chainId: Chains.gnosis,
     allowanceAddress: TRANSMUTER_ADDRESS,
