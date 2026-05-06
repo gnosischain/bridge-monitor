@@ -28,7 +28,7 @@ export const TransSummary: React.FC<{
       chainId: Chains.gnosis,
       tokenAddress: token.address,
     })
-    if (!addressBalances) throw new Error('Address balances are not available')
+    if (!addressBalances) return <TxPreviewLoading />
 
     if (amount > addressBalances.balance) {
       return <AlertMessage text="Insufficient balance" />

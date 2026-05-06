@@ -64,7 +64,7 @@ export const Approve = ({
   const [isWorking, setIsWorking] = useState(false)
   const [showButton, setShowButton] = useState(false)
 
-  const { data: userBalanceData, mutate: refreshBalanceToken } = useUserTokenBalances({
+  const { data: userBalanceData, refetch: refreshBalanceToken } = useUserTokenBalances({
     userAddress: userAddress || zeroAddress,
     chainId: Chains.gnosis,
     allowanceAddress: TRANSMUTER_ADDRESS,
