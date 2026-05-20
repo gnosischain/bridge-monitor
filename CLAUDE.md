@@ -84,5 +84,4 @@ Node version is pinned in `.nvmrc` (v22.11.0). Use `nvm use` before installing.
 
 - Feature branches are created from `develop`
 - PRs target `develop` → promoted to `staging` → `main` (production)
-- Conventional Commits are enforced via commitlint (pre-commit hook)
 - Pre-commit hooks (Husky + lint-staged) run ESLint fix, Prettier, and `tsc` on staged files
