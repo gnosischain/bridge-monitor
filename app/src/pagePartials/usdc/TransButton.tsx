@@ -229,6 +229,9 @@ export const TransButton: React.FC<{
     tokenAddress: fromToken.address,
   })
 
+  // TODO(wagmi-migration): same caveat as Approve.tsx — only safe because the hook is warmed up
+  // higher in the tree (UserBalance/TransSummary). Cold deep-link would throw. Replace with a
+  // loading placeholder.
   if (!userBalanceData) throw new Error('User balance data is not available')
 
   const isValidToSend = amount > 0n && amount <= userBalanceData.balance

@@ -37,6 +37,10 @@ export const useBridgeValidations = ({
     fromToken,
     toToken,
   )
+  // TODO(wagmi-migration): safe today because `useBridgeLimits` still uses SWR `suspense: true`.
+  // Once it migrates to wagmi, this fires during initial load — replace with an `isLoading` guard.
+  // The `bridgeLimits?.dailyLimit - (... || 0n)` precedence on `dailyLimitReached` below also has
+  // a latent `undefined - 0n` crash that's masked by this throw; fix both together.
   if (!bridgeLimits) throw Error('Was not possible to fetch bridge limits.')
 
   const { data: tokenMode } = useTokenMode(fromChainId, toChainId, fromToken)
