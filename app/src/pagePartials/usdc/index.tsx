@@ -6,7 +6,6 @@ import { CardPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/CardPlaceh
 import { Header } from './Header'
 import { InnerCard } from './InnerCard'
 import { Switch } from './Switch'
-import { ZERO_ADDRESS } from '@/src/constants/misc'
 import SafeSuspense from '@/src/components/safeSuspense'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { useDebounce } from 'use-debounce'
@@ -14,9 +13,9 @@ import { UsdcTransFormState } from './types'
 import { TokenInfo } from './TokenInfo'
 import { UserBalance } from './UserBalance'
 import { TransSummary } from './TransSummary'
-import { toBN } from '@/src/utils/bigNumber'
 import { MainCard } from '@/src/components/card/MainCard'
 import { usdcTokens } from '@/src/constants/usdcTokens'
+import { parseUnits, zeroAddress } from 'viem'
 
 const Title = styled.h2`
   align-items: center;
@@ -124,12 +123,12 @@ const Main = () => {
     }),
     {
       ...initialState,
-      account: address || ZERO_ADDRESS,
+      account: address || zeroAddress,
     },
   )
   const [debouncedAmount] = useDebounce(formState.amount, 500)
 
-  const amountBN = toBN(debouncedAmount || '0', formState.token?.decimals || 0)
+  const amount = parseUnits(debouncedAmount || '0', formState.token?.decimals || 0)
 
   const handleTokenChange = async () => {
     const token =
@@ -141,7 +140,7 @@ const Main = () => {
 
     dispatch({
       ...initialState,
-      account: address || ZERO_ADDRESS,
+      account: address || zeroAddress,
       token,
       tokenOut,
     })
@@ -185,21 +184,21 @@ const Main = () => {
                 <UserBalance address={address} token={formState.tokenOut} />
               </OnChainInfo>
             </InnerCard>
-            {amountBN.gt(0) && formState.token && formState.tokenOut && address && (
+            {amount > 0n && formState.token && formState.tokenOut && address && (
               <TransSummary
-                amount={amountBN}
+                amount={amount}
                 token={formState.token}
                 tokenOut={formState.tokenOut}
                 userAddress={address}
               />
             )}
           </FormCards>
-          {!formState.token || !address || amountBN.eq(0) ? (
+          {!formState.token || !address || amount === 0n ? (
             <DisabledTransButton />
           ) : (
             <SafeSuspense fallback={<ButtonPlaceholder />}>
               <TransButton
-                amount={amountBN}
+                amount={amount}
                 clearForm={clearForm}
                 fromToken={formState.token}
                 userAddress={address}

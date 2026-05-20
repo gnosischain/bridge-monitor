@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { BigNumber } from 'ethers'
 import { useRouter } from 'next/router'
 import useTransaction from '@/src/hooks/useTransaction'
 import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactionInfo'
@@ -17,7 +16,7 @@ interface TriggerBridgeButtonProps {
   fromChainId: ChainsValues
   toChainId: ChainsValues
   token: Token
-  amount: BigNumber
+  amount: bigint
   recipient: string
   receiveNativeToken: boolean
   toToken?: Token

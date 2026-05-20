@@ -10,10 +10,11 @@ import { Token } from '@/types/token'
 import { TokenOverrideManager } from '@/src/utils/token-overrides'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { contracts } from '@/src/constants/config/contracts'
-import { USDC_ETHEREUM, USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
+import { USDC_ETHEREUM, USDCe_GNOSIS } from '@/src/constants/misc'
 import { usdcTokens } from '@/src/constants/usdcTokens'
 import { xdaiToken } from '@/src/constants/xdaiToken'
 import { usdsToken } from '@/src/constants/usdsToken'
+import { zeroAddress } from 'viem'
 /**
  * Retrieves information about the received token based on the provided parameters.
  * @param amount The amount of the token.
@@ -181,8 +182,8 @@ export const useBridgeTokenOutInfo = ({
           receiveUsds: _receiveUsds,
         })
 
-        // if tokenOutInfo address is ZERO_ADDRESS is a new token on the other chain and we need to handle it
-        if (tokenOutInfo.tokenOutAddress === ZERO_ADDRESS) {
+        // if tokenOutInfo address is ZERO ADDRESS is a new token on the other chain and we need to handle it
+        if (tokenOutInfo.tokenOutAddress === zeroAddress) {
           return {
             ...token,
             address: undefined,

@@ -1,13 +1,11 @@
-import { BigNumber } from 'ethers'
 import { Token } from '@/types/token'
-import useSWR from 'swr'
-import { formatUnits, isAddress } from 'ethers/lib/utils'
+import { formatUnits, isAddress } from 'viem'
 import { useMemo } from 'react'
 import { useTokenMode } from '@/src/hooks/bridge/useTokenMode'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { ChainsValues } from '@/src/constants/config/types'
 import useBridgeLimits from '@/src/hooks/bridge/useBridgeLimits'
-import { EURCe_GNOSIS, USDCe_GNOSIS, ZERO_BN } from '@/src/constants/misc'
+import { EURCe_GNOSIS, USDCe_GNOSIS } from '@/src/constants/misc'
 import { formatNumber } from '@/src/utils/format'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
@@ -27,25 +25,22 @@ export const useBridgeValidations = ({
   userAddress: string
   fromChainId: ChainsValues
   toChainId: ChainsValues
-  amount: BigNumber
+  amount: bigint
   fromToken: Token
   toToken: Token | undefined
   recipient?: string
 }) => {
-  const { readOnlyAppProvider } = useWeb3Connection()
-
-  const isSCWallet = useSWR(
-    userAddress && readOnlyAppProvider
-      ? [`isSCWallet-${userAddress}`, userAddress, readOnlyAppProvider]
-      : null,
-    ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
-  )
+  const { isSCWallet } = useWeb3Connection()
   const { data: bridgeLimits, isLoading } = useBridgeLimits(
     fromChainId,
     toChainId,
     fromToken,
     toToken,
   )
+  // TODO(wagmi-migration): safe today because `useBridgeLimits` still uses SWR `suspense: true`.
+  // Once it migrates to wagmi, this fires during initial load — replace with an `isLoading` guard.
+  // The `bridgeLimits?.dailyLimit - (... || 0n)` precedence on `dailyLimitReached` below also has
+  // a latent `undefined - 0n` crash that's masked by this throw; fix both together.
   if (!bridgeLimits) throw Error('Was not possible to fetch bridge limits.')
 
   const { data: tokenMode } = useTokenMode(fromChainId, toChainId, fromToken)
@@ -53,27 +48,29 @@ export const useBridgeValidations = ({
   const bridgeContract = getBridgeContract(fromChainId, toChainId, fromToken.address)
   const bridgeAddress = bridgeContract.address
 
-  const { data: userBalanceData } = useUserTokenBalances({
+  const { data: userBalanceData, isLoading: isLoadingBalance } = useUserTokenBalances({
     userAddress,
     chainId: fromChainId,
     allowanceAddress: bridgeAddress,
     tokenAddress: fromToken.address,
   })
-  if (!userBalanceData) throw new Error('User balance data is not available')
+
+  const balance = userBalanceData?.balance
+  const allowance = userBalanceData?.allowance
 
   const isValidToken = fromToken !== undefined
-  const isValidAmount = amount.gt(0)
-  const approvalNeeded = amount.gt(userBalanceData.allowance) && amount.lte(userBalanceData.balance)
-  const minAmountError = amount.lt(bridgeLimits?.minPerTx || ZERO_BN)
-  const maxAmountError = amount.gt(bridgeLimits?.maxPerTx || ZERO_BN)
-  const dailyLimitReached = amount.gt(
-    bridgeLimits?.dailyLimit.sub(bridgeLimits?.totalSpentPerDay || ZERO_BN) || ZERO_BN,
-  )
+  const isValidAmount = amount > 0n
+  const approvalNeeded =
+    balance !== undefined && allowance !== undefined && amount > allowance && amount <= balance
+  const minAmountError = amount < (bridgeLimits?.minPerTx || 0n)
+  const maxAmountError = amount > (bridgeLimits?.maxPerTx || 0n)
+  const dailyLimitReached =
+    amount > (bridgeLimits?.dailyLimit - (bridgeLimits?.totalSpentPerDay || 0n) || 0n)
   const minPerTxInNumber = Number(
-    formatUnits(bridgeLimits?.minPerTx || ZERO_BN, fromToken?.decimals || 18),
+    formatUnits(bridgeLimits?.minPerTx || 0n, fromToken?.decimals || 18),
   )
   const maxPerTxInNumber = Number(
-    formatUnits(bridgeLimits?.maxPerTx || ZERO_BN, fromToken?.decimals || 18),
+    formatUnits(bridgeLimits?.maxPerTx || 0n, fromToken?.decimals || 18),
   )
 
   const isDomainName = isValidDomainName(recipient || '')
@@ -98,7 +95,7 @@ export const useBridgeValidations = ({
       }
 
       // is the wallet is a smart contract wallet, we need to request a recipient
-      if (isSCWallet !== undefined && isSCWallet.data && !recipient) {
+      if (isSCWallet && !recipient) {
         throw Error('Please specify a recipient address')
       }
       if (!isValidAmount) {
@@ -131,7 +128,7 @@ export const useBridgeValidations = ({
         throw Error(`We've reached the daily bridge limit amount.`)
       }
 
-      if (amount.gt(userBalanceData.balance)) {
+      if (balance !== undefined && amount > balance) {
         throw Error('Insufficient balance')
       }
 
@@ -150,7 +147,7 @@ export const useBridgeValidations = ({
     maxAmountError,
     dailyLimitReached,
     amount,
-    userBalanceData.balance,
+    balance,
     minPerTxInNumber,
     fromToken.symbol,
     maxPerTxInNumber,
@@ -158,18 +155,18 @@ export const useBridgeValidations = ({
     resolvedAddress,
   ])
 
-  const isValidToSend = !errorMessage && isValidAmount && isValidToken && !isCustomERC20Home
+  const isValidToSend =
+    !errorMessage && isValidAmount && isValidToken && !isCustomERC20Home && balance !== undefined
 
   return {
-    isSCWallet: isSCWallet?.data,
     errorMessage,
-    shouldApprove: tokenMode !== 'ERC677' && userBalanceData.allowance && amount && approvalNeeded,
+    shouldApprove: tokenMode !== 'ERC677' && amount > 0n && approvalNeeded,
     isValidToSend,
     isValidAmount,
     isValidToken,
     amountIsGreaterThanBalance: approvalNeeded,
     amountisLessThanMinPerTx: minAmountError,
     amountisGreaterThanMaxPerTx: maxAmountError,
-    isLoading,
+    isLoading: isLoading || isLoadingBalance,
   }
 }

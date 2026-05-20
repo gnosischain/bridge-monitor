@@ -12,7 +12,6 @@ const Wrapper = styled.div`
   flex-direction: column;
   height: 100vh;
   left: 0;
-  padding: 10px;
   position: fixed;
   top: 0;
   width: 100vw;
@@ -22,12 +21,13 @@ const Wrapper = styled.div`
 
 const Card = styled(BaseCard)<{ size?: modalSize }>`
   background-color: ${({ theme: { colors } }) => colors.creamLight};
-  border-color: ${({ theme: { colors } }) => colors.creamLight};
+  border: 0;
   display: flex;
   flex-direction: column;
   margin: auto;
   max-width: 100%;
-  padding: 30px 25px;
+  padding: 0;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
   position: relative;
   width: ${({ size }) =>
     size === 'sm' ? '325px' : size === 'md' ? '500px' : size === 'lg' ? '720px' : `${size}`};
@@ -123,7 +123,6 @@ export const Modal: React.FC<Props> = ({
         <Card
           className="modalCard"
           onClick={(e: React.MouseEvent) => {
-            e.preventDefault()
             e.stopPropagation()
           }}
           size={size}

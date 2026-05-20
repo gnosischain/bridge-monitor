@@ -183,12 +183,6 @@ export const theme = {
   modal: {
     overlayColor: color_023,
   },
-  onBoard: {
-    backgroundColor: color_001,
-    borderColor: 'transparent',
-    color: color_002,
-    sidebarBackgroundColor: color_005,
-  },
   toast: {
     backgroundColor: color_008,
     borderColor: color_008,

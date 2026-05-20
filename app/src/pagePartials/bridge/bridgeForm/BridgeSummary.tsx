@@ -4,7 +4,6 @@ import { useBridgeValidations } from '@/src/hooks/bridge/useBridgeValidations'
 import { TxPreview, TxPreviewLoading } from '@/src/pagePartials/bridge/bridgeForm/TxPreview'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { Token } from '@/types/token'
-import { BigNumber } from 'ethers'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import React from 'react'
 import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
@@ -14,7 +13,7 @@ import { isValidDomainName } from '@/src/utils/isValidDomainName'
 export const BridgeSummary: React.FC<{
   receiveNativeToken: boolean
   recipient: string
-  amount: BigNumber
+  amount: bigint
   userAddress: string
   fromChainId: ChainsValues
   toChainId: ChainsValues
@@ -45,7 +44,6 @@ export const BridgeSummary: React.FC<{
       chainId: fromChainId,
       tokenAddress: token.address,
     })
-    if (!addressBalances) throw new Error('Address balances are not available')
 
     const { errorMessage } = useBridgeValidations({
       amount,
@@ -56,6 +54,8 @@ export const BridgeSummary: React.FC<{
       toToken: tokenOut,
       userAddress,
     })
+
+    if (!addressBalances) return <TxPreviewLoading />
 
     return errorMessage ? (
       <AlertMessage text={errorMessage} />

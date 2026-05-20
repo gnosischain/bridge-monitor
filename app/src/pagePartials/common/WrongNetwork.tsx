@@ -1,7 +1,6 @@
 import styled, { keyframes } from 'styled-components'
 
 import { ButtonPrimary } from '@/src/components/buttons/Button'
-import { getNetworkConfig } from '@/src/constants/config/chains'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 
 const loadingAnimation = keyframes`
@@ -35,10 +34,9 @@ const Content = styled.div`
 export default function WrongNetwork() {
   const { appChainId, isWalletConnected, isWalletNetworkSupported, pushNetwork } =
     useWeb3Connection()
-  const appChain = getNetworkConfig(appChainId)
   return isWalletConnected && !isWalletNetworkSupported ? (
-    <ButtonPrimary onClick={() => pushNetwork({ chainId: appChain.chainIdHex })}>
-      <Content>Swich to valid network</Content>
+    <ButtonPrimary onClick={() => pushNetwork(appChainId)}>
+      <Content>Switch to valid network</Content>
     </ButtonPrimary>
   ) : null
 }

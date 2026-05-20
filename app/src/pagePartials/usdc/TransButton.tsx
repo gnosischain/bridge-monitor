@@ -7,7 +7,6 @@ import { getNetworkConfig } from '@/src/constants/config/chains'
 import { useEffect, useState } from 'react'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
 import useTransaction from '@/src/hooks/useTransaction'
-import { BigNumber } from 'ethers'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import useWeb3Name from '@/src/hooks/useWeb3Name'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
@@ -15,7 +14,6 @@ import { TokenUsdc } from './types'
 import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { useTransmuterTxInfo } from '@/src/hooks/usdcTransmuter/useTransmuterTxInfo'
 import { usdcTokens } from '@/src/constants/usdcTokens'
-import useSWR from 'swr'
 
 const Button = styled(ButtonFull)`
   margin: 0 auto;
@@ -40,11 +38,7 @@ export const ButtonPlaceholder: React.FC = () => <Button disabled>Loading...</Bu
 export const ButtonPlaceholderWithWarning: React.FC<{
   action: string
 }> = ({ action }) => {
-  const { address, readOnlyAppProvider } = useWeb3Connection()
-  const isSCWallet = useSWR(
-    address && readOnlyAppProvider ? [`isSCWallet-${address}`, address, readOnlyAppProvider] : null,
-    ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
-  ).data
+  const { isSCWallet } = useWeb3Connection()
 
   return (
     <>
@@ -68,7 +62,7 @@ export const DisabledTransButton = () => (
 const ApproveButton: React.FC<{
   userAddress: string
   token: TokenUsdc
-  amount: BigNumber
+  amount: bigint
 }> = ({ amount, token, userAddress }) => {
   const [isSending, setIsSending] = useState(false)
   const [isComponentMounted, setIsComponentMounted] = useState(true)
@@ -83,7 +77,7 @@ const ApproveButton: React.FC<{
 
   const approve = useApproval()
 
-  const { mutate: refreshBalanceToken } = useUserTokenBalances({
+  const { refetch: refreshBalanceToken } = useUserTokenBalances({
     userAddress,
     chainId: Chains.gnosis,
     allowanceAddress: TRANSMUTER_ADDRESS,
@@ -128,7 +122,7 @@ const ApproveButton: React.FC<{
 }
 
 const TriggerTransButton: React.FC<{
-  amount: BigNumber
+  amount: bigint
   token: TokenUsdc
   userAddress: string
   clearForm: () => void
@@ -143,7 +137,7 @@ const TriggerTransButton: React.FC<{
   const sendTx = useTransaction()
   // const router = useRouter()
 
-  const { mutate: refreshBalanceToken } = useUserTokenBalances({
+  const { refetch: refreshBalanceToken } = useUserTokenBalances({
     userAddress,
     chainId: Chains.gnosis,
     allowanceAddress: TRANSMUTER_ADDRESS,
@@ -154,7 +148,7 @@ const TriggerTransButton: React.FC<{
     token.address === usdcTokens.usdcXdaiOld.address
       ? usdcTokens.usdceGnosis.address
       : usdcTokens.usdcXdaiOld.address
-  const { mutate: refreshBalanceTokenOut } = useUserTokenBalances({
+  const { refetch: refreshBalanceTokenOut } = useUserTokenBalances({
     userAddress,
     chainId: Chains.gnosis,
     allowanceAddress: TRANSMUTER_ADDRESS,
@@ -206,7 +200,7 @@ const TriggerTransButton: React.FC<{
 }
 
 export const TransButton: React.FC<{
-  amount: BigNumber
+  amount: bigint
   fromToken: TokenUsdc
   userAddress: string
   clearForm: () => void
@@ -235,10 +229,13 @@ export const TransButton: React.FC<{
     tokenAddress: fromToken.address,
   })
 
+  // TODO(wagmi-migration): same caveat as Approve.tsx — only safe because the hook is warmed up
+  // higher in the tree (UserBalance/TransSummary). Cold deep-link would throw. Replace with a
+  // loading placeholder.
   if (!userBalanceData) throw new Error('User balance data is not available')
 
-  const isValidToSend = amount.gt(0) && amount.lte(userBalanceData.balance)
-  const shouldApprove = amount.gt(userBalanceData.allowance) && amount.lte(userBalanceData.balance)
+  const isValidToSend = amount > 0n && amount <= userBalanceData.balance
+  const shouldApprove = amount > userBalanceData.allowance && amount <= userBalanceData.balance
 
   if (!isValidToSend) {
     return <DisabledTransButton />
@@ -267,7 +264,7 @@ export const TransButton: React.FC<{
 
   if (hasToSwitchNetwork) {
     return (
-      <Button onClick={() => pushNetwork({ chainId: appChainConfig.chainIdHex })}>
+      <Button onClick={() => pushNetwork(appChainConfig.chainId)}>
         {`Switch to ${appChainConfig.name}`}
       </Button>
     )

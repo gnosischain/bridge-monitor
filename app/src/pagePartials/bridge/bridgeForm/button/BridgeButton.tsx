@@ -1,5 +1,4 @@
 import React from 'react'
-import { BigNumber } from 'ethers'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { getNetworkConfig } from '@/src/constants/config/chains'
 import useWeb3Name from '@/src/hooks/useWeb3Name'
@@ -23,7 +22,7 @@ const Button = styled(ButtonFull)`
 interface BridgeButtonProps {
   fromChainId: ChainsValues
   toChainId: ChainsValues
-  amount: BigNumber
+  amount: bigint
   recipient: string
   fromToken: Token
   isUsdceGC: boolean
@@ -94,7 +93,7 @@ export const BridgeButton: React.FC<BridgeButtonProps> = ({
 
   if (hasToSwitchNetwork) {
     return (
-      <Button onClick={() => pushNetwork({ chainId: appChainConfig.chainIdHex })}>
+      <Button onClick={() => pushNetwork(appChainConfig.chainId)}>
         {`Switch to ${appChainConfig.name}`}
       </Button>
     )

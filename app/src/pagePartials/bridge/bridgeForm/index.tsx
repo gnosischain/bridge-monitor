@@ -21,7 +21,6 @@ import {
   USDC_ETHEREUM,
   USDCe_GNOSIS,
   WXDAI_GNOSIS,
-  ZERO_ADDRESS,
   sDAI_GNOSIS,
 } from '@/src/constants/misc'
 import { chainsConfig } from '@/src/constants/config/chains'
@@ -37,7 +36,6 @@ import { UserBalance } from '@/src/pagePartials/bridge/bridgeForm/UserBalance'
 import { BridgeSummary } from '@/src/pagePartials/bridge/bridgeForm/BridgeSummary'
 import { ReceivedTokenInfo } from '@/src/pagePartials/bridge/bridgeForm/ReceivedTokenInfo'
 import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
-import { toBN } from '@/src/utils/bigNumber'
 import { NotBridgedERC20Warning } from './warnings/NotBridgedERC20Warning'
 import { ExternalBridgeWarning } from './warnings/ExternalBridgeWarning'
 import {
@@ -50,6 +48,7 @@ import { useSanitizedQuery } from '@/src/hooks/useSanitizedQuery'
 import { isBlockedToken } from '@/src/utils/blockedTokens'
 import { getChainKey } from '@/src/constants/config/chains'
 import { ShowTokenAddress } from './ShowTokenAddress'
+import { parseUnits, zeroAddress } from 'viem'
 
 const Title = styled.h2`
   align-items: center;
@@ -163,7 +162,7 @@ const Main = () => {
     }),
     {
       ...initialState,
-      account: address || ZERO_ADDRESS,
+      account: address || zeroAddress,
       ...sanitizedQuery,
     },
   )
@@ -188,7 +187,7 @@ const Main = () => {
 
   const [debouncedAmount] = useDebounce(formState.amount, 500)
 
-  const amountBN = toBN(debouncedAmount || '0', formState.token?.decimals || 0)
+  const amount = parseUnits(debouncedAmount || '0', formState.token?.decimals || 0)
 
   const handleFromChainIdChange = async () => {
     const newFromChainId = formState.toChainId === 100 ? 100 : 1
@@ -213,7 +212,7 @@ const Main = () => {
 
     dispatch({
       ...initialState,
-      account: address || ZERO_ADDRESS,
+      account: address || zeroAddress,
       fromChainId: newFromChainId,
       toChainId: getToChainId(newFromChainId),
       token,
@@ -244,7 +243,7 @@ const Main = () => {
   })
 
   const isNotBridgedErc20 =
-    (tokenOut?.chainId === 1 && tokenOut.extensions.bridgeInfo[1]?.tokenAddress === ZERO_ADDRESS) ||
+    (tokenOut?.chainId === 1 && tokenOut.extensions.bridgeInfo[1]?.tokenAddress === zeroAddress) ||
     isBlockedToken(formState.token?.address || '')
       ? true
       : false
@@ -322,7 +321,7 @@ const Main = () => {
                   </OnChainInfo>
                   <BridgedToken>
                     <ReceivedTokenInfo
-                      amountBN={amountBN}
+                      amount={amount}
                       fromChainId={formState.fromChainId}
                       setReceiveNativeToken={(receiveNative: boolean) => {
                         dispatch({ ...formState, receiveNativeToken: receiveNative })
@@ -349,13 +348,13 @@ const Main = () => {
                 </>
               )}
             </InnerCard>
-            {amountBN.gt(0) &&
+            {amount > 0n &&
               formState.token &&
               tokenOut &&
               address &&
               walletChainId == formState.fromChainId && (
                 <BridgeSummary
-                  amount={amountBN}
+                  amount={amount}
                   fromChainId={formState.fromChainId}
                   receiveNativeToken={formState.receiveNativeToken}
                   recipient={formState.recipient}
@@ -367,7 +366,7 @@ const Main = () => {
               )}
           </FormCards>
           <UnifiedBridgeButton
-            amount={amountBN}
+            amount={amount}
             fromChainId={formState.fromChainId}
             fromToken={formState.token}
             isUsdceGC={isUsdceGC}
