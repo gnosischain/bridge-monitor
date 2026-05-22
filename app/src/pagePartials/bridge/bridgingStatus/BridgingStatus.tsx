@@ -15,10 +15,9 @@ import { useRouter } from 'next/router'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
 import { formatNumber } from '@/src/utils/format'
-import { formatUnits } from 'ethers/lib/utils'
+import { formatUnits } from 'viem'
 import { useTokenInfo } from '@/src/hooks/bridge/useTokenInfo'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import useSWR from 'swr'
 
 const InnerWrapper = styled.div`
   max-width: 644px;
@@ -230,16 +229,11 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
     transactionHash,
   )
 
-  const formattedAmount = Number(formatUnits(amount, tokenBridged?.decimals))
+  const formattedAmount = Number(formatUnits(BigInt(amount), tokenBridged?.decimals ?? 18))
 
   const isBridgeComplete = progressData?.progress === 100
 
-  const { address, readOnlyAppProvider } = useWeb3Connection()
-
-  const isSCWallet = useSWR(
-    address && readOnlyAppProvider ? [`isSCWallet-${address}`, address, readOnlyAppProvider] : null,
-    ([, address, provider]) => provider.getCode(address).then((code) => code !== '0x'),
-  ).data
+  const { address, isSCWallet } = useWeb3Connection()
   const myTxsLink = `/bridge-explorer/my-transactions?hash=${address}`
 
   return (

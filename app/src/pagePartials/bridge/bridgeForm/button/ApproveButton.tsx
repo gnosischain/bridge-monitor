@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { BigNumber } from 'ethers'
 import { ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
@@ -13,7 +12,7 @@ interface ApproveButtonProps {
   fromChainId: ChainsValues
   toChainId: ChainsValues
   token: Token
-  amount: BigNumber
+  amount: bigint
 }
 
 export const ApproveButton: React.FC<ApproveButtonProps> = ({
@@ -30,7 +29,7 @@ export const ApproveButton: React.FC<ApproveButtonProps> = ({
   const bridgeContract = getBridgeContract(fromChainId, toChainId, token.address)
   const bridgeAddress = bridgeContract.address
 
-  const { mutate: refreshBalance } = useUserTokenBalances({
+  const { refetch: refreshBalance } = useUserTokenBalances({
     userAddress,
     chainId: fromChainId,
     allowanceAddress: bridgeAddress,

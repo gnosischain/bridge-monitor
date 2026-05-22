@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { Button } from './Button'
 import { BridgeWithSteps } from '../bridgeWithSteps'
-import { BigNumber } from 'ethers'
 import { Token } from '@/types/token'
 
 interface Props {
-  amount: BigNumber
+  amount: bigint
   recipient: string
   userAddress: string
   tokenIn?: Token

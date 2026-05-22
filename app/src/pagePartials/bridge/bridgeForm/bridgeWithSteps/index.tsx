@@ -1,13 +1,12 @@
 import { Modal } from '@/src/components/modal'
 import styled from 'styled-components'
 import { useState } from 'react'
-import { BigNumber } from 'ethers'
 import { Approve } from './Approve'
 import { Swap } from './Swap'
 import { Bridge } from './Bridge'
 import { Token } from '@/types/token'
 import { Step, steps } from './const'
-import { formatUnits } from 'ethers/lib/utils'
+import { formatUnits } from 'viem'
 
 const StatusList = styled.div`
   background-color: ${({ theme: { colors } }) => colors.cream};
@@ -26,7 +25,7 @@ const StatusList = styled.div`
 type BridgeWithStepsProps = {
   tokenIn: Token
   tokenOut: Token
-  amount: BigNumber
+  amount: bigint
   onClose: () => void
   recipient: string
   userAddress: string
@@ -43,7 +42,7 @@ export const BridgeWithSteps: React.FC<BridgeWithStepsProps> = ({
 }) => {
   const [status, setStatus] = useState<Step[]>(steps.approve)
 
-  const formattedAmount = formatUnits(amount, tokenIn?.decimals)
+  const formattedAmount = formatUnits(amount, tokenIn?.decimals ?? 18)
 
   return (
     <Modal

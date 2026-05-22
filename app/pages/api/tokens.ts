@@ -4,7 +4,7 @@ import { NATIVE_TOKEN_ADDRESS, USDS_ADDRESS } from '@/src/constants/config/commo
 import { isSameString } from '@/src/utils/tools'
 import { Token as BaseToken } from '@/types/token'
 import bridgedTokens from '@/src/constants/bridged_tokens.json'
-import { ZERO_ADDRESS } from '@/src/constants/misc'
+import { zeroAddress } from 'viem'
 
 type Token = Omit<BaseToken, 'extensions'> & {
   extensions: {
@@ -174,7 +174,7 @@ export default function handler(_: NextApiRequest, res: NextApiResponse<Array<To
           },
         },
       },
-      ...extraTokens.filter((token) => token.address !== ZERO_ADDRESS),
+      ...extraTokens.filter((token) => token.address !== zeroAddress),
     ]
   })
 

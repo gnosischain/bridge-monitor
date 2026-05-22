@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 import { TransactionResponse } from '@ethersproject/providers'
 import toast from 'react-hot-toast'
@@ -53,30 +53,33 @@ export const TransactionNotificationProvider: React.FC<{ children: React.ReactNo
     [setTransactionStore, transactionStore],
   )
 
-  const notifyWaitingForSignature = () => {
+  const notifyWaitingForSignature = useCallback(() => {
     notify({
       type: ToastStates.waiting,
       message: 'Waiting for signature',
       id: 'waitingForSignature',
     })
-  }
+  }, [])
 
-  const notifyRejectSignature = (msg: string) => {
+  const notifyRejectSignature = useCallback((msg: string) => {
     toast.remove('waitingForSignature')
     notify({ type: ToastStates.failed, message: msg })
-  }
+  }, [])
 
-  const notifyWaitingForTxMined = (txHash: string) => {
-    toast.remove('waitingForSignature')
-    if (!transactionStore || !address) return
-    setTransactionStore([...transactionStore, { chainId: appChainId, address, txHash }])
+  const notifyWaitingForTxMined = useCallback(
+    (txHash: string) => {
+      toast.remove('waitingForSignature')
+      if (!transactionStore || !address) return
+      setTransactionStore([...transactionStore, { chainId: appChainId, address, txHash }])
 
-    notify({
-      type: ToastStates.waiting,
-      explorerUrl: getExplorerUrl(txHash, chainKey),
-      id: txHash,
-    })
-  }
+      notify({
+        type: ToastStates.waiting,
+        explorerUrl: getExplorerUrl(txHash, chainKey),
+        id: txHash,
+      })
+    },
+    [transactionStore, address, setTransactionStore, appChainId, getExplorerUrl, chainKey],
+  )
 
   const notifyTxMined = useCallback(
     (txHash: string, isSuccess?: boolean) => {
@@ -150,13 +153,22 @@ export const TransactionNotificationProvider: React.FC<{ children: React.ReactNo
     transactionStore,
   ])
 
-  const values: TransactionContextValue = {
-    state: transactionStore as TransactionStorageItem[],
-    notifyTxMined,
-    notifyWaitingForSignature,
-    notifyWaitingForTxMined,
-    notifyRejectSignature,
-  }
+  const values: TransactionContextValue = useMemo(
+    () => ({
+      state: transactionStore as TransactionStorageItem[],
+      notifyTxMined,
+      notifyWaitingForSignature,
+      notifyWaitingForTxMined,
+      notifyRejectSignature,
+    }),
+    [
+      transactionStore,
+      notifyTxMined,
+      notifyWaitingForSignature,
+      notifyWaitingForTxMined,
+      notifyRejectSignature,
+    ],
+  )
 
   return <TransactionContext.Provider value={values}>{children}</TransactionContext.Provider>
 }

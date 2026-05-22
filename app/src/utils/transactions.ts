@@ -4,7 +4,6 @@ import { Chains } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { getEnvioGraphqlClient } from '@/src/constants/config/indexer'
 import { ENVIO_TRANSACTIONS_QUERY } from '@/src/queries/transactions'
-import { constants } from 'ethers'
 
 export enum TransactionStatus {
   Collecting = 'COLLECTING',
@@ -109,12 +108,12 @@ const prepareTransactionForView = (row: EnvioTx): Transaction => {
     transactionHash: row.transactionHash ?? '',
     timestamp: fromSecondsTimestamp(row.timestamp ?? 0),
     initiator: row.initiator ?? '',
-    initiatorAmount: row.initiatorAmount ?? constants.Zero.toString(),
+    initiatorAmount: row.initiatorAmount ?? '0',
     initiatorNetwork,
     initiatorNetworkIcon: getNetworkIcon(initiatorNetwork),
     initiatorToken: row.initiatorToken ?? '',
     receiver: row.receiver ?? '',
-    receiverAmount: row.receiverAmount ?? constants.Zero.toString(),
+    receiverAmount: row.receiverAmount ?? '0',
     receiverNetwork,
     receiverNetworkIcon: getNetworkIcon(receiverNetwork),
     receiverToken: row.receiverToken ?? '',

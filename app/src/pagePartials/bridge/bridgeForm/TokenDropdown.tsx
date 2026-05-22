@@ -18,13 +18,13 @@ import { getNetworkConfig } from '@/src/constants/config/chains'
 import { isSameString } from '@/src/utils/tools'
 import { Spinner } from '@/src/components/loading/Spinner'
 import { ERC165__factory } from '@/types/typechain/factories/ERC165__factory'
-import { USDCe_GNOSIS, ZERO_ADDRESS } from '@/src/constants/misc'
+import { USDCe_GNOSIS } from '@/src/constants/misc'
 import { useUserTokenListBalances } from '@/src/hooks/bridge/useUserTokenListBalances'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { fromBN } from '@/src/utils/bigNumber'
 import { formatNumber } from '@/src/utils/format'
 import { usdsToken } from '@/src/constants/usdsToken'
 import { xdaiToken } from '@/src/constants/xdaiToken'
+import { formatUnits, zeroAddress } from 'viem'
 
 const BaseChevronDown = ({ ...restProps }) => (
   <svg
@@ -290,7 +290,7 @@ const Dropdown: React.FC<Props> = ({
     const allTokens = ambTokensByNetwork[fromChainId]
       .concat(manualTokens.filter((item) => item.chainId === fromChainId))
       .filter((item) => {
-        if (isSameString(item.address, ZERO_ADDRESS)) return false
+        if (isSameString(item.address, zeroAddress)) return false
         if (fromChainId === Chains.gnosis && isSameString(item.symbol, 'USDS')) return false
         return true
       })
@@ -524,7 +524,7 @@ const Dropdown: React.FC<Props> = ({
                 </TokenInfo>
                 {balances && balances[item.address] && (
                   <TokenAmount>
-                    {formatNumber(Number(fromBN(balances[item.address], item?.decimals)))}
+                    {formatNumber(Number(formatUnits(balances[item.address], item.decimals)))}
                   </TokenAmount>
                 )}
               </DropdownBridgeItem>

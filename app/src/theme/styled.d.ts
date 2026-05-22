@@ -145,12 +145,6 @@ declare module 'styled-components' {
     modal: {
       overlayColor: string
     }
-    onBoard: {
-      backgroundColor: string
-      borderColor: string
-      color: string
-      sidebarBackgroundColor: string
-    }
     toast: {
       backgroundColor: string
       borderColor: string
