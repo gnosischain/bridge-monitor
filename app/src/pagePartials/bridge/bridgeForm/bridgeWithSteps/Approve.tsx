@@ -71,15 +71,12 @@ export const Approve = ({
     tokenAddress: tokenIn.address,
   })
 
-  // TODO(wagmi-migration): unreachable today because `useUserTokenBalances` is mounted higher in
-  // the tree (UserBalance/BridgeSummary) and wagmi's `placeholderData: keepPreviousData` serves
-  // the cached value synchronously. A cold deep-link would still throw — replace with a loading
-  // placeholder.
-  if (!userBalanceData) throw new Error('User balance data is not available')
-
-  const shouldApprove = amount > userBalanceData.allowance && amount <= userBalanceData.balance
+  const shouldApprove =
+    !!userBalanceData && amount > userBalanceData.allowance && amount <= userBalanceData.balance
 
   useEffect(() => {
+    if (!userBalanceData) return
+
     if (shouldApprove && approveStatus === 'now' && !showButton) {
       setStatus(steps.approving)
     }
@@ -87,7 +84,7 @@ export const Approve = ({
     if (!shouldApprove && approveStatus === 'now') {
       setStatus(steps.swapping)
     }
-  }, [shouldApprove, approveStatus, setStatus, showButton])
+  }, [shouldApprove, approveStatus, setStatus, showButton, userBalanceData])
 
   const runApprove = useMemo(
     () => async () => {
