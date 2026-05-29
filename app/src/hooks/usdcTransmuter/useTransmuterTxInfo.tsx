@@ -74,12 +74,10 @@ export const useTransmuterTxInfo = ({
   returnZero?: boolean
 }) => {
   const { walletChainId, web3Provider } = useWeb3Connection()
-  if (!web3Provider) throw new Error('No web3 provider available')
-  const signer = web3Provider.getSigner()
-  if (walletChainId !== Chains.gnosis) throw new Error('Invalid chain')
+  const isReady = !!web3Provider && walletChainId === Chains.gnosis
 
   const { data: transactionData } = useSWR(
-    ['transactionInfo', token, amount, userAddress, returnZero || false],
+    isReady ? ['transactionInfo', token, amount, userAddress, returnZero || false] : null,
     async ([, _token, _amount, _userAddress, _returnZero]) => {
       if (_returnZero) {
         return {
@@ -96,6 +94,7 @@ export const useTransmuterTxInfo = ({
           tx: null,
         }
       }
+      const signer = web3Provider!.getSigner()
       const { gasLimit, gasPrice, tx } = await getTransTx({
         account: _userAddress,
         amount: _amount,
