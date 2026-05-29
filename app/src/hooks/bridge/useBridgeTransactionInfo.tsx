@@ -756,9 +756,7 @@ export const useBridgeTransactionInfo = ({
   toToken?: Token
 }) => {
   const { walletChainId, web3Provider } = useWeb3Connection()
-  if (!web3Provider) throw new Error('No web3 provider available')
-  const signer = web3Provider.getSigner()
-  if (walletChainId !== fromChainId) throw new Error('Invalid chain')
+  const isReady = !!web3Provider && walletChainId === fromChainId
 
   const { data: tokenMode } = useTokenMode(fromChainId, toChainId, token)
   const { data: userBalancesData } = useUserTokenBalances({
@@ -767,22 +765,23 @@ export const useBridgeTransactionInfo = ({
     chainId: fromChainId,
     tokenAddress: token.address,
   })
-  if (!userBalancesData) throw new Error('User balances are not available')
 
   const toTokenAddress = toToken ? toToken.address : undefined
 
   return useSWR(
-    [
-      'transactionInfo',
-      token,
-      fromChainId,
-      toChainId,
-      amount,
-      recipient,
-      tokenMode,
-      receiveNativeToken,
-      toTokenAddress,
-    ],
+    isReady && userBalancesData
+      ? [
+          'transactionInfo',
+          token,
+          fromChainId,
+          toChainId,
+          amount,
+          recipient,
+          tokenMode,
+          receiveNativeToken,
+          toTokenAddress,
+        ]
+      : null,
     async ([
       ,
       _token,
@@ -794,6 +793,7 @@ export const useBridgeTransactionInfo = ({
       _receiveNativeToken,
       _toTokenAddress,
     ]) => {
+      const signer = web3Provider!.getSigner()
       const { gasLimit, gasPrice, tx } = await getBridgeTx({
         account: userAddress,
         amount: _amount,
@@ -804,8 +804,8 @@ export const useBridgeTransactionInfo = ({
         recipient: _recipient,
         tokenMode: _tokenMode,
         receiveNativeToken: _receiveNativeToken,
-        allowance: userBalancesData.allowance,
-        balance: userBalancesData.balance,
+        allowance: userBalancesData!.allowance,
+        balance: userBalancesData!.balance,
         toTokenAddress: _toTokenAddress,
       })
 
