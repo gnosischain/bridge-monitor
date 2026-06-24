@@ -3,12 +3,8 @@ import { SCLink, SCText, SCTitle, Wrapper } from '@/src/components/card/SidebarC
 export const ExternalLinks: React.FC = ({ ...restProps }) => {
   const links = [
     {
-      name: 'stargate.finance',
-      url: 'https://stargate.finance/bridge',
-    },
-    {
-      name: 'relay.link',
-      url: 'https://relay.link/bridge/gnosis',
+      name: 'bungee.exchange',
+      url: 'https://www.bungee.exchange/',
     },
     {
       name: 'cow.fi',
@@ -19,20 +15,24 @@ export const ExternalLinks: React.FC = ({ ...restProps }) => {
       url: 'https://jumper.exchange/',
     },
     {
-      name: 'bungee.exchange',
-      url: 'https://www.bungee.exchange/',
+      name: 'relay.link',
+      url: 'https://relay.link/bridge/gnosis',
     },
     {
       name: 'shapeshift.com',
       url: 'https://app.shapeshift.com/#/trade',
     },
     {
-      name: 'symbiosis.finance',
-      url: 'https://app.symbiosis.finance/swap',
-    },
-    {
       name: 'squid',
       url: 'https://app.squidrouter.com/',
+    },
+    {
+      name: 'stargate.finance',
+      url: 'https://stargate.finance/bridge',
+    },
+    {
+      name: 'symbiosis.finance',
+      url: 'https://app.symbiosis.finance/swap',
     },
   ]
 
