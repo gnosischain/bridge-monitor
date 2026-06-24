@@ -11,6 +11,10 @@ export const ExternalLinks: React.FC = ({ ...restProps }) => {
       url: 'https://relay.link/bridge/gnosis',
     },
     {
+      name: 'cow.fi',
+      url: 'https://swap.cow.fi/#/100/swap/',
+    },
+    {
       name: 'jumper.exchange',
       url: 'https://jumper.exchange/',
     },
