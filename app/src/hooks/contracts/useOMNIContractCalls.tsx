@@ -1,136 +1,85 @@
-import { Chains } from '@/src/constants/config/types'
-import { Token } from '@/types/token'
-import { useContractCall } from '@/src/hooks/useContractCall'
-import { useContractInstance } from '@/src/hooks/useContractInstance'
+import { useReadContracts } from 'wagmi'
+
+import { contracts } from '@/src/constants/config/contracts'
+import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { toNumber } from '@/src/utils/bigNumber'
-import {
-  ForeignOmniMediator,
-  ForeignOmniMediator__factory,
-  HomeOmniMediator,
-  HomeOmniMediator__factory,
-} from '@/types/typechain'
-import { BigNumberish } from 'ethers'
+import { Token } from '@/types/token'
+import { Address } from 'viem'
 
-export const useHomeOMNIBridgeLimits = (token: Token, currentDay: BigNumberish = '0') => {
-  const tokenAddress = token.address
+// Home and Foreign Omni mediators share the same limit-reading interface, so a single
+// ABI encodes the reads for both sides (the address differs per chain).
+const OMNI_ABI = contracts.OmniBridge.abi
+
+const useOMNIBridgeLimits = (token: Token, chainId: ChainsValues, currentDay: string = '0') => {
+  const tokenAddress = token.address as Address
   const tokenAmountToNumber = toNumber(token.decimals)
-  const homeOMNI = useContractInstance(HomeOmniMediator__factory, 'OmniBridge', Chains.gnosis)
 
-  const contextCalls = [homeOMNI.getCurrentDay, homeOMNI.isTokenRegistered] as const
-  const [{ data: homeOMNIContext }] = useContractCall<HomeOmniMediator, typeof contextCalls>(
-    contextCalls,
-    [[], [tokenAddress]],
-    'homeOMNIContext',
-  )
-  const [, isTokenRegistered = false] = homeOMNIContext ?? []
-  currentDay = homeOMNIContext?.[0] ?? currentDay
+  const omni = {
+    address: contracts.OmniBridge.address[chainId],
+    abi: OMNI_ABI,
+    chainId,
+  } as const
 
-  const limitsCalls = [
-    homeOMNI.dailyLimit,
-    homeOMNI.executionDailyLimit,
-    homeOMNI.minPerTx,
-    homeOMNI.maxPerTx,
-    homeOMNI.executionMaxPerTx,
-  ] as const
-  const [{ data: homeOMNILimits }] = useContractCall<HomeOmniMediator, typeof limitsCalls>(
-    limitsCalls,
-    [[tokenAddress], [tokenAddress], [tokenAddress], [tokenAddress], [tokenAddress]],
-    'homeOMNILimits',
-  )
-  const [
-    dailyLimit = 0,
-    executionDailyLimit = 0,
-    minPerTx = 0,
-    maxPerTx = 0,
-    executionMaxPerTx = 0,
-  ] = homeOMNILimits?.map(tokenAmountToNumber) ?? []
-
-  const totalsCalls = [homeOMNI.totalSpentPerDay, homeOMNI.totalExecutedPerDay] as const
-  const [{ data: homeOMNITotals }] = useContractCall<HomeOmniMediator, typeof totalsCalls>(
-    totalsCalls,
-    [
-      [tokenAddress, currentDay],
-      [tokenAddress, currentDay],
+  // context + per-token limits (independent of the current day)
+  const { data: base, isLoading: isLoadingBase } = useReadContracts({
+    allowFailure: false,
+    contracts: [
+      { ...omni, functionName: 'getCurrentDay' },
+      { ...omni, functionName: 'isTokenRegistered', args: [tokenAddress] },
+      { ...omni, functionName: 'dailyLimit', args: [tokenAddress] },
+      { ...omni, functionName: 'executionDailyLimit', args: [tokenAddress] },
+      { ...omni, functionName: 'minPerTx', args: [tokenAddress] },
+      { ...omni, functionName: 'maxPerTx', args: [tokenAddress] },
+      { ...omni, functionName: 'executionMaxPerTx', args: [tokenAddress] },
     ],
-    'homeOMNITotals',
-  )
-  const [totalSpentPerDay = 0, totalExecutedPerDay = 0] =
-    homeOMNITotals?.map(tokenAmountToNumber) ?? []
+  })
+
+  const [
+    onChainCurrentDay,
+    isTokenRegistered = false,
+    dailyLimit,
+    executionDailyLimit,
+    minPerTx,
+    maxPerTx,
+    executionMaxPerTx,
+  ] = base ?? []
+
+  // the on-chain current day wins; the passed value is only a fallback (e.g. `?d=` history)
+  const day = onChainCurrentDay ?? (currentDay ? BigInt(currentDay) : 0n)
+
+  // totals depend on the resolved current day, so they run once `base` is loaded
+  const { data: totals, isLoading: isLoadingTotals } = useReadContracts({
+    allowFailure: false,
+    contracts: [
+      { ...omni, functionName: 'totalSpentPerDay', args: [tokenAddress, day] },
+      { ...omni, functionName: 'totalExecutedPerDay', args: [tokenAddress, day] },
+    ],
+    query: { enabled: onChainCurrentDay !== undefined },
+  })
+
+  const [totalSpentPerDay, totalExecutedPerDay] = totals ?? []
 
   return {
-    homeOmniInformation: {
+    information: {
       isTokenRegistered,
-      dailyLimit,
-      totalSpentPerDay,
-      executionDailyLimit,
-      totalExecutedPerDay,
-      minPerTx,
-      maxPerTx,
-      executionMaxPerTx,
+      dailyLimit: tokenAmountToNumber(dailyLimit) ?? 0,
+      executionDailyLimit: tokenAmountToNumber(executionDailyLimit) ?? 0,
+      minPerTx: tokenAmountToNumber(minPerTx) ?? 0,
+      maxPerTx: tokenAmountToNumber(maxPerTx) ?? 0,
+      executionMaxPerTx: tokenAmountToNumber(executionMaxPerTx) ?? 0,
+      totalSpentPerDay: tokenAmountToNumber(totalSpentPerDay) ?? 0,
+      totalExecutedPerDay: tokenAmountToNumber(totalExecutedPerDay) ?? 0,
     },
+    isLoading: isLoadingBase || isLoadingTotals || (base !== undefined && totals === undefined),
   }
 }
 
-export const useForeignOMNIBridgeLimits = (token: Token, currentDay: BigNumberish = '0') => {
-  const tokenAddress = token.address
-  const tokenAmountToNumber = toNumber(token.decimals)
-  const foreignOMNI = useContractInstance(
-    ForeignOmniMediator__factory,
-    'OmniBridge',
-    Chains.mainnet,
-  )
+export const useHomeOMNIBridgeLimits = (token: Token, currentDay: string = '0') => {
+  const { information, isLoading } = useOMNIBridgeLimits(token, Chains.gnosis, currentDay)
+  return { homeOmniInformation: information, isLoading }
+}
 
-  const contextCalls = [foreignOMNI.getCurrentDay, foreignOMNI.isTokenRegistered] as const
-  const [{ data: foreignOMNIContext }] = useContractCall<ForeignOmniMediator, typeof contextCalls>(
-    contextCalls,
-    [[], [tokenAddress]],
-    'foreignOMNIContext',
-  )
-  currentDay = foreignOMNIContext?.[0] ?? currentDay
-  const [, isTokenRegistered = false] = foreignOMNIContext ?? []
-
-  const limitsCalls = [
-    foreignOMNI.dailyLimit,
-    foreignOMNI.executionDailyLimit,
-    foreignOMNI.minPerTx,
-    foreignOMNI.maxPerTx,
-    foreignOMNI.executionMaxPerTx,
-  ] as const
-  const [{ data: foreignOMNILimits }] = useContractCall<ForeignOmniMediator, typeof limitsCalls>(
-    limitsCalls,
-    [[tokenAddress], [tokenAddress], [tokenAddress], [tokenAddress], [tokenAddress]],
-    'foreignOMNILimits',
-  )
-  const [
-    dailyLimit = 0,
-    executionDailyLimit = 0,
-    minPerTx = 0,
-    maxPerTx = 0,
-    executionMaxPerTx = 0,
-  ] = foreignOMNILimits?.map(tokenAmountToNumber) ?? []
-
-  const totalsCalls = [foreignOMNI.totalSpentPerDay, foreignOMNI.totalExecutedPerDay] as const
-  const [{ data: foreignOMNITotals }] = useContractCall<ForeignOmniMediator, typeof totalsCalls>(
-    totalsCalls,
-    [
-      [tokenAddress, currentDay],
-      [tokenAddress, currentDay],
-    ],
-    'foreignOMNITotals',
-  )
-  const [totalSpentPerDay = 0, totalExecutedPerDay = 0] =
-    foreignOMNITotals?.map(tokenAmountToNumber) ?? []
-
-  return {
-    foreignOmniInformation: {
-      isTokenRegistered,
-      dailyLimit,
-      totalSpentPerDay,
-      executionDailyLimit,
-      totalExecutedPerDay,
-      minPerTx,
-      maxPerTx,
-      executionMaxPerTx,
-    },
-  }
+export const useForeignOMNIBridgeLimits = (token: Token, currentDay: string = '0') => {
+  const { information, isLoading } = useOMNIBridgeLimits(token, Chains.mainnet, currentDay)
+  return { foreignOmniInformation: information, isLoading }
 }
