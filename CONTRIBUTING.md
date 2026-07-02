@@ -25,6 +25,32 @@ Welcome to the Gnosis Bridge project! We value contributions from the community 
 2. Submit a PR to the `develop` branch for review.
 3. Once approved, changes from `develop` are promoted to `staging` and eventually to `main` for production.
 
+### Hotfixes & Backporting
+
+Urgent production fixes do **not** wait for the normal `develop → staging → main`
+flow. They are applied **directly to `main`**:
+
+1. Branch `hotfix/<name>` from `main`, make the fix, and open a PR with **base `main`**.
+2. Once it merges, **backport `main` into both other branches** so they don't drift — two PRs, each **compare = `main`**:
+   - **base `staging`** ← compare `main`
+   - **base `develop`** ← compare `main`
+3. Do **both** backports. Skipping the `develop` one is the usual cause of drift: the fix reaches production and staging but silently never lands on `develop`.
+
+All promotion and backport PRs between the long-lived branches (`develop` / `staging` / `main`) must be merged with a **merge commit** — never squash or rebase — so commit SHAs stay shared and the branches keep a clean, comparable ancestry. Squash/rebase is only for feature-branch → `develop` PRs.
+
+> **Why the branches look "behind" — and why that's fine.** After a full
+> `develop → staging → main` cycle, all three branches hold identical _content_;
+> they differ only by empty merge commits (e.g. `main` carries the staging→main
+> merge that `staging` doesn't). Git will report `develop`/`staging` as "N behind"
+> — this is the normal, healthy state, **not** drift. Don't rebase or squash these
+> branches to "fix" the count; that rewrites shared SHAs and _causes_ the conflicts
+> it looks like it's avoiding. Real conflicts only arise from (1) content committed
+> straight to `staging`/`main` and never backported, or (2) squash/rebase-merging
+> these long-lived branches. Avoid both and the forward flow stays conflict-free.
+
+For the full explanation — history diagrams, merge-base mechanics, and worked
+examples — see [`docs/branching.md`](./docs/branching.md).
+
 ---
 
 ## Project Structure
