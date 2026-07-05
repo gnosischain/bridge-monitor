@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
-import { isAddress } from '@ethersproject/address'
 import { DebounceInput } from 'react-debounce-input'
+import { type Address, erc20Abi, isAddress } from 'viem'
+import { usePublicClient } from 'wagmi'
 
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { ChevronDown as BaseChevronDown } from '@/src/components/assets/ChevronDown'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown as BaseDropdown, DropdownPosition } from '@/src/components/dropdown'
@@ -14,8 +14,6 @@ import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { getToChainId } from '@/src/utils/tools'
-import { ERC165__factory, HomeOmniMediator__factory } from '@/types/typechain'
-import { getNetworkConfig } from '@/src/constants/config/chains'
 import { contracts } from '@/src/constants/config/contracts'
 
 const Wrapper = styled(BaseDropdown)`
@@ -186,6 +184,9 @@ const Dropdown: React.FC<Props> = ({
   const [isLoading, setIsLoading] = useState(false)
   const [manualTokens, setManualTokens] = useState<Token[]>([])
 
+  const erc20Client = usePublicClient({ chainId })
+  const omniClient = usePublicClient({ chainId: Chains.gnosis })
+
   const onSelectToken = (token: Token) => {
     setToken(token)
     if (typeof onChange !== 'undefined') onChange(token)
@@ -200,26 +201,29 @@ const Dropdown: React.FC<Props> = ({
   // if the value is an address and there is not token match
   // we try a search on-chain.
   useEffect(() => {
-    if (value && isAddress(value.toLowerCase()) && !tokensList?.length) {
+    if (value && isAddress(value) && !tokensList?.length && erc20Client && omniClient) {
       setIsLoading(true)
 
       const isFromGnosis = chainId == Chains.gnosis
-      const erc20 = ERC165__factory.connect(
-        value,
-        new JsonRpcBatchProvider(getNetworkConfig(chainId)?.rpcUrl),
-      )
-      const omni = HomeOmniMediator__factory.connect(
-        contracts.OmniBridge.address[Chains.gnosis],
-        new JsonRpcBatchProvider(getNetworkConfig(Chains.gnosis)?.rpcUrl),
-      )
+      const tokenAddress: Address = value
 
       Promise.all([
-        erc20.name(),
-        erc20.symbol(),
-        erc20.decimals(),
-        isFromGnosis ? omni.foreignTokenAddress(value) : omni.homeTokenAddress(value),
+        erc20Client.multicall({
+          allowFailure: false,
+          contracts: [
+            { address: tokenAddress, abi: erc20Abi, functionName: 'name' },
+            { address: tokenAddress, abi: erc20Abi, functionName: 'symbol' },
+            { address: tokenAddress, abi: erc20Abi, functionName: 'decimals' },
+          ],
+        }),
+        omniClient.readContract({
+          address: contracts.OmniBridge.address[Chains.gnosis] as Address,
+          abi: contracts.OmniBridge.abi,
+          functionName: isFromGnosis ? 'foreignTokenAddress' : 'homeTokenAddress',
+          args: [tokenAddress],
+        }),
       ])
-        .then(([name, symbol, decimals, _address]) => {
+        .then(([[name, symbol, decimals], _address]) => {
           if (!name || !symbol || !decimals || !_address) return
 
           setManualTokens(() => [
@@ -243,9 +247,13 @@ const Dropdown: React.FC<Props> = ({
             },
           ])
         })
+        .catch(() => {
+          // token contract read reverted (EOA / non-token) — leave it unresolved
+          return
+        })
         .finally(() => setIsLoading(false))
     }
-  }, [tokensList?.length, chainId, value])
+  }, [tokensList?.length, chainId, value, erc20Client, omniClient])
 
   // When the chain changes, we update the tokens list
   useEffect(() => {

@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import get from 'lodash/get'
-import { isAddress } from '@ethersproject/address'
 import { DebounceInput } from 'react-debounce-input'
+import { usePublicClient } from 'wagmi'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown as BaseDropdown, DropdownItem, DropdownPosition } from '@/src/components/dropdown'
 import { TextfieldCSS, TextfieldCSSProps, TextfieldProps } from '@/src/components/form/Textfield'
@@ -12,19 +11,16 @@ import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import orderBy from 'lodash/orderBy'
-import { HomeOmniMediator__factory } from '@/types/typechain'
 import { contracts } from '@/src/constants/config/contracts'
-import { getNetworkConfig } from '@/src/constants/config/chains'
 import { isSameString } from '@/src/utils/tools'
 import { Spinner } from '@/src/components/loading/Spinner'
-import { ERC165__factory } from '@/types/typechain/factories/ERC165__factory'
 import { USDCe_GNOSIS } from '@/src/constants/misc'
 import { useUserTokenListBalances } from '@/src/hooks/bridge/useUserTokenListBalances'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { formatNumber } from '@/src/utils/format'
 import { usdsToken } from '@/src/constants/usdsToken'
 import { xdaiToken } from '@/src/constants/xdaiToken'
-import { formatUnits, zeroAddress } from 'viem'
+import { type Address, erc20Abi, formatUnits, isAddress, zeroAddress } from 'viem'
 
 const BaseChevronDown = ({ ...restProps }) => (
   <svg
@@ -281,6 +277,9 @@ const Dropdown: React.FC<Props> = ({
     chainId: fromChainId,
   })
 
+  const erc20Client = usePublicClient({ chainId: fromChainId })
+  const omniClient = usePublicClient({ chainId: Chains.gnosis })
+
   const onSelectToken = (token: Token) => {
     if (typeof onChange !== 'undefined') onChange(token)
   }
@@ -390,26 +389,29 @@ const Dropdown: React.FC<Props> = ({
   // if the value is an address and there is not token match
   // we try a search on-chain.
   useEffect(() => {
-    if (value && isAddress(value.toLowerCase()) && !filteredTokens.length) {
+    if (value && isAddress(value) && !filteredTokens.length && erc20Client && omniClient) {
       setIsLoading(true)
 
       const isFromGnosis = fromChainId == Chains.gnosis
-      const erc20 = ERC165__factory.connect(
-        value,
-        new JsonRpcBatchProvider(getNetworkConfig(fromChainId)?.rpcUrl),
-      )
-      const omni = HomeOmniMediator__factory.connect(
-        contracts.OmniBridge.address[Chains.gnosis],
-        new JsonRpcBatchProvider(getNetworkConfig(Chains.gnosis)?.rpcUrl),
-      )
+      const tokenAddress: Address = value
 
       Promise.all([
-        erc20.name(),
-        erc20.symbol(),
-        erc20.decimals(),
-        isFromGnosis ? omni.foreignTokenAddress(value) : omni.homeTokenAddress(value),
+        erc20Client.multicall({
+          allowFailure: false,
+          contracts: [
+            { address: tokenAddress, abi: erc20Abi, functionName: 'name' },
+            { address: tokenAddress, abi: erc20Abi, functionName: 'symbol' },
+            { address: tokenAddress, abi: erc20Abi, functionName: 'decimals' },
+          ],
+        }),
+        omniClient.readContract({
+          address: contracts.OmniBridge.address[Chains.gnosis] as Address,
+          abi: contracts.OmniBridge.abi,
+          functionName: isFromGnosis ? 'foreignTokenAddress' : 'homeTokenAddress',
+          args: [tokenAddress],
+        }),
       ])
-        .then(([name, symbol, decimals, _address]) => {
+        .then(([[name, symbol, decimals], _address]) => {
           if (!name || !symbol || !decimals || !_address) return
 
           setManualTokens((_manualTokens) => [
@@ -437,7 +439,7 @@ const Dropdown: React.FC<Props> = ({
         })
         .finally(() => setIsLoading(false))
     }
-  }, [filteredTokens.length, fromChainId, toChainId, value])
+  }, [filteredTokens.length, fromChainId, toChainId, value, erc20Client, omniClient])
 
   // Focus the search input when the dropdown is opened
   useEffect(() => {
