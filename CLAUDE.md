@@ -84,4 +84,6 @@ Node version is pinned in `.nvmrc` (v22.11.0). Use `nvm use` before installing.
 
 - Feature branches are created from `develop`
 - PRs target `develop` → promoted to `staging` → `main` (production)
+- Promotion/backport PRs between `develop`/`staging`/`main` use merge commits (never squash/rebase) so SHAs stay shared
+- Hotfixes go directly to `main` (`hotfix/*` → PR base `main`), then backport `main` into BOTH `staging` and `develop` (two PRs, compare `main`) so they don't drift — skipping the develop backport is the usual drift cause
 - Pre-commit hooks (Husky + lint-staged) run ESLint fix, Prettier, and `tsc` on staged files
