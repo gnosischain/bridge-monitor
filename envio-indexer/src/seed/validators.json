@@ -145,5 +145,19 @@
     "id": "0x674c97db4ce6cac04a124d745979f3e4cba0e9f0-AMB",
     "name": "Cow Protocol",
     "removed": false
+  },
+  {
+    "address": "0xb54b5572f3c4f70ff3cc8f67c19c8cddb838fbaa",
+    "bridgeType": "XDAI",
+    "id": "0xb54b5572f3c4f70ff3cc8f67c19c8cddb838fbaa-XDAI",
+    "name": "Hopr",
+    "removed": false
+  },
+  {
+    "address": "0xb54b5572f3c4f70ff3cc8f67c19c8cddb838fbaa",
+    "bridgeType": "AMB",
+    "id": "0xb54b5572f3c4f70ff3cc8f67c19c8cddb838fbaa-AMB",
+    "name": "Hopr",
+    "removed": false
   }
 ]
