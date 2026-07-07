@@ -2,7 +2,6 @@ import { useReadContracts } from 'wagmi'
 
 import { contracts } from '@/src/constants/config/contracts'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
-import { fromWei } from '@/src/utils/bigNumber'
 
 // Home and Foreign XDAI bridges share the same limit-reading interface, so a single
 // ABI encodes the reads for both sides (the address differs per chain).
@@ -52,15 +51,16 @@ const useXDAIBridgeLimits = (chainId: ChainsValues, currentDay: string = '0') =>
 
   const [totalSpentPerDay, totalExecutedPerDay] = totals ?? []
 
+  // raw uint256 wei; the consuming render component formats using `token.decimals`
   return {
     information: {
-      dailyLimit: fromWei(dailyLimit) ?? 0,
-      executionDailyLimit: fromWei(executionDailyLimit) ?? 0,
-      minPerTx: fromWei(minPerTx) ?? 0,
-      maxPerTx: fromWei(maxPerTx) ?? 0,
-      executionMaxPerTx: fromWei(executionMaxPerTx) ?? 0,
-      totalSpentPerDay: fromWei(totalSpentPerDay) ?? 0,
-      totalExecutedPerDay: fromWei(totalExecutedPerDay) ?? 0,
+      dailyLimit: dailyLimit ?? 0n,
+      executionDailyLimit: executionDailyLimit ?? 0n,
+      minPerTx: minPerTx ?? 0n,
+      maxPerTx: maxPerTx ?? 0n,
+      executionMaxPerTx: executionMaxPerTx ?? 0n,
+      totalSpentPerDay: totalSpentPerDay ?? 0n,
+      totalExecutedPerDay: totalExecutedPerDay ?? 0n,
     },
     isLoading: isLoadingBase || isLoadingTotals || (base !== undefined && totals === undefined),
   }

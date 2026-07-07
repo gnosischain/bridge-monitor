@@ -2,7 +2,6 @@ import { useReadContracts } from 'wagmi'
 
 import { contracts } from '@/src/constants/config/contracts'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
-import { toNumber } from '@/src/utils/bigNumber'
 import { Token } from '@/types/token'
 import { Address } from 'viem'
 
@@ -12,7 +11,6 @@ const OMNI_ABI = contracts.OmniBridge.abi
 
 const useOMNIBridgeLimits = (token: Token, chainId: ChainsValues, currentDay: string = '0') => {
   const tokenAddress = token.address as Address
-  const tokenAmountToNumber = toNumber(token.decimals)
 
   const omni = {
     address: contracts.OmniBridge.address[chainId],
@@ -59,16 +57,17 @@ const useOMNIBridgeLimits = (token: Token, chainId: ChainsValues, currentDay: st
 
   const [totalSpentPerDay, totalExecutedPerDay] = totals ?? []
 
+  // raw uint256 wei; the consuming render component formats using `token.decimals`
   return {
     information: {
       isTokenRegistered,
-      dailyLimit: tokenAmountToNumber(dailyLimit) ?? 0,
-      executionDailyLimit: tokenAmountToNumber(executionDailyLimit) ?? 0,
-      minPerTx: tokenAmountToNumber(minPerTx) ?? 0,
-      maxPerTx: tokenAmountToNumber(maxPerTx) ?? 0,
-      executionMaxPerTx: tokenAmountToNumber(executionMaxPerTx) ?? 0,
-      totalSpentPerDay: tokenAmountToNumber(totalSpentPerDay) ?? 0,
-      totalExecutedPerDay: tokenAmountToNumber(totalExecutedPerDay) ?? 0,
+      dailyLimit: dailyLimit ?? 0n,
+      executionDailyLimit: executionDailyLimit ?? 0n,
+      minPerTx: minPerTx ?? 0n,
+      maxPerTx: maxPerTx ?? 0n,
+      executionMaxPerTx: executionMaxPerTx ?? 0n,
+      totalSpentPerDay: totalSpentPerDay ?? 0n,
+      totalExecutedPerDay: totalExecutedPerDay ?? 0n,
     },
     isLoading: isLoadingBase || isLoadingTotals || (base !== undefined && totals === undefined),
   }

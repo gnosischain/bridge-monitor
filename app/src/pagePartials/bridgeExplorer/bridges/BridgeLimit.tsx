@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
+import { formatUnits } from 'viem'
 
 import { IconLink } from '@/src/components/assets/IconLink'
 import { InnerCard } from '@/src/components/card/InnerCard'
@@ -106,21 +107,21 @@ const Grid = styled.div`
 interface Props {
   bridgeReset?: number
   chainId: ChainsValues
-  dailyLimit: number
-  executionDailyLimit: number
-  executionMaxPerTx: number
+  dailyLimit: bigint
+  executionDailyLimit: bigint
+  executionMaxPerTx: bigint
   from: string
   isNativeToken?: boolean | undefined
   isTokenRegistered?: boolean
-  maxPerTx: number
-  minPerTx: number
+  maxPerTx: bigint
+  minPerTx: bigint
   networkName: ChainsKeys
   title: string | React.ReactNode
   to: string
   token: Token
   tokenTooltip?: string | undefined
-  totalExecutedPerDay: number
-  totalSpentPerDay: number
+  totalExecutedPerDay: bigint
+  totalSpentPerDay: bigint
 }
 
 export const BridgeLimit: React.FC<Props> = ({
@@ -143,6 +144,18 @@ export const BridgeLimit: React.FC<Props> = ({
   ...restProps
 }) => {
   const { getExplorerUrl } = useWeb3Connection()
+
+  // raw wei arrives from the bridge-limit hooks; format to human units here, at the render
+  // boundary, using the token's own decimals (single source of truth stays as bigint upstream)
+  const toDisplay = (value: bigint) => parseFloat(formatUnits(value, token.decimals))
+  const dailyLimitValue = toDisplay(dailyLimit)
+  const executionDailyLimitValue = toDisplay(executionDailyLimit)
+  const executionMaxPerTxValue = toDisplay(executionMaxPerTx)
+  const maxPerTxValue = toDisplay(maxPerTx)
+  const minPerTxValue = toDisplay(minPerTx)
+  const totalExecutedPerDayValue = toDisplay(totalExecutedPerDay)
+  const totalSpentPerDayValue = toDisplay(totalSpentPerDay)
+
   bridgeReset = useMemo(() => {
     if (bridgeReset) {
       return bridgeReset
@@ -178,36 +191,36 @@ export const BridgeLimit: React.FC<Props> = ({
         <>
           <ContractLimit
             darkBackground
-            funds={dailyLimit}
-            percentage={percentageNumber(totalSpentPerDay, dailyLimit)}
+            funds={dailyLimitValue}
+            percentage={percentageNumber(totalSpentPerDayValue, dailyLimitValue)}
             title={`${token?.symbol.toUpperCase() || 'DAI'} deposits per day`}
             tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that users can bridge from ${from} to ${to} in a day`}
-            used={{ value: totalSpentPerDay, title: 'Deposited' }}
+            used={{ value: totalSpentPerDayValue, title: 'Deposited' }}
           />
           <ContractLimit
             darkBackground
-            funds={executionDailyLimit}
-            percentage={percentageNumber(totalExecutedPerDay, executionDailyLimit)}
+            funds={executionDailyLimitValue}
+            percentage={percentageNumber(totalExecutedPerDayValue, executionDailyLimitValue)}
             title={`${token?.symbol.toUpperCase() || 'DAI'} withdrawals per day`}
             tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that bridge validators can execute and bridge from ${to} to ${from} in a day`}
-            used={{ value: totalExecutedPerDay, title: 'Withdrawn' }}
+            used={{ value: totalExecutedPerDayValue, title: 'Withdrawn' }}
           />
           <Grid>
             <TransactionLimit
               title="Min. deposit per transaction"
               tooltip={`Minimum amount of ${token?.symbol.toUpperCase()} that users can bridge in a single transaction`}
-              value={formatNumber(minPerTx)}
+              value={formatNumber(minPerTxValue)}
             />
             <TransactionLimit
               title="Max. deposit per transaction"
               tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that users can bridge in a single transaction`}
-              value={formatNumber(maxPerTx)}
+              value={formatNumber(maxPerTxValue)}
             />
           </Grid>
           <TransactionLimit
             title="Max. withdrawal per transaction"
             tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that validators can execute in a single transaction`}
-            value={formatNumber(executionMaxPerTx)}
+            value={formatNumber(executionMaxPerTxValue)}
           />
           <TimeLeft time={bridgeReset} />
         </>
