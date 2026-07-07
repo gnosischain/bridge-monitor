@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import get from 'lodash/get'
-import { isAddress } from '@ethersproject/address'
 import { DebounceInput } from 'react-debounce-input'
+import { isAddress } from 'viem'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown as BaseDropdown, DropdownItem, DropdownPosition } from '@/src/components/dropdown'
 import { TextfieldCSS, TextfieldCSSProps, TextfieldProps } from '@/src/components/form/Textfield'
@@ -390,7 +390,7 @@ const Dropdown: React.FC<Props> = ({
   // if the value is an address and there is not token match
   // we try a search on-chain.
   useEffect(() => {
-    if (value && isAddress(value.toLowerCase()) && !filteredTokens.length) {
+    if (value && isAddress(value) && !filteredTokens.length) {
       setIsLoading(true)
 
       const isFromGnosis = fromChainId == Chains.gnosis
