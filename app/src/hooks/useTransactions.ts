@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { isAddress } from '@ethersproject/address'
 import useSWR from 'swr'
+import { isAddress } from 'viem'
 
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import { BridgeDirection } from '@/src/pagePartials/bridgeExplorer/latestTransactions/Filters'
