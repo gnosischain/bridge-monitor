@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ChainsValues } from '@/src/constants/config/types'
 import { Hash } from 'viem'
-import { useBlockNumber, useTransaction } from 'wagmi'
+import { useTransactionConfirmations } from 'wagmi'
 import { useBridgeRequiredBlocks } from '@/src/hooks/bridge/useBridgeRequiredBlocks'
 
 const POLLING_INTERVAL = 5_000
@@ -18,9 +18,9 @@ export const useBridgeProgress = (
     isNativeBridge,
   )
 
-  // both reads poll every 5 seconds until the required confirmations are reached
-  // they only run once bridgeBlockInfo is defined
-  const { data: tx, isLoading: isLoadingTx } = useTransaction({
+  // single co-located read (getBlockNumber + getTransaction in one Promise.all), so the block
+  // height and the tx's block come from the same snapshot. Only runs once bridgeBlockInfo is defined.
+  const { data: rawConfirmations, isLoading: isLoadingConfirmations } = useTransactionConfirmations({
     hash: transactionId as Hash,
     chainId,
     query: {
@@ -31,41 +31,31 @@ export const useBridgeProgress = (
     },
   })
 
-  const { data: currentBlock, isLoading: isLoadingBlock } = useBlockNumber({
-    chainId,
-    query: {
-      enabled: !!bridgeBlockInfo,
-      refetchInterval: shouldPolling ? POLLING_INTERVAL : false,
-    },
-  })
-
   const progressData = useMemo(() => {
-    if (!bridgeBlockInfo || currentBlock === undefined) return undefined
+    if (!bridgeBlockInfo || rawConfirmations === undefined) return undefined
 
     const { estimatedTimeInSeconds, requiredBlocks } = bridgeBlockInfo
-    // blocks since the transaction was mined
-    // confirmations always >= 0
-    let confirmations = 0
-    if (tx?.blockNumber) {
-      confirmations = Number(currentBlock - tx.blockNumber)
-    }
+    // viem returns 0 for an unmined tx and counts the inclusion block as confirmation #1
+    const isMined = rawConfirmations > 0n
+    // drop viem's +1 so 0 means "just mined"; clamp guards against a lagging node reading below the tx block
+    const blocksSinceMined = Math.max(0, Number(rawConfirmations) - 1)
 
     let progress: number
-    if (confirmations > requiredBlocks) {
+    if (blocksSinceMined > requiredBlocks) {
       progress = 100
     } else {
       // progress in percentage
-      progress = Math.round((confirmations / requiredBlocks) * 100)
+      progress = Math.round((blocksSinceMined / requiredBlocks) * 100)
     }
 
     return {
-      isMined: !!tx?.blockNumber,
+      isMined,
       progress,
-      confirmations,
+      confirmations: blocksSinceMined, // legacy field name kept for consumers
       requiredBlocks,
       estimatedTimeInSeconds,
     }
-  }, [bridgeBlockInfo, currentBlock, tx?.blockNumber])
+  }, [bridgeBlockInfo, rawConfirmations])
 
   // stop polling when the progress is 100%
   useEffect(() => {
@@ -75,7 +65,7 @@ export const useBridgeProgress = (
   }, [progressData?.progress])
 
   return {
-    isLoading: isLoadingBlockInfo || isLoadingTx || isLoadingBlock,
+    isLoading: isLoadingBlockInfo || isLoadingConfirmations,
     progressData,
   }
 }
