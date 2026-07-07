@@ -81,6 +81,8 @@ jobs:
             "NEXT_PUBLIC_ALCHEMY_API_KEY=${{ secrets.DEV_NEXT_PUBLIC_ALCHEMY_API_KEY }}"
             "NEXT_PUBLIC_ENVIO_INDEXER_URL=${{ secrets.DEV_ENVIO_INDEXER_URL }}"
             "NEXT_PUBLIC_INDEXER_BACKEND=${{ secrets.DEV_INDEXER_BACKEND }}"
+            "NEXT_PUBLIC_COMMIT_SHA=${{ github.sha }}"
+            "NEXT_PUBLIC_APP_ENV=develop"
 
       - name: Build and push STAGING to Artifact Registry
         if: inputs.environment == 'staging'
