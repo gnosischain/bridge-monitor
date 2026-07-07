@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
-import { isAddress } from '@ethersproject/address'
 import { DebounceInput } from 'react-debounce-input'
+import { isAddress } from 'viem'
 
 import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { ChevronDown as BaseChevronDown } from '@/src/components/assets/ChevronDown'
@@ -200,7 +200,7 @@ const Dropdown: React.FC<Props> = ({
   // if the value is an address and there is not token match
   // we try a search on-chain.
   useEffect(() => {
-    if (value && isAddress(value.toLowerCase()) && !tokensList?.length) {
+    if (value && isAddress(value) && !tokensList?.length) {
       setIsLoading(true)
 
       const isFromGnosis = chainId == Chains.gnosis
