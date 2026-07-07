@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import get from 'lodash/get'
 import { DebounceInput } from 'react-debounce-input'
-import { usePublicClient } from 'wagmi'
+import { multicall, readContract } from '@wagmi/core'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown as BaseDropdown, DropdownItem, DropdownPosition } from '@/src/components/dropdown'
 import { TextfieldCSS, TextfieldCSSProps, TextfieldProps } from '@/src/components/form/Textfield'
@@ -17,6 +17,7 @@ import { Spinner } from '@/src/components/loading/Spinner'
 import { USDCe_GNOSIS } from '@/src/constants/misc'
 import { useUserTokenListBalances } from '@/src/hooks/bridge/useUserTokenListBalances'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+import { wagmiConfig } from '@/src/providers/wagmi'
 import { formatNumber } from '@/src/utils/format'
 import { usdsToken } from '@/src/constants/usdsToken'
 import { xdaiToken } from '@/src/constants/xdaiToken'
@@ -277,9 +278,6 @@ const Dropdown: React.FC<Props> = ({
     chainId: fromChainId,
   })
 
-  const erc20Client = usePublicClient({ chainId: fromChainId })
-  const omniClient = usePublicClient({ chainId: Chains.gnosis })
-
   const onSelectToken = (token: Token) => {
     if (typeof onChange !== 'undefined') onChange(token)
   }
@@ -389,14 +387,15 @@ const Dropdown: React.FC<Props> = ({
   // if the value is an address and there is not token match
   // we try a search on-chain.
   useEffect(() => {
-    if (value && isAddress(value) && !filteredTokens.length && erc20Client && omniClient) {
+    if (value && isAddress(value) && !filteredTokens.length) {
       setIsLoading(true)
 
       const isFromGnosis = fromChainId == Chains.gnosis
       const tokenAddress: Address = value
 
       Promise.all([
-        erc20Client.multicall({
+        multicall(wagmiConfig, {
+          chainId: fromChainId,
           allowFailure: false,
           contracts: [
             { address: tokenAddress, abi: erc20Abi, functionName: 'name' },
@@ -404,7 +403,8 @@ const Dropdown: React.FC<Props> = ({
             { address: tokenAddress, abi: erc20Abi, functionName: 'decimals' },
           ],
         }),
-        omniClient.readContract({
+        readContract(wagmiConfig, {
+          chainId: Chains.gnosis,
           address: contracts.OmniBridge.address[Chains.gnosis] as Address,
           abi: contracts.OmniBridge.abi,
           functionName: isFromGnosis ? 'foreignTokenAddress' : 'homeTokenAddress',
@@ -439,7 +439,7 @@ const Dropdown: React.FC<Props> = ({
         })
         .finally(() => setIsLoading(false))
     }
-  }, [filteredTokens.length, fromChainId, toChainId, value, erc20Client, omniClient])
+  }, [filteredTokens.length, fromChainId, toChainId, value])
 
   // Focus the search input when the dropdown is opened
   useEffect(() => {

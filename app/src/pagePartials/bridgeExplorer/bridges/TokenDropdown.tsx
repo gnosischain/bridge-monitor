@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import { DebounceInput } from 'react-debounce-input'
 import { type Address, erc20Abi, isAddress } from 'viem'
-import { usePublicClient } from 'wagmi'
+import { multicall, readContract } from '@wagmi/core'
 
 import { ChevronDown as BaseChevronDown } from '@/src/components/assets/ChevronDown'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
@@ -15,6 +15,7 @@ import { Token } from '@/types/token'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { getToChainId } from '@/src/utils/tools'
 import { contracts } from '@/src/constants/config/contracts'
+import { wagmiConfig } from '@/src/providers/wagmi'
 
 const Wrapper = styled(BaseDropdown)`
   --inner-padding: calc(var(--theme-common-space) / 2);
@@ -184,9 +185,6 @@ const Dropdown: React.FC<Props> = ({
   const [isLoading, setIsLoading] = useState(false)
   const [manualTokens, setManualTokens] = useState<Token[]>([])
 
-  const erc20Client = usePublicClient({ chainId })
-  const omniClient = usePublicClient({ chainId: Chains.gnosis })
-
   const onSelectToken = (token: Token) => {
     setToken(token)
     if (typeof onChange !== 'undefined') onChange(token)
@@ -201,14 +199,15 @@ const Dropdown: React.FC<Props> = ({
   // if the value is an address and there is not token match
   // we try a search on-chain.
   useEffect(() => {
-    if (value && isAddress(value) && !tokensList?.length && erc20Client && omniClient) {
+    if (value && isAddress(value) && !tokensList?.length) {
       setIsLoading(true)
 
       const isFromGnosis = chainId == Chains.gnosis
       const tokenAddress: Address = value
 
       Promise.all([
-        erc20Client.multicall({
+        multicall(wagmiConfig, {
+          chainId,
           allowFailure: false,
           contracts: [
             { address: tokenAddress, abi: erc20Abi, functionName: 'name' },
@@ -216,7 +215,8 @@ const Dropdown: React.FC<Props> = ({
             { address: tokenAddress, abi: erc20Abi, functionName: 'decimals' },
           ],
         }),
-        omniClient.readContract({
+        readContract(wagmiConfig, {
+          chainId: Chains.gnosis,
           address: contracts.OmniBridge.address[Chains.gnosis] as Address,
           abi: contracts.OmniBridge.abi,
           functionName: isFromGnosis ? 'foreignTokenAddress' : 'homeTokenAddress',
@@ -253,7 +253,7 @@ const Dropdown: React.FC<Props> = ({
         })
         .finally(() => setIsLoading(false))
     }
-  }, [tokensList?.length, chainId, value, erc20Client, omniClient])
+  }, [tokensList?.length, chainId, value])
 
   // When the chain changes, we update the tokens list
   useEffect(() => {
