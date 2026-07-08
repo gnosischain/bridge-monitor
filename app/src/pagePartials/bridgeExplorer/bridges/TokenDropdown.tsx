@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import { DebounceInput } from 'react-debounce-input'
 import { type Address, erc20Abi, isAddress } from 'viem'
-import { multicall, readContract } from '@wagmi/core'
+import { useReadContracts } from 'wagmi'
 
 import { ChevronDown as BaseChevronDown } from '@/src/components/assets/ChevronDown'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
@@ -15,7 +15,6 @@ import { Token } from '@/types/token'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { getToChainId } from '@/src/utils/tools'
 import { contracts } from '@/src/constants/config/contracts'
-import { wagmiConfig } from '@/src/providers/wagmi'
 
 const Wrapper = styled(BaseDropdown)`
   --inner-padding: calc(var(--theme-common-space) / 2);
@@ -179,11 +178,7 @@ const Dropdown: React.FC<Props> = ({
     }
   }, [chainId, ambTokensByNetwork])
 
-  const [tokensList, setTokensList] = useState(tokens)
   const [value, setValue] = useState('')
-
-  const [isLoading, setIsLoading] = useState(false)
-  const [manualTokens, setManualTokens] = useState<Token[]>([])
 
   const onSelectToken = (token: Token) => {
     setToken(token)
@@ -196,88 +191,69 @@ const Dropdown: React.FC<Props> = ({
     }
   }, [defaultToken, token?.address])
 
-  // if the value is an address and there is not token match
-  // we try a search on-chain.
-  useEffect(() => {
-    if (value && isAddress(value) && !tokensList?.length) {
-      setIsLoading(true)
-
-      const isFromGnosis = chainId == Chains.gnosis
-      const tokenAddress: Address = value
-
-      Promise.all([
-        multicall(wagmiConfig, {
-          chainId,
-          allowFailure: false,
-          contracts: [
-            { address: tokenAddress, abi: erc20Abi, functionName: 'name' },
-            { address: tokenAddress, abi: erc20Abi, functionName: 'symbol' },
-            { address: tokenAddress, abi: erc20Abi, functionName: 'decimals' },
-          ],
-        }),
-        readContract(wagmiConfig, {
-          chainId: Chains.gnosis,
-          address: contracts.OmniBridge.address[Chains.gnosis] as Address,
-          abi: contracts.OmniBridge.abi,
-          functionName: isFromGnosis ? 'foreignTokenAddress' : 'homeTokenAddress',
-          args: [tokenAddress],
-        }),
-      ])
-        .then(([[name, symbol, decimals], _address]) => {
-          if (!name || !symbol || !decimals || !_address) return
-
-          setManualTokens(() => [
-            {
-              chainId,
-              address: value,
-              decimals,
-              logoURI: '',
-              name,
-              symbol,
-              extensions: {
-                bridgeInfo: {
-                  [getToChainId(chainId)]: {
-                    tokenAddress: _address,
-                  },
-                  [chainId]: {
-                    tokenAddress: value,
-                  },
-                },
-              },
-            },
-          ])
-        })
-        .catch(() => {
-          // token contract read reverted (EOA / non-token) — leave it unresolved
-          return
-        })
-        .finally(() => setIsLoading(false))
+  // The list of known tokens matching the current search
+  const filteredTokens = useMemo(() => {
+    if (value.length === 0) return tokens
+    if (isAddress(value)) {
+      return tokens?.filter(
+        (item) => item.address.toLowerCase().indexOf(value.toLowerCase()) !== -1,
+      )
     }
-  }, [tokensList?.length, chainId, value])
-
-  // When the chain changes, we update the tokens list
-  useEffect(() => {
-    if (manualTokens.length > 0) {
-      setTokensList(manualTokens)
-    }
-  }, [ambTokensByNetwork, manualTokens, value, chainId])
-
-  useEffect(() => {
-    if (value.length === 0) {
-      setTokensList(tokens)
-    } else {
-      if (isAddress(value)) {
-        const filteredTokenList = tokens?.filter(
-          (item) => item.address.toLowerCase().indexOf(value.toLowerCase()) !== -1,
-        )
-        setTokensList(filteredTokenList)
-      } else {
-        setTokensList(
-          tokens?.filter((item) => item.symbol.toLowerCase().indexOf(value.toLowerCase()) !== -1),
-        )
-      }
-    }
+    return tokens?.filter((item) => item.symbol.toLowerCase().indexOf(value.toLowerCase()) !== -1)
   }, [tokens, value])
+
+  // If the search value is an address with no known match, look the token up
+  // on-chain. useReadContracts batches the reads into a single Multicall3 call
+  // per chain, and query.enabled gates it to the "address, no match" case.
+  const isFromGnosis = chainId === Chains.gnosis
+  const { data: onChainToken, isLoading } = useReadContracts({
+    allowFailure: false,
+    contracts: [
+      { chainId, address: value as Address, abi: erc20Abi, functionName: 'name' },
+      { chainId, address: value as Address, abi: erc20Abi, functionName: 'symbol' },
+      { chainId, address: value as Address, abi: erc20Abi, functionName: 'decimals' },
+      {
+        chainId: Chains.gnosis,
+        address: contracts.OmniBridge.address[Chains.gnosis] as Address,
+        abi: contracts.OmniBridge.abi,
+        functionName: isFromGnosis ? 'foreignTokenAddress' : 'homeTokenAddress',
+        args: [value as Address],
+      },
+    ],
+    query: {
+      enabled: Boolean(value && isAddress(value) && !filteredTokens?.length),
+      retry: false,
+    },
+  })
+
+  // Derive the resolved token from the on-chain read — no state, no effect.
+  const manualToken = useMemo<Token | null>(() => {
+    if (!onChainToken) return null
+
+    const [name, symbol, decimals, bridgeAddress] = onChainToken
+    if (!name || !symbol || !bridgeAddress) return null
+
+    return {
+      chainId,
+      address: value,
+      decimals,
+      logoURI: '',
+      name,
+      symbol,
+      extensions: {
+        bridgeInfo: {
+          [getToChainId(chainId)]: {
+            tokenAddress: bridgeAddress,
+          },
+          [chainId]: {
+            tokenAddress: value,
+          },
+        },
+      },
+    }
+  }, [onChainToken, chainId, value])
+
+  const displayedTokens = manualToken ? [manualToken, ...(filteredTokens ?? [])] : filteredTokens
 
   return (
     <Wrapper
@@ -309,7 +285,7 @@ const Dropdown: React.FC<Props> = ({
         </TextfieldContainer>,
         <Items closeOnClick key="items">
           {isLoading && <NoResults closeOnClick={false}>Loading...</NoResults>}
-          {tokensList?.map((item, index) => (
+          {displayedTokens?.map((item, index) => (
             <DropdownItem
               key={index}
               onClick={() => {
@@ -321,7 +297,7 @@ const Dropdown: React.FC<Props> = ({
             </DropdownItem>
           ))}
         </Items>,
-        tokensList?.length === 0 && !isLoading ? (
+        displayedTokens?.length === 0 && !isLoading ? (
           <NoResults closeOnClick={false}>Not found.</NoResults>
         ) : (
           <></>
