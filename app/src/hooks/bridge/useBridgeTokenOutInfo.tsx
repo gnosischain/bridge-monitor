@@ -219,7 +219,9 @@ export const useBridgeTokenOutInfo = ({
     functionName: readPlan?.functionName ?? 'homeTokenAddress',
     args: [readPlan?.tokenAddress ?? zeroAddress],
     chainId: Chains.gnosis,
-    query: { enabled: !!readPlan },
+    // The token-pair mapping is set once when a token is first bridged and never changes,
+    // so the result is immutable — never refetch a cached (functionName, tokenAddress) key.
+    query: { enabled: !!readPlan, staleTime: Infinity },
   })
 
   useEffect(() => {
