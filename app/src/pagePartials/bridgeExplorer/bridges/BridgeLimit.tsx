@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
-import { formatUnits } from 'viem'
 
 import { IconLink } from '@/src/components/assets/IconLink'
 import { InnerCard } from '@/src/components/card/InnerCard'
@@ -11,7 +10,7 @@ import { TransactionLimit } from '@/src/pagePartials/bridgeExplorer/bridges/Tran
 import { ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 import { formatNumber } from '@/src/utils/format'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { percentageNumber } from '@/src/utils/formatNumber'
+import { formatUnitsToNumber, percentageNumber } from '@/src/utils/formatNumber'
 import { Token } from '@/types/token'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 
@@ -147,7 +146,7 @@ export const BridgeLimit: React.FC<Props> = ({
 
   // raw wei arrives from the bridge-limit hooks; format to human units here, at the render
   // boundary, using the token's own decimals (single source of truth stays as bigint upstream)
-  const toDisplay = (value: bigint) => parseFloat(formatUnits(value, token.decimals))
+  const toDisplay = (value: bigint) => formatUnitsToNumber(value, token.decimals)
   const dailyLimitValue = toDisplay(dailyLimit)
   const executionDailyLimitValue = toDisplay(executionDailyLimit)
   const executionMaxPerTxValue = toDisplay(executionMaxPerTx)
