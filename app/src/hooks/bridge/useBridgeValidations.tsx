@@ -62,8 +62,7 @@ export const useBridgeValidations = ({
   const minAmountError = bridgeLimits !== undefined && amount < bridgeLimits.minPerTx
   const maxAmountError = bridgeLimits !== undefined && amount > bridgeLimits.maxPerTx
   const dailyLimitReached =
-    bridgeLimits !== undefined &&
-    amount > bridgeLimits.dailyLimit - (bridgeLimits.totalSpentPerDay ?? 0n)
+    bridgeLimits !== undefined && amount > bridgeLimits.dailyLimit - bridgeLimits.totalSpentPerDay
   const minPerTxInNumber = Number(
     formatUnits(bridgeLimits?.minPerTx || 0n, fromToken?.decimals || 18),
   )
