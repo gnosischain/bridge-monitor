@@ -15,8 +15,10 @@ export const ReceivedTokenInfo: React.FC<{
   ({ amount, fromChainId, setReceiveNativeToken, setReceiveUsds, toChainId, token, tokenOut }) => {
     return (
       <>
-        {!token || !tokenOut ? (
+        {!token ? (
           <NoTokenOut />
+        ) : !tokenOut ? (
+          <NoTokenOut loading />
         ) : (
           <TokenOut
             amount={amount}
