@@ -2,6 +2,7 @@ import { Chains } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { contracts } from '@/src/constants/config/contracts'
 import { useReadContract } from 'wagmi'
+import { Address } from 'viem'
 
 export const foreignToHomeFeeKey =
   '0x03be2b2875cb41e0e77355e802a16769bb8dfcf825061cde185c73bf94f12625'
@@ -33,7 +34,7 @@ export const useBridgeFee = ({
     functionName: 'calculateFee',
     args: [
       isFromHome ? homeToForeignFeeKey : foreignToHomeFeeKey,
-      token.address as `0x${string}`,
+      token.address as Address,
       amount,
     ],
     chainId: Chains.gnosis,
