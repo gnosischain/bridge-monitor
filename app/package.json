@@ -13,7 +13,7 @@
     "prepare2": "cd .. && husky install",
     "prettier:fix": "prettier --write \"./**/*.{js,jsx,ts,tsx}\"",
     "start": "next start",
-    "typechain": "typechain --target=ethers-v5 ./src/abis/**/*.json --out-dir ./types/typechain/"
+    "typechain": "echo '⚠️  regen drops hand-maintained barrel exports (.ts-const ABIs) — see PR 8 / plan; do NOT commit blindly' && typechain --target=ethers-v5 ./src/abis/**/*.json --out-dir ./types/typechain/"
   },
   "dependencies": {
     "@babel/traverse": "7.23.2",
@@ -82,7 +82,7 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "eslint --cache --fix",
-      "prettier --write",
+      "prettier --write --ignore-path app/.prettierignore",
       "bash -c tsc"
     ]
   }
