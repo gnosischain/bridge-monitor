@@ -6,7 +6,7 @@ import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { Token } from '@/types/token'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { xdaiToken } from '@/src/constants/xdaiToken'
-import { erc20Abi } from 'viem'
+import { Address, erc20Abi } from 'viem'
 
 export const useTokenInfo = (tokenAddress: string, chainId: ChainsValues) => {
   const { tokensByAddress } = useBridgedTokens()
@@ -17,7 +17,7 @@ export const useTokenInfo = (tokenAddress: string, chainId: ChainsValues) => {
   const shouldFetchFromChain = !isNativeXdai && !tokenFromList
 
   const erc20Contract = {
-    address: tokenAddress as `0x${string}`,
+    address: tokenAddress as Address,
     abi: erc20Abi,
     chainId,
   } as const
