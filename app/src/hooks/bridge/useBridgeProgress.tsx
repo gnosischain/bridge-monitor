@@ -1,16 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ChainsValues } from '@/src/constants/config/types'
-import useSWR from 'swr'
-import { chainsConfig } from '@/src/constants/config/chains'
-import { JsonRpcProvider } from '@ethersproject/providers'
+import { Hash } from 'viem'
+import { useTransactionConfirmations } from 'wagmi'
 import { useBridgeRequiredBlocks } from '@/src/hooks/bridge/useBridgeRequiredBlocks'
+
+const POLLING_INTERVAL = 5_000
 
 export const useBridgeProgress = (
   chainId: ChainsValues,
   isNativeBridge: boolean,
   transactionId: string,
 ) => {
-  const provider = new JsonRpcProvider(chainsConfig[chainId].rpcUrl)
   const [shouldPolling, setShouldPolling] = useState(true)
 
   const { data: bridgeBlockInfo, isLoading: isLoadingBlockInfo } = useBridgeRequiredBlocks(
@@ -18,64 +18,55 @@ export const useBridgeProgress = (
     isNativeBridge,
   )
 
-  // get the progress of the transaction. It will be updated every 5 seconds
-  // to run this fetcher, the bridgeBlockInfo must be defined
-  const {
-    data: progressData,
-    isLoading,
-    mutate,
-  } = useSWR(
-    bridgeBlockInfo ? ['bridgeProgress', transactionId, bridgeBlockInfo] : null,
-    async ([, _transactionId, _bridgeBlockInfo]) => {
-      let tx
-      try {
-        tx = await provider.getTransaction(_transactionId)
-      } catch (error) {
-        console.log('tx', tx, error)
-      }
-
-      const currentBlock = await provider.getBlockNumber()
-      const { estimatedTimeInSeconds, requiredBlocks } = _bridgeBlockInfo
-      // blocks since the transaction was mined
-      // confirmations always >= 0
-      let confirmations = 0
-      if (tx?.blockNumber) {
-        confirmations = currentBlock - tx.blockNumber
-      }
-
-      let progress: number
-      if (confirmations > requiredBlocks) {
-        progress = 100
-      } else {
-        // progress in percentage
-        progress = Math.round((confirmations / requiredBlocks) * 100)
-      }
-
-      return {
-        isMined: !!tx?.blockNumber,
-        progress,
-        confirmations,
-        requiredBlocks,
-        estimatedTimeInSeconds,
-      }
+  // single co-located read (getBlockNumber + getTransaction in one Promise.all), so the block
+  // height and the tx's block come from the same snapshot. Only runs once bridgeBlockInfo is defined.
+  const { data: rawConfirmations, isLoading: isLoadingConfirmations } = useTransactionConfirmations({
+    hash: transactionId as Hash,
+    chainId,
+    query: {
+      enabled: !!bridgeBlockInfo,
+      refetchInterval: shouldPolling ? POLLING_INTERVAL : false,
+      // a not-yet-propagated tx makes getTransaction throw; keep polling instead of retrying
+      retry: false,
     },
+  })
 
-    {
-      suspense: false,
-      refreshInterval: shouldPolling ? 5000 : 0,
-      onSuccess: ({ progress }) => {
-        // stop polling when the progress is 100%
-        if (progress === 100) {
-          setShouldPolling(false)
-        }
-      },
-    },
-  )
+  const progressData = useMemo(() => {
+    if (!bridgeBlockInfo || rawConfirmations === undefined) return undefined
+
+    const { estimatedTimeInSeconds, requiredBlocks } = bridgeBlockInfo
+    // viem returns 0 for an unmined tx and counts the inclusion block as confirmation #1
+    const isMined = rawConfirmations > 0n
+    // drop viem's +1 so 0 means "just mined"; clamp guards against a lagging node reading below the tx block
+    const blocksSinceMined = Math.max(0, Number(rawConfirmations) - 1)
+
+    let progress: number
+    if (blocksSinceMined > requiredBlocks) {
+      progress = 100
+    } else {
+      // progress in percentage
+      progress = Math.round((blocksSinceMined / requiredBlocks) * 100)
+    }
+
+    return {
+      isMined,
+      progress,
+      confirmations: blocksSinceMined, // legacy field name kept for consumers
+      requiredBlocks,
+      estimatedTimeInSeconds,
+    }
+  }, [bridgeBlockInfo, rawConfirmations])
+
+  // stop polling when the progress is 100%
+  useEffect(() => {
+    if (progressData?.progress === 100) {
+      setShouldPolling(false)
+    }
+  }, [progressData?.progress])
 
   return {
-    isLoading: isLoading || isLoadingBlockInfo,
+    isLoading: isLoadingBlockInfo || isLoadingConfirmations,
     progressData,
-    mutate,
   }
 }
 
