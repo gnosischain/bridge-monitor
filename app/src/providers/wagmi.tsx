@@ -8,7 +8,7 @@ export const wagmiConfig = createConfig({
   connectors: [injected(), walletConnect({ projectId: WALLET_CONNECT_PROJECT_ID }), safe()],
   ssr: true,
   transports: {
-    [mainnet.id]: http(RPC_MAINNET || undefined),
-    [gnosis.id]: http(RPC_GNOSIS || 'https://rpc.gnosischain.com/'),
+    [mainnet.id]: http(RPC_MAINNET || undefined, { batch: true }),
+    [gnosis.id]: http(RPC_GNOSIS || 'https://rpc.gnosischain.com/', { batch: true }),
   },
 })
