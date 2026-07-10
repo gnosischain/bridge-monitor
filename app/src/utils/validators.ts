@@ -1,6 +1,8 @@
-import { JsonRpcProvider } from '@ethersproject/providers'
 import { cloneDeep } from 'lodash'
+import { type Address, publicActions } from 'viem'
 
+import { wagmiConfig } from '@/src/providers/wagmi'
+import { ChainsValues } from '@/src/constants/config/types'
 import { fromBNtoNumber } from '@/src/utils/bigNumber'
 import { formatNumber } from '@/src/utils/format'
 import { Transaction } from '@/src/utils/transactions'
@@ -127,8 +129,9 @@ export const getValidatorByName = (validatorName: string, bridge: BridgesValues)
   return bridgeValidators[lowerCaseAddress]
 }
 
-export const getBalance = async (address: string, provider: JsonRpcProvider) => {
-  const balance = await provider.getBalance(address)
+export const getBalance = async (address: string, chainId: ChainsValues) => {
+  const client = wagmiConfig.getClient({ chainId }).extend(publicActions)
+  const balance = await client.getBalance({ address: address as Address })
   return formatNumber(fromBNtoNumber(balance) ?? 0)
 }
 
