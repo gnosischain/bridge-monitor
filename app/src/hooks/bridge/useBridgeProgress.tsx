@@ -20,16 +20,18 @@ export const useBridgeProgress = (
 
   // single co-located read (getBlockNumber + getTransaction in one Promise.all), so the block
   // height and the tx's block come from the same snapshot. Only runs once bridgeBlockInfo is defined.
-  const { data: rawConfirmations, isLoading: isLoadingConfirmations } = useTransactionConfirmations({
-    hash: transactionId as Hash,
-    chainId,
-    query: {
-      enabled: !!bridgeBlockInfo,
-      refetchInterval: shouldPolling ? POLLING_INTERVAL : false,
-      // a not-yet-propagated tx makes getTransaction throw; keep polling instead of retrying
-      retry: false,
+  const { data: rawConfirmations, isLoading: isLoadingConfirmations } = useTransactionConfirmations(
+    {
+      hash: transactionId as Hash,
+      chainId,
+      query: {
+        enabled: !!bridgeBlockInfo,
+        refetchInterval: shouldPolling ? POLLING_INTERVAL : false,
+        // a not-yet-propagated tx makes getTransaction throw; keep polling instead of retrying
+        retry: false,
+      },
     },
-  })
+  )
 
   const progressData = useMemo(() => {
     if (!bridgeBlockInfo || rawConfirmations === undefined) return undefined
