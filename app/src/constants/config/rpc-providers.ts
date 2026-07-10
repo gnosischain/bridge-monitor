@@ -25,6 +25,3 @@ export const gnosis = () => {
 export const mainnetBatch = () => {
   return new JsonRpcBatchProvider(chainsConfig[Chains.mainnet].rpcUrl, Chains.mainnet)
 }
-export const gnosisBatch = () => {
-  return new JsonRpcBatchProvider(chainsConfig[Chains.gnosis].rpcUrl, Chains.gnosis)
-}

@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export { AMBBridgeHelper__factory } from "./AMBBridgeHelper__factory";
-export { ERC165__factory } from "./ERC165__factory";
 export { ERC20__factory } from "./ERC20__factory";
 export { ERC677__factory } from "./ERC677__factory";
 export { Erc20ToNativeBridgeHelper__factory } from "./Erc20ToNativeBridgeHelper__factory";
