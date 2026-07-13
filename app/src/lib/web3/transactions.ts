@@ -1,15 +1,8 @@
-import { type Hash, publicActions } from 'viem'
+import { type Hash } from 'viem'
+import { getPublicClient, getTransactionReceipt as wagmiGetTransactionReceipt } from 'wagmi/actions'
 
 import { ChainsValues } from '@/src/constants/config/types'
 import { wagmiConfig } from '@/src/providers/wagmi'
-
-/**
- * A viem public client for `chainId`, bound to the app's wagmi config. Shared base
- * for one-off on-chain reads made outside of React (i.e. not via wagmi hooks) —
- * contract reads, balances, transaction receipts.
- */
-export const getPublicClient = (chainId: ChainsValues) =>
-  wagmiConfig.getClient({ chainId }).extend(publicActions)
 
 /**
  * Fetches the mined receipt for `hash`. Throws viem's `TransactionReceiptNotFoundError`
@@ -17,8 +10,15 @@ export const getPublicClient = (chainId: ChainsValues) =>
  * semantics should catch and treat the throw as "still pending".
  */
 export const getTransactionReceipt = (hash: Hash, chainId: ChainsValues) =>
-  getPublicClient(chainId).getTransactionReceipt({ hash })
+  wagmiGetTransactionReceipt(wagmiConfig, { hash, chainId })
 
-/** Resolves once `hash` is mined (defaults to 1 confirmation), with its receipt. */
+/**
+ * Resolves once `hash` is mined (defaults to 1 confirmation), with its receipt.
+ *
+ * Deliberately the viem action, not wagmi's `waitForTransactionReceipt`: wagmi's discards a
+ * reverted receipt — two extra RPCs to synthesize a revert reason, then a plain `Error` — while
+ * callers here need the reverted receipt back to report failure. wagmi's `timeout: 0` default
+ * also waits forever, where viem's 180s default throws on stuck transactions.
+ */
 export const waitForTransactionReceipt = (hash: Hash, chainId: ChainsValues, confirmations = 1) =>
-  getPublicClient(chainId).waitForTransactionReceipt({ hash, confirmations })
+  getPublicClient(wagmiConfig, { chainId }).waitForTransactionReceipt({ hash, confirmations })
