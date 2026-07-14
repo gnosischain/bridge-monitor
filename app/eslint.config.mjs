@@ -35,6 +35,7 @@ export default [
       '**/.env.test.local',
       '**/.env.production.local',
       '**/types/generated/**',
+      '**/types/typechain/**',
       'out_publish/',
       'out_functions/',
     ],

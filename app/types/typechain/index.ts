@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { AMBBridgeHelper } from "./AMBBridgeHelper";
-export type { ERC165 } from "./ERC165";
 export type { ERC20 } from "./ERC20";
 export type { ERC677 } from "./ERC677";
 export type { Erc20ToNativeBridgeHelper } from "./Erc20ToNativeBridgeHelper";
@@ -16,7 +15,6 @@ export type { HomeOmniMediator } from "./HomeOmniMediator";
 export type { NativeOmniBridgeMediator } from "./NativeOmniBridgeMediator";
 export * as factories from "./factories";
 export { AMBBridgeHelper__factory } from "./factories/AMBBridgeHelper__factory";
-export { ERC165__factory } from "./factories/ERC165__factory";
 export { ERC20__factory } from "./factories/ERC20__factory";
 export { ERC677__factory } from "./factories/ERC677__factory";
 export { Erc20ToNativeBridgeHelper__factory } from "./factories/Erc20ToNativeBridgeHelper__factory";

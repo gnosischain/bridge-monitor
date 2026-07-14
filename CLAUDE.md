@@ -20,7 +20,7 @@ pnpm app:dev          # Start Next.js dev server
 pnpm app:build        # Production build
 pnpm app:lint         # Lint (ESLint + Prettier)
 pnpm app:lint:fix     # Auto-fix lint issues
-cd app && pnpm typechain   # Regenerate TypeChain types from ABIs
+cd app && pnpm typechain   # ⚠️ DESTRUCTIVE during wagmi migration — see note below; edit barrels by hand
 ```
 
 ### Indexer (`/envio-indexer`)
@@ -46,7 +46,7 @@ cd alerts && pnpm build # Compile TypeScript
 - Pages in `/app/pages/bridge-explorer/` — each route has a corresponding `pagePartials/` folder for page-specific components
 - `NextPageWithLayout` pattern for per-page layouts; `SingleColumnLayout` is the default
 - Provider tree in `_app.tsx`: `Web3ConnectionProvider` (dynamic/no-SSR) → `ThemeProvider` → `TransactionNotificationProvider` → `TokenListProvider` → `ValidatorsProvider`
-- Contract ABIs live in `src/abis/` and generate TypeChain types via `pnpm typechain`
+- Contract ABIs live in `src/abis/` and generate TypeChain types via `pnpm typechain`. **⚠️ Do not run `pnpm typechain` during the wagmi migration** — several ABIs are now `.ts` viem consts not covered by its `*.json` glob, so a regen overwrites the hand-maintained `types/typechain` barrels and drops still-needed exports (e.g. `AMBBridgeHelper__factory`), breaking the build. Edit those barrels by hand until PR 15 retires TypeChain.
 - Bridge and chain configuration is centralized in `src/constants/` (bridges, validators, chains, contracts)
 
 **Bridge types supported:**
