@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
-import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
+import { getBridgeContractConfig } from '@/src/hooks/bridge/useBridgeContracts'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { Button } from './Button'
 import { ButtonPlaceholderWithWarning } from './ButtonPlaceholderWithWarning'
@@ -26,8 +26,7 @@ export const ApproveButton: React.FC<ApproveButtonProps> = ({
 
   const approve = useApproval()
 
-  const bridgeContract = getBridgeContract(fromChainId, toChainId, token.address)
-  const bridgeAddress = bridgeContract.address
+  const bridgeAddress = getBridgeContractConfig(fromChainId, toChainId, token.address).address
 
   const { refetch: refreshBalance } = useUserTokenBalances({
     userAddress,
@@ -39,18 +38,24 @@ export const ApproveButton: React.FC<ApproveButtonProps> = ({
   const handleApprove = async () => {
     setIsSending(true)
 
-    const tx = await approve({
-      amount,
-      spenderAddress: bridgeAddress,
-      tokenAddress: token.address,
-    })
+    try {
+      const tx = await approve({
+        amount,
+        spenderAddress: bridgeAddress,
+        tokenAddress: token.address,
+      })
 
-    if (tx) {
-      await tx.wait()
-      await refreshBalance()
+      if (tx) {
+        await tx.wait()
+        await refreshBalance()
+      }
+    } catch (e) {
+      // `wait()` throws on revert or on viem's 180s receipt timeout — don't leave the
+      // button stuck on the "approving" placeholder
+      console.error(e)
+    } finally {
+      setIsSending(false)
     }
-
-    setIsSending(false)
   }
 
   if (isSending) {

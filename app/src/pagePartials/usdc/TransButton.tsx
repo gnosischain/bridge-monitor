@@ -97,20 +97,26 @@ const ApproveButton: React.FC<{
   const handleApprove = async () => {
     setIsSending(true)
 
-    const tx = await approve({
-      amount,
-      spenderAddress: TRANSMUTER_ADDRESS,
-      tokenAddress: token.address,
-    })
+    try {
+      const tx = await approve({
+        amount,
+        spenderAddress: TRANSMUTER_ADDRESS,
+        tokenAddress: token.address,
+      })
 
-    if (tx) {
-      await tx.wait()
-      await refreshBalanceToken()
-      // await refreshBalanceTokenOut()
-    }
-
-    if (isComponentMounted) {
-      setIsSending(false)
+      if (tx) {
+        await tx.wait()
+        await refreshBalanceToken()
+        // await refreshBalanceTokenOut()
+      }
+    } catch (e) {
+      // `wait()` throws on revert or on viem's 180s receipt timeout — don't leave the
+      // button stuck on the "approving" placeholder
+      console.error(e)
+    } finally {
+      if (isComponentMounted) {
+        setIsSending(false)
+      }
     }
   }
 
