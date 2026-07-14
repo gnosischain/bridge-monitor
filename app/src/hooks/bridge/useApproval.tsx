@@ -32,6 +32,7 @@ export const useApproval = () => {
           address: tokenAddress as Address,
           functionName: 'approve',
           args: [spenderAddress as Address, amount],
+          chainId: appChainId,
         }),
       )
 
