@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
 import useTransaction from '@/src/hooks/useTransaction'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
+import { waitForMinedReceipt } from '@/src/lib/web3/transactions'
 import useWeb3Name from '@/src/hooks/useWeb3Name'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
 import { TokenUsdc } from './types'
@@ -173,9 +174,9 @@ const TriggerTransButton: React.FC<{
     setIsSending(true)
 
     try {
-      const tx = await sendTx(transactionData.tx)
-      if (tx) {
-        await tx.wait()
+      const hash = await sendTx(transactionData.tx)
+      if (hash) {
+        await waitForMinedReceipt(hash, Chains.gnosis)
         clearForm()
         Promise.all([refreshBalanceToken(), refreshBalanceTokenOut()])
       } else {

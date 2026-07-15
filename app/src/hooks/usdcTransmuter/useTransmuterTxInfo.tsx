@@ -1,67 +1,23 @@
-import { Signer, ethers } from 'ethers'
-import { Chains } from '@/src/constants/config/types'
-import useSWR from 'swr'
-import { USDC_XDAI_OLD } from '@/src/constants/misc'
-import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
-import { TokenUsdc } from '@/src/pagePartials/usdc/types'
+import { useMemo } from 'react'
+
+import { type Abi } from 'viem'
+import { useSimulateContract, useWriteContract } from 'wagmi'
+
 import TransmuterAbi from '@/src/abis/TransmuterEurc.json'
+import { Chains } from '@/src/constants/config/types'
+import { TRANSMUTER_ADDRESS, USDC_XDAI_OLD } from '@/src/constants/misc'
+import { TokenUsdc } from '@/src/pagePartials/usdc/types'
+import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 
-export const getTransTx = async ({
-  account,
-  amount,
-  returnZero,
-  signer,
-  tokenAddress,
-}: {
-  account: string
-  amount: bigint
-  signer: Signer
-  tokenAddress: string
-  returnZero?: boolean
-}) => {
-  const transmuteContract = new ethers.Contract(TRANSMUTER_ADDRESS, TransmuterAbi, signer)
-  const transMethod = tokenAddress === USDC_XDAI_OLD ? 'deposit' : 'withdraw'
-
-  if (returnZero) {
-    return {
-      gasLimit: 0n,
-      gasPrice: 0n,
-      tx: null,
-    }
-  }
-
-  if (amount <= 0n || !account) {
-    return {
-      gasLimit: 0n,
-      gasPrice: 0n,
-      tx: null,
-    }
-  }
-
-  const gasPrice = await transmuteContract.provider.getGasPrice()
-  try {
-    const gasLimit = await transmuteContract.estimateGas[transMethod](amount)
-
-    return {
-      gasLimit,
-      gasPrice,
-      tx: async function () {
-        return transmuteContract[transMethod](amount, {
-          gasLimit: gasLimit,
-        })
-      },
-    }
-  } catch (error) {
-    console.error('Error getting swap transaction info', error)
-    return {
-      gasLimit: 0n,
-      gasPrice: 0n,
-      tx: null,
-    }
-  }
-}
-
+/**
+ * Simulates the transmuter deposit (USDC → USDC.e) or withdraw (USDC.e → USDC) for
+ * `amount` and returns a `tx` thunk executing it. The simulation doubles as the gas
+ * estimate and as a pre-flight revert check — a failing simulation yields `tx: null`.
+ *
+ * Return contract (kept from the SWR version): `undefined` while the wallet isn't on
+ * Gnosis or the simulation is in flight; `{ tx: null }` when there is nothing to send
+ * (`returnZero`, zero amount, failed simulation); `{ tx }` when ready.
+ */
 export const useTransmuterTxInfo = ({
   amount,
   returnZero,
@@ -73,42 +29,26 @@ export const useTransmuterTxInfo = ({
   userAddress: string
   returnZero?: boolean
 }) => {
-  const { walletChainId, web3Provider } = useWeb3Connection()
-  const isReady = !!web3Provider && walletChainId === Chains.gnosis
+  const { walletChainId } = useWeb3Connection()
+  const isReady = walletChainId === Chains.gnosis
 
-  const { data: transactionData } = useSWR(
-    isReady ? ['transactionInfo', token, amount, userAddress, returnZero || false] : null,
-    async ([, _token, _amount, _userAddress, _returnZero]) => {
-      if (_returnZero) {
-        return {
-          gasLimit: 0n,
-          gasPrice: 0n,
-          tx: null,
-        }
-      }
-
-      if (_amount <= 0n) {
-        return {
-          gasLimit: 0n,
-          gasPrice: 0n,
-          tx: null,
-        }
-      }
-      const signer = web3Provider!.getSigner()
-      const { gasLimit, gasPrice, tx } = await getTransTx({
-        account: _userAddress,
-        amount: _amount,
-        signer,
-        tokenAddress: _token.address,
-      })
-
-      return {
-        gasLimit,
-        gasPrice,
-        tx,
-      }
+  const { data: simulation, isLoading } = useSimulateContract({
+    abi: TransmuterAbi as Abi,
+    address: TRANSMUTER_ADDRESS,
+    functionName: token.address === USDC_XDAI_OLD ? 'deposit' : 'withdraw',
+    args: [amount],
+    chainId: Chains.gnosis,
+    query: {
+      enabled: isReady && !returnZero && amount > 0n && !!userAddress,
+      retry: false,
     },
-  )
+  })
 
-  return transactionData
+  const { writeContractAsync } = useWriteContract()
+
+  return useMemo(() => {
+    if (!isReady || isLoading) return undefined
+    if (!simulation?.request) return { tx: null }
+    return { tx: () => writeContractAsync(simulation.request) }
+  }, [isReady, isLoading, simulation, writeContractAsync])
 }

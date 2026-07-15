@@ -4,7 +4,7 @@ import { type Address, erc20Abi } from 'viem'
 import { useWriteContract } from 'wagmi'
 
 import useTransaction from '@/src/hooks/useTransaction'
-import { waitForTransactionReceipt } from '@/src/lib/web3/transactions'
+import { waitForMinedReceipt } from '@/src/lib/web3/transactions'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 
 type Approval = {
@@ -39,19 +39,8 @@ export const useApproval = () => {
       if (!hash) return null
 
       // keep a `.wait()` handle so callers can block on the receipt (parity with the old
-      // ethers ContractTransaction return). Like ethers' `tx.wait()`, it throws on a
-      // reverted tx — viem resolves with `status: 'reverted'` instead, which callers
-      // (e.g. the bridgeWithSteps Approve step) would otherwise mistake for success.
-      return {
-        hash,
-        wait: async () => {
-          const receipt = await waitForTransactionReceipt(hash, appChainId)
-          if (receipt.status === 'reverted') {
-            throw new Error(`Approve transaction reverted: ${hash}`)
-          }
-          return receipt
-        },
-      }
+      // ethers ContractTransaction return; throws on revert like ethers' `tx.wait()`)
+      return { hash, wait: () => waitForMinedReceipt(hash, appChainId) }
     },
     [address, appChainId, sendTx, writeContractAsync],
   )

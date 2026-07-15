@@ -9,6 +9,7 @@ import { Step, statuses, steps } from './const'
 import { StatusDetails } from './StatusDetails'
 import { Status } from './IconStatus'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
+import { waitForMinedReceipt } from '@/src/lib/web3/transactions'
 import { Token } from '@/types/token'
 import { Chains } from '@/src/constants/config/chains'
 import { zeroAddress } from 'viem'
@@ -89,9 +90,9 @@ export const Swap = ({
       setIsWorking(true)
 
       try {
-        const tx = await sendTx(swapTxData.tx)
-        if (tx) {
-          await tx.wait()
+        const hash = await sendTx(swapTxData.tx)
+        if (hash) {
+          await waitForMinedReceipt(hash, Chains.gnosis)
           refreshBalanceToken()
           setStatus(steps.bridging)
         } else {

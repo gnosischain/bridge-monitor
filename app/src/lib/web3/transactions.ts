@@ -1,4 +1,4 @@
-import { type Hash } from 'viem'
+import { type Hash, type TransactionReceipt } from 'viem'
 import { getPublicClient, getTransactionReceipt as wagmiGetTransactionReceipt } from 'wagmi/actions'
 
 import { ChainsValues } from '@/src/constants/config/types'
@@ -22,3 +22,20 @@ export const getTransactionReceipt = (hash: Hash, chainId: ChainsValues) =>
  */
 export const waitForTransactionReceipt = (hash: Hash, chainId: ChainsValues, confirmations = 1) =>
   getPublicClient(wagmiConfig, { chainId }).waitForTransactionReceipt({ hash, confirmations })
+
+/**
+ * Like `waitForTransactionReceipt`, but throws if the transaction reverted — ethers
+ * `tx.wait()` semantics for the write path. viem resolves normally with
+ * `status: 'reverted'` instead, which callers awaiting "success" would silently
+ * accept. Also throws on viem's receipt-poll timeout (180s by default).
+ */
+export const waitForMinedReceipt = async (
+  hash: Hash,
+  chainId: ChainsValues,
+): Promise<TransactionReceipt> => {
+  const receipt = await waitForTransactionReceipt(hash, chainId)
+  if (receipt.status === 'reverted') {
+    throw new Error(`Transaction reverted: ${hash}`)
+  }
+  return receipt
+}
