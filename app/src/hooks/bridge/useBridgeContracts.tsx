@@ -14,7 +14,7 @@ import {
 
 // the two write-path ABIs not already exposed through `contracts` (BridgeRouter has no
 // abi field; the OmniBridge entry carries only the Home mediator abi)
-import ForeignBridgeRouter_abi from '@/src/abis/ForeignBridgeRouter.json'
+import ForeignBridgeRouter_abi from '@/src/abis/ForeignBridgeRouter'
 import ForeignOmniMediator_abi from '@/src/abis/ForeignOmniMediator.json'
 
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
@@ -95,7 +95,7 @@ export const getBridgeContractConfig = (
         }
       : {
           address: contracts.BridgeRouter.address[fromChainId],
-          abi: ForeignBridgeRouter_abi as Abi,
+          abi: ForeignBridgeRouter_abi,
           chainId: fromChainId,
         }
   }
