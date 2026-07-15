@@ -1,6 +1,8 @@
-import { Contract, Signer } from 'ethers'
+import { ContractTransaction, Signer } from 'ethers'
 import { ChainsValues } from '@/src/constants/config/types'
 import useSWR from 'swr'
+import { type Address, type Hash, erc20Abi } from 'viem'
+import { sendTransaction, writeContract } from 'wagmi/actions'
 import { Token } from '@/types/token'
 import { USDC_ETHEREUM, USDCe_GNOSIS } from '@/src/constants/misc'
 import {
@@ -8,9 +10,7 @@ import {
   ERC677,
   ERC677__factory,
   ForeignBridgeErcToNative,
-  ForeignBridgeRouter,
   ForeignOmniMediator,
-  HomeBridgeErcToNative,
   HomeOmniMediator,
   NativeOmniBridgeMediator,
 } from '@/types/typechain'
@@ -18,8 +18,14 @@ import { contracts } from '@/src/constants/config/contracts'
 import { TOKEN_MODE, useTokenMode } from '@/src/hooks/bridge/useTokenMode'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
-import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
+import {
+  type BridgeContractConfig,
+  getBridgeContract,
+  getBridgeContractConfig,
+} from '@/src/hooks/bridge/useBridgeContracts'
+import { getPublicClient } from '@/src/lib/web3/transactions'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+import { wagmiConfig } from '@/src/providers/wagmi'
 import { isSameString } from '@/src/utils/tools'
 import { defaultAbiCoder } from 'ethers/lib/utils'
 import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
@@ -93,76 +99,100 @@ const handleNativeTokenFromForeign = async ({
  */
 const handleNativeTokenFromHome = async ({
   amount,
-  bridgeContract,
+  bridgeConfig,
   fromChainId,
   recipient,
-  signer,
   toTokenAddress,
   userAddress,
 }: {
-  bridgeContract: HomeBridgeErcToNative
-  signer: Signer
+  bridgeConfig: BridgeContractConfig
   amount: bigint
   userAddress: string
   fromChainId: ChainsValues
   recipient?: string
   toTokenAddress?: string
-}) => {
-  // Using the default estimateGas calculation using the minimum xDAI amount (10) to avoid crash when the user tries to bridge all the balance of the native tokens
-  // TODO: There should be a better way to handle this.
+}): Promise<{ gasLimit: bigint; tx: () => Promise<Hash> }> => {
+  const client = getPublicClient(fromChainId)
+  const account = userAddress as Address
 
+  // USDS is deposited through the dedicated USDSDeposit contract, not the xDAI bridge.
   if (toTokenAddress && isSameString(toTokenAddress, USDS_ADDRESS)) {
     const usdsDepositAddress = contracts.USDSDeposit.address[fromChainId]
     if (!usdsDepositAddress) {
       throw new Error('USDSDeposit address not configured for this chain')
     }
 
-    const usdsDeposit = new Contract(usdsDepositAddress, contracts.USDSDeposit.abi, signer)
-    const targetRecipient = recipient || userAddress
+    const address = usdsDepositAddress as Address
+    const abi = contracts.USDSDeposit.abi
+    const args = [(recipient || userAddress) as Address] as const
 
-    const gasLimit = await usdsDeposit.estimateGas
-      .relayTokens(targetRecipient, {
-        value: amount.toString(),
-      })
-      .then(bnToBigInt)
+    const gasLimit = await client.estimateContractGas({
+      address,
+      abi,
+      functionName: 'relayTokens',
+      args,
+      value: amount,
+      account,
+    })
 
     return {
       gasLimit,
-      tx: async function () {
-        return usdsDeposit.relayTokens(targetRecipient, {
-          value: amount.toString(),
-          gasLimit,
-        })
-      },
+      tx: () =>
+        writeContract(wagmiConfig, {
+          address,
+          abi,
+          functionName: 'relayTokens',
+          args,
+          value: amount,
+          chainId: fromChainId,
+        }),
     }
   }
 
-  const gasLimit = recipient
-    ? await bridgeContract.estimateGas
-        .relayTokens(recipient, {
-          value: amount.toString(),
-        })
-        .then(bnToBigInt)
-    : await signer
-        .estimateGas({
-          to: bridgeContract.address,
-          from: userAddress,
-          value: amount.toString(),
-        })
-        .then(bnToBigInt)
+  const bridgeAddress = bridgeConfig.address as Address
+
+  // With a recipient → HomeBridgeErcToNative.relayTokens(receiver) (payable; xDAI sent as value).
+  if (recipient) {
+    const args = [recipient as Address] as const
+
+    const gasLimit = await client.estimateContractGas({
+      address: bridgeAddress,
+      abi: bridgeConfig.abi,
+      functionName: 'relayTokens',
+      args,
+      value: amount,
+      account,
+    })
+
+    return {
+      gasLimit,
+      tx: () =>
+        writeContract(wagmiConfig, {
+          address: bridgeAddress,
+          abi: bridgeConfig.abi,
+          functionName: 'relayTokens',
+          args,
+          value: amount,
+          chainId: fromChainId,
+        }),
+    }
+  }
+
+  // Without a recipient → plain value transfer to the bridge address.
+  const gasLimit = await client.estimateGas({
+    account,
+    to: bridgeAddress,
+    value: amount,
+  })
 
   return {
     gasLimit,
-    tx: async function () {
-      return recipient
-        ? bridgeContract.relayTokens(recipient, {
-            value: amount.toString(),
-          })
-        : signer.sendTransaction({
-            to: bridgeContract.address,
-            value: amount.toString(),
-          })
-    },
+    tx: () =>
+      sendTransaction(wagmiConfig, {
+        to: bridgeAddress,
+        value: amount,
+        chainId: fromChainId,
+      }),
   }
 }
 
@@ -558,51 +588,64 @@ const handleUsdcFromForeign = async ({
 const handleUsdsOrDaiFromForeign = async ({
   allowance,
   amount,
-  bridgeContract,
+  bridgeConfig,
   recipient,
-  signer,
   tokenAddress,
   userAddress,
 }: {
-  bridgeContract: ForeignBridgeRouter
-  signer: Signer
+  bridgeConfig: BridgeContractConfig
   amount: bigint
   tokenAddress: string
   allowance: bigint
   recipient: string | undefined
   userAddress: string
-}) => {
-  const tokenContract = ERC20__factory.connect(tokenAddress, signer)
-  let gasLimit: bigint
-  const bridgeRouterContract = contracts.BridgeRouter.address[1]
+}): Promise<{ gasLimit: bigint; tx: () => Promise<Hash> }> => {
+  const client = getPublicClient(bridgeConfig.chainId)
+  const account = userAddress as Address
+  const bridgeAddress = bridgeConfig.address as Address
+  const receiver = (recipient ? recipient.toLowerCase() : userAddress.toLowerCase()) as Address
+  const relayArgs = [tokenAddress as Address, receiver, amount] as const
 
-  if (amount > allowance) {
-    gasLimit = await tokenContract.estimateGas
-      .approve(bridgeRouterContract, amount.toString())
-      .then(bnToBigInt)
-  } else {
-    gasLimit = await bridgeContract.estimateGas
-      .relayTokens(
-        tokenAddress,
-        recipient ? recipient.toLowerCase() : userAddress.toLowerCase(),
-        amount.toString(),
-      )
-      .then(bnToBigInt)
-  }
+  // With insufficient allowance the relayTokens estimate would revert (the bridge pulls the
+  // token), so gas is estimated for the approval instead — the button routes through the
+  // approve step first, and SWR re-runs with the fresh allowance before the bridge send.
+  const gasLimit =
+    amount > allowance
+      ? await client.estimateContractGas({
+          address: tokenAddress as Address,
+          abi: erc20Abi,
+          functionName: 'approve',
+          args: [bridgeAddress, amount],
+          account,
+        })
+      : await client.estimateContractGas({
+          address: bridgeAddress,
+          abi: bridgeConfig.abi,
+          functionName: 'relayTokens',
+          args: relayArgs,
+          account,
+        })
 
   return {
     gasLimit,
-    tx: async function () {
-      return bridgeContract.relayTokens(
-        tokenAddress,
-        recipient ? recipient.toLowerCase() : userAddress.toLowerCase(),
-        amount.toString(),
-        {
-          gasLimit,
-        },
-      )
-    },
+    tx: () =>
+      writeContract(wagmiConfig, {
+        address: bridgeAddress,
+        abi: bridgeConfig.abi,
+        functionName: 'relayTokens',
+        args: relayArgs,
+        chainId: bridgeConfig.chainId,
+      }),
   }
+}
+
+// During the write-path migration `tx` is a union: the viem-migrated flows (PR 14a) resolve a
+// `Hash`, the not-yet-migrated ethers flows a `ContractTransaction`. Typed as a single function
+// returning the union (not a union of functions) so `useTransaction`'s generic can infer it.
+type BridgeTxInfo = {
+  gasLimit: bigint
+  gasPrice: bigint
+  tx: (() => Promise<ContractTransaction | Hash>) | null
 }
 
 export const getBridgeTx = async ({
@@ -631,7 +674,7 @@ export const getBridgeTx = async ({
   receiveNativeToken?: boolean
   recipient?: string
   toTokenAddress?: string
-}) => {
+}): Promise<BridgeTxInfo> => {
   const bridgeContract = getBridgeContract(fromChainId, toChainId, tokenAddress).connect(signer)
 
   if (amount <= 0n || !account) {
@@ -657,8 +700,7 @@ export const getBridgeTx = async ({
   const { gasLimit, tx } =
     isUsdsEth || isDaiEth
       ? await handleUsdsOrDaiFromForeign({
-          bridgeContract: bridgeContract as ForeignBridgeRouter,
-          signer,
+          bridgeConfig: getBridgeContractConfig(fromChainId, toChainId, tokenAddress),
           amount,
           tokenAddress,
           userAddress: account,
@@ -690,8 +732,7 @@ export const getBridgeTx = async ({
           : isNativeToken
             ? isFromHome
               ? await handleNativeTokenFromHome({
-                  bridgeContract: bridgeContract as HomeBridgeErcToNative,
-                  signer,
+                  bridgeConfig: getBridgeContractConfig(fromChainId, toChainId, tokenAddress),
                   amount,
                   recipient,
                   fromChainId,
