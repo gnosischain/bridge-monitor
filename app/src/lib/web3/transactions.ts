@@ -1,8 +1,19 @@
 import { type Hash, type TransactionReceipt } from 'viem'
-import { getPublicClient, getTransactionReceipt as wagmiGetTransactionReceipt } from 'wagmi/actions'
+import {
+  getPublicClient as wagmiGetPublicClient,
+  getTransactionReceipt as wagmiGetTransactionReceipt,
+} from 'wagmi/actions'
 
 import { ChainsValues } from '@/src/constants/config/types'
 import { wagmiConfig } from '@/src/providers/wagmi'
+
+/**
+ * The wagmi/viem public client for `chainId`, resolved from the shared wagmi config.
+ * A thin `(chainId)` wrapper over wagmi's `(config, { chainId })` form so callers (e.g.
+ * `ClaimButton`) don't repeat the config plumbing.
+ */
+export const getPublicClient = (chainId: ChainsValues) =>
+  wagmiGetPublicClient(wagmiConfig, { chainId })
 
 /**
  * Fetches the mined receipt for `hash`. Throws viem's `TransactionReceiptNotFoundError`
@@ -21,7 +32,7 @@ export const getTransactionReceipt = (hash: Hash, chainId: ChainsValues) =>
  * also waits forever, where viem's 180s default throws on stuck transactions.
  */
 export const waitForTransactionReceipt = (hash: Hash, chainId: ChainsValues, confirmations = 1) =>
-  getPublicClient(wagmiConfig, { chainId }).waitForTransactionReceipt({ hash, confirmations })
+  getPublicClient(chainId).waitForTransactionReceipt({ hash, confirmations })
 
 /**
  * Like `waitForTransactionReceipt`, but throws if the transaction reverted — ethers
