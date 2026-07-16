@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { type Abi, type Address, type Hash, type Hex, parseEventLogs } from 'viem'
 import { useWriteContract } from 'wagmi'
 
-import ForeignBridgeRouter_abi from '@/src/abis/ForeignBridgeRouter.json'
+import ForeignBridgeRouter_abi from '@/src/abis/ForeignBridgeRouter'
 import { notify } from '@/src/components/toast'
 import { chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
 import { contracts } from '@/src/constants/config/contracts'
@@ -127,7 +127,7 @@ export const ClaimButton = ({
 
       return () =>
         writeContractAsync({
-          abi: ForeignBridgeRouter_abi as Abi,
+          abi: ForeignBridgeRouter_abi,
           address: routerAddress,
           chainId: Chains.mainnet,
           functionName: 'executeSignatures',
@@ -175,7 +175,7 @@ export const ClaimButton = ({
 
       return () =>
         writeContractAsync({
-          abi: ForeignBridgeRouter_abi as Abi,
+          abi: ForeignBridgeRouter_abi,
           address: routerAddress,
           chainId: Chains.mainnet,
           functionName: 'safeExecuteSignaturesWithAutoGasLimit',

@@ -1,9 +1,8 @@
 import { useMemo } from 'react'
 
-import { type Abi } from 'viem'
 import { useSimulateContract, useWriteContract } from 'wagmi'
 
-import TransmuterAbi from '@/src/abis/TransmuterEurc.json'
+import TransmuterAbi from '@/src/abis/TransmuterEurc'
 import { Chains } from '@/src/constants/config/types'
 import { TRANSMUTER_ADDRESS, USDC_XDAI_OLD } from '@/src/constants/misc'
 import { TokenUsdc } from '@/src/pagePartials/usdc/types'
@@ -33,7 +32,7 @@ export const useTransmuterTxInfo = ({
   const isReady = walletChainId === Chains.gnosis
 
   const { data: simulation, isLoading } = useSimulateContract({
-    abi: TransmuterAbi as Abi,
+    abi: TransmuterAbi,
     address: TRANSMUTER_ADDRESS,
     functionName: token.address === USDC_XDAI_OLD ? 'deposit' : 'withdraw',
     args: [amount],
