@@ -64,10 +64,13 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
     }
 
     try {
-      const tx = await sendTx(transactionData.tx)
-      if (tx) {
+      const result = await sendTx(transactionData.tx)
+      if (result) {
+        // viem write path returns the tx hash directly; the legacy ethers path returns a
+        // ContractTransaction (PR 14b migrates the remaining flows)
+        const txHash = typeof result === 'string' ? result : result.hash
         router.push(
-          `${bridgePagesBaseURL}/${tx.hash}?fromChainId=${fromChainId}&isNativeBridge=${
+          `${bridgePagesBaseURL}/${txHash}?fromChainId=${fromChainId}&isNativeBridge=${
             isNativeBridge ? 1 : 0
           }&tokenAddress=${token.address}&amount=${amount}&toChainId=${toChainId}`,
         )
