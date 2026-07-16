@@ -1,71 +1,20 @@
-import { chainsConfig } from '@/src/constants/config/chains'
 import { contracts } from '@/src/constants/config/contracts'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { type Abi } from 'viem'
 
-import {
-  ForeignBridgeRouter__factory,
-  ForeignOmniMediator__factory,
-  HomeBridgeErcToNative__factory,
-  HomeOmniMediator__factory,
-  NativeOmniBridgeMediator__factory,
-} from '@/types/typechain'
-
-// the two write-path ABIs not already exposed through `contracts` (BridgeRouter has no
-// abi field; the OmniBridge entry carries only the Home mediator abi)
+// the two bridge ABIs not exposed through `contracts` (its BridgeRouter entry has no abi
+// field, and its OmniBridge entry carries only the home mediator's abi)
 import ForeignBridgeRouter_abi from '@/src/abis/ForeignBridgeRouter'
 import ForeignOmniMediator_abi from '@/src/abis/ForeignOmniMediator.json'
 
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { TokenOverrideManager } from '@/src/utils/token-overrides'
 
-export const getBridgeContract = (
-  fromChainId: ChainsValues,
-  toChainId: ChainsValues,
-  tokenAddress: string,
-) => {
-  const isHome = fromChainId === Chains.gnosis
-  const provider = new JsonRpcBatchProvider(chainsConfig[fromChainId].rpcUrl)
-
-  const { isNativeBridge, isNativeToken } = getBridgeCommonInfo({
-    fromChainId,
-    toChainId,
-    tokenAddress,
-  })
-
-  if (isNativeBridge) {
-    if (isHome) {
-      return HomeBridgeErcToNative__factory.connect(
-        contracts.XDAIBridge.address[fromChainId],
-        provider,
-      )
-    } else {
-      return ForeignBridgeRouter__factory.connect(
-        contracts.BridgeRouter.address[fromChainId],
-        provider,
-      )
-    }
-  } else if (fromChainId !== Chains.gnosis && isNativeToken) {
-    return NativeOmniBridgeMediator__factory.connect(
-      contracts.omniBridgeNativeToken.address[fromChainId],
-      provider,
-    )
-  } else {
-    return (isHome ? HomeOmniMediator__factory : ForeignOmniMediator__factory).connect(
-      TokenOverrideManager.isMediatorOverridden(tokenAddress, fromChainId)
-        ? TokenOverrideManager.getOverride(tokenAddress).mediator // use the overridden mediator
-        : contracts.OmniBridge.address[fromChainId],
-      provider,
-    )
-  }
-}
-
 /**
- * Bridge-contract descriptor for the viem/wagmi write path — the `{ address, abi, chainId }`
- * replacement for the ethers typechain instance above. Introduced with PR 11 (`useApproval` /
- * `ApproveButton`); the remaining typechain callers migrate to it one-by-one through PR 14b,
- * after which `getBridgeContract` is removed. Mirrors that function's bridge-selection branching.
+ * The `{ address, abi, chainId }` a contract read/write (`readContract` / `writeContract` /
+ * `estimateContractGas`) needs to talk to a bridge. `getBridgeContractConfig` resolves the right
+ * bridge for a given token and direction: the xDAI native bridge, the native-token mediator, or
+ * the OmniBridge mediator (honouring any per-token mediator override).
  */
 export type BridgeContractConfig = {
   address: string

@@ -91,11 +91,8 @@ const BridgeActive: React.FC<BridgeProps> = ({
       setIsWorking(true)
 
       try {
-        const result = await sendTx(transactionData.tx)
-        if (result) {
-          // viem write path returns the tx hash directly; the legacy ethers path returns a
-          // ContractTransaction (PR 14b migrates the remaining flows)
-          const txHash = typeof result === 'string' ? result : result.hash
+        const txHash = await sendTx(transactionData.tx)
+        if (txHash) {
           setStatus(steps.completed)
           router.push(
             `${bridgePagesBaseURL}/${txHash}?fromChainId=${fromChainId}&isNativeBridge=${

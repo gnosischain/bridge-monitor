@@ -8,7 +8,7 @@ import useBridgeLimits from '@/src/hooks/bridge/useBridgeLimits'
 import { EURCe_GNOSIS, USDCe_GNOSIS } from '@/src/constants/misc'
 import { formatNumber } from '@/src/utils/format'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
-import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
+import { getBridgeContractConfig } from '@/src/hooks/bridge/useBridgeContracts'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
 import useWeb3Name from '../useWeb3Name'
@@ -42,8 +42,7 @@ export const useBridgeValidations = ({
   // until it resolves — keeping the bridge button disabled exactly as the old SWR suspense did.
   const { data: tokenMode } = useTokenMode(fromChainId, toChainId, fromToken)
 
-  const bridgeContract = getBridgeContract(fromChainId, toChainId, fromToken.address)
-  const bridgeAddress = bridgeContract.address
+  const bridgeAddress = getBridgeContractConfig(fromChainId, toChainId, fromToken.address).address
 
   const { data: userBalanceData, isLoading: isLoadingBalance } = useUserTokenBalances({
     userAddress,
