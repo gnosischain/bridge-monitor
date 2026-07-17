@@ -813,8 +813,8 @@ export const useBridgeTransactionInfo = ({
   token: Token
   toToken?: Token
 }) => {
-  const { walletChainId, web3Provider } = useWeb3Connection()
-  const isReady = !!web3Provider && walletChainId === fromChainId
+  const { isWalletConnected, walletChainId } = useWeb3Connection()
+  const isReady = isWalletConnected && walletChainId === fromChainId
 
   const { data: tokenMode } = useTokenMode(fromChainId, toChainId, token)
   const { data: userBalancesData } = useUserTokenBalances({

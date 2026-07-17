@@ -11,19 +11,16 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { JsonRpcProvider } from '@ethersproject/providers'
-import type { providers } from 'ethers'
 import nullthrows from 'nullthrows'
-import { useConnection, useConnectorClient, usePublicClient, useSwitchChain } from 'wagmi'
+import { useConnection, usePublicClient, useSwitchChain } from 'wagmi'
 import { useQuery } from '@tanstack/react-query'
 
-import { INITIAL_APP_CHAIN_ID, chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
+import { INITIAL_APP_CHAIN_ID, chainsConfig } from '@/src/constants/config/chains'
 import { Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 import { getSupportedNetworks } from '@/src/utils/getSupportedNetworks'
 import { isValidChain } from '@/src/utils/tools'
 import { Modal } from '@/src/components/modal'
 import { SelectWallet } from '@/src/components/wallet/SelectWallet'
-import { clientToWeb3Provider } from '@/src/utils/ethersAdapters'
 
 // Default chain id from env var
 nullthrows(
@@ -47,8 +44,6 @@ export type Web3Context = {
   walletChainId: number | null
   walletLabel: string | null
   isOnboardChangingChain: boolean
-  readOnlyAppProvider: JsonRpcProvider
-  web3Provider: providers.Web3Provider | null
 }
 
 const Web3ContextConnection = createContext<Web3Context | undefined>(undefined)
@@ -59,7 +54,6 @@ type Props = {
 
 export default function Web3ConnectionProvider({ children }: Props) {
   const { address: wagmiAddress, chainId, connector, isConnected, isConnecting } = useConnection()
-  const { data: connectorClient } = useConnectorClient()
   const { isPending: isSwitchingChain, mutateAsync: switchChainAsync } = useSwitchChain()
 
   const [appChainId, setAppChainId] = useState(INITIAL_APP_CHAIN_ID)
@@ -148,16 +142,6 @@ export default function Web3ConnectionProvider({ children }: Props) {
     [switchChainAsync],
   )
 
-  const web3Provider = useMemo(
-    () => (connectorClient ? clientToWeb3Provider(connectorClient) : null),
-    [connectorClient],
-  )
-
-  const readOnlyAppProvider = useMemo(
-    () => new JsonRpcProvider(getNetworkConfig(appChainId)?.rpcUrl, appChainId),
-    [appChainId],
-  )
-
   const value: Web3Context = {
     address,
     appChainId,
@@ -174,8 +158,6 @@ export default function Web3ConnectionProvider({ children }: Props) {
     setAppChainId,
     walletChainId,
     walletLabel: connector?.name ?? null,
-    readOnlyAppProvider,
-    web3Provider,
   }
 
   return (

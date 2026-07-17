@@ -102,7 +102,7 @@ export const useUserTokenBalances = ({
 
   // TODO: drop `refetch` once the approval flow uses `useWaitForTransactionReceipt`
   // (wagmi auto-invalidates queries on block, making manual refetch unnecessary).
-  // Currently kept because `ApproveButton` calls it after `tx.wait()` to refresh allowance.
+  // Currently kept because `ApproveButton` calls it after the approval is mined to refresh allowance.
   const refetch = async () => {
     if (isNative) {
       await refetchNativeBalance()

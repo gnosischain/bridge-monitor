@@ -35,10 +35,10 @@ export const waitForTransactionReceipt = (hash: Hash, chainId: ChainsValues, con
   getPublicClient(chainId).waitForTransactionReceipt({ hash, confirmations })
 
 /**
- * Like `waitForTransactionReceipt`, but throws if the transaction reverted — ethers
- * `tx.wait()` semantics for the write path. viem resolves normally with
- * `status: 'reverted'` instead, which callers awaiting "success" would silently
- * accept. Also throws on viem's receipt-poll timeout (180s by default).
+ * Like `waitForTransactionReceipt`, but **throws if the transaction reverted**. The plain wait
+ * resolves normally with `status: 'reverted'`, which a caller awaiting "success" would silently
+ * accept — so write flows use this to turn a revert into a rejected promise. Also throws on the
+ * receipt-poll timeout (180s by default).
  */
 export const waitForMinedReceipt = async (
   hash: Hash,

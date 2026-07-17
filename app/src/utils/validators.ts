@@ -3,7 +3,7 @@ import { type Address, publicActions } from 'viem'
 
 import { wagmiConfig } from '@/src/providers/wagmi'
 import { ChainsValues } from '@/src/constants/config/types'
-import { fromBNtoNumber } from '@/src/utils/bigNumber'
+import { formatUnitsToNumber } from '@/src/utils/formatNumber'
 import { formatNumber } from '@/src/utils/format'
 import { Transaction } from '@/src/utils/transactions'
 import ambValidators from '@/src/utils/validators/amb.json'
@@ -132,7 +132,7 @@ export const getValidatorByName = (validatorName: string, bridge: BridgesValues)
 export const getBalance = async (address: string, chainId: ChainsValues) => {
   const client = wagmiConfig.getClient({ chainId }).extend(publicActions)
   const balance = await client.getBalance({ address: address as Address })
-  return formatNumber(fromBNtoNumber(balance) ?? 0)
+  return formatNumber(formatUnitsToNumber(balance, 18))
 }
 
 export const fetchSignedTransactions = async (bridge: BridgesValues, afterDate: number) => {

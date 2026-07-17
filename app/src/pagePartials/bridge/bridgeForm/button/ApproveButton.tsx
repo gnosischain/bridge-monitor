@@ -4,6 +4,7 @@ import { Token } from '@/types/token'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
 import { getBridgeContractConfig } from '@/src/hooks/bridge/useBridgeContracts'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
+import { waitForMinedReceipt } from '@/src/lib/web3/transactions'
 import { Button } from './Button'
 import { ButtonPlaceholderWithWarning } from './ButtonPlaceholderWithWarning'
 
@@ -39,18 +40,18 @@ export const ApproveButton: React.FC<ApproveButtonProps> = ({
     setIsSending(true)
 
     try {
-      const tx = await approve({
+      const hash = await approve({
         amount,
         spenderAddress: bridgeAddress,
         tokenAddress: token.address,
       })
 
-      if (tx) {
-        await tx.wait()
+      if (hash) {
+        await waitForMinedReceipt(hash, fromChainId)
         await refreshBalance()
       }
     } catch (e) {
-      // `wait()` throws on revert or on viem's 180s receipt timeout — don't leave the
+      // waitForMinedReceipt rejects on revert or on the receipt-poll timeout — don't leave the
       // button stuck on the "approving" placeholder
       console.error(e)
     } finally {

@@ -6,9 +6,6 @@ import { formatUnits } from 'viem'
  *
  * Display-only: `parseFloat` narrows to float64, so use this at the render
  * boundary. Keep amounts as `bigint` for any exact / threshold math upstream.
- *
- * viem successor to the ethers-based `fromBNtoNumber` / `fromWei` in
- * `utils/bigNumber.ts` (removed once the wagmi migration lands — see PR 15).
  */
 export const formatUnitsToNumber = (value: bigint, decimals: number): number =>
   parseFloat(formatUnits(value, decimals))
