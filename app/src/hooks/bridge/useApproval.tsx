@@ -4,7 +4,6 @@ import { type Address, erc20Abi } from 'viem'
 import { useWriteContract } from 'wagmi'
 
 import useTransaction from '@/src/hooks/useTransaction'
-import { waitForMinedReceipt } from '@/src/lib/web3/transactions'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 
 type Approval = {
@@ -24,9 +23,10 @@ export const useApproval = () => {
         throw new Error('No spenderAddress found')
       }
 
-      // notification-wrapped ERC20 approve; `sendTx` returns the tx hash (or null on
-      // reject / disconnected wallet)
-      const hash = await sendTx(() =>
+      // notification-wrapped ERC20 approve; resolves the tx hash (or null on reject /
+      // disconnected wallet). Callers that need to block on the receipt do so with
+      // `waitForMinedReceipt(hash, chainId)`.
+      return sendTx(() =>
         writeContractAsync({
           abi: erc20Abi,
           address: tokenAddress as Address,
@@ -35,12 +35,6 @@ export const useApproval = () => {
           chainId: appChainId,
         }),
       )
-
-      if (!hash) return null
-
-      // keep a `.wait()` handle so callers can block on the receipt (parity with the old
-      // ethers ContractTransaction return; throws on revert like ethers' `tx.wait()`)
-      return { hash, wait: () => waitForMinedReceipt(hash, appChainId) }
     },
     [address, appChainId, sendTx, writeContractAsync],
   )

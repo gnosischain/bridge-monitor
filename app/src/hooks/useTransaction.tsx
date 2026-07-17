@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback } from 'react'
 
-import { ContractTransaction } from 'ethers'
 import { type Hash } from 'viem'
 
 import { waitForTransactionReceipt } from '@/src/lib/web3/transactions'
@@ -25,42 +24,20 @@ export default function useTransaction({
   } = useTransactionNotification()
 
   const waitForTxExecution = useCallback(
-    (tx: ContractTransaction | Hash) => {
-      // viem write path (wagmi hooks): the result is a `0x…` transaction hash
-      if (typeof tx === 'string') {
-        notifyWaitingForTxMined(tx)
-        waitForTransactionReceipt(tx, appChainId)
-          .then((r) => notifyTxMined(r.transactionHash, r.status === 'success'))
-          .catch((e) => {
-            console.error(e)
-            notifyTxMined(tx)
-          })
-        return
-      }
-
-      // ethers write path (legacy — PRs 12–14 still route through here)
-      notifyWaitingForTxMined(tx.hash)
-      tx.wait()
-        .then((r) => notifyTxMined(r.transactionHash, true))
+    (hash: Hash) => {
+      notifyWaitingForTxMined(hash)
+      waitForTransactionReceipt(hash, appChainId)
+        .then((r) => notifyTxMined(r.transactionHash, r.status === 'success'))
         .catch((e) => {
-          const error = new TransactionError(
-            e.data?.message || e.message || 'Unable to decode revert reason',
-            e.data?.code || e.code,
-            e.data,
-          )
-
-          console.error(error)
-
-          notifyTxMined(tx.hash)
+          console.error(e)
+          notifyTxMined(hash)
         })
     },
     [appChainId, notifyTxMined, notifyWaitingForTxMined],
   )
 
   return useCallback(
-    async function sendTransaction<T extends ContractTransaction | Hash>(
-      methodToCall: () => Promise<T>,
-    ): Promise<T | null> {
+    async function sendTransaction(methodToCall: () => Promise<Hash>): Promise<Hash | null> {
       if (!skipConnectionCheck && !isAppConnected) {
         console.error('App is not connected')
         return null
@@ -68,12 +45,13 @@ export default function useTransaction({
 
       try {
         notifyWaitingForSignature()
-        const receipt = await methodToCall()
-        if (receipt) waitForTxExecution(receipt)
-        return receipt
+        const hash = await methodToCall()
+        if (hash) waitForTxExecution(hash)
+        return hash
       } catch (e: any) {
         console.error(e)
-        // viem throws a `UserRejectedRequestError` (often wrapped) instead of ethers' 4001 code
+        // wallet rejections arrive in a few shapes: the EIP-1193 `4001` code, or a
+        // `UserRejectedRequestError` (sometimes nested under `.cause`)
         const isUserRejection =
           e.code === 4001 ||
           e.name === 'UserRejectedRequestError' ||

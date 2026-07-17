@@ -1,5 +1,5 @@
 import { Token } from '@/types/token'
-import { BigNumberish, ContractTransaction } from 'ethers'
+import { type Hash } from 'viem'
 
 export type TokenUsdc = Omit<Token, 'extensions'>
 
@@ -11,6 +11,6 @@ export type UsdcTransFormState = {
 }
 
 export type TransactionData = {
-  gasLimit: BigNumberish
-  tx: () => Promise<ContractTransaction>
+  gasLimit: bigint
+  tx: () => Promise<Hash>
 }

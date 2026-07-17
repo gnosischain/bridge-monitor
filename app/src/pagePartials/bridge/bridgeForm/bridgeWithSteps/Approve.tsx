@@ -91,16 +91,16 @@ export const Approve = ({
     () => async () => {
       setIsWorking(true)
       try {
-        const receipt = await approve({
+        const hash = await approve({
           amount,
           spenderAddress: TRANSMUTER_ADDRESS,
           tokenAddress: USDCe_GNOSIS,
         })
-        if (!receipt) throw new Error('No receipt')
+        if (!hash) throw new Error('Approval was not submitted')
 
         // block until the approval is mined; this rejects on revert or receipt timeout, so the
         // catch below re-shows the button instead of advancing to the swap
-        await waitForMinedReceipt(receipt.hash, Chains.gnosis)
+        await waitForMinedReceipt(hash, Chains.gnosis)
         setStatus(steps.swapping)
         refreshBalanceToken()
         if (showButton) setShowButton(false)

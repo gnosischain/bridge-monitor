@@ -99,19 +99,19 @@ const ApproveButton: React.FC<{
     setIsSending(true)
 
     try {
-      const tx = await approve({
+      const hash = await approve({
         amount,
         spenderAddress: TRANSMUTER_ADDRESS,
         tokenAddress: token.address,
       })
 
-      if (tx) {
-        await tx.wait()
+      if (hash) {
+        await waitForMinedReceipt(hash, Chains.gnosis)
         await refreshBalanceToken()
         // await refreshBalanceTokenOut()
       }
     } catch (e) {
-      // `wait()` throws on revert or on viem's 180s receipt timeout — don't leave the
+      // waitForMinedReceipt rejects on revert or on the receipt-poll timeout — don't leave the
       // button stuck on the "approving" placeholder
       console.error(e)
     } finally {
