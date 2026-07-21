@@ -1,4 +1,4 @@
-import { AMBBridgeValidators, Validator, XDAIBridgeValidators } from "generated";
+import { indexer, AMBBridgeValidators, Validator, XDAIBridgeValidators } from "envio";
 import { BridgeTypeEnum, BridgeTypeLiteral } from "../const";
 import validators from "../seed/validators.json";
  
@@ -75,22 +75,34 @@ async function markValidatorRemoved(
   context.Validator.set(updated);
 }
 
-XDAIBridgeValidators.ValidatorAdded.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "XDAIBridgeValidators", event: "ValidatorAdded" },
+  async ({ event, context }) => {
   const addr = String(event.params.validator).toLowerCase();
   await upsertValidatorAdded(context, addr, BridgeTypeEnum.XDAI, event.transaction.hash);
-});
+}
+);
 
-XDAIBridgeValidators.ValidatorRemoved.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "XDAIBridgeValidators", event: "ValidatorRemoved" },
+  async ({ event, context }) => {
   const addr = String(event.params.validator).toLowerCase();
   await markValidatorRemoved(context, addr, BridgeTypeEnum.XDAI, event.transaction.hash);
-});
+}
+);
 
-AMBBridgeValidators.ValidatorAdded.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "AMBBridgeValidators", event: "ValidatorAdded" },
+  async ({ event, context }) => {
   const addr = String(event.params.validator).toLowerCase();
   await upsertValidatorAdded(context, addr, BridgeTypeEnum.AMB, event.transaction.hash);
-});
+}
+);
 
-AMBBridgeValidators.ValidatorRemoved.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "AMBBridgeValidators", event: "ValidatorRemoved" },
+  async ({ event, context }) => {
   const addr = String(event.params.validator).toLowerCase();
   await markValidatorRemoved(context, addr, BridgeTypeEnum.AMB, event.transaction.hash);
-});
+}
+);
