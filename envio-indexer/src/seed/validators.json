@@ -159,5 +159,61 @@
     "id": "0xb54b5572f3c4f70ff3cc8f67c19c8cddb838fbaa-AMB",
     "name": "Hopr",
     "removed": false
+  },
+  {
+    "address": "0x4a07b8ae561cc558edd3f1836365ab8e02c52de2",
+    "bridgeType": "AMB",
+    "id": "0x4a07b8ae561cc558edd3f1836365ab8e02c52de2-AMB",
+    "name": "Gnosis DAO",
+    "removed": false
+  },
+  {
+    "address": "0x82b00ca9d162859f645b51967746e55bb6498dfc",
+    "bridgeType": "XDAI",
+    "id": "0x82b00ca9d162859f645b51967746e55bb6498dfc-XDAI",
+    "name": "Gnosis DAO",
+    "removed": false
+  },
+  {
+    "address": "0xad93bffbc65002cc75ad2d5770d3aaffdefd8d55",
+    "bridgeType": "AMB",
+    "id": "0xad93bffbc65002cc75ad2d5770d3aaffdefd8d55-AMB",
+    "name": "Protofire",
+    "removed": false
+  },
+  {
+    "address": "0x2245bfad58a6cd50e9e413084d4091c497281911",
+    "bridgeType": "XDAI",
+    "id": "0x2245bfad58a6cd50e9e413084d4091c497281911-XDAI",
+    "name": "Protofire",
+    "removed": false
+  },
+  {
+    "address": "0xe9fc29ae64c2923febb615cb016b77af9492ebce",
+    "bridgeType": "AMB",
+    "id": "0xe9fc29ae64c2923febb615cb016b77af9492ebce-AMB",
+    "name": "Giveth",
+    "removed": false
+  },
+  {
+    "address": "0xc9f0d7e76e7970590e217c57af5d2b7d07a62c13",
+    "bridgeType": "XDAI",
+    "id": "0xc9f0d7e76e7970590e217c57af5d2b7d07a62c13-XDAI",
+    "name": "Giveth",
+    "removed": false
+  },
+  {
+    "address": "0x156c0daab0cd73c224a424a781866d35f0f8fade",
+    "bridgeType": "AMB",
+    "id": "0x156c0daab0cd73c224a424a781866d35f0f8fade-AMB",
+    "name": "Kleros",
+    "removed": false
+  },
+  {
+    "address": "0x156c0daab0cd73c224a424a781866d35f0f8fade",
+    "bridgeType": "XDAI",
+    "id": "0x156c0daab0cd73c224a424a781866d35f0f8fade-XDAI",
+    "name": "Kleros",
+    "removed": false
   }
 ]
