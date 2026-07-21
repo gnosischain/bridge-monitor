@@ -84,14 +84,14 @@ const BridgeActive: React.FC<BridgeProps> = ({
 
   const runBridge = useMemo(
     () => async () => {
-      if (!transactionData || !transactionData.tx) {
-        console.error('No transactionData.tx')
+      if (!transactionData || !transactionData.calls) {
+        console.error('No transactionData.calls')
         return
       }
       setIsWorking(true)
 
       try {
-        const txHash = await sendTx(transactionData.tx)
+        const txHash = await sendTx({ calls: transactionData.calls, chainId: fromChainId })
         if (txHash) {
           setStatus(steps.completed)
           router.push(

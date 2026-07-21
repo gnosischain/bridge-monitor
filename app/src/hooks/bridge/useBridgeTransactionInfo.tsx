@@ -1,7 +1,6 @@
 import { ChainsValues } from '@/src/constants/config/types'
 import useSWR from 'swr'
-import { type Abi, type Address, type Hash, type Hex, encodeAbiParameters, erc20Abi } from 'viem'
-import { sendTransaction, writeContract } from 'wagmi/actions'
+import { type Abi, type Address, type Hex, encodeAbiParameters, erc20Abi } from 'viem'
 import { Token } from '@/types/token'
 import { USDC_ETHEREUM, USDCe_GNOSIS } from '@/src/constants/misc'
 import ERC677_abi from '@/src/abis/ERC677.json'
@@ -13,9 +12,8 @@ import {
   type BridgeContractConfig,
   getBridgeContractConfig,
 } from '@/src/hooks/bridge/useBridgeContracts'
-import { getPublicClient } from '@/src/lib/web3/transactions'
+import { type TxCall, getPublicClient, toCall } from '@/src/lib/web3/transactions'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { wagmiConfig } from '@/src/providers/wagmi'
 import { isSameString } from '@/src/utils/tools'
 import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { chainsConfig } from '@/src/constants/config/chains'
@@ -51,7 +49,7 @@ const handleNativeTokenFromForeign = async ({
   amount: bigint
   userAddress: string
   walletAddress: string
-}): Promise<{ gasLimit: bigint; tx: () => Promise<Hash> }> => {
+}): Promise<{ gasLimit: bigint; calls: TxCall[] }> => {
   const client = getPublicClient(bridgeConfig.chainId)
   const account = userAddress as Address
   const address = bridgeConfig.address as Address
@@ -69,15 +67,15 @@ const handleNativeTokenFromForeign = async ({
 
   return {
     gasLimit,
-    tx: () =>
-      writeContract(wagmiConfig, {
+    calls: [
+      toCall({
         address,
         abi: bridgeConfig.abi,
         functionName: 'wrapAndRelayTokens',
         args,
         value: amount,
-        chainId: bridgeConfig.chainId,
       }),
+    ],
   }
 }
 
@@ -101,7 +99,7 @@ const handleNativeTokenFromHome = async ({
   fromChainId: ChainsValues
   recipient?: string
   toTokenAddress?: string
-}): Promise<{ gasLimit: bigint; tx: () => Promise<Hash> }> => {
+}): Promise<{ gasLimit: bigint; calls: TxCall[] }> => {
   const client = getPublicClient(fromChainId)
   const account = userAddress as Address
 
@@ -127,15 +125,7 @@ const handleNativeTokenFromHome = async ({
 
     return {
       gasLimit,
-      tx: () =>
-        writeContract(wagmiConfig, {
-          address,
-          abi,
-          functionName: 'relayTokens',
-          args,
-          value: amount,
-          chainId: fromChainId,
-        }),
+      calls: [toCall({ address, abi, functionName: 'relayTokens', args, value: amount })],
     }
   }
 
@@ -156,15 +146,15 @@ const handleNativeTokenFromHome = async ({
 
     return {
       gasLimit,
-      tx: () =>
-        writeContract(wagmiConfig, {
+      calls: [
+        toCall({
           address: bridgeAddress,
           abi: bridgeConfig.abi,
           functionName: 'relayTokens',
           args,
           value: amount,
-          chainId: fromChainId,
         }),
+      ],
     }
   }
 
@@ -177,12 +167,7 @@ const handleNativeTokenFromHome = async ({
 
   return {
     gasLimit,
-    tx: () =>
-      sendTransaction(wagmiConfig, {
-        to: bridgeAddress,
-        value: amount,
-        chainId: fromChainId,
-      }),
+    calls: [{ to: bridgeAddress, value: amount }],
   }
 }
 
@@ -210,7 +195,7 @@ const handleERC20TokenFromForeign = async ({
   recipient: string | undefined
   userAddress: string
   isDAI?: boolean
-}): Promise<{ gasLimit: bigint; tx: () => Promise<Hash> }> => {
+}): Promise<{ gasLimit: bigint; calls: TxCall[] }> => {
   // Quick fix to avoid useBridgeValidations to error when an approval is needed.
   // If an approval is needed the gasLimit should be calculated for the approval operation and not for the bridge operation.
   // If that does not happen the gas estimate would revert because the allowance is not enough.
@@ -250,14 +235,14 @@ const handleERC20TokenFromForeign = async ({
 
     return {
       gasLimit,
-      tx: () =>
-        writeContract(wagmiConfig, {
+      calls: [
+        toCall({
           address: bridgeAddress,
           abi: bridgeConfig.abi,
           functionName: 'relayTokens',
           args: relayArgs,
-          chainId: bridgeConfig.chainId,
         }),
+      ],
     }
   }
 
@@ -305,30 +290,28 @@ const handleERC20TokenFromForeign = async ({
 
   return {
     gasLimit,
-    tx: () =>
+    calls: [
       isDedicatedERC20
-        ? writeContract(wagmiConfig, {
+        ? toCall({
             address: bridgeAddress,
             abi: bridgeConfig.abi,
             functionName: 'relayTokens',
             args: [walletAddress, amount],
-            chainId: bridgeConfig.chainId,
           })
         : isERC677
-          ? writeContract(wagmiConfig, {
+          ? toCall({
               address: token,
               abi: ERC677_abi as Abi,
               functionName: 'transferAndCall',
               args: [bridgeAddress, amount, walletAddress],
-              chainId: bridgeConfig.chainId,
             })
-          : writeContract(wagmiConfig, {
+          : toCall({
               address: bridgeAddress,
               abi: bridgeConfig.abi,
               functionName: 'relayTokens',
               args: [token, walletAddress, amount],
-              chainId: bridgeConfig.chainId,
             }),
+    ],
   }
 }
 
@@ -359,7 +342,7 @@ const handleERC20TokenFromHome = async ({
   recipient?: string
   receiveNativeToken?: boolean
   allowance?: bigint
-}): Promise<{ gasLimit: bigint; tx: () => Promise<Hash> }> => {
+}): Promise<{ gasLimit: bigint; calls: TxCall[] }> => {
   // Here we have two cases. If the token is compatible with ERC677/ERC827 we should use transferAndCall method and avoid the approve step.
   const client = getPublicClient(bridgeConfig.chainId)
   const account = userAddress as Address
@@ -389,14 +372,9 @@ const handleERC20TokenFromHome = async ({
         args,
         account,
       }),
-      tx: () =>
-        writeContract(wagmiConfig, {
-          address: token,
-          abi: ERC677_abi as Abi,
-          functionName: 'transferAndCall',
-          args,
-          chainId: bridgeConfig.chainId,
-        }),
+      calls: [
+        toCall({ address: token, abi: ERC677_abi as Abi, functionName: 'transferAndCall', args }),
+      ],
     }
   }
 
@@ -410,18 +388,18 @@ const handleERC20TokenFromHome = async ({
         args,
         account,
       }),
-      tx: () =>
-        writeContract(wagmiConfig, {
+      calls: [
+        toCall({
           address: bridgeAddress,
           abi: bridgeConfig.abi,
           functionName: 'relayTokens',
           args,
-          chainId: bridgeConfig.chainId,
         }),
+      ],
     }
   }
 
-  // ERC20 — when the allowance is insufficient the returned `tx` IS the approve (this home
+  // ERC20 — when the allowance is insufficient the returned call IS the approve (this home
   // handler differs from the foreign ones, whose tx always performs the bridge send).
   if (allowance && amount > allowance) {
     const args = [bridgeAddress, amount] as const
@@ -433,14 +411,7 @@ const handleERC20TokenFromHome = async ({
         args,
         account,
       }),
-      tx: () =>
-        writeContract(wagmiConfig, {
-          address: token,
-          abi: erc20Abi,
-          functionName: 'approve',
-          args,
-          chainId: bridgeConfig.chainId,
-        }),
+      calls: [toCall({ address: token, abi: erc20Abi, functionName: 'approve', args })],
     }
   }
 
@@ -453,14 +424,14 @@ const handleERC20TokenFromHome = async ({
       args: relayArgs,
       account,
     }),
-    tx: () =>
-      writeContract(wagmiConfig, {
+    calls: [
+      toCall({
         address: bridgeAddress,
         abi: bridgeConfig.abi,
         functionName: 'relayTokens',
         args: relayArgs,
-        chainId: bridgeConfig.chainId,
       }),
+    ],
   }
 }
 
@@ -486,7 +457,7 @@ const handleUsdceFromHome = async ({
   tokenMode: TOKEN_MODE
   recipient: string | undefined
   userAddress: string
-}): Promise<{ gasLimit: bigint; tx: () => Promise<Hash> }> => {
+}): Promise<{ gasLimit: bigint; calls: TxCall[] }> => {
   // Quick fix to avoid useBridgeValidations to error when an approval is needed.
   // If an approval is needed the gasLimit should be calculated for the approval operation and not for the bridge operation.
   // If that does not happen the gas estimate would revert because the allowance is not enough.
@@ -524,14 +495,14 @@ const handleUsdceFromHome = async ({
 
   return {
     gasLimit,
-    tx: () =>
-      writeContract(wagmiConfig, {
+    calls: [
+      toCall({
         address: bridgeAddress,
         abi: bridgeConfig.abi,
         functionName: 'relayTokensAndCall',
         args: relayArgs,
-        chainId: bridgeConfig.chainId,
       }),
+    ],
   }
 }
 
@@ -557,7 +528,7 @@ const handleUsdcFromForeign = async ({
   tokenMode: TOKEN_MODE
   recipient: string | undefined
   userAddress: string
-}): Promise<{ gasLimit: bigint; tx: () => Promise<Hash> }> => {
+}): Promise<{ gasLimit: bigint; calls: TxCall[] }> => {
   // Quick fix to avoid useBridgeValidations to error when an approval is needed.
   // If an approval is needed the gasLimit should be calculated for the approval operation and not for the bridge operation.
   // If that does not happen the gas estimate would revert because the allowance is not enough.
@@ -595,14 +566,14 @@ const handleUsdcFromForeign = async ({
 
   return {
     gasLimit,
-    tx: () =>
-      writeContract(wagmiConfig, {
+    calls: [
+      toCall({
         address: bridgeAddress,
         abi: bridgeConfig.abi,
         functionName: 'relayTokensAndCall',
         args: relayArgs,
-        chainId: bridgeConfig.chainId,
       }),
+    ],
   }
 }
 
@@ -625,7 +596,7 @@ const handleUsdsOrDaiFromForeign = async ({
   allowance: bigint
   recipient: string | undefined
   userAddress: string
-}): Promise<{ gasLimit: bigint; tx: () => Promise<Hash> }> => {
+}): Promise<{ gasLimit: bigint; calls: TxCall[] }> => {
   const client = getPublicClient(bridgeConfig.chainId)
   const account = userAddress as Address
   const bridgeAddress = bridgeConfig.address as Address
@@ -654,23 +625,24 @@ const handleUsdsOrDaiFromForeign = async ({
 
   return {
     gasLimit,
-    tx: () =>
-      writeContract(wagmiConfig, {
+    calls: [
+      toCall({
         address: bridgeAddress,
         abi: bridgeConfig.abi,
         functionName: 'relayTokens',
         args: relayArgs,
-        chainId: bridgeConfig.chainId,
       }),
+    ],
   }
 }
 
-// A gas estimate for the bridge transaction plus a thunk that submits it and resolves the tx
-// hash. `tx` is `null` when there is nothing to send (zero amount or no connected account).
+// A gas estimate for the bridge transaction plus the call(s) that perform it. `calls` is `null`
+// when there is nothing to send (zero amount or no connected account). The send layer
+// (`useTransaction`) dispatches these via EOA `sendTransaction` or smart-account `sendCalls`.
 type BridgeTxInfo = {
   gasLimit: bigint
   gasPrice: bigint
-  tx: (() => Promise<Hash>) | null
+  calls: TxCall[] | null
 }
 
 export const getBridgeTx = async ({
@@ -702,7 +674,7 @@ export const getBridgeTx = async ({
     return {
       gasLimit: 0n,
       gasPrice: 0n,
-      tx: null,
+      calls: null,
     }
   }
 
@@ -718,7 +690,7 @@ export const getBridgeTx = async ({
   const isDaiEth = isSameString(tokenAddress, chainsConfig[1].bridge.DAI)
 
   const gasPrice = await getPublicClient(fromChainId).getGasPrice()
-  const { gasLimit, tx } =
+  const { calls, gasLimit } =
     isUsdsEth || isDaiEth
       ? await handleUsdsOrDaiFromForeign({
           bridgeConfig: getBridgeContractConfig(fromChainId, toChainId, tokenAddress),
@@ -790,7 +762,7 @@ export const getBridgeTx = async ({
   return {
     gasLimit,
     gasPrice,
-    tx,
+    calls,
   }
 }
 
@@ -851,7 +823,7 @@ export const useBridgeTransactionInfo = ({
       _receiveNativeToken,
       _toTokenAddress,
     ]) => {
-      const { gasLimit, gasPrice, tx } = await getBridgeTx({
+      const { calls, gasLimit, gasPrice } = await getBridgeTx({
         account: userAddress,
         amount: _amount,
         fromChainId: _fromChainId,
@@ -868,7 +840,7 @@ export const useBridgeTransactionInfo = ({
       return {
         gasLimit,
         gasPrice,
-        tx,
+        calls,
       }
     },
   )

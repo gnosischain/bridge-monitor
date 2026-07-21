@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 
 import { type Address, erc20Abi } from 'viem'
-import { useWriteContract } from 'wagmi'
 
 import useTransaction from '@/src/hooks/useTransaction'
+import { toCall } from '@/src/lib/web3/transactions'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 
 type Approval = {
@@ -14,7 +14,6 @@ type Approval = {
 
 export const useApproval = () => {
   const { address, appChainId } = useWeb3Connection()
-  const { writeContractAsync } = useWriteContract()
   const sendTx = useTransaction()
 
   return useCallback(
@@ -26,16 +25,18 @@ export const useApproval = () => {
       // notification-wrapped ERC20 approve; resolves the tx hash (or null on reject /
       // disconnected wallet). Callers that need to block on the receipt do so with
       // `waitForMinedReceipt(hash, chainId)`.
-      return sendTx(() =>
-        writeContractAsync({
-          abi: erc20Abi,
-          address: tokenAddress as Address,
-          functionName: 'approve',
-          args: [spenderAddress as Address, amount],
-          chainId: appChainId,
-        }),
-      )
+      return sendTx({
+        calls: [
+          toCall({
+            abi: erc20Abi,
+            address: tokenAddress as Address,
+            functionName: 'approve',
+            args: [spenderAddress as Address, amount],
+          }),
+        ],
+        chainId: appChainId,
+      })
     },
-    [address, appChainId, sendTx, writeContractAsync],
+    [address, appChainId, sendTx],
   )
 }

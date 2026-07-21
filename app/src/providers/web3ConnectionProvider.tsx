@@ -12,7 +12,7 @@ import {
   useState,
 } from 'react'
 import nullthrows from 'nullthrows'
-import { useConnection, usePublicClient, useSwitchChain } from 'wagmi'
+import { useCapabilities, useConnection, usePublicClient, useSwitchChain } from 'wagmi'
 import { useQuery } from '@tanstack/react-query'
 
 import { INITIAL_APP_CHAIN_ID, chainsConfig } from '@/src/constants/config/chains'
@@ -39,6 +39,7 @@ export type Web3Context = {
   isWalletConnected: boolean
   isWalletNetworkSupported: boolean
   isSCWallet: boolean | undefined
+  canBatch: boolean
   pushNetwork: (chainId: number) => Promise<boolean>
   setAppChainId: Dispatch<SetStateAction<ChainsValues>>
   walletChainId: number | null
@@ -72,6 +73,20 @@ export default function Web3ConnectionProvider({ children }: Props) {
     },
     enabled: !!wagmiAddress && !!walletPublicClient,
   })
+
+  // EIP-5792 capability probe. Drives whether writes are dispatched via `wallet_sendCalls`
+  // (smart accounts) vs a plain `sendTransaction` (EOAs) — see `useTransaction`. Two shapes are
+  // checked: the standard `atomic.status` and the non-standard `atomicBatch.supported` still emitted
+  // by the Safe Apps provider.
+  const { data: capabilities } = useCapabilities({
+    account: wagmiAddress,
+    query: { enabled: !!wagmiAddress },
+  })
+  const chainCapabilities = chainId ? capabilities?.[chainId] : undefined
+  const canBatch =
+    chainCapabilities?.atomic?.status === 'supported' ||
+    (chainCapabilities as { atomicBatch?: { supported?: boolean } } | undefined)?.atomicBatch
+      ?.supported === true
 
   const address = wagmiAddress ?? null
   const walletChainId = chainId ?? null
@@ -145,6 +160,7 @@ export default function Web3ConnectionProvider({ children }: Props) {
   const value: Web3Context = {
     address,
     appChainId,
+    canBatch,
     connectWallet: handleConnectWallet,
     connectingWallet: isConnecting,
     disconnectWallet: handleDisconnectWallet,

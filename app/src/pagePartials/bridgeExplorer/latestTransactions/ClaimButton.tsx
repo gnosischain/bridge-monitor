@@ -2,20 +2,20 @@ import { useState } from 'react'
 import styled from 'styled-components'
 
 import { type Abi, type Address, type Hash, type Hex, parseEventLogs } from 'viem'
-import { useWriteContract } from 'wagmi'
 
 import ForeignBridgeRouter_abi from '@/src/abis/ForeignBridgeRouter'
 import { notify } from '@/src/components/toast'
-import { chainsConfig, getNetworkConfig } from '@/src/constants/config/chains'
 import { contracts } from '@/src/constants/config/contracts'
-import { Chains } from '@/src/constants/config/types'
+import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { ToastStates } from '@/src/constants/types'
 import { useIsUsdsEnabled } from '@/src/hooks/contracts/useIsUsdsEnabled'
 import useTransaction from '@/src/hooks/useTransaction'
 import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
 import {
+  type TxCall,
   getPublicClient,
   getTransactionReceipt,
+  toCall,
   waitForMinedReceipt,
 } from '@/src/lib/web3/transactions'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
@@ -62,17 +62,16 @@ export const ClaimButton = ({
   updateInMemoryTransaction,
   ...restProps
 }: ClaimButtonProps) => {
-  const { appChainId, connectWallet, isWalletConnected, isWalletNetworkSupported, pushNetwork } =
+  const { connectWallet, isSCWallet, isWalletConnected, pushNetwork, walletChainId } =
     useWeb3Connection()
   const [isWorking, setIsWorking] = useState(false)
   const isUsdsEnabled = useIsUsdsEnabled()
-  const { writeContractAsync } = useWriteContract()
 
   const sendTx = useTransaction({ skipConnectionCheck: true })
 
   const isXDAI = transaction.bridgeName.toUpperCase() === 'XDAI'
 
-  const getClaimTx = async (): Promise<() => Promise<Hash>> => {
+  const getClaimTx = async (): Promise<{ calls: TxCall[]; chainId: ChainsValues }> => {
     const routerAddress = contracts.BridgeRouter.address[Chains.mainnet] as Address
     const gnosisClient = getPublicClient(Chains.gnosis)
 
@@ -125,14 +124,17 @@ export const ClaimButton = ({
         }),
       ])) as [Hex, Hex]
 
-      return () =>
-        writeContractAsync({
-          abi: ForeignBridgeRouter_abi,
-          address: routerAddress,
-          chainId: Chains.mainnet,
-          functionName: 'executeSignatures',
-          args: [message, signatures],
-        })
+      return {
+        calls: [
+          toCall({
+            abi: ForeignBridgeRouter_abi,
+            address: routerAddress,
+            functionName: 'executeSignatures',
+            args: [message, signatures],
+          }),
+        ],
+        chainId: Chains.mainnet,
+      }
     } else {
       // AMB Bridge
       // recover message and signatures from the origin tx receipt on Gnosis
@@ -160,9 +162,7 @@ export const ClaimButton = ({
           initialTx,
         )
         setIsWorking(false)
-        return () => {
-          throw new Error('Unable to build claim tx. Log for UserRequestForSignatures not found')
-        }
+        throw new Error('Unable to build claim tx. Log for UserRequestForSignatures not found')
       }
 
       const message = userRequestForSignatureEvent.args.encodedData
@@ -173,14 +173,17 @@ export const ClaimButton = ({
         args: [message],
       })
 
-      return () =>
-        writeContractAsync({
-          abi: ForeignBridgeRouter_abi,
-          address: routerAddress,
-          chainId: Chains.mainnet,
-          functionName: 'safeExecuteSignaturesWithAutoGasLimit',
-          args: [message, signatures],
-        })
+      return {
+        calls: [
+          toCall({
+            abi: ForeignBridgeRouter_abi,
+            address: routerAddress,
+            functionName: 'safeExecuteSignaturesWithAutoGasLimit',
+            args: [message, signatures],
+          }),
+        ],
+        chainId: Chains.mainnet,
+      }
     }
   }
 
@@ -194,14 +197,23 @@ export const ClaimButton = ({
       return
     }
 
-    const currentAppChain = getNetworkConfig(appChainId)
+    // Claims always execute on Ethereum. Only act when actually on another chain — compared by
+    // chainId, not network-name strings (the tx's 'mainnet' vs the config's 'ethereum' never
+    // matched, forcing a redundant switch even when already on Ethereum — which throws on a Safe).
+    if (walletChainId !== Chains.mainnet) {
+      // Smart-contract wallets (e.g. Safe) are pinned to their chain and can't switch
+      // programmatically — `switchChain` throws. Ask the user to reopen on Ethereum instead.
+      if (isSCWallet) {
+        notify({
+          type: ToastStates.failed,
+          message: 'Open this Safe on Ethereum to claim',
+          id: 'switchNetwork',
+        })
+        setIsWorking(false)
+        return
+      }
 
-    // if not on the right network, show a modal to switch
-    if (
-      !isWalletNetworkSupported ||
-      transaction.receiverNetwork !== currentAppChain.shortName.toLowerCase()
-    ) {
-      const networkSwitched = await pushNetwork(chainsConfig[Chains.mainnet].chainId)
+      const networkSwitched = await pushNetwork(Chains.mainnet)
 
       if (!networkSwitched) {
         notify({
