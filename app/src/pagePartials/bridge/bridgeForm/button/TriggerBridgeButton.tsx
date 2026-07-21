@@ -69,7 +69,7 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
         router.push(
           `${bridgePagesBaseURL}/${txHash}?fromChainId=${fromChainId}&isNativeBridge=${
             isNativeBridge ? 1 : 0
-          }&tokenAddress=${token.address}&amount=${amount}&toChainId=${toChainId}`,
+          }&tokenAddress=${token.address}&amount=${amount}&toChainId=${toChainId}&submitted=1`,
         )
       } else {
         throw new Error('Failed to bridge')
