@@ -15,4 +15,3 @@ export function isStatusGreater(
   return order[a] > order[b];
 }
 
-
