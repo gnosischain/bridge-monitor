@@ -1,15 +1,14 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Tooltip } from '@/src/components/tooltip'
-import formatDistance from 'date-fns/formatDistance'
+import { txTime } from '@/src/utils/txTime'
 import { useBridgeFee } from '@/src/hooks/bridge/useBridgeFee'
-import { useBridgeRequiredBlocks } from '@/src/hooks/bridge/useBridgeRequiredBlocks'
 import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactionInfo'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { formatUnits } from 'viem'
 import { ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
-import { getNetworkConfig } from '@/src/constants/config/chains'
+import { getChainKey, getNetworkConfig } from '@/src/constants/config/chains'
 import { Loading } from '@/src/components/loading'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { useClaimFee } from '@/src/hooks/bridge/useClaimFee'
@@ -119,11 +118,6 @@ export const TxPreview: React.FC<{
       tokenAddress: token.address || '',
     })
 
-    const { data: requiredBlocks, isLoading: isLoadingRequiredBlocks } = useBridgeRequiredBlocks(
-      fromChainId,
-      isNativeBridge,
-    )
-
     const { data: feeInfo } = useBridgeFee({
       amount,
       isFromHome,
@@ -131,24 +125,24 @@ export const TxPreview: React.FC<{
       token,
     })
 
-    const { data: transactionData } = useBridgeTransactionInfo({
-      userAddress,
-      amount,
-      fromChainId,
-      receiveNativeToken,
-      recipient,
-      toChainId,
-      token,
-    })
+    const { data: transactionData, isLoading: isLoadingTransactionData } = useBridgeTransactionInfo(
+      {
+        userAddress,
+        amount,
+        fromChainId,
+        receiveNativeToken,
+        recipient,
+        toChainId,
+        token,
+      },
+    )
 
     const { data: claimFee } = useClaimFee({
       isFromHome,
       isNativeBridge,
     })
 
-    if (isLoadingRequiredBlocks) return <TxPreviewLoading {...restProps} />
-    if (!requiredBlocks) throw new Error('Required blocks are not available')
-
+    if (isLoadingTransactionData) return <TxPreviewLoading {...restProps} />
     if (!transactionData) throw new Error('Transaction data is not available')
 
     if (transactionData.gasLimit === 0n) {
@@ -170,7 +164,6 @@ export const TxPreview: React.FC<{
     }
 
     const tokenOutAmount = formatUnits(amount - (feeInfo || 0n), tokenOut?.decimals)
-    const estimatedTime = requiredBlocks.estimatedTimeInSeconds || 0
     const estimatedTotalGas = `${formatUnits(transactionData.gasLimit * transactionData.gasPrice, appChainConfig.tokenDecimals)} ${appChainConfig.token}`
     const estimatedTotalFee = `${formatUnits(feeInfo ?? 0n, appChainConfig.tokenDecimals)} ${appChainConfig.token}`
 
@@ -186,7 +179,7 @@ export const TxPreview: React.FC<{
         <Item>
           Estimated time
           <Value>
-            {formatDistance(0, estimatedTime * 1000, { includeSeconds: true })}
+            {`${txTime(getChainKey(fromChainId))} mins`}
             <Tooltip content="Estimated execution time" />
           </Value>
         </Item>

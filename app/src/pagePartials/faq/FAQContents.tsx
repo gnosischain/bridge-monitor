@@ -41,8 +41,8 @@ export const FAQContents: React.FC = () => {
         How long is the transfer time from Ethereum to Gnosis Chain?
       </EmphasizedTitle>
       <Paragraph>
-        Transactions from Ethereum to Gnosis Chain are expected to take ~26 mins (130 blocks) due to
-        the verification process through the ZK light client.
+        Transactions from Ethereum to Gnosis Chain are expected to take ~17 mins due to the
+        verification process through the ZK light client.
       </Paragraph>
       <EmphasizedTitle id="q_1c">
         What if I'm not coming from Ethereum? Are there alternative bridges to Gnosis Chain?
