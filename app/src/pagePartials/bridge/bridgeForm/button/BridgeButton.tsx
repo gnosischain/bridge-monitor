@@ -13,8 +13,6 @@ import { Connect } from '@/src/components/assets/Connect'
 import { ButtonFull } from '@/src/components/buttons/Button'
 import styled from 'styled-components'
 import { SwapAndBridge } from './SwapAndBridge'
-import { notify } from '@/src/components/toast'
-import { ToastStates } from '@/src/constants/types'
 
 const Button = styled(ButtonFull)`
   margin: 0 auto;
@@ -48,7 +46,6 @@ export const BridgeButton: React.FC<BridgeButtonProps> = ({
     connectWallet,
     connectingWallet,
     isOnboardChangingChain,
-    isSafeApp,
     isWalletConnected,
     isWalletNetworkSupported,
     pushNetwork,
@@ -96,22 +93,7 @@ export const BridgeButton: React.FC<BridgeButtonProps> = ({
 
   if (hasToSwitchNetwork) {
     return (
-      <Button
-        onClick={() => {
-          // The Safe web app is pinned to its chain and can't switch programmatically —
-          // `switchChain` throws. Ask the user to reopen the app on the right chain instead. Other
-          // smart-contract accounts (e.g. a Safe via Rabby) can switch, so gate on isSafeApp.
-          if (isSafeApp) {
-            notify({
-              type: ToastStates.failed,
-              message: `Open this Safe on ${appChainConfig.name} to bridge`,
-              id: 'switchNetwork',
-            })
-            return
-          }
-          pushNetwork(appChainConfig.chainId)
-        }}
-      >
+      <Button onClick={() => pushNetwork(appChainConfig.chainId)}>
         {`Switch to ${appChainConfig.name}`}
       </Button>
     )

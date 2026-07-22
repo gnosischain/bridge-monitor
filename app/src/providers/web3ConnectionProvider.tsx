@@ -14,6 +14,7 @@ import {
 import nullthrows from 'nullthrows'
 import { useCapabilities, useConnection, usePublicClient, useSwitchChain } from 'wagmi'
 import { useQuery } from '@tanstack/react-query'
+import { BaseError, UserRejectedRequestError } from 'viem'
 
 import { INITIAL_APP_CHAIN_ID, chainsConfig } from '@/src/constants/config/chains'
 import { Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
@@ -21,6 +22,8 @@ import { getSupportedNetworks } from '@/src/utils/getSupportedNetworks'
 import { isValidChain } from '@/src/utils/tools'
 import { Modal } from '@/src/components/modal'
 import { SelectWallet } from '@/src/components/wallet/SelectWallet'
+import { notify } from '@/src/components/toast'
+import { ToastStates } from '@/src/constants/types'
 
 // Default chain id from env var
 nullthrows(
@@ -39,7 +42,6 @@ export type Web3Context = {
   isWalletConnected: boolean
   isWalletNetworkSupported: boolean
   isSCWallet: boolean | undefined
-  isSafeApp: boolean
   canBatch: boolean
   pushNetwork: (chainId: number) => Promise<boolean>
   setAppChainId: Dispatch<SetStateAction<ChainsValues>>
@@ -88,12 +90,6 @@ export default function Web3ConnectionProvider({ children }: Props) {
     chainCapabilities?.atomic?.status === 'supported' ||
     (chainCapabilities as { atomicBatch?: { supported?: boolean } } | undefined)?.atomicBatch
       ?.supported === true
-
-  // True only when the app runs inside the Safe{Wallet} web app (the Safe Apps SDK connector, id
-  // `safe`). This connection is pinned to a single chain and can't switch networks programmatically.
-  // Distinct from `isSCWallet`, which is any bytecode-bearing account — e.g. a Safe driven through
-  // Rabby/WalletConnect, where the wallet CAN switch chains. Network-switch guards must use this.
-  const isSafeApp = connector?.id === 'safe'
 
   const address = wagmiAddress ?? null
   const walletChainId = chainId ?? null
@@ -157,7 +153,29 @@ export default function Web3ConnectionProvider({ children }: Props) {
         await switchChainAsync({ chainId: targetChainId })
         return true
       } catch (error) {
+        // We detect an unswitchable wallet by *attempting* the switch rather than sniffing the
+        // connector type: any wallet that can't switch programmatically (e.g. the Safe web app,
+        // pinned to a single chain) rejects here, and so does a user who dismisses the wallet's
+        // prompt. Only the former deserves a toast — a deliberate cancel is not an error — so we
+        // walk the error chain (wagmi may wrap the viem error) for a user rejection and stay silent
+        // on it. Everything else means the switch is genuinely blocked: tell the user to switch by
+        // hand. Callers just consume the boolean for control flow; messaging lives here alone.
+        const isUserRejection =
+          error instanceof BaseError
+            ? error.walk((e) => e instanceof UserRejectedRequestError) !== null
+            : error instanceof UserRejectedRequestError
+        if (isUserRejection) {
+          return false
+        }
         console.error('Failed to switch network:', error)
+        const targetName = chainsConfig[targetChainId as ChainsValues]?.name
+        notify({
+          type: ToastStates.failed,
+          message: targetName
+            ? `Couldn't switch network automatically. Please switch to ${targetName} in your wallet.`
+            : `Couldn't switch network automatically. Please switch manually in your wallet.`,
+          id: 'switchNetwork',
+        })
         return false
       }
     },
@@ -175,7 +193,6 @@ export default function Web3ConnectionProvider({ children }: Props) {
     isAppConnected,
     isOnboardChangingChain: isSwitchingChain,
     isSCWallet,
-    isSafeApp,
     isWalletConnected,
     isWalletNetworkSupported,
     pushNetwork,
