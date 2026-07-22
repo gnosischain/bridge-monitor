@@ -62,7 +62,7 @@ export const ClaimButton = ({
   updateInMemoryTransaction,
   ...restProps
 }: ClaimButtonProps) => {
-  const { connectWallet, isSCWallet, isWalletConnected, pushNetwork, walletChainId } =
+  const { connectWallet, isSafeApp, isWalletConnected, pushNetwork, walletChainId } =
     useWeb3Connection()
   const [isWorking, setIsWorking] = useState(false)
   const isUsdsEnabled = useIsUsdsEnabled()
@@ -201,9 +201,10 @@ export const ClaimButton = ({
     // chainId, not network-name strings (the tx's 'mainnet' vs the config's 'ethereum' never
     // matched, forcing a redundant switch even when already on Ethereum — which throws on a Safe).
     if (walletChainId !== Chains.mainnet) {
-      // Smart-contract wallets (e.g. Safe) are pinned to their chain and can't switch
-      // programmatically — `switchChain` throws. Ask the user to reopen on Ethereum instead.
-      if (isSCWallet) {
+      // The Safe web app is pinned to its chain and can't switch programmatically — `switchChain`
+      // throws. Ask the user to reopen on Ethereum instead. Other smart-contract accounts (e.g. a
+      // Safe via Rabby) can switch, so gate on isSafeApp.
+      if (isSafeApp) {
         notify({
           type: ToastStates.failed,
           message: 'Open this Safe on Ethereum to claim',

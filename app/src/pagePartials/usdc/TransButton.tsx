@@ -15,6 +15,8 @@ import { TokenUsdc } from './types'
 import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { useTransmuterTxInfo } from '@/src/hooks/usdcTransmuter/useTransmuterTxInfo'
 import { usdcTokens } from '@/src/constants/usdcTokens'
+import { notify } from '@/src/components/toast'
+import { ToastStates } from '@/src/constants/types'
 
 const Button = styled(ButtonFull)`
   margin: 0 auto;
@@ -212,6 +214,7 @@ export const TransButton: React.FC<{
     connectWallet,
     connectingWallet,
     isOnboardChangingChain,
+    isSafeApp,
     isWalletConnected,
     isWalletNetworkSupported,
     pushNetwork,
@@ -266,7 +269,22 @@ export const TransButton: React.FC<{
 
   if (hasToSwitchNetwork) {
     return (
-      <Button onClick={() => pushNetwork(appChainConfig.chainId)}>
+      <Button
+        onClick={() => {
+          // The Safe web app is pinned to its chain and can't switch programmatically —
+          // `switchChain` throws. Ask the user to reopen the app on the right chain instead. Other
+          // smart-contract accounts (e.g. a Safe via Rabby) can switch, so gate on isSafeApp.
+          if (isSafeApp) {
+            notify({
+              type: ToastStates.failed,
+              message: `Open this Safe on ${appChainConfig.name} to swap`,
+              id: 'switchNetwork',
+            })
+            return
+          }
+          pushNetwork(appChainConfig.chainId)
+        }}
+      >
         {`Switch to ${appChainConfig.name}`}
       </Button>
     )

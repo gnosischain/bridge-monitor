@@ -39,6 +39,7 @@ export type Web3Context = {
   isWalletConnected: boolean
   isWalletNetworkSupported: boolean
   isSCWallet: boolean | undefined
+  isSafeApp: boolean
   canBatch: boolean
   pushNetwork: (chainId: number) => Promise<boolean>
   setAppChainId: Dispatch<SetStateAction<ChainsValues>>
@@ -87,6 +88,12 @@ export default function Web3ConnectionProvider({ children }: Props) {
     chainCapabilities?.atomic?.status === 'supported' ||
     (chainCapabilities as { atomicBatch?: { supported?: boolean } } | undefined)?.atomicBatch
       ?.supported === true
+
+  // True only when the app runs inside the Safe{Wallet} web app (the Safe Apps SDK connector, id
+  // `safe`). This connection is pinned to a single chain and can't switch networks programmatically.
+  // Distinct from `isSCWallet`, which is any bytecode-bearing account — e.g. a Safe driven through
+  // Rabby/WalletConnect, where the wallet CAN switch chains. Network-switch guards must use this.
+  const isSafeApp = connector?.id === 'safe'
 
   const address = wagmiAddress ?? null
   const walletChainId = chainId ?? null
@@ -168,6 +175,7 @@ export default function Web3ConnectionProvider({ children }: Props) {
     isAppConnected,
     isOnboardChangingChain: isSwitchingChain,
     isSCWallet,
+    isSafeApp,
     isWalletConnected,
     isWalletNetworkSupported,
     pushNetwork,

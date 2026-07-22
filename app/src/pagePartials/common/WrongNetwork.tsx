@@ -2,6 +2,9 @@ import styled, { keyframes } from 'styled-components'
 
 import { ButtonPrimary } from '@/src/components/buttons/Button'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+import { notify } from '@/src/components/toast'
+import { ToastStates } from '@/src/constants/types'
+import { getNetworkConfig } from '@/src/constants/config/chains'
 
 const loadingAnimation = keyframes`
   0% {
@@ -32,11 +35,31 @@ const Content = styled.div`
 `
 
 export default function WrongNetwork() {
-  const { appChainId, isWalletConnected, isWalletNetworkSupported, pushNetwork } =
+  const { appChainId, isSafeApp, isWalletConnected, isWalletNetworkSupported, pushNetwork } =
     useWeb3Connection()
-  return isWalletConnected && !isWalletNetworkSupported ? (
-    <ButtonPrimary onClick={() => pushNetwork(appChainId)}>
+
+  if (!isWalletConnected || isWalletNetworkSupported) {
+    return null
+  }
+
+  const handleSwitch = () => {
+    // The Safe web app is pinned to its chain and can't switch programmatically — `switchChain`
+    // throws. Ask the user to reopen the app on a supported chain instead. Other smart-contract
+    // accounts (e.g. a Safe via Rabby) can switch, so gate on isSafeApp.
+    if (isSafeApp) {
+      notify({
+        type: ToastStates.failed,
+        message: `Open this Safe on ${getNetworkConfig(appChainId).name}`,
+        id: 'switchNetwork',
+      })
+      return
+    }
+    pushNetwork(appChainId)
+  }
+
+  return (
+    <ButtonPrimary onClick={handleSwitch}>
       <Content>Switch to valid network</Content>
     </ButtonPrimary>
-  ) : null
+  )
 }
