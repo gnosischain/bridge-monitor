@@ -79,7 +79,6 @@ jobs:
             "NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL=${{ secrets.WALLET_CONNECT_URL }}"
             "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }}"
             "NEXT_PUBLIC_ALCHEMY_API_KEY=${{ secrets.DEV_NEXT_PUBLIC_ALCHEMY_API_KEY }}"
-            "NEXT_PUBLIC_ENVIO_INDEXER_URL=${{ secrets.DEV_ENVIO_INDEXER_URL }}"
             "NEXT_PUBLIC_INDEXER_BACKEND=${{ secrets.DEV_INDEXER_BACKEND }}"
             "NEXT_PUBLIC_COMMIT_SHA=${{ github.sha }}"
             "NEXT_PUBLIC_APP_ENV=develop"
@@ -104,7 +103,6 @@ jobs:
             "NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL=${{ secrets.WALLET_CONNECT_URL }}"
             "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }}"
             "NEXT_PUBLIC_ALCHEMY_API_KEY=${{ secrets.PROD_NEXT_PUBLIC_ALCHEMY_API_KEY }}"
-            "NEXT_PUBLIC_ENVIO_INDEXER_URL=${{ secrets.PROD_ENVIO_INDEXER_URL }}"
             "NEXT_PUBLIC_INDEXER_BACKEND=${{ secrets.PROD_INDEXER_BACKEND }}"
 
   deploy-to-gke:
@@ -145,6 +143,42 @@ jobs:
             echo "Please ensure Terraform has been applied first to create the deployment"
             exit 1
           fi
+
+      # Deployment — it must reference the "<deployment_name>-indexer" Secret with keys
+      # ENVIO_INDEXER_URL / ENVIO_INDEXER_TOKEN. Nothing here mutates the pod spec, so there is no
+      # drift with Terraform; the rollout restart below is what makes pods pick up new values.
+      - name: Sync indexer secret (develop)
+        if: inputs.environment == 'develop'
+        env:
+          DEPLOYMENT: ${{ needs.build-and-push.outputs.deployment_name }}
+          NAMESPACE: ${{ secrets.NAMESPACE }}
+          INDEXER_URL: ${{ secrets.DEV_ENVIO_INDEXER_URL }}
+          INDEXER_TOKEN: ${{ secrets.DEV_ENVIO_INDEXER_TOKEN }}
+        run: |
+          test -n "$INDEXER_URL"   || { echo "DEV_ENVIO_INDEXER_URL is empty"; exit 1; }
+          test -n "$INDEXER_TOKEN" || { echo "DEV_ENVIO_INDEXER_TOKEN is empty"; exit 1; }
+          kubectl create secret generic "${DEPLOYMENT}-indexer" \
+            --namespace "$NAMESPACE" \
+            --from-literal=ENVIO_INDEXER_URL="$INDEXER_URL" \
+            --from-literal=ENVIO_INDEXER_TOKEN="$INDEXER_TOKEN" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      # STAGING: same, with prod-tier secrets.
+      - name: Sync indexer secret (staging)
+        if: inputs.environment == 'staging'
+        env:
+          DEPLOYMENT: ${{ needs.build-and-push.outputs.deployment_name }}
+          NAMESPACE: ${{ secrets.NAMESPACE }}
+          INDEXER_URL: ${{ secrets.PROD_ENVIO_INDEXER_URL }}
+          INDEXER_TOKEN: ${{ secrets.PROD_ENVIO_INDEXER_TOKEN }}
+        run: |
+          test -n "$INDEXER_URL"   || { echo "PROD_ENVIO_INDEXER_URL is empty"; exit 1; }
+          test -n "$INDEXER_TOKEN" || { echo "PROD_ENVIO_INDEXER_TOKEN is empty"; exit 1; }
+          kubectl create secret generic "${DEPLOYMENT}-indexer" \
+            --namespace "$NAMESPACE" \
+            --from-literal=ENVIO_INDEXER_URL="$INDEXER_URL" \
+            --from-literal=ENVIO_INDEXER_TOKEN="$INDEXER_TOKEN" \
+            --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Restart deployment
         run: |
