@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "address": "0x459a3bd49f1ff109bc90b76125533699aaaaf9a6",
+    "address": "0xAD93BffBC65002cC75AD2d5770d3AAfFdefd8D55",
     "name": "Protofire",
     "bridgeType": "AMB",
     "shortName": "PF",
@@ -9,7 +9,7 @@
   },
   {
     "id": 2,
-    "address": "0x105CD22eD3D089Bf5589C59b452f9dE0796Ca52d",
+    "address": "0xE9fc29AE64c2923FeBb615cB016b77aF9492EBcE",
     "name": "Giveth",
     "bridgeType": "AMB",
     "shortName": "G",
@@ -17,7 +17,7 @@
   },
   {
     "id": 4,
-    "address": "0xbdc141c8d2343f33f40cb9edd601ccf460cd0dde",
+    "address": "0x4A07b8AE561CC558eDD3f1836365AB8e02C52dE2",
     "name": "Gnosis DAO",
     "bridgeType": "AMB",
     "shortName": "GD",
@@ -57,7 +57,7 @@
   },
   {
     "id": 9,
-    "address": "0x7117F73aFBDec3221bDD50DdCbf73204b3998302",
+    "address": "0x156c0DAAb0cD73c224a424a781866d35f0F8Fade",
     "name": "Kleros",
     "bridgeType": "AMB",
     "shortName": "KL",
