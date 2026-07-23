@@ -25,7 +25,7 @@ export type SendTxParams = { calls: TxCall[]; chainId: ChainsValues }
 export default function useTransaction({
   skipConnectionCheck,
 }: { skipConnectionCheck?: boolean } = {}) {
-  const { appChainId, canBatch, isAppConnected } = useWeb3Connection()
+  const { canBatch, isAppConnected } = useWeb3Connection()
   const {
     notifyRejectSignature,
     notifyTxMined,
@@ -34,16 +34,16 @@ export default function useTransaction({
   } = useTransactionNotification()
 
   const waitForTxExecution = useCallback(
-    (hash: Hash) => {
+    (hash: Hash, chainId: ChainsValues) => {
       notifyWaitingForTxMined(hash)
-      waitForTransactionReceipt(hash, appChainId)
+      waitForTransactionReceipt(hash, chainId)
         .then((r) => notifyTxMined(r.transactionHash, r.status === 'success'))
         .catch((e) => {
           console.error(e)
           notifyTxMined(hash)
         })
     },
-    [appChainId, notifyTxMined, notifyWaitingForTxMined],
+    [notifyTxMined, notifyWaitingForTxMined],
   )
 
   return useCallback(
@@ -91,7 +91,7 @@ export default function useTransaction({
           return null
         }
 
-        waitForTxExecution(hash)
+        waitForTxExecution(hash, chainId)
         return hash
       } catch (e: any) {
         console.error(e)

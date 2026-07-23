@@ -163,16 +163,8 @@ export const useBridgeProgress = (
   const isAwaitingLookup = !!bridgeBlockInfo && rawConfirmations === undefined
 
   useEffect(() => {
-    propagationStartedAt.current = null
-  }, [transactionId, chainId])
-
-  useEffect(() => {
-    if (isAwaitingLookup) {
-      propagationStartedAt.current ??= Date.now()
-    } else {
-      propagationStartedAt.current = null
-    }
-  }, [isAwaitingLookup])
+    propagationStartedAt.current = isAwaitingLookup ? Date.now() : null
+  }, [isAwaitingLookup, transactionId, chainId])
 
   const isPastGrace =
     propagationStartedAt.current !== null &&
