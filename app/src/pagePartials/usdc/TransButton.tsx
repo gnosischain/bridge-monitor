@@ -169,12 +169,12 @@ const TriggerTransButton: React.FC<{
   }, [])
 
   const handleTransTx = async () => {
-    if (!transactionData || !transactionData.tx) return
+    if (!transactionData || !transactionData.calls) return
 
     setIsSending(true)
 
     try {
-      const hash = await sendTx(transactionData.tx)
+      const hash = await sendTx({ calls: transactionData.calls, chainId: Chains.gnosis })
       if (hash) {
         await waitForMinedReceipt(hash, Chains.gnosis)
         clearForm()

@@ -209,13 +209,24 @@ const ButtonExploreTransaction = ({
 export const BridgingStatus: React.FC = ({ ...restProps }) => {
   const router = useRouter()
 
-  const [transactionHash, fromChainId, toChainId, isNativeBridge, tokenAddress, amount] = [
+  const [
+    transactionHash,
+    fromChainId,
+    toChainId,
+    isNativeBridge,
+    tokenAddress,
+    amount,
+    isSubmitted,
+  ] = [
     String(router.query?.transaction),
     Number(router.query?.fromChainId) as ChainsValues,
     Number(router.query?.toChainId) as ChainsValues,
     Boolean(Number(router.query?.isNativeBridge)),
     String(router.query?.tokenAddress),
     String(router.query?.amount),
+    // set when arriving straight from a broadcast: the hash is known-valid, so never claim
+    // "not found" for it while the RPC catches up
+    Boolean(Number(router.query?.submitted)),
   ]
 
   const { data: tokenBridged } = useTokenInfo(tokenAddress, fromChainId)
@@ -223,10 +234,11 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
   const initiatorChain = getChainKey(fromChainId)
   const destinationChain = getNetworkConfig(toChainId).name
 
-  const { isLoading, progressData } = useBridgeProgress(
+  const { isError, isLoading, isNotFound, progressData } = useBridgeProgress(
     fromChainId,
     isNativeBridge,
     transactionHash,
+    isSubmitted,
   )
 
   const formattedAmount = Number(formatUnits(BigInt(amount), tokenBridged?.decimals ?? 18))
@@ -240,7 +252,7 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
     <Wrapper {...restProps}>
       {isLoading ? (
         <Loading />
-      ) : !progressData ? (
+      ) : isNotFound ? (
         <GenericError
           text={
             <>
@@ -253,6 +265,19 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
             </>
           }
           title="Transaction Not Found"
+        />
+      ) : isError || !progressData ? (
+        <GenericError
+          text={
+            <>
+              We couldn't reach the network to load this transaction's status. This is usually
+              temporary — it will keep retrying automatically.
+              <br />
+              <br />
+              If it persists, refresh the page or go back to <Link href="/">the homepage</Link>.
+            </>
+          }
+          title="Connection Problem"
         />
       ) : (
         <InnerWrapper>

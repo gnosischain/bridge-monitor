@@ -86,11 +86,11 @@ export const Swap = ({
 
   const runSwap = useMemo(
     () => async () => {
-      if (!swapTxData || !swapTxData.tx) return
+      if (!swapTxData || !swapTxData.calls) return
       setIsWorking(true)
 
       try {
-        const hash = await sendTx(swapTxData.tx)
+        const hash = await sendTx({ calls: swapTxData.calls, chainId: Chains.gnosis })
         if (hash) {
           await waitForMinedReceipt(hash, Chains.gnosis)
           refreshBalanceToken()
@@ -119,7 +119,7 @@ export const Swap = ({
   }
 
   useEffect(() => {
-    if (swapStatus === 'pending' && !isWorking && swapTxData && swapTxData.tx) {
+    if (swapStatus === 'pending' && !isWorking && swapTxData && swapTxData.calls) {
       runSwap()
     }
   }, [swapStatus, isWorking, runSwap, swapTxData])
