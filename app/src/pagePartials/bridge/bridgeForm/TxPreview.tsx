@@ -142,8 +142,7 @@ export const TxPreview: React.FC<{
       isNativeBridge,
     })
 
-    if (isLoadingTransactionData) return <TxPreviewLoading {...restProps} />
-    if (!transactionData) throw new Error('Transaction data is not available')
+    if (isLoadingTransactionData || !transactionData) return <TxPreviewLoading {...restProps} />
 
     if (transactionData.gasLimit === 0n) {
       return (
@@ -164,7 +163,7 @@ export const TxPreview: React.FC<{
     }
 
     const tokenOutAmount = formatUnits(amount - (feeInfo || 0n), tokenOut?.decimals)
-    const estimatedTotalGas = `${formatUnits(transactionData.gasLimit * transactionData.gasPrice, appChainConfig.tokenDecimals)} ${appChainConfig.token}`
+    const estimatedTotalGas = `${formatUnits((transactionData.gasLimit as bigint) * (transactionData.gasPrice as bigint), appChainConfig.tokenDecimals)} ${appChainConfig.token}`
     const estimatedTotalFee = `${formatUnits(feeInfo ?? 0n, appChainConfig.tokenDecimals)} ${appChainConfig.token}`
 
     return (
