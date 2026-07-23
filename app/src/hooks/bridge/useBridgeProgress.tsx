@@ -35,7 +35,7 @@ export const useBridgeProgress = (
       }
 
       const currentBlock = await provider.getBlockNumber()
-      const { estimatedTimeInSeconds, requiredBlocks } = _bridgeBlockInfo
+      const { requiredBlocks } = _bridgeBlockInfo
       // blocks since the transaction was mined
       // confirmations always >= 0
       let confirmations = 0
@@ -56,7 +56,6 @@ export const useBridgeProgress = (
         progress,
         confirmations,
         requiredBlocks,
-        estimatedTimeInSeconds,
       }
     },
 

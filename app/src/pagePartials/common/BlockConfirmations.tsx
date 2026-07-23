@@ -4,7 +4,7 @@ import { shortenAddress } from '@/src/utils/tools'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { Chains, ChainsKeys } from '@/src/constants/config/types'
 import useBridgeProgress from '@/src/hooks/bridge/useBridgeProgress'
-import formatDistance from 'date-fns/formatDistance'
+import { txTime } from '@/src/utils/txTime'
 import { getNetworkConfig } from '@/src/constants/config/chains'
 
 const Wrapper = styled.div`
@@ -159,7 +159,6 @@ export const BlockConfirmations: React.FC<Props> = ({
   const { progressData } = useBridgeProgress(chainId, isNativeBridge, transactionHash)
   const percentage = progressData?.progress || 0
   const sanitizedPercentage = percentage < 0 ? 0 : percentage > 100 ? 100 : percentage || 0
-  const estimatedTimeInSeconds = progressData?.estimatedTimeInSeconds || 0
   const requiredBlocks = progressData?.requiredBlocks || 0
   const confirmations = progressData?.confirmations || 0
   const { blockExplorerName } = getNetworkConfig(chainId)
@@ -181,12 +180,7 @@ export const BlockConfirmations: React.FC<Props> = ({
         </Progress>
       </TopInfo>
       <BottomInfo>
-        <EstimatedTime>
-          Estimated time{' '}
-          {formatDistance(0, estimatedTimeInSeconds * 1000, {
-            includeSeconds: true,
-          })}
-        </EstimatedTime>
+        <EstimatedTime>Estimated time {txTime(network)} minutes</EstimatedTime>
         <MonitorBlocksLink
           href={getExplorerUrl(transactionHash, network)}
           rel="noopener noreferrer"

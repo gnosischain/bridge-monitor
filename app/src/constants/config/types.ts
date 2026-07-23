@@ -16,7 +16,6 @@ export type ChainConfig = {
   blockExplorerUrls: string[]
   token: string
   tokenDecimals: number
-  blocksFrequencyInSeconds: number
   blockExplorerName: string
   bridge: {
     DAI: string
