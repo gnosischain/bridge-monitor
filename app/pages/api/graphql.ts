@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
+import { ProxyResolution, proxyJsonPost } from '@/src/lib/api/proxyJsonPost'
 import { ENVIO_TRANSACTIONS_QUERY } from '@/src/queries/transactions'
 import { ENVIO_VALIDATORS_ACTIVITY_QUERY, ENVIO_VALIDATORS_QUERY } from '@/src/queries/validators'
 
@@ -11,6 +12,9 @@ import { ENVIO_VALIDATORS_ACTIVITY_QUERY, ENVIO_VALIDATORS_QUERY } from '@/src/q
  *  - the API-key/bearer token stays server-only (never exposed to the browser);
  *  - only the exact GraphQL documents the app ships are forwarded (allow-list below),
  *    which blocks arbitrary schema scraping, introspection and mutations.
+ *
+ * The POST guard, body parsing and upstream passthrough live in `proxyJsonPost`;
+ * this file only declares the Envio-specific policy (allow-list + upstream + token).
  */
 
 const ENVIO_URL = process.env.ENVIO_INDEXER_URL || 'http://localhost:8080/v1/graphql'
@@ -25,45 +29,25 @@ const ALLOWED_QUERIES = new Set(
   ),
 )
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST')
-    return res.status(405).json({ errors: [{ message: 'Method not allowed' }] })
-  }
+// Batch operations and anything outside the allow-list are refused identically.
+const denied: ProxyResolution = {
+  ok: false,
+  status: 403,
+  body: { errors: [{ message: 'Operation not allowed' }] },
+}
 
-  let body = req.body
-  if (typeof body === 'string') {
-    try {
-      body = JSON.parse(body)
-    } catch {
-      return res.status(400).json({ errors: [{ message: 'Invalid JSON body' }] })
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  return proxyJsonPost(req, res, (body) => {
+    if (Array.isArray(body)) return denied
+
+    const query = (body as { query?: unknown } | null)?.query
+    if (typeof query !== 'string' || !ALLOWED_QUERIES.has(normalize(query))) return denied
+
+    return {
+      ok: true,
+      upstream: ENVIO_URL,
+      headers: ENVIO_TOKEN ? { Authorization: `Bearer ${ENVIO_TOKEN}` } : undefined,
+      upstreamErrorMessage: 'Upstream indexer request failed',
     }
-  }
-
-  if (Array.isArray(body)) {
-    return res.status(403).json({ errors: [{ message: 'Operation not allowed' }] })
-  }
-
-  const query = body?.query
-  if (typeof query !== 'string' || !ALLOWED_QUERIES.has(normalize(query))) {
-    return res.status(403).json({ errors: [{ message: 'Operation not allowed' }] })
-  }
-
-  try {
-    const upstream = await fetch(ENVIO_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(ENVIO_TOKEN ? { Authorization: `Bearer ${ENVIO_TOKEN}` } : {}),
-      },
-      body: JSON.stringify(body),
-    })
-
-    const payload = await upstream.text()
-    res.status(upstream.status)
-    res.setHeader('Content-Type', upstream.headers.get('content-type') || 'application/json')
-    return res.send(payload)
-  } catch {
-    return res.status(502).json({ errors: [{ message: 'Upstream indexer request failed' }] })
-  }
+  })
 }
