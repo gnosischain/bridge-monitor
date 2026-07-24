@@ -3,9 +3,13 @@ import { createPublicClient, http, namehash, parseAbi } from 'viem'
 import { gnosis } from 'viem/chains'
 import { normalize } from 'viem/ens'
 
+import { getProviderUrl } from '@/src/constants/config/rpc-providers'
+import { Chains } from '@/src/constants/config/types'
+
+// Reads run in the browser via SWR, so the same-origin `/api/rpc` proxy path resolves fine.
 const client = createPublicClient({
   chain: gnosis,
-  transport: http(process.env.NEXT_PUBLIC_RPC_GNOSIS),
+  transport: http(getProviderUrl(Chains.gnosis)),
 })
 
 const SPACE_ID_REAL_CONTRACT = '0x6D3B3F99177FB2A5de7F9E928a9BD807bF7b5BAD'
