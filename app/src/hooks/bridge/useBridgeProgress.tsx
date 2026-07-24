@@ -11,14 +11,13 @@ const POLLING_INTERVAL = 5_000
 // cycles. Submitted transactions bypass it entirely — we already hold a valid hash from the wallet.
 const PROPAGATION_GRACE_MS = 60_000
 
-type BridgeBlockInfo = { requiredBlocks: number; estimatedTimeInSeconds: number }
+type BridgeBlockInfo = { requiredBlocks: number }
 
 export type BridgeProgressData = {
   isMined: boolean
   progress: number
   confirmations: number
   requiredBlocks: number
-  estimatedTimeInSeconds: number
 }
 
 const isTransactionNotFoundError = (error: Error | null): boolean => {
@@ -29,7 +28,7 @@ const isTransactionNotFoundError = (error: Error | null): boolean => {
 }
 
 const buildProgressData = (
-  { estimatedTimeInSeconds, requiredBlocks }: BridgeBlockInfo,
+  { requiredBlocks }: BridgeBlockInfo,
   rawConfirmations: bigint,
 ): BridgeProgressData => {
   // viem returns 0 for an unmined tx and counts the inclusion block as confirmation #1
@@ -44,7 +43,6 @@ const buildProgressData = (
     progress,
     confirmations: blocksSinceMined, // legacy field name kept for consumers
     requiredBlocks,
-    estimatedTimeInSeconds,
   }
 }
 
@@ -114,14 +112,13 @@ export const deriveProgressState = ({
 
   // Otherwise the hash is (still) propagating: expose zero-confirmation pending progress so the
   // "Waiting for transaction to be mined" state renders while polling continues.
-  const { estimatedTimeInSeconds, requiredBlocks } = bridgeBlockInfo
+  const { requiredBlocks } = bridgeBlockInfo
   return {
     progressData: {
       isMined: false,
       progress: 0,
       confirmations: 0,
       requiredBlocks,
-      estimatedTimeInSeconds,
     },
     isWaitingForPropagation: true,
     isNotFound: false,
