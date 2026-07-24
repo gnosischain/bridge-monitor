@@ -144,42 +144,6 @@ jobs:
             exit 1
           fi
 
-      # Deployment — it must reference the "<deployment_name>-indexer" Secret with keys
-      # ENVIO_INDEXER_URL / ENVIO_INDEXER_TOKEN. Nothing here mutates the pod spec, so there is no
-      # drift with Terraform; the rollout restart below is what makes pods pick up new values.
-      - name: Sync indexer secret (develop)
-        if: inputs.environment == 'develop'
-        env:
-          DEPLOYMENT: ${{ needs.build-and-push.outputs.deployment_name }}
-          NAMESPACE: ${{ secrets.NAMESPACE }}
-          ENVIO_INDEXER_URL: ${{ secrets.DEV_ENVIO_INDEXER_URL }}
-          ENVIO_INDEXER_TOKEN: ${{ secrets.DEV_ENVIO_INDEXER_TOKEN }}
-        run: |
-          test -n "$ENVIO_INDEXER_URL"   || { echo "DEV_ENVIO_INDEXER_URL is empty"; exit 1; }
-          test -n "$ENVIO_INDEXER_TOKEN" || { echo "DEV_ENVIO_INDEXER_TOKEN is empty"; exit 1; }
-          kubectl create secret generic "${DEPLOYMENT}-indexer" \
-            --namespace "$NAMESPACE" \
-            --from-literal=ENVIO_INDEXER_URL="$ENVIO_INDEXER_URL" \
-            --from-literal=ENVIO_INDEXER_TOKEN="$ENVIO_INDEXER_TOKEN" \
-            --dry-run=client -o yaml | kubectl apply -f -
-
-      # STAGING: same, with prod-tier secrets.
-      - name: Sync indexer secret (staging)
-        if: inputs.environment == 'staging'
-        env:
-          DEPLOYMENT: ${{ needs.build-and-push.outputs.deployment_name }}
-          NAMESPACE: ${{ secrets.NAMESPACE }}
-          ENVIO_INDEXER_URL: ${{ secrets.PROD_ENVIO_INDEXER_URL }}
-          ENVIO_INDEXER_TOKEN: ${{ secrets.PROD_ENVIO_INDEXER_TOKEN }}
-        run: |
-          test -n "$ENVIO_INDEXER_URL"   || { echo "PROD_ENVIO_INDEXER_URL is empty"; exit 1; }
-          test -n "$ENVIO_INDEXER_TOKEN" || { echo "PROD_ENVIO_INDEXER_TOKEN is empty"; exit 1; }
-          kubectl create secret generic "${DEPLOYMENT}-indexer" \
-            --namespace "$NAMESPACE" \
-            --from-literal=ENVIO_INDEXER_URL="$ENVIO_INDEXER_URL" \
-            --from-literal=ENVIO_INDEXER_TOKEN="$ENVIO_INDEXER_TOKEN" \
-            --dry-run=client -o yaml | kubectl apply -f -
-
       - name: Restart deployment
         run: |
           kubectl rollout restart deployment/${{ needs.build-and-push.outputs.deployment_name }} -n ${{ secrets.NAMESPACE }}
