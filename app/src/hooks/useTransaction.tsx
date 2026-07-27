@@ -14,10 +14,6 @@ import { useTransactionNotification } from '@/src/providers/transactionNotificat
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { TransactionError } from '@/src/utils/TransactionError'
 
-export type QueryOptions = {
-  refetchInterval: number
-}
-
 // A write to dispatch: one or more low-level calls plus the chain they run on. Callers build the
 // calls with `toCall` (see `@/src/lib/web3/transactions`). Option A always passes a single call.
 export type SendTxParams = { calls: TxCall[]; chainId: ChainsValues }

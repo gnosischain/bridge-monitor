@@ -30,7 +30,7 @@
   {
     "address": "0x456c255a8bc1f33778603a2a48eb6b0c69f4d48e",
     "bridgeType": "AMB",
-    "id": "0x456c255A8BC1F33778603A2a48Eb6B0C69F4d48E-AMB",
+    "id": "0x456c255a8bc1f33778603a2a48eb6b0c69f4d48e-AMB",
     "name": "Telepathy",
     "removed": false
   },
@@ -49,16 +49,16 @@
     "removed": false
   },
   {
-    "address": "0xAeE7C90Ef0fC461ec63c4d451B12c340642bc656",
+    "address": "0xaee7c90ef0fc461ec63c4d451b12c340642bc656",
     "bridgeType": "XDAI",
-    "id": "0xAeE7C90Ef0fC461ec63c4d451B12c340642bc656-XDAI",
+    "id": "0xaee7c90ef0fc461ec63c4d451b12c340642bc656-XDAI",
     "name": "Cow Protocol",
     "removed": false
   },
   {
-    "address": "0xCC46a3873BfCaa08a6a946a308bB621535D6E6Dd",
+    "address": "0xcc46a3873bfcaa08a6a946a308bb621535d6e6dd",
     "bridgeType": "AMB",
-    "id": "0xCC46a3873BfCaa08a6a946a308bB621535D6E6Dd-AMB",
+    "id": "0xcc46a3873bfcaa08a6a946a308bb621535d6e6dd-AMB",
     "name": "Cow Protocol",
     "removed": false
   },
@@ -119,16 +119,16 @@
     "removed": false
   },
   {
-    "address": "0x7117F73aFBDec3221bDD50DdCbf73204b3998302",
+    "address": "0x7117f73afbdec3221bdd50ddcbf73204b3998302",
     "bridgeType": "XDAI",
-    "id": "0x7117F73aFBDec3221bDD50DdCbf73204b3998302-XDAI",
+    "id": "0x7117f73afbdec3221bdd50ddcbf73204b3998302-XDAI",
     "name": "Kleros",
     "removed": false
   },
   {
-    "address": "0x7117F73aFBDec3221bDD50DdCbf73204b3998302",
+    "address": "0x7117f73afbdec3221bdd50ddcbf73204b3998302",
     "bridgeType": "AMB",
-    "id": "0x7117F73aFBDec3221bDD50DdCbf73204b3998302-AMB",
+    "id": "0x7117f73afbdec3221bdd50ddcbf73204b3998302-AMB",
     "name": "Kleros",
     "removed": false
   },
