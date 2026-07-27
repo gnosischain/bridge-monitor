@@ -58,18 +58,18 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
   const handleBridgeTx = async () => {
     setIsSending(true)
 
-    if (!transactionData.tx) {
-      console.error('No transactionData.tx')
+    if (!transactionData.calls) {
+      console.error('No transactionData.calls')
       return
     }
 
     try {
-      const tx = await sendTx(transactionData.tx)
-      if (tx) {
+      const txHash = await sendTx({ calls: transactionData.calls, chainId: fromChainId })
+      if (txHash) {
         router.push(
-          `${bridgePagesBaseURL}/${tx.hash}?fromChainId=${fromChainId}&isNativeBridge=${
+          `${bridgePagesBaseURL}/${txHash}?fromChainId=${fromChainId}&isNativeBridge=${
             isNativeBridge ? 1 : 0
-          }&tokenAddress=${token.address}&amount=${amount}&toChainId=${toChainId}`,
+          }&tokenAddress=${token.address}&amount=${amount}&toChainId=${toChainId}&submitted=1`,
         )
       } else {
         throw new Error('Failed to bridge')

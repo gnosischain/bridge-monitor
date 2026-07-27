@@ -8,7 +8,7 @@ import useBridgeLimits from '@/src/hooks/bridge/useBridgeLimits'
 import { EURCe_GNOSIS, USDCe_GNOSIS } from '@/src/constants/misc'
 import { formatNumber } from '@/src/utils/format'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
-import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
+import { getBridgeContractConfig } from '@/src/hooks/bridge/useBridgeContracts'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
 import useWeb3Name from '../useWeb3Name'
@@ -37,16 +37,12 @@ export const useBridgeValidations = ({
     fromToken,
     toToken,
   )
-  // TODO(wagmi-migration): safe today because `useBridgeLimits` still uses SWR `suspense: true`.
-  // Once it migrates to wagmi, this fires during initial load — replace with an `isLoading` guard.
-  // The `bridgeLimits?.dailyLimit - (... || 0n)` precedence on `dailyLimitReached` below also has
-  // a latent `undefined - 0n` crash that's masked by this throw; fix both together.
-  if (!bridgeLimits) throw Error('Was not possible to fetch bridge limits.')
-
+  // `useBridgeLimits` is wagmi-based and no longer suspends, so `bridgeLimits` is undefined during
+  // the initial load. Every limit-derived check below guards on it, and `isValidToSend` stays false
+  // until it resolves — keeping the bridge button disabled exactly as the old SWR suspense did.
   const { data: tokenMode } = useTokenMode(fromChainId, toChainId, fromToken)
 
-  const bridgeContract = getBridgeContract(fromChainId, toChainId, fromToken.address)
-  const bridgeAddress = bridgeContract.address
+  const bridgeAddress = getBridgeContractConfig(fromChainId, toChainId, fromToken.address).address
 
   const { data: userBalanceData, isLoading: isLoadingBalance } = useUserTokenBalances({
     userAddress,
@@ -62,10 +58,10 @@ export const useBridgeValidations = ({
   const isValidAmount = amount > 0n
   const approvalNeeded =
     balance !== undefined && allowance !== undefined && amount > allowance && amount <= balance
-  const minAmountError = amount < (bridgeLimits?.minPerTx || 0n)
-  const maxAmountError = amount > (bridgeLimits?.maxPerTx || 0n)
+  const minAmountError = bridgeLimits !== undefined && amount < bridgeLimits.minPerTx
+  const maxAmountError = bridgeLimits !== undefined && amount > bridgeLimits.maxPerTx
   const dailyLimitReached =
-    amount > (bridgeLimits?.dailyLimit - (bridgeLimits?.totalSpentPerDay || 0n) || 0n)
+    bridgeLimits !== undefined && amount > bridgeLimits.dailyLimit - bridgeLimits.totalSpentPerDay
   const minPerTxInNumber = Number(
     formatUnits(bridgeLimits?.minPerTx || 0n, fromToken?.decimals || 18),
   )
@@ -156,7 +152,12 @@ export const useBridgeValidations = ({
   ])
 
   const isValidToSend =
-    !errorMessage && isValidAmount && isValidToken && !isCustomERC20Home && balance !== undefined
+    bridgeLimits !== undefined &&
+    !errorMessage &&
+    isValidAmount &&
+    isValidToken &&
+    !isCustomERC20Home &&
+    balance !== undefined
 
   return {
     errorMessage,

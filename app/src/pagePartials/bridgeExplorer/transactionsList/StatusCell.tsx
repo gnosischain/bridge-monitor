@@ -53,7 +53,7 @@ export const StatusCell: React.FC<Props> = ({ transaction, updateInMemoryTransac
             <>
               Transactions from <Network>{initiatorNetwork}</Network> to{' '}
               <Network>{receiverNetwork}</Network> can take up to{' '}
-              <Emphasize>{txTime(initiatorNetwork, receiverNetwork)} minutes</Emphasize>
+              <Emphasize>{txTime(initiatorNetwork)} minutes</Emphasize>
             </>
           }
         >

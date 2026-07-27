@@ -4,7 +4,6 @@ import useSWR from 'swr'
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { fetchHomeValidators, getBalance, getValidatorByAddress } from '@/src/utils/validators'
 import { Validator } from '@/src/utils/validators'
-import { gnosisBatch } from '@/src/constants/config/rpc-providers'
 import { fromSecondsTimestamp } from '@/src/utils/date'
 import { Chains, chainsConfig } from '@/src/constants/config/chains'
 import cloneDeep from 'lodash/cloneDeep'
@@ -35,7 +34,6 @@ const ValidatorsContext = createContext<ValidatorsContextType>({
 })
 
 const fetcher = async () => {
-  const homeProvider = gnosisBatch()
   const validatorsData = await fetchHomeValidators()
 
   const validatorsPromises = validatorsData.map(async (v) => {
@@ -48,7 +46,7 @@ const fetcher = async () => {
       v.address.toLowerCase() === TELEPATHY_VALIDATOR_ADDRESS.toLowerCase()
         ? TELEPATHY_VALIDATOR_ADDRESS_REPLACED
         : v.address
-    const balanceHomeValue = await getBalance(balanceAddr, homeProvider)
+    const balanceHomeValue = await getBalance(balanceAddr, Chains.gnosis)
 
     const name = v.name || staticVal?.name || v.address
     const shortName = staticVal?.shortName || name

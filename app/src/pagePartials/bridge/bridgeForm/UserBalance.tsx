@@ -7,7 +7,7 @@ import { formatUnits } from 'viem'
 import styled from 'styled-components'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
-import { getBridgeContract } from '@/src/hooks/bridge/useBridgeContracts'
+import { getBridgeContractConfig } from '@/src/hooks/bridge/useBridgeContracts'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -121,12 +121,12 @@ export const UserBalance: React.FC<{
     )
   }
 
-  const bridgeContract = getBridgeContract($fromChainId, $toChainId, $token.address)
+  const bridgeConfig = getBridgeContractConfig($fromChainId, $toChainId, $token.address)
 
   return (
     <Balance
       $address={$address}
-      $allowanceAddress={bridgeContract.address}
+      $allowanceAddress={bridgeConfig.address}
       $chainId={$fromChainId}
       $onMax={$onMax}
       $token={$token}

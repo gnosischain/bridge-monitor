@@ -104,8 +104,10 @@ const Placeholder: React.FC = () => (
 
 export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericSuspense(
   ({ dayNumber }) => {
-    const { foreignXdaiInformation } = useForeignXDAIBridgeLimits(dayNumber)
+    const { foreignXdaiInformation, isLoading } = useForeignXDAIBridgeLimits(dayNumber)
     // const { mainnetDaiToken } = useDaiToken()
+
+    if (isLoading) return <Placeholder />
 
     return (
       <BridgeLimit
@@ -131,8 +133,10 @@ export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericS
 
 export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericSuspense(
   ({ dayNumber }) => {
-    const { homeXdaiInformation } = useHomeXDAIBridgeLimits(dayNumber)
+    const { homeXdaiInformation, isLoading } = useHomeXDAIBridgeLimits(dayNumber)
     const { gnosisXdaiToken } = useDaiToken()
+
+    if (isLoading) return <Placeholder />
 
     return (
       <BridgeLimit
@@ -160,7 +164,9 @@ export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericS
 const OmnibridgeMainnetToGnosisChain: React.FC<{ token: Token; dayNumber: string | undefined }> =
   genericSuspense(
     ({ dayNumber, token }) => {
-      const { foreignOmniInformation } = useForeignOMNIBridgeLimits(token, dayNumber)
+      const { foreignOmniInformation, isLoading } = useForeignOMNIBridgeLimits(token, dayNumber)
+
+      if (isLoading) return <Placeholder />
 
       return (
         <BridgeLimit
@@ -186,7 +192,9 @@ const OmnibridgeMainnetToGnosisChain: React.FC<{ token: Token; dayNumber: string
 const OmnibridgeGnosisChainToMainnet: React.FC<{ token: Token; dayNumber: string | undefined }> =
   genericSuspense(
     ({ dayNumber, token }) => {
-      const { homeOmniInformation } = useHomeOMNIBridgeLimits(token, dayNumber)
+      const { homeOmniInformation, isLoading } = useHomeOMNIBridgeLimits(token, dayNumber)
+
+      if (isLoading) return <Placeholder />
 
       return (
         <BridgeLimit
