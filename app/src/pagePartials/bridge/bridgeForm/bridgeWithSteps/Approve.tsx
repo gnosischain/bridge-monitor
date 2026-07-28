@@ -9,6 +9,7 @@ import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { Chains } from '@/src/constants/config/chains'
 import { Token } from '@/types/token'
 import { zeroAddress } from 'viem'
+import { waitForMinedReceipt } from '@/src/lib/web3/transactions'
 
 const Wrapper = styled.button`
   align-items: center;
@@ -90,14 +91,16 @@ export const Approve = ({
     () => async () => {
       setIsWorking(true)
       try {
-        const receipt = await approve({
+        const hash = await approve({
           amount,
           spenderAddress: TRANSMUTER_ADDRESS,
           tokenAddress: USDCe_GNOSIS,
         })
-        if (!receipt) throw new Error('No receipt')
+        if (!hash) throw new Error('Approval was not submitted')
 
-        await receipt.wait()
+        // block until the approval is mined; this rejects on revert or receipt timeout, so the
+        // catch below re-shows the button instead of advancing to the swap
+        await waitForMinedReceipt(hash, Chains.gnosis)
         setStatus(steps.swapping)
         refreshBalanceToken()
         if (showButton) setShowButton(false)

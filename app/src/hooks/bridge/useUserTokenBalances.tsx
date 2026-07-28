@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { keepPreviousData } from '@tanstack/react-query'
-import { erc20Abi } from 'viem'
+import { Address, erc20Abi } from 'viem'
 import { useBalance, useGasPrice, useReadContract } from 'wagmi'
 
 import { ChainsValues } from '@/src/constants/config/types'
@@ -26,7 +26,7 @@ export const useUserTokenBalances = ({
     isLoading: isLoadingNativeBalance,
     refetch: refetchNativeBalance,
   } = useBalance({
-    address: userAddress as `0x${string}`,
+    address: userAddress as Address,
     chainId,
     query: { enabled: isNative && !!userAddress, placeholderData: keepPreviousData },
   })
@@ -45,10 +45,10 @@ export const useUserTokenBalances = ({
     isLoading: isLoadingErc20Balance,
     refetch: refetchErc20Balance,
   } = useReadContract({
-    address: tokenAddress as `0x${string}`,
+    address: tokenAddress as Address,
     abi: erc20Abi,
     functionName: 'balanceOf',
-    args: [userAddress as `0x${string}`],
+    args: [userAddress as Address],
     chainId,
     query: { enabled: isErc20 && !!userAddress, placeholderData: keepPreviousData },
   })
@@ -58,10 +58,10 @@ export const useUserTokenBalances = ({
     isLoading: isLoadingErc20Allowance,
     refetch: refetchErc20Allowance,
   } = useReadContract({
-    address: tokenAddress as `0x${string}`,
+    address: tokenAddress as Address,
     abi: erc20Abi,
     functionName: 'allowance',
-    args: [userAddress as `0x${string}`, allowanceAddress as `0x${string}`],
+    args: [userAddress as Address, allowanceAddress as Address],
     chainId,
     query: {
       enabled: isErc20 && !!userAddress && !!allowanceAddress,
@@ -102,7 +102,7 @@ export const useUserTokenBalances = ({
 
   // TODO: drop `refetch` once the approval flow uses `useWaitForTransactionReceipt`
   // (wagmi auto-invalidates queries on block, making manual refetch unnecessary).
-  // Currently kept because `ApproveButton` calls it after `tx.wait()` to refresh allowance.
+  // Currently kept because `ApproveButton` calls it after the approval is mined to refresh allowance.
   const refetch = async () => {
     if (isNative) {
       await refetchNativeBalance()

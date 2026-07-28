@@ -34,9 +34,14 @@ const Content = styled.div`
 export default function WrongNetwork() {
   const { appChainId, isWalletConnected, isWalletNetworkSupported, pushNetwork } =
     useWeb3Connection()
-  return isWalletConnected && !isWalletNetworkSupported ? (
+
+  if (!isWalletConnected || isWalletNetworkSupported) {
+    return null
+  }
+
+  return (
     <ButtonPrimary onClick={() => pushNetwork(appChainId)}>
       <Content>Switch to valid network</Content>
     </ButtonPrimary>
-  ) : null
+  )
 }

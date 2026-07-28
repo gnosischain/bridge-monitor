@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useReadContract } from 'wagmi'
-import { zeroAddress } from 'viem'
+import { Address, zeroAddress } from 'viem'
 
 import { ChainsValues } from '@/src/constants/config/types'
 import { EURCe_GNOSIS } from '@/src/constants/misc'
@@ -31,7 +31,7 @@ export const useTokenMode = (fromChainId: ChainsValues, toChainId: ChainsValues,
     address: contracts.OmniBridge.address[fromChainId],
     abi: contracts.OmniBridge.abi,
     functionName: 'nativeTokenAddress',
-    args: [token?.address as `0x${string}`],
+    args: [token?.address as Address],
     chainId: fromChainId,
     query: { enabled: shouldFetch, staleTime: Infinity },
   })

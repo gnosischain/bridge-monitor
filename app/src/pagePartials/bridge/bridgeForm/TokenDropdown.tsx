@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import get from 'lodash/get'
-import { isAddress } from '@ethersproject/address'
 import { DebounceInput } from 'react-debounce-input'
+import { useReadContracts } from 'wagmi'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown as BaseDropdown, DropdownItem, DropdownPosition } from '@/src/components/dropdown'
 import { TextfieldCSS, TextfieldCSSProps, TextfieldProps } from '@/src/components/form/Textfield'
@@ -12,19 +11,16 @@ import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import orderBy from 'lodash/orderBy'
-import { HomeOmniMediator__factory } from '@/types/typechain'
 import { contracts } from '@/src/constants/config/contracts'
-import { getNetworkConfig } from '@/src/constants/config/chains'
 import { isSameString } from '@/src/utils/tools'
 import { Spinner } from '@/src/components/loading/Spinner'
-import { ERC165__factory } from '@/types/typechain/factories/ERC165__factory'
 import { USDCe_GNOSIS } from '@/src/constants/misc'
 import { useUserTokenListBalances } from '@/src/hooks/bridge/useUserTokenListBalances'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { formatNumber } from '@/src/utils/format'
 import { usdsToken } from '@/src/constants/usdsToken'
 import { xdaiToken } from '@/src/constants/xdaiToken'
-import { formatUnits, zeroAddress } from 'viem'
+import { type Address, erc20Abi, formatUnits, isAddress, zeroAddress } from 'viem'
 
 const BaseChevronDown = ({ ...restProps }) => (
   <svg
@@ -269,11 +265,8 @@ const Dropdown: React.FC<Props> = ({
 
   // const searchInputRef = useRef<HTMLInputElement | null>(null)
   const { ambTokensByNetwork } = useBridgedTokens()
-  const [manualTokens, setManualTokens] = useState<Token[]>([])
-  const [filteredTokens, setFilteredTokens] = useState<Token[]>([])
   const [topTokens, setTopTokens] = useState<Token[]>([])
   const [value, setValue] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
 
   const { address } = useWeb3Connection()
   const { data: balances } = useUserTokenListBalances({
@@ -285,10 +278,9 @@ const Dropdown: React.FC<Props> = ({
     if (typeof onChange !== 'undefined') onChange(token)
   }
 
-  // When the chain changes, we update the tokens list
-  useEffect(() => {
+  // The list of known tokens matching the current search
+  const filteredTokens = useMemo(() => {
     const allTokens = ambTokensByNetwork[fromChainId]
-      .concat(manualTokens.filter((item) => item.chainId === fromChainId))
       .filter((item) => {
         if (isSameString(item.address, zeroAddress)) return false
         if (fromChainId === Chains.gnosis && isSameString(item.symbol, 'USDS')) return false
@@ -343,8 +335,8 @@ const Dropdown: React.FC<Props> = ({
       })
     }
 
-    setFilteredTokens(_filteredTokens)
-  }, [ambTokensByNetwork, fromChainId, manualTokens, value, balances])
+    return _filteredTokens
+  }, [ambTokensByNetwork, fromChainId, value, balances])
 
   useEffect(() => {
     // Define the symbols array with the desired order
@@ -387,57 +379,55 @@ const Dropdown: React.FC<Props> = ({
     setTopTokens(orderedTokens)
   }, [ambTokensByNetwork, fromChainId, toChainId])
 
-  // if the value is an address and there is not token match
-  // we try a search on-chain.
-  useEffect(() => {
-    if (value && isAddress(value.toLowerCase()) && !filteredTokens.length) {
-      setIsLoading(true)
+  // If the search value is an address with no known match, look the token up
+  // on-chain. useReadContracts batches the reads into a single Multicall3 call
+  // per chain, and query.enabled gates it to the "address, no match" case.
+  const isFromGnosis = fromChainId === Chains.gnosis
+  const { data: onChainToken, isLoading } = useReadContracts({
+    allowFailure: false,
+    contracts: [
+      { chainId: fromChainId, address: value as Address, abi: erc20Abi, functionName: 'name' },
+      { chainId: fromChainId, address: value as Address, abi: erc20Abi, functionName: 'symbol' },
+      { chainId: fromChainId, address: value as Address, abi: erc20Abi, functionName: 'decimals' },
+      {
+        chainId: Chains.gnosis,
+        address: contracts.OmniBridge.address[Chains.gnosis] as Address,
+        abi: contracts.OmniBridge.abi,
+        functionName: isFromGnosis ? 'foreignTokenAddress' : 'homeTokenAddress',
+        args: [value as Address],
+      },
+    ],
+    query: {
+      enabled: Boolean(value && isAddress(value) && !filteredTokens.length),
+      retry: false,
+    },
+  })
 
-      const isFromGnosis = fromChainId == Chains.gnosis
-      const erc20 = ERC165__factory.connect(
-        value,
-        new JsonRpcBatchProvider(getNetworkConfig(fromChainId)?.rpcUrl),
-      )
-      const omni = HomeOmniMediator__factory.connect(
-        contracts.OmniBridge.address[Chains.gnosis],
-        new JsonRpcBatchProvider(getNetworkConfig(Chains.gnosis)?.rpcUrl),
-      )
+  // Derive the resolved token from the on-chain read — no state, no effect.
+  const manualToken = useMemo<Token | null>(() => {
+    if (!onChainToken) return null
 
-      Promise.all([
-        erc20.name(),
-        erc20.symbol(),
-        erc20.decimals(),
-        isFromGnosis ? omni.foreignTokenAddress(value) : omni.homeTokenAddress(value),
-      ])
-        .then(([name, symbol, decimals, _address]) => {
-          if (!name || !symbol || !decimals || !_address) return
+    const [name, symbol, decimals, bridgeAddress] = onChainToken
+    if (!name || !symbol || !bridgeAddress) return null
 
-          setManualTokens((_manualTokens) => [
-            {
-              chainId: fromChainId,
-              address: value,
-              decimals,
-              logoURI: '',
-              name,
-              symbol,
-              extensions: {
-                bridgeInfo: {
-                  [toChainId]: {
-                    tokenAddress: _address,
-                  },
-                },
-              },
-            },
-            ...(_manualTokens || []),
-          ])
-        })
-        .catch(() => {
-          // console.error('Failed to fetch token data:', error)
-          return
-        })
-        .finally(() => setIsLoading(false))
+    return {
+      chainId: fromChainId,
+      address: value,
+      decimals,
+      logoURI: '',
+      name,
+      symbol,
+      extensions: {
+        bridgeInfo: {
+          [toChainId]: {
+            tokenAddress: bridgeAddress,
+          },
+        },
+      },
     }
-  }, [filteredTokens.length, fromChainId, toChainId, value])
+  }, [onChainToken, fromChainId, toChainId, value])
+
+  const displayedTokens = manualToken ? [manualToken, ...filteredTokens] : filteredTokens
 
   // Focus the search input when the dropdown is opened
   useEffect(() => {
@@ -507,9 +497,9 @@ const Dropdown: React.FC<Props> = ({
           <Loading>
             <Spinner />
           </Loading>
-        ) : filteredTokens.length ? (
+        ) : displayedTokens.length ? (
           <Items closeOnClick key="items">
-            {filteredTokens?.map((item, index) => (
+            {displayedTokens?.map((item, index) => (
               <DropdownBridgeItem
                 key={index}
                 onClick={() => {

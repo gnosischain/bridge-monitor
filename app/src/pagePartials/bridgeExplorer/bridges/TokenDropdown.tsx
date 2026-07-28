@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
-import { isAddress } from '@ethersproject/address'
 import { DebounceInput } from 'react-debounce-input'
+import { type Address, erc20Abi, isAddress } from 'viem'
+import { useReadContracts } from 'wagmi'
 
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { ChevronDown as BaseChevronDown } from '@/src/components/assets/ChevronDown'
 import { Magnifier as BaseMagnifier } from '@/src/components/assets/Magnifier'
 import { Dropdown as BaseDropdown, DropdownPosition } from '@/src/components/dropdown'
@@ -14,8 +14,6 @@ import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { getToChainId } from '@/src/utils/tools'
-import { ERC165__factory, HomeOmniMediator__factory } from '@/types/typechain'
-import { getNetworkConfig } from '@/src/constants/config/chains'
 import { contracts } from '@/src/constants/config/contracts'
 
 const Wrapper = styled(BaseDropdown)`
@@ -180,11 +178,7 @@ const Dropdown: React.FC<Props> = ({
     }
   }, [chainId, ambTokensByNetwork])
 
-  const [tokensList, setTokensList] = useState(tokens)
   const [value, setValue] = useState('')
-
-  const [isLoading, setIsLoading] = useState(false)
-  const [manualTokens, setManualTokens] = useState<Token[]>([])
 
   const onSelectToken = (token: Token) => {
     setToken(token)
@@ -197,79 +191,69 @@ const Dropdown: React.FC<Props> = ({
     }
   }, [defaultToken, token?.address])
 
-  // if the value is an address and there is not token match
-  // we try a search on-chain.
-  useEffect(() => {
-    if (value && isAddress(value.toLowerCase()) && !tokensList?.length) {
-      setIsLoading(true)
-
-      const isFromGnosis = chainId == Chains.gnosis
-      const erc20 = ERC165__factory.connect(
-        value,
-        new JsonRpcBatchProvider(getNetworkConfig(chainId)?.rpcUrl),
+  // The list of known tokens matching the current search
+  const filteredTokens = useMemo(() => {
+    if (value.length === 0) return tokens
+    if (isAddress(value)) {
+      return tokens?.filter(
+        (item) => item.address.toLowerCase().indexOf(value.toLowerCase()) !== -1,
       )
-      const omni = HomeOmniMediator__factory.connect(
-        contracts.OmniBridge.address[Chains.gnosis],
-        new JsonRpcBatchProvider(getNetworkConfig(Chains.gnosis)?.rpcUrl),
-      )
-
-      Promise.all([
-        erc20.name(),
-        erc20.symbol(),
-        erc20.decimals(),
-        isFromGnosis ? omni.foreignTokenAddress(value) : omni.homeTokenAddress(value),
-      ])
-        .then(([name, symbol, decimals, _address]) => {
-          if (!name || !symbol || !decimals || !_address) return
-
-          setManualTokens(() => [
-            {
-              chainId,
-              address: value,
-              decimals,
-              logoURI: '',
-              name,
-              symbol,
-              extensions: {
-                bridgeInfo: {
-                  [getToChainId(chainId)]: {
-                    tokenAddress: _address,
-                  },
-                  [chainId]: {
-                    tokenAddress: value,
-                  },
-                },
-              },
-            },
-          ])
-        })
-        .finally(() => setIsLoading(false))
     }
-  }, [tokensList?.length, chainId, value])
-
-  // When the chain changes, we update the tokens list
-  useEffect(() => {
-    if (manualTokens.length > 0) {
-      setTokensList(manualTokens)
-    }
-  }, [ambTokensByNetwork, manualTokens, value, chainId])
-
-  useEffect(() => {
-    if (value.length === 0) {
-      setTokensList(tokens)
-    } else {
-      if (isAddress(value)) {
-        const filteredTokenList = tokens?.filter(
-          (item) => item.address.toLowerCase().indexOf(value.toLowerCase()) !== -1,
-        )
-        setTokensList(filteredTokenList)
-      } else {
-        setTokensList(
-          tokens?.filter((item) => item.symbol.toLowerCase().indexOf(value.toLowerCase()) !== -1),
-        )
-      }
-    }
+    return tokens?.filter((item) => item.symbol.toLowerCase().indexOf(value.toLowerCase()) !== -1)
   }, [tokens, value])
+
+  // If the search value is an address with no known match, look the token up
+  // on-chain. useReadContracts batches the reads into a single Multicall3 call
+  // per chain, and query.enabled gates it to the "address, no match" case.
+  const isFromGnosis = chainId === Chains.gnosis
+  const { data: onChainToken, isLoading } = useReadContracts({
+    allowFailure: false,
+    contracts: [
+      { chainId, address: value as Address, abi: erc20Abi, functionName: 'name' },
+      { chainId, address: value as Address, abi: erc20Abi, functionName: 'symbol' },
+      { chainId, address: value as Address, abi: erc20Abi, functionName: 'decimals' },
+      {
+        chainId: Chains.gnosis,
+        address: contracts.OmniBridge.address[Chains.gnosis] as Address,
+        abi: contracts.OmniBridge.abi,
+        functionName: isFromGnosis ? 'foreignTokenAddress' : 'homeTokenAddress',
+        args: [value as Address],
+      },
+    ],
+    query: {
+      enabled: Boolean(value && isAddress(value) && !filteredTokens?.length),
+      retry: false,
+    },
+  })
+
+  // Derive the resolved token from the on-chain read — no state, no effect.
+  const manualToken = useMemo<Token | null>(() => {
+    if (!onChainToken) return null
+
+    const [name, symbol, decimals, bridgeAddress] = onChainToken
+    if (!name || !symbol || !bridgeAddress) return null
+
+    return {
+      chainId,
+      address: value,
+      decimals,
+      logoURI: '',
+      name,
+      symbol,
+      extensions: {
+        bridgeInfo: {
+          [getToChainId(chainId)]: {
+            tokenAddress: bridgeAddress,
+          },
+          [chainId]: {
+            tokenAddress: value,
+          },
+        },
+      },
+    }
+  }, [onChainToken, chainId, value])
+
+  const displayedTokens = manualToken ? [manualToken, ...(filteredTokens ?? [])] : filteredTokens
 
   return (
     <Wrapper
@@ -301,7 +285,7 @@ const Dropdown: React.FC<Props> = ({
         </TextfieldContainer>,
         <Items closeOnClick key="items">
           {isLoading && <NoResults closeOnClick={false}>Loading...</NoResults>}
-          {tokensList?.map((item, index) => (
+          {displayedTokens?.map((item, index) => (
             <DropdownItem
               key={index}
               onClick={() => {
@@ -313,7 +297,7 @@ const Dropdown: React.FC<Props> = ({
             </DropdownItem>
           ))}
         </Items>,
-        tokensList?.length === 0 && !isLoading ? (
+        displayedTokens?.length === 0 && !isLoading ? (
           <NoResults closeOnClick={false}>Not found.</NoResults>
         ) : (
           <></>

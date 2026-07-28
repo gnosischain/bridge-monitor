@@ -74,13 +74,12 @@ jobs:
             "NEXT_PUBLIC_DEFAULT_CHAIN_ID=1"
             "NEXT_PUBLIC_COOKIES_WARNING_ENABLED=true"
             "NEXT_PUBLIC_POLLING_INTERVAL=10000"
-            "NEXT_PUBLIC_RPC_MAINNET=${{ secrets.DEV_RPC_MAINNET }}"
-            "NEXT_PUBLIC_RPC_GNOSIS=${{ secrets.DEV_RPC_GNOSIS }}"
             "NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL=${{ secrets.WALLET_CONNECT_URL }}"
             "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }}"
             "NEXT_PUBLIC_ALCHEMY_API_KEY=${{ secrets.DEV_NEXT_PUBLIC_ALCHEMY_API_KEY }}"
-            "NEXT_PUBLIC_ENVIO_INDEXER_URL=${{ secrets.DEV_ENVIO_INDEXER_URL }}"
             "NEXT_PUBLIC_INDEXER_BACKEND=${{ secrets.DEV_INDEXER_BACKEND }}"
+            "NEXT_PUBLIC_COMMIT_SHA=${{ github.sha }}"
+            "NEXT_PUBLIC_APP_ENV=develop"
 
       - name: Build and push STAGING to Artifact Registry
         if: inputs.environment == 'staging'
@@ -97,12 +96,9 @@ jobs:
             "NEXT_PUBLIC_DEFAULT_CHAIN_ID=1"
             "NEXT_PUBLIC_COOKIES_WARNING_ENABLED=true"
             "NEXT_PUBLIC_POLLING_INTERVAL=10000"
-            "NEXT_PUBLIC_RPC_MAINNET=${{ secrets.PROD_RPC_MAINNET }}"
-            "NEXT_PUBLIC_RPC_GNOSIS=${{ secrets.PROD_RPC_GNOSIS }}"
             "NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL=${{ secrets.WALLET_CONNECT_URL }}"
             "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }}"
             "NEXT_PUBLIC_ALCHEMY_API_KEY=${{ secrets.PROD_NEXT_PUBLIC_ALCHEMY_API_KEY }}"
-            "NEXT_PUBLIC_ENVIO_INDEXER_URL=${{ secrets.PROD_ENVIO_INDEXER_URL }}"
             "NEXT_PUBLIC_INDEXER_BACKEND=${{ secrets.PROD_INDEXER_BACKEND }}"
 
   deploy-to-gke:

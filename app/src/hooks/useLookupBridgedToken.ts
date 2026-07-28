@@ -8,7 +8,7 @@ import { useDaiToken } from '@/src/hooks/useDaiToken'
 import { useBridgedTokens } from '@/src/providers/tokenListProvider'
 import { formatNumber } from '@/src/utils/format'
 import { isSameString } from '@/src/utils/tools'
-import { erc20Abi, formatUnits, zeroAddress } from 'viem'
+import { Address, erc20Abi, formatUnits, zeroAddress } from 'viem'
 
 /**
  * Returns a pair of tokens (initiator and destination), along with the value bridged and bridge information
@@ -47,7 +47,7 @@ export const useLookupBridgedToken = ({
     !isXdaiBridge && !isNativeAddress && !tokenFromList && !!normalizedAddress
 
   const erc20Contract = {
-    address: normalizedAddress as `0x${string}`,
+    address: normalizedAddress as Address,
     abi: erc20Abi,
     chainId,
   } as const

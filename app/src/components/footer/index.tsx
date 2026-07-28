@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components'
 import NextLink from 'next/link'
 
 import { GnosisChain } from '@/src/components/assets/GnosisChain'
+import { BuildInfo } from '@/src/components/footer/BuildInfo'
 import { InnerContainer as BaseInnerContainer } from '@/src/components/innerContainer'
 
 const Wrapper = styled.footer`
@@ -104,6 +105,7 @@ export const Footer: React.FC = (props) => {
           >
             Built by <Image alt="BootNode logo" height={15} src="/images/bn.svg" width={19} />
           </ExternalLink>
+          <BuildInfo />
         </Start>
         <End>
           <ExternalLink

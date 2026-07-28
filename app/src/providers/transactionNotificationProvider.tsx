@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
-import { TransactionResponse } from '@ethersproject/providers'
+import { type Hash } from 'viem'
 import toast from 'react-hot-toast'
 
 import { notify } from '@/src/components/toast'
@@ -9,6 +9,7 @@ import { ToastStates } from '@/src/constants/types'
 import { usePersistedState } from '@/src/hooks/usePersistedState'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { getChainKey } from '@/src/constants/config/chains'
+import { getTransactionReceipt, waitForTransactionReceipt } from '@/src/lib/web3/transactions'
 
 type TransactionStorageItem = {
   chainId: ChainsValues
@@ -31,7 +32,7 @@ const TRANSACTIONS_STORE = 'pending-transactions'
 export const TransactionNotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { address, appChainId, getExplorerUrl, readOnlyAppProvider } = useWeb3Connection()
+  const { address, appChainId, getExplorerUrl } = useWeb3Connection()
   const [isRan, setIsRan] = useState(false)
 
   const chainKey = getChainKey(appChainId)
@@ -110,19 +111,23 @@ export const TransactionNotificationProvider: React.FC<{ children: React.ReactNo
     setIsRan(true)
     const recoverTxStatus = async () => {
       // recover txHashes from storage
-      const txsStatus: Promise<TransactionResponse>[] = (transactionStore || [])
-        .filter((tx) => address === tx.address && appChainId === tx.chainId && tx.txHash)
-        .map((tx) => readOnlyAppProvider?.getTransaction(tx.txHash))
+      const storedTxs = (transactionStore || []).filter(
+        (tx) => address === tx.address && appChainId === tx.chainId && tx.txHash,
+      )
 
-      // check txHashes status
-      const hashes = (await Promise.all(txsStatus)).map((status) => {
-        const { blockNumber } = status
-        if (blockNumber) {
-          removeTxFromStorage(status.hash)
-          return null
-        }
-        return status.hash
-      })
+      // check txHashes status: an already-mined tx has a receipt, drop it from storage;
+      // a not-yet-mined tx has none (getTransactionReceipt throws) and stays pending
+      const hashes = await Promise.all(
+        storedTxs.map(async (tx) => {
+          try {
+            await getTransactionReceipt(tx.txHash as Hash, tx.chainId)
+            removeTxFromStorage(tx.txHash)
+            return null
+          } catch {
+            return tx.txHash
+          }
+        }),
+      )
 
       // get not mined txHashes
       const pendingHashes = hashes.filter((txHash) => txHash !== null)
@@ -135,23 +140,15 @@ export const TransactionNotificationProvider: React.FC<{ children: React.ReactNo
 
       // wait for txs to be executed
       const promises = pendingHashes.map(async (txHash) => {
-        const res = await readOnlyAppProvider.waitForTransaction(txHash as string, 1)
-        notifyTxMined(txHash as string, res.status === 1)
+        const receipt = await waitForTransactionReceipt(txHash as Hash, appChainId)
+        notifyTxMined(txHash as string, receipt.status === 'success')
       })
 
       await Promise.allSettled(promises)
     }
 
     recoverTxStatus()
-  }, [
-    address,
-    appChainId,
-    isRan,
-    notifyTxMined,
-    readOnlyAppProvider,
-    removeTxFromStorage,
-    transactionStore,
-  ])
+  }, [address, appChainId, isRan, notifyTxMined, removeTxFromStorage, transactionStore])
 
   const values: TransactionContextValue = useMemo(
     () => ({

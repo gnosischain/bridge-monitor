@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
 import useTransaction from '@/src/hooks/useTransaction'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
+import { waitForMinedReceipt } from '@/src/lib/web3/transactions'
 import useWeb3Name from '@/src/hooks/useWeb3Name'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
 import { TokenUsdc } from './types'
@@ -97,20 +98,26 @@ const ApproveButton: React.FC<{
   const handleApprove = async () => {
     setIsSending(true)
 
-    const tx = await approve({
-      amount,
-      spenderAddress: TRANSMUTER_ADDRESS,
-      tokenAddress: token.address,
-    })
+    try {
+      const hash = await approve({
+        amount,
+        spenderAddress: TRANSMUTER_ADDRESS,
+        tokenAddress: token.address,
+      })
 
-    if (tx) {
-      await tx.wait()
-      await refreshBalanceToken()
-      // await refreshBalanceTokenOut()
-    }
-
-    if (isComponentMounted) {
-      setIsSending(false)
+      if (hash) {
+        await waitForMinedReceipt(hash, Chains.gnosis)
+        await refreshBalanceToken()
+        // await refreshBalanceTokenOut()
+      }
+    } catch (e) {
+      // waitForMinedReceipt rejects on revert or on the receipt-poll timeout — don't leave the
+      // button stuck on the "approving" placeholder
+      console.error(e)
+    } finally {
+      if (isComponentMounted) {
+        setIsSending(false)
+      }
     }
   }
 
@@ -162,14 +169,14 @@ const TriggerTransButton: React.FC<{
   }, [])
 
   const handleTransTx = async () => {
-    if (!transactionData || !transactionData.tx) return
+    if (!transactionData || !transactionData.calls) return
 
     setIsSending(true)
 
     try {
-      const tx = await sendTx(transactionData.tx)
-      if (tx) {
-        await tx.wait()
+      const hash = await sendTx({ calls: transactionData.calls, chainId: Chains.gnosis })
+      if (hash) {
+        await waitForMinedReceipt(hash, Chains.gnosis)
         clearForm()
         Promise.all([refreshBalanceToken(), refreshBalanceTokenOut()])
       } else {
