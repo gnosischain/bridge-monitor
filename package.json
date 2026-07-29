@@ -19,8 +19,6 @@
   "workspaces": {
     "packages": [
       "app",
-      "alerts",
-      "subgraph",
       "envio-indexer",
       "envio-indexer/generated"
     ]
@@ -53,9 +51,6 @@
       "js-yaml@>=4.0.0 <4.3.0": "4.3.0",
       "axios@>=1.15.2 <1.18.0": "1.18.0",
       "sharp": "0.35.3"
-    },
-    "auditConfig": {
-      "ignoreCves": ["CVE-2026-14257"]
     }
   }
 }

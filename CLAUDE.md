@@ -20,7 +20,6 @@ pnpm app:dev          # Start Next.js dev server
 pnpm app:build        # Production build
 pnpm app:lint         # Lint (ESLint + Prettier)
 pnpm app:lint:fix     # Auto-fix lint issues
-cd app && pnpm typechain   # ⚠️ DESTRUCTIVE during wagmi migration — see note below; edit barrels by hand
 ```
 
 ### Indexer (`/envio-indexer`)
@@ -31,8 +30,15 @@ cd envio-indexer && pnpm mocha   # Run indexer tests
 ```
 
 ### Alerts (`/alerts`)
+
+⚠️ `/alerts` is **not a pnpm workspace package**, it was removed from `pnpm-workspace.yaml` so its
+TypeChain dev dependency (which pulls `glob@7` → `minimatch@3`) stays out of the root lockfile and out
+of `pnpm audit`. It is not built or deployed by any CI workflow, and its `Dockerfile` expects an
+`alerts/pnpm-lock.yaml` that does not exist. Treat it as dormant: it needs its own install before
+anything in it will run.
+
 ```bash
-cd alerts && pnpm dev   # Run alerts service with ts-node
+cd alerts && pnpm dev   # Run alerts service with ts-node (requires a local install first)
 cd alerts && pnpm build # Compile TypeScript
 ```
 
@@ -40,13 +46,13 @@ cd alerts && pnpm build # Compile TypeScript
 
 ### Frontend (`/app/src/`)
 
-**Tech stack:** Next.js 15 + React 18, Ethers.js v5 (legacy) + Viem v2 (modern), Web3Onboard v2 (wallet), Styled Components, SWR (data fetching), TypeChain (contract types).
+**Tech stack:** Next.js 15 + React 18, Ethers.js v5 (legacy) + Viem v2 (modern), Web3Onboard v2 (wallet), Styled Components, SWR (data fetching).
 
 **Key structural patterns:**
 - Pages in `/app/pages/bridge-explorer/` — each route has a corresponding `pagePartials/` folder for page-specific components
 - `NextPageWithLayout` pattern for per-page layouts; `SingleColumnLayout` is the default
 - Provider tree in `_app.tsx`: `Web3ConnectionProvider` (dynamic/no-SSR) → `ThemeProvider` → `TransactionNotificationProvider` → `TokenListProvider` → `ValidatorsProvider`
-- Contract ABIs live in `src/abis/` and generate TypeChain types via `pnpm typechain`. **⚠️ Do not run `pnpm typechain` during the wagmi migration** — several ABIs are now `.ts` viem consts not covered by its `*.json` glob, so a regen overwrites the hand-maintained `types/typechain` barrels and drops still-needed exports (e.g. `AMBBridgeHelper__factory`), breaking the build. Edit those barrels by hand until PR 15 retires TypeChain.
+- Contract ABIs live in `src/abis/`
 - Bridge and chain configuration is centralized in `src/constants/` (bridges, validators, chains, contracts)
 
 **Bridge types supported:**
