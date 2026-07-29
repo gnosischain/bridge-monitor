@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { proxyJsonPost } from '@/src/lib/api/proxyJsonPost'
+import { getUpstreamUrl, isSupportedServerChain } from '@/src/lib/server/upstreams'
 
 /**
  * Server-side proxy for the app's upstream JSON-RPC providers.
@@ -15,27 +16,22 @@ import { proxyJsonPost } from '@/src/lib/api/proxyJsonPost'
  * Unlike the Envio proxy this is a transparent pass-through: the exact JSON-RPC
  * payload — a single request or a batch array (wagmi uses `batch: true`) — is
  * forwarded unchanged. The POST guard, body parsing and upstream passthrough live
- * in `proxyJsonPost`; this file only maps `chainId` → upstream.
+ * in `proxyJsonPost`; the chainId → upstream mapping lives in `@/src/lib/server/upstreams`,
+ * shared with the direct viem clients so the env contract can't drift.
  */
-
-const UPSTREAM_BY_CHAIN: Record<string, string | undefined> = {
-  // Mainnet has no safe public fallback — it must be provided (the Tenderly gateway URL).
-  '1': process.env.RPC_MAINNET,
-  // Gnosis has a public node, so fall back to it when no private URL is configured.
-  '100': process.env.RPC_GNOSIS || 'https://rpc.gnosischain.com/',
-}
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   return proxyJsonPost(req, res, (_body, request) => {
-    const chainId = Array.isArray(request.query.chainId)
+    const rawChainId = Array.isArray(request.query.chainId)
       ? request.query.chainId[0]
       : request.query.chainId
+    const chainId = Number(rawChainId)
 
-    if (!chainId || !(chainId in UPSTREAM_BY_CHAIN)) {
+    if (!rawChainId || !isSupportedServerChain(chainId)) {
       return { ok: false, status: 400, body: { errors: [{ message: 'Unsupported chainId' }] } }
     }
 
-    const upstream = UPSTREAM_BY_CHAIN[chainId]
+    const upstream = getUpstreamUrl(chainId)
     if (!upstream) {
       // Chain is supported but the server was never given an upstream URL for it.
       return {
