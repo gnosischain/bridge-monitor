@@ -269,9 +269,47 @@ const Dropdown: React.FC<Props> = ({
   const [value, setValue] = useState('')
 
   const { address } = useWeb3Connection()
+  // Every token shown for this chain: the bridged (AMB) list plus the manually-injected
+  // specials — USDC.e on Gnosis and USDS on mainnet — which aren't in the OmniBridge list.
+  const allTokens = useMemo(
+    () =>
+      (ambTokensByNetwork[fromChainId] ?? [])
+        .filter((item) => {
+          if (isSameString(item.address, zeroAddress)) return false
+          if (fromChainId === Chains.gnosis && isSameString(item.symbol, 'USDS')) return false
+          return true
+        })
+        .concat(
+          fromChainId === Chains.gnosis
+            ? [
+                {
+                  address: USDCe_GNOSIS,
+                  chainId: 100,
+                  decimals: 6,
+                  logoURI:
+                    'https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694',
+                  name: 'USDC.e',
+                  symbol: 'USDC.e',
+                  extensions: { bridgeInfo: { '1': { tokenAddress: '' } } },
+                } as Token,
+              ]
+            : [],
+        )
+        .concat(fromChainId === Chains.mainnet ? [usdsToken] : []),
+    [ambTokensByNetwork, fromChainId],
+  )
+
+  // Fetch balances only for curated tokens — those with a logoURI, i.e. present in the
+  // trusted token lists. This covers the injected USDC.e / USDS specials and skips
+  // permissionlessly-bridged spam so it can't float to the top on a stray balance.
+  const tokenAddresses = useMemo(
+    () => allTokens.filter((token) => token.logoURI).map((token) => token.address),
+    [allTokens],
+  )
   const { data: balances } = useUserTokenListBalances({
     userAddress: address,
     chainId: fromChainId,
+    tokens: tokenAddresses,
   })
 
   const onSelectToken = (token: Token) => {
@@ -280,35 +318,6 @@ const Dropdown: React.FC<Props> = ({
 
   // The list of known tokens matching the current search
   const filteredTokens = useMemo(() => {
-    const allTokens = ambTokensByNetwork[fromChainId]
-      .filter((item) => {
-        if (isSameString(item.address, zeroAddress)) return false
-        if (fromChainId === Chains.gnosis && isSameString(item.symbol, 'USDS')) return false
-        return true
-      })
-      .concat(
-        fromChainId === Chains.gnosis
-          ? [
-              {
-                address: USDCe_GNOSIS,
-                chainId: 100,
-                decimals: 6,
-                logoURI: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694',
-                name: 'USDC.e',
-                symbol: 'USDC.e',
-                extensions: {
-                  bridgeInfo: {
-                    '1': {
-                      tokenAddress: '',
-                    },
-                  },
-                },
-              } as Token,
-            ]
-          : [],
-      )
-      .concat(fromChainId === Chains.mainnet ? [usdsToken] : [])
-
     const _filteredTokens = orderBy(
       value
         ? allTokens?.filter((item) =>
@@ -336,7 +345,7 @@ const Dropdown: React.FC<Props> = ({
     }
 
     return _filteredTokens
-  }, [ambTokensByNetwork, fromChainId, value, balances])
+  }, [allTokens, value, balances])
 
   useEffect(() => {
     // Define the symbols array with the desired order

@@ -1,70 +1,39 @@
 import useSWR from 'swr'
+import { Address } from 'viem'
 
-const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || ''
+import { fetchUserTokenBalances } from '@/src/lib/api/fetchUserTokenBalances'
 
-const apiUrl: Record<string, string> = {
-  '1': `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-  '100': `https://gnosis-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-}
-
-const headers = {
-  Accept: 'application/json',
-  'Content-Type': 'application/json',
-}
-
+/**
+ * A user's ERC-20 balances for the given token list, via our `/api/user/token-balances`
+ * endpoint (server-side Multicall).
+ *
+ * `fetchUserTokenBalances` is the pure transport (returns the raw response). This hook owns the
+ * SWR wiring — cache key + gating — and converts the string balances to `bigint` inside the
+ * fetcher, so SWR caches the final shape: a map of non-zero balances keyed by token address.
+ */
 export const useUserTokenListBalances = ({
   chainId,
+  tokens,
   userAddress,
 }: {
-  userAddress: string | null
+  userAddress: Address | null
   chainId: number
+  tokens: string[]
 }) => {
-  return useSWR(userAddress ? ['tokenUserBalances', userAddress, chainId] : null, async () => {
-    try {
-      if (!userAddress || !ALCHEMY_API_KEY) return {} as Record<string, bigint>
+  return useSWR(
+    // Key is null (SWR skips the fetch) until we have both an address and tokens — so the
+    // fetcher only runs when `userAddress` is non-null, making the assertion below safe.
+    // Key on the token contents (not just the count) so a same-length list swap still refetches;
+    // `tokens` is a memoized, stably-ordered array from the caller, so the join is cheap and stable.
+    userAddress && tokens.length
+      ? ['tokenUserBalances', userAddress, chainId, tokens.join(',')]
+      : null,
+    async (): Promise<Record<string, bigint>> => {
+      const { balances } = await fetchUserTokenBalances({ address: userAddress!, chainId, tokens })
 
-      const body = JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'alchemy_getTokenBalances',
-        params: [userAddress, 'erc20'],
-        id: 1,
-      })
-
-      const response = await fetch(apiUrl[String(chainId)], {
-        method: 'POST',
-        headers,
-        body,
-      })
-
-      if (!response.ok) {
-        throw new Error(`Network error: ${response.status}`)
-      }
-
-      const data = await response.json()
-
-      if (data.error) {
-        console.error('Alchemy API error:', data.error.message)
-        throw new Error(data.error.message)
-      }
-
-      const tokenBalances = data.result.tokenBalances
-      const balances: Record<string, bigint> = {}
-
-      tokenBalances.forEach((token: { contractAddress: string; tokenBalance: string }) => {
-        const balance = BigInt(token.tokenBalance)
-        if (balance !== 0n) {
-          balances[token.contractAddress] = balance
-        }
-      })
-
-      return balances
-    } catch (error) {
-      console.log('Error fetching user tokens balances', error)
-      console.log('Params with error', {
-        chainId,
-        userAddress,
-      })
-      return {} as Record<string, bigint>
-    }
-  })
+      return Object.fromEntries(
+        Object.entries(balances).map(([token, value]) => [token, BigInt(value)]),
+      )
+    },
+  )
 }
