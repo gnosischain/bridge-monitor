@@ -7,11 +7,13 @@ import { Chains, ChainsValues } from '@/src/constants/config/types'
  */
 export const RPC_PROXY_PATH = '/api/rpc'
 
+const getProxyBaseUrl = () => (typeof window === 'undefined' ? '' : window.location.origin)
+
 export const getProviderUrl = (chainId: ChainsValues) => {
   switch (chainId) {
     case Chains.mainnet:
     case Chains.gnosis:
-      return `${RPC_PROXY_PATH}?chainId=${chainId}`
+      return `${getProxyBaseUrl()}${RPC_PROXY_PATH}?chainId=${chainId}`
     default:
       throw Error('Token provider could not be found')
   }
