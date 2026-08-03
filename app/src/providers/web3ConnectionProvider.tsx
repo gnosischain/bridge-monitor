@@ -20,6 +20,7 @@ import {
   useSwitchChain,
 } from 'wagmi'
 import { useQuery } from '@tanstack/react-query'
+import { BaseError, UserRejectedRequestError } from 'viem'
 
 import { INITIAL_APP_CHAIN_ID, chainsConfig } from '@/src/constants/config/chains'
 import { Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
@@ -161,6 +162,13 @@ export default function Web3ConnectionProvider({ children }: Props) {
         await switchChainAsync({ chainId: targetChainId })
         return true
       } catch (error) {
+        const isUserRejection =
+          error instanceof BaseError
+            ? error.walk((e) => e instanceof UserRejectedRequestError) !== null
+            : error instanceof UserRejectedRequestError
+        if (isUserRejection) {
+          return false
+        }
         console.error('Failed to switch network:', error)
         const targetName = chainsConfig[targetChainId as ChainsValues]?.name
         notify({
