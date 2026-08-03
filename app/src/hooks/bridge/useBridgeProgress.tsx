@@ -149,7 +149,8 @@ export const useBridgeProgress = (
     Date.now() - propagationStartedAt.current > PROPAGATION_GRACE_MS
 
   const { isError, isNotFound, isWaitingForPropagation, progressData } = useMemo(
-    () => deriveProgressState({ error, isPastGrace, isSubmitted, rawConfirmations, requiredBlocks }),
+    () =>
+      deriveProgressState({ error, isPastGrace, isSubmitted, rawConfirmations, requiredBlocks }),
     [error, isPastGrace, isSubmitted, rawConfirmations, requiredBlocks],
   )
 
