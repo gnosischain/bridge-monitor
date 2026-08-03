@@ -7,7 +7,9 @@ export const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ''
 export const commitSha = process.env.NEXT_PUBLIC_COMMIT_SHA || ''
 export const appEnv = process.env.NEXT_PUBLIC_APP_ENV || ''
 
-export const WALLET_CONNECT_DAPP_URL = process.env.NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL || ''
+export const WALLET_CONNECT_DAPP_URL = (
+  process.env.NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL || ''
+).replace(/\/+$/, '')
 export const WALLET_CONNECT_PROJECT_ID = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || ''
 
 export const NATIVE_TOKEN_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'

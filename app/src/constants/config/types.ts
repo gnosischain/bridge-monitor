@@ -12,7 +12,6 @@ export type ChainConfig = {
   shortName: string
   chainId: ChainsValues
   chainIdHex: string
-  rpcUrl: string
   blockExplorerUrls: string[]
   token: string
   tokenDecimals: number

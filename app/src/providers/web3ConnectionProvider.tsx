@@ -12,7 +12,13 @@ import {
   useState,
 } from 'react'
 import nullthrows from 'nullthrows'
-import { useCapabilities, useConnection, usePublicClient, useSwitchChain } from 'wagmi'
+import {
+  useCapabilities,
+  useConnection,
+  useDisconnect,
+  usePublicClient,
+  useSwitchChain,
+} from 'wagmi'
 import { useQuery } from '@tanstack/react-query'
 import { BaseError, UserRejectedRequestError } from 'viem'
 
@@ -36,7 +42,7 @@ export type Web3Context = {
   appChainId: ChainsValues
   connectWallet: () => void
   connectingWallet: boolean
-  disconnectWallet: () => Promise<void>
+  disconnectWallet: () => void
   getExplorerUrl: (hash: string, network?: ChainsKeys) => string
   isAppConnected: boolean
   isWalletConnected: boolean
@@ -59,6 +65,9 @@ type Props = {
 export default function Web3ConnectionProvider({ children }: Props) {
   const { address: wagmiAddress, chainId, connector, isConnected, isConnecting } = useConnection()
   const { isPending: isSwitchingChain, mutateAsync: switchChainAsync } = useSwitchChain()
+  const { mutate: disconnect } = useDisconnect({
+    mutation: { onError: (error) => console.error('Failed to disconnect wallet:', error) },
+  })
 
   const [appChainId, setAppChainId] = useState(INITIAL_APP_CHAIN_ID)
   const [showWalletModal, setShowWalletModal] = useState(false)
@@ -143,9 +152,9 @@ export default function Web3ConnectionProvider({ children }: Props) {
     setShowWalletModal(true)
   }, [])
 
-  const handleDisconnectWallet = useCallback(async () => {
-    connector?.disconnect()
-  }, [connector])
+  const handleDisconnectWallet = useCallback(() => {
+    disconnect()
+  }, [disconnect])
 
   const pushNetwork = useCallback(
     async (targetChainId: number): Promise<boolean> => {
@@ -153,13 +162,6 @@ export default function Web3ConnectionProvider({ children }: Props) {
         await switchChainAsync({ chainId: targetChainId })
         return true
       } catch (error) {
-        // We detect an unswitchable wallet by *attempting* the switch rather than sniffing the
-        // connector type: any wallet that can't switch programmatically (e.g. the Safe web app,
-        // pinned to a single chain) rejects here, and so does a user who dismisses the wallet's
-        // prompt. Only the former deserves a toast — a deliberate cancel is not an error — so we
-        // walk the error chain (wagmi may wrap the viem error) for a user rejection and stay silent
-        // on it. Everything else means the switch is genuinely blocked: tell the user to switch by
-        // hand. Callers just consume the boolean for control flow; messaging lives here alone.
         const isUserRejection =
           error instanceof BaseError
             ? error.walk((e) => e instanceof UserRejectedRequestError) !== null
