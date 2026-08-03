@@ -37,6 +37,13 @@ of `pnpm audit`. It is not built or deployed by any CI workflow, and its `Docker
 `alerts/pnpm-lock.yaml` that does not exist. Treat it as dormant: it needs its own install before
 anything in it will run.
 
+Because it is de-workspaced, Socket Security would ingest `alerts/package.json` as a standalone
+project where the root pnpm `overrides` do not apply, flagging `ethers@5.7.1` →
+`@ethersproject/signing-key@5.7.0` → `elliptic@6.5.4` (GHSA-vjh7-7g9h-fjfh, CRITICAL — an exact pin,
+so no range can float it). Root `socket.yml` therefore lists `alerts` in `projectIgnorePaths`. If
+`/alerts` is ever revived, remove it from that ignore list and fix the dependency properly (ethers v6
+drops `elliptic` for `@noble/curves`).
+
 ```bash
 cd alerts && pnpm dev   # Run alerts service with ts-node (requires a local install first)
 cd alerts && pnpm build # Compile TypeScript
