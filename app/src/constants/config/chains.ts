@@ -1,6 +1,5 @@
 import nullthrows from 'nullthrows'
 
-import { getProviderUrl } from '@/src/constants/config/rpc-providers'
 import { ChainConfig, Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 
 // Default chain id from env var
@@ -15,7 +14,6 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     shortName: 'Ethereum',
     chainId: Chains.mainnet,
     chainIdHex: '0x1',
-    rpcUrl: getProviderUrl(Chains.mainnet),
     blockExplorerUrls: ['https://etherscan.io/'],
     blockExplorerName: 'EtherScan',
     token: 'ETH',
@@ -32,7 +30,6 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
   //   shortName: 'Chiado',
   //   chainId: Chains.chiado,
   //   chainIdHex: '0x27d8',
-  //   rpcUrl: getProviderUrl(Chains.chiado),
   //   blockExplorerUrls: ['https://gnosis-chiado.blockscout.com/'],
   //   blockExplorerName: 'Chiado Blockscout',
   //   token: 'Testnet xDai on Chiado',
@@ -49,7 +46,6 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     shortName: 'Gnosis',
     chainId: Chains.gnosis,
     chainIdHex: '0x64',
-    rpcUrl: getProviderUrl(Chains.gnosis),
     blockExplorerUrls: ['https://gnosisscan.io/'],
     blockExplorerName: 'GnosisScan',
     token: 'xDAI',
