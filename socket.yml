@@ -1,0 +1,9 @@
+version: 2
+
+# /alerts is dormant: it is not a pnpm workspace package, no CI workflow builds or
+# deploys it, and no lockfile resolves its dependencies. Socket would otherwise ingest
+# alerts/package.json as a standalone project, where the root pnpm `elliptic` override
+# does not apply, and flag ethers@5.7.1 -> @ethersproject/signing-key -> elliptic@6.5.4
+# (GHSA-vjh7-7g9h-fjfh). Re-add this path to Socket's scope if /alerts is ever revived.
+projectIgnorePaths:
+  - "alerts"

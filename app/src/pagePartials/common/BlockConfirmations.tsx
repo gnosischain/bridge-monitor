@@ -143,20 +143,14 @@ const MonitorBlocksLink = styled.a`
 `
 
 interface Props {
-  isNativeBridge: boolean
   network: ChainsKeys
   transactionHash: string
 }
 
-export const BlockConfirmations: React.FC<Props> = ({
-  isNativeBridge,
-  network,
-  transactionHash,
-  ...restProps
-}) => {
+export const BlockConfirmations: React.FC<Props> = ({ network, transactionHash, ...restProps }) => {
   const { getExplorerUrl } = useWeb3Connection()
   const chainId = Chains[network]
-  const { progressData } = useBridgeProgress(chainId, isNativeBridge, transactionHash)
+  const { progressData } = useBridgeProgress(chainId, transactionHash)
   const percentage = progressData?.progress || 0
   const sanitizedPercentage = percentage < 0 ? 0 : percentage > 100 ? 100 : percentage || 0
   const requiredBlocks = progressData?.requiredBlocks || 0

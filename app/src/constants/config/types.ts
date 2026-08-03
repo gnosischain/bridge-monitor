@@ -12,11 +12,11 @@ export type ChainConfig = {
   shortName: string
   chainId: ChainsValues
   chainIdHex: string
-  rpcUrl: string
   blockExplorerUrls: string[]
   token: string
   tokenDecimals: number
   blockExplorerName: string
+  requiredBlockConfirmations: number
   bridge: {
     DAI: string
     wForeignNative: string
