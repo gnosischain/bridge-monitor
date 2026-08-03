@@ -16,6 +16,7 @@ export type ChainConfig = {
   token: string
   tokenDecimals: number
   blockExplorerName: string
+  requiredBlockConfirmations: number
   bridge: {
     DAI: string
     wForeignNative: string

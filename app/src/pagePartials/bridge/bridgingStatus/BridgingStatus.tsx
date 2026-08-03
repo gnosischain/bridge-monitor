@@ -209,19 +209,10 @@ const ButtonExploreTransaction = ({
 export const BridgingStatus: React.FC = ({ ...restProps }) => {
   const router = useRouter()
 
-  const [
-    transactionHash,
-    fromChainId,
-    toChainId,
-    isNativeBridge,
-    tokenAddress,
-    amount,
-    isSubmitted,
-  ] = [
+  const [transactionHash, fromChainId, toChainId, tokenAddress, amount, isSubmitted] = [
     String(router.query?.transaction),
     Number(router.query?.fromChainId) as ChainsValues,
     Number(router.query?.toChainId) as ChainsValues,
-    Boolean(Number(router.query?.isNativeBridge)),
     String(router.query?.tokenAddress),
     String(router.query?.amount),
     // set when arriving straight from a broadcast: the hash is known-valid, so never claim
@@ -234,9 +225,8 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
   const initiatorChain = getChainKey(fromChainId)
   const destinationChain = getNetworkConfig(toChainId).name
 
-  const { isError, isLoading, isNotFound, progressData } = useBridgeProgress(
+  const { isError, isNotFound, progressData } = useBridgeProgress(
     fromChainId,
-    isNativeBridge,
     transactionHash,
     isSubmitted,
   )
@@ -250,9 +240,7 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
 
   return (
     <Wrapper {...restProps}>
-      {isLoading ? (
-        <Loading />
-      ) : isNotFound ? (
+      {isNotFound ? (
         <GenericError
           text={
             <>
@@ -304,11 +292,7 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
                   {tokenBridged?.symbol} to {destinationChain}.
                 </MessageText>
               </Message>
-              <BlockConfirmations
-                isNativeBridge={isNativeBridge}
-                network={initiatorChain}
-                transactionHash={transactionHash}
-              />
+              <BlockConfirmations network={initiatorChain} transactionHash={transactionHash} />
               <ButtonExploreTransaction
                 isMined={progressData.isMined || false}
                 transactionHash={transactionHash}

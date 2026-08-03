@@ -238,7 +238,6 @@ export const Transaction: React.FC = ({ ...restProps }) => {
                     receiverNetwork={currentTx.receiverNetwork}
                   />
                   <BlockConfirmations
-                    isNativeBridge={currentTx.bridgeName === 'XDAI'}
                     network={currentTx.initiatorNetwork as ChainsKeys}
                     transactionHash={currentTx.transactionHash}
                   />

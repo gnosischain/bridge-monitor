@@ -18,6 +18,7 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     blockExplorerName: 'EtherScan',
     token: 'ETH',
     tokenDecimals: 18,
+    requiredBlockConfirmations: 64,
     bridge: {
       DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
       wForeignNative: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // WETH
@@ -50,6 +51,7 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     blockExplorerName: 'GnosisScan',
     token: 'xDAI',
     tokenDecimals: 18,
+    requiredBlockConfirmations: 32,
     bridge: {
       DAI: '0x44fA8E6f47987339850636F88629646662444217',
       wForeignNative: '0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1', // WETH
