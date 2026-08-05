@@ -4,6 +4,7 @@ import { MainCard } from '@/src/components/card/MainCard'
 import { MainTitle } from '@/src/components/text/MainTitle'
 import { BaseParagraph as Paragraph } from '@/src/components/text/BaseParagraph'
 import { BaseSubTitle, EmphasizedTitle } from '@/src/components/text/BaseSubTitle'
+import { EXTERNAL_BRIDGES } from '@/src/constants/externalBridges'
 
 const Wrapper = styled(MainCard)`
   row-gap: 0;
@@ -50,52 +51,13 @@ export const FAQContents: React.FC = () => {
       <Paragraph>
         If you are not coming from Ethereum, you can use one of the following bridges:
         <ul>
-          <li>
-            <a href="https://stargate.finance/bridge" rel="noreferrer" target="_blank">
-              Stargate
-            </a>
-          </li>
-          <li>
-            <a href="https://relay.link/bridge/gnosis" rel="noreferrer" target="_blank">
-              Relay
-            </a>
-          </li>
-          <li>
-            <a href="https://jumper.exchange/" rel="noreferrer" target="_blank">
-              Jumper
-            </a>{' '}
-            (provided by Li.Fi)
-          </li>
-          <li>
-            <a href="https://www.bungee.exchange/" rel="noreferrer" target="_blank">
-              Bungee
-            </a>
-          </li>
-          <li>
-            <a href="https://app.hop.exchange/" rel="noreferrer" target="_blank">
-              Hop
-            </a>
-          </li>
-          <li>
-            <a href="https://bridge.connext.network/" rel="noreferrer" target="_blank">
-              Connext
-            </a>
-          </li>
-          <li>
-            <a href="https://app.shapeshift.com/#/trade" rel="noreferrer" target="_blank">
-              ShapeShift.com
-            </a>
-          </li>
-          <li>
-            <a href="https://app.symbiosis.finance/swap" rel="noreferrer" target="_blank">
-              Symbiosis
-            </a>
-          </li>
-          <li>
-            <a href="https://app.squidrouter.com/" rel="noreferrer" target="_blank">
-              Squid
-            </a>
-          </li>
+          {EXTERNAL_BRIDGES.map((link) => (
+            <li key={link.name}>
+              <a href={link.url} rel="noreferrer" target="_blank">
+                {link.name}
+              </a>
+            </li>
+          ))}
         </ul>
       </Paragraph>
       <EmphasizedTitle id="q_1d">How do I bridge from Gnosis to Ethereum?</EmphasizedTitle>

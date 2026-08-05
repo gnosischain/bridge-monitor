@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChainsValues } from '@/src/constants/config/types'
 import { BaseError, Hash, TransactionNotFoundError } from 'viem'
 import { useTransactionConfirmations } from 'wagmi'
-import { useBridgeRequiredBlocks } from '@/src/hooks/bridge/useBridgeRequiredBlocks'
+import { getNetworkConfig } from '@/src/constants/config/chains'
 
 const POLLING_INTERVAL = 5_000
 
@@ -10,8 +10,6 @@ const POLLING_INTERVAL = 5_000
 // governs directly-opened/unknown hashes: it covers ordinary RPC propagation plus a few polling
 // cycles. Submitted transactions bypass it entirely — we already hold a valid hash from the wallet.
 const PROPAGATION_GRACE_MS = 60_000
-
-type BridgeBlockInfo = { requiredBlocks: number }
 
 export type BridgeProgressData = {
   isMined: boolean
@@ -28,7 +26,7 @@ const isTransactionNotFoundError = (error: Error | null): boolean => {
 }
 
 const buildProgressData = (
-  { requiredBlocks }: BridgeBlockInfo,
+  requiredBlocks: number,
   rawConfirmations: bigint,
 ): BridgeProgressData => {
   // viem returns 0 for an unmined tx and counts the inclusion block as confirmation #1
@@ -56,32 +54,22 @@ type ProgressState = {
 // Pure lifecycle decision, extracted from the React/query wiring so it can be reasoned about and
 // unit-tested in isolation. See ./__tests__ (or the plan's behaviour cases) for the intended matrix.
 export const deriveProgressState = ({
-  bridgeBlockInfo,
   error,
   isPastGrace,
   isSubmitted,
   rawConfirmations,
+  requiredBlocks,
 }: {
-  bridgeBlockInfo: BridgeBlockInfo | undefined
   error: Error | null
   isPastGrace: boolean
   isSubmitted: boolean
   rawConfirmations: bigint | undefined
+  requiredBlocks: number
 }): ProgressState => {
-  // Still loading the required-block configuration; nothing to show yet.
-  if (!bridgeBlockInfo) {
-    return {
-      progressData: undefined,
-      isWaitingForPropagation: false,
-      isNotFound: false,
-      isError: false,
-    }
-  }
-
   // The RPC returned confirmations: render normal mined/confirming progress.
   if (rawConfirmations !== undefined) {
     return {
-      progressData: buildProgressData(bridgeBlockInfo, rawConfirmations),
+      progressData: buildProgressData(requiredBlocks, rawConfirmations),
       isWaitingForPropagation: false,
       isNotFound: false,
       isError: false,
@@ -112,7 +100,6 @@ export const deriveProgressState = ({
 
   // Otherwise the hash is (still) propagating: expose zero-confirmation pending progress so the
   // "Waiting for transaction to be mined" state renders while polling continues.
-  const { requiredBlocks } = bridgeBlockInfo
   return {
     progressData: {
       isMined: false,
@@ -128,24 +115,18 @@ export const deriveProgressState = ({
 
 export const useBridgeProgress = (
   chainId: ChainsValues,
-  isNativeBridge: boolean,
   transactionId: string,
   isSubmitted = false,
 ) => {
   const [shouldPolling, setShouldPolling] = useState(true)
-
-  const { data: bridgeBlockInfo, isLoading: isLoadingBlockInfo } = useBridgeRequiredBlocks(
-    chainId,
-    isNativeBridge,
-  )
+  const { requiredBlockConfirmations: requiredBlocks } = getNetworkConfig(chainId)
 
   // single co-located read (getBlockNumber + getTransaction in one Promise.all), so the block
-  // height and the tx's block come from the same snapshot. Only runs once bridgeBlockInfo is defined.
+  // height and the tx's block come from the same snapshot.
   const { data: rawConfirmations, error } = useTransactionConfirmations({
     hash: transactionId as Hash,
     chainId,
     query: {
-      enabled: !!bridgeBlockInfo,
       refetchInterval: shouldPolling ? POLLING_INTERVAL : false,
       // a not-yet-propagated tx makes getTransaction throw; keep polling instead of retrying
       retry: false,
@@ -157,7 +138,7 @@ export const useBridgeProgress = (
   // there is no separate setTimeout to manage or leak. Reset once confirmations arrive, and whenever
   // the hash/chain changes.
   const propagationStartedAt = useRef<number | null>(null)
-  const isAwaitingLookup = !!bridgeBlockInfo && rawConfirmations === undefined
+  const isAwaitingLookup = rawConfirmations === undefined
 
   useEffect(() => {
     propagationStartedAt.current = isAwaitingLookup ? Date.now() : null
@@ -169,8 +150,8 @@ export const useBridgeProgress = (
 
   const { isError, isNotFound, isWaitingForPropagation, progressData } = useMemo(
     () =>
-      deriveProgressState({ bridgeBlockInfo, error, isPastGrace, isSubmitted, rawConfirmations }),
-    [bridgeBlockInfo, error, isPastGrace, isSubmitted, rawConfirmations],
+      deriveProgressState({ error, isPastGrace, isSubmitted, rawConfirmations, requiredBlocks }),
+    [error, isPastGrace, isSubmitted, rawConfirmations, requiredBlocks],
   )
 
   // stop polling when the progress is 100%
@@ -181,8 +162,6 @@ export const useBridgeProgress = (
   }, [progressData?.progress])
 
   return {
-    // gated on config only: the pending/propagation state renders through progressData, not Loading
-    isLoading: isLoadingBlockInfo,
     isWaitingForPropagation,
     isNotFound,
     isError,

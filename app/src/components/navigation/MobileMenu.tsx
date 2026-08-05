@@ -211,14 +211,9 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
   const [showNetworkModal, setShowNetworkModal] = useState(false)
   const router = useRouter()
 
-  const handleLogout = async () => {
-    try {
-      await disconnectWallet()
-      router.push(`/`)
-      closeMenu()
-    } catch (e) {
-      console.error('Error disconnecting wallet', e)
-    }
+  const handleLogout = () => {
+    disconnectWallet()
+    closeMenu()
   }
 
   const handleConnect = () => {
