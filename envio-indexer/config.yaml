@@ -1,11 +1,9 @@
 # yaml-language-server: $schema=./node_modules/envio/evm.schema.json
 name: gnosis-bridge-indexer
-unordered_multichain_mode: false
-preload_handlers: true
 # raw_events: true
 address_format: lowercase
 
-networks:
+chains:
   # [Home] (Gnosis)
   - id: 100
     start_block: 39568341
