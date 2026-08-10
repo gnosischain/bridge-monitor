@@ -269,46 +269,59 @@ const Dropdown: React.FC<Props> = ({
   const [value, setValue] = useState('')
 
   const { address } = useWeb3Connection()
-  const { data: balances } = useUserTokenListBalances({
-    userAddress: address,
-    chainId: fromChainId,
-  })
 
   const onSelectToken = (token: Token) => {
     if (typeof onChange !== 'undefined') onChange(token)
   }
 
-  // The list of known tokens matching the current search
-  const filteredTokens = useMemo(() => {
-    const allTokens = ambTokensByNetwork[fromChainId]
-      .filter((item) => {
-        if (isSameString(item.address, zeroAddress)) return false
-        if (fromChainId === Chains.gnosis && isSameString(item.symbol, 'USDS')) return false
-        return true
-      })
-      .concat(
-        fromChainId === Chains.gnosis
-          ? [
-              {
-                address: USDCe_GNOSIS,
-                chainId: 100,
-                decimals: 6,
-                logoURI: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694',
-                name: 'USDC.e',
-                symbol: 'USDC.e',
-                extensions: {
-                  bridgeInfo: {
-                    '1': {
-                      tokenAddress: '',
+  // Every token selectable from this chain
+  const allTokens = useMemo(
+    () =>
+      ambTokensByNetwork[fromChainId]
+        .filter((item) => {
+          if (isSameString(item.address, zeroAddress)) return false
+          if (fromChainId === Chains.gnosis && isSameString(item.symbol, 'USDS')) return false
+          return true
+        })
+        .concat(
+          fromChainId === Chains.gnosis
+            ? [
+                {
+                  address: USDCe_GNOSIS,
+                  chainId: 100,
+                  decimals: 6,
+                  logoURI:
+                    'https://assets.coingecko.com/coins/images/6319/small/usdc.png?1696506694',
+                  name: 'USDC.e',
+                  symbol: 'USDC.e',
+                  extensions: {
+                    bridgeInfo: {
+                      '1': {
+                        tokenAddress: '',
+                      },
                     },
                   },
-                },
-              } as Token,
-            ]
-          : [],
-      )
-      .concat(fromChainId === Chains.mainnet ? [usdsToken] : [])
+                } as Token,
+              ]
+            : [],
+        )
+        .concat(fromChainId === Chains.mainnet ? [usdsToken] : []),
+    [ambTokensByNetwork, fromChainId],
+  )
 
+  const tokenAddresses = useMemo(() => allTokens.map((item) => item.address), [allTokens])
+
+  const { data: balances } = useUserTokenListBalances({
+    chainId: fromChainId,
+    enabled: isOpened,
+    tokenAddresses,
+    userAddress: address,
+  })
+
+  const getBalance = (token: Token) => balances?.[token.address.toLowerCase()]
+
+  // The list of known tokens matching the current search
+  const filteredTokens = useMemo(() => {
     const _filteredTokens = orderBy(
       value
         ? allTokens?.filter((item) =>
@@ -322,8 +335,8 @@ const Dropdown: React.FC<Props> = ({
 
     if (balances) {
       _filteredTokens.sort((a, b) => {
-        const aHasBalance = balances[a.address]
-        const bHasBalance = balances[b.address]
+        const aHasBalance = balances[a.address.toLowerCase()]
+        const bHasBalance = balances[b.address.toLowerCase()]
 
         if (aHasBalance && !bHasBalance) {
           return -1
@@ -336,7 +349,7 @@ const Dropdown: React.FC<Props> = ({
     }
 
     return _filteredTokens
-  }, [ambTokensByNetwork, fromChainId, value, balances])
+  }, [allTokens, value, balances])
 
   useEffect(() => {
     // Define the symbols array with the desired order
@@ -499,26 +512,30 @@ const Dropdown: React.FC<Props> = ({
           </Loading>
         ) : displayedTokens.length ? (
           <Items closeOnClick key="items">
-            {displayedTokens?.map((item, index) => (
-              <DropdownBridgeItem
-                key={index}
-                onClick={() => {
-                  setValue('')
-                  onSelectToken(item)
-                }}
-              >
-                <TokenIcon dimensions={32} iconSource={item.logoURI} symbol={item.symbol} />
-                <TokenInfo>
-                  <strong>{item.name}</strong>
-                  {item.symbol}
-                </TokenInfo>
-                {balances && balances[item.address] && (
-                  <TokenAmount>
-                    {formatNumber(Number(formatUnits(balances[item.address], item.decimals)))}
-                  </TokenAmount>
-                )}
-              </DropdownBridgeItem>
-            ))}
+            {displayedTokens?.map((item, index) => {
+              const balance = getBalance(item)
+
+              return (
+                <DropdownBridgeItem
+                  key={index}
+                  onClick={() => {
+                    setValue('')
+                    onSelectToken(item)
+                  }}
+                >
+                  <TokenIcon dimensions={32} iconSource={item.logoURI} symbol={item.symbol} />
+                  <TokenInfo>
+                    <strong>{item.name}</strong>
+                    {item.symbol}
+                  </TokenInfo>
+                  {balance !== undefined && (
+                    <TokenAmount>
+                      {formatNumber(Number(formatUnits(balance, item.decimals)))}
+                    </TokenAmount>
+                  )}
+                </DropdownBridgeItem>
+              )
+            })}
           </Items>
         ) : (
           <NoResults closeOnClick={false}>Not found.</NoResults>
