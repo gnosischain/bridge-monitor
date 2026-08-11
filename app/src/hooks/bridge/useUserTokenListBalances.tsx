@@ -1,70 +1,69 @@
-import useSWR from 'swr'
+import { useMemo } from 'react'
+import { Address, erc20Abi } from 'viem'
+import { useReadContracts } from 'wagmi'
 
-const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || ''
+import { isNativeToken } from '@/src/utils/tools'
 
-const apiUrl: Record<string, string> = {
-  '1': `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-  '100': `https://gnosis-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
-}
+const MULTICALL_BATCH_SIZE = 4_096
 
-const headers = {
-  Accept: 'application/json',
-  'Content-Type': 'application/json',
-}
-
+/**
+ * Reads the user's ERC-20 balance for every token in `tokenAddresses` through
+ * Multicall3, using the RPC configured in the wagmi transports.
+ *
+ * @returns balances keyed by lower-cased token address; tokens with a zero
+ * balance are omitted.
+ */
 export const useUserTokenListBalances = ({
   chainId,
+  enabled = true,
+  tokenAddresses,
   userAddress,
 }: {
   userAddress: string | null
   chainId: number
+  tokenAddresses: Array<string>
+  enabled?: boolean
 }) => {
-  return useSWR(userAddress ? ['tokenUserBalances', userAddress, chainId] : null, async () => {
-    try {
-      if (!userAddress || !ALCHEMY_API_KEY) return {} as Record<string, bigint>
+  // the native token has no `balanceOf`, so it is left out of the reads
+  const addresses = useMemo(
+    () => [
+      ...new Set(
+        tokenAddresses
+          .filter((address) => !isNativeToken(address))
+          .map((address) => address.toLowerCase() as Address),
+      ),
+    ],
+    [tokenAddresses],
+  )
 
-      const body = JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'alchemy_getTokenBalances',
-        params: [userAddress, 'erc20'],
-        id: 1,
-      })
-
-      const response = await fetch(apiUrl[String(chainId)], {
-        method: 'POST',
-        headers,
-        body,
-      })
-
-      if (!response.ok) {
-        throw new Error(`Network error: ${response.status}`)
-      }
-
-      const data = await response.json()
-
-      if (data.error) {
-        console.error('Alchemy API error:', data.error.message)
-        throw new Error(data.error.message)
-      }
-
-      const tokenBalances = data.result.tokenBalances
-      const balances: Record<string, bigint> = {}
-
-      tokenBalances.forEach((token: { contractAddress: string; tokenBalance: string }) => {
-        const balance = BigInt(token.tokenBalance)
-        if (balance !== 0n) {
-          balances[token.contractAddress] = balance
-        }
-      })
-
-      return balances
-    } catch (error) {
-      console.log('Error fetching user tokens balances', error)
-      console.log('Params with error', {
-        chainId,
-        userAddress,
-      })
-      return {} as Record<string, bigint>
-    }
+  const { data, isLoading } = useReadContracts({
+    allowFailure: true,
+    batchSize: MULTICALL_BATCH_SIZE,
+    contracts: addresses.map((address) => ({
+      abi: erc20Abi,
+      address,
+      args: [userAddress as Address],
+      chainId,
+      functionName: 'balanceOf',
+    })),
+    query: {
+      enabled: enabled && !!userAddress && addresses.length > 0,
+    },
   })
+
+  const balances = useMemo(() => {
+    if (!data) return undefined
+
+    return data.reduce<Record<string, bigint>>((acc, result, index) => {
+      // a token that fails to answer (not an ERC-20, self-destructed, ...) is skipped
+      if (result.status !== 'success') return acc
+
+      const balance = result.result as bigint
+      if (balance > 0n) acc[addresses[index]] = balance
+
+      return acc
+    }, {})
+  }, [data, addresses])
+
+  return { data: balances, isLoading }
 }
