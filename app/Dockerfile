@@ -26,8 +26,6 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # Copy app source
 COPY app ./app
 
-ENV NEXT_TELEMETRY_DISABLED 1
-
 ARG NEXT_PUBLIC_APP_NAME
 ARG NEXT_PUBLIC_DEFAULT_THEME
 ARG NEXT_PUBLIC_DEFAULT_CHAIN_ID
@@ -44,7 +42,6 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
