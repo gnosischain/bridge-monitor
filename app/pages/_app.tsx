@@ -19,8 +19,13 @@ import dynamic from 'next/dynamic'
 import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { wagmiConfig } from '@/src/providers/wagmi'
+import { isRateLimited } from '@/src/utils/isRateLimited'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: (failureCount, error) => !isRateLimited(error) && failureCount < 3 },
+  },
+})
 
 const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3ConnectionProvider'), {
   ssr: false,
@@ -104,6 +109,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
             value={{
               suspense: true,
               revalidateOnFocus: false,
+              shouldRetryOnError: (error) => !isRateLimited(error),
             }}
           >
             <ThemeProvider>

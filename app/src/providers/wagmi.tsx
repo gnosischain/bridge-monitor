@@ -2,10 +2,13 @@ import { createConfig, http } from 'wagmi'
 import { gnosis, mainnet } from 'wagmi/chains'
 import { injected, safe, walletConnect } from 'wagmi/connectors'
 import { WALLET_CONNECT_DAPP_URL, WALLET_CONNECT_PROJECT_ID } from '@/src/constants/config/common'
-import { getProviderUrl } from '@/src/constants/config/rpc-providers'
-import { Chains } from '@/src/constants/config/types'
+import { MAX_RPC_BATCH_SIZE, getProviderUrl } from '@/src/constants/config/rpc-providers'
+import { Chains, ChainsValues } from '@/src/constants/config/types'
 
 const dappUrl = typeof window === 'undefined' ? WALLET_CONNECT_DAPP_URL : window.location.origin
+
+const rpcTransport = (chainId: ChainsValues) =>
+  http(getProviderUrl(chainId), { batch: { batchSize: MAX_RPC_BATCH_SIZE }, retryCount: 0 })
 
 export const wagmiConfig = createConfig({
   chains: [mainnet, gnosis],
@@ -24,7 +27,7 @@ export const wagmiConfig = createConfig({
   ],
   ssr: true,
   transports: {
-    [mainnet.id]: http(getProviderUrl(Chains.mainnet), { batch: true }),
-    [gnosis.id]: http(getProviderUrl(Chains.gnosis), { batch: true }),
+    [mainnet.id]: rpcTransport(Chains.mainnet),
+    [gnosis.id]: rpcTransport(Chains.gnosis),
   },
 })

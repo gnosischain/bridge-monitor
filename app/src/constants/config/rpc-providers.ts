@@ -7,6 +7,8 @@ import { Chains, ChainsValues } from '@/src/constants/config/types'
  */
 export const RPC_PROXY_PATH = '/api/rpc'
 
+export const MAX_RPC_BATCH_SIZE = 25
+
 /**
  * Absolute base for {@link RPC_PROXY_PATH}. viem's own `fetch` is happy with a relative URL, but
  * wagmi forwards the transport URL to WalletConnect (`extractRpcUrls` → `EthereumProvider`'s
