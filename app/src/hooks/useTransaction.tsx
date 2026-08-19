@@ -25,6 +25,7 @@ export default function useTransaction({
   const {
     notifyRejectSignature,
     notifyTxMined,
+    notifyTxUnconfirmed,
     notifyWaitingForSignature,
     notifyWaitingForTxMined,
   } = useTransactionNotification()
@@ -36,10 +37,10 @@ export default function useTransaction({
         .then((r) => notifyTxMined(r.transactionHash, r.status === 'success'))
         .catch((e) => {
           console.error(e)
-          notifyTxMined(hash)
+          notifyTxUnconfirmed(hash)
         })
     },
-    [notifyTxMined, notifyWaitingForTxMined],
+    [notifyTxMined, notifyTxUnconfirmed, notifyWaitingForTxMined],
   )
 
   return useCallback(

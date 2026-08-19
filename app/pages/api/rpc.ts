@@ -39,59 +39,67 @@ const DENIED_METHODS = new Set([
   'eth_uninstallFilter',
   'eth_subscribe',
   'eth_unsubscribe',
+  'eth_sendRawTransaction',
 ])
-
-const rejected = (message: string): ProxyResolution => ({
-  ok: false,
-  status: 400,
-  body: { errors: [{ message }] },
-})
-
-const collectMethods = (body: unknown): string[] | ProxyResolution => {
-  const calls = Array.isArray(body) ? body : [body]
-  if (calls.length > MAX_RPC_BATCH_SIZE) return rejected('Batch too large')
-
-  const methods: string[] = []
-  for (const call of calls) {
-    const method = (call as { method?: unknown } | null)?.method
-    if (typeof method !== 'string') return rejected('Malformed JSON-RPC request')
-    if (DENIED_METHODS.has(method) || DENIED_METHOD_PREFIX.test(method)) {
-      return rejected('Method not allowed')
-    }
-    methods.push(method)
-  }
-
-  return methods
-}
 
 const COUNTS_FLUSH_INTERVAL_MS = 60_000
 const MAX_COUNTED_METHODS = 200
+const MAX_COUNTED_KEY_LENGTH = 96
 const OVERFLOW_KEY = 'other'
 
 const methodCounts = new Map<string, number>()
 let windowStartedAt = Date.now()
 
-const recordMethods = (chainId: string, methods: string[]) => {
-  for (const method of methods) {
-    const key = `${chainId}:${method}`
-    const counted =
-      methodCounts.has(key) || methodCounts.size < MAX_COUNTED_METHODS ? key : OVERFLOW_KEY
-    methodCounts.set(counted, (methodCounts.get(counted) ?? 0) + 1)
-  }
-
+const flushCountsIfDue = () => {
   const windowMs = Date.now() - windowStartedAt
   if (windowMs < COUNTS_FLUSH_INTERVAL_MS) return
+
+  const rpcMethodCounts = Object.fromEntries(methodCounts)
+  methodCounts.clear()
+  windowStartedAt = Date.now()
 
   console.log(
     JSON.stringify({
       severity: 'INFO',
       message: 'rpc method counts',
-      rpcMethodCounts: Object.fromEntries(methodCounts),
+      rpcMethodCounts,
       rpcMethodCountsWindowMs: windowMs,
     }),
   )
-  methodCounts.clear()
-  windowStartedAt = Date.now()
+}
+
+const record = (key: string) => {
+  const bounded = key.slice(0, MAX_COUNTED_KEY_LENGTH)
+  const counted =
+    methodCounts.has(bounded) || methodCounts.size < MAX_COUNTED_METHODS ? bounded : OVERFLOW_KEY
+  methodCounts.set(counted, (methodCounts.get(counted) ?? 0) + 1)
+  flushCountsIfDue()
+}
+
+const recordMethods = (chainId: string, methods: string[]) => {
+  for (const method of methods) record(`${chainId}:${method}`)
+}
+
+const rejected = (counterKey: string, message: string): ProxyResolution => {
+  record(`rejected:${counterKey}`)
+  return { ok: false, status: 400, body: { errors: [{ message }] } }
+}
+
+const collectMethods = (body: unknown): string[] | ProxyResolution => {
+  const calls = Array.isArray(body) ? body : [body]
+  if (calls.length > MAX_RPC_BATCH_SIZE) return rejected('batch-too-large', 'Batch too large')
+
+  const methods: string[] = []
+  for (const call of calls) {
+    const method = (call as { method?: unknown } | null)?.method
+    if (typeof method !== 'string') return rejected('malformed', 'Malformed JSON-RPC request')
+    if (DENIED_METHODS.has(method) || DENIED_METHOD_PREFIX.test(method)) {
+      return rejected(`method:${method}`, 'Method not allowed')
+    }
+    methods.push(method)
+  }
+
+  return methods
 }
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -101,7 +109,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       : request.query.chainId
 
     if (!chainId || !(chainId in UPSTREAM_BY_CHAIN)) {
-      return rejected('Unsupported chainId')
+      return rejected('unsupported-chain', 'Unsupported chainId')
     }
 
     const upstream = UPSTREAM_BY_CHAIN[chainId]

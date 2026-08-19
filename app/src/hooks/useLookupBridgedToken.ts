@@ -58,6 +58,7 @@ export const useLookupBridgedToken = ({
       { ...erc20Contract, functionName: 'symbol' },
       { ...erc20Contract, functionName: 'decimals' },
     ],
+    allowFailure: false,
     query: { enabled: shouldFetchFromChain, staleTime: Infinity },
   })
 
@@ -66,16 +67,13 @@ export const useLookupBridgedToken = ({
     if (tokenFromList) return tokenFromList
     if (!contractData) return undefined
     const [name, symbol, decimals] = contractData
-    if (name.status === 'failure' || symbol.status === 'failure' || decimals.status === 'failure') {
-      return undefined
-    }
     return {
       address: normalizedAddress,
       chainId,
-      name: name.result,
-      symbol: symbol.result,
-      decimals: decimals.result,
-      logoURI: tokenList.find((t) => isSameString(t.symbol, symbol.result))?.logoURI,
+      name,
+      symbol,
+      decimals,
+      logoURI: tokenList.find((t) => isSameString(t.symbol, symbol))?.logoURI,
     }
   }, [
     isNativeInXdaiBridge,

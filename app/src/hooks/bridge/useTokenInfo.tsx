@@ -32,21 +32,19 @@ export const useTokenInfo = (tokenAddress: string, chainId: ChainsValues) => {
       { ...erc20Contract, functionName: 'symbol' },
       { ...erc20Contract, functionName: 'decimals' },
     ],
+    allowFailure: false,
     query: { enabled: shouldFetchFromChain, staleTime: Infinity },
   })
 
-  const data = useMemo((): Token | null | undefined => {
+  const data = useMemo((): Token | undefined => {
     if (isNativeXdai) return xdaiToken
     if (tokenFromList) return tokenFromList
     if (!contractData) return undefined
     const [name, symbol, decimals] = contractData
-    if (name.status === 'failure' || symbol.status === 'failure' || decimals.status === 'failure') {
-      return null
-    }
     return {
-      name: name.result,
-      symbol: symbol.result,
-      decimals: decimals.result,
+      name,
+      symbol,
+      decimals,
       address: tokenAddress,
       chainId,
       extensions: {

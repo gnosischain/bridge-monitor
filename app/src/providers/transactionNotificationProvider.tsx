@@ -19,6 +19,7 @@ type TransactionStorageItem = {
 
 type TransactionContextValue = {
   notifyTxMined: (txHash: string, isSuccess?: boolean) => void
+  notifyTxUnconfirmed: (txHash: string) => void
   notifyWaitingForSignature: () => void
   notifyWaitingForTxMined: (txHash: string) => void
   notifyRejectSignature: (msg: string) => void
@@ -105,6 +106,25 @@ export const TransactionNotificationProvider: React.FC<{ children: React.ReactNo
     [chainKey, getExplorerUrl, removeTxFromStorage],
   )
 
+  /**
+   * The receipt wait ended without an answer — an RPC error or the 180s timeout, never a revert
+   * (the wait resolves with `status: 'reverted'`). Deliberately not `notifyTxMined`: the
+   * transaction is most likely mined, so reporting failure would be wrong, and dropping it from
+   * storage would stop the recovery effect below from ever settling it. It stays pending.
+   */
+  const notifyTxUnconfirmed = useCallback(
+    (txHash: string) => {
+      notify({
+        type: ToastStates.waiting,
+        title: 'Still confirming',
+        message: 'Could not read the receipt — the transaction is still being tracked.',
+        explorerUrl: getExplorerUrl(txHash, chainKey),
+        id: txHash,
+      })
+    },
+    [chainKey, getExplorerUrl],
+  )
+
   // Check if there are previous tx on the storage
   useEffect(() => {
     if (!address || !appChainId || isRan) return
@@ -154,6 +174,7 @@ export const TransactionNotificationProvider: React.FC<{ children: React.ReactNo
     () => ({
       state: transactionStore as TransactionStorageItem[],
       notifyTxMined,
+      notifyTxUnconfirmed,
       notifyWaitingForSignature,
       notifyWaitingForTxMined,
       notifyRejectSignature,
@@ -161,6 +182,7 @@ export const TransactionNotificationProvider: React.FC<{ children: React.ReactNo
     [
       transactionStore,
       notifyTxMined,
+      notifyTxUnconfirmed,
       notifyWaitingForSignature,
       notifyWaitingForTxMined,
       notifyRejectSignature,
