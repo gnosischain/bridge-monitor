@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import useSWR from 'swr'
 import { isAddress } from 'viem'
@@ -24,7 +24,8 @@ import { isValidDomainName } from '@/src/utils/isValidDomainName'
 
 export type UpdateInMemoryTx = (transaction?: Transaction) => void
 
-// @todo hardcoded value (need to think about useSWRPage or useSWRInfinite)
+// The explorer fetches a single page of this size; there is no incremental pagination yet.
+// @todo revisit if the cap ever truncates a result set users care about.
 const PAGE_SIZE = 500
 
 const modifyTxs = (txs: Transaction[]) => {
@@ -43,7 +44,7 @@ export const useFetchTransactions = (
   inMemoryFilters: TxsInMemoryFilters,
   query?: EnvioQueryArgs,
 ) => {
-  const { data, error, isLoading, isValidating, mutate } = useSWR<Transaction[]>(
+  const { data, isLoading, mutate } = useSWR<Transaction[]>(
     query
       ? [
           'useFetchTransactions',
@@ -80,19 +81,15 @@ export const useFetchTransactions = (
 
   return {
     transactions: modifyTxs(data || []),
-    error,
-    refetch: mutate,
     updateInMemoryTransaction,
-    isLoading: isLoading,
-    isValidating,
+    isLoading,
   }
 }
 
 export const useTransactionsWithFilters = (filters: TransactionFilter) => {
-  const [page, setPage] = useState(1)
   const [query, setQuery] = useState<EnvioQueryArgs>()
   const [inMemoryFilters, setInMemoryFilters] = useState<TxsInMemoryFilters>({})
-  const { isLoading, isValidating, transactions, updateInMemoryTransaction } = useFetchTransactions(
+  const { isLoading, transactions, updateInMemoryTransaction } = useFetchTransactions(
     inMemoryFilters,
     query,
   )
@@ -169,7 +166,6 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
       updated = true
     }
     if (updated) {
-      setPage(1)
       setQuery({
         where: andClauses.length ? { _and: andClauses } : undefined,
         order_by: [{ timestamp: 'desc' }],
@@ -191,27 +187,14 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
     isDomainName,
   ])
 
-  /**
-   * @todo we should use useSWRPages to handle new pages loading
-   */
-  const loadMore = useCallback(() => {
-    const nextPage = page + 1
-    setPage(nextPage)
-    setQuery((q) => (q ? { ...q, limit: nextPage * PAGE_SIZE } : q))
-  }, [page])
-
   const filteredTransactions =
     !filters.status || filters.status == 'All Status'
       ? transactions
       : transactions.filter((tx) => tx.transactionStatus == filters.status.toUpperCase())
 
   return {
-    page,
-    setPage,
     transactions: filteredTransactions,
-    loadMore,
     updateInMemoryTransaction,
     isLoading,
-    isValidating,
   }
 }
