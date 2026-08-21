@@ -1,5 +1,6 @@
 import { FC, PropsWithChildren, createContext, useContext } from 'react'
 import useSWR from 'swr/immutable'
+import groupBy from 'lodash/groupBy'
 import { TokensLists } from '@/src/constants/config/types'
 import { getIcon } from '@/src/utils/icons'
 import { isNativeToken, isSameString } from '@/src/utils/tools'
@@ -14,7 +15,6 @@ import { isFulfilled } from '@/types/utils'
 import { zeroAddress } from 'viem'
 
 type TokenListQueryReturn = {
-  tokens: Array<Token>
   tokenList: Array<Token>
   tokensByAddress: TokensByAddress
   tokensByNetwork: TokensByNetwork
@@ -24,15 +24,6 @@ type TokenListQueryReturn = {
 
 const fetchBridgedTokens = async (): Promise<Array<Token>> =>
   fetch('/api/tokens').then((response) => response.json())
-
-const baseTokensInfo: TokenListQueryReturn = {
-  tokens: [],
-  tokenList: [],
-  tokensByAddress: {},
-  tokensByNetwork: {},
-  nativeTokensByNetwork: {},
-  ambTokensByNetwork: {},
-}
 
 const addLogoUriByTokenList = (tokenList: Token[]) => (token: Token) => {
   if (isNativeToken(token.address)) {
@@ -100,10 +91,10 @@ const removeSpecialCharactersInName = (token: Token) => ({
 
 /**
  * Custom hook that fetches and returns a list of tokens from various sources.
- * @returns An object containing the list of tokens, indexed by address, symbol, and network.
+ * @returns An object containing the list of tokens, indexed by address, and network.
  */
 const useTokenListQuery = () => {
-  return useSWR(['token-list'], async () => {
+  return useSWR(['token-list'], async (): Promise<TokenListQueryReturn> => {
     // fetch all token from the constant TokenLists
     const tokenListPromises = Object.values(TokensLists).map(async (url) => fetch(url))
 
@@ -130,36 +121,30 @@ const useTokenListQuery = () => {
     // fetch tokens from the bridge
     const bridgedTokens = await fetchBridgedTokens()
 
+    const tokens = bridgedTokens.map((token) =>
+      addLogoUri(removeSpecialCharactersInName(lowerCaseAddresses(token))),
+    )
+
+    const isBridgedToNative = (token: Token) =>
+      isNativeToken(
+        (token.extensions.bridgeInfo[1]?.tokenAddress ??
+          token.extensions.bridgeInfo[100]?.tokenAddress) ||
+          zeroAddress,
+      )
+
     return {
-      ...bridgedTokens.reduce((acc: TokenListQueryReturn, token: Token) => {
-        token = addLogoUri(removeSpecialCharactersInName(lowerCaseAddresses(token)))
-
-        // native tokens indexing
-        if (isNativeToken(token.address)) {
-          acc.nativeTokensByNetwork[token.chainId] = token
-        }
-
-        acc.tokens.concat(token)
-        acc.tokensByAddress[token.address] = token
-        acc.tokensByNetwork[token.chainId] = (acc.tokensByNetwork[token.chainId] ?? []).concat(
-          token,
-        )
-
-        const isBridgedToNative = isNativeToken(
-          (token.extensions.bridgeInfo[1]?.tokenAddress ??
-            token.extensions.bridgeInfo[100]?.tokenAddress) ||
-            zeroAddress,
-        )
-
-        if (!isBridgedToNative) {
-          acc.ambTokensByNetwork[token.chainId] = (
-            acc.ambTokensByNetwork[token.chainId] ?? []
-          ).concat(token)
-        }
-
-        return acc
-      }, baseTokensInfo),
       tokenList,
+      tokensByAddress: Object.fromEntries(tokens.map((token) => [token.address, token] as const)),
+      tokensByNetwork: groupBy(tokens, 'chainId'),
+      ambTokensByNetwork: groupBy(
+        tokens.filter((token) => !isBridgedToNative(token)),
+        'chainId',
+      ),
+      nativeTokensByNetwork: Object.fromEntries(
+        tokens
+          .filter((token) => isNativeToken(token.address))
+          .map((token) => [token.chainId, token] as const),
+      ),
     }
   })
 }
