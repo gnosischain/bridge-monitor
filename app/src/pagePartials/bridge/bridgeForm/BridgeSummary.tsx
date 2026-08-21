@@ -32,7 +32,7 @@ export const BridgeSummary: React.FC<{
   }) => {
     const bridgeAddress = getBridgeContractConfig(fromChainId, toChainId, token.address).address
 
-    const { resolvedAddress } = useWeb3Name({
+    const { isResolvingAddress, resolvedAddress } = useWeb3Name({
       name: isValidDomainName(recipient) ? recipient : undefined,
     })
     const recipientAddress = resolvedAddress ?? recipient
@@ -54,7 +54,7 @@ export const BridgeSummary: React.FC<{
       userAddress,
     })
 
-    if (!addressBalances) return <TxPreviewLoading />
+    if (!addressBalances || isResolvingAddress) return <TxPreviewLoading />
 
     return errorMessage ? (
       <AlertMessage text={errorMessage} />

@@ -95,7 +95,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   )
 
   const isDomainName = isValidDomainName(filters.hash ?? '')
-  const { resolvedAddress } = useWeb3Name({
+  const { isResolvingAddress, resolvedAddress } = useWeb3Name({
     name: isDomainName && filters.hash ? filters.hash : undefined,
   })
 
@@ -106,6 +106,12 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
       filters?.startTimestamp &&
       differenceInDays(filters.endTimestamp, filters.startTimestamp) > MAX_DAYS_TO_FILTER
     ) {
+      return
+    }
+
+    // Wait for the domain lookup: filtering initiator/receiver on the raw name matches nothing,
+    // flashing "no results" before the query built from the resolved address lands.
+    if (isResolvingAddress) {
       return
     }
 
@@ -185,6 +191,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
     filters.endTimestamp,
     resolvedAddress,
     isDomainName,
+    isResolvingAddress,
   ])
 
   const filteredTransactions =
@@ -195,6 +202,6 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   return {
     transactions: filteredTransactions,
     updateInMemoryTransaction,
-    isLoading,
+    isLoading: isLoading || isResolvingAddress,
   }
 }
