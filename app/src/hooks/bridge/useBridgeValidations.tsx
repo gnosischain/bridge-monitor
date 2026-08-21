@@ -37,9 +37,6 @@ export const useBridgeValidations = ({
     fromToken,
     toToken,
   )
-  // `useBridgeLimits` is wagmi-based and no longer suspends, so `bridgeLimits` is undefined during
-  // the initial load. Every limit-derived check below guards on it, and `isValidToSend` stays false
-  // until it resolves — keeping the bridge button disabled exactly as the old SWR suspense did.
   const { data: tokenMode } = useTokenMode(fromChainId, toChainId, fromToken)
 
   const bridgeAddress = getBridgeContractConfig(fromChainId, toChainId, fromToken.address).address
