@@ -7,6 +7,7 @@ import { bridgePagesBaseURL } from '@/src/constants/sections'
 import { ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { Button } from './Button'
+import { ButtonPlaceholder } from './ButtonPlaceholder'
 import { ButtonPlaceholderWithWarning } from './ButtonPlaceholderWithWarning'
 import { isSameString } from '@/src/utils/tools'
 import { USDC_ETHEREUM } from '@/src/constants/misc'
@@ -36,7 +37,7 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
   const sendTx = useTransaction()
   const router = useRouter()
 
-  const { data: transactionData } = useBridgeTransactionInfo({
+  const { data: transactionData, isPending } = useBridgeTransactionInfo({
     receiveNativeToken,
     userAddress,
     fromChainId,
@@ -46,6 +47,8 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
     token,
     toToken,
   })
+
+  if (isPending) return <ButtonPlaceholder />
 
   if (!transactionData) throw new Error('Transaction data is not available')
 
