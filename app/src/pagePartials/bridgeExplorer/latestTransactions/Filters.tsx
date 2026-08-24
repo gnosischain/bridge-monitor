@@ -9,7 +9,7 @@ import { TransactionStatus } from '@/src/utils/transactions'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { isTransactionHash } from '@/src/utils/tools'
 import { useValidators } from '@/src/providers/validatorsProvider'
-import { BridgesValues } from '@/src/constants/config/bridges'
+import { BridgeDirection, BridgesValues } from '@/src/constants/config/bridges'
 import { DateTimePicker } from '@/src/pagePartials/bridgeExplorer/latestTransactions/DateTimePicker'
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
 
@@ -168,11 +168,6 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
   bridge: string
   filters: ReturnType<typeof useTransactionsFilters>
   onResetFilters: () => void
-}
-
-export enum BridgeDirection {
-  gnosis2mainnet = 'Gnosis > Mainnet',
-  mainnet2gnosis = 'Mainnet > Gnosis',
 }
 
 const txStatus = [

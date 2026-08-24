@@ -10,7 +10,7 @@ import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { ToastStates } from '@/src/constants/types'
 import { useIsUsdsEnabled } from '@/src/hooks/contracts/useIsUsdsEnabled'
 import useTransaction from '@/src/hooks/useTransaction'
-import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
+import { ClaimActions } from '@/src/hooks/useTransactions'
 import {
   type TxCall,
   getPublicClient,
@@ -53,15 +53,11 @@ const Wrapper = styled.button`
 `
 
 type ClaimButtonProps = {
+  claimActions: ClaimActions
   transaction: Transaction
-  updateInMemoryTransaction: UpdateInMemoryTx
 }
 
-export const ClaimButton = ({
-  transaction,
-  updateInMemoryTransaction,
-  ...restProps
-}: ClaimButtonProps) => {
+export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimButtonProps) => {
   const { connectWallet, isWalletConnected, pushNetwork, walletChainId } = useWeb3Connection()
   const [isWorking, setIsWorking] = useState(false)
   const isUsdsEnabled = useIsUsdsEnabled()
@@ -225,20 +221,17 @@ export const ClaimButton = ({
       if (!receipt) throw new Error('No receipt')
 
       // update tx to reflect claiming in progress
-      updateInMemoryTransaction(transaction)
+      claimActions.markAsClaiming(transaction)
 
-      // once executed, if the page is still open, bring new state from the SG.
+      // throws on a revert, so getting past it means the withdrawal really is completed
       await waitForMinedReceipt(receipt, Chains.mainnet)
-
-      // give some time the SG to index
-      setTimeout(() => {
-        updateInMemoryTransaction()
-        setIsWorking(false)
-      }, 5000)
+      claimActions.markAsClaimed(transaction)
+      setIsWorking(false)
     } catch (e) {
       // If the method reverts, the withdrawal was likely already executed.
       // In this case, the user should be notified that the withdrawal was already executed.
       console.log('error', e)
+      claimActions.clearClaim(transaction)
       notify({
         type: ToastStates.failed,
         message: 'Failed to claim - it might have already been claimed',

@@ -10,7 +10,7 @@ import { StatusCell } from '@/src/pagePartials/bridgeExplorer/transactionsList/S
 import { Transaction } from '@/src/utils/transactions'
 import { TD, TR } from '@/src/components/table'
 import Link from 'next/link'
-import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
+import { ClaimActions } from '@/src/hooks/useTransactions'
 import { useMemo } from 'react'
 import { transactionBaseURL } from '@/src/constants/sections'
 
@@ -90,14 +90,14 @@ type Props = {
   searchResultsURL?: string
   showValidations?: boolean
   transaction: Transaction
-  updateInMemoryTransaction: UpdateInMemoryTx
+  claimActions: ClaimActions
 }
 
 export const TransactionRow: React.FC<Props> = ({
+  claimActions,
   goBackURL,
   showValidations,
   transaction,
-  updateInMemoryTransaction,
   ...restProps
 }) => {
   const addressCharacters = 6
@@ -198,10 +198,7 @@ export const TransactionRow: React.FC<Props> = ({
         <TDLastMobile>
           <StatusWrapper>
             <MobileLabel>Status</MobileLabel>
-            <StatusCell
-              transaction={transaction}
-              updateInMemoryTransaction={updateInMemoryTransaction}
-            />
+            <StatusCell claimActions={claimActions} transaction={transaction} />
             <ChevronRight />
           </StatusWrapper>
           <ViewMore>View More &gt;</ViewMore>
