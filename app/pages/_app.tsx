@@ -3,7 +3,6 @@ import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router'
 import { ReactElement, ReactNode, useEffect } from 'react'
 import { GoogleAnalytics } from 'nextjs-google-analytics'
-import { SWRConfig } from 'swr'
 import SafeSuspense from '@/src/components/safeSuspense'
 import { SingleColumnLayout } from '@/src/components/singleColumnLayout'
 import Toast from '@/src/components/toast'
@@ -100,12 +99,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       <Head />
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
-          <SWRConfig
-            value={{
-              suspense: true,
-              revalidateOnFocus: false,
-            }}
-          >
             <ThemeProvider>
               <Web3ConnectionProvider>
                 <SafeSuspense>
@@ -119,7 +112,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                 <Footer />
               </Web3ConnectionProvider>
             </ThemeProvider>
-          </SWRConfig>
         </QueryClientProvider>
       </WagmiProvider>
     </>
