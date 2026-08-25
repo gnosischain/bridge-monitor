@@ -99,19 +99,19 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       <Head />
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
-            <ThemeProvider>
-              <Web3ConnectionProvider>
-                <SafeSuspense>
-                  <Header />
-                  <TransactionNotificationProvider>
-                    {getLayout(<Component {...pageProps} />)}
-                    <Toast />
-                  </TransactionNotificationProvider>
-                </SafeSuspense>
-                <TooltipConfig />
-                <Footer />
-              </Web3ConnectionProvider>
-            </ThemeProvider>
+          <ThemeProvider>
+            <Web3ConnectionProvider>
+              <SafeSuspense>
+                <Header />
+                <TransactionNotificationProvider>
+                  {getLayout(<Component {...pageProps} />)}
+                  <Toast />
+                </TransactionNotificationProvider>
+              </SafeSuspense>
+              <TooltipConfig />
+              <Footer />
+            </Web3ConnectionProvider>
+          </ThemeProvider>
         </QueryClientProvider>
       </WagmiProvider>
     </>
