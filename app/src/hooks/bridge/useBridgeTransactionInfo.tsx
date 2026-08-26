@@ -829,6 +829,9 @@ export const useBridgeTransactionInfo = ({
             })
         : skipToken,
     staleTime: 12_000,
-    throwOnError: true,
+    // Throw only when there is nothing to fall back on: a failed background refetch (an RPC blip
+    // while the user was on another tab) keeps the last good estimate instead of swapping the
+    // bridge button for an error boundary, which is how every other query on the form behaves.
+    throwOnError: (_, query) => query.state.data === undefined,
   })
 }
