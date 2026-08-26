@@ -18,13 +18,7 @@ const resolverContract = {
   chainId: Chains.gnosis,
 } as const
 
-const queryConfig = {
-  refetchOnReconnect: false,
-  refetchOnWindowFocus: false,
-  retry: 2,
-  retryDelay: 3000,
-  staleTime: 5 * 60 * 1000,
-} as const
+const RESOLVER_STALE_TIME = 5 * 60 * 1000
 
 interface UseWeb3NameProps {
   address?: string
@@ -53,7 +47,7 @@ const useWeb3Name = ({ address, name }: UseWeb3NameProps) => {
     ...resolverContract,
     functionName: 'name',
     args: reverseNode ? [reverseNode] : undefined,
-    query: { ...queryConfig, enabled: Boolean(reverseNode) },
+    query: { enabled: Boolean(reverseNode), staleTime: RESOLVER_STALE_TIME },
   })
 
   const {
@@ -64,7 +58,7 @@ const useWeb3Name = ({ address, name }: UseWeb3NameProps) => {
     ...resolverContract,
     functionName: 'addr',
     args: forwardNode ? [forwardNode] : undefined,
-    query: { ...queryConfig, enabled: Boolean(forwardNode) },
+    query: { enabled: Boolean(forwardNode), staleTime: RESOLVER_STALE_TIME },
   })
 
   return {
