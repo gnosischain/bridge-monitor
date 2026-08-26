@@ -72,10 +72,24 @@ export const waitForTransactionReceipt = (hash: Hash, chainId: ChainsValues, con
   getPublicClient(chainId).waitForTransactionReceipt({ hash, confirmations })
 
 /**
- * Like `waitForTransactionReceipt`, but **throws if the transaction reverted**. The plain wait
- * resolves normally with `status: 'reverted'`, which a caller awaiting "success" would silently
- * accept — so write flows use this to turn a revert into a rejected promise. Also throws on the
- * receipt-poll timeout (180s by default).
+ * A transaction that was mined and reverted, carrying the receipt that proves it.
+
+ */
+export class TransactionRevertedError extends Error {
+  readonly receipt: TransactionReceipt
+
+  constructor(receipt: TransactionReceipt) {
+    super(`Transaction reverted: ${receipt.transactionHash}`)
+    this.name = 'TransactionRevertedError'
+    this.receipt = receipt
+  }
+}
+
+/**
+ * Like `waitForTransactionReceipt`, but **rejects with a `TransactionRevertedError` if the
+ * transaction reverted**. The plain wait resolves normally with `status: 'reverted'`, which a
+ * caller awaiting "success" would silently accept — so write flows use this to turn a revert into
+ * a rejected promise.
  */
 export const waitForMinedReceipt = async (
   hash: Hash,
@@ -83,7 +97,7 @@ export const waitForMinedReceipt = async (
 ): Promise<TransactionReceipt> => {
   const receipt = await waitForTransactionReceipt(hash, chainId)
   if (receipt.status === 'reverted') {
-    throw new Error(`Transaction reverted: ${hash}`)
+    throw new TransactionRevertedError(receipt)
   }
   return receipt
 }

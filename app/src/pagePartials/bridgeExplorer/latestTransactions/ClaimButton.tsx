@@ -12,6 +12,7 @@ import { useIsUsdsEnabled } from '@/src/hooks/contracts/useIsUsdsEnabled'
 import useTransaction from '@/src/hooks/useTransaction'
 import { ClaimActions } from '@/src/hooks/useTransactions'
 import {
+  TransactionRevertedError,
   type TxCall,
   getPublicClient,
   getTransactionReceipt,
@@ -58,7 +59,8 @@ type ClaimButtonProps = {
 }
 
 export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimButtonProps) => {
-  const { connectWallet, isWalletConnected, pushNetwork, walletChainId } = useWeb3Connection()
+  const { connectWallet, getExplorerUrl, isWalletConnected, pushNetwork, walletChainId } =
+    useWeb3Connection()
   const [isWorking, setIsWorking] = useState(false)
   const isUsdsEnabled = useIsUsdsEnabled()
 
@@ -214,29 +216,50 @@ export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimBu
       id: 'claim',
     })
 
+    let claimHash: Hash | null = null
+
     try {
       const claim = await getClaimTx()
 
-      const receipt = await sendTx(claim)
-      if (!receipt) throw new Error('No receipt')
+      claimHash = await sendTx(claim)
+      if (!claimHash) throw new Error('No receipt')
 
       // update tx to reflect claiming in progress
       claimActions.markAsClaiming(transaction)
 
-      // throws on a revert, so getting past it means the withdrawal really is completed
-      await waitForMinedReceipt(receipt, Chains.mainnet)
+      // Rejects with a TransactionRevertedError on a revert, so getting past it means the
+      // withdrawal really is completed.
+      await waitForMinedReceipt(claimHash, Chains.mainnet)
       claimActions.markAsClaimed(transaction)
-      setIsWorking(false)
     } catch (e) {
-      // If the method reverts, the withdrawal was likely already executed.
-      // In this case, the user should be notified that the withdrawal was already executed.
-      console.log('error', e)
-      claimActions.clearClaim(transaction)
-      notify({
-        type: ToastStates.failed,
-        message: 'Failed to claim - it might have already been claimed',
-        id: 'claim',
-      })
+      console.error('Claim failed', e)
+
+      if (e instanceof TransactionRevertedError) {
+        claimActions.clearClaim(transaction)
+        notify({
+          type: ToastStates.failed,
+          explorerUrl: getExplorerUrl(e.receipt.transactionHash),
+          message: 'Failed to claim - it might have already been claimed',
+          id: 'claim',
+        })
+      } else if (claimHash) {
+        // The claim is broadcast but its receipt never arrived: the poll gives up after 180s, and
+        // an RPC failure rejects the same way.
+        notify({
+          title: 'Claim still pending',
+          type: ToastStates.waiting,
+          explorerUrl: getExplorerUrl(claimHash),
+          message: 'Taking longer than usual to confirm, it will complete on its own.',
+          id: 'claim',
+        })
+      } else {
+        notify({
+          type: ToastStates.failed,
+          message: 'Failed to claim',
+          id: 'claim',
+        })
+      }
+    } finally {
       setIsWorking(false)
     }
   }
