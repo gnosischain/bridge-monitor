@@ -1,6 +1,9 @@
+import differenceInDays from 'date-fns/differenceInDays'
 import { isAddress } from 'viem'
 
 import { BridgeDirection, BridgesValues } from '@/src/constants/config/bridges'
+import { ALL_VALIDATORS_OPTION } from '@/src/constants/filters'
+import { MAX_DAYS_TO_FILTER } from '@/src/constants/misc'
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import { msToSeconds } from '@/src/utils/date'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
@@ -12,18 +15,27 @@ import { getValidatorByName } from '@/src/utils/validators'
 // @todo revisit if the cap ever truncates a result set users care about.
 const PAGE_SIZE = 500
 
-// Every dropdown offers an "All ..." entry meaning "do not filter on this field".
-export const isAllOption = (value: string) => value.startsWith('All')
-
 const validatorAddress = (validatorName: string, bridge: BridgesValues) => {
-  if (!validatorName || isAllOption(validatorName)) return undefined
+  if (!validatorName || validatorName === ALL_VALIDATORS_OPTION) return undefined
 
   return getValidatorByName(validatorName, bridge)?.address.toLowerCase()
 }
 
+/**
+ * A single page cannot represent a range of more than `MAX_DAYS_TO_FILTER` days: the indexer would
+ * answer that scan with the newest `PAGE_SIZE` transactions and the list would show them as the
+ * complete result. Such a range is refused instead. The date picker only ever selects a single day,
+ * so this is the backstop for a range built anywhere else.
+ */
+const isRangeTooWide = ({ endTimestamp, startTimestamp }: TransactionFilter) =>
+  !!startTimestamp &&
+  !!endTimestamp &&
+  differenceInDays(endTimestamp, startTimestamp) > MAX_DAYS_TO_FILTER
+
 export type TransactionsQuery = {
-  // `undefined` when the filters produce no clause at all: there is nothing to search for, so the
-  // caller leaves the query idle rather than asking the indexer for an unfiltered page.
+  // `undefined` when the filters produce no clause at all, or when they ask for too wide a range:
+  // there is nothing to search for, so the caller leaves the query idle rather than asking the
+  // indexer for an unfiltered page.
   query?: EnvioQueryArgs
   inMemoryFilters: TxsInMemoryFilters
 }
@@ -38,6 +50,17 @@ export const buildTransactionsQuery = (
   filters: TransactionFilter,
   resolvedAddress?: string | null,
 ): TransactionsQuery => {
+  const bridge = filters.bridge.toUpperCase() as BridgesValues
+
+  // The indexer cannot filter on the nested validations/execution rows, so "signed by" and
+  // "executed by" are applied to the page once it has been fetched (see `fetchTransactions`).
+  const inMemoryFilters: TxsInMemoryFilters = {
+    validator: validatorAddress(filters.signedBy, bridge),
+    executor: validatorAddress(filters.executedBy, bridge),
+  }
+
+  if (isRangeTooWide(filters)) return { inMemoryFilters }
+
   const where: Array<Record<string, unknown>> = []
 
   if (filters.hash) {
@@ -52,10 +75,8 @@ export const buildTransactionsQuery = (
     }
   }
 
-  if (filters.bridge && !isAllOption(filters.bridge)) {
-    where.push({
-      bridgeType: { _eq: filters.bridge.toUpperCase().includes('XDAI') ? 'XDAI' : 'AMB' },
-    })
+  if (filters.bridge) {
+    where.push({ bridgeType: { _eq: bridge.includes('XDAI') ? 'XDAI' : 'AMB' } })
   }
 
   if (filters.bridgeDirection === BridgeDirection.gnosis2mainnet) {
@@ -72,17 +93,10 @@ export const buildTransactionsQuery = (
     where.push({ timestamp: { _lte: msToSeconds(filters.endTimestamp.getTime()) } })
   }
 
-  // The indexer cannot filter on the nested validations/execution rows, so "signed by" and
-  // "executed by" are applied to the page once it has been fetched (see `fetchTransactions`).
-  const bridge = filters.bridge.toUpperCase() as BridgesValues
-
   return {
     query: where.length
       ? { where: { _and: where }, order_by: [{ timestamp: 'desc' }], limit: PAGE_SIZE, offset: 0 }
       : undefined,
-    inMemoryFilters: {
-      validator: validatorAddress(filters.signedBy, bridge),
-      executor: validatorAddress(filters.executedBy, bridge),
-    },
+    inMemoryFilters,
   }
 }

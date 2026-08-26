@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { skipToken, useQuery } from '@tanstack/react-query'
 
+import { ALL_STATUS_OPTION } from '@/src/constants/filters'
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import useWeb3Name from '@/src/hooks/useWeb3Name'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
@@ -19,7 +20,7 @@ import {
   TxsInMemoryFilters,
   fetchTransactions,
 } from '@/src/utils/transactions'
-import { buildTransactionsQuery, isAllOption } from '@/src/utils/transactionsQuery'
+import { buildTransactionsQuery } from '@/src/utils/transactionsQuery'
 
 const INDEXER_POLL_INTERVAL = 5_000
 
@@ -133,7 +134,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
 
   const filteredTransactions = useMemo(
     () =>
-      !filters.status || isAllOption(filters.status)
+      !filters.status || filters.status === ALL_STATUS_OPTION
         ? transactions
         : transactions.filter((tx) => tx.transactionStatus === filters.status.toUpperCase()),
     [transactions, filters.status],
