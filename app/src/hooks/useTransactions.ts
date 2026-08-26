@@ -7,6 +7,7 @@ import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import useWeb3Name from '@/src/hooks/useWeb3Name'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
 import {
+  LocalClaimExecution,
   LocalClaims,
   getForeignTransactions,
   removeForeignTransaction,
@@ -16,9 +17,11 @@ import {
 import {
   EnvioQueryArgs,
   Transaction,
+  TransactionExecution,
   TransactionStatus,
   TxsInMemoryFilters,
   fetchTransactions,
+  getTxScanUrl,
 } from '@/src/utils/transactions'
 import { buildTransactionsQuery } from '@/src/utils/transactionsQuery'
 
@@ -36,10 +39,10 @@ export type ClaimActions = {
    */
   markAsClaiming: (transaction: Transaction) => void
   /**
-   * Records that the claim transaction is mined. The withdrawal is completed from that moment on,
-   * whatever the indexer still reports, so the row flips without waiting for indexing.
+   * Records the mined claim transaction. The withdrawal is completed from that moment on, whatever
+   * the indexer still reports, so the row flips without waiting for indexing.
    */
-  markAsClaimed: (transaction: Transaction) => void
+  markAsClaimed: (transaction: Transaction, execution: LocalClaimExecution) => void
   /**
    * Drops the local record when the claim never landed, so the row goes back to offering a claim
    * instead of sitting on "Claiming..." until the entry expires.
@@ -59,8 +62,8 @@ const useClaimingTransactions = () => {
     setLocalClaims(getForeignTransactions())
   }, [])
 
-  const markAsClaimed = useCallback((transaction: Transaction) => {
-    setForeignTransactionClaimed(transaction.id)
+  const markAsClaimed = useCallback((transaction: Transaction, execution: LocalClaimExecution) => {
+    setForeignTransactionClaimed(transaction.id, execution)
     setLocalClaims(getForeignTransactions())
   }, [])
 
@@ -71,6 +74,21 @@ const useClaimingTransactions = () => {
 
   return { clearClaim, localClaims, markAsClaiming, markAsClaimed }
 }
+
+/**
+ * Shapes the claim this browser sent like the indexer's execution record, so the last step of the
+ * withdrawal renders instead of staying hidden until indexing catches up.
+ */
+const localExecution = (
+  transaction: Transaction,
+  execution: LocalClaimExecution,
+): TransactionExecution => ({
+  id: execution.transactionHash,
+  timestamp: execution.timestamp,
+  transactionHash: execution.transactionHash,
+  validatorAddr: execution.executor,
+  scanUrl: getTxScanUrl(execution.transactionHash, transaction.receiverNetwork),
+})
 
 /**
  * The indexer is the source of truth for every row, except the withdrawals this browser has just
@@ -85,8 +103,17 @@ const withLocalClaims = (
 
   return transactions.map((tx) => {
     if (tx.transactionStatus !== TransactionStatus.Unclaimed) return tx
+
     // The claim is mined, so the withdrawal is completed even though the indexer has yet to say so.
-    if (claimed.includes(tx.id)) return { ...tx, transactionStatus: TransactionStatus.Completed }
+    // Its execution comes from the claim transaction as well: the status alone would flip the row
+    // to Completed while leaving the completed step with nothing to show.
+    const claim = claimed.find(({ id }) => id === tx.id)
+    if (claim)
+      return {
+        ...tx,
+        execution: tx.execution ?? (claim.execution && localExecution(tx, claim.execution)),
+        transactionStatus: TransactionStatus.Completed,
+      }
 
     return { ...tx, isClaiming: claiming.includes(tx.id) }
   })

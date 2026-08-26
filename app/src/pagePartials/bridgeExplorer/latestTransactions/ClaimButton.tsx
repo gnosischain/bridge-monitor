@@ -229,8 +229,14 @@ export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimBu
 
       // Rejects with a TransactionRevertedError on a revert, so getting past it means the
       // withdrawal really is completed.
-      await waitForMinedReceipt(claimHash, Chains.mainnet)
-      claimActions.markAsClaimed(transaction)
+      const receipt = await waitForMinedReceipt(claimHash, Chains.mainnet)
+      claimActions.markAsClaimed(transaction, {
+        transactionHash: receipt.transactionHash,
+        // The receipt carries no block timestamp, and the client clock is close enough for a value
+        // the indexer overwrites on its next refetch.
+        timestamp: Date.now(),
+        executor: receipt.from,
+      })
     } catch (e) {
       console.error('Claim failed', e)
 
