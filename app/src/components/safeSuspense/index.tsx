@@ -1,5 +1,6 @@
 import React, { FC, Suspense } from 'react'
 
+import { QueryErrorResetBoundary } from '@tanstack/react-query'
 import { ErrorBoundary } from 'react-error-boundary'
 
 import { GeneralError } from '@/src/components/error/GeneralError'
@@ -15,35 +16,44 @@ function DefaultFallback(): JSX.Element {
   return <Loading />
 }
 
+/* Error boundary wired to react-query's reset mechanism. */
+function ResettableErrorBoundary({ children }: { children: React.ReactNode }): JSX.Element {
+  return (
+    <QueryErrorResetBoundary>
+      {({ reset }) => (
+        <ErrorBoundary
+          fallbackRender={({ error, resetErrorBoundary }) => (
+            <GeneralError error={error} resetErrorBoundary={resetErrorBoundary} />
+          )}
+          onError={(error, info) => isDev && console.error(error, info)}
+          onReset={reset}
+        >
+          {children}
+        </ErrorBoundary>
+      )}
+    </QueryErrorResetBoundary>
+  )
+}
+
 export default function SafeSuspense({
   children,
   fallback = <DefaultFallback />,
 }: Props): JSX.Element {
   return (
-    <ErrorBoundary
-      fallbackRender={({ error, resetErrorBoundary }) => (
-        <GeneralError error={error} resetErrorBoundary={resetErrorBoundary} />
-      )}
-      onError={(error, info) => isDev && console.error(error, info)}
-    >
+    <ResettableErrorBoundary>
       <Suspense fallback={fallback}>{children}</Suspense>
-    </ErrorBoundary>
+    </ResettableErrorBoundary>
   )
 }
 
 export function genericSuspense<T extends object>(Element: FC<T>, fallback?: FC<T>) {
   return function GenericSuspenseReturnFunction(props: T) {
     return (
-      <ErrorBoundary
-        fallbackRender={({ error, resetErrorBoundary }) => (
-          <GeneralError error={error} resetErrorBoundary={resetErrorBoundary} />
-        )}
-        onError={(error, info) => isDev && console.error(error, info)}
-      >
+      <ResettableErrorBoundary>
         <Suspense fallback={fallback ? fallback(props) : <DefaultFallback />}>
           <Element {...props} />
         </Suspense>
-      </ErrorBoundary>
+      </ResettableErrorBoundary>
     )
   }
 }
