@@ -51,7 +51,7 @@ type TransactionsTableProps = {
 }
 
 export const Results: React.FC<TransactionsTableProps> = ({ bridge, filters }) => {
-  const { isLoading, transactions, updateInMemoryTransaction } = useTransactionsWithFilters(filters)
+  const { claimActions, isLoading, transactions } = useTransactionsWithFilters(filters)
   const { validators } = useValidators(bridge as BridgesValues)
 
   return isLoading ? (
@@ -67,9 +67,9 @@ export const Results: React.FC<TransactionsTableProps> = ({ bridge, filters }) =
       </InfoWrapper>
       <TransactionsWrapper>
         <TransactionsList
+          claimActions={claimActions}
           goBackURL={latestTransactionsBaseURL}
           transactions={transactions}
-          updateInMemoryTransaction={updateInMemoryTransaction}
           validators={validators}
         />
       </TransactionsWrapper>

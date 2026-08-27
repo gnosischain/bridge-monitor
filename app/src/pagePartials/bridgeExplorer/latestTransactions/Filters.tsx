@@ -9,7 +9,12 @@ import { TransactionStatus } from '@/src/utils/transactions'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { isTransactionHash } from '@/src/utils/tools'
 import { useValidators } from '@/src/providers/validatorsProvider'
-import { BridgesValues } from '@/src/constants/config/bridges'
+import { BridgeDirection, BridgesValues } from '@/src/constants/config/bridges'
+import {
+  ALL_DIRECTIONS_OPTION,
+  ALL_STATUS_OPTION,
+  ALL_VALIDATORS_OPTION,
+} from '@/src/constants/filters'
 import { DateTimePicker } from '@/src/pagePartials/bridgeExplorer/latestTransactions/DateTimePicker'
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
 
@@ -170,11 +175,6 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
   onResetFilters: () => void
 }
 
-export enum BridgeDirection {
-  gnosis2mainnet = 'Gnosis > Mainnet',
-  mainnet2gnosis = 'Mainnet > Gnosis',
-}
-
 const txStatus = [
   TransactionStatus.Initiated,
   TransactionStatus.Collecting,
@@ -193,10 +193,10 @@ export const Filters: React.FC<Props> = ({ bridge, filters, onResetFilters, ...r
     (status) => status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(),
   )
 
-  const validatorsOptions = ['All Validators'].concat(validatorNames)
-  const statuses = ['All Status'].concat(statusNames)
+  const validatorsOptions = [ALL_VALIDATORS_OPTION, ...validatorNames]
+  const statuses = [ALL_STATUS_OPTION, ...statusNames]
   const bridgeDirections = [
-    'All Directions',
+    ALL_DIRECTIONS_OPTION,
     BridgeDirection.gnosis2mainnet,
     BridgeDirection.mainnet2gnosis,
   ]
@@ -251,14 +251,18 @@ export const Filters: React.FC<Props> = ({ bridge, filters, onResetFilters, ...r
         </Field>
         <Field>
           <Label>Status</Label>
-          <FilterDropdown onChange={setStatus} options={statuses} value={status || 'All Status'} />
+          <FilterDropdown
+            onChange={setStatus}
+            options={statuses}
+            value={status || ALL_STATUS_OPTION}
+          />
         </Field>
         <Field>
           <Label>Direction</Label>
           <FilterDropdown
             onChange={setBridgeDirection}
             options={bridgeDirections}
-            value={bridgeDirection || 'All Directions'}
+            value={bridgeDirection || ALL_DIRECTIONS_OPTION}
           />
         </Field>
         <Field>
@@ -266,7 +270,7 @@ export const Filters: React.FC<Props> = ({ bridge, filters, onResetFilters, ...r
           <FilterDropdown
             onChange={setSignedBy}
             options={validatorsOptions}
-            value={signedBy || 'All Validators'}
+            value={signedBy || ALL_VALIDATORS_OPTION}
           />
         </Field>
         <Field>
@@ -274,7 +278,7 @@ export const Filters: React.FC<Props> = ({ bridge, filters, onResetFilters, ...r
           <FilterDropdown
             onChange={setExecutedBy}
             options={validatorsOptions}
-            value={executedBy || 'All Validators'}
+            value={executedBy || ALL_VALIDATORS_OPTION}
           />
         </Field>
       </MainFields>

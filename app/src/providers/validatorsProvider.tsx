@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react'
-import useSWR from 'swr'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { fetchHomeValidators, getBalance, getValidatorByAddress } from '@/src/utils/validators'
@@ -87,16 +87,15 @@ const fetcher = async () => {
 }
 
 export const ValidatorsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const res = useSWR('validators', fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    dedupingInterval: 60000,
+  // Suspends until the validators resolve, so `data` is always defined here.
+  const { data: validators, refetch } = useSuspenseQuery({
+    queryKey: ['validators'],
+    queryFn: fetcher,
+    staleTime: 60_000,
   })
 
-  const validators = res.data || defaultValidators
-
   return (
-    <ValidatorsContext.Provider value={{ validators: validators, refetch: res.mutate }}>
+    <ValidatorsContext.Provider value={{ validators: validators, refetch }}>
       {children}
     </ValidatorsContext.Provider>
   )

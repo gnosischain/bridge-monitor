@@ -122,13 +122,10 @@ export const Transaction: React.FC = ({ ...restProps }) => {
     [router.query?.goBackURL],
   )
 
-  const { isLoading, transactions, updateInMemoryTransaction } = useFetchTransactions(
-    {},
-    {
-      // transactionId is txHash in on the network that originated the bridge
-      where: { id: { _eq: transactionId.toLowerCase() } },
-    },
-  )
+  const { claimActions, isLoading, transactions } = useFetchTransactions({
+    // transactionId is txHash in on the network that originated the bridge
+    where: { id: { _eq: transactionId.toLowerCase() } },
+  })
 
   // hack, for some reason TS is not recognizing that transactions[0] can be null
   const currentTx = transactions.length > 0 ? transactions[0] : null
@@ -216,7 +213,6 @@ export const Transaction: React.FC = ({ ...restProps }) => {
           $timestampStarted={currentTx.timestamp ?? 0}
           $transaction={currentTx}
           $transactionStatus={currentTx.transactionStatus}
-          $updateInMemoryTransaction={updateInMemoryTransaction}
         />
         <StatusList>
           <StatusDetails
@@ -288,10 +284,7 @@ export const Transaction: React.FC = ({ ...restProps }) => {
               title="Ready to claim"
               transactionStatus={TransactionStatus.Unclaimed}
             >
-              <ClaimButton
-                transaction={currentTx}
-                updateInMemoryTransaction={updateInMemoryTransaction}
-              />
+              <ClaimButton claimActions={claimActions} transaction={currentTx} />
             </StatusDetails>
           )}
         </StatusList>

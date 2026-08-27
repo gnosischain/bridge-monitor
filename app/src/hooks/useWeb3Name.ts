@@ -1,16 +1,9 @@
-import useSWR from 'swr'
-import { createPublicClient, http, namehash, parseAbi } from 'viem'
-import { gnosis } from 'viem/chains'
+import { useMemo } from 'react'
+import { isAddress, namehash, parseAbi, zeroAddress } from 'viem'
 import { normalize } from 'viem/ens'
+import { useReadContract } from 'wagmi'
 
-import { getProviderUrl } from '@/src/constants/config/rpc-providers'
 import { Chains } from '@/src/constants/config/types'
-
-// Reads run in the browser via SWR, so the same-origin `/api/rpc` proxy path resolves fine.
-const client = createPublicClient({
-  chain: gnosis,
-  transport: http(getProviderUrl(Chains.gnosis)),
-})
 
 const SPACE_ID_REAL_CONTRACT = '0x6D3B3F99177FB2A5de7F9E928a9BD807bF7b5BAD'
 
@@ -19,88 +12,62 @@ const resolverAbi = parseAbi([
   'function addr(bytes32 node) view returns (address)',
 ])
 
+const resolverContract = {
+  abi: resolverAbi,
+  address: SPACE_ID_REAL_CONTRACT,
+  chainId: Chains.gnosis,
+} as const
+
+const RESOLVER_STALE_TIME = 5 * 60 * 1000
+
 interface UseWeb3NameProps {
   address?: string
   name?: string
 }
 
-const fetchName = async (address: string) => {
-  try {
-    const cleanAddress = address.toLowerCase().substring(2)
-    const reverseNode = namehash(`${cleanAddress}.addr.reverse`)
-
-    const name = await client.readContract({
-      address: SPACE_ID_REAL_CONTRACT,
-      abi: resolverAbi,
-      functionName: 'name',
-      args: [reverseNode],
-    })
-
-    return name || null
-  } catch (err) {
-    console.error('Error fetching name directly:', err)
-    return null
-  }
-}
-
-const fetchAddress = async (name: string) => {
-  try {
-    const node = namehash(normalize(name))
-
-    const resolvedAddress = await client.readContract({
-      address: SPACE_ID_REAL_CONTRACT,
-      abi: resolverAbi,
-      functionName: 'addr',
-      args: [node],
-    })
-
-    return resolvedAddress
-  } catch (err) {
-    console.error('Error fetching address directly:', err)
-    return null
-  }
-}
-
 const useWeb3Name = ({ address, name }: UseWeb3NameProps) => {
-  const { data: resolvedName, error: nameError } = useSWR(
-    address ? [`name`, address] : null,
-    () => (address ? fetchName(address) : null),
-    {
-      shouldRetryOnError: true,
-      errorRetryCount: 2,
-      errorRetryInterval: 3000,
-      revalidateOnFocus: false,
-      revalidateOnMount: false,
-      revalidateOnReconnect: false,
-      dedupingInterval: 60000,
-      focusThrottleInterval: 5000,
-      loadingTimeout: 10000,
-      onError: (err) => {
-        console.error('Error resolving name:', name, err)
-      },
-    },
+  const reverseNode = useMemo(
+    () =>
+      address && isAddress(address)
+        ? namehash(`${address.toLowerCase().substring(2)}.addr.reverse`)
+        : undefined,
+    [address],
   )
 
-  const { data: resolvedAddress, error: addressError } = useSWR(
-    name ? [`address`, name] : null,
-    () => (name ? fetchAddress(name) : null),
-    {
-      shouldRetryOnError: true,
-      errorRetryCount: 2,
-      errorRetryInterval: 3000,
-      revalidateOnFocus: false,
-      revalidateOnMount: false,
-      revalidateOnReconnect: false,
-      dedupingInterval: 60000,
-      focusThrottleInterval: 5000,
-      loadingTimeout: 10000,
-      onError: (err) => {
-        console.error('Error resolving address:', address, err)
-      },
-    },
-  )
+  const forwardNode = useMemo(() => {
+    if (!name) return undefined
+    try {
+      return namehash(normalize(name))
+    } catch {
+      return undefined
+    }
+  }, [name])
 
-  return { resolvedAddress, resolvedName, addressError, nameError }
+  const { data: resolvedName, error: nameError } = useReadContract({
+    ...resolverContract,
+    functionName: 'name',
+    args: reverseNode ? [reverseNode] : undefined,
+    query: { enabled: Boolean(reverseNode), staleTime: RESOLVER_STALE_TIME },
+  })
+
+  const {
+    data: resolvedAddress,
+    error: addressError,
+    isLoading: isResolvingAddress,
+  } = useReadContract({
+    ...resolverContract,
+    functionName: 'addr',
+    args: forwardNode ? [forwardNode] : undefined,
+    query: { enabled: Boolean(forwardNode), staleTime: RESOLVER_STALE_TIME },
+  })
+
+  return {
+    resolvedAddress: resolvedAddress && resolvedAddress !== zeroAddress ? resolvedAddress : null,
+    resolvedName: resolvedName || null,
+    isResolvingAddress,
+    addressError,
+    nameError,
+  }
 }
 
 export default useWeb3Name

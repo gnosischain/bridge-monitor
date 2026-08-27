@@ -10,8 +10,9 @@ import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { ToastStates } from '@/src/constants/types'
 import { useIsUsdsEnabled } from '@/src/hooks/contracts/useIsUsdsEnabled'
 import useTransaction from '@/src/hooks/useTransaction'
-import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
+import { ClaimActions } from '@/src/hooks/useTransactions'
 import {
+  TransactionRevertedError,
   type TxCall,
   getPublicClient,
   getTransactionReceipt,
@@ -53,16 +54,13 @@ const Wrapper = styled.button`
 `
 
 type ClaimButtonProps = {
+  claimActions: ClaimActions
   transaction: Transaction
-  updateInMemoryTransaction: UpdateInMemoryTx
 }
 
-export const ClaimButton = ({
-  transaction,
-  updateInMemoryTransaction,
-  ...restProps
-}: ClaimButtonProps) => {
-  const { connectWallet, isWalletConnected, pushNetwork, walletChainId } = useWeb3Connection()
+export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimButtonProps) => {
+  const { connectWallet, getExplorerUrl, isWalletConnected, pushNetwork, walletChainId } =
+    useWeb3Connection()
   const [isWorking, setIsWorking] = useState(false)
   const isUsdsEnabled = useIsUsdsEnabled()
 
@@ -218,32 +216,56 @@ export const ClaimButton = ({
       id: 'claim',
     })
 
+    let claimHash: Hash | null = null
+
     try {
       const claim = await getClaimTx()
 
-      const receipt = await sendTx(claim)
-      if (!receipt) throw new Error('No receipt')
+      claimHash = await sendTx(claim)
+      if (!claimHash) throw new Error('No receipt')
 
       // update tx to reflect claiming in progress
-      updateInMemoryTransaction(transaction)
+      claimActions.markAsClaiming(transaction)
 
-      // once executed, if the page is still open, bring new state from the SG.
-      await waitForMinedReceipt(receipt, Chains.mainnet)
-
-      // give some time the SG to index
-      setTimeout(() => {
-        updateInMemoryTransaction()
-        setIsWorking(false)
-      }, 5000)
-    } catch (e) {
-      // If the method reverts, the withdrawal was likely already executed.
-      // In this case, the user should be notified that the withdrawal was already executed.
-      console.log('error', e)
-      notify({
-        type: ToastStates.failed,
-        message: 'Failed to claim - it might have already been claimed',
-        id: 'claim',
+      // Rejects with a TransactionRevertedError on a revert, so getting past it means the
+      // withdrawal really is completed.
+      const receipt = await waitForMinedReceipt(claimHash, Chains.mainnet)
+      claimActions.markAsClaimed(transaction, {
+        transactionHash: receipt.transactionHash,
+        // The receipt carries no block timestamp, and the client clock is close enough for a value
+        // the indexer overwrites on its next refetch.
+        timestamp: Date.now(),
+        executor: receipt.from,
       })
+    } catch (e) {
+      console.error('Claim failed', e)
+
+      if (e instanceof TransactionRevertedError) {
+        claimActions.clearClaim(transaction)
+        notify({
+          type: ToastStates.failed,
+          explorerUrl: getExplorerUrl(e.receipt.transactionHash),
+          message: 'Failed to claim - it might have already been claimed',
+          id: 'claim',
+        })
+      } else if (claimHash) {
+        // The claim is broadcast but its receipt never arrived: the poll gives up after 180s, and
+        // an RPC failure rejects the same way.
+        notify({
+          title: 'Claim still pending',
+          type: ToastStates.waiting,
+          explorerUrl: getExplorerUrl(claimHash),
+          message: 'Taking longer than usual to confirm, it will complete on its own.',
+          id: 'claim',
+        })
+      } else {
+        notify({
+          type: ToastStates.failed,
+          message: 'Failed to claim',
+          id: 'claim',
+        })
+      }
+    } finally {
       setIsWorking(false)
     }
   }

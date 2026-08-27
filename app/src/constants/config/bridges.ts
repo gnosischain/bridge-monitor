@@ -8,3 +8,8 @@ export const Bridges = {
 
 export type BridgesValues = ObjectValues<typeof Bridges>
 export type BridgesKeys = keyof typeof Bridges
+
+export enum BridgeDirection {
+  gnosis2mainnet = 'Gnosis > Mainnet',
+  mainnet2gnosis = 'Mainnet > Gnosis',
+}

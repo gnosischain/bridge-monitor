@@ -71,10 +71,6 @@ const useBridgeLimits = (
   const toTokenAddress =
     toToken?.address == NATIVE_TOKEN_ADDRESS.toLowerCase() ? zeroAddress : toToken?.address
 
-  // Which mediator to read, and how — pure function of the inputs (same branching as the
-  // previous SWR fetcher): overridden mediator / gnosis xDai / foreign DAI|USDS use the
-  // HomeBridgeErcToNative (no token arg); a token with a destination uses the Omni mediator
-  // (token arg); otherwise fall back to the default (cross-chain) limits.
   const branch = useMemo(() => {
     if (!fromChainId || !fromTokenAddress) return null
 

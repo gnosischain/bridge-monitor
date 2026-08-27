@@ -13,7 +13,6 @@ import {
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Transaction } from '@/src/utils/transactions'
 import { ArrowRight } from '@/src/components/assets/ArrowRight'
-import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
 
 const Wrapper = styled.div`
   column-gap: calc(var(--theme-common-space) * 2);
@@ -137,7 +136,6 @@ interface Props {
   $timestampStarted: number
   $transaction?: Transaction
   $transactionStatus: TransactionStatus
-  $updateInMemoryTransaction: UpdateInMemoryTx
 }
 
 export const Summary: React.FC<Props> = ({
@@ -155,7 +153,6 @@ export const Summary: React.FC<Props> = ({
   $timestampStarted,
   $transaction,
   $transactionStatus,
-  $updateInMemoryTransaction,
   ...restProps
 }) => {
   return (
@@ -210,12 +207,7 @@ export const Summary: React.FC<Props> = ({
         </InitiatorReceiver>
       </PodAmount>
       {/* @todo - If a signature fails it has to change state */}
-      <PodStatus
-        subTitle={$transactionStatus}
-        title="Status"
-        transaction={$transaction}
-        updateInMemoryTransaction={$updateInMemoryTransaction}
-      >
+      <PodStatus subTitle={$transactionStatus} title="Status" transaction={$transaction}>
         {/* @todo:
          - if transactionStatus is not completed, completed value must be empty
         */}
