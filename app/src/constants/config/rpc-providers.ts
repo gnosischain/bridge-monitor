@@ -8,6 +8,16 @@ import { Chains, ChainsValues } from '@/src/constants/config/types'
 export const RPC_PROXY_PATH = '/api/rpc'
 
 /**
+ * Largest JSON-RPC batch `pages/api/rpc.ts` accepts in one POST.
+ */
+export const RPC_MAX_BATCH = 25
+
+/**
+ * `batchSize` the browser transports are pinned to, deliberately **below** {@link RPC_MAX_BATCH}.
+ */
+export const RPC_CLIENT_BATCH_SIZE = 20
+
+/**
  * Absolute base for {@link RPC_PROXY_PATH}. viem's own `fetch` is happy with a relative URL, but
  * wagmi forwards the transport URL to WalletConnect (`extractRpcUrls` → `EthereumProvider`'s
  * `rpcMap`), and `@walletconnect/jsonrpc-http-connection` rejects any URL without an `http(s):`
