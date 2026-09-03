@@ -18,8 +18,11 @@ import dynamic from 'next/dynamic'
 import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { wagmiConfig } from '@/src/providers/wagmi'
+import { shouldRetryQuery } from '@/src/lib/api/retryPolicy'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: shouldRetryQuery } },
+})
 
 const Web3ConnectionProvider = dynamic(() => import('@/src/providers/web3ConnectionProvider'), {
   ssr: false,
