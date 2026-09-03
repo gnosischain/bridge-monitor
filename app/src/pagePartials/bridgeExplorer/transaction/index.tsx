@@ -14,6 +14,7 @@ import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/src/utils/transactions'
 import { getChainIconName } from '@/src/utils/icons'
 import { isSameString } from '@/src/utils/tools'
+import { getSafeInternalURL } from '@/src/utils/navigation'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { useValidators } from '@/src/providers/validatorsProvider'
 import { BridgesValues } from '@/src/constants/config/bridges'
@@ -117,8 +118,9 @@ export const Transaction: React.FC = ({ ...restProps }) => {
     () => String(router.query?.transaction),
     [router.query?.transaction],
   )
+
   const goBackURL = useMemo(
-    () => String(router.query?.goBackURL as string),
+    () => getSafeInternalURL(router.query?.goBackURL),
     [router.query?.goBackURL],
   )
 
@@ -196,7 +198,7 @@ export const Transaction: React.FC = ({ ...restProps }) => {
             href={getTxScanUrl(currentTx.transactionHash, currentTx.initiatorNetwork)}
           />
         </TxTitleWrapper>
-        {goBackURL !== 'undefined' && <ButtonGoBack onClick={() => router.replace(goBackURL)} />}
+        {goBackURL && <ButtonGoBack onClick={() => router.replace(goBackURL)} />}
       </Head>
       <Information>
         <Summary
