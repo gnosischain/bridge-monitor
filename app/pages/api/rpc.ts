@@ -20,12 +20,12 @@ import { ProxyResolution, proxyJsonPost } from '@/src/lib/api/proxyJsonPost'
  * a batch-size cap and a method deny-list.
  */
 
-const UPSTREAM_BY_CHAIN: Record<string, string | undefined> = {
+const UPSTREAM_BY_CHAIN = new Map<string, string | undefined>([
   // Mainnet has no safe public fallback — it must be provided (the Tenderly gateway URL).
-  '1': process.env.RPC_MAINNET,
+  ['1', process.env.RPC_MAINNET],
   // Gnosis has a public node, so fall back to it when no private URL is configured.
-  '100': process.env.RPC_GNOSIS || 'https://rpc.gnosischain.com/',
-}
+  ['100', process.env.RPC_GNOSIS || 'https://rpc.gnosischain.com/'],
+])
 
 const DENIED_PREFIX = /^(debug_|trace_|arbtrace_|tenderly_|txpool_|admin_|miner_|engine_)/
 
@@ -73,6 +73,8 @@ const readMethods = (body: unknown): Array<string> | null => {
 
 /** Why to refuse this payload, or `null` to forward it. */
 const inspect = (methods: Array<string>): string | null => {
+  if (methods.length === 0) return 'Empty batch'
+
   if (methods.length > RPC_MAX_BATCH) return 'Batch too large'
 
   if (methods.some(isDenied)) return 'RPC method not allowed'
@@ -86,11 +88,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       ? request.query.chainId[0]
       : request.query.chainId
 
-    if (!chainId || !(chainId in UPSTREAM_BY_CHAIN)) {
+    if (!chainId || !UPSTREAM_BY_CHAIN.has(chainId)) {
       return reject('Unsupported chainId')
     }
 
-    const upstream = UPSTREAM_BY_CHAIN[chainId]
+    const upstream = UPSTREAM_BY_CHAIN.get(chainId)
     if (!upstream) {
       // Chain is supported but the server was never given an upstream URL for it.
       return {
