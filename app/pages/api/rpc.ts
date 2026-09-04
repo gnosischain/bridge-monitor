@@ -73,6 +73,8 @@ const readMethods = (body: unknown): Array<string> | null => {
 
 /** Why to refuse this payload, or `null` to forward it. */
 const inspect = (methods: Array<string>): string | null => {
+  if (methods.length === 0) return 'Empty batch'
+
   if (methods.length > RPC_MAX_BATCH) return 'Batch too large'
 
   if (methods.some(isDenied)) return 'RPC method not allowed'
