@@ -14,6 +14,7 @@ import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/src/utils/transactions'
 import { getChainIconName } from '@/src/utils/icons'
 import { isSameString } from '@/src/utils/tools'
+import { getSafeInternalURL } from '@/src/utils/navigation'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { useValidators } from '@/src/providers/validatorsProvider'
 import { BridgesValues } from '@/src/constants/config/bridges'
@@ -117,18 +118,16 @@ export const Transaction: React.FC = ({ ...restProps }) => {
     () => String(router.query?.transaction),
     [router.query?.transaction],
   )
+
   const goBackURL = useMemo(
-    () => String(router.query?.goBackURL as string),
+    () => getSafeInternalURL(router.query?.goBackURL),
     [router.query?.goBackURL],
   )
 
-  const { isLoading, transactions, updateInMemoryTransaction } = useFetchTransactions(
-    {},
-    {
-      // transactionId is txHash in on the network that originated the bridge
-      where: { id: { _eq: transactionId.toLowerCase() } },
-    },
-  )
+  const { claimActions, isLoading, transactions } = useFetchTransactions({
+    // transactionId is txHash in on the network that originated the bridge
+    where: { id: { _eq: transactionId.toLowerCase() } },
+  })
 
   // hack, for some reason TS is not recognizing that transactions[0] can be null
   const currentTx = transactions.length > 0 ? transactions[0] : null
@@ -196,7 +195,7 @@ export const Transaction: React.FC = ({ ...restProps }) => {
             href={getTxScanUrl(currentTx.transactionHash, currentTx.initiatorNetwork)}
           />
         </TxTitleWrapper>
-        {goBackURL !== 'undefined' && <ButtonGoBack onClick={() => router.replace(goBackURL)} />}
+        {goBackURL && <ButtonGoBack onClick={() => router.replace(goBackURL)} />}
       </Head>
       <Information>
         <Summary
@@ -216,7 +215,6 @@ export const Transaction: React.FC = ({ ...restProps }) => {
           $timestampStarted={currentTx.timestamp ?? 0}
           $transaction={currentTx}
           $transactionStatus={currentTx.transactionStatus}
-          $updateInMemoryTransaction={updateInMemoryTransaction}
         />
         <StatusList>
           <StatusDetails
@@ -288,10 +286,7 @@ export const Transaction: React.FC = ({ ...restProps }) => {
               title="Ready to claim"
               transactionStatus={TransactionStatus.Unclaimed}
             >
-              <ClaimButton
-                transaction={currentTx}
-                updateInMemoryTransaction={updateInMemoryTransaction}
-              />
+              <ClaimButton claimActions={claimActions} transaction={currentTx} />
             </StatusDetails>
           )}
         </StatusList>

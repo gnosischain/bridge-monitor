@@ -115,18 +115,13 @@ jobs:
         run: |
           gcloud components install gke-gcloud-auth-plugin
 
-      # Connect to Twingate to reach the GKE API server (MANs restricted)
-      - name: Connect to Twingate
-        uses: twingate/github-action@v1
-        with:
-          service-key: ${{ secrets.TWINGATE_SERVICE_KEY_STAGING }}
-
+      # Reach the control plane via the IAM-gated DNS endpoint (no Twingate)
       - name: Configure kubectl
         run: |
           gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER }} \
             --region ${{ secrets.GCP_REGION }} \
             --project ${{ secrets.GCP_PROJECT }} \
-            --internal-ip
+            --dns-endpoint
 
       - name: Verify deployment exists
         run: |

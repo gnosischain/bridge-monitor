@@ -143,11 +143,13 @@ type EnvioValidatorActivityRow = {
   executed?: Array<{ id: string }>
 }
 
+export type ValidatorActivity = 'signed' | 'executed'
+
 /** Validator activity for `bridge` since `afterDate`, counted by `activity`. */
-const fetchValidatorsActivity = async (
+export const fetchValidatorsActivity = async (
   bridge: BridgesValues,
   afterDate: number,
-  activity: 'signed' | 'executed',
+  activity: ValidatorActivity,
 ) => {
   const bridgeValue = bridge.toUpperCase() as BridgesValues
 
@@ -165,9 +167,3 @@ const fetchValidatorsActivity = async (
     }
   })
 }
-
-export const fetchSignedTransactions = async (bridge: BridgesValues, afterDate: number) =>
-  fetchValidatorsActivity(bridge, afterDate, 'signed')
-
-export const fetchExecutedTransactions = async (bridge: BridgesValues, afterDate: number) =>
-  fetchValidatorsActivity(bridge, afterDate, 'executed')

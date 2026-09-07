@@ -14,7 +14,7 @@ import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
  * `amount` and returns the `calls` executing it. The simulation doubles as the gas
  * estimate and as a pre-flight revert check — a failing simulation yields `calls: null`.
  *
- * Return contract (kept from the SWR version): `undefined` while the wallet isn't on
+ * Return contract: `undefined` while the wallet isn't on
  * Gnosis or the simulation is in flight; `{ calls: null }` when there is nothing to send
  * (`returnZero`, zero amount, failed simulation); `{ calls }` when ready.
  */
