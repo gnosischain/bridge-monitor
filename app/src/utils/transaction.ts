@@ -1,8 +1,5 @@
 import { TransactionExecution, TransactionValidation } from './transactions'
 
-/*
-  @todo: Get info from SG
-*/
 export type Transaction = {
   bridgeName: string
   confirmedTimestamp: string

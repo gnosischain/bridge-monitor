@@ -7,7 +7,7 @@ import { Warning } from '@/src/components/assets/Warning'
 import { StatusColors } from '@/src/pagePartials/bridgeExplorer/common/StatusColors'
 import { Tooltip } from '@/src/components/tooltip'
 import { txTime } from '@/src/utils/txTime'
-import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
+import { ClaimActions } from '@/src/hooks/useTransactions'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -37,14 +37,14 @@ const Emphasize = styled.span`
 
 type Props = {
   transaction: Transaction
-  updateInMemoryTransaction: UpdateInMemoryTx
+  claimActions: ClaimActions
 }
 
-export const StatusCell: React.FC<Props> = ({ transaction, updateInMemoryTransaction }) => {
+export const StatusCell: React.FC<Props> = ({ claimActions, transaction }) => {
   const { initiatorNetwork, receiverNetwork, transactionStatus } = transaction
 
   return transactionStatus === TxStatusEnum.Unclaimed ? (
-    <ClaimButton transaction={transaction} updateInMemoryTransaction={updateInMemoryTransaction} />
+    <ClaimButton claimActions={claimActions} transaction={transaction} />
   ) : (
     <Wrapper>
       {transactionStatus === 'INITIATED' && (

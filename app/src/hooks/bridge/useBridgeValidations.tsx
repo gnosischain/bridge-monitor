@@ -37,9 +37,6 @@ export const useBridgeValidations = ({
     fromToken,
     toToken,
   )
-  // `useBridgeLimits` is wagmi-based and no longer suspends, so `bridgeLimits` is undefined during
-  // the initial load. Every limit-derived check below guards on it, and `isValidToSend` stays false
-  // until it resolves — keeping the bridge button disabled exactly as the old SWR suspense did.
   const { data: tokenMode } = useTokenMode(fromChainId, toChainId, fromToken)
 
   const bridgeAddress = getBridgeContractConfig(fromChainId, toChainId, fromToken.address).address
@@ -71,7 +68,9 @@ export const useBridgeValidations = ({
 
   const isDomainName = isValidDomainName(recipient || '')
 
-  const { resolvedAddress } = useWeb3Name({ name: isDomainName ? recipient : undefined })
+  const { isResolvingAddress, resolvedAddress } = useWeb3Name({
+    name: isDomainName ? recipient : undefined,
+  })
 
   const isCustomERC20Home =
     fromChainId === 100 &&
@@ -102,7 +101,7 @@ export const useBridgeValidations = ({
         throw Error('Please specify a valid recipient address')
       }
 
-      if (isDomainName && !resolvedAddress) {
+      if (isDomainName && !resolvedAddress && !isResolvingAddress) {
         throw Error('Domain name is not resolved')
       }
 
@@ -149,11 +148,13 @@ export const useBridgeValidations = ({
     maxPerTxInNumber,
     isDomainName,
     resolvedAddress,
+    isResolvingAddress,
   ])
 
   const isValidToSend =
     bridgeLimits !== undefined &&
     !errorMessage &&
+    !isResolvingAddress &&
     isValidAmount &&
     isValidToken &&
     !isCustomERC20Home &&
