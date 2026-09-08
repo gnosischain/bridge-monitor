@@ -53,7 +53,7 @@ cd alerts && pnpm build # Compile TypeScript
 
 ### Frontend (`/app/src/`)
 
-**Tech stack:** Next.js 15 + React 18, Ethers.js v5 (legacy) + Viem v2 (modern), Web3Onboard v2 (wallet), Styled Components, SWR (data fetching).
+**Tech stack:** Next.js 15 + React 18, Wagmi / Viem, Styled Components, tanStack query.
 
 **Key structural patterns:**
 - Pages in `/app/pages/bridge-explorer/` — each route has a corresponding `pagePartials/` folder for page-specific components
@@ -83,7 +83,7 @@ Generated code lives in `generated/` — do not edit manually.
 
 ### Data Flow
 
-Frontend (`SWR` hooks) → Envio GraphQL API (`NEXT_PUBLIC_ENVIO_INDEXER_URL`) → Indexed on-chain events → Bridge contracts on Ethereum (chain 1) and Gnosis Chain (chain 100).
+Frontend → Envio GraphQL API (`NEXT_PUBLIC_ENVIO_INDEXER_URL`) → Indexed on-chain events → Bridge contracts on Ethereum (chain 1) and Gnosis Chain (chain 100).
 
 ## Environment Setup
 

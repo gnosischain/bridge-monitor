@@ -11,7 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { useFetchValidatorsSignatures } from '@/src/hooks/useValidators'
+import { useFetchValidatorsActivity } from '@/src/hooks/useValidators'
 import { ChevronDown } from '@/src/components/assets/ChevronDown'
 import { Dropdown as BaseDropdown, DropdownItem, DropdownPosition } from '@/src/components/dropdown'
 import { genericSuspense } from '@/src/components/safeSuspense'
@@ -133,17 +133,12 @@ export type SignedTXsData = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const BaseChart: React.FC<{ timePeriod: number; bridge: string; theme: any }> = genericSuspense(
   ({ bridge, theme, timePeriod }) => {
-    const signedTXs = useFetchValidatorsSignatures(bridge as BridgesValues, timePeriod)
+    const signedTXs = useFetchValidatorsActivity(bridge as BridgesValues, timePeriod, 'signed')
 
-    if (!signedTXs.data && signedTXs.error) {
-      throw new Error('No data for XDAI Signed Transactions')
-    }
-
-    const data =
-      signedTXs.data?.map((item) => ({
-        validatorName: item.name as string,
-        signedTxsCount: item.value as number,
-      })) ?? []
+    const data = signedTXs.data.map((item) => ({
+      validatorName: item.name,
+      signedTxsCount: item.value,
+    }))
 
     const colors = [
       'rgba(43, 157, 109, 0.6)',
@@ -190,7 +185,7 @@ const BaseChart: React.FC<{ timePeriod: number; bridge: string; theme: any }> = 
             <YAxis dataKey="name" dx={-20} type="category" width={130} {...commonAxesStyles} />
             <CartesianGrid horizontal={false} stroke={'rgba(62, 105, 87, 0.08)'} />
             <Bar barSize={12} dataKey="value" fill={theme.colors.white} radius={[6, 6, 6, 6]}>
-              {data?.map((entry, index) => (
+              {data.map((entry, index) => (
                 <Cell fill={colors[index % 20]} key={`cell-${index}`} />
               ))}
             </Bar>

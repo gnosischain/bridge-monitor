@@ -4,19 +4,19 @@ import { Transaction } from '@/src/utils/transactions'
 import { TransactionHeader } from '@/src/pagePartials/bridgeExplorer/transactionsList/TransactionsHeader'
 import { Validator } from '@/src/utils/validators'
 import { Table } from '@/src/components/table'
-import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
+import { ClaimActions } from '@/src/hooks/useTransactions'
 
 interface Props {
   goBackURL?: string
   transactions: Transaction[]
-  updateInMemoryTransaction: UpdateInMemoryTx
+  claimActions: ClaimActions
   validators?: Validator[] | undefined
 }
 
 export const TransactionsList: React.FC<Props> = ({
+  claimActions,
   goBackURL,
   transactions,
-  updateInMemoryTransaction,
   validators,
   ...restProps
 }) => {
@@ -27,11 +27,11 @@ export const TransactionsList: React.FC<Props> = ({
       <TransactionHeader validators={validators} />
       {transactions.map((transaction) => (
         <TransactionRow
+          claimActions={claimActions}
           goBackURL={goBackURL}
           key={`transaction_${transaction.id}`}
           showValidations={validators ? true : false}
           transaction={transaction}
-          updateInMemoryTransaction={updateInMemoryTransaction}
         />
       ))}
     </Table>

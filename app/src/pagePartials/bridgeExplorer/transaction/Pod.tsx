@@ -4,7 +4,6 @@ import { Badge } from '@/src/pagePartials/bridgeExplorer/transaction/Badge'
 import { InnerCard } from '@/src/components/card/InnerCard'
 import { TransactionStatus } from '@/src/pagePartials/bridgeExplorer/common/TransactionStatus'
 import { Transaction } from '@/src/utils/transactions'
-import { UpdateInMemoryTx } from '@/src/hooks/useTransactions'
 
 const Wrapper = styled(InnerCard)`
   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
@@ -35,22 +34,14 @@ interface Props {
   subTitle?: string
   title: string
   transaction?: Transaction
-  updateInMemoryTransaction?: UpdateInMemoryTx
 }
 
-export const Pod: React.FC<Props> = ({
-  children,
-  subTitle,
-  title,
-  transaction,
-  updateInMemoryTransaction,
-  ...restProps
-}) => {
+export const Pod: React.FC<Props> = ({ children, subTitle, title, transaction, ...restProps }) => {
   return (
     <Wrapper {...restProps}>
       <Header>
         <Badge text={title} />
-        {transaction && updateInMemoryTransaction ? (
+        {transaction ? (
           <Status status={transaction.transactionStatus} />
         ) : subTitle ? (
           <Badge text={subTitle} />

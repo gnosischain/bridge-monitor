@@ -1,5 +1,5 @@
 import { ChainsValues } from '@/src/constants/config/types'
-import useSWR from 'swr'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { type Abi, type Address, type Hex, encodeAbiParameters, erc20Abi } from 'viem'
 import { Token } from '@/types/token'
 import { USDC_ETHEREUM, USDCe_GNOSIS } from '@/src/constants/misc'
@@ -604,8 +604,9 @@ const handleUsdsOrDaiFromForeign = async ({
   const relayArgs = [tokenAddress as Address, receiver, amount] as const
 
   // With insufficient allowance the relayTokens estimate would revert (the bridge pulls the
-  // token), so gas is estimated for the approval instead — the button routes through the
-  // approve step first, and SWR re-runs with the fresh allowance before the bridge send.
+  // token), so gas is estimated for the approval instead — the button routes through the approve
+  // step first, and the allowance is part of the query key, so the estimate is redone against the
+  // fresh one before the bridge send.
   const gasLimit =
     amount > allowance
       ? await client.estimateContractGas({
@@ -649,7 +650,6 @@ export const getBridgeTx = async ({
   account,
   allowance,
   amount,
-  // balance,
   fromChainId,
   receiveNativeToken,
   recipient,
@@ -665,7 +665,6 @@ export const getBridgeTx = async ({
   toChainId: ChainsValues
   tokenAddress: string
   tokenMode: TOKEN_MODE
-  balance: bigint
   receiveNativeToken?: boolean
   recipient?: string
   toTokenAddress?: string
@@ -796,52 +795,43 @@ export const useBridgeTransactionInfo = ({
     tokenAddress: token.address,
   })
 
+  const allowance = userBalancesData?.allowance
   const toTokenAddress = toToken ? toToken.address : undefined
 
-  return useSWR(
-    isReady && userBalancesData
-      ? [
-          'transactionInfo',
-          token,
-          fromChainId,
-          toChainId,
-          amount,
-          recipient,
-          tokenMode,
-          receiveNativeToken,
-          toTokenAddress,
-        ]
-      : null,
-    async ([
-      ,
-      _token,
-      _fromChainId,
-      _toChainId,
-      _amount,
-      _recipient,
-      _tokenMode,
-      _receiveNativeToken,
-      _toTokenAddress,
-    ]) => {
-      const { calls, gasLimit, gasPrice } = await getBridgeTx({
-        account: userAddress,
-        amount: _amount,
-        fromChainId: _fromChainId,
-        toChainId: _toChainId,
-        tokenAddress: _token.address,
-        recipient: _recipient,
-        tokenMode: _tokenMode,
-        receiveNativeToken: _receiveNativeToken,
-        allowance: userBalancesData!.allowance,
-        balance: userBalancesData!.balance,
-        toTokenAddress: _toTokenAddress,
-      })
-
-      return {
-        gasLimit,
-        gasPrice,
-        calls,
-      }
-    },
-  )
+  return useQuery({
+    queryKey: [
+      'bridgeTransactionInfo',
+      userAddress,
+      fromChainId,
+      toChainId,
+      token.address,
+      toTokenAddress,
+      amount.toString(),
+      allowance?.toString(),
+      recipient,
+      tokenMode,
+      receiveNativeToken,
+    ],
+    queryFn:
+      isReady && allowance !== undefined
+        ? () =>
+            getBridgeTx({
+              account: userAddress,
+              amount,
+              fromChainId,
+              toChainId,
+              tokenAddress: token.address,
+              recipient,
+              tokenMode,
+              receiveNativeToken,
+              allowance,
+              toTokenAddress,
+            })
+        : skipToken,
+    staleTime: 12_000,
+    // Throw only when there is nothing to fall back on: a failed background refetch (an RPC blip
+    // while the user was on another tab) keeps the last good estimate instead of swapping the
+    // bridge button for an error boundary, which is how every other query on the form behaves.
+    throwOnError: (_, query) => query.state.data === undefined,
+  })
 }

@@ -9,7 +9,6 @@ import { MainTitle } from '@/src/components/text/MainTitle'
 import { Ok } from '@/src/components/assets/Ok'
 import { getChainKey, getNetworkConfig } from '@/src/constants/config/chains'
 import { transactionBaseURL } from '@/src/constants/sections'
-import { useEffect } from 'react'
 import { useFetchTransactions } from '@/src/hooks/useTransactions'
 import { useRouter } from 'next/router'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
@@ -162,39 +161,16 @@ export const Loading: React.FC = () => (
   </>
 )
 
-const ButtonExploreTransaction = ({
-  isMined,
-  transactionHash,
-}: {
-  isMined: boolean
-  transactionHash: string
-}) => {
+const ButtonExploreTransaction = ({ transactionHash }: { transactionHash: string }) => {
   const router = useRouter()
-  const { isLoading, transactions, updateInMemoryTransaction } = useFetchTransactions(
-    {},
-    {
-      where: { transactionHash: { _eq: transactionHash.toLowerCase() } },
-    },
+  const { isLoading, transactions } = useFetchTransactions(
+    { where: { transactionHash: { _eq: transactionHash.toLowerCase() } } },
+    undefined,
+    { pollUntilFound: true },
   )
 
   const tx = transactions.length ? transactions[0] : null
   const isWaitingForIndexing = !tx || isLoading
-
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout
-
-    if (!transactions.length) {
-      intervalId = setInterval(() => {
-        updateInMemoryTransaction()
-      }, 5000) // Call updateInMemoryTransaction every 5 seconds if the transaction is not found
-    }
-
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId) // Clear the interval when the component unmounts or the dependencies change
-      }
-    }
-  }, [isMined, transactions, updateInMemoryTransaction])
 
   return (
     <ButtonFull
@@ -293,10 +269,7 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
                 </MessageText>
               </Message>
               <BlockConfirmations network={initiatorChain} transactionHash={transactionHash} />
-              <ButtonExploreTransaction
-                isMined={progressData.isMined || false}
-                transactionHash={transactionHash}
-              />
+              <ButtonExploreTransaction transactionHash={transactionHash} />
               {isSCWallet && (
                 <WarningInfo>
                   When using a smart contract wallet, if transaction is executed but transaction

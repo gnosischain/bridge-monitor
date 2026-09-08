@@ -1,27 +1,21 @@
-import useSWR from 'swr'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { BridgesValues } from '@/src/constants/config/bridges'
-import { fetchExecutedTransactions, fetchSignedTransactions } from '@/src/utils/validators'
+import { ValidatorActivity, fetchValidatorsActivity } from '@/src/utils/validators'
 
-export const useFetchValidatorsSignatures = (bridge: BridgesValues, afterDate: number) => {
-  const {
-    data,
-    error,
-    mutate: refetch,
-  } = useSWR(['useFetchSignedTransactions', bridge, afterDate.toString()], () =>
-    fetchSignedTransactions(bridge, afterDate),
-  )
-
-  return { data, error, refetch }
-}
-
-export const useFetchValidatorsExecutions = (bridge: BridgesValues, afterDate: number) => {
-  const {
-    data,
-    error,
-    mutate: refetch,
-  } = useSWR(['useFetchExecutedTransactions', bridge, afterDate.toString()], () =>
-    fetchExecutedTransactions(bridge, afterDate),
-  )
-  return { data, error, refetch }
-}
+/**
+ * Per-validator count of the signatures or executions `bridge` saw since `afterDate` (in seconds).
+ *
+ * Suspends while loading and throws on failure: both are handled by the `genericSuspense` wrapper
+ * around the calling component.
+ */
+export const useFetchValidatorsActivity = (
+  bridge: BridgesValues,
+  afterDate: number,
+  activity: ValidatorActivity,
+) =>
+  useSuspenseQuery({
+    queryKey: ['useFetchValidatorsActivity', activity, bridge, afterDate],
+    queryFn: () => fetchValidatorsActivity(bridge, afterDate, activity),
+    staleTime: 60_000,
+  })

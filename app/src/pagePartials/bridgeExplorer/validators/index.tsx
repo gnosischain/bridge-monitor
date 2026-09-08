@@ -2,10 +2,7 @@ import styled, { css } from 'styled-components'
 import { Validator } from '@/src/pagePartials/bridgeExplorer/validators/Validator'
 import { TransactionsSigned } from '@/src/pagePartials/bridgeExplorer/validators/TransactionsSigned'
 import { Bridges as BridgesConfig } from '@/src/constants/config/bridges'
-import {
-  useFetchValidatorsExecutions,
-  useFetchValidatorsSignatures,
-} from '@/src/hooks/useValidators'
+import { useFetchValidatorsActivity } from '@/src/hooks/useValidators'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { get1DayBeforeInSeconds } from '@/src/utils/date'
@@ -113,8 +110,8 @@ const _1DayBefore = get1DayBeforeInSeconds()
 const XDAIValidators: React.FC = genericSuspense(
   ({ ...restProps }) => {
     const { validators: xdaiValidators } = useValidators(BridgesConfig.xdai)
-    const xdaiTodaysSignedTXs = useFetchValidatorsSignatures('XDAI', _1DayBefore)
-    const xdaiTodaysExecutedTXs = useFetchValidatorsExecutions('XDAI', _1DayBefore)
+    const xdaiTodaysSignedTXs = useFetchValidatorsActivity('XDAI', _1DayBefore, 'signed')
+    const xdaiTodaysExecutedTXs = useFetchValidatorsActivity('XDAI', _1DayBefore, 'executed')
 
     return (
       <Columns {...restProps}>
@@ -143,8 +140,8 @@ const XDAIValidators: React.FC = genericSuspense(
 const OmnibridgeValidators: React.FC = genericSuspense(
   ({ ...restProps }) => {
     const { validators: omnibridgeValidators } = useValidators(BridgesConfig.amb)
-    const omnibridgeTodaysSignedTXs = useFetchValidatorsSignatures('AMB', _1DayBefore)
-    const omnibridgeTodaysExecutedTXs = useFetchValidatorsExecutions('AMB', _1DayBefore)
+    const omnibridgeTodaysSignedTXs = useFetchValidatorsActivity('AMB', _1DayBefore, 'signed')
+    const omnibridgeTodaysExecutedTXs = useFetchValidatorsActivity('AMB', _1DayBefore, 'executed')
 
     return (
       <Columns {...restProps}>
