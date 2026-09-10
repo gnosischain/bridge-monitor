@@ -7,8 +7,7 @@ import { isSameString } from '@/src/utils/tools'
 
 export const useIsUsdsEnabled = () => {
   const { data } = useReadContract({
-    address: contracts.foreignXDAIBridge.address[Chains.mainnet],
-    abi: contracts.foreignXDAIBridge.abi,
+    ...contracts.XDAIBridge[Chains.mainnet],
     functionName: 'erc20token',
     chainId: Chains.mainnet,
   })

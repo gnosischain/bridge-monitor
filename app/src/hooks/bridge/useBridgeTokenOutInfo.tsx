@@ -214,8 +214,7 @@ export const useBridgeTokenOutInfo = ({
   // The omni mediator lives on Gnosis; only the `read` plan actually hits the chain.
   const readPlan = plan?.kind === 'read' ? plan : null
   const { data: readTokenOutAddress, error } = useReadContract({
-    address: contracts.OmniBridge.address[Chains.gnosis],
-    abi: contracts.OmniBridge.abi,
+    ...contracts.OmniBridge[Chains.gnosis],
     functionName: readPlan?.functionName ?? 'homeTokenAddress',
     args: [readPlan?.tokenAddress ?? zeroAddress],
     chainId: Chains.gnosis,

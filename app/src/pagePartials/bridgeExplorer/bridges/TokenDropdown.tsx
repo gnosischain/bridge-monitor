@@ -214,8 +214,7 @@ const Dropdown: React.FC<Props> = ({
       { chainId, address: value as Address, abi: erc20Abi, functionName: 'decimals' },
       {
         chainId: Chains.gnosis,
-        address: contracts.OmniBridge.address[Chains.gnosis] as Address,
-        abi: contracts.OmniBridge.abi,
+        ...contracts.OmniBridge[Chains.gnosis],
         functionName: isFromGnosis ? 'foreignTokenAddress' : 'homeTokenAddress',
         args: [value as Address],
       },

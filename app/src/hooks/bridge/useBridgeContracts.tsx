@@ -1,12 +1,7 @@
-import { contracts } from '@/src/constants/config/contracts'
-import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { type Abi } from 'viem'
 
-// the two bridge ABIs not exposed through `contracts` (its BridgeRouter entry has no abi
-// field, and its OmniBridge entry carries only the home mediator's abi)
-import ForeignBridgeRouter_abi from '@/src/abis/ForeignBridgeRouter'
-import ForeignOmniMediator_abi from '@/src/abis/ForeignOmniMediator.json'
-
+import { contracts } from '@/src/constants/config/contracts'
+import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { TokenOverrideManager } from '@/src/utils/token-overrides'
 
@@ -27,8 +22,6 @@ export const getBridgeContractConfig = (
   toChainId: ChainsValues,
   tokenAddress: string,
 ): BridgeContractConfig => {
-  const isHome = fromChainId === Chains.gnosis
-
   const { isNativeBridge, isNativeToken } = getBridgeCommonInfo({
     fromChainId,
     toChainId,
@@ -36,32 +29,22 @@ export const getBridgeContractConfig = (
   })
 
   if (isNativeBridge) {
-    return isHome
-      ? {
-          address: contracts.XDAIBridge.address[fromChainId],
-          abi: contracts.XDAIBridge.abi as Abi,
-          chainId: fromChainId,
-        }
-      : {
-          address: contracts.BridgeRouter.address[fromChainId],
-          abi: ForeignBridgeRouter_abi,
-          chainId: fromChainId,
-        }
+    return fromChainId === Chains.gnosis
+      ? { ...contracts.XDAIBridge[Chains.gnosis], chainId: fromChainId }
+      : { ...contracts.BridgeRouter[Chains.mainnet], chainId: fromChainId }
   }
 
   if (fromChainId !== Chains.gnosis && isNativeToken) {
-    return {
-      address: contracts.omniBridgeNativeToken.address[fromChainId],
-      abi: contracts.omniBridgeNativeToken.abi as Abi,
-      chainId: fromChainId,
-    }
+    return { ...contracts.omniBridgeNativeToken[Chains.mainnet], chainId: fromChainId }
   }
 
+  const omniBridge = contracts.OmniBridge[fromChainId]
+
   return {
+    ...omniBridge,
     address: TokenOverrideManager.isMediatorOverridden(tokenAddress, fromChainId)
       ? TokenOverrideManager.getOverride(tokenAddress).mediator // use the overridden mediator
-      : contracts.OmniBridge.address[fromChainId],
-    abi: isHome ? (contracts.OmniBridge.abi as Abi) : (ForeignOmniMediator_abi as Abi),
+      : omniBridge.address,
     chainId: fromChainId,
   }
 }

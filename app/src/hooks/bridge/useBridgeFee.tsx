@@ -21,16 +21,14 @@ export const useBridgeFee = ({
   token: Token
 }) => {
   const { data: xdaiFee } = useReadContract({
-    address: contracts.XDAIBridge.address[Chains.gnosis],
-    abi: contracts.XDAIBridge.abi,
+    ...contracts.XDAIBridge[Chains.gnosis],
     functionName: isFromHome ? 'getHomeFee' : 'getForeignFee',
     chainId: Chains.gnosis,
     query: { enabled: isNativeBridge },
   })
 
   const { data: omniFee } = useReadContract({
-    address: contracts.omnibridgeFeeManager.address[Chains.gnosis],
-    abi: contracts.omnibridgeFeeManager.abi,
+    ...contracts.omnibridgeFeeManager[Chains.gnosis],
     functionName: 'calculateFee',
     args: [
       isFromHome ? homeToForeignFeeKey : foreignToHomeFeeKey,

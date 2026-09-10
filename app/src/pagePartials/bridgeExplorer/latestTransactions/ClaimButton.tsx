@@ -3,7 +3,6 @@ import styled from 'styled-components'
 
 import { type Abi, type Address, type Hash, type Hex, parseEventLogs } from 'viem'
 
-import ForeignBridgeRouter_abi from '@/src/abis/ForeignBridgeRouter'
 import { notify } from '@/src/components/toast'
 import { contracts } from '@/src/constants/config/contracts'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
@@ -69,7 +68,7 @@ export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimBu
   const isXDAI = transaction.bridgeName.toUpperCase() === 'XDAI'
 
   const getClaimTx = async (): Promise<{ calls: TxCall[]; chainId: ChainsValues }> => {
-    const routerAddress = contracts.BridgeRouter.address[Chains.mainnet] as Address
+    const router = contracts.BridgeRouter[Chains.mainnet]
     const gnosisClient = getPublicClient(Chains.gnosis)
 
     if (isXDAI) {
@@ -81,15 +80,9 @@ export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimBu
           : transaction.transactionHash
       ) as Hex
 
-      const helperContract = isUsdsEnabled
-        ? {
-            address: contracts.BridgeHelper.address[Chains.gnosis] as Address,
-            abi: contracts.BridgeHelper.abi as Abi,
-          }
-        : {
-            address: contracts.BridgeHelper__beforeUsdsMigration.address[Chains.gnosis] as Address,
-            abi: contracts.BridgeHelper__beforeUsdsMigration.abi as Abi,
-          }
+      const helperContract: { address: Address; abi: Abi } = isUsdsEnabled
+        ? contracts.BridgeHelper[Chains.gnosis]
+        : contracts.BridgeHelper__beforeUsdsMigration[Chains.gnosis]
 
       const messageHash = (await (isUsdsEnabled
         ? gnosisClient.readContract({
@@ -124,8 +117,7 @@ export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimBu
       return {
         calls: [
           toCall({
-            abi: ForeignBridgeRouter_abi,
-            address: routerAddress,
+            ...router,
             functionName: 'executeSignatures',
             args: [message, signatures],
           }),
@@ -142,7 +134,7 @@ export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimBu
 
       const [userRequestForSignatureEvent] = initialTx
         ? parseEventLogs({
-            abi: contracts.AMB.abi,
+            abi: contracts.AMB[Chains.gnosis].abi,
             logs: initialTx.logs,
             eventName: 'UserRequestForSignature',
           })
@@ -164,8 +156,7 @@ export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimBu
 
       const message = userRequestForSignatureEvent.args.encodedData
       const signatures = await gnosisClient.readContract({
-        address: contracts.AMBBridgeHelper.address[Chains.gnosis],
-        abi: contracts.AMBBridgeHelper.abi,
+        ...contracts.AMBBridgeHelper[Chains.gnosis],
         functionName: 'getSignatures',
         args: [message],
       })
@@ -173,8 +164,7 @@ export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimBu
       return {
         calls: [
           toCall({
-            abi: ForeignBridgeRouter_abi,
-            address: routerAddress,
+            ...router,
             functionName: 'safeExecuteSignaturesWithAutoGasLimit',
             args: [message, signatures],
           }),
