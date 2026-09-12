@@ -1,4 +1,4 @@
-import { TRANSMUTER_ADDRESS, USDCe_GNOSIS } from '@/src/constants/misc'
+import { USDCe_GNOSIS } from '@/src/constants/misc'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
@@ -6,6 +6,7 @@ import { Step, statuses, steps } from './const'
 import { StatusDetails } from './StatusDetails'
 import { Status } from '@/src/pagePartials/bridgeExplorer/transaction/IconStatus'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
+import { contracts } from '@/src/constants/config/contracts'
 import { Chains } from '@/src/constants/config/chains'
 import { Token } from '@/types/token'
 import { zeroAddress } from 'viem'
@@ -68,7 +69,7 @@ export const Approve = ({
   const { data: userBalanceData, refetch: refreshBalanceToken } = useUserTokenBalances({
     userAddress: userAddress || zeroAddress,
     chainId: Chains.gnosis,
-    allowanceAddress: TRANSMUTER_ADDRESS,
+    allowanceAddress: contracts.Transmuter[Chains.gnosis].address,
     tokenAddress: tokenIn.address,
   })
 
@@ -93,7 +94,7 @@ export const Approve = ({
       try {
         const hash = await approve({
           amount,
-          spenderAddress: TRANSMUTER_ADDRESS,
+          spenderAddress: contracts.Transmuter[Chains.gnosis].address,
           tokenAddress: USDCe_GNOSIS,
         })
         if (!hash) throw new Error('Approval was not submitted')

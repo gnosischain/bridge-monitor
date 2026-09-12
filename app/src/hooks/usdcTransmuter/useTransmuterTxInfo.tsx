@@ -2,12 +2,14 @@ import { useMemo } from 'react'
 
 import { useSimulateContract } from 'wagmi'
 
-import TransmuterAbi from '@/src/abis/TransmuterEurc'
+import { contracts } from '@/src/constants/config/contracts'
 import { Chains } from '@/src/constants/config/types'
-import { TRANSMUTER_ADDRESS, USDC_XDAI_OLD } from '@/src/constants/misc'
+import { USDC_XDAI_OLD } from '@/src/constants/misc'
 import { toCall } from '@/src/lib/web3/transactions'
 import { TokenUsdc } from '@/src/pagePartials/usdc/types'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+
+const transmuter = contracts.Transmuter[Chains.gnosis]
 
 /**
  * Simulates the transmuter deposit (USDC → USDC.e) or withdraw (USDC.e → USDC) for
@@ -34,8 +36,7 @@ export const useTransmuterTxInfo = ({
   const functionName = token.address === USDC_XDAI_OLD ? 'deposit' : 'withdraw'
 
   const { data: simulation, isLoading } = useSimulateContract({
-    abi: TransmuterAbi,
-    address: TRANSMUTER_ADDRESS,
+    ...transmuter,
     functionName,
     args: [amount],
     chainId: Chains.gnosis,
@@ -49,9 +50,7 @@ export const useTransmuterTxInfo = ({
     if (!isReady || isLoading) return undefined
     if (!simulation?.request) return { calls: null, chainId: Chains.gnosis }
     return {
-      calls: [
-        toCall({ address: TRANSMUTER_ADDRESS, abi: TransmuterAbi, functionName, args: [amount] }),
-      ],
+      calls: [toCall({ ...transmuter, functionName, args: [amount] })],
       chainId: Chains.gnosis,
     }
   }, [isReady, isLoading, simulation, functionName, amount])

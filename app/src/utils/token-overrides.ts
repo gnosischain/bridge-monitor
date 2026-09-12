@@ -1,4 +1,4 @@
-import { contracts } from '@/src/constants/config/contracts'
+import { contractOn, contracts } from '@/src/constants/config/contracts'
 import { ChainsValues } from '@/src/constants/config/types'
 import { TOKEN_MODE } from '@/src/hooks/bridge/useTokenMode'
 
@@ -206,11 +206,12 @@ class TokenOverrideManager {
    */
   private getCommonMediatorsAddresses(fromChainId: ChainsValues): string[] {
     return [
-      contracts.XDAIBridge.address[fromChainId],
-      contracts.OmniBridge.address[fromChainId],
-      contracts.omniBridgeNativeToken.address[fromChainId],
+      contracts.XDAIBridge[fromChainId],
+      contracts.OmniBridge[fromChainId],
+      // only deployed on the foreign chain, so absent when `fromChainId` is Gnosis
+      contractOn(contracts.omniBridgeNativeToken, fromChainId),
     ]
-      .map((address) => address?.toLowerCase())
+      .map((deployment) => deployment?.address.toLowerCase())
       .filter(Boolean) as string[]
   }
 }

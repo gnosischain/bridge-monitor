@@ -3,10 +3,11 @@ import styled from 'styled-components'
 import { InnerCard } from '@/src/components/card/InnerCard'
 import { BaseSubTitle as Title } from '@/src/components/text/BaseSubTitle'
 import { TokenAddress } from '@/src/components/token/TokenAddress'
-import { bridgeConfig } from '@/src/constants/bridges'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { Chains } from '@/src/constants/config/chains'
 import { ChainsKeys } from '@/src/constants/config/types'
+
+import { configurationAddresses } from './const'
 
 const RowWrapper = styled.div`
   align-items: flex-start;
@@ -82,7 +83,7 @@ const Rows = styled.div`
 `
 
 export const Configuration: React.FC = ({ ...restProps }) => {
-  const { OMNI, XDAI } = bridgeConfig
+  const { OMNI, XDAI } = configurationAddresses
 
   return (
     <Wrapper {...restProps}>

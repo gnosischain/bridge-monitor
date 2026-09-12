@@ -1,5 +1,6 @@
 import nullthrows from 'nullthrows'
 
+import { USDS_ADDRESS } from '@/src/constants/config/common'
 import { ChainConfig, Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 
 // Default chain id from env var
@@ -22,25 +23,9 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     bridge: {
       DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
       wForeignNative: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // WETH
-      USDS: '0xdc035d45d973e3ec169d2276ddab16f1e407384f',
+      USDS: USDS_ADDRESS,
     },
   },
-  // [Chains.chiado]: {
-  //   id: Chains.chiado,
-  //   name: 'Gnosis Chiado Testnet',
-  //   shortName: 'Chiado',
-  //   chainId: Chains.chiado,
-  //   chainIdHex: '0x27d8',
-  //   blockExplorerUrls: ['https://gnosis-chiado.blockscout.com/'],
-  //   blockExplorerName: 'Chiado Blockscout',
-  //   token: 'Testnet xDai on Chiado',
-  //   tokenDecimals: 18,
-  //   blocksFrequencyInSeconds: 5,
-  //   bridge: {
-  //     DAI: '',
-  //     wForeignNative: '', // WETH
-  //   },
-  // },
   [Chains.gnosis]: {
     id: Chains.gnosis,
     name: 'Gnosis Chain',

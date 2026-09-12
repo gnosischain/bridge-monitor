@@ -11,6 +11,7 @@ import HomeAMB_abi from '@/src/abis/HomeAMB'
 import OMNI_FEE_MANAGER_abi from '@/src/abis/OmniBridgeFeeManager'
 import OmniMediator_abi from '@/src/abis/HomeOmniMediator'
 import NativeOmniBridgeMediator_abi from '@/src/abis/NativeOmniBridgeMediator'
+import Transmuter_abi from '@/src/abis/TransmuterEurc'
 import USDSDeposit_abi from '@/src/abis/USDSdeposit'
 import XDAI_abi from '@/src/abis/HomeBridgeErcToNative'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
@@ -94,6 +95,13 @@ export const contracts = {
     [Chains.gnosis]: {
       address: '0x5C183C8A49aBA6e31049997a56D75600E27FF8c9',
       abi: USDSDeposit_abi,
+    },
+  },
+  // Swaps USDC on xDai for USDC.e and back, via `deposit`/`withdraw`.
+  Transmuter: {
+    [Chains.gnosis]: {
+      address: '0x0392A2F5Ac47388945D8c84212469F545fAE52B2',
+      abi: Transmuter_abi,
     },
   },
 } as const satisfies ContractRegistry

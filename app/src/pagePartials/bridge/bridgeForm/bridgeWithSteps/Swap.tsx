@@ -1,4 +1,4 @@
-import { TRANSMUTER_ADDRESS, USDCe_GNOSIS } from '@/src/constants/misc'
+import { USDCe_GNOSIS } from '@/src/constants/misc'
 import { useTransmuterTxInfo } from '@/src/hooks/usdcTransmuter/useTransmuterTxInfo'
 import useTransaction from '@/src/hooks/useTransaction'
 import { TokenUsdc } from '@/src/pagePartials/usdc/types'
@@ -11,6 +11,7 @@ import { Status } from './IconStatus'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { waitForMinedReceipt } from '@/src/lib/web3/transactions'
 import { Token } from '@/types/token'
+import { contracts } from '@/src/constants/config/contracts'
 import { Chains } from '@/src/constants/config/chains'
 import { zeroAddress } from 'viem'
 
@@ -73,7 +74,7 @@ export const Swap = ({
   const { refetch: refreshBalanceToken } = useUserTokenBalances({
     userAddress: userAddress || zeroAddress,
     chainId: Chains.gnosis,
-    allowanceAddress: TRANSMUTER_ADDRESS,
+    allowanceAddress: contracts.Transmuter[Chains.gnosis].address,
     tokenAddress: tokenIn.address,
   })
 

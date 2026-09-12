@@ -6,19 +6,21 @@ import { contracts } from '@/src/constants/config/contracts'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
+import { useOmniDailyLimits, useXdaiDailyLimits } from '@/src/hooks/bridge/useDailyLimits'
 import { isSameString } from '@/src/utils/tools'
 import { Token } from '@/types/token'
 import { TokenOverrideManager } from '@/src/utils/token-overrides'
 
+/**
+ * The subset of a bridge's limits the send form validates against. Narrower than `DailyLimits`
+ * because the default branch below can only synthesise these four.
+ */
 export type BridgeLimits = {
   dailyLimit: bigint
   minPerTx: bigint
   maxPerTx: bigint
   totalSpentPerDay: bigint
 }
-
-const XDAI_ABI = contracts.XDAIBridge.abi
-const OMNI_ABI = contracts.OmniBridge.abi
 
 /**
  * Scales the default limits (read at 18 decimals from the mediator) to the token's decimals.
@@ -87,103 +89,60 @@ const useBridgeLimits = (
       isSameString(fromTokenAddress, chainsConfig[fromChainId].bridge.USDS)
 
     if (isGnosisXDai || isForeignDAI || overwrittenMediator || isForeignUSDS) {
-      const address = (
-        overwrittenMediator
-          ? TokenOverrideManager.getOverride(fromTokenAddress).mediator
-          : contracts.XDAIBridge.address[fromChainId]
-      ) as Address
-      return { kind: 'xdai' as const, address }
+      return {
+        kind: 'xdai' as const,
+        // an override reads its own mediator; otherwise the registry's bridge is used
+        address: overwrittenMediator
+          ? (TokenOverrideManager.getOverride(fromTokenAddress).mediator as Address)
+          : undefined,
+      }
     }
 
     if (toTokenAddress) {
-      return {
-        kind: 'omni' as const,
-        address: contracts.OmniBridge.address[fromChainId],
-        token: fromTokenAddress as Address,
-      }
+      return { kind: 'omni' as const, token: fromTokenAddress as Address }
     }
 
     return { kind: 'default' as const }
   }, [fromChainId, fromTokenAddress, toTokenAddress])
 
-  // --- XDAI-style branch (no token arg) ---
-  const isXdai = branch?.kind === 'xdai'
-  const xdaiAddress = branch?.kind === 'xdai' ? branch.address : zeroAddress
-  const xdai = { address: xdaiAddress, abi: XDAI_ABI, chainId: fromChainId } as const
-
-  const { data: xdaiBase, isLoading: xdaiBaseLoading } = useReadContracts({
-    allowFailure: false,
-    contracts: [
-      { ...xdai, functionName: 'getCurrentDay' },
-      { ...xdai, functionName: 'dailyLimit' },
-      { ...xdai, functionName: 'minPerTx' },
-      { ...xdai, functionName: 'maxPerTx' },
-    ],
-    query: { enabled: isXdai },
-  })
-
-  const xdaiDay = xdaiBase?.[0]
-  const { data: xdaiTotals, isLoading: xdaiTotalsLoading } = useReadContracts({
-    allowFailure: false,
-    contracts: [{ ...xdai, functionName: 'totalSpentPerDay', args: [xdaiDay ?? 0n] }],
-    query: { enabled: isXdai && xdaiDay !== undefined },
-  })
-
-  // --- Omni-style branch (token arg) ---
-  const isOmni = branch?.kind === 'omni'
-  const omniToken = branch?.kind === 'omni' ? branch.token : zeroAddress
-  const omni = {
-    address: contracts.OmniBridge.address[fromChainId],
-    abi: OMNI_ABI,
+  // Every branch's hook runs on every render (rules of hooks); `enabled` decides which one
+  // actually hits the chain.
+  const { data: xdaiLimits, isLoading: xdaiLoading } = useXdaiDailyLimits({
     chainId: fromChainId,
-  } as const
-
-  const { data: omniBase, isLoading: omniBaseLoading } = useReadContracts({
-    allowFailure: false,
-    contracts: [
-      { ...omni, functionName: 'getCurrentDay' },
-      { ...omni, functionName: 'dailyLimit', args: [omniToken] },
-      { ...omni, functionName: 'minPerTx', args: [omniToken] },
-      { ...omni, functionName: 'maxPerTx', args: [omniToken] },
-    ],
-    query: { enabled: isOmni },
+    address: branch?.kind === 'xdai' ? branch.address : undefined,
+    enabled: branch?.kind === 'xdai',
   })
 
-  const omniDay = omniBase?.[0]
-  const { data: omniTotals, isLoading: omniTotalsLoading } = useReadContracts({
-    allowFailure: false,
-    contracts: [{ ...omni, functionName: 'totalSpentPerDay', args: [omniToken, omniDay ?? 0n] }],
-    query: { enabled: isOmni && omniDay !== undefined },
+  const { data: omniLimits, isLoading: omniLoading } = useOmniDailyLimits({
+    chainId: fromChainId,
+    token: branch?.kind === 'omni' ? branch.token : zeroAddress,
+    enabled: branch?.kind === 'omni',
   })
 
   // --- Default branch (destination token doesn't exist yet) — cross-chain reads ---
-  const isDefault = branch?.kind === 'default'
   const { data: defaultData, isLoading: defaultLoading } = useReadContracts({
     allowFailure: false,
     contracts: [
       {
-        address: contracts.OmniBridge.address[fromChainId],
-        abi: OMNI_ABI,
+        ...contracts.OmniBridge[fromChainId],
         chainId: fromChainId,
         functionName: 'minPerTx',
         args: [zeroAddress],
       },
       {
-        address: contracts.OmniBridge.address[toChainId],
-        abi: OMNI_ABI,
+        ...contracts.OmniBridge[toChainId],
         chainId: toChainId,
         functionName: 'executionMaxPerTx',
         args: [zeroAddress],
       },
       {
-        address: contracts.OmniBridge.address[fromChainId],
-        abi: OMNI_ABI,
+        ...contracts.OmniBridge[fromChainId],
         chainId: fromChainId,
         functionName: 'executionDailyLimit',
         args: [zeroAddress],
       },
     ],
-    query: { enabled: isDefault },
+    query: { enabled: branch?.kind === 'default' },
   })
 
   const data = useMemo((): BridgeLimits | undefined => {
@@ -195,34 +154,18 @@ const useBridgeLimits = (
       return scaleDefaultLimits(minPerTx, maxPerTx, dailyLimit, fromToken?.decimals || 18)
     }
 
-    const base = branch.kind === 'xdai' ? xdaiBase : omniBase
-    const totals = branch.kind === 'xdai' ? xdaiTotals : omniTotals
-    if (!base || !totals) return undefined
+    const limits = branch.kind === 'xdai' ? xdaiLimits : omniLimits
+    if (!limits) return undefined
 
-    const [, dailyLimit, minPerTx, maxPerTx] = base
-    const [totalSpentPerDay] = totals
+    const { dailyLimit, maxPerTx, minPerTx, totalSpentPerDay } = limits
     return { dailyLimit, minPerTx, maxPerTx, totalSpentPerDay }
-  }, [branch, xdaiBase, xdaiTotals, omniBase, omniTotals, defaultData, fromToken?.decimals])
+  }, [branch, xdaiLimits, omniLimits, defaultData, fromToken?.decimals])
 
   const isLoading = useMemo(() => {
     if (!branch) return false
     if (branch.kind === 'default') return defaultLoading
-    if (branch.kind === 'xdai') {
-      return xdaiBaseLoading || xdaiTotalsLoading || (!!xdaiBase && !xdaiTotals)
-    }
-    return omniBaseLoading || omniTotalsLoading || (!!omniBase && !omniTotals)
-  }, [
-    branch,
-    defaultLoading,
-    xdaiBaseLoading,
-    xdaiTotalsLoading,
-    xdaiBase,
-    xdaiTotals,
-    omniBaseLoading,
-    omniTotalsLoading,
-    omniBase,
-    omniTotals,
-  ])
+    return branch.kind === 'xdai' ? xdaiLoading : omniLoading
+  }, [branch, defaultLoading, xdaiLoading, omniLoading])
 
   return { data, isLoading }
 }

@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import { ButtonFull } from '@/src/components/buttons/Button'
 import { Connect } from '@/src/components/assets/Connect'
+import { contracts } from '@/src/constants/config/contracts'
 import { Chains } from '@/src/constants/config/types'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { getNetworkConfig } from '@/src/constants/config/chains'
@@ -12,9 +13,10 @@ import { waitForMinedReceipt } from '@/src/lib/web3/transactions'
 import useWeb3Name from '@/src/hooks/useWeb3Name'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
 import { TokenUsdc } from './types'
-import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { useTransmuterTxInfo } from '@/src/hooks/usdcTransmuter/useTransmuterTxInfo'
 import { usdcTokens } from '@/src/constants/usdcTokens'
+
+const transmuterAddress = contracts.Transmuter[Chains.gnosis].address
 
 const Button = styled(ButtonFull)`
   margin: 0 auto;
@@ -81,7 +83,7 @@ const ApproveButton: React.FC<{
   const { refetch: refreshBalanceToken } = useUserTokenBalances({
     userAddress,
     chainId: Chains.gnosis,
-    allowanceAddress: TRANSMUTER_ADDRESS,
+    allowanceAddress: transmuterAddress,
     tokenAddress: token.address,
   })
 
@@ -101,7 +103,7 @@ const ApproveButton: React.FC<{
     try {
       const hash = await approve({
         amount,
-        spenderAddress: TRANSMUTER_ADDRESS,
+        spenderAddress: transmuterAddress,
         tokenAddress: token.address,
       })
 
@@ -143,7 +145,7 @@ const TriggerTransButton: React.FC<{
   const { refetch: refreshBalanceToken } = useUserTokenBalances({
     userAddress,
     chainId: Chains.gnosis,
-    allowanceAddress: TRANSMUTER_ADDRESS,
+    allowanceAddress: transmuterAddress,
     tokenAddress: token.address,
   })
 
@@ -154,7 +156,7 @@ const TriggerTransButton: React.FC<{
   const { refetch: refreshBalanceTokenOut } = useUserTokenBalances({
     userAddress,
     chainId: Chains.gnosis,
-    allowanceAddress: TRANSMUTER_ADDRESS,
+    allowanceAddress: transmuterAddress,
     tokenAddress: tokenOutAddress,
   })
 
@@ -228,7 +230,7 @@ export const TransButton: React.FC<{
   const { data: userBalanceData } = useUserTokenBalances({
     userAddress: recipientAddress,
     chainId: Chains.gnosis,
-    allowanceAddress: TRANSMUTER_ADDRESS,
+    allowanceAddress: transmuterAddress,
     tokenAddress: fromToken.address,
   })
 

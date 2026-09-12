@@ -4,14 +4,8 @@ import { BridgeLimit } from '@/src/pagePartials/bridgeExplorer/bridges/BridgeLim
 import { BaseSubTitle } from '@/src/components/text/BaseSubTitle'
 import { Chains } from '@/src/constants/config/chains'
 import { Token } from '@/types/token'
-import {
-  useForeignOMNIBridgeLimits,
-  useHomeOMNIBridgeLimits,
-} from '@/src/hooks/contracts/useOMNIContractCalls'
-import {
-  useForeignXDAIBridgeLimits,
-  useHomeXDAIBridgeLimits,
-} from '@/src/hooks/contracts/useXDAIContractCalls'
+import { type Address } from 'viem'
+import { useOmniDailyLimits, useXdaiDailyLimits } from '@/src/hooks/bridge/useDailyLimits'
 import { useGnoToken } from '@/src/hooks/useGnoToken'
 import { useDaiToken } from '@/src/hooks/useDaiToken'
 import { useDayNumber } from '@/src/hooks/useDayNumber'
@@ -104,10 +98,13 @@ const Placeholder: React.FC = () => (
 
 export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericSuspense(
   ({ dayNumber }) => {
-    const { foreignXdaiInformation, isLoading } = useForeignXDAIBridgeLimits(dayNumber)
+    const { data, isLoading } = useXdaiDailyLimits({
+      chainId: Chains.mainnet,
+      currentDay: dayNumber,
+    })
     // const { mainnetDaiToken } = useDaiToken()
 
-    if (isLoading) return <Placeholder />
+    if (isLoading || !data) return <Placeholder />
 
     return (
       <BridgeLimit
@@ -124,7 +121,7 @@ export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericS
         to="Gnosis"
         // token={mainnetDaiToken}
         token={usdsToken}
-        {...foreignXdaiInformation}
+        {...data}
       />
     )
   },
@@ -133,10 +130,13 @@ export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericS
 
 export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericSuspense(
   ({ dayNumber }) => {
-    const { homeXdaiInformation, isLoading } = useHomeXDAIBridgeLimits(dayNumber)
+    const { data, isLoading } = useXdaiDailyLimits({
+      chainId: Chains.gnosis,
+      currentDay: dayNumber,
+    })
     const { gnosisXdaiToken } = useDaiToken()
 
-    if (isLoading) return <Placeholder />
+    if (isLoading || !data) return <Placeholder />
 
     return (
       <BridgeLimit
@@ -154,7 +154,7 @@ export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericS
         to="Ethereum"
         token={gnosisXdaiToken}
         tokenTooltip="xDAI tokens are native to Gnosis and enable payments for smart contract execution and gas fees."
-        {...homeXdaiInformation}
+        {...data}
       />
     )
   },
@@ -164,9 +164,13 @@ export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericS
 const OmnibridgeMainnetToGnosisChain: React.FC<{ token: Token; dayNumber: string | undefined }> =
   genericSuspense(
     ({ dayNumber, token }) => {
-      const { foreignOmniInformation, isLoading } = useForeignOMNIBridgeLimits(token, dayNumber)
+      const { data, isLoading } = useOmniDailyLimits({
+        chainId: Chains.mainnet,
+        token: token.address as Address,
+        currentDay: dayNumber,
+      })
 
-      if (isLoading) return <Placeholder />
+      if (isLoading || !data) return <Placeholder />
 
       return (
         <BridgeLimit
@@ -182,7 +186,7 @@ const OmnibridgeMainnetToGnosisChain: React.FC<{ token: Token; dayNumber: string
           }
           to="Gnosis"
           token={token}
-          {...foreignOmniInformation}
+          {...data}
         />
       )
     },
@@ -192,9 +196,13 @@ const OmnibridgeMainnetToGnosisChain: React.FC<{ token: Token; dayNumber: string
 const OmnibridgeGnosisChainToMainnet: React.FC<{ token: Token; dayNumber: string | undefined }> =
   genericSuspense(
     ({ dayNumber, token }) => {
-      const { homeOmniInformation, isLoading } = useHomeOMNIBridgeLimits(token, dayNumber)
+      const { data, isLoading } = useOmniDailyLimits({
+        chainId: Chains.gnosis,
+        token: token.address as Address,
+        currentDay: dayNumber,
+      })
 
-      if (isLoading) return <Placeholder />
+      if (isLoading || !data) return <Placeholder />
 
       return (
         <BridgeLimit
@@ -210,7 +218,7 @@ const OmnibridgeGnosisChainToMainnet: React.FC<{ token: Token; dayNumber: string
           }
           to="Ethereum"
           token={token}
-          {...homeOmniInformation}
+          {...data}
         />
       )
     },
