@@ -13,6 +13,7 @@ import TooltipConfig from '@/src/components/tooltip/TooltipConfig'
 import { useRef } from 'react'
 import { Header } from '@/src/components/header'
 import { Footer } from '@/src/components/footer'
+import { FcrBanner } from '@/src/components/banner/FcrBanner'
 
 import dynamic from 'next/dynamic'
 import { WagmiProvider } from 'wagmi'
@@ -106,6 +107,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
             <Web3ConnectionProvider>
               <SafeSuspense>
                 <Header />
+                <FcrBanner />
                 <TransactionNotificationProvider>
                   {getLayout(<Component {...pageProps} />)}
                   <Toast />
