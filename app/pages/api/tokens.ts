@@ -2,19 +2,9 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { NATIVE_TOKEN_ADDRESS, USDS_ADDRESS } from '@/src/constants/config/common'
 import { isSameString } from '@/src/utils/tools'
-import { Token as BaseToken } from '@/types/token'
+import { Token } from '@/types/token'
 import bridgedTokens from '@/src/constants/bridged_tokens.json'
 import { zeroAddress } from 'viem'
-
-type Token = Omit<BaseToken, 'extensions'> & {
-  extensions: {
-    bridgeInfo: Partial<{
-      [key in 1 | 100]: {
-        tokenAddress: string
-      }
-    }>
-  }
-}
 
 const bridgedTokenName = /( on xDai| from Mainnet)$/
 const WETH_ON_XDAI = '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1'

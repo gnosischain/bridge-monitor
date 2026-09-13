@@ -44,7 +44,6 @@ const TextFieldWrapper = styled.div`
   position: relative;
 `
 
-// const Textfield: any = styled(DebounceInput)`
 const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
   element: 'input',
 }))<TextfieldCSSProps>`

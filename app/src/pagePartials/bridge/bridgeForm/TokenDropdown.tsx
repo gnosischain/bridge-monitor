@@ -263,7 +263,6 @@ const Dropdown: React.FC<Props> = ({
   const [isOpened, setIsOpened] = useState(false)
   const [searchInputRef, setSearchInputInputRef] = useState<HTMLInputElement | null>(null)
 
-  // const searchInputRef = useRef<HTMLInputElement | null>(null)
   const { ambTokensByNetwork } = useBridgedTokens()
   const [topTokens, setTopTokens] = useState<Token[]>([])
   const [value, setValue] = useState('')

@@ -51,8 +51,8 @@ type ProgressState = {
   isError: boolean
 }
 
-// Pure lifecycle decision, extracted from the React/query wiring so it can be reasoned about and
-// unit-tested in isolation. See ./__tests__ (or the plan's behaviour cases) for the intended matrix.
+// Pure lifecycle decision, kept apart from the React/query wiring so it can be reasoned about and
+// unit-tested in isolation.
 export const deriveProgressState = ({
   error,
   isPastGrace,
