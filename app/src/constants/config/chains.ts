@@ -18,7 +18,7 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
     blockExplorerName: 'EtherScan',
     token: 'ETH',
     tokenDecimals: 18,
-    requiredBlockConfirmations: 64,
+    requiredBlockConfirmations: 1,
     bridge: {
       DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
       wForeignNative: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // WETH
