@@ -1,7 +1,6 @@
 import { fromSecondsTimestamp } from '@/src/utils/date'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { Chains } from '@/src/constants/config/types'
-import { Token } from '@/types/token'
 import { getEnvioGraphqlClient } from '@/src/constants/config/indexer'
 import { ENVIO_TRANSACTIONS_QUERY } from '@/src/queries/transactions'
 
@@ -45,14 +44,12 @@ export type Transaction = {
   initiatorNetwork: string
   initiatorNetworkIcon?: string
   initiatorToken: string
-  initiatorTokenData?: Token
   initiatorScanUrl: string
   receiver: string
   receiverAmount: string
   receiverNetwork: string
   receiverNetworkIcon?: string
   receiverToken: string
-  receiverTokenData?: Token
   receiverScanUrl: string
   transactionStatus: TransactionStatus
   validations?: TransactionValidation[] | null

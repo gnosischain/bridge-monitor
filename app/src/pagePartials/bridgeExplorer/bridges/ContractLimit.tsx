@@ -8,7 +8,7 @@ import {
 import { Tooltip } from '@/src/components/tooltip'
 import { HealthStatusTypes } from '@/src/constants/types'
 import { bridgeContractHealth } from '@/src/utils/bridgeHealth'
-import { NumberType, formatCurrencyAmount, formatNumber } from '@/src/utils/format'
+import { NumberType, formatNumber } from '@/src/utils/format'
 
 const Wrapper = styled(MiniCard)`
   flex-direction: column;
@@ -91,10 +91,7 @@ export const ContractLimit: React.FC<Props> = ({
         <ProgressBar status={bridgeHealth} width={percentage} />
       </Progress>
       <Amounts>
-        <Tooltip
-          content={formatCurrencyAmount(used.value, NumberType.PortfolioBalance)}
-          key="usedAmount"
-        >
+        <Tooltip content={formatNumber(used.value, NumberType.PortfolioBalance)} key="usedAmount">
           <Amount>
             {used.title} {usedNumber}
           </Amount>

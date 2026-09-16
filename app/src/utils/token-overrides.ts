@@ -11,10 +11,7 @@ interface TokenOverride {
 type TokenOverrides = Record<string, TokenOverride>
 
 // NOTE: All the keys and values in the tokenOverrides object must be in lowercase.
-const TOKEN_OVERRIDES: Record<
-  string,
-  { tokenOutAddress: string; mediator: string; mode: TOKEN_MODE }
-> = {
+const TOKEN_OVERRIDES: TokenOverrides = {
   // // OWL Token -> gnosis
   // '0x0905ab807f8fd040255f0cf8fa14756c1d824931': {
   //   tokenOutAddress: '0x1a5f9352af8af974bfc03399e3767df6370d82e4',
@@ -179,7 +176,7 @@ class TokenOverrideManager {
     if (!normalizedAddress) {
       throw new Error('Invalid token address provided.')
     }
-    return this.overrides[normalizedAddress] ?? undefined
+    return this.overrides[normalizedAddress]
   }
 
   /**

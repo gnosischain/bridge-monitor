@@ -17,7 +17,6 @@ export default class MyDocument extends Document {
         originalRenderPage({
           enhanceApp: (App) => (props) =>
             sheet.collectStyles(
-              // <App {...props} />
               <StyleSheetManager shouldForwardProp={shouldForwardProp}>
                 <App {...props} />
               </StyleSheetManager>,
