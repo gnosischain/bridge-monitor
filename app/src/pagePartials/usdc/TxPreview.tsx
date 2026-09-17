@@ -1,6 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-// import { Tooltip } from '@/src/components/tooltip'
 import { formatUnits } from 'viem'
 import { Loading } from '@/src/components/loading'
 import { genericSuspense } from '@/src/components/safeSuspense'
@@ -62,10 +61,7 @@ export const TxPreview: React.FC<{
       <Wrapper {...restProps}>
         <Item>
           You will receive
-          <Value>
-            {`${tokenOutAmount} ${tokenOut?.symbol}`}
-            {/* <Tooltip content="Estimated output" /> */}
-          </Value>
+          <Value>{`${tokenOutAmount} ${tokenOut?.symbol}`}</Value>
         </Item>
       </Wrapper>
     )

@@ -60,7 +60,3 @@ export type TokenListResponse = Omit<TokenList, 'tokens'> & {
 export type TokensByAddress = { [address: string]: Token }
 export type TokensByNetwork = { [networkId: number]: Array<Token> }
 export type NativeTokensByNetwork = { [networkId: number]: Token }
-
-export function isTokenTuple(tokens: [Token | null, Token | null]): tokens is [Token, Token] {
-  return tokens.every((token) => token !== null)
-}
