@@ -4,7 +4,6 @@ declare module 'styled-components' {
   export interface DefaultTheme {
     colors: {
       black: string
-      borderColor: string
       cream: string
       creamDark: string
       creamDarker: string
@@ -17,7 +16,6 @@ declare module 'styled-components' {
       darkerGrey: string
       darkestGrey: string
       error: string
-      lightGrey: string
       primary: string
       primaryDark: string
       primaryLight: string
@@ -26,7 +24,6 @@ declare module 'styled-components' {
       secondary: string
       success: string
       textColor: string
-      titleColor: string
       warning: string
       white: string
       white_50: string
@@ -68,22 +65,6 @@ declare module 'styled-components' {
         colorActive: string
       }
     }
-    checkBox: {
-      dimensions: string
-      backgroundColorActive: string
-      backgroundColor: string
-      borderColor: string
-    }
-    radioButton: {
-      dimensions: string
-      backgroundColorActive: string
-      backgroundColor: string
-      borderColor: string
-    }
-    header: {
-      backgroundColor: string
-      color: string
-    }
     layout: {
       horizontalPaddingDesktopStart: string
       horizontalPaddingDesktopWideStart: string
@@ -114,14 +95,6 @@ declare module 'styled-components' {
       color: string
       colorHover: string
     }
-    buttonSecondary: {
-      backgroundColor: string
-      backgroundColorHover: string
-      borderColor: string
-      borderColorHover: string
-      color: string
-      colorHover: string
-    }
     textField: {
       backgroundColor: string
       borderColor: string
@@ -138,9 +111,6 @@ declare module 'styled-components' {
       placeholder: {
         color: string
       }
-    }
-    mainMenu: {
-      color: string
     }
     modal: {
       overlayColor: string

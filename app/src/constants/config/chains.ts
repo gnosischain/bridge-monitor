@@ -25,22 +25,6 @@ export const chainsConfig: Record<ChainsValues, ChainConfig> = {
       USDS: '0xdc035d45d973e3ec169d2276ddab16f1e407384f',
     },
   },
-  // [Chains.chiado]: {
-  //   id: Chains.chiado,
-  //   name: 'Gnosis Chiado Testnet',
-  //   shortName: 'Chiado',
-  //   chainId: Chains.chiado,
-  //   chainIdHex: '0x27d8',
-  //   blockExplorerUrls: ['https://gnosis-chiado.blockscout.com/'],
-  //   blockExplorerName: 'Chiado Blockscout',
-  //   token: 'Testnet xDai on Chiado',
-  //   tokenDecimals: 18,
-  //   blocksFrequencyInSeconds: 5,
-  //   bridge: {
-  //     DAI: '',
-  //     wForeignNative: '', // WETH
-  //   },
-  // },
   [Chains.gnosis]: {
     id: Chains.gnosis,
     name: 'Gnosis Chain',
