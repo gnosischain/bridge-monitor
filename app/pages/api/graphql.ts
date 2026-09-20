@@ -50,10 +50,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       ok: true,
       upstream: ENVIO_URL,
       headers: ENVIO_TOKEN ? { Authorization: `Bearer ${ENVIO_TOKEN}` } : undefined,
+      forwardBody: { query, variables },
       upstreamErrorMessage: 'Upstream indexer request failed',
       // The document alone does not identify an answer: every list, chart and search on the
       // explorer reuses one of these three documents and differs only in its variables. Key order
-      // matters to `JSON.stringify`.
+      // matters to `JSON.stringify`, which is why the policy pins it rather than tolerating it.
       cache: { key: `${normalized}|${JSON.stringify(variables ?? null)}`, ttl: policy.ttl },
     }
   })

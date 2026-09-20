@@ -22,9 +22,10 @@ import type { NextApiRequest, NextApiResponse } from 'next'
  * Reuse is opt-in per resolution (`cache`) and off by default, because it is only
  * ever correct for a route that says so: `/api/rpc` carries nonce reads, gas
  * estimates and transaction broadcasts, where answering from an earlier response
- * would be wrong. A route that does opt in gets the three behaviours in
- * `serveCached` — a TTL cache, single-flight, and stale answers while the upstream
- * is failing.
+ * would be wrong. A route that does opt in gets the four behaviours in
+ * `serveCached` — a TTL cache, single-flight, stale answers while the upstream is
+ * failing, and a retry window that stops a failing upstream from being asked again
+ * on every request.
  */
 
 export type ProxyCache = {
@@ -42,6 +43,10 @@ export type ProxyResolution =
       ok: true
       upstream: string
       headers?: Record<string, string>
+      /**
+       * What to send upstream, when the parsed request body is not it.
+       */
+      forwardBody?: unknown
       upstreamErrorMessage?: string
       cache?: ProxyCache
     }
@@ -71,10 +76,31 @@ const MAX_ENTRIES = 500
  */
 const STALE_GRACE = 5 * 60_000
 
+/**
+ * How long a failing upstream is left alone before a caller asks it again.
+ *
+ * Nothing else provides this. A response that cannot be cached is never stored, so the entry that
+ * produced it keeps its old `expiresAt`, and the next request — arriving after single-flight has
+ * settled and cleared `inFlight` — fetches again. Without a retry window the proxy amplifies the
+ * very quota it exists to protect: 20 viewers polling one key at 5s go from ~6 upstream requests a
+ * minute to ~240, precisely while the indexer is refusing them and the window most needs to drain.
+ *
+ * Held per upstream rather than per key, because a spent quota and a dead process are properties of
+ * the upstream and not of the question asked — which also flattens the arithmetic to one retry per
+ * window for the whole process, whatever the traffic. Short enough that recovery costs a caller one
+ * stale answer at worst.
+ */
+const RETRY_AFTER = 2_000
+
 const responses = new Map<string, UpstreamResponse>()
 
 /** Upstream requests already in flight, so N callers waiting on one key cost one upstream request. */
 const inFlight = new Map<string, Promise<UpstreamResponse>>()
+
+/**
+ * The last answer an upstream gave that could not be cached, and when it may be asked again.
+ */
+const failing = new Map<string, { response: UpstreamResponse; until: number }>()
 
 const errorBody = (message: string) => ({ errors: [{ message }] })
 
@@ -113,6 +139,22 @@ const store = (key: string, response: UpstreamResponse) => {
     if (oldest.done) break
     responses.delete(oldest.value)
   }
+}
+
+/** Stands in for a response when the fetch itself failed, so that outcome can be replayed too. */
+const unreachable = (resolution: Forwarded): UpstreamResponse => ({
+  status: 502,
+  contentType: 'application/json',
+  payload: JSON.stringify(errorBody(resolution.upstreamErrorMessage ?? 'Upstream request failed')),
+  expiresAt: 0,
+})
+
+/**
+ * Notes that this upstream is not answering, and until when. Cleared by the next cacheable response,
+ * so an upstream that comes back is asked again on the first request after the window.
+ */
+const holdOff = (resolution: Forwarded, response: UpstreamResponse) => {
+  failing.set(resolution.upstream, { response, until: Date.now() + RETRY_AFTER })
 }
 
 const fetchUpstream = async (resolution: Forwarded, body: unknown): Promise<UpstreamResponse> => {
@@ -163,13 +205,39 @@ const serveCached = async (
   // Captured before the fetch: once it succeeds it overwrites this entry, and the point of holding
   // on to it is to have something to answer with if it does not.
   const stale = cached && cached.expiresAt + STALE_GRACE > now ? cached : undefined
+
   let pending = inFlight.get(key)
   const coalesced = Boolean(pending)
 
+  // Inside the retry window nobody asks again; the upstream's own last words stand in, which is
+  // what this caller would have been told had it asked. A key with something stale to show prefers
+  // that, on the same terms as after a live failure. The words may have been said to a different
+  // key, but a refused quota or a broken schema is not answering that one either.
+  //
+  // A request already in flight for this key outranks the window, which is why this is read after
+  // `inFlight` and not before: that fetch may well be about to succeed, and joining it beats
+  // replaying a failure another key collected a moment ago.
+  const held = failing.get(resolution.upstream)
+  if (!pending && held && held.until > now) {
+    if (stale && isUpstreamFailure(held.response.status)) return serveStale(res, key, stale)
+
+    return send(res, held.response, 'COOLDOWN')
+  }
+
   if (!pending) {
     pending = (async () => {
-      const response = await fetchUpstream(resolution, body)
-      if (isCacheable(response)) store(key, response)
+      const response = await fetchUpstream(resolution, body).catch((error) => {
+        holdOff(resolution, unreachable(resolution))
+        throw error
+      })
+
+      if (isCacheable(response)) {
+        store(key, response)
+        failing.delete(resolution.upstream)
+      } else {
+        holdOff(resolution, response)
+      }
+
       return response
     })().finally(() => inFlight.delete(key))
 
@@ -187,9 +255,7 @@ const serveCached = async (
   } catch {
     if (stale) return serveStale(res, key, stale)
 
-    return res
-      .status(502)
-      .json(errorBody(resolution.upstreamErrorMessage ?? 'Upstream request failed'))
+    return send(res, unreachable(resolution))
   }
 }
 
@@ -217,14 +283,16 @@ export async function proxyJsonPost(
     return res.status(resolution.status).json(resolution.body)
   }
 
+  // Only what the route vouches for goes on the wire; the raw body is the fallback for a route that
+  // forwards verbatim by design, like `/api/rpc`.
+  const forwarded = resolution.forwardBody ?? body
+
   const { cache } = resolution
-  if (cache) return serveCached(res, { ...resolution, cache }, body)
+  if (cache) return serveCached(res, { ...resolution, cache }, forwarded)
 
   try {
-    return send(res, await fetchUpstream(resolution, body))
+    return send(res, await fetchUpstream(resolution, forwarded))
   } catch {
-    return res
-      .status(502)
-      .json(errorBody(resolution.upstreamErrorMessage ?? 'Upstream request failed'))
+    return send(res, unreachable(resolution))
   }
 }
