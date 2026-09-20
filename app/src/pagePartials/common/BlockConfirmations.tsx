@@ -174,7 +174,7 @@ export const BlockConfirmations: React.FC<Props> = ({ network, transactionHash, 
         </Progress>
       </TopInfo>
       <BottomInfo>
-        <EstimatedTime>Estimated time {txTime(network)} minutes</EstimatedTime>
+        <EstimatedTime>Estimated time {txTime(network)}</EstimatedTime>
         <MonitorBlocksLink
           href={getExplorerUrl(transactionHash, network)}
           rel="noopener noreferrer"

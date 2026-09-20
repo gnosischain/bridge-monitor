@@ -178,7 +178,7 @@ export const TxPreview: React.FC<{
         <Item>
           Estimated time
           <Value>
-            {`${txTime(getChainKey(fromChainId))} mins`}
+            {txTime(getChainKey(fromChainId))}
             <Tooltip content="Estimated execution time" />
           </Value>
         </Item>
