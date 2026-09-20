@@ -27,6 +27,12 @@ import { buildTransactionsQuery } from '@/src/utils/transactionsQuery'
 
 const INDEXER_POLL_INTERVAL = 5_000
 
+/**
+ * Matches the TTL `/api/graphql` caches this query for: refetching sooner cannot surface anything
+ * newer, since the proxy would answer from the very same stored response.
+ */
+const INDEXER_STALE_TIME = 10_000
+
 // Shared empty values, so the hook's output keeps a stable identity while the query is idle.
 const NO_TRANSACTIONS: Transaction[] = []
 const NO_LOCAL_CLAIMS: LocalClaims = { claiming: [], claimed: [] }
@@ -129,6 +135,7 @@ export const useFetchTransactions = (
   const { data, isLoading } = useQuery({
     queryKey: ['useFetchTransactions', query ?? null, inMemoryFilters],
     queryFn: query ? () => fetchTransactions(query, inMemoryFilters) : skipToken,
+    staleTime: INDEXER_STALE_TIME,
     refetchInterval: pollUntilFound
       ? ({ state }) => (state.data?.length ? false : INDEXER_POLL_INTERVAL)
       : false,
