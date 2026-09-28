@@ -1,0 +1,107 @@
+import styled from 'styled-components'
+import { Alert } from '@/src/components/assets/Alert'
+import { Close } from '@/src/components/assets/Close'
+import { InnerContainer } from '@/src/components/innerContainer'
+import { useLocalStorage } from '@/src/hooks/usePersistedState'
+
+const FCR_DOCS_URL = 'https://docs.gnosischain.com/bridges/fast-confirmation-rule'
+
+// Bump the version suffix to show the banner again to everyone who already dismissed it.
+const DISMISSED_STORAGE_KEY = 'fcr_rollout_banner_dismissed_v1'
+
+const Wrapper = styled(InnerContainer)`
+  flex-grow: 0;
+`
+
+const Inner = styled.div`
+  align-items: flex-start;
+  background-color: ${({ theme: { colors } }) => colors.creamLight};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
+  border: 1px solid ${({ theme: { colors } }) => colors.creamDark};
+  color: ${({ theme: { colors } }) => colors.primary};
+  column-gap: calc(var(--theme-common-space) * 2);
+  display: flex;
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.35;
+  padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3);
+`
+
+const Icon = styled(Alert)`
+  height: 22px;
+  margin-top: 1px;
+  width: 22px;
+
+  .fill {
+    fill: ${({ theme: { colors } }) => colors.warning};
+  }
+`
+
+const Text = styled.p`
+  flex-grow: 1;
+  margin: 0;
+`
+
+const Emphasize = styled.span`
+  font-weight: 700;
+`
+
+const DocsLink = styled.a`
+  color: ${({ theme: { colors } }) => colors.primary};
+  font-weight: 700;
+  text-decoration: underline;
+
+  &:hover {
+    color: ${({ theme: { colors } }) => colors.primaryLight};
+  }
+`
+
+const DismissButton = styled.button`
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
+  margin-top: 3px;
+  padding: calc(var(--theme-common-space) / 2);
+
+  .fill {
+    fill: ${({ theme: { colors } }) => colors.primary};
+  }
+
+  &:hover .fill {
+    fill: ${({ theme: { colors } }) => colors.primaryLight};
+  }
+`
+
+// Rendered inside the client-only `Web3ConnectionProvider`, so `useLocalStorage` reads the stored
+// flag on the first render and there is no server markup to hydrate against.
+export const FcrBanner: React.FC = ({ ...restProps }) => {
+  const [isDismissed, setIsDismissed] = useLocalStorage<boolean>(DISMISSED_STORAGE_KEY, false)
+
+  if (isDismissed) return null
+
+  return (
+    <Wrapper {...restProps}>
+      <Inner>
+        <Icon />
+        <Text>
+          We are rolling out the FCR integration to xDAI bridge and Omnibridge. In the meantime,
+          please expect <Emphasize>some downtime or delays</Emphasize> when bridging.{' '}
+          <DocsLink href={FCR_DOCS_URL} rel="noopener noreferrer" target="_blank">
+            Learn more
+          </DocsLink>
+        </Text>
+        <DismissButton
+          aria-label="Dismiss the FCR rollout warning"
+          onClick={() => setIsDismissed(true)}
+          type="button"
+        >
+          <Close height={12} width={12} />
+        </DismissButton>
+      </Inner>
+    </Wrapper>
+  )
+}
