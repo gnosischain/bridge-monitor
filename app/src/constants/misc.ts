@@ -21,5 +21,13 @@ export const DEBOUNCE_TIME = 500
 
 export const MAX_DAYS_TO_FILTER = 1
 
+/**
+ * The single page of transactions the explorer fetches. Shared with `envioQueryPolicy`, which
+ * accepts it as the only legal `limit` on the wire — the two must not drift.
+ *
+ * @todo revisit if the cap ever truncates a result set users care about.
+ */
+export const TRANSACTIONS_PAGE_SIZE = 500
+
 export const TELEPATHY_VALIDATOR_ADDRESS = '0x456c255A8BC1F33778603A2a48Eb6B0C69F4d48E'
 export const TELEPATHY_VALIDATOR_ADDRESS_REPLACED = '0xbae0000dfc21a7869631773b0bb41b0a5b1d268a'

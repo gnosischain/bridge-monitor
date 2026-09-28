@@ -1,5 +1,6 @@
 import type { RequestDocument } from 'graphql-request'
 
+import { TRANSACTIONS_PAGE_SIZE } from '@/src/constants/misc'
 import { ENVIO_TRANSACTIONS_QUERY } from '@/src/queries/transactions'
 import { ENVIO_VALIDATORS_ACTIVITY_QUERY, ENVIO_VALIDATORS_QUERY } from '@/src/queries/validators'
 
@@ -19,9 +20,6 @@ export type EnvioPolicy = {
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
-
-const isInteger = (value: unknown, min: number, max: number) =>
-  typeof value === 'number' && Number.isInteger(value) && value >= min && value <= max
 
 const takesNoVariables = (variables: unknown) =>
   variables == null || (isPlainObject(variables) && Object.keys(variables).length === 0)
@@ -89,14 +87,17 @@ const acceptsWhere = (where: unknown) => {
   return walk(where, 0)
 }
 
-const ORDERINGS = new Set([JSON.stringify([{ timestamp: 'desc' }]), JSON.stringify(null)])
+/** The explorer's lists ask for the newest first; the lookups by id or hash send no ordering. */
+const ORDER_BY = JSON.stringify([{ timestamp: 'desc' }])
 
 const TRANSACTION_VARIABLES = ['where', 'order_by', 'limit', 'offset']
 
-// `defaultRequestLimit` in `utils/transactions.ts`; the explorer's own page size is half of it.
-const MAX_LIMIT = 1_000
-const MAX_OFFSET = 10_000
-
+/**
+ * The explorer fetches a single page and has no pagination, so every request it makes carries
+ * `TRANSACTIONS_PAGE_SIZE` from offset 0 (`fetchTransactions` fills both in when a caller leaves
+ * them out). Anything else is a request the app never makes: a deep offset, or no `limit` at all,
+ * which asks the indexer for every matching row.
+ */
 const acceptsTransactionQuery = (variables: unknown) => {
   if (!isPlainObject(variables)) return false
   if (Object.keys(variables).some((key) => !TRANSACTION_VARIABLES.includes(key))) return false
@@ -105,9 +106,8 @@ const acceptsTransactionQuery = (variables: unknown) => {
 
   if (!isPlainObject(where) || !acceptsWhere(where)) return false
 
-  if (ordering !== undefined && !ORDERINGS.has(JSON.stringify(ordering ?? null))) return false
-  if (limit !== undefined && !isInteger(limit, 1, MAX_LIMIT)) return false
-  if (offset !== undefined && !isInteger(offset, 0, MAX_OFFSET)) return false
+  if (ordering !== undefined && JSON.stringify(ordering) !== ORDER_BY) return false
+  if (limit !== TRANSACTIONS_PAGE_SIZE || offset !== 0) return false
 
   return true
 }

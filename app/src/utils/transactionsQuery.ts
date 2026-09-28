@@ -3,17 +3,13 @@ import { isAddress } from 'viem'
 
 import { BridgeDirection, BridgesValues } from '@/src/constants/config/bridges'
 import { ALL_VALIDATORS_OPTION } from '@/src/constants/filters'
-import { MAX_DAYS_TO_FILTER } from '@/src/constants/misc'
+import { MAX_DAYS_TO_FILTER, TRANSACTIONS_PAGE_SIZE } from '@/src/constants/misc'
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import { msToSeconds } from '@/src/utils/date'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
 import { isTransactionHash } from '@/src/utils/tools'
 import { EnvioQueryArgs, TxsInMemoryFilters } from '@/src/utils/transactions'
 import { getValidatorByName } from '@/src/utils/validators'
-
-// The explorer fetches a single page of this size; there is no incremental pagination yet.
-// @todo revisit if the cap ever truncates a result set users care about.
-const PAGE_SIZE = 500
 
 const validatorAddress = (validatorName: string, bridge: BridgesValues) => {
   if (!validatorName || validatorName === ALL_VALIDATORS_OPTION) return undefined
@@ -23,9 +19,9 @@ const validatorAddress = (validatorName: string, bridge: BridgesValues) => {
 
 /**
  * A single page cannot represent a range of more than `MAX_DAYS_TO_FILTER` days: the indexer would
- * answer that scan with the newest `PAGE_SIZE` transactions and the list would show them as the
- * complete result. Such a range is refused instead. The date picker only ever selects a single day,
- * so this is the backstop for a range built anywhere else.
+ * answer that scan with the newest `TRANSACTIONS_PAGE_SIZE` transactions and the list would show
+ * them as the complete result. Such a range is refused instead. The date picker only ever selects a
+ * single day, so this is the backstop for a range built anywhere else.
  */
 const isRangeTooWide = ({ endTimestamp, startTimestamp }: TransactionFilter) =>
   !!startTimestamp &&
@@ -95,7 +91,12 @@ export const buildTransactionsQuery = (
 
   return {
     query: where.length
-      ? { where: { _and: where }, order_by: [{ timestamp: 'desc' }], limit: PAGE_SIZE, offset: 0 }
+      ? {
+          where: { _and: where },
+          order_by: [{ timestamp: 'desc' }],
+          limit: TRANSACTIONS_PAGE_SIZE,
+          offset: 0,
+        }
       : undefined,
     inMemoryFilters,
   }
