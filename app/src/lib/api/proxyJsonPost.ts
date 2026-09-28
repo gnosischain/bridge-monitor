@@ -25,7 +25,8 @@ import type { NextApiRequest, NextApiResponse } from 'next'
  * would be wrong. A route that does opt in gets the four behaviours in
  * `serveCached` — a TTL cache, single-flight, stale answers while the upstream is
  * failing, and a retry window that stops a failing upstream from being asked again
- * on every request.
+ * on every request — and may name a `fallback` to answer while its upstream is
+ * rate-limiting.
  */
 
 export type ProxyCache = {
@@ -38,18 +39,29 @@ export type ProxyCache = {
   ttl: number
 }
 
+/** Where to send a request, with whatever it needs that the caller's request does not carry. */
+export type ProxyUpstream = {
+  upstream: string
+  headers?: Record<string, string>
+}
+
 export type ProxyResolution =
-  | {
+  | (ProxyUpstream & {
       ok: true
-      upstream: string
-      headers?: Record<string, string>
       /**
        * What to send upstream, when the parsed request body is not it.
        */
       forwardBody?: unknown
       upstreamErrorMessage?: string
       cache?: ProxyCache
-    }
+      /**
+       * A second upstream serving the same answers, asked only when `upstream` refuses with a 429.
+       * It adds quota, not redundancy: any other failure reaches the caller as it would without
+       * one. Read only alongside `cache`, where the retry windows and the test for a usable answer
+       * live.
+       */
+      fallback?: ProxyUpstream
+    })
   | { ok: false; status: number; body: unknown }
 
 type Forwarded = ProxyResolution & { ok: true }
@@ -60,6 +72,8 @@ type UpstreamResponse = {
   payload: string
   /** When this stops counting as fresh. */
   expiresAt: number
+  /** Answered by the resolution's fallback, its upstream having refused with a 429. */
+  fromFallback?: boolean
 }
 
 /**
@@ -153,16 +167,31 @@ const unreachable = (resolution: Forwarded): UpstreamResponse => ({
  * Notes that this upstream is not answering, and until when. Cleared by the next cacheable response,
  * so an upstream that comes back is asked again on the first request after the window.
  */
-const holdOff = (resolution: Forwarded, response: UpstreamResponse) => {
-  failing.set(resolution.upstream, { response, until: Date.now() + RETRY_AFTER })
+const holdOff = ({ upstream }: ProxyUpstream, response: UpstreamResponse) => {
+  failing.set(upstream, { response, until: Date.now() + RETRY_AFTER })
 }
 
-const fetchUpstream = async (resolution: Forwarded, body: unknown): Promise<UpstreamResponse> => {
-  const upstream = await fetch(resolution.upstream, {
+/** The failure an upstream is being left alone over, for as long as its retry window lasts. */
+const heldFailure = ({ upstream }: ProxyUpstream, now: number) => {
+  const held = failing.get(upstream)
+  return held && held.until > now ? held : undefined
+}
+
+/** The resolution's fallback, unless it has none or it is sitting out a retry window of its own. */
+const availableFallback = ({ fallback }: Forwarded, now: number) =>
+  fallback && !heldFailure(fallback, now) ? fallback : undefined
+
+/** Asks `target`: the resolution's own upstream, unless its fallback is being asked instead. */
+const fetchUpstream = async (
+  resolution: Forwarded,
+  body: unknown,
+  target: ProxyUpstream = resolution,
+): Promise<UpstreamResponse> => {
+  const upstream = await fetch(target.upstream, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...resolution.headers,
+      ...target.headers,
     },
     body: JSON.stringify(body),
   })
@@ -175,11 +204,68 @@ const fetchUpstream = async (resolution: Forwarded, body: unknown): Promise<Upst
   }
 }
 
+/**
+ * Says when an upstream with a fallback starts and stops rate-limiting: the fallback answers in
+ * between, and nothing else would show it. Compared with the failure on record before this response
+ * replaces it, so a run of 429s logs once at each end rather than on every retry. Host only, since
+ * some upstream URLs carry a key in their path.
+ */
+const logRateLimit = ({ upstream }: ProxyUpstream, response: UpstreamResponse) => {
+  const wasLimited = failing.get(upstream)?.response.status === 429
+  const isLimited = response.status === 429
+  if (wasLimited === isLimited) return
+
+  const { host } = new URL(upstream)
+  if (isLimited) console.warn(`[proxy] ${host} is rate-limiting; its fallback answers meanwhile`)
+  else console.info(`[proxy] ${host} is no longer rate-limiting; its fallback is not asked`)
+}
+
+/** Keeps an upstream's retry window: a cacheable response clears it, anything else starts it. */
+const record = (resolution: Forwarded, target: ProxyUpstream, response: UpstreamResponse) => {
+  if (target === resolution && resolution.fallback) logRateLimit(target, response)
+
+  if (isCacheable(response)) failing.delete(target.upstream)
+  else holdOff(target, response)
+}
+
+/**
+ * `fetchUpstream`, with the outcome recorded against `target`'s retry window. A fetch that fails
+ * outright is rethrown once recorded.
+ */
+const ask = async (resolution: Forwarded, body: unknown, target: ProxyUpstream = resolution) => {
+  const response = await fetchUpstream(resolution, body, target).catch((error) => {
+    record(resolution, target, unreachable(resolution))
+    throw error
+  })
+
+  record(resolution, target, response)
+
+  return response
+}
+
+/**
+ * The fallback's answer to a question its upstream refused with a 429, when it has a usable one.
+ * Anything short of that — no fallback, its own retry window, a refusal, an unreachable host, a
+ * GraphQL error (which is how a schema the two do not share would show) — leaves the 429 to stand,
+ * exactly as if there were no fallback.
+ */
+const askFallback = async (resolution: Forwarded, body: unknown) => {
+  const fallback = availableFallback(resolution, Date.now())
+  if (!fallback) return undefined
+
+  const response = await ask(resolution, body, fallback).catch(() => undefined)
+  if (!response || !isCacheable(response)) return undefined
+
+  return { ...response, fromFallback: true }
+}
+
 const send = (res: NextApiResponse, response: UpstreamResponse, state?: string) => {
   res.status(response.status)
   res.setHeader('Content-Type', response.contentType)
   // Diagnostic only: lets a `curl -D-` say whether a deploy is actually collapsing requests.
   if (state) res.setHeader('X-Proxy-Cache', state)
+  // Likewise whether this answer, fresh or reused, came from the fallback.
+  if (response.fromFallback) res.setHeader('X-Proxy-Upstream', 'fallback')
   return res.send(response.payload)
 }
 
@@ -217,8 +303,13 @@ const serveCached = async (
   // A request already in flight for this key outranks the window, which is why this is read after
   // `inFlight` and not before: that fetch may well be about to succeed, and joining it beats
   // replaying a failure another key collected a moment ago.
-  const held = failing.get(resolution.upstream)
-  if (!pending && held && held.until > now) {
+  //
+  // A refused quota is the exception when the route has a fallback free to answer: the question
+  // skips the upstream and goes there, as it would have after a fresh 429.
+  const held = heldFailure(resolution, now)
+  const diverted = held?.response.status === 429 && Boolean(availableFallback(resolution, now))
+
+  if (!pending && held && !diverted) {
     if (stale && isUpstreamFailure(held.response.status)) return serveStale(res, key, stale)
 
     return send(res, held.response, 'COOLDOWN')
@@ -226,19 +317,17 @@ const serveCached = async (
 
   if (!pending) {
     pending = (async () => {
-      const response = await fetchUpstream(resolution, body).catch((error) => {
-        holdOff(resolution, unreachable(resolution))
-        throw error
-      })
+      // Only a diverted request gets here with `held` set, and its 429 stands in for asking.
+      const response = held ? held.response : await ask(resolution, body)
 
-      if (isCacheable(response)) {
-        store(key, response)
-        failing.delete(resolution.upstream)
-      } else {
-        holdOff(resolution, response)
-      }
+      // A live answer from the fallback outranks a stale one, which is only what is left once
+      // both upstreams have failed.
+      const answer =
+        response.status === 429 ? ((await askFallback(resolution, body)) ?? response) : response
 
-      return response
+      if (isCacheable(answer)) store(key, answer)
+
+      return answer
     })().finally(() => inFlight.delete(key))
 
     inFlight.set(key, pending)

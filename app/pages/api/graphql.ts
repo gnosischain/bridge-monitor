@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { ENVIO_QUERY_POLICY, EnvioPolicy } from '@/src/lib/api/envioQueryPolicy'
-import { ProxyResolution, proxyJsonPost } from '@/src/lib/api/proxyJsonPost'
+import { ProxyResolution, ProxyUpstream, proxyJsonPost } from '@/src/lib/api/proxyJsonPost'
 
 /**
  * Server-side proxy for the Envio GraphQL indexer.
@@ -11,9 +11,10 @@ import { ProxyResolution, proxyJsonPost } from '@/src/lib/api/proxyJsonPost'
  *  - the API-key/bearer token stays server-only (never exposed to the browser);
  *  - only the exact GraphQL documents the app ships are forwarded, asked only with
  *    variables the app could have produced (`ENVIO_QUERY_POLICY`)
- *  - visitors asking the same question share one upstream request.
+ *  - visitors asking the same question share one upstream request;
+ *  - while the indexer is rate-limiting, a second one can answer in its place.
  *
- * The POST guard, body parsing and caching live in `proxyJsonPost`;
+ * The POST guard, body parsing, caching and fallback live in `proxyJsonPost`;
  * this file declares the Envio-specific policy and `envioQueryPolicy` the per-document
  * shape of a legitimate request.
  */
@@ -21,6 +22,20 @@ import { ProxyResolution, proxyJsonPost } from '@/src/lib/api/proxyJsonPost'
 const ENVIO_URL = process.env.ENVIO_INDEXER_URL || 'http://localhost:8080/v1/graphql'
 
 const ENVIO_TOKEN = process.env.ENVIO_INDEXER_TOKEN
+
+const bearer = (token: string | undefined) =>
+  token ? { Authorization: `Bearer ${token}` } : undefined
+
+/**
+ * A second indexer with a quota of its own, asked only while the main one answers 429. Unset, the
+ * route behaves exactly as it does without one.
+ */
+const ENVIO_FALLBACK: ProxyUpstream | undefined = process.env.ENVIO_INDEXER_FALLBACK_URL
+  ? {
+      upstream: process.env.ENVIO_INDEXER_FALLBACK_URL,
+      headers: bearer(process.env.ENVIO_INDEXER_FALLBACK_TOKEN),
+    }
+  : undefined
 
 const normalize = (query: string) => query.replace(/\s+/g, ' ').trim()
 
@@ -49,7 +64,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return {
       ok: true,
       upstream: ENVIO_URL,
-      headers: ENVIO_TOKEN ? { Authorization: `Bearer ${ENVIO_TOKEN}` } : undefined,
+      headers: bearer(ENVIO_TOKEN),
+      fallback: ENVIO_FALLBACK,
       forwardBody: { query, variables },
       upstreamErrorMessage: 'Upstream indexer request failed',
       // The document alone does not identify an answer: every list, chart and search on the
