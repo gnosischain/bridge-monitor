@@ -1,4 +1,5 @@
 import { fromSecondsTimestamp } from '@/src/utils/date'
+import { TRANSACTIONS_PAGE_SIZE } from '@/src/constants/misc'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { Chains } from '@/src/constants/config/types'
 import { getEnvioGraphqlClient } from '@/src/constants/config/indexer'
@@ -15,7 +16,6 @@ import { isSameString } from '@/src/utils/tools'
 
 const GNOSIS = 'gnosis'
 const MAINNET = 'mainnet'
-const defaultRequestLimit = 1000
 
 export type TransactionExecution = {
   id: string
@@ -175,7 +175,7 @@ export const fetchTransactions = async (
   const res = await request(ENVIO_TRANSACTIONS_QUERY, {
     where: query.where,
     order_by: query.order_by,
-    limit: query.limit ?? defaultRequestLimit,
+    limit: query.limit ?? TRANSACTIONS_PAGE_SIZE,
     offset: query.offset ?? 0,
   })
 
