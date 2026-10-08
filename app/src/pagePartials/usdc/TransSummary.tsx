@@ -1,6 +1,5 @@
 import { AlertMessage } from '@/src/components/error/AlertMessage'
 import { Chains } from '@/src/constants/config/types'
-// import { useBridgeValidations } from '@/src/hooks/bridge/useBridgeValidations'
 import { TxPreview, TxPreviewLoading } from './TxPreview'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { TokenUsdc } from './types'
@@ -34,9 +33,6 @@ export const TransSummary: React.FC<{
       return <AlertMessage text="Insufficient balance" />
     }
 
-    // if (amount.gt(addressBalances.allowance)) {
-    //   return <AlertMessage text="Insufficient allowance" />
-    // }
     const errorMessage = ''
 
     return errorMessage ? (

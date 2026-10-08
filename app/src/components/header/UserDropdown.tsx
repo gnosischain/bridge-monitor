@@ -1,4 +1,4 @@
-import { truncateStringInTheMiddle } from '@/src/utils/tools'
+import { shortenAddress } from '@/src/utils/tools'
 import { useMemo, useState } from 'react'
 import styled, { css } from 'styled-components'
 
@@ -146,7 +146,6 @@ const ClickableItem = styled(Item)`
   }
 `
 
-// ClickableItem.defaultProps = Item.defaultProps
 ClickableItem.defaultProps = Item.defaultProps as typeof ClickableItem.defaultProps
 
 const ItemLabel = styled.div`
@@ -265,7 +264,7 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
                 domainName ? (
                   <>{domainName}</>
                 ) : (
-                  truncateStringInTheMiddle(address, 6, 4)
+                  shortenAddress(address, 6, 4)
                 )
               ) : (
                 <SkeletonLoading style={{ width: '93px', height: '18px', minHeight: '0' }} />

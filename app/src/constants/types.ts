@@ -1,9 +1,3 @@
-export enum ThemeType {
-  light = 'light',
-  dark = 'dark',
-  noTheme = 'noTheme',
-}
-
 export enum ToastStates {
   failed = 'FAILED',
   success = 'SUCCESS',
@@ -29,17 +23,4 @@ export enum HealthStatusTypes {
   error = 'error',
   warning = 'warning',
   success = 'ok',
-}
-
-export enum TransactionStatusTypes {
-  bridgeCompleted = 'completed',
-  bridgeInitiated = 'initiated',
-  collectingSignatures = 'collecting',
-  completed = 'Completed',
-  error = 'error',
-  signatureRequest = 'request',
-  unclaimed = 'unclaimed',
-  waiting = 'Waiting',
-  waitingExecution = 'Execution waiting',
-  warning = 'Warning',
 }

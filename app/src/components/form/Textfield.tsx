@@ -7,12 +7,6 @@ export enum TextfieldStatus {
   success = 'success',
 }
 
-// interface TextfieldCSSProps {
-//   status?: TextfieldStatus | undefined
-// }
-
-// export interface TextfieldProps extends InputHTMLAttributes<HTMLInputElement>, TextfieldCSSProps {}
-
 export type TextfieldCSSProps = {
   status?: 'error' | 'success'
   autoComplete?: string

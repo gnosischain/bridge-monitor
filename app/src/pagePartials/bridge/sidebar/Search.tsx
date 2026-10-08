@@ -31,7 +31,6 @@ const SearchWrapper = styled.div`
   width: 100%;
 `
 
-// const Textfield: any = styled(DebounceInput)`
 const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
   element: 'input',
 }))<TextfieldCSSProps>`

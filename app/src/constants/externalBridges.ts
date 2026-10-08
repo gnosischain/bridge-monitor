@@ -28,10 +28,6 @@ export const EXTERNAL_BRIDGES = [
     url: 'https://app.squidrouter.com/',
   },
   {
-    name: 'stargate.finance',
-    url: 'https://stargate.finance/bridge',
-  },
-  {
     name: 'symbiosis.finance',
     url: 'https://app.symbiosis.finance/swap',
   },

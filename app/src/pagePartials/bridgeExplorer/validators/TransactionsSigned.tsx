@@ -125,11 +125,6 @@ const CustomTooltip: React.FC<{ active?: boolean; label?: string; payload?: any 
   )
 }
 
-export type SignedTXsData = {
-  validatorName: string
-  signedTxsCount: number
-}[]
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const BaseChart: React.FC<{ timePeriod: number; bridge: string; theme: any }> = genericSuspense(
   ({ bridge, theme, timePeriod }) => {
@@ -202,7 +197,6 @@ const BaseChart: React.FC<{ timePeriod: number; bridge: string; theme: any }> = 
   () => <Spinner />,
 )
 
-// const Chart = withTheme(BaseChart)
 const Chart = withTheme(BaseChart) as unknown as React.FC<{ bridge: string; timePeriod: number }>
 
 const _1DayBeforeInSeconds = get1DayBeforeInSeconds()

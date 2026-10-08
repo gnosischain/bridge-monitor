@@ -9,15 +9,6 @@ const Wrapper = styled.div`
   padding: var(--theme-common-space) calc(var(--theme-common-space) * 2);
 `
 
-// const BridgedToken = styled.div`
-//   align-items: center;
-//   background-color: ${({ theme: { colors } }) => colors.cream};
-//   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-//   column-gap: var(--theme-common-space);
-//   display: flex;
-//   height: 54px;
-//   padding: var(--theme-common-space) calc(var(--theme-common-space) * 2);
-// `
 const TextfieldAmount = styled(Textfield)`
   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   color: ${({ theme: { colors } }) => colors.textColor};

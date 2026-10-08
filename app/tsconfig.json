@@ -26,10 +26,6 @@
     "incremental": true
   },
   "include": [
-    "src/pages/**/*",
-    "components/**/*",
-    "types.d.ts",
-    "global.d.ts",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"

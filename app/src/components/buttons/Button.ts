@@ -42,10 +42,6 @@ const BaseButton = styled.button`
   ${ButtonCSS}
 `
 
-const BaseLink = styled.a`
-  ${ButtonCSS}
-`
-
 export const Button = styled(BaseButton)`
   ${DisabledButtonCSS}
 `
@@ -88,28 +84,6 @@ export const ButtonFullPrimaryCSS = css`
   }
 `
 
-export const ButtonSecondaryCSS = css`
-  background-color: ${({ theme: { buttonSecondary } }) => buttonSecondary.backgroundColor};
-  border-color: ${({ theme: { buttonSecondary } }) => buttonSecondary.borderColor};
-  color: ${({ theme: { buttonSecondary } }) => buttonSecondary.color};
-
-  &:hover,
-  &:focus {
-    background-color: ${({ theme: { buttonSecondary } }) => buttonSecondary.backgroundColorHover};
-    border-color: ${({ theme: { buttonSecondary } }) => buttonSecondary.borderColorHover};
-    color: ${({ theme: { buttonSecondary } }) => buttonSecondary.colorHover};
-  }
-
-  ${DisabledButtonCSS}
-
-  &[disabled],
-  &[disabled]:hover {
-    background-color: ${({ theme: { buttonSecondary } }) => buttonSecondary.backgroundColor};
-    border-color: ${({ theme: { buttonSecondary } }) => buttonSecondary.borderColor};
-    color: ${({ theme: { buttonSecondary } }) => buttonSecondary.color};
-  }
-`
-
 export const ButtonPrimary = styled(BaseButton)`
   ${ButtonPrimaryCSS}
 `
@@ -125,15 +99,3 @@ export const ButtonFull = styled(BaseButton)`
 ButtonFull.defaultProps = {
   type: 'button',
 }
-
-export const LinkButton = styled(BaseLink)`
-  ${ButtonPrimaryCSS}
-`
-
-export const LinkFullPrimary = styled(BaseLink)`
-  ${ButtonFullPrimaryCSS}
-`
-
-export const LinkSecondaryButton = styled(BaseLink)`
-  ${ButtonSecondaryCSS}
-`

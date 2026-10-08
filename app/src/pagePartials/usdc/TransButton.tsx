@@ -85,16 +85,6 @@ const ApproveButton: React.FC<{
     tokenAddress: token.address,
   })
 
-  // const tokenOutAddress =
-  //   token.address === usdcTokens.usdcXdaiOld.address
-  //     ? usdcTokens.usdceGnosis.address
-  //     : usdcTokens.usdcXdaiOld.address
-  // const { mutate: refreshBalanceTokenOut } = useUserTokenBalances({
-  //   userAddress,
-  //   chainId: Chains.gnosis,
-  //   tokenAddress: tokenOutAddress,
-  // })
-
   const handleApprove = async () => {
     setIsSending(true)
 
@@ -108,7 +98,6 @@ const ApproveButton: React.FC<{
       if (hash) {
         await waitForMinedReceipt(hash, Chains.gnosis)
         await refreshBalanceToken()
-        // await refreshBalanceTokenOut()
       }
     } catch (e) {
       // waitForMinedReceipt rejects on revert or on the receipt-poll timeout — don't leave the
@@ -138,7 +127,6 @@ const TriggerTransButton: React.FC<{
   const [isComponentMounted, setIsComponentMounted] = useState(true)
 
   const sendTx = useTransaction()
-  // const router = useRouter()
 
   const { refetch: refreshBalanceToken } = useUserTokenBalances({
     userAddress,

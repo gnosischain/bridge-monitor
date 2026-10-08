@@ -1,6 +1,6 @@
 import { HTMLAttributes } from 'react'
 import ReactDOM from 'react-dom'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 
 import { Close as BaseClose } from '@/src/components/assets/Close'
 import { BaseCard } from '@/src/components/card/BaseCard'
@@ -66,30 +66,6 @@ const Contents = styled.div`
   flex-direction: column;
   flex-grow: 1;
   justify-content: center;
-`
-
-export const ModalTextCSS = css`
-  color: ${({ theme: { colors } }) => colors.textColor};
-  font-size: 1.4rem;
-  font-weight: 400;
-  line-height: 1.2;
-  margin: 0 auto 20px;
-  text-align: center;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-`
-
-export const ModalText = styled.p`
-  ${ModalTextCSS}
-`
-
-export const ModalLine = styled.div`
-  background-color: ${({ theme: { colors } }) => colors.darkGrey};
-  height: 1px;
-  margin: 0 auto 20px;
-  width: 180px;
 `
 
 export type modalSize = 'sm' | 'md' | 'lg' | string

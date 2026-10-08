@@ -15,11 +15,6 @@ export enum DropdownPosition {
   right,
 }
 
-export enum DropdownDirection {
-  downwards = 'down',
-  upwards = 'up',
-}
-
 interface WrapperProps {
   disabled: boolean
   $fullWidth?: boolean
@@ -71,16 +66,7 @@ const PositionCenterCSS = css`
   transform: translateX(-50%);
 `
 
-const DirectionDownwardsCSS = css`
-  top: calc(100% + 10px);
-`
-
-const DirectionUpwardsCSS = css`
-  bottom: calc(100%);
-`
-
 interface ItemProps {
-  $dropdownDirection?: DropdownDirection
   $dropdownPosition?: DropdownPosition
   $isOpen: boolean
 }
@@ -99,14 +85,12 @@ const Items = styled.div<ItemProps>`
   max-height: 260px;
   overflow-y: auto;
   position: absolute;
+  top: calc(100% + 10px);
   white-space: nowrap;
 
   ${(props) => (props.$dropdownPosition === DropdownPosition.left ? PositionLeftCSS : '')}
   ${(props) => (props.$dropdownPosition === DropdownPosition.right ? PositionRightCSS : '')}
   ${(props) => (props.$dropdownPosition === DropdownPosition.center ? PositionCenterCSS : '')}
-  ${(props) =>
-    props.$dropdownDirection === DropdownDirection.downwards ? DirectionDownwardsCSS : ''}
-  ${(props) => (props.$dropdownDirection === DropdownDirection.upwards ? DirectionUpwardsCSS : '')}
 
   /* width */
   ::-webkit-scrollbar {
@@ -132,7 +116,6 @@ const Items = styled.div<ItemProps>`
 `
 
 Items.defaultProps = {
-  $dropdownDirection: DropdownDirection.downwards,
   $dropdownPosition: DropdownPosition.left,
   $isOpen: false,
 }
@@ -215,7 +198,6 @@ interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivEle
   className?: string
   disabled?: boolean
   dropdownButton?: React.ReactNode | string
-  dropdownDirection?: DropdownDirection | undefined
   dropdownPosition?: DropdownPosition | undefined
   fullWidth?: boolean
   items: Array<unknown>
@@ -230,7 +212,6 @@ export const Dropdown: React.FC<Props> = (props) => {
     className = '',
     disabled = false,
     dropdownButton,
-    dropdownDirection,
     dropdownPosition,
     fullWidth,
     items,
@@ -288,12 +269,7 @@ export const Dropdown: React.FC<Props> = (props) => {
       <ButtonContainer className="dropdownButton" onClick={onButtonClick}>
         {dropdownButton}
       </ButtonContainer>
-      <Items
-        $dropdownDirection={dropdownDirection}
-        $dropdownPosition={dropdownPosition}
-        $isOpen={isOpen}
-        className="dropdownItems"
-      >
+      <Items $dropdownPosition={dropdownPosition} $isOpen={isOpen} className="dropdownItems">
         {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           items.map((item: any, index: number) => {

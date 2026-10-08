@@ -55,8 +55,6 @@ export const Header: React.FC = ({ ...restProps }) => (
       <SubTitle>Swap USDC.e {`<->`} USDC on Gnosis Chain.</SubTitle>
       <Text>
         <b>USDC (old)</b> is the wrapped version of the token minted by the Omnibridge.
-        {/* </Text>
-      <Text> */}
         <br />
         <b>USDC.e</b> is the token version that follows the{' '}
         <ExternalLink

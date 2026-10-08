@@ -106,9 +106,6 @@ jobs:
             linux/amd64
           build-args: |
             "NEXT_PUBLIC_APP_NAME=GnosisBridgeMonitor"
-            "NEXT_PUBLIC_DEFAULT_THEME=dark"
             "NEXT_PUBLIC_DEFAULT_CHAIN_ID=1"
-            "NEXT_PUBLIC_COOKIES_WARNING_ENABLED=true"
-            "NEXT_PUBLIC_POLLING_INTERVAL=10000"
             "NEXT_PUBLIC_WALLET_CONNECT_DAPP_URL=${{ secrets.WALLET_CONNECT_URL }}"
             "NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }}"

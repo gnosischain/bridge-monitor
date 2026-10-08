@@ -97,7 +97,7 @@ export const FcrBanner: React.FC = ({ ...restProps }) => {
         <Icon />
         <Text>
           The <Emphasize>Fast Confirmation Rule</Emphasize> is now integrated into the bridge.
-          Transfers from Ethereum to Gnosis Chain are now confirmed in{' '}
+          Transfers from Ethereum to Gnosis Chain are now confirmed in ~{' '}
           <Emphasize>{mainnetToGnosisTime}</Emphasize> instead of ~17 minutes.{' '}
           <DocsLink href={FCR_DOCS_URL} rel="noopener noreferrer" target="_blank">
             Learn more

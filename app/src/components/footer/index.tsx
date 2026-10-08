@@ -116,12 +116,6 @@ export const Footer: React.FC = (props) => {
             Documentation
           </ExternalLink>
           <Link href="/faq">FAQ</Link>
-          {/* <NextLink href="/privacy" passHref>
-            <Link>Privacy Policy</Link>
-          </NextLink>
-          <NextLink href="/terms" passHref>
-            <Link>Terms &amp; Conditions</Link>
-          </NextLink> */}
         </End>
       </InnerContainer>
     </Wrapper>

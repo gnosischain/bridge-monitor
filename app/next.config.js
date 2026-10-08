@@ -7,30 +7,13 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 module.exports = withBundleAnalyzer({
   output: 'standalone',
   reactStrictMode: false,
-  i18n: {
-    locales: ['en'],
-    defaultLocale: 'en',
-  },
   images: {
     unoptimized: true,
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'tokens.1inch.io',
-      },
-      {
-        protocol: 'https',
-        hostname: 'assets.coingecko.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'ethereum-optimism.github.io',
-      },
       {
         protocol: 'https',
         hostname: '**',
       },
     ],
   },
-  transpilePackages: ['@web3-name-sdk/core']
 })

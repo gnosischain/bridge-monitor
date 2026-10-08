@@ -36,14 +36,6 @@ const pulse = keyframes`
   }
 `
 
-// const WrapperBordered = styled(Wrapper)`
-//   border-right: 1px solid #40d194;
-//   border-left: 1px solid #40d194;
-//   border-top: 1px solid #40d194;
-//   border-bottom: 1px solid rgba(221, 212, 190, 0.5);
-//   animation: ${rotate} 1.5s linear infinite;
-// `
-
 const WrapperBordered = styled(Wrapper)`
   border: 1px solid #40d194;
   animation: ${pulse} 1.5s linear infinite;
