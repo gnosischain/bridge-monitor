@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 
+import { FCR_DOCS_URL } from '@/src/components/banner/FcrBanner'
 import { MainCard } from '@/src/components/card/MainCard'
 import { MainTitle } from '@/src/components/text/MainTitle'
 import { BaseParagraph as Paragraph } from '@/src/components/text/BaseParagraph'
@@ -42,8 +43,14 @@ export const FAQContents: React.FC = () => {
         How long is the transfer time from Ethereum to Gnosis Chain?
       </EmphasizedTitle>
       <Paragraph>
-        Transactions from Ethereum to Gnosis Chain are expected to take ~17 mins due to the block
-        finality from Ethereum, which usually takes 2 epochs.
+        With the Fast Confirmation Rule (FCR) integrated into the bridge, transactions from Ethereum
+        to Gnosis Chain are expected to take ~12 seconds (1 block), instead of waiting the 2 epochs
+        Ethereum needs to reach full finality. In the other direction, transactions from Gnosis
+        Chain to Ethereum are expected to take ~5 minutes (32 blocks).
+        <br /> More details here:{' '}
+        <a href={FCR_DOCS_URL} rel="noreferrer" target="_blank">
+          {FCR_DOCS_URL}
+        </a>
       </Paragraph>
       <EmphasizedTitle id="q_1c">
         What if I'm not coming from Ethereum? Are there alternative bridges to Gnosis Chain?
