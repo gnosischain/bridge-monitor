@@ -3,11 +3,12 @@ import { Alert } from '@/src/components/assets/Alert'
 import { Close } from '@/src/components/assets/Close'
 import { InnerContainer } from '@/src/components/innerContainer'
 import { useLocalStorage } from '@/src/hooks/usePersistedState'
+import { mainnetToGnosisTime } from '@/src/utils/txTime'
 
-const FCR_DOCS_URL = 'https://docs.gnosischain.com/bridges/fast-confirmation-rule'
+export const FCR_DOCS_URL = 'https://docs.gnosischain.com/bridges/fast-confirmation-rule'
 
 // Bump the version suffix to show the banner again to everyone who already dismissed it.
-const DISMISSED_STORAGE_KEY = 'fcr_rollout_banner_dismissed_v1'
+const DISMISSED_STORAGE_KEY = 'fcr_banner_dismissed_v1'
 
 const Wrapper = styled(InnerContainer)`
   flex-grow: 0;
@@ -33,7 +34,7 @@ const Icon = styled(Alert)`
   width: 22px;
 
   .fill {
-    fill: ${({ theme: { colors } }) => colors.warning};
+    fill: ${({ theme: { colors } }) => colors.success};
   }
 `
 
@@ -88,14 +89,15 @@ export const FcrBanner: React.FC = ({ ...restProps }) => {
       <Inner>
         <Icon />
         <Text>
-          We are rolling out the FCR integration to xDAI bridge and Omnibridge. In the meantime,
-          please expect <Emphasize>some downtime or delays</Emphasize> when bridging.{' '}
+          The <Emphasize>Fast Confirmation Rule</Emphasize> is now integrated into the bridge.
+          Transfers from Ethereum to Gnosis Chain are now confirmed in ~
+          <Emphasize>{mainnetToGnosisTime}</Emphasize> instead of ~17 minutes.{' '}
           <DocsLink href={FCR_DOCS_URL} rel="noopener noreferrer" target="_blank">
             Learn more
           </DocsLink>
         </Text>
         <DismissButton
-          aria-label="Dismiss the FCR rollout warning"
+          aria-label="Dismiss the Fast Confirmation Rule announcement"
           onClick={() => setIsDismissed(true)}
           type="button"
         >

@@ -6,10 +6,12 @@ import { ButtonFull } from '@/src/components/buttons/Button'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { GenericError } from '@/src/components/error/GenericError'
 import { MainTitle } from '@/src/components/text/MainTitle'
+import { Failed } from '@/src/components/assets/Failed'
 import { Ok } from '@/src/components/assets/Ok'
 import { getChainKey, getNetworkConfig } from '@/src/constants/config/chains'
 import { transactionBaseURL } from '@/src/constants/sections'
 import { useFetchTransactions } from '@/src/hooks/useTransactions'
+import { Transaction, TransactionStatus } from '@/src/utils/transactions'
 import { useRouter } from 'next/router'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
@@ -161,15 +163,28 @@ export const Loading: React.FC = () => (
   </>
 )
 
-const ButtonExploreTransaction = ({ transactionHash }: { transactionHash: string }) => {
-  const router = useRouter()
-  const { isLoading, transactions } = useFetchTransactions(
-    { where: { transactionHash: { _eq: transactionHash.toLowerCase() } } },
-    undefined,
-    { pollUntilFound: true },
-  )
+// The indexer only moves a transfer past COLLECTING once the validators' signatures reach the
+// threshold: UNCLAIMED towards Ethereum (the user still has to claim), COMPLETED towards Gnosis
+// (the affirmation executes with the last required signature).
+const SIGNED_STATUSES = [TransactionStatus.Unclaimed, TransactionStatus.Completed]
 
-  const tx = transactions.length ? transactions[0] : null
+const hasCollectedSignatures = (tx: Transaction | null): boolean =>
+  !!tx && SIGNED_STATUSES.includes(tx.transactionStatus)
+
+// ERROR is final: the message's execution on the destination chain failed.
+const hasFailed = (tx: Transaction | null): boolean =>
+  tx?.transactionStatus === TransactionStatus.Error
+
+const isSettled = (tx: Transaction | null): boolean => hasCollectedSignatures(tx) || hasFailed(tx)
+
+const ButtonExploreTransaction = ({
+  isLoading,
+  tx,
+}: {
+  isLoading: boolean
+  tx: Transaction | null
+}) => {
+  const router = useRouter()
   const isWaitingForIndexing = !tx || isLoading
 
   return (
@@ -209,7 +224,16 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
 
   const formattedAmount = Number(formatUnits(BigInt(amount), tokenBridged?.decimals ?? 18))
 
-  const isBridgeComplete = progressData?.progress === 100
+  const { isLoading: isLoadingTx, transactions } = useFetchTransactions(
+    { where: { transactionHash: { _eq: transactionHash.toLowerCase() } } },
+    undefined,
+    { pollUntil: (txs) => isSettled(txs[0] ?? null) },
+  )
+  const tx = transactions[0] ?? null
+
+  const isConfirmed = progressData?.progress === 100
+  const isBridgeComplete = hasCollectedSignatures(tx)
+  const isBridgeFailed = hasFailed(tx)
 
   const { address, isSCWallet } = useWeb3Connection()
   const myTxsLink = `/bridge-explorer/my-transactions?hash=${address}`
@@ -251,25 +275,37 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
           <Contents>
             <Inner>
               <Message>
-                <Icon>
-                  <Ok />
-                </Icon>
-                <StatusTitle>Bridge {isBridgeComplete ? 'completed' : 'initiated'}</StatusTitle>
+                <Icon>{isBridgeFailed ? <Failed /> : <Ok />}</Icon>
+                <StatusTitle>
+                  Bridge {isBridgeFailed ? 'failed' : isBridgeComplete ? 'completed' : 'initiated'}
+                </StatusTitle>
                 <MessageText>
-                  {!isBridgeComplete && (
+                  {isBridgeFailed ? (
                     <>
-                      {progressData?.isMined
-                        ? 'Waiting for confirmation.'
-                        : 'Waiting for transaction to be mined.'}
-                      <br />
+                      Sending {formatNumber(formattedAmount)} {tokenBridged?.symbol} to{' '}
+                      {destinationChain} failed: the transfer could not be executed on{' '}
+                      {destinationChain}. Open the transaction for details.
+                    </>
+                  ) : (
+                    <>
+                      {!isBridgeComplete && (
+                        <>
+                          {!progressData?.isMined
+                            ? 'Waiting for transaction to be mined.'
+                            : !isConfirmed
+                              ? 'Waiting for confirmation.'
+                              : 'Waiting for validator signatures.'}
+                          <br />
+                        </>
+                      )}
+                      {isBridgeComplete ? 'Sent' : 'Sending'} {formatNumber(formattedAmount)}{' '}
+                      {tokenBridged?.symbol} to {destinationChain}.
                     </>
                   )}
-                  {isBridgeComplete ? 'Sent' : 'Sending'} {formatNumber(formattedAmount)}{' '}
-                  {tokenBridged?.symbol} to {destinationChain}.
                 </MessageText>
               </Message>
               <BlockConfirmations network={initiatorChain} transactionHash={transactionHash} />
-              <ButtonExploreTransaction transactionHash={transactionHash} />
+              <ButtonExploreTransaction isLoading={isLoadingTx} tx={tx} />
               {isSCWallet && (
                 <WarningInfo>
                   When using a smart contract wallet, if transaction is executed but transaction
