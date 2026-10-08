@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Alert } from '@/src/components/assets/Alert'
 import { Close } from '@/src/components/assets/Close'
@@ -78,18 +77,12 @@ const DismissButton = styled.button`
   }
 `
 
+// Rendered inside the client-only `Web3ConnectionProvider`, so `useLocalStorage` reads the stored
+// flag on the first render and there is no server markup to hydrate against.
 export const FcrBanner: React.FC = ({ ...restProps }) => {
   const [isDismissed, setIsDismissed] = useLocalStorage<boolean>(DISMISSED_STORAGE_KEY, false)
-  // `useLocalStorage` can only read the stored flag on the client, so for an already-dismissed user
-  // the server markup and the first client render would disagree. Hold the banner back until after
-  // mount to keep hydration consistent.
-  const [isMounted, setIsMounted] = useState(false)
 
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
-
-  if (!isMounted || isDismissed) return null
+  if (isDismissed) return null
 
   return (
     <Wrapper {...restProps}>
@@ -97,7 +90,7 @@ export const FcrBanner: React.FC = ({ ...restProps }) => {
         <Icon />
         <Text>
           The <Emphasize>Fast Confirmation Rule</Emphasize> is now integrated into the bridge.
-          Transfers from Ethereum to Gnosis Chain are now confirmed in ~{' '}
+          Transfers from Ethereum to Gnosis Chain are now confirmed in ~
           <Emphasize>{mainnetToGnosisTime}</Emphasize> instead of ~17 minutes.{' '}
           <DocsLink href={FCR_DOCS_URL} rel="noopener noreferrer" target="_blank">
             Learn more

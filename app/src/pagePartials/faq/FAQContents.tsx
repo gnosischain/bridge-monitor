@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 
+import { FCR_DOCS_URL } from '@/src/components/banner/FcrBanner'
 import { MainCard } from '@/src/components/card/MainCard'
 import { MainTitle } from '@/src/components/text/MainTitle'
 import { BaseParagraph as Paragraph } from '@/src/components/text/BaseParagraph'
@@ -47,12 +48,8 @@ export const FAQContents: React.FC = () => {
         Ethereum needs to reach full finality. In the other direction, transactions from Gnosis
         Chain to Ethereum are expected to take ~5 minutes (32 blocks).
         <br /> More details here:{' '}
-        <a
-          href="https://docs.gnosischain.com/bridges/fast-confirmation-rule"
-          rel="noreferrer"
-          target="_blank"
-        >
-          https://docs.gnosischain.com/bridges/fast-confirmation-rule
+        <a href={FCR_DOCS_URL} rel="noreferrer" target="_blank">
+          {FCR_DOCS_URL}
         </a>
       </Paragraph>
       <EmphasizedTitle id="q_1c">
