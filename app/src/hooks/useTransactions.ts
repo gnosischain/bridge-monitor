@@ -122,15 +122,16 @@ const withLocalClaims = (
 export const useFetchTransactions = (
   query?: EnvioQueryArgs,
   inMemoryFilters: TxsInMemoryFilters = NO_IN_MEMORY_FILTERS,
-  { pollUntilFound = false }: { pollUntilFound?: boolean } = {},
+  // Keeps polling the indexer until the fetched rows satisfy the predicate.
+  { pollUntil }: { pollUntil?: (transactions: Transaction[]) => boolean } = {},
 ) => {
   const { clearClaim, localClaims, markAsClaimed, markAsClaiming } = useClaimingTransactions()
 
   const { data, isLoading } = useQuery({
     queryKey: ['useFetchTransactions', query ?? null, inMemoryFilters],
     queryFn: query ? () => fetchTransactions(query, inMemoryFilters) : skipToken,
-    refetchInterval: pollUntilFound
-      ? ({ state }) => (state.data?.length ? false : INDEXER_POLL_INTERVAL)
+    refetchInterval: pollUntil
+      ? ({ state }) => (pollUntil(state.data ?? NO_TRANSACTIONS) ? false : INDEXER_POLL_INTERVAL)
       : false,
   })
 
