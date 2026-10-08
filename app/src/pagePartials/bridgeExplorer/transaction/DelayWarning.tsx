@@ -42,7 +42,7 @@ export const DelayWarning: React.FC<{ initiatorNetwork: string; receiverNetwork:
       <Icon />
       <span>
         Transactions from <Network>{initiatorNetwork}</Network> to{' '}
-        <Network>{receiverNetwork}</Network> can take up to{' '}
+        <Network>{receiverNetwork}</Network> can take a minimum of{' '}
         <Emphasize>{txTime(initiatorNetwork)}</Emphasize>
       </span>
     </Wrapper>

@@ -52,7 +52,7 @@ export const StatusCell: React.FC<Props> = ({ claimActions, transaction }) => {
           content={
             <>
               Transactions from <Network>{initiatorNetwork}</Network> to{' '}
-              <Network>{receiverNetwork}</Network> can take up to{' '}
+              <Network>{receiverNetwork}</Network> can take a minimum of{' '}
               <Emphasize>{txTime(initiatorNetwork)}</Emphasize>
             </>
           }

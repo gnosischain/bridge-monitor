@@ -10,6 +10,7 @@ import { Ok } from '@/src/components/assets/Ok'
 import { getChainKey, getNetworkConfig } from '@/src/constants/config/chains'
 import { transactionBaseURL } from '@/src/constants/sections'
 import { useFetchTransactions } from '@/src/hooks/useTransactions'
+import { Transaction, TransactionStatus } from '@/src/utils/transactions'
 import { useRouter } from 'next/router'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
@@ -161,15 +162,22 @@ export const Loading: React.FC = () => (
   </>
 )
 
-const ButtonExploreTransaction = ({ transactionHash }: { transactionHash: string }) => {
-  const router = useRouter()
-  const { isLoading, transactions } = useFetchTransactions(
-    { where: { transactionHash: { _eq: transactionHash.toLowerCase() } } },
-    undefined,
-    { pollUntilFound: true },
-  )
+// The indexer only moves a transfer past COLLECTING once the validators' signatures reach the
+// threshold: UNCLAIMED towards Ethereum (the user still has to claim), COMPLETED towards Gnosis
+// (the affirmation executes with the last required signature).
+const SIGNED_STATUSES = [TransactionStatus.Unclaimed, TransactionStatus.Completed]
 
-  const tx = transactions.length ? transactions[0] : null
+const hasCollectedSignatures = (tx: Transaction | null): boolean =>
+  !!tx && SIGNED_STATUSES.includes(tx.transactionStatus)
+
+const ButtonExploreTransaction = ({
+  isLoading,
+  tx,
+}: {
+  isLoading: boolean
+  tx: Transaction | null
+}) => {
+  const router = useRouter()
   const isWaitingForIndexing = !tx || isLoading
 
   return (
@@ -209,7 +217,15 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
 
   const formattedAmount = Number(formatUnits(BigInt(amount), tokenBridged?.decimals ?? 18))
 
-  const isBridgeComplete = progressData?.progress === 100
+  const { isLoading: isLoadingTx, transactions } = useFetchTransactions(
+    { where: { transactionHash: { _eq: transactionHash.toLowerCase() } } },
+    undefined,
+    { pollUntil: (txs) => hasCollectedSignatures(txs[0] ?? null) },
+  )
+  const tx = transactions[0] ?? null
+
+  const isConfirmed = progressData?.progress === 100
+  const isBridgeComplete = hasCollectedSignatures(tx)
 
   const { address, isSCWallet } = useWeb3Connection()
   const myTxsLink = `/bridge-explorer/my-transactions?hash=${address}`
@@ -258,9 +274,11 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
                 <MessageText>
                   {!isBridgeComplete && (
                     <>
-                      {progressData?.isMined
-                        ? 'Waiting for confirmation.'
-                        : 'Waiting for transaction to be mined.'}
+                      {!progressData?.isMined
+                        ? 'Waiting for transaction to be mined.'
+                        : !isConfirmed
+                          ? 'Waiting for confirmation.'
+                          : 'Waiting for validator signatures.'}
                       <br />
                     </>
                   )}
@@ -269,7 +287,7 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
                 </MessageText>
               </Message>
               <BlockConfirmations network={initiatorChain} transactionHash={transactionHash} />
-              <ButtonExploreTransaction transactionHash={transactionHash} />
+              <ButtonExploreTransaction isLoading={isLoadingTx} tx={tx} />
               {isSCWallet && (
                 <WarningInfo>
                   When using a smart contract wallet, if transaction is executed but transaction
