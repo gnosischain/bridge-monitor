@@ -1,4 +1,4 @@
-import { AMBForeign, AMBHome } from "generated";
+import { indexer, AMBForeign, AMBHome } from "envio";
 import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { getValidator } from "../../utils/getValidator";
 import { isOmniBridgeUsage, extractReceiverFromEncodedData, isRouterContract } from "../../utils/omnibridge";
@@ -13,7 +13,9 @@ import { isOmniBridgeUsage, extractReceiverFromEncodedData, isRouterContract } f
 
 // [Foreign] Ethereum
 // 1. Init. Bridging started (create Transaction using AMBTransfer side table)
-AMBForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "AMBForeign", event: "UserRequestForAffirmation" },
+  async ({ event, context }) => {
   const transactionHash = event.transaction.hash;
   const timestamp = event.block.timestamp;
   const messageId = event.params.messageId;
@@ -61,11 +63,14 @@ AMBForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
     };
     context.Transaction.set(newTx);
   }
-});
+}
+);
 
 // [Home] Gnosis
 // 2. Validation. Validators sign transaction (update validator lastActivity)
-AMBHome.SignedForAffirmation.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "AMBHome", event: "SignedForAffirmation" },
+  async ({ event, context }) => {
   const signer = event.params.signer.toLowerCase();
   const validator = await getValidator(context, signer, BridgeTypeEnum.AMB);
   if (!validator) {
@@ -78,7 +83,6 @@ AMBHome.SignedForAffirmation.handler(async ({ event, context }) => {
   const message = event.transaction.input;
 
   const messageId = `0x${message.slice(138, 202)}`;
-
 
   if (messageId) {
     const tx = await context.Transaction.get(messageId);
@@ -106,7 +110,9 @@ AMBHome.SignedForAffirmation.handler(async ({ event, context }) => {
 
 // [Home] Gnosis
 // 3. Execution. Validator executes transaction (complete Transaction)
-AMBHome.AffirmationCompleted.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "AMBHome", event: "AffirmationCompleted" },
+  async ({ event, context }) => {
   const transactionHash = event.transaction.hash;
   const timestamp = event.block.timestamp;
   const messageId = event.params.messageId;
@@ -182,4 +188,5 @@ AMBHome.AffirmationCompleted.handler(async ({ event, context }) => {
     };
     context.Transaction.set(updated);
   }
-});
+}
+);

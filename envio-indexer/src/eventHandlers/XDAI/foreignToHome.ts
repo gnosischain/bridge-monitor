@@ -1,4 +1,4 @@
-import { DAI, TransactionExecution, TransactionValidation, Validator, XDAIForeign, XDAIHome, USDS } from "generated";
+import { indexer, DAI, TransactionExecution, TransactionValidation, Validator, XDAIForeign, XDAIHome, USDS } from "envio";
 import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { combineNonceAndChainId } from "../../utils/combineNonceAndChainId";
 import { ADDRESSES } from "../../addresses";
@@ -16,7 +16,13 @@ import { getValidator } from "../../utils/getValidator";
 
 // [Foreign]
 // 0. DAI transfer, to keep sender and sender token
-DAI.Transfer.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "DAI", event: "Transfer", eventFilters: [
+    {to: ADDRESSES.FOREIGN.XDAI_BRIDGE },
+    {to: ADDRESSES.FOREIGN.XDAI_BRIDGE_PERIPHERAL_FOR_DAI_PRE_USDS_UPGRADE_ADDRESS },
+    {to: ADDRESSES.FOREIGN.BRIDGE_ROUTER },
+  ] },
+  async ({ event, context }) => {
   const txHash = event.transaction.hash;
   const sender = event.params.from.toLowerCase();
 
@@ -42,17 +48,18 @@ DAI.Transfer.handler(async ({ event, context }) => {
     };
     context.Transaction.set(updated);
   }
-}, {
-  eventFilters: [
-    {to: ADDRESSES.FOREIGN.XDAI_BRIDGE },
-    {to: ADDRESSES.FOREIGN.XDAI_BRIDGE_PERIPHERAL_FOR_DAI_PRE_USDS_UPGRADE_ADDRESS },
-    {to: ADDRESSES.FOREIGN.BRIDGE_ROUTER },
-  ]
-});
+}
+);
 
 // [Foreign]
 // 0. USDS transfer, to keep sender and sender token
-USDS.Transfer.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "USDS", event: "Transfer", eventFilters: [
+    {to: ADDRESSES.FOREIGN.XDAI_BRIDGE },
+    {to: ADDRESSES.FOREIGN.XDAI_BRIDGE_PERIPHERAL_FOR_DAI_PRE_USDS_UPGRADE_ADDRESS },
+    {to: ADDRESSES.FOREIGN.BRIDGE_ROUTER },
+  ] },
+  async ({ event, context }) => {
   const txHash = event.transaction.hash;
   const sender = event.params.from.toLowerCase();
 
@@ -78,18 +85,15 @@ USDS.Transfer.handler(async ({ event, context }) => {
     };
     context.Transaction.set(updated);
   }
-}, {
-  eventFilters: [
-    {to: ADDRESSES.FOREIGN.XDAI_BRIDGE },
-    {to: ADDRESSES.FOREIGN.XDAI_BRIDGE_PERIPHERAL_FOR_DAI_PRE_USDS_UPGRADE_ADDRESS },
-    {to: ADDRESSES.FOREIGN.BRIDGE_ROUTER },
-  ]
-});
+}
+);
 
 // [Foreign]
 // 1 Init. Bridging started
 // Before Hashi update
-XDAIForeign.UserRequestForAffirmation_NoNonce.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "XDAIForeign", event: "UserRequestForAffirmation_NoNonce" },
+  async ({ event, context }) => {
   const txHash = event.transaction.hash;
 
   const transferTx = await context.DaiOrUsdsTransfer.get(txHash);
@@ -127,12 +131,15 @@ XDAIForeign.UserRequestForAffirmation_NoNonce.handler(async ({ event, context })
     return;
   }
 
-});
+}
+);
 
 // [Foreign]
 // 1 Init. Bridging started
 // After Hashi update (current version)
-XDAIForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "XDAIForeign", event: "UserRequestForAffirmation" },
+  async ({ event, context }) => {
   const txHash = event.transaction.hash;
 
   const transferTx = await context.DaiOrUsdsTransfer.get(txHash);
@@ -172,11 +179,14 @@ XDAIForeign.UserRequestForAffirmation.handler(async ({ event, context }) => {
   } else {
     return;
   }
-});
+}
+);
 
 // [Home]
 // 2 Validation. Validators sign transaction
-XDAIHome.SignedForAffirmation.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "XDAIHome", event: "SignedForAffirmation" },
+  async ({ event, context }) => {
   const foreignNonce = event.params.nonce;
   const txId = foreignNonce.startsWith("0x00000000")
     ? combineNonceAndChainId(foreignNonce, CHAIN.FOREIGN.ID)
@@ -210,11 +220,14 @@ XDAIHome.SignedForAffirmation.handler(async ({ event, context }) => {
     timestamp: BigInt(event.block.timestamp),
   };
   context.TransactionValidation.set(validation);
-});
+}
+);
 
 // [Home]
 // 3 Execution. Validator executes transaction
-XDAIHome.AffirmationCompleted.handler(async ({ event, context }) => { 
+indexer.onEvent(
+  { contract: "XDAIHome", event: "AffirmationCompleted" },
+  async ({ event, context }) => { 
   const foreignNonce = event.params.nonce;
   const txId = foreignNonce.startsWith("0x00000000")
     ? combineNonceAndChainId(foreignNonce, CHAIN.FOREIGN.ID)
@@ -257,4 +270,5 @@ XDAIHome.AffirmationCompleted.handler(async ({ event, context }) => {
     };
     context.Transaction.set({...newTx});
   }
-});
+}
+);

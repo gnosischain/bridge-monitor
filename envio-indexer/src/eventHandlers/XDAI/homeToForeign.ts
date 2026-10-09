@@ -1,4 +1,4 @@
-import { TransactionExecution, TransactionValidation, Validator, XDAIHome, XDAIForeign } from "generated";
+import { indexer, TransactionExecution, TransactionValidation, Validator, XDAIHome, XDAIForeign } from "envio";
 import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { ADDRESSES } from "../../addresses";
 import { combineNonceAndChainId } from "../../utils/combineNonceAndChainId";
@@ -21,7 +21,9 @@ import { decodeFunctionData, parseAbiItem } from 'viem'
 // [Home]
 // 1 Init. DAI is transferred to the bridge contract
 // Before Hashi update
-XDAIHome.UserRequestForSignature_NoNonceNoToken.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "XDAIHome", event: "UserRequestForSignature_NoNonceNoToken" },
+  async ({ event, context }) => {
   const txHash = event.transaction.hash;
   const tx = await context.Transaction.get(txHash);
   if (!tx) {
@@ -68,11 +70,14 @@ XDAIHome.UserRequestForSignature_NoNonceNoToken.handler(async ({ event, context 
     }
     context.Transaction.set(updatedTx);
   }
-});
+}
+);
 
 // 1 Init. DAI is transferred to the bridge contract
 // After Hashi update
-XDAIHome.UserRequestForSignature_WithNonceNoToken.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "XDAIHome", event: "UserRequestForSignature_WithNonceNoToken" },
+  async ({ event, context }) => {
   const nonce = event.params.nonce;
   const nonceAndChainId = combineNonceAndChainId(nonce, 100);
 
@@ -121,11 +126,14 @@ XDAIHome.UserRequestForSignature_WithNonceNoToken.handler(async ({ event, contex
     }
     context.Transaction.set(updatedTx);
   }
-});
+}
+);
 
 // 1 Init. DAI is transferred to the bridge contract
 // After USDS migration (current version)
-XDAIHome.UserRequestForSignature.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "XDAIHome", event: "UserRequestForSignature" },
+  async ({ event, context }) => {
   const nonce = event.params.nonce;
   const nonceAndChainId = combineNonceAndChainId(nonce, 100);
 
@@ -174,11 +182,14 @@ XDAIHome.UserRequestForSignature.handler(async ({ event, context }) => {
     }
     context.Transaction.set(updatedTx);
   }
-});
+}
+);
 
 // [Home]
 // 2 Validation. Validators sign transaction
-XDAIHome.SignedForUserRequest.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "XDAIHome", event: "SignedForUserRequest" },
+  async ({ event, context }) => {
 
   const rawInput = event.transaction.input as `0x${string}`;
   const { functionName, args } = decodeFunctionData({
@@ -225,12 +236,15 @@ XDAIHome.SignedForUserRequest.handler(async ({ event, context }) => {
     timestamp: BigInt(event.block.timestamp),
   };
   context.TransactionValidation.set(validation);
-});
+}
+);
 
 // [Home]
 // 3 Ready to execute on Foreign (treshold signatures reached)
 // When this event happens, is possible to claim the tokens on the foreign network.
-XDAIHome.CollectedSignatures.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "XDAIHome", event: "CollectedSignatures" },
+  async ({ event, context }) => {
 
   const rawInput = event.transaction.input as `0x${string}`;
   const { functionName, args } = decodeFunctionData({
@@ -256,12 +270,14 @@ XDAIHome.CollectedSignatures.handler(async ({ event, context }) => {
       context.Transaction.set(updatedTx);
     }
   }
-});
-
+}
+);
 
 // [Foreign]
 // 4 Execution (token claimed)
-XDAIForeign.RelayedMessage.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "XDAIForeign", event: "RelayedMessage" },
+  async ({ event, context }) => {
   const txHashOrNonce = event.params.transactionHash;
   const messageId = txHashOrNonce.startsWith("0x00000000")
     ? combineNonceAndChainId(txHashOrNonce, CHAIN.HOME.ID)
@@ -310,4 +326,5 @@ XDAIForeign.RelayedMessage.handler(async ({ event, context }) => {
     };
     context.Transaction.set(updatedTx);
   }
-});
+}
+);
