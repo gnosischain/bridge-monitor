@@ -12,7 +12,7 @@
     "indexer:codegen": "pnpm --filter envio-indexer codegen",
     "indexer:start": "pnpm --filter envio-indexer start",
     "indexer:stop": "pnpm --filter envio-indexer stop",
-    "audit": "pnpm audit --audit-level=high"
+    "audit": "pnpm audit --audit-level=high --prod && pnpm audit --audit-level=critical"
   },
   "license": "MIT",
   "private": true,
