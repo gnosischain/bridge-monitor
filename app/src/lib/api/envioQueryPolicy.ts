@@ -65,6 +65,13 @@ const MAX_WHERE_DEPTH = 8
 const MAX_WHERE_NODES = 64
 
 /**
+ * Ids, hashes and addresses run to 66 characters at most; the one free-form string is a `.gno` name,
+ * sent as typed when it does not resolve. Anything past this only bloats a cache key, or an error
+ * message echoing it.
+ */
+const MAX_WHERE_STRING = 256
+
+/**
  * Walks the clause the UI built. Unknown fields are refused rather than passed through.
  */
 const acceptsWhere = (where: unknown) => {
@@ -81,14 +88,28 @@ const acceptsWhere = (where: unknown) => {
       )
     }
 
-    return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
+    return (
+      (typeof value === 'string' && value.length <= MAX_WHERE_STRING) ||
+      typeof value === 'number' ||
+      typeof value === 'boolean'
+    )
   }
 
   return walk(where, 0)
 }
 
-/** The explorer's lists ask for the newest first; the lookups by id or hash send no ordering. */
-const ORDER_BY = JSON.stringify([{ timestamp: 'desc' }])
+/**
+ * The explorer's lists ask for the newest first; the lookups by id or hash send no ordering.
+ * Checked field by field, not by comparing `JSON.stringify` output: that throws on an array nested
+ * a few thousand deep, which would escape `resolve` as a 500 instead of a refusal.
+ */
+const acceptsOrdering = (ordering: unknown) => {
+  if (ordering === undefined) return true
+  if (!Array.isArray(ordering) || ordering.length !== 1) return false
+
+  const [only] = ordering
+  return isPlainObject(only) && Object.keys(only).length === 1 && only.timestamp === 'desc'
+}
 
 const TRANSACTION_VARIABLES = ['where', 'order_by', 'limit', 'offset']
 
@@ -106,7 +127,7 @@ const acceptsTransactionQuery = (variables: unknown) => {
 
   if (!isPlainObject(where) || !acceptsWhere(where)) return false
 
-  if (ordering !== undefined && JSON.stringify(ordering) !== ORDER_BY) return false
+  if (!acceptsOrdering(ordering)) return false
   if (limit !== TRANSACTIONS_PAGE_SIZE || offset !== 0) return false
 
   return true

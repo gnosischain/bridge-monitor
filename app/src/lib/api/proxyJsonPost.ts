@@ -1,3 +1,4 @@
+import { createHash } from 'crypto'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 /**
@@ -24,15 +25,15 @@ import type { NextApiRequest, NextApiResponse } from 'next'
  * estimates and transaction broadcasts, where answering from an earlier response
  * would be wrong. A route that does opt in gets the four behaviours in
  * `serveCached` — a TTL cache, single-flight, stale answers while the upstream is
- * failing, and a retry window that stops a failing upstream from being asked again
- * on every request — and may name a `fallback` to answer while its upstream is
- * rate-limiting.
+ * failing, and retry windows that stop a failing upstream, or a question it will
+ * not answer, from being asked again on every request — and may name a `fallback`
+ * to answer while its upstream is rate-limiting.
  */
 
 export type ProxyCache = {
   /**
    * What makes two requests interchangeable: it has to cover everything that can change the
-   * answer.
+   * answer. Any length will do, since the cache files it under a digest.
    */
   key: string
   /** How long a successful response may be reused, in milliseconds. */
@@ -70,6 +71,11 @@ type UpstreamResponse = {
   status: number
   contentType: string
   payload: string
+  /**
+   * Whether it may be reused (see `isCacheable`). Settled once, as it arrives, and only for a route
+   * that caches: every caller sharing a response needs to know, and parsing it is the costly part.
+   */
+  cacheable: boolean
   /** When this stops counting as fresh. */
   expiresAt: number
   /** Answered by the resolution's fallback, its upstream having refused with a 429. */
@@ -77,11 +83,15 @@ type UpstreamResponse = {
 }
 
 /**
- * Cap on cached responses. The explorer searches by arbitrary transaction hash, so the set of
- * distinct keys is unbounded by construction and a busy day must not grow this process's heap. `Map`
- * iterates in insertion order, so dropping the first key drops the least recently stored entry.
+ * Caps on cached responses: how many, and how much text they add up to. The explorer searches by
+ * arbitrary transaction hash, so the set of distinct keys is unbounded by construction and a busy day
+ * must not grow this process's heap, and a count alone does not bound it when a single 500-row page
+ * runs to a megabyte. Text is counted in characters, which V8 keeps at a byte each for ASCII JSON.
+ * `Map` iterates in insertion order and every use moves an entry to the end, so dropping the first
+ * key drops the least recently used entry.
  */
 const MAX_ENTRIES = 500
+const MAX_BYTES = 64 * 1024 * 1024
 
 /**
  * How long past its TTL an entry may still answer while the upstream is refusing to. A rate-limit
@@ -91,7 +101,8 @@ const MAX_ENTRIES = 500
 const STALE_GRACE = 5 * 60_000
 
 /**
- * How long a failing upstream is left alone before a caller asks it again.
+ * How long a failing upstream, or a question it would not answer, is left alone before a caller
+ * asks again.
  *
  * Nothing else provides this. A response that cannot be cached is never stored, so the entry that
  * produced it keeps its old `expiresAt`, and the next request — arriving after single-flight has
@@ -99,22 +110,30 @@ const STALE_GRACE = 5 * 60_000
  * very quota it exists to protect: 20 viewers polling one key at 5s go from ~6 upstream requests a
  * minute to ~240, precisely while the indexer is refusing them and the window most needs to drain.
  *
- * Held per upstream rather than per key, because a spent quota and a dead process are properties of
- * the upstream and not of the question asked — which also flattens the arithmetic to one retry per
- * window for the whole process, whatever the traffic. Short enough that recovery costs a caller one
- * stale answer at worst.
+ * Any answer that cannot be cached holds off its own key. Only an upstream that cannot answer at all
+ * — a spent quota, a dead process — is held off for every key, because that is a property of the
+ * upstream and not of the question asked. An error one question's variables caused says nothing
+ * about the next question, and replaying it there would let any caller fail everyone else's
+ * requests. Short enough that recovery costs a caller one stale answer at worst.
  */
 const RETRY_AFTER = 2_000
 
 const responses = new Map<string, UpstreamResponse>()
 
+/** What the cached payloads and their keys add up to, held against `MAX_BYTES`. */
+let cachedBytes = 0
+
 /** Upstream requests already in flight, so N callers waiting on one key cost one upstream request. */
 const inFlight = new Map<string, Promise<UpstreamResponse>>()
 
 /**
- * The last answer an upstream gave that could not be cached, and when it may be asked again.
+ * Per upstream: the failure it is being left alone over, until when, and when the request that met
+ * that failure was sent.
  */
-const failing = new Map<string, { response: UpstreamResponse; until: number }>()
+const failing = new Map<string, { response: UpstreamResponse; until: number; sentAt: number }>()
+
+/** Per key: the last answer it got that could not be cached, and until when it is not asked again. */
+const failingKeys = new Map<string, { response: UpstreamResponse; until: number }>()
 
 const errorBody = (message: string) => ({ errors: [{ message }] })
 
@@ -125,7 +144,7 @@ const isUpstreamFailure = (status: number) => status === 429 || status >= 500
  * A GraphQL upstream reports a failed query as `200` with a top-level `errors` array, so the
  * status alone cannot decide this: caching one of those would pin the failure for the whole TTL.
  */
-const isCacheable = ({ payload, status }: UpstreamResponse) => {
+const isCacheable = (status: number, payload: string) => {
   if (status !== 200) return false
 
   try {
@@ -137,21 +156,52 @@ const isCacheable = ({ payload, status }: UpstreamResponse) => {
 }
 
 /**
+ * What the cache files a route's key under. Its fixed length keeps every lookup cheap however long
+ * a caller makes its variables: V8 hashes a string past 16k characters by its length alone, so long
+ * keys of one length would all share a bucket and every lookup would compare them in full.
+ */
+const digest = (key: string) => createHash('sha256').update(key).digest('base64')
+
+/**
  * Moves an entry to the most recent position. Called whenever one is used, not only when it is
- * written.
+ * written, but only while it is still the one stored: a stale copy may have been evicted or
+ * replaced while its caller waited.
  */
 const touch = (key: string, response: UpstreamResponse) => {
+  if (responses.get(key) !== response) return
+
   responses.delete(key)
   responses.set(key, response)
 }
 
-const store = (key: string, response: UpstreamResponse) => {
-  touch(key, response)
+const sizeOf = (key: string, response: UpstreamResponse) => key.length + response.payload.length
 
-  while (responses.size > MAX_ENTRIES) {
-    const oldest = responses.keys().next()
-    if (oldest.done) break
-    responses.delete(oldest.value)
+const evict = (key: string) => {
+  const response = responses.get(key)
+  if (!response) return
+
+  responses.delete(key)
+  cachedBytes -= sizeOf(key, response)
+}
+
+/**
+ * Stores a response in place of any earlier one for its key. Entries too old to answer even as
+ * stale copies go first, then the least recently used, until both caps hold again. The entry just
+ * stored is never dropped, so one bigger than the whole budget still serves its TTL, alone.
+ */
+const store = (key: string, response: UpstreamResponse) => {
+  const now = Date.now()
+  for (const [storedKey, stored] of responses) {
+    if (stored.expiresAt + STALE_GRACE <= now) evict(storedKey)
+  }
+
+  evict(key)
+  responses.set(key, response)
+  cachedBytes += sizeOf(key, response)
+
+  for (const storedKey of responses.keys()) {
+    if (storedKey === key || (responses.size <= MAX_ENTRIES && cachedBytes <= MAX_BYTES)) break
+    evict(storedKey)
   }
 }
 
@@ -160,15 +210,30 @@ const unreachable = (resolution: Forwarded): UpstreamResponse => ({
   status: 502,
   contentType: 'application/json',
   payload: JSON.stringify(errorBody(resolution.upstreamErrorMessage ?? 'Upstream request failed')),
+  cacheable: false,
   expiresAt: 0,
 })
 
 /**
- * Notes that this upstream is not answering, and until when. Cleared by the next cacheable response,
- * so an upstream that comes back is asked again on the first request after the window.
+ * Leaves a key alone for a retry window, `response` answering for it meanwhile. Every hold lasts
+ * the same RETRY_AFTER, so insertion order is expiry order and the holds that have run out are
+ * always the first ones: dropping them there keeps this map to what the last window asked.
  */
-const holdOff = ({ upstream }: ProxyUpstream, response: UpstreamResponse) => {
-  failing.set(upstream, { response, until: Date.now() + RETRY_AFTER })
+const holdOffKey = (key: string, response: UpstreamResponse) => {
+  const now = Date.now()
+  failingKeys.delete(key)
+  failingKeys.set(key, { response, until: now + RETRY_AFTER })
+
+  for (const [heldKey, { until }] of failingKeys) {
+    if (until > now && failingKeys.size <= MAX_ENTRIES) break
+    failingKeys.delete(heldKey)
+  }
+}
+
+/** The answer a key is being left alone over, for as long as its retry window lasts. */
+const heldAnswer = (key: string, now: number) => {
+  const held = failingKeys.get(key)
+  return held && held.until > now ? held.response : undefined
 }
 
 /** The failure an upstream is being left alone over, for as long as its retry window lasts. */
@@ -195,11 +260,13 @@ const fetchUpstream = async (
     },
     body: JSON.stringify(body),
   })
+  const payload = await upstream.text()
 
   return {
     status: upstream.status,
     contentType: upstream.headers.get('content-type') || 'application/json',
-    payload: await upstream.text(),
+    payload,
+    cacheable: Boolean(resolution.cache) && isCacheable(upstream.status, payload),
     expiresAt: Date.now() + (resolution.cache?.ttl ?? 0),
   }
 }
@@ -220,25 +287,50 @@ const logRateLimit = ({ upstream }: ProxyUpstream, response: UpstreamResponse) =
   else console.info(`[proxy] ${host} is no longer rate-limiting; its fallback is not asked`)
 }
 
-/** Keeps an upstream's retry window: a cacheable response clears it, anything else starts it. */
-const record = (resolution: Forwarded, target: ProxyUpstream, response: UpstreamResponse) => {
+/**
+ * Keeps an upstream's retry window: an answer saying it cannot answer at all starts it, any other
+ * answer clears it. Ordered by when each request was sent, not by when its answer arrived, so a
+ * slow answer cannot overrule a newer one: a success admitted just before the quota ran out, landing
+ * after the 429 that followed it, would otherwise reopen the upstream to everyone.
+ */
+const record = (
+  resolution: Forwarded,
+  target: ProxyUpstream,
+  response: UpstreamResponse,
+  sentAt: number,
+) => {
+  const held = failing.get(target.upstream)
+  if (held && sentAt <= held.sentAt) return
+
   if (target === resolution && resolution.fallback) logRateLimit(target, response)
 
-  if (isCacheable(response)) failing.delete(target.upstream)
-  else holdOff(target, response)
+  if (isUpstreamFailure(response.status)) {
+    failing.set(target.upstream, { response, until: Date.now() + RETRY_AFTER, sentAt })
+  } else {
+    failing.delete(target.upstream)
+  }
 }
 
 /**
  * `fetchUpstream`, with the outcome recorded against `target`'s retry window. A fetch that fails
  * outright is rethrown once recorded.
+ *
+ * Asking an upstream still on record as failing, once its window has run out, is the probe that
+ * window was waiting for. The window restarts as the probe goes out, so whoever arrives meanwhile is
+ * answered as inside it rather than sending a probe of their own: one per window for the whole
+ * process, whatever the traffic.
  */
 const ask = async (resolution: Forwarded, body: unknown, target: ProxyUpstream = resolution) => {
+  const sentAt = Date.now()
+  const held = failing.get(target.upstream)
+  if (held) failing.set(target.upstream, { ...held, until: sentAt + RETRY_AFTER })
+
   const response = await fetchUpstream(resolution, body, target).catch((error) => {
-    record(resolution, target, unreachable(resolution))
+    record(resolution, target, unreachable(resolution), sentAt)
     throw error
   })
 
-  record(resolution, target, response)
+  record(resolution, target, response, sentAt)
 
   return response
 }
@@ -254,7 +346,7 @@ const askFallback = async (resolution: Forwarded, body: unknown) => {
   if (!fallback) return undefined
 
   const response = await ask(resolution, body, fallback).catch(() => undefined)
-  if (!response || !isCacheable(response)) return undefined
+  if (!response?.cacheable) return undefined
 
   return { ...response, fromFallback: true }
 }
@@ -279,7 +371,7 @@ const serveCached = async (
   resolution: Forwarded & { cache: ProxyCache },
   body: unknown,
 ) => {
-  const { key } = resolution.cache
+  const key = digest(resolution.cache.key)
   const now = Date.now()
   const cached = responses.get(key)
 
@@ -295,27 +387,24 @@ const serveCached = async (
   let pending = inFlight.get(key)
   const coalesced = Boolean(pending)
 
-  // Inside the retry window nobody asks again; the upstream's own last words stand in, which is
-  // what this caller would have been told had it asked. A key with something stale to show prefers
-  // that, on the same terms as after a live failure. The words may have been said to a different
-  // key, but a refused quota or a broken schema is not answering that one either.
-  //
-  // A request already in flight for this key outranks the window, which is why this is read after
-  // `inFlight` and not before: that fetch may well be about to succeed, and joining it beats
-  // replaying a failure another key collected a moment ago.
-  //
-  // A refused quota is the exception when the route has a fallback free to answer: the question
-  // skips the upstream and goes there, as it would have after a fresh 429.
-  const held = heldFailure(resolution, now)
-  const diverted = held?.response.status === 429 && Boolean(availableFallback(resolution, now))
-
-  if (!pending && held && !diverted) {
-    if (stale && isUpstreamFailure(held.response.status)) return serveStale(res, key, stale)
-
-    return send(res, held.response, 'COOLDOWN')
-  }
-
   if (!pending) {
+    // Inside a retry window nobody asks again; the last words stand in, which is what this caller
+    // would have been told had it asked: this key's own, if it was the one turned away, or else the
+    // upstream's, which it would have run into all the same. A key with something stale to show
+    // prefers that, on the same terms as after a live failure.
+    //
+    // A request already in flight for this key outranks both windows, which is why they are only
+    // read when there is none: that fetch may well be about to succeed, and joining it beats
+    // replaying a failure collected a moment ago.
+    //
+    // A refused quota is the exception when the route has a fallback free to answer: the question
+    // skips the upstream and goes there, as it would have after a fresh 429.
+    const held = heldFailure(resolution, now)
+    const diverted = held?.response.status === 429 && Boolean(availableFallback(resolution, now))
+    const cooldown = heldAnswer(key, now) ?? (diverted ? undefined : held?.response)
+
+    if (cooldown) return stale ? serveStale(res, key, stale) : send(res, cooldown, 'COOLDOWN')
+
     pending = (async () => {
       // Only a diverted request gets here with `held` set, and its 429 stands in for asking.
       const response = held ? held.response : await ask(resolution, body)
@@ -325,7 +414,8 @@ const serveCached = async (
       const answer =
         response.status === 429 ? ((await askFallback(resolution, body)) ?? response) : response
 
-      if (isCacheable(answer)) store(key, answer)
+      if (answer.cacheable) store(key, answer)
+      else holdOffKey(key, answer)
 
       return answer
     })().finally(() => inFlight.delete(key))
@@ -337,8 +427,10 @@ const serveCached = async (
     const response = await pending
 
     // A rate-limited or broken indexer would otherwise reach `useSuspenseQuery` and trip the error
-    // boundary. Slightly old counts are a better answer than an error screen.
-    if (stale && isUpstreamFailure(response.status)) return serveStale(res, key, stale)
+    // boundary. Slightly old counts are a better answer than an error screen. The status does not
+    // decide it: the key covers the whole request, so a key that answered before and fails now
+    // points at the upstream, and Hasura reports a database it cannot reach as a `200` with errors.
+    if (stale && !response.cacheable) return serveStale(res, key, stale)
 
     return send(res, response, coalesced ? 'COALESCED' : 'MISS')
   } catch {

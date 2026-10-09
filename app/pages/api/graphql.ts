@@ -39,8 +39,17 @@ const ENVIO_FALLBACK: ProxyUpstream | undefined = process.env.ENVIO_INDEXER_FALL
 
 const normalize = (query: string) => query.replace(/\s+/g, ' ').trim()
 
-const ALLOWED_QUERIES = new Map<string, EnvioPolicy>(
-  ENVIO_QUERY_POLICY.map(([query, policy]) => [normalize(String(query)), policy]),
+/**
+ * Each allowed document by its normalized text, with the document itself: that is what goes
+ * upstream, never the caller's copy. `\s` folds more than the whitespace the indexer's parser
+ * skips (no-break spaces, line separators), so a copy that matches here can still fail there, and
+ * it would fail under the key the real document is cached and coalesced on.
+ */
+const ALLOWED_QUERIES = new Map<string, { document: string; policy: EnvioPolicy }>(
+  ENVIO_QUERY_POLICY.map(([query, policy]) => {
+    const document = String(query)
+    return [normalize(document), { document, policy }]
+  }),
 )
 
 // Batch operations, unknown documents and implausible variables are refused identically.
@@ -58,20 +67,20 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     if (typeof query !== 'string') return denied
 
     const normalized = normalize(query)
-    const policy = ALLOWED_QUERIES.get(normalized)
-    if (!policy || !policy.accepts(variables)) return denied
+    const allowed = ALLOWED_QUERIES.get(normalized)
+    if (!allowed || !allowed.policy.accepts(variables)) return denied
 
     return {
       ok: true,
       upstream: ENVIO_URL,
       headers: bearer(ENVIO_TOKEN),
       fallback: ENVIO_FALLBACK,
-      forwardBody: { query, variables },
+      forwardBody: { query: allowed.document, variables },
       upstreamErrorMessage: 'Upstream indexer request failed',
       // The document alone does not identify an answer: every list, chart and search on the
       // explorer reuses one of these three documents and differs only in its variables. Key order
       // matters to `JSON.stringify`, which is why the policy pins it rather than tolerating it.
-      cache: { key: `${normalized}|${JSON.stringify(variables ?? null)}`, ttl: policy.ttl },
+      cache: { key: `${normalized}|${JSON.stringify(variables ?? null)}`, ttl: allowed.policy.ttl },
     }
   })
 }
