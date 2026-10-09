@@ -97,14 +97,6 @@ export const Footer: React.FC = (props) => {
         <Start>
           <GnosisChain />
           <Text>Copyright © {year} Gnosis | All rights reserved</Text>
-          <ExternalLink
-            href="https://www.bootnode.dev/"
-            rel="noreferrer"
-            target="_blank"
-            title="BootNode - Web3 Development"
-          >
-            Built by <Image alt="BootNode logo" height={15} src="/images/bn.svg" width={19} />
-          </ExternalLink>
           <BuildInfo />
         </Start>
         <End>
