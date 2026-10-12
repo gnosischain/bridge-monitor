@@ -124,7 +124,7 @@ export const Transaction: React.FC = ({ ...restProps }) => {
     [router.query?.goBackURL],
   )
 
-  const { claimActions, isLoading, transactions } = useFetchTransactions({
+  const { claimActions, isError, isLoading, transactions } = useFetchTransactions({
     // transactionId is txHash in on the network that originated the bridge
     where: { id: { _eq: transactionId.toLowerCase() } },
   })
@@ -136,6 +136,13 @@ export const Transaction: React.FC = ({ ...restProps }) => {
   const { validators: bridgeValidators } = useValidators(currentTx?.bridgeName as BridgesValues)
 
   if ((!currentTx && isLoading) || isLoading) return <TransactionSkeletonLoading />
+  if (isError)
+    return (
+      <GenericError
+        text="We couldn't load this transaction right now. Please try again in a moment."
+        title="Transaction Unavailable"
+      />
+    )
   if (!currentTx)
     return (
       <GenericError

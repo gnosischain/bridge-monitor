@@ -127,7 +127,7 @@ export const useFetchTransactions = (
 ) => {
   const { clearClaim, localClaims, markAsClaimed, markAsClaiming } = useClaimingTransactions()
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ['useFetchTransactions', query ?? null, inMemoryFilters],
     queryFn: query ? () => fetchTransactions(query, inMemoryFilters) : skipToken,
     refetchInterval: pollUntil
@@ -142,7 +142,8 @@ export const useFetchTransactions = (
     [clearClaim, markAsClaiming, markAsClaimed],
   )
 
-  return { transactions, claimActions, isLoading }
+  // Only a failure with nothing to show: a failed refetch keeps the rows already loaded.
+  return { transactions, claimActions, isError: isLoadingError, isLoading }
 }
 
 export const useTransactionsWithFilters = (filters: TransactionFilter) => {
@@ -153,7 +154,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
 
   const { inMemoryFilters, query } = buildTransactionsQuery(filters, resolvedAddress)
 
-  const { claimActions, isLoading, transactions } = useFetchTransactions(
+  const { claimActions, isError, isLoading, transactions } = useFetchTransactions(
     // Hold the query back until the domain lookup settles: querying on the raw name matches
     // nothing and would flash "no results" before the resolved-address query lands.
     isResolvingAddress ? undefined : query,
@@ -171,6 +172,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   return {
     transactions: filteredTransactions,
     claimActions,
+    isError,
     isLoading: isLoading || isResolvingAddress,
   }
 }

@@ -8,7 +8,6 @@ import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { get1DayBeforeInSeconds } from '@/src/utils/date'
 import { isSameString } from '@/src/utils/tools'
 import { useValidators } from '@/src/providers/validatorsProvider'
-import { useEffect } from 'react'
 import { MainCard } from '@/src/components/card/MainCard'
 import { MainTitle } from '@/src/components/text/MainTitle'
 
@@ -198,18 +197,6 @@ export const ValidatorsSkeleton: React.FC = () => (
 )
 
 export const Validators: React.FC = ({ ...restProps }) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const { refetch } = useValidators(BridgesConfig.amb)
-
-  /**
-   * Call refetch to bring the last validator's activity
-   */
-  useEffect(() => {
-    refetch()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   return (
     <Wrapper {...restProps}>
       <ValidatorsTitle />

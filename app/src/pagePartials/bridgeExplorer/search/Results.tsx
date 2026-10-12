@@ -70,7 +70,7 @@ const ShareButton = styled(ShareResults)`
 `
 
 export const Results: React.FC<{ filters: TransactionFilter }> = ({ filters, ...restProps }) => {
-  const { claimActions, isLoading, transactions } = useTransactionsWithFilters(filters)
+  const { claimActions, isError, isLoading, transactions } = useTransactionsWithFilters(filters)
   const searchResultsURL = useMemo(
     () => `${bridgeExplorerBaseURL}?hash=${filters.hash}`,
     [filters.hash],
@@ -109,6 +109,7 @@ export const Results: React.FC<{ filters: TransactionFilter }> = ({ filters, ...
                 <TransactionsList
                   claimActions={claimActions}
                   goBackURL={searchResultsURL}
+                  isError={isError}
                   transactions={transactions}
                 />
               </ResultsWrapper>
