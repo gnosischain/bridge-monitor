@@ -4,7 +4,7 @@ import {
   TransactionSkeletonLoading,
 } from '@/src/pagePartials/bridgeExplorer/transaction'
 import SafeSuspense from '@/src/components/safeSuspense'
-import { ValidatorsProvider } from '@/src/providers/validatorsProvider'
+import { OptionalValidatorsProvider } from '@/src/providers/validatorsProvider'
 import NextHead from 'next/head'
 import TokenListProvider from '@/src/providers/tokenListProvider'
 
@@ -24,9 +24,9 @@ const Main = () => {
         <meta content={title} name="twitter:site" />
       </NextHead>
       <TokenListProvider>
-        <ValidatorsProvider>
+        <OptionalValidatorsProvider>
           <Transaction />
-        </ValidatorsProvider>
+        </OptionalValidatorsProvider>
       </TokenListProvider>
     </>
   )
