@@ -5,7 +5,6 @@ import { inter, playfairDisplay } from '@/src/theme/fonts'
 const borderRadius = '8px'
 const borderRadiusBig = '12px'
 const borderRadiusBigger = '16px'
-const componentPadding = '16px 24px'
 const space = 8
 
 // Gnosis brand palette (gnosis.io, build.gnosischain.com). Do not export these, use to build the
@@ -42,7 +41,6 @@ export const theme = {
     lilac,
     line,
     mint,
-    mintSoft,
     mist,
     page,
     surface: white,
@@ -54,36 +52,11 @@ export const theme = {
     successSoft: mintSoft,
     warning: amber,
     warningSoft: amberSoft,
-
-    // Names from the previous cream and green theme, pointed at the new palette until every
-    // component uses the names above. To be removed at the end of the rebrand.
-    black: ink,
-    cream: page,
-    creamDark: line,
-    creamDarker: lilac,
-    creamDarkest: lilac,
-    creamLight: white,
-    cream_50: 'rgba(246, 241, 250, 0.5)',
-    darkGreen: ink,
-    darkGrey: ink,
-    darkSecondary: violet,
-    darkerGrey: ink,
-    darkestGrey: ink,
-    primary: ink,
-    primaryDark: inkHover,
-    primaryLight: violet,
-    primary_50: 'rgba(7, 5, 44, 0.55)',
-    primary_60: faint,
-    secondary: violet,
-    textColor: ink,
-    white: white,
-    white_50: 'rgba(255, 255, 255, 0.5)',
   },
   body: {
     backgroundColor: page,
   },
   backdrop: {
-    // Same stops as the gnosis.io/chain hero: blue into mint, fading to the page lavender.
     gradient: `linear-gradient(180deg, #D6E2F4 0%, #DBEEEA 42%, #DDF2E6 62%, ${page} 96%)`,
     dots: violet,
     dotsAccent: mint,
@@ -100,7 +73,6 @@ export const theme = {
     family: `${inter.style.fontFamily}, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif`,
     familyCode: `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace`,
     familyHeading: `${playfairDisplay.style.fontFamily}, Georgia, 'Times New Roman', serif`,
-    fontFamily: `${inter.style.fontFamily}, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif`,
   },
   dropdown: {
     borderRadius: borderRadiusBig,
@@ -131,12 +103,6 @@ export const theme = {
     tabletLandscapeStart: '769px',
     tabletPortraitStart: '481px',
   },
-  card: {
-    backgroundColor: white,
-    borderColor: line,
-    borderRadius: borderRadiusBigger,
-    padding: componentPadding,
-  },
   buttonDropdown: {
     backgroundColor: page,
     backgroundColorHover: lilac,
@@ -158,7 +124,7 @@ export const theme = {
     borderColor: page,
     color: ink,
     errorColor: crimson,
-    height: '54px',
+    height: '48px',
     successColor: emerald,
     active: {
       backgroundColor: white,

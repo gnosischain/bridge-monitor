@@ -11,7 +11,6 @@ declare module 'styled-components' {
       lilac: string
       line: string
       mint: string
-      mintSoft: string
       mist: string
       page: string
       surface: string
@@ -23,28 +22,6 @@ declare module 'styled-components' {
       successSoft: string
       warning: string
       warningSoft: string
-
-      black: string
-      cream: string
-      creamDark: string
-      creamDarker: string
-      creamDarkest: string
-      creamLight: string
-      cream_50: string
-      darkGreen: string
-      darkGrey: string
-      darkSecondary: string
-      darkerGrey: string
-      darkestGrey: string
-      primary: string
-      primaryDark: string
-      primaryLight: string
-      primary_50: string
-      primary_60: string
-      secondary: string
-      textColor: string
-      white: string
-      white_50: string
     }
     body: {
       backgroundColor: string
@@ -66,7 +43,6 @@ declare module 'styled-components' {
       family: string
       familyCode: string
       familyHeading: string
-      fontFamily: string
     }
     breakPoints: {
       desktopStart: string
@@ -96,12 +72,6 @@ declare module 'styled-components' {
       horizontalPaddingTabletLandscapeStart: string
       horizontalPaddingTabletPortraitStart: string
       maxWidth: string
-    }
-    card: {
-      backgroundColor: string
-      borderColor: string
-      borderRadius: string
-      padding: string
     }
     buttonDropdown: {
       backgroundColor: string

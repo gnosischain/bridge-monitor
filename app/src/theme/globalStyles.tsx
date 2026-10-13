@@ -21,6 +21,8 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
   html {
     font-size: 10px;
     scroll-behavior: smooth;
+    /* Anchored headings (the FAQ's questions) stop below the sticky header, not under it. */
+    scroll-padding-top: 88px;
   }
 
   body {
@@ -79,7 +81,7 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
   h2 {
     font-weight: 500;
     font-size: 2.4rem;
-    margin: ${({ theme: { common } }) => common.space}px 0;
+    margin: var(--theme-common-space) 0;
 
     @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
       font-size: 2.8rem;
