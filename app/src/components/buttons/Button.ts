@@ -82,7 +82,6 @@ export const ButtonFullPrimaryCSS = css`
     height: 60px;
   }
 
-  /* A light disabled state, so the page's main action doesn't read as a heavy grey bar. */
   &[disabled],
   &[disabled]:hover {
     background-color: ${({ theme: { colors } }) => colors.lilac};

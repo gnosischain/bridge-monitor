@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export const MainCard = styled.div<{ backgroundOpacity?: string }>`
+export const MainCard = styled.div`
   background-color: ${({ theme: { colors } }) => colors.surface};
   border: 1px solid ${({ theme: { colors } }) => colors.line};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};

@@ -14,7 +14,6 @@ const Wrapper = styled.svg`
   }
 `
 
-// The Gnosis Chain wordmark as on gnosis.io/chain: GNOSIS in ink, CHAIN in emerald.
 export const GnosisChainLogo: React.FC<HTMLAttributes<SVGElement>> = (props) => {
   const { className, ...restProps } = props
 

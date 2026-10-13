@@ -1,8 +1,6 @@
 import styled, { css } from 'styled-components'
 
-// The wash behind the top of every page, as in the build.gnosischain.com hero: the brand gradient
-// with two fields of halftone dots on the right. Purely decorative, and painted under the page
-// content (z-index -1), so it shows through the header while that is still see-through.
+// Painted under the page content (z-index -1), so it shows through the header while that is see-through.
 const Wrapper = styled.div`
   background-image: ${({ theme: { backdrop } }) => backdrop.gradient};
   height: 560px;

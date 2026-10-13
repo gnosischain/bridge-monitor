@@ -207,7 +207,6 @@ const SwitchNetworkButton = styled.span`
   padding: 0 calc(var(--theme-common-space) * 1.5);
 `
 
-// The connected wallet is a neutral pill, so it doesn't compete with the page's own actions.
 const Button = styled(ButtonConnect)`
   background-color: ${({ theme: { colors } }) => colors.surface};
   border-color: ${({ theme: { colors } }) => colors.line};

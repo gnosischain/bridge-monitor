@@ -8,9 +8,6 @@ import { UserControls } from '@/src/components/header/UserControls'
 import { MainMenu } from '@/src/components/navigation/MainMenu'
 import { MobileMenu } from '@/src/components/navigation/MobileMenu'
 
-// A floating pill, as on gnosis.io and build.gnosischain.com: see-through at the top of the page,
-// solid once scrolled. From tablet up, its side margin plus its padding (24px + 24px) line the
-// logo up with the page content.
 const Wrapper = styled.header<{ $solid: boolean }>`
   align-items: center;
   background-color: transparent;

@@ -22,15 +22,16 @@ const Button = styled(ButtonFull)`
 `
 
 const BottomInfo = styled.p`
-  font-size: 1.4rem;
+  color: ${({ theme: { colors } }) => colors.warning};
+  font-size: 1.3rem;
   font-weight: 400;
-  line-height: 1.2;
+  line-height: 1.5;
   margin: 0;
   text-align: center;
-  color: rgb(221, 113, 67);
 
   a {
-    color: rgb(221, 113, 67);
+    color: inherit;
+    font-weight: 500;
   }
 `
 

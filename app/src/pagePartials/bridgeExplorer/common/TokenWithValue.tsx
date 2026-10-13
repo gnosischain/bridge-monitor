@@ -15,7 +15,7 @@ const Wrapper = styled.div`
 
 const TokenIcon = styled(ChainToken)`
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: ${({ theme: { colors } }) => colors.surface};
   border-radius: 50%;
   display: flex;
   height: ${tokenSize}px;
@@ -32,7 +32,7 @@ const Img = styled.img`
 `
 
 const TextCSS = css`
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.fog};
   font-size: 1.2rem;
   font-weight: 400;
   line-height: 1.2;
@@ -40,7 +40,6 @@ const TextCSS = css`
 
 const Label = styled.span`
   ${TextCSS}
-  opacity: 0.6;
 `
 
 Label.defaultProps = {
@@ -48,9 +47,10 @@ Label.defaultProps = {
 }
 
 const Value = styled.span`
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.ink};
   font-size: 1.3rem;
-  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
   line-height: 1.2;
 `
 
