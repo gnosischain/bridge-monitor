@@ -4,8 +4,8 @@
  *  - everyone asking the same question within its TTL shares one indexer request;
  *  - an indexer that answers 429 or 5xx, or not at all, is left alone for `COOLDOWN`, then probed
  *    by a single request;
- *  - while the main indexer answers 429, the fallback (a second indexer, with a quota of its own)
- *    is asked instead;
+ *  - while the main indexer answers 429 or 5xx, the fallback (a second indexer, with a quota of its
+ *    own) is asked instead;
  *  - when no indexer gives a usable answer, the last one stored stands in, for up to `STALE_GRACE`.
  *
  * All of it lives in the server process, so it holds whatever the number of replicas.
@@ -23,7 +23,7 @@ export type CachedRequest = {
   /** How long an answer may be reused, in milliseconds. */
   ttl: number
   upstream: Upstream
-  /** Asked only while `upstream` answers 429. */
+  /** Asked only while `upstream` answers 429 or 5xx. */
   fallback?: Upstream
 }
 
@@ -64,6 +64,9 @@ const isUsable = ({ payload, status }: Answer) => {
     return false
   }
 }
+
+/** The indexer is overloaded or down: it goes on cooldown, and the fallback is asked instead. */
+const isFailure = ({ status }: Answer) => status === 429 || status >= 500
 
 const sizeOf = (key: string, entry: Entry) => key.length + entry.answer.payload.length
 
@@ -136,7 +139,7 @@ const ask = async (target: Upstream, body: string) => {
     throw error
   }
 
-  if (answer.status === 429 || answer.status >= 500) coolDown(target, answer)
+  if (isFailure(answer)) coolDown(target, answer)
   else if (cooldowns.delete(target.url)) console.info(`[api/graphql] ${target.name} is back`)
 
   return answer
@@ -144,8 +147,8 @@ const ask = async (target: Upstream, body: string) => {
 
 /**
  * A fresh answer, stored if usable. An indexer cooling down is not asked: its last failure answers
- * for it. A 429 goes to the fallback, whose answer replaces it only if usable, so a fallback that
- * cannot help leaves things as they would be without one.
+ * for it. A 429 or a 5xx goes to the fallback, whose answer replaces it only if usable, so a
+ * fallback that cannot help leaves things as they would be without one.
  */
 const refresh = async (request: CachedRequest): Promise<Refreshed> => {
   const { body, fallback, ttl, upstream } = request
@@ -156,7 +159,7 @@ const refresh = async (request: CachedRequest): Promise<Refreshed> => {
 
   let usable = isUsable(answer)
 
-  if (answer.status === 429 && fallback && !coolingDown(fallback)) {
+  if (isFailure(answer) && fallback && !coolingDown(fallback)) {
     const fallbackAnswer = await ask(fallback, body).catch(() => undefined)
     if (fallbackAnswer && isUsable(fallbackAnswer)) {
       answer = fallbackAnswer

@@ -13,7 +13,7 @@ import { ENVIO_VALIDATORS_ACTIVITY_QUERY, ENVIO_VALIDATORS_QUERY } from '@/src/q
  *  - only the exact GraphQL documents the app ships are forwarded (allow-list below),
  *    which blocks arbitrary schema scraping, introspection and mutations;
  *  - visitors asking the same question share one indexer request, and a fallback indexer
- *    answers while the main one is rate-limiting (`graphqlCache`).
+ *    answers while the main one is rate-limiting or failing (`graphqlCache`).
  *
  * Unlike `/api/rpc`, it does not go through `proxyJsonPost`: its answers may come from a
  * cache, while RPC calls (nonce reads, gas estimates, broadcasts) must always reach their
@@ -29,7 +29,7 @@ const ENVIO: Upstream = {
   headers: bearer(process.env.ENVIO_INDEXER_TOKEN),
 }
 
-/** A second indexer with a quota of its own, asked only while the main one answers 429. */
+/** A second indexer with a quota of its own, asked only while the main one answers 429 or 5xx. */
 const ENVIO_FALLBACK: Upstream | undefined = process.env.ENVIO_INDEXER_FALLBACK_URL
   ? {
       name: 'fallback indexer',
