@@ -17,7 +17,7 @@ import { getEndOfDay, getStartOfDay } from '@/src/utils/date'
 import { useRouter } from 'next/router'
 import { isSameString } from '@/src/utils/tools'
 import { genericSuspense } from '@/src/components/safeSuspense'
-import { ValidatorsProvider } from '@/src/providers/validatorsProvider'
+import { OptionalValidatorsProvider } from '@/src/providers/validatorsProvider'
 import { latestTransactionsBaseURL } from '@/src/constants/sections'
 
 const latestTransactions: Array<{ title: string }> = [
@@ -64,7 +64,7 @@ export const LatestTransactions: React.FC = genericSuspense(
               />
             ))}
           </Tabs>
-          <ValidatorsProvider>
+          <OptionalValidatorsProvider>
             <Filters
               bridge={activeTab}
               filters={listFilters}
@@ -81,7 +81,7 @@ export const LatestTransactions: React.FC = genericSuspense(
                 <Results bridge={title} filters={filters} key={`${title}_transactions_${index}`} />
               ) : null
             })}
-          </ValidatorsProvider>
+          </OptionalValidatorsProvider>
         </MainTabsWrapper>
       </Wrapper>
     )

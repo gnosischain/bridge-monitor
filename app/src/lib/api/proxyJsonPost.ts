@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 /**
- * Shared core for the app's same-origin JSON POST proxy routes (`/api/graphql`,
- * `/api/rpc`, …). It owns the boilerplate every proxy needs — a POST-only guard,
+ * Shared core for the app's same-origin JSON POST proxy routes (`/api/rpc`, …).
+ * It owns the boilerplate every proxy needs — a POST-only guard,
  * JSON body parsing, the upstream fetch, response passthrough and failure handling
  * — so each route only declares its own policy: which upstream to hit and which
  * requests to reject.

@@ -51,24 +51,28 @@ type TransactionsTableProps = {
 }
 
 export const Results: React.FC<TransactionsTableProps> = ({ bridge, filters }) => {
-  const { claimActions, isLoading, transactions } = useTransactionsWithFilters(filters)
+  const { claimActions, isError, isLoading, transactions } = useTransactionsWithFilters(filters)
   const { validators } = useValidators(bridge as BridgesValues)
 
   return isLoading ? (
     <ResultsLoading />
   ) : (
     <>
-      <InfoWrapper>
-        <Info
-          date={filters.endTimestamp?.toLocaleDateString()}
-          transactionsNumber={transactions.length}
-        />
-        <Legend />
-      </InfoWrapper>
+      {/* Without a fetched list, "0 transactions were made" would be false. */}
+      {!isError && (
+        <InfoWrapper>
+          <Info
+            date={filters.endTimestamp?.toLocaleDateString()}
+            transactionsNumber={transactions.length}
+          />
+          <Legend />
+        </InfoWrapper>
+      )}
       <TransactionsWrapper>
         <TransactionsList
           claimActions={claimActions}
           goBackURL={latestTransactionsBaseURL}
+          isError={isError}
           transactions={transactions}
           validators={validators}
         />

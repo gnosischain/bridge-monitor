@@ -13,7 +13,11 @@ export const shouldRetryQuery = (failureCount: number, error: unknown) => {
 
   if (error instanceof BaseError) return false
 
-  if (error instanceof ClientError) return error.response.status >= 500
+  // A 429 is the indexer's rate limit: as transient as a 5xx, so worth the same retries.
+  if (error instanceof ClientError) {
+    const { status } = error.response
+    return status === 429 || status >= 500
+  }
 
   return true
 }
