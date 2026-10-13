@@ -12,16 +12,12 @@ export const ButtonDropdownCSS = css`
   border-color: ${({ theme: { buttonDropdown } }) => buttonDropdown.borderColor};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   color: ${({ theme: { buttonDropdown } }) => buttonDropdown.color};
-  font-size: 1.6rem;
-  font-weight: 400;
+  font-size: 1.4rem;
+  font-weight: 500;
   height: ${({ theme: { textField } }) => textField.height};
   justify-content: space-between;
   padding: var(--theme-common-space) calc(var(--theme-common-space) * 2);
   width: 100%;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    font-size: 1.6rem;
-  }
 
   &:hover {
     ${IsOpenCSS}

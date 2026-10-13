@@ -1,14 +1,16 @@
 import { TokenSelectButton } from '@/src/pagePartials/bridge/bridgeForm/TokenSelectButton'
 import styled from 'styled-components'
 
+// A small segmented control: the picked token sits on a white chip.
 const Wrapper = styled.div`
   align-items: center;
+  background-color: ${({ theme: { colors } }) => colors.lilac};
+  border-radius: 999px;
   display: flex;
   flex-direction: row;
-  gap: calc(var(--theme-common-space) * 2);
-  height: 100%;
-  justify-content: flex-start;
-  width: 100%;
+  flex-shrink: 0;
+  gap: 2px;
+  padding: 3px;
 `
 
 interface IOption {

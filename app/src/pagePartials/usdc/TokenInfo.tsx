@@ -4,14 +4,13 @@ import { TokenUsdc } from './types'
 
 const Wrapper = styled.div`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.creamLight};
-  border-radius: 8px;
+  color: ${({ theme: { colors } }) => colors.ink};
   column-gap: var(--theme-common-space);
   display: flex;
+  flex-shrink: 0;
   font-size: 1.6rem;
-  font-weight: 400;
-  height: 40px;
-  padding: 0 calc(var(--theme-common-space) * 2);
+  font-weight: 600;
+  white-space: nowrap;
 `
 
 export const TokenInfo = ({ token }: { token: TokenUsdc }) => {

@@ -6,14 +6,12 @@ import styled from 'styled-components'
 
 const Wrapper = styled.div`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.creamLight};
-  border-radius: 8px;
-  column-gap: var(--theme-common-space);
+  color: ${({ theme: { colors } }) => colors.ink};
+  column-gap: calc(var(--theme-common-space) * 0.75);
   display: flex;
-  font-size: 1.6rem;
-  font-weight: 400;
-  height: 40px;
-  padding: 0 calc(var(--theme-common-space) * 2);
+  font-size: 1.4rem;
+  font-weight: 500;
+  line-height: 1.2;
   text-transform: capitalize;
 `
 
@@ -25,12 +23,12 @@ export const Chain = ({ chainId }: { chainId: ChainsValues }) => {
     <Wrapper>
       <Image
         alt={chainKey}
-        height={24}
+        height={20}
         src={getIcon(`${capitalize(chainKey)}Big`)}
         style={{
           objectFit: 'cover',
         }}
-        width={24}
+        width={20}
       />
       {chainConfig.shortName}
     </Wrapper>

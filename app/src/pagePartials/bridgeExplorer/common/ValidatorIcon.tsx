@@ -10,7 +10,7 @@ const Wrapper = styled.div.withConfig({
   align-items: center;
   background-color: ${({ bgColor }) => bgColor};
   border-radius: 50%;
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.page};
   display: flex;
   flex-shrink: 0;
   font-size: 1.4rem;
@@ -51,7 +51,7 @@ export const ValidatorIcon: React.FC<Props> = ({ shortName, size, title, ...rest
                       ? { image: `${basePath}gateway.svg`, size: 36, bgColor: '#EDE9EF' }
                       : validator === 'TY'
                         ? { image: `${basePath}telepathy.svg`, size: 36, bgColor: '#fff' }
-                        : { image: `${basePath}empty-token.png`, size: 40, bgColor: '#3E6957' }
+                        : { image: `${basePath}empty-token.png`, size: 40, bgColor: '#07052C' }
 
   return (
     <Wrapper bgColor={data.bgColor} size={size} {...restProps}>

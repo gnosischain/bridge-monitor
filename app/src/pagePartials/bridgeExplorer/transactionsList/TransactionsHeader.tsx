@@ -16,8 +16,9 @@ const ValidatorName = styled.span`
 
   display: inline-block;
   flex-shrink: 0;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   height: var(--validator-name-size);
+  letter-spacing: 0;
   line-height: 2.2rem;
   text-align: center;
   white-space: nowrap;
