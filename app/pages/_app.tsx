@@ -108,8 +108,8 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
             <Backdrop />
             <Web3ConnectionProvider>
               <SafeSuspense>
-                <Header />
                 <FcrBanner />
+                <Header />
                 <TransactionNotificationProvider>
                   {getLayout(<Component {...pageProps} />)}
                   <Toast />

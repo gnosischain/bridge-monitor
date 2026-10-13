@@ -1,7 +1,6 @@
 import styled from 'styled-components'
 import { Alert } from '@/src/components/assets/Alert'
 import { Close } from '@/src/components/assets/Close'
-import { InnerContainer } from '@/src/components/innerContainer'
 import { useLocalStorage } from '@/src/hooks/usePersistedState'
 import { mainnetToGnosisTime } from '@/src/utils/txTime'
 
@@ -10,40 +9,41 @@ export const FCR_DOCS_URL = 'https://docs.gnosischain.com/bridges/fast-confirmat
 // Bump the version suffix to show the banner again to everyone who already dismissed it.
 const DISMISSED_STORAGE_KEY = 'fcr_banner_dismissed_v1'
 
-const Wrapper = styled(InnerContainer)`
-  flex-grow: 0;
+const Wrapper = styled.div`
+  background-color: ${({ theme: { colors } }) => colors.ink};
+  color: ${({ theme: { colors } }) => colors.surface};
+  flex-shrink: 0;
+  margin-bottom: calc(var(--theme-common-space) * -4);
+  position: relative;
+  width: 100%;
 `
 
 const Inner = styled.div`
-  align-items: flex-start;
-  background-color: ${({ theme: { colors } }) => colors.surface};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
-  border: 1px solid ${({ theme: { colors } }) => colors.line};
-  color: ${({ theme: { colors } }) => colors.ink};
-  column-gap: calc(var(--theme-common-space) * 1.5);
+  align-items: center;
+  column-gap: var(--theme-common-space);
   display: flex;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 400;
-  line-height: 1.5;
-  padding: calc(var(--theme-common-space) * 1.5) calc(var(--theme-common-space) * 2);
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    padding: calc(var(--theme-common-space) * 1.75) calc(var(--theme-common-space) * 2.5);
-  }
+  justify-content: center;
+  line-height: 1.45;
+  margin: 0 auto;
+  max-width: ${({ theme }) => theme.layout.maxWidth};
+  min-height: 36px;
+  padding: var(--theme-common-space) calc(var(--theme-common-space) * 6) var(--theme-common-space)
+    calc(var(--theme-common-space) * 2);
 `
 
 const Icon = styled(Alert)`
-  height: 20px;
-  margin-top: 1px;
-  width: 20px;
+  flex-shrink: 0;
+  height: 16px;
+  width: 16px;
 
   .fill {
-    fill: ${({ theme: { colors } }) => colors.success};
+    fill: ${({ theme: { colors } }) => colors.mint};
   }
 `
 
 const Text = styled.p`
-  flex-grow: 1;
   margin: 0;
 `
 
@@ -52,10 +52,11 @@ const Emphasize = styled.span`
 `
 
 const DocsLink = styled.a`
-  color: ${({ theme: { colors } }) => colors.violet};
+  color: ${({ theme: { colors } }) => colors.mint};
   font-weight: 600;
   text-decoration: none;
-  text-underline-offset: 4px;
+  text-underline-offset: 3px;
+  white-space: nowrap;
 
   &:hover {
     text-decoration: underline;
@@ -69,22 +70,25 @@ const DismissButton = styled.button`
   border-radius: 50%;
   cursor: pointer;
   display: flex;
-  flex-shrink: 0;
-  height: 24px;
+  height: 28px;
   justify-content: center;
   padding: 0;
-  width: 24px;
+  position: absolute;
+  right: var(--theme-common-space);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
 
   .fill {
-    fill: ${({ theme: { colors } }) => colors.fog};
+    fill: ${({ theme: { colors } }) => colors.faint};
   }
 
   &:hover {
-    background-color: ${({ theme: { colors } }) => colors.lilac};
+    background-color: rgba(255, 255, 255, 0.12);
   }
 
   &:hover .fill {
-    fill: ${({ theme: { colors } }) => colors.ink};
+    fill: ${({ theme: { colors } }) => colors.surface};
   }
 `
 
@@ -107,14 +111,14 @@ export const FcrBanner: React.FC = ({ ...restProps }) => {
             Learn more
           </DocsLink>
         </Text>
-        <DismissButton
-          aria-label="Dismiss the Fast Confirmation Rule announcement"
-          onClick={() => setIsDismissed(true)}
-          type="button"
-        >
-          <Close height={12} width={12} />
-        </DismissButton>
       </Inner>
+      <DismissButton
+        aria-label="Dismiss the Fast Confirmation Rule announcement"
+        onClick={() => setIsDismissed(true)}
+        type="button"
+      >
+        <Close height={12} width={12} />
+      </DismissButton>
     </Wrapper>
   )
 }
