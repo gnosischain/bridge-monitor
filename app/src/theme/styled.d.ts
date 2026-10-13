@@ -3,6 +3,27 @@ import 'styled-components'
 declare module 'styled-components' {
   export interface DefaultTheme {
     colors: {
+      emerald: string
+      faint: string
+      fog: string
+      ink: string
+      inkHover: string
+      lilac: string
+      line: string
+      mint: string
+      mintSoft: string
+      mist: string
+      page: string
+      surface: string
+      violet: string
+
+      error: string
+      errorSoft: string
+      success: string
+      successSoft: string
+      warning: string
+      warningSoft: string
+
       black: string
       cream: string
       creamDark: string
@@ -15,26 +36,29 @@ declare module 'styled-components' {
       darkSecondary: string
       darkerGrey: string
       darkestGrey: string
-      error: string
       primary: string
       primaryDark: string
       primaryLight: string
       primary_50: string
       primary_60: string
       secondary: string
-      success: string
       textColor: string
-      warning: string
       white: string
       white_50: string
     }
     body: {
       backgroundColor: string
     }
+    backdrop: {
+      gradient: string
+      dots: string
+      dotsAccent: string
+    }
     common: {
       borderRadius: string
       borderRadiusBig: string
       borderRadiusBigger: string
+      shadow: string
       space: string
     }
     fonts: {

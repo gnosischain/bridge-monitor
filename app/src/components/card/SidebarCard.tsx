@@ -10,28 +10,29 @@ export const Wrapper = styled(MainCard)`
 export const SidebarCard = Wrapper
 
 export const SCTitle = styled.h2`
-  color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 2.1rem;
-  font-weight: 500;
-  line-height: 1.2;
-  margin: 0 0 calc(var(--theme-common-space) * 2);
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-size: 2.4rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 0 0 calc(var(--theme-common-space) * 1.5);
   font-family: ${({ theme: { fonts } }) => fonts.familyHeading};
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    font-size: 2.4rem;
+    font-size: 2.8rem;
   }
 `
 
 export const SCText = styled.p<{ error?: boolean }>`
-  color: ${({ error, theme: { colors } }) => (error ? colors.error : colors.primary)};
-  font-size: 1.6rem;
+  color: ${({ error, theme: { colors } }) => (error ? colors.error : colors.fog)};
+  font-size: 1.5rem;
   font-weight: 400;
-  line-height: 1.2;
+  line-height: 1.5;
   margin: 0 0 calc(var(--theme-common-space) * 4);
 `
 
 export const SCLink = styled.a`
-  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTE1Ljg1MyAxMC4zNTRsLTQuNSA0LjVhLjUuNSAwIDAxLS43MDctLjcwOGwzLjY0Ny0zLjY0Nkg0LjVhLjUuNSAwIDAxMC0xaDkuNzkzbC0zLjY0Ny0zLjY0NmEuNS41IDAgMDEuNzA3LS43MDdsNC41IDQuNWEuNTAyLjUwMiAwIDAxMCAuNzA3eiIgZmlsbD0iIzNFNjk1NyIvPjwvc3ZnPg==');
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTE1Ljg1MyAxMC4zNTRsLTQuNSA0LjVhLjUuNSAwIDAxLS43MDctLjcwOGwzLjY0Ny0zLjY0Nkg0LjVhLjUuNSAwIDAxMC0xaDkuNzkzbC0zLjY0Ny0zLjY0NmEuNS41IDAgMDEuNzA3LS43MDdsNC41IDQuNWEuNTAyLjUwMiAwIDAxMCAuNzA3eiIgZmlsbD0iIzA3MDUyQyIvPjwvc3ZnPg==');
   align-items: center;
   background-position: calc(100% - var(--theme-common-space) * 2) 50%;
   background-repeat: no-repeat;

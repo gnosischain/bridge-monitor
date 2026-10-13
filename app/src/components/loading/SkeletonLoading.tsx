@@ -22,8 +22,8 @@ interface SkeletonProps extends PropsWithChildren<unknown> {
 }
 
 const AnimationCSS = css<SkeletonProps>`
-  --background-color-start: #e2dac3;
-  --background-color-end: #d7cfba;
+  --background-color-start: ${({ theme: { colors } }) => colors.lilac};
+  --background-color-end: ${({ theme: { colors } }) => colors.line};
 
   animation-delay: 0;
   animation-duration: ${({ $animationDuration }) => `${$animationDuration}`};

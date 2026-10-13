@@ -11,6 +11,7 @@ import { ModalSwitchNetwork } from '@/src/components/modal/ModalSwitchNetwork'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { ButtonConnect } from '@/src/components/buttons/ButtonConnect'
 import { TokenAddress } from '@/src/components/token/TokenAddress'
+import { Eyebrow } from '@/src/components/text/Eyebrow'
 import { ChainsValues } from '@/src/constants/config/types'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { myTransactionsFullURL } from '@/src/constants/sections'
@@ -30,28 +31,15 @@ const Wrapper = styled(Dropdown)`
   }
 
   .dropdownItems {
-    --dropdown-items-padding-vertical: calc(var(--theme-common-space) * 4);
-    --dropdown-items-padding-horizontal: calc(var(--theme-common-space) * 3);
-    --dropdown-items-border-radius: calc(var(--theme-common-space) * 2);
+    --dropdown-items-padding-vertical: calc(var(--theme-common-space) * 1.5);
+    --dropdown-items-padding-horizontal: calc(var(--theme-common-space) * 2);
 
-    background: var(
-      --Gradient01,
-      linear-gradient(
-        203deg,
-        ${({ theme: { colors } }) => colors.primaryLight} 14.77%,
-        ${({ theme: { colors } }) => colors.primary} 85.24%
-      )
-    );
-    border-radius: var(--dropdown-items-border-radius);
-    box-shadow:
-      0 38.519px 25.481px 0 rgba(0, 0, 0, 0.12),
-      0 100px 80px 0 rgba(0, 0, 0, 0.2);
-    flex-direction: column;
+    border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
     max-height: none;
-    width: 400px;
     overflow: hidden;
-    padding: 0;
+    padding: var(--theme-common-space);
     top: calc(100% + 10px);
+    width: 340px;
   }
 `
 
@@ -62,6 +50,7 @@ const Wallet = styled.div`
 `
 
 const Chevron = styled(ChevronDown)`
+  color: ${({ theme: { colors } }) => colors.fog};
   transition: transform 0.1s linear;
 
   .isOpen & {
@@ -70,14 +59,16 @@ const Chevron = styled(ChevronDown)`
 `
 
 const Status = styled.div`
-  --ball-dimensions: 14px;
+  --ball-dimensions: 10px;
 
   background-color: ${({ theme: { colors } }) => colors.error};
+  border: 2px solid ${({ theme: { colors } }) => colors.surface};
   border-radius: 50%;
+  box-sizing: content-box;
   height: var(--ball-dimensions);
   width: var(--ball-dimensions);
-  top: 0;
-  left: -1px;
+  top: -2px;
+  left: -2px;
   position: absolute;
   z-index: 5;
 `
@@ -85,14 +76,14 @@ const Status = styled.div`
 interface ItemProps {
   $border?: boolean
   $closeOnClick?: boolean
-  $darkBg?: boolean
+  $danger?: boolean
   $flexDirection?: string
 }
 
 const Item = styled.div<ItemProps>`
   align-items: ${({ $flexDirection }) => ($flexDirection === 'column' ? 'flex-start' : 'center')};
-  background: ${({ $darkBg, theme: { colors } }) => ($darkBg ? colors.primary : 'transparent')};
-  color: ${({ $darkBg, theme: { colors } }) => ($darkBg ? colors.warning : colors.cream)};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
+  color: ${({ $danger, theme: { colors } }) => ($danger ? colors.error : colors.ink)};
   display: flex;
   flex-direction: ${({ $flexDirection }) => $flexDirection};
   justify-content: space-between;
@@ -102,9 +93,11 @@ const Item = styled.div<ItemProps>`
   ${({ $border, theme: { colors } }) =>
     $border &&
     css`
+      margin-bottom: var(--theme-common-space);
+
       &:after {
-        background: ${colors.primary};
-        bottom: 0;
+        background: ${colors.line};
+        bottom: calc(var(--theme-common-space) * -0.5);
         content: '';
         display: block;
         height: 1px;
@@ -113,23 +106,12 @@ const Item = styled.div<ItemProps>`
         right: var(--dropdown-items-padding-horizontal);
       }
     `}
-
-  &:first-child {
-    border-top-left-radius: var(--dropdown-items-border-radius);
-    border-top-right-radius: var(--dropdown-items-border-radius);
-    padding-bottom: var(--theme-common-space);
-  }
-
-  &:last-child {
-    border-bottom-left-radius: var(--dropdown-items-border-radius);
-    border-bottom-right-radius: var(--dropdown-items-border-radius);
-  }
 `
 
 Item.defaultProps = {
   $border: false,
   $closeOnClick: true,
-  $darkBg: false,
+  $danger: false,
   $flexDirection: 'row',
 }
 
@@ -138,7 +120,7 @@ const ClickableItem = styled(Item)`
   transition: background-color 0.15s linear;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: ${({ theme: { colors } }) => colors.page};
   }
 
   &:active {
@@ -152,7 +134,7 @@ const ItemLabel = styled.div`
   align-items: center;
   column-gap: calc(var(--theme-common-space) * 1.5);
   display: grid;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 500;
   grid-template-columns: 24px 1fr;
   line-height: 1.2;
@@ -173,26 +155,22 @@ const ChainIcon = styled.img`
   width: var(--size);
 `
 
-const Title = styled.div`
-  color: #fff;
-  font-size: 1.8rem;
-  font-weight: 500;
-  line-height: 1.2;
+const Title = styled(Eyebrow)`
   margin: 0 0 6px;
 `
 
 const WalletAddress = styled(TokenAddress)`
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.ink};
   font-size: 1.6rem;
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.2;
   margin: 0;
 
   svg {
-    color: ${({ theme: { colors } }) => colors.cream_50};
+    color: ${({ theme: { colors } }) => colors.fog};
 
     &:hover {
-      color: ${({ theme: { colors } }) => colors.cream};
+      color: ${({ theme: { colors } }) => colors.ink};
     }
   }
 `
@@ -205,8 +183,7 @@ const NetworkName = styled.span`
 
 const UnsupportedNetwork = styled.span<{ $small?: boolean | undefined }>`
   color: ${({ theme: { colors } }) => colors.error};
-  font-weight: 700;
-  letter-spacing: -0.5px;
+  font-weight: 600;
 
   ${({ $small }) =>
     $small &&
@@ -219,21 +196,35 @@ const UnsupportedNetwork = styled.span<{ $small?: boolean | undefined }>`
 
 const SwitchNetworkButton = styled.span`
   align-items: center;
-  background: ${({ theme: { colors } }) => colors.primary};
-  border-radius: 40px;
-  color: ${({ theme: { colors } }) => colors.cream};
+  background: ${({ theme: { colors } }) => colors.lilac};
+  border-radius: 999px;
+  color: ${({ theme: { colors } }) => colors.violet};
   display: flex;
-  font-size: 1.4rem;
-  font-weight: 400;
-  height: 32px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  height: 28px;
   line-height: 1.2;
   padding: 0 calc(var(--theme-common-space) * 1.5);
 `
 
+// The connected wallet is a neutral pill, so it doesn't compete with the page's own actions.
 const Button = styled(ButtonConnect)`
+  background-color: ${({ theme: { colors } }) => colors.surface};
+  border-color: ${({ theme: { colors } }) => colors.line};
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-weight: 500;
   justify-content: space-between;
   min-width: 186px;
-  padding-left: var(--theme-common-space);
+  padding-left: 6px;
+  padding-right: calc(var(--theme-common-space) * 1.5);
+
+  &:hover,
+  &:focus,
+  .isOpen & {
+    background-color: ${({ theme: { colors } }) => colors.surface};
+    border-color: ${({ theme: { colors } }) => colors.faint};
+    color: ${({ theme: { colors } }) => colors.ink};
+  }
 `
 
 export const UserDropdown: React.FC = ({ ...restProps }) => {
@@ -324,7 +315,7 @@ export const UserDropdown: React.FC = ({ ...restProps }) => {
               My transactions
             </ItemLabel>
           </ClickableItem>,
-          <ClickableItem $darkBg key="userDropdown_item_3" onClick={disconnectWallet}>
+          <ClickableItem $danger key="userDropdown_item_3" onClick={disconnectWallet}>
             <ItemLabel>
               <Disconnect /> Disconnect
             </ItemLabel>

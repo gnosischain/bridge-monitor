@@ -16,22 +16,26 @@ const Wrapper = styled(InnerContainer)`
 
 const Inner = styled.div`
   align-items: flex-start;
-  background-color: ${({ theme: { colors } }) => colors.creamLight};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  border: 1px solid ${({ theme: { colors } }) => colors.creamDark};
-  color: ${({ theme: { colors } }) => colors.primary};
-  column-gap: calc(var(--theme-common-space) * 2);
+  background-color: ${({ theme: { colors } }) => colors.surface};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
+  border: 1px solid ${({ theme: { colors } }) => colors.line};
+  color: ${({ theme: { colors } }) => colors.ink};
+  column-gap: calc(var(--theme-common-space) * 1.5);
   display: flex;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 400;
-  line-height: 1.35;
-  padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3);
+  line-height: 1.5;
+  padding: calc(var(--theme-common-space) * 1.5) calc(var(--theme-common-space) * 2);
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    padding: calc(var(--theme-common-space) * 1.75) calc(var(--theme-common-space) * 2.5);
+  }
 `
 
 const Icon = styled(Alert)`
-  height: 22px;
+  height: 20px;
   margin-top: 1px;
-  width: 22px;
+  width: 20px;
 
   .fill {
     fill: ${({ theme: { colors } }) => colors.success};
@@ -44,16 +48,17 @@ const Text = styled.p`
 `
 
 const Emphasize = styled.span`
-  font-weight: 700;
+  font-weight: 600;
 `
 
 const DocsLink = styled.a`
-  color: ${({ theme: { colors } }) => colors.primary};
-  font-weight: 700;
-  text-decoration: underline;
+  color: ${({ theme: { colors } }) => colors.violet};
+  font-weight: 600;
+  text-decoration: none;
+  text-underline-offset: 4px;
 
   &:hover {
-    color: ${({ theme: { colors } }) => colors.primaryLight};
+    text-decoration: underline;
   }
 `
 
@@ -61,19 +66,25 @@ const DismissButton = styled.button`
   align-items: center;
   background-color: transparent;
   border: none;
+  border-radius: 50%;
   cursor: pointer;
   display: flex;
   flex-shrink: 0;
+  height: 24px;
   justify-content: center;
-  margin-top: 3px;
-  padding: calc(var(--theme-common-space) / 2);
+  padding: 0;
+  width: 24px;
 
   .fill {
-    fill: ${({ theme: { colors } }) => colors.primary};
+    fill: ${({ theme: { colors } }) => colors.fog};
+  }
+
+  &:hover {
+    background-color: ${({ theme: { colors } }) => colors.lilac};
   }
 
   &:hover .fill {
-    fill: ${({ theme: { colors } }) => colors.primaryLight};
+    fill: ${({ theme: { colors } }) => colors.ink};
   }
 `
 

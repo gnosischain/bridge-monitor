@@ -1,8 +1,8 @@
 import styled, { keyframes } from 'styled-components'
 
-const Wrapper = styled.div<{ $dimensions: string; $baseColor: string }>`
+const Wrapper = styled.div<{ $dimensions: string; $baseColor?: string }>`
   --dimensions: ${({ $dimensions }) => $dimensions};
-  --base-color: ${({ $baseColor }) => $baseColor};
+  --base-color: ${({ $baseColor, theme: { colors } }) => $baseColor ?? colors.violet};
 
   height: var(--dimensions);
   position: relative;
@@ -136,7 +136,7 @@ interface SpinnerProps {
 }
 
 export const Spinner: React.FC<SpinnerProps> = ({
-  $baseColor = '#9a9a9a',
+  $baseColor,
   $dimensions = '34px',
   ...restProps
 }) => (

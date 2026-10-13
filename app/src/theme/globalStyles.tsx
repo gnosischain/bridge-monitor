@@ -7,8 +7,8 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
 
   :root {
       /* Tooltip */
-      --rt-color-dark:  ${({ theme: { colors } }) => colors.black};
-      --rt-color-info:  ${({ theme: { colors } }) => colors.white};
+      --rt-color-dark:  ${({ theme: { colors } }) => colors.ink};
+      --rt-color-info:  ${({ theme: { colors } }) => colors.surface};
       --rt-opacity: 1;
 
       /* some common variables (just for convenience) */
@@ -27,19 +27,11 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
     background-color: ${({ theme: { body } }) => body.backgroundColor};
-    background-size: 1000px auto;
-    background-image: url('/images/bg-body.jpg');
-    color: ${({ theme: { colors } }) => colors.textColor};
+    color: ${({ theme: { colors } }) => colors.ink};
     font-family: ${({ theme: { fonts } }) => fonts.family};
     font-size: ${({ theme: { fonts } }) => fonts.defaultSize};
     min-height: 100vh;
-    outline-color: ${({ theme: { colors } }) => colors.secondary};
     scroll-behavior: smooth;
-
-    @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-      background-attachment: fixed;
-      background-size: cover;
-    }
   }
 
   code {
@@ -50,23 +42,30 @@ export const GlobalStyles = createGlobalStyle<{ theme: any }>`
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    row-gap: calc(var(--theme-common-space) * 5);
+    row-gap: calc(var(--theme-common-space) * 4);
     width: 100%;
   }
 
   ::selection {
-    color: ${({ theme: { colors } }) => colors.white} !important;
-    background: ${({ theme: { colors } }) => colors.primary} !important;
+    color: ${({ theme: { colors } }) => colors.surface} !important;
+    background: ${({ theme: { colors } }) => colors.violet} !important;
   }
 
   ::-moz-selection {
-    color: ${({ theme: { colors } }) => colors.white} !important;
-    background: ${({ theme: { colors } }) => colors.primary} !important;
+    color: ${({ theme: { colors } }) => colors.surface} !important;
+    background: ${({ theme: { colors } }) => colors.violet} !important;
   }
 
   a,
   button{
     transition: all 0.15s ease-in-out;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  [role='button']:focus-visible {
+    outline: 2px solid ${({ theme: { colors } }) => colors.violet};
+    outline-offset: 2px;
   }
 
   button{
