@@ -1,6 +1,7 @@
 import sub from 'date-fns/sub'
 import endOfDay from 'date-fns/endOfDay'
 import startOfDay from 'date-fns/startOfDay'
+import startOfHour from 'date-fns/startOfHour'
 
 export const msToSeconds = (milliseconds: number) => {
   return Math.floor(milliseconds / 1000)
@@ -22,7 +23,12 @@ export const DateFormated = (date: Date) => {
 
 export const getStartOfDay = () => startOfDay(new Date())
 export const getEndOfDay = () => endOfDay(new Date())
-export const get1DayBefore = () => sub(new Date(), { days: 1 })
-export const get7DaysBefore = () => sub(new Date(), { days: 7 })
+
+/**
+ * The validator-activity lookbacks, counted from the top of the hour: every visitor in that hour
+ * sends the same `$after`, so `/api/graphql` answers them all from one indexer request.
+ */
+export const get1DayBefore = () => sub(startOfHour(new Date()), { days: 1 })
+export const get7DaysBefore = () => sub(startOfHour(new Date()), { days: 7 })
 export const get1DayBeforeInSeconds = () => Math.round(get1DayBefore().getTime() / 1000)
 export const get7DaysBeforeInSeconds = () => Math.round(get7DaysBefore().getTime() / 1000)
