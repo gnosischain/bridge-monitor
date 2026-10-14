@@ -1,9 +1,8 @@
-import { HTMLAttributes } from 'react'
+import { HTMLAttributes, useEffect, useId } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 
 import { Close as BaseClose } from '@/src/components/assets/Close'
-import { BaseCard } from '@/src/components/card/BaseCard'
 
 const Wrapper = styled.div`
   align-items: center;
@@ -12,60 +11,70 @@ const Wrapper = styled.div`
   flex-direction: column;
   height: 100vh;
   left: 0;
+  overflow: auto;
+  padding: var(--theme-common-space);
   position: fixed;
   top: 0;
   width: 100vw;
   z-index: 100;
-  overflow: auto;
 `
 
-const Card = styled(BaseCard)<{ size?: modalSize }>`
-  background-color: ${({ theme: { colors } }) => colors.creamLight};
-  border: 0;
+const Card = styled.div<{ size?: modalSize }>`
+  background-color: ${({ theme: { colors } }) => colors.surface};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
+  box-shadow: ${({ theme: { common } }) => common.shadow};
   display: flex;
   flex-direction: column;
   margin: auto;
   max-width: 100%;
-  padding: 0;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+  overflow: hidden;
   position: relative;
   width: ${({ size }) =>
-    size === 'sm' ? '325px' : size === 'md' ? '500px' : size === 'lg' ? '720px' : `${size}`};
+    size === 'sm' ? '360px' : size === 'md' ? '520px' : size === 'lg' ? '720px' : `${size}`};
 `
 
-const Title = styled.h1`
-  color: ${({ theme: { colors } }) => colors.textColor};
+const Title = styled.h2`
+  color: ${({ theme: { colors } }) => colors.ink};
   font-family: ${({ theme: { fonts } }) => fonts.family};
   font-size: 1.8rem;
-  font-weight: 700;
-  line-height: 1.2;
-  margin: 20px 0 20px;
-  text-align: center;
-  width: 100%;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 0;
+  padding: calc(var(--theme-common-space) * 3) calc(var(--theme-common-space) * 7)
+    calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3);
 `
 
 const CloseButton = styled.button`
-  background: transparent;
+  align-items: center;
+  background-color: transparent;
   border: none;
+  border-radius: 50%;
   cursor: pointer;
+  display: flex;
+  height: 36px;
+  justify-content: center;
+  padding: 0;
   position: absolute;
-  right: 15px;
-  top: 15px;
+  right: calc(var(--theme-common-space) * 1.5);
+  top: calc(var(--theme-common-space) * 1.5);
+  width: 36px;
   z-index: 10;
-`
-const Close = styled(BaseClose)`
-  &:active,
+
   &:hover {
-    opacity: 0.7;
+    background-color: ${({ theme: { colors } }) => colors.page};
+  }
+`
+
+const Close = styled(BaseClose)`
+  .fill {
+    fill: ${({ theme: { colors } }) => colors.fog};
   }
 `
 
 const Contents = styled.div`
-  align-items: center;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  justify-content: center;
 `
 
 export type modalSize = 'sm' | 'md' | 'lg' | string
@@ -84,6 +93,7 @@ export const Modal: React.FC<Props> = ({
   ...restProps
 }: Props) => {
   const portal = document.getElementById('modals') as HTMLElement
+  const titleId = useId()
   const validOnClose = onClose && typeof onClose === 'function'
 
   const close = () => {
@@ -92,19 +102,33 @@ export const Modal: React.FC<Props> = ({
     }
   }
 
+  useEffect(() => {
+    if (!validOnClose) return
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onClose, validOnClose])
+
   return (
     portal &&
     ReactDOM.createPortal(
       <Wrapper className="modal" onClick={close} {...restProps}>
         <Card
+          aria-labelledby={title ? titleId : undefined}
+          aria-modal="true"
           className="modalCard"
           onClick={(e: React.MouseEvent) => {
             e.stopPropagation()
           }}
+          role="dialog"
           size={size}
         >
-          {title && <Title>{title}</Title>}
-          <CloseButton onClick={close}>
+          {title && <Title id={titleId}>{title}</Title>}
+          <CloseButton aria-label="Close" onClick={close} type="button">
             <Close height={12} width={12} />
           </CloseButton>
           <Contents>{children}</Contents>

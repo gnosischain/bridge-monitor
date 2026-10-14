@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import styled, { css } from 'styled-components'
 import NextLink from 'next/link'
 
@@ -10,7 +9,6 @@ import { EyebrowCSS } from '@/src/components/text/Eyebrow'
 
 const DOCS_URL = 'https://docs.gnosischain.com'
 
-// The build.gnosischain.com footer columns, with the bridge's own help links first.
 const COLUMNS: { title: string; items: { label: string; href: string }[] }[] = [
   {
     title: 'Bridge',
@@ -143,26 +141,6 @@ const Bottom = styled.div`
   padding-top: calc(var(--theme-common-space) * 3);
 `
 
-const Meta = styled.div`
-  align-items: center;
-  column-gap: calc(var(--theme-common-space) * 3);
-  display: flex;
-  flex-wrap: wrap;
-  row-gap: var(--theme-common-space);
-`
-
-const BuiltBy = styled.a`
-  align-items: center;
-  color: ${({ theme: { colors } }) => colors.faint};
-  column-gap: var(--theme-common-space);
-  display: flex;
-  text-decoration: none;
-
-  &:hover {
-    color: ${({ theme: { colors } }) => colors.ink};
-  }
-`
-
 export const Footer: React.FC = (props) => {
   const year = new Date().getFullYear()
 
@@ -197,17 +175,7 @@ export const Footer: React.FC = (props) => {
         </Top>
         <Bottom>
           <span>Copyright © {year} Gnosis</span>
-          <Meta>
-            <BuildInfo />
-            <BuiltBy
-              href="https://www.bootnode.dev/"
-              rel="noreferrer"
-              target="_blank"
-              title="BootNode - Web3 Development"
-            >
-              Built by <Image alt="BootNode logo" height={15} src="/images/bn.svg" width={19} />
-            </BuiltBy>
-          </Meta>
+          <BuildInfo />
         </Bottom>
       </BaseInnerContainer>
     </Wrapper>

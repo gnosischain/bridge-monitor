@@ -1,15 +1,18 @@
 import styled from 'styled-components'
+import { EyebrowCSS } from '@/src/components/text/Eyebrow'
 
+// Below desktop-wide width each row is a tinted card in a grid; from desktop-wide up the rows form
+// one flat table with hairline separators. Rows reach the card's edges, so their hover fill does too.
 export const Table = styled.div`
-  --table-padding-vertical: calc(var(--theme-common-space) * 3);
+  --table-padding-vertical: calc(var(--theme-common-space) * 2);
   --table-padding-common: calc(var(--theme-common-space) * 2);
-  --table-border-radius: ${({ theme: { common } }) => common.borderRadius};
+  --table-row-padding-horizontal: calc(var(--theme-common-space) * 3);
 
-  column-gap: calc(var(--theme-common-space) / 2);
+  column-gap: var(--theme-common-space);
   display: grid;
   min-width: fit-content;
   overflow-x: auto;
-  row-gap: calc(var(--theme-common-space) / 2);
+  row-gap: var(--theme-common-space);
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     grid-template-columns: 1fr 1fr;
@@ -17,25 +20,21 @@ export const Table = styled.div`
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     grid-template-columns: 1fr 1fr 1fr;
-    column-gap: var(--theme-common-space);
-    row-gap: var(--theme-common-space);
   }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     grid-template-columns: 1fr 1fr 1fr 1fr;
   }
+
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     column-gap: 0;
     grid-template-columns: 1fr;
-    padding-left: var(--table-padding-common);
-    padding-right: var(--table-padding-common);
     row-gap: 0;
   }
 `
 
 export const TR = styled.div<{ $compact?: boolean }>`
-  background-color: ${({ theme: { colors } }) => colors.cream};
-  border: 1px solid ${({ theme: { colors } }) => colors.creamDark};
+  background-color: ${({ theme: { colors } }) => colors.page};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
   cursor: pointer;
   display: flex;
@@ -44,35 +43,36 @@ export const TR = styled.div<{ $compact?: boolean }>`
   min-width: 100%;
   padding: var(--table-padding-common);
   row-gap: calc(var(--table-padding-common));
-  transition: none;
+  transition: background-color 0.15s linear;
 
-  &:hover > *:not(:last-child) {
-    opacity: 0.8;
+  &:hover {
+    background-color: ${({ theme: { colors } }) => colors.lilac};
   }
 
   &:active > * {
-    opacity: 0.5;
+    opacity: 0.6;
   }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     background-color: transparent;
-    border-left: none;
-    border-right: none;
-    border-top: none;
+    border-bottom: 1px solid ${({ theme: { colors } }) => colors.line};
     border-radius: 0;
-    border-right: none;
     column-gap: calc(var(--table-padding-common));
     display: grid;
     grid-template-columns: ${({ $compact }) => {
       const addressWidth = 'minmax(185px, 1fr)'
-      const bridgeDirectionWidth = 'minmax(155px, 1fr)'
-      const statusWidth = 'minmax(100px, 1fr)'
+      const bridgeDirectionWidth = 'minmax(170px, 1fr)'
+      const statusWidth = 'minmax(120px, 1fr)'
       const baseTemplate = `${addressWidth} ${bridgeDirectionWidth} ${addressWidth} 10px ${addressWidth}`
 
       return $compact ? `${baseTemplate} ${statusWidth}` : `${baseTemplate} 1fr ${statusWidth}`
     }};
     margin: 0;
-    padding: 0;
+    padding: 0 var(--table-row-padding-horizontal);
+
+    &:hover {
+      background-color: ${({ theme: { colors } }) => colors.page};
+    }
 
     &:last-child {
       border-bottom: none;
@@ -81,26 +81,29 @@ export const TR = styled.div<{ $compact?: boolean }>`
 `
 
 export const THead = styled(TR)`
-  border-bottom: none;
-  display: none;
   cursor: default;
+  display: none;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     display: grid;
 
-    &:hover,
-    &:active {
+    &:hover {
+      background-color: transparent;
+    }
+
+    &:active > * {
       opacity: 1;
     }
   }
 `
 
 export const TD = styled.div`
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.ink};
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   justify-content: flex-start;
+  min-width: 0;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     padding-bottom: var(--table-padding-vertical);
@@ -109,10 +112,13 @@ export const TD = styled.div`
 `
 
 export const TH = styled(TD)`
-  --th-padding-top: calc(var(--theme-common-space) * 4);
+  ${EyebrowCSS}
 
-  font-size: 1.4rem;
-  font-weight: 400;
-  padding-top: var(--th-padding-top);
+  letter-spacing: 0.12em;
   white-space: nowrap;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
+    padding-bottom: calc(var(--theme-common-space) * 1.5);
+    padding-top: calc(var(--theme-common-space) * 2);
+  }
 `

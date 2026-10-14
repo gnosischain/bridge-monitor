@@ -1,57 +1,58 @@
 import { Connector, useConnect, useConnectors } from 'wagmi'
 import styled from 'styled-components'
 import Image from 'next/image'
+import { EyebrowCSS } from '@/src/components/text/Eyebrow'
 
 const Container = styled.div`
   display: flex;
   flex-direction: row;
-  min-width: 700px;
-  min-height: 350px;
+  min-height: 360px;
 
   @media (max-width: 768px) {
     flex-direction: column;
-    min-width: 100%;
   }
 `
 
 const Sidebar = styled.div`
+  background-color: ${({ theme: { colors } }) => colors.page};
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 32px;
-  background: ${({ theme }) => theme.colors.creamDark};
-  width: 40%;
   flex-shrink: 0;
+  justify-content: center;
+  padding: calc(var(--theme-common-space) * 5) calc(var(--theme-common-space) * 4);
+  width: 40%;
 
   @media (max-width: 768px) {
+    padding: calc(var(--theme-common-space) * 3);
     width: 100%;
-    padding: 24px;
   }
 `
 
 const SidebarTitle = styled.h2`
-  color: ${({ theme }) => theme.colors.textColor};
-  font-size: 2.4rem;
-  font-weight: 700;
-  margin: 0 0 16px 0;
-  line-height: 1.2;
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-family: ${({ theme: { fonts } }) => fonts.familyHeading};
+  font-size: 2.8rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 0 0 calc(var(--theme-common-space) * 1.5);
 `
 
 const SidebarDescription = styled.p`
-  color: ${({ theme }) => theme.colors.textColor};
+  color: ${({ theme: { colors } }) => colors.fog};
   font-size: 1.4rem;
-  line-height: 1.5;
-  margin: 0 0 32px 0;
-  opacity: 0.8;
+  line-height: 1.6;
+  margin: 0;
 `
 
 const DontHaveWallet = styled.a`
-  margin-top: 32px;
-  color: ${({ theme }) => theme.colors.textColor};
-  font-size: 1.4rem;
-  display: flex;
   align-items: center;
+  color: ${({ theme: { colors } }) => colors.violet};
+  display: flex;
+  font-size: 1.4rem;
+  font-weight: 600;
   gap: 6px;
+  margin-top: calc(var(--theme-common-space) * 3);
   text-decoration: none;
 
   &:hover {
@@ -60,45 +61,49 @@ const DontHaveWallet = styled.a`
 `
 
 const Content = styled.div`
+  background-color: ${({ theme: { colors } }) => colors.surface};
   display: flex;
   flex-direction: column;
-  padding: 24px;
-  background: ${({ theme }) => theme.colors.cream};
+  padding: calc(var(--theme-common-space) * 7) calc(var(--theme-common-space) * 3)
+    calc(var(--theme-common-space) * 3);
   width: 60%;
 
   @media (max-width: 768px) {
+    padding: calc(var(--theme-common-space) * 3);
     width: 100%;
   }
 `
 
 const Title = styled.h3`
-  color: ${({ theme }) => theme.colors.primary};
-  font-size: 1.6rem;
-  font-weight: 600;
-  margin: 0 0 16px 0;
+  ${EyebrowCSS}
+
+  margin: 0 0 calc(var(--theme-common-space) * 1.5);
 `
 
 const WalletList = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 10px;
   flex: 1;
+  flex-direction: column;
+  gap: var(--theme-common-space);
 `
 
 const WalletButton = styled.button`
-  display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 12px 16px;
-  background: ${({ theme }) => theme.colors.primary};
-  border: none;
-  border-radius: 10px;
+  background-color: ${({ theme: { colors } }) => colors.surface};
+  border: 1px solid ${({ theme: { colors } }) => colors.line};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   cursor: pointer;
-  transition: all 0.15s ease;
+  display: flex;
+  gap: calc(var(--theme-common-space) * 1.5);
+  padding: 10px 12px;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
   width: 100%;
 
   &:hover {
-    opacity: 0.9;
+    background-color: ${({ theme: { colors } }) => colors.page};
+    border-color: ${({ theme: { colors } }) => colors.faint};
   }
 
   &:active {
@@ -107,54 +112,53 @@ const WalletButton = styled.button`
 `
 
 const IconWrapper = styled.div`
-  width: 44px;
-  height: 44px;
-  background: white;
-  border-radius: 8px;
-  display: flex;
   align-items: center;
-  justify-content: center;
+  background-color: ${({ theme: { colors } }) => colors.page};
+  border-radius: ${({ theme: { common } }) => common.borderRadius};
+  display: flex;
   flex-shrink: 0;
+  height: 40px;
+  justify-content: center;
   overflow: hidden;
+  width: 40px;
 
   img {
-    width: 28px;
-    height: 28px;
+    height: 26px;
     object-fit: contain;
+    width: 26px;
   }
 `
 
 const WalletName = styled.span`
-  color: white;
+  color: ${({ theme: { colors } }) => colors.ink};
   font-size: 1.5rem;
-  font-weight: 500;
+  font-weight: 600;
 `
 
 const InfoBadge = styled.span`
-  width: 14px;
-  height: 15px;
-  background: ${({ theme }) => theme.colors.textColor};
-  border-radius: 50%;
-  display: flex;
   align-items: center;
+  background-color: ${({ theme: { colors } }) => colors.violet};
+  border-radius: 50%;
+  color: ${({ theme: { colors } }) => colors.surface};
+  display: flex;
+  font-size: 1rem;
+  font-weight: 700;
+  height: 16px;
   justify-content: center;
-  color: white;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-left: 2px;
+  width: 16px;
 `
 
 const DefaultIcon = styled.div`
-  width: 28px;
-  height: 28px;
-  background: ${({ theme }) => theme.colors.primaryLight};
-  border-radius: 6px;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
+  background-color: ${({ theme: { colors } }) => colors.violet};
+  border-radius: 6px;
+  color: ${({ theme: { colors } }) => colors.surface};
+  display: flex;
   font-size: 1.2rem;
+  font-weight: bold;
+  height: 26px;
+  justify-content: center;
+  width: 26px;
 `
 
 export function SelectWallet() {
@@ -200,6 +204,7 @@ export function SelectWallet() {
                   connector: connector,
                 })
               }
+              type="button"
             >
               <IconWrapper>
                 {connector.icon ? (

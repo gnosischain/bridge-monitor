@@ -41,6 +41,12 @@ Sidebar.defaultProps = {
   className: 'sidebar',
 }
 
+const Header = styled.div`
+  grid-column: 1 / -1;
+  order: -1;
+  padding-bottom: var(--theme-common-space);
+`
+
 const Main = styled.div.withConfig({
   shouldForwardProp: (prop) => !['sidebarPlacement'].includes(prop),
 })<{ sidebarPlacement?: SidebarPlacement }>`
@@ -57,17 +63,20 @@ Main.defaultProps = {
 
 interface Props {
   children?: React.ReactNode
+  $header?: React.ReactNode
   $sidebarContents: React.ReactNode
   $sidebarPlacement?: SidebarPlacement
 }
 
 export const SidebarLayout: React.FC<Props> = ({
+  $header,
   $sidebarContents,
   $sidebarPlacement = 'right',
   children,
   ...restProps
 }) => (
   <Wrapper sidebarPlacement={$sidebarPlacement} {...restProps}>
+    {$header && <Header>{$header}</Header>}
     <Main as="main" sidebarPlacement={$sidebarPlacement}>
       {children}
     </Main>

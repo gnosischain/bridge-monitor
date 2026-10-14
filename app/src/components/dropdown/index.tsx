@@ -95,19 +95,19 @@ const Items = styled.div<ItemProps>`
 
   /* Track */
   ::-webkit-scrollbar-track {
-    background-color: ${({ theme: { colors } }) => colors.cream};
+    background-color: ${({ theme: { colors } }) => colors.page};
     border-radius: ${({ theme: { dropdown } }) => dropdown.borderRadius};
   }
 
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background-color: ${({ theme: { colors } }) => colors.creamDark};
+    background-color: ${({ theme: { colors } }) => colors.line};
     border-radius: ${({ theme: { dropdown } }) => dropdown.borderRadius};
   }
 
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
-    background-color: ${({ theme: { colors } }) => colors.primary};
+    background-color: ${({ theme: { colors } }) => colors.ink};
   }
 `
 
