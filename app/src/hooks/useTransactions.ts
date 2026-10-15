@@ -27,6 +27,9 @@ import { buildTransactionsQuery } from '@/src/utils/transactionsQuery'
 
 const INDEXER_POLL_INTERVAL = 5_000
 
+/** The TTL `/api/graphql` caches transactions for: refetching sooner gets the same answer back. */
+const INDEXER_STALE_TIME = 10_000
+
 // Shared empty values, so the hook's output keeps a stable identity while the query is idle.
 const NO_TRANSACTIONS: Transaction[] = []
 const NO_LOCAL_CLAIMS: LocalClaims = { claiming: [], claimed: [] }
@@ -130,6 +133,7 @@ export const useFetchTransactions = (
   const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ['useFetchTransactions', query ?? null, inMemoryFilters],
     queryFn: query ? () => fetchTransactions(query, inMemoryFilters) : skipToken,
+    staleTime: INDEXER_STALE_TIME,
     refetchInterval: pollUntil
       ? ({ state }) => (pollUntil(state.data ?? NO_TRANSACTIONS) ? false : INDEXER_POLL_INTERVAL)
       : false,
