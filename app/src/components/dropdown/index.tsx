@@ -10,7 +10,6 @@ import {
 import styled, { css } from 'styled-components'
 
 export enum DropdownPosition {
-  center,
   left,
   right,
 }
@@ -61,11 +60,6 @@ const PositionRightCSS = css`
   right: 0;
 `
 
-const PositionCenterCSS = css`
-  left: 50%;
-  transform: translateX(-50%);
-`
-
 interface ItemProps {
   $dropdownPosition?: DropdownPosition
   $isOpen: boolean
@@ -86,7 +80,6 @@ const Items = styled.div<ItemProps>`
 
   ${(props) => (props.$dropdownPosition === DropdownPosition.left ? PositionLeftCSS : '')}
   ${(props) => (props.$dropdownPosition === DropdownPosition.right ? PositionRightCSS : '')}
-  ${(props) => (props.$dropdownPosition === DropdownPosition.center ? PositionCenterCSS : '')}
 
   /* width */
   ::-webkit-scrollbar {

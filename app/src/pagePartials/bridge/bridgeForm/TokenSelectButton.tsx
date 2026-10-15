@@ -10,24 +10,20 @@ const Input = styled.input`
 
 const Checkmark = styled.span`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.white};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
+  border-radius: 999px;
+  color: ${({ theme: { colors } }) => colors.fog};
   display: flex;
-  flex: 1;
-  gap: var(--theme-common-space);
-  justify-content: flex-start;
-  max-width: fit-content;
-  min-width: 100px;
-  opacity: 0.6;
-  padding: 0 var(--theme-common-space);
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px 0 5px;
+  transition: background-color 0.15s linear;
 `
 
 const Wrapper = styled.label<{ disabled?: boolean }>`
   cursor: pointer;
   display: flex;
-  font-size: 1.6rem;
-  height: 100%;
-  margin-left: calc(var(--theme-common-space) * -1);
+  font-size: 1.5rem;
+  font-weight: 600;
   user-select: none;
 
   ${({ disabled }) =>
@@ -39,12 +35,19 @@ const Wrapper = styled.label<{ disabled?: boolean }>`
     `}
 
   &:hover ${Input} ~ ${Checkmark} {
-    opacity: 1;
+    color: ${({ theme: { colors } }) => colors.ink};
   }
 
   ${Input}:checked ~ ${Checkmark} {
-    opacity: 1;
+    background-color: ${({ theme: { colors } }) => colors.surface};
+    box-shadow: 0 1px 2px rgba(7, 5, 44, 0.12);
+    color: ${({ theme: { colors } }) => colors.ink};
     cursor: default;
+  }
+
+  ${Input}:focus-visible ~ ${Checkmark} {
+    outline: 2px solid ${({ theme: { colors } }) => colors.violet};
+    outline-offset: 1px;
   }
 `
 

@@ -1,7 +1,6 @@
 import { TokenSelectButton } from '@/src/pagePartials/bridge/bridgeForm/TokenSelectButton'
 import styled from 'styled-components'
 
-// A small segmented control: the picked token sits on a white chip.
 const Wrapper = styled.div`
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors.lilac};
