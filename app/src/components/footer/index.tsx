@@ -41,7 +41,7 @@ const COLUMNS: { title: string; items: { label: string; href: string }[] }[] = [
     items: [
       { label: 'DAO', href: 'https://snapshot.org/#/gnosis.eth' },
       { label: 'Careers', href: 'https://gnosis.io/careers/' },
-      { label: 'Media kit', href: 'https://www.gnosis.io/press' },
+      { label: 'Media kit', href: 'https://www.gnosis.io/media' },
       { label: 'Terms of use', href: `${DOCS_URL}/terms-conditions` },
     ],
   },
@@ -130,7 +130,7 @@ const Arrow = styled.span`
 const Bottom = styled.div`
   align-items: center;
   border-top: 1px solid ${({ theme: { colors } }) => colors.line};
-  color: ${({ theme: { colors } }) => colors.faint};
+  color: ${({ theme: { colors } }) => colors.fog};
   display: flex;
   flex-wrap: wrap;
   font-size: 1.3rem;

@@ -84,7 +84,7 @@ const DismissButton = styled.button`
   }
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 250, 251, 0.12);
   }
 
   &:hover .fill {

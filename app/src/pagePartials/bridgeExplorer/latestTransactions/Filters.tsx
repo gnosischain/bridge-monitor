@@ -60,7 +60,6 @@ const Field = styled.div`
 const Label = styled.label`
   ${EyebrowCSS}
 
-  letter-spacing: 0.12em;
   margin-bottom: 6px;
 `
 

@@ -24,7 +24,7 @@ const Title = styled.h1`
   font-size: 4rem;
   font-weight: 400;
   letter-spacing: -0.02em;
-  line-height: 1.05;
+  line-height: 1.06;
   margin: 0;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {

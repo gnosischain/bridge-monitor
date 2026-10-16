@@ -34,7 +34,7 @@ const SidebarTitle = styled.h2`
   font-size: 2.8rem;
   font-weight: 400;
   letter-spacing: -0.01em;
-  line-height: 1.15;
+  line-height: 1.06;
   margin: 0 0 calc(var(--theme-common-space) * 1.5);
 `
 
@@ -142,7 +142,7 @@ const InfoBadge = styled.span`
   color: ${({ theme: { colors } }) => colors.surface};
   display: flex;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 600;
   height: 16px;
   justify-content: center;
   width: 16px;
@@ -155,7 +155,7 @@ const DefaultIcon = styled.div`
   color: ${({ theme: { colors } }) => colors.surface};
   display: flex;
   font-size: 1.2rem;
-  font-weight: bold;
+  font-weight: 600;
   height: 26px;
   justify-content: center;
   width: 26px;

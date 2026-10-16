@@ -14,7 +14,7 @@ const Wrapper = styled.div.withConfig({
   display: flex;
   flex-shrink: 0;
   font-size: 1.4rem;
-  font-weight: 700;
+  font-weight: 600;
   height: var(--size);
   justify-content: center;
   overflow: hidden;

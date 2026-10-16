@@ -114,7 +114,6 @@ export const TD = styled.div`
 export const TH = styled(TD)`
   ${EyebrowCSS}
 
-  letter-spacing: 0.12em;
   white-space: nowrap;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {

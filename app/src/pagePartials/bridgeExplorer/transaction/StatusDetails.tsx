@@ -50,7 +50,6 @@ const TransactionStatus = styled.span`
   ${EyebrowCSS}
 
   font-size: 1rem;
-  letter-spacing: 0.14em;
 `
 
 const Details = styled.div`

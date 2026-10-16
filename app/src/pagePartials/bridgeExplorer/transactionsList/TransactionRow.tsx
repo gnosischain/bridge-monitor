@@ -19,7 +19,6 @@ const MobileLabel = styled.span`
   ${EyebrowCSS}
 
   display: block;
-  letter-spacing: 0.12em;
   margin: 0 0 6px;
   white-space: nowrap;
 

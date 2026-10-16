@@ -37,7 +37,6 @@ export const ListHead = styled.div`
 export const ListHeading = styled.span`
   ${EyebrowCSS}
 
-  letter-spacing: 0.12em;
   white-space: nowrap;
 `
 

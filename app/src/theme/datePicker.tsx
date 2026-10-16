@@ -69,7 +69,7 @@ export const datePickerCSS = css`
 
       &.react-datepicker__day--today:not(.react-datepicker__day--selected) {
         color: ${({ theme }) => theme.colors.violet};
-        font-weight: 700;
+        font-weight: 600;
       }
 
       &.react-datepicker__day--disabled {
@@ -82,7 +82,7 @@ export const datePickerCSS = css`
     }
 
     .react-datepicker__day--outside-month {
-      color: ${({ theme }) => theme.colors.faint};
+      color: ${({ theme }) => theme.colors.fog};
     }
 
     .react-datepicker__day--selected,

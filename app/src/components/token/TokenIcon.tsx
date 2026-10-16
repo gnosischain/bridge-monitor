@@ -24,7 +24,7 @@ const Placeholder = styled.div.withConfig({
   color: ${({ theme: { colors } }) => colors.ink};
   display: flex;
   font-size: 80%;
-  font-weight: 700;
+  font-weight: 600;
   height: ${({ dimensions }) => dimensions}px;
   justify-content: center;
   line-height: 1;

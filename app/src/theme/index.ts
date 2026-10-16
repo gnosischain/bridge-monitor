@@ -12,17 +12,17 @@ const space = 8
 const ink = '#07052C'
 const inkHover = '#1A1751'
 const violet = '#3F2ACD'
-const mint = '#8DE9AA'
+const mint = '#8CE8AB'
 const mintSoft = '#D6F6E2'
 const lilac = '#EDEBFB'
 const page = '#F6F1FA'
 const mist = '#FBFAFD'
-const white = '#FFFFFF'
+const paper = '#FFFAFB'
 const fog = '#55546F'
 const faint = '#8E8CA6'
 const line = '#E3E1EE'
 const emerald = '#047857'
-// States. Each text colour keeps at least 4.5:1 contrast on white and on the page background.
+// States. Each text colour keeps at least 4.5:1 contrast on paper and on the page background.
 const amber = '#B45309'
 const amberSoft = '#FFF4E4'
 const crimson = '#C81E4B'
@@ -43,7 +43,7 @@ export const theme = {
     mint,
     mist,
     page,
-    surface: white,
+    surface: paper,
     violet,
 
     error: crimson,
@@ -76,7 +76,7 @@ export const theme = {
   },
   dropdown: {
     borderRadius: borderRadiusBig,
-    background: white,
+    background: paper,
     borderColor: line,
     boxShadow: shadow,
     item: {
@@ -116,8 +116,8 @@ export const theme = {
     backgroundColorHover: inkHover,
     borderColor: ink,
     borderColorHover: inkHover,
-    color: white,
-    colorHover: white,
+    color: paper,
+    colorHover: paper,
   },
   textField: {
     backgroundColor: page,
@@ -127,7 +127,7 @@ export const theme = {
     height: '48px',
     successColor: emerald,
     active: {
-      backgroundColor: white,
+      backgroundColor: paper,
       borderColor: violet,
       boxShadow: 'none',
       color: ink,
@@ -140,7 +140,7 @@ export const theme = {
     overlayColor: 'rgba(7, 5, 44, 0.4)',
   },
   toast: {
-    backgroundColor: white,
+    backgroundColor: paper,
     borderColor: line,
     boxShadow: shadow,
   },

@@ -57,7 +57,7 @@ const StatusTitle = styled.h2`
   font-size: 3rem;
   font-weight: 400;
   letter-spacing: -0.02em;
-  line-height: 1.1;
+  line-height: 1.06;
   margin: 0;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {

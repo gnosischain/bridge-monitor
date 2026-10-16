@@ -5,7 +5,7 @@ export const MainTitle = styled.h1`
   font-weight: 400;
   font-size: 3.2rem;
   margin: 0;
-  line-height: 1.05;
+  line-height: 1.06;
   font-family: ${({ theme: { fonts } }) => fonts.familyHeading};
   letter-spacing: -0.02em;
 

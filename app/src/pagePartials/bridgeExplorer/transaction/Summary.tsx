@@ -38,8 +38,6 @@ const Fact = styled.div`
 
 const Label = styled.span`
   ${EyebrowCSS}
-
-  letter-spacing: 0.12em;
 `
 
 const Value = styled.div`

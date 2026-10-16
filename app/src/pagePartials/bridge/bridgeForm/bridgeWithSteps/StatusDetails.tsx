@@ -53,7 +53,6 @@ const TransactionStatus = styled.span`
   ${EyebrowCSS}
 
   font-size: 1rem;
-  letter-spacing: 0.14em;
   line-height: 16px;
   margin-top: calc((var(--icon-size) - 16px) / 2);
 `
