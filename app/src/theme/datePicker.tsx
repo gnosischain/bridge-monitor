@@ -3,68 +3,72 @@ import { css } from 'styled-components'
 export const datePickerCSS = css`
   :root {
     .react-datepicker {
-      --datepicker-border-radius: 8px;
+      --datepicker-border-radius: ${({ theme }) => theme.common.borderRadiusBigger};
 
-      font-size: 1.2rem;
-      background-color: ${({ theme }) => theme.colors.cream};
-      border: none;
+      background-color: ${({ theme }) => theme.colors.surface};
+      border: 1px solid ${({ theme }) => theme.colors.line};
       border-radius: var(--datepicker-border-radius);
-      box-shadow:
-        0 51px 80px rgba(0, 0, 0, 0.17),
-        0 19.6444px 25.4815px rgba(0, 0, 0, 0.103259),
-        0 4.15556px 6.51852px rgba(0, 0, 0, 0.0667407);
+      box-shadow: ${({ theme }) => theme.common.shadow};
+      font-family: ${({ theme }) => theme.fonts.family};
+      font-size: 1.3rem;
+      overflow: hidden;
+    }
+
+    .react-datepicker__triangle {
+      display: none;
     }
 
     .react-datepicker__month-container {
-      background-color: ${({ theme }) => theme.colors.cream};
-      border-radius: var(--datepicker-border-radius);
-      border-radius: var(--datepicker-border-radius);
+      background-color: ${({ theme }) => theme.colors.surface};
       padding-bottom: var(--theme-common-space);
     }
 
     .react-datepicker__header {
-      background-color: ${({ theme }) => theme.colors.creamDark};
-      border-top-left-radius: var(--datepicker-border-radius);
-      border-top-right-radius: var(--datepicker-border-radius);
-      color: ${({ theme }) => theme.colors.primary};
+      background-color: ${({ theme }) => theme.colors.surface};
       border: none;
+      border-bottom: 1px solid ${({ theme }) => theme.colors.line};
+      color: ${({ theme }) => theme.colors.ink};
       padding: calc(var(--theme-common-space) * 2) 0 var(--theme-common-space);
-    }
-
-    .react-datepicker-popper[data-placement^='bottom'] .react-datepicker__triangle::before,
-    .react-datepicker-popper[data-placement^='bottom'] .react-datepicker__triangle::after {
-      border-bottom-color: ${({ theme }) => theme.colors.creamDark};
     }
 
     .react-datepicker__day-name,
     .react-datepicker__day,
     .react-datepicker__time-name {
-      margin: 5px;
+      border-radius: 50%;
+      height: 3rem;
+      line-height: 3rem;
+      margin: 3px;
+      width: 3rem;
     }
 
     .react-datepicker__navigation {
-      top: 10px;
+      top: 12px;
     }
 
     .react-datepicker__current-month,
     .react-datepicker-time__header,
-    .react-datepicker-year-header,
+    .react-datepicker-year-header {
+      color: ${({ theme }) => theme.colors.ink};
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: var(--theme-common-space);
+    }
+
     .react-datepicker__day-name,
     .react-datepicker__time-name {
-      color: ${({ theme }) => theme.colors.primary};
+      color: ${({ theme }) => theme.colors.fog};
       font-size: 1.2rem;
     }
 
     .react-datepicker__navigation-icon::before {
-      border-color: ${({ theme }) => theme.colors.primary};
+      border-color: ${({ theme }) => theme.colors.fog};
     }
 
     .react-datepicker__day {
-      color: ${({ theme }) => theme.colors.primary};
+      color: ${({ theme }) => theme.colors.ink};
 
       &.react-datepicker__day--today:not(.react-datepicker__day--selected) {
-        background-color: ${({ theme }) => theme.colors.white};
-        color: ${({ theme }) => theme.colors.primary};
+        color: ${({ theme }) => theme.colors.violet};
         font-weight: 700;
       }
 
@@ -72,10 +76,13 @@ export const datePickerCSS = css`
         &,
         &:hover {
           background-color: transparent;
-          color: ${({ theme }) => theme.colors.primary};
-          opacity: 0.5;
+          color: ${({ theme }) => theme.colors.faint};
         }
       }
+    }
+
+    .react-datepicker__day--outside-month {
+      color: ${({ theme }) => theme.colors.faint};
     }
 
     .react-datepicker__day--selected,
@@ -94,21 +101,22 @@ export const datePickerCSS = css`
     .react-datepicker__month-text--keyboard-selected,
     .react-datepicker__quarter-text--keyboard-selected,
     .react-datepicker__year-text--keyboard-selected {
-      background-color: ${({ theme }) => theme.colors.primary};
-      color: ${({ theme }) => theme.colors.cream};
-      font-weight: 700;
+      background-color: ${({ theme }) => theme.colors.violet};
+      color: ${({ theme }) => theme.colors.surface};
+      font-weight: 600;
     }
 
     .react-datepicker__day:hover,
     .react-datepicker__month-text:hover,
     .react-datepicker__quarter-text:hover,
     .react-datepicker__year-text:hover {
-      background-color: ${({ theme }) => theme.colors.primaryDark};
-      color: ${({ theme }) => theme.colors.white};
+      background-color: ${({ theme }) => theme.colors.lilac};
+      border-radius: 50%;
+      color: ${({ theme }) => theme.colors.ink};
     }
 
     .react-datepicker__time-container {
-      border-left: 1px solid ${({ theme }) => theme.colors.primaryDark};
+      border-left: 1px solid ${({ theme }) => theme.colors.line};
     }
 
     .react-datepicker__time-container
@@ -116,11 +124,11 @@ export const datePickerCSS = css`
       .react-datepicker__time-box
       ul.react-datepicker__time-list
       li.react-datepicker__time-list-item {
-      background-color: ${({ theme }) => theme.colors.cream};
-      color: ${({ theme }) => theme.colors.primary};
+      background-color: ${({ theme }) => theme.colors.surface};
+      color: ${({ theme }) => theme.colors.ink};
 
       &:hover {
-        background-color: ${({ theme }) => theme.colors.primaryDark};
+        background-color: ${({ theme }) => theme.colors.lilac};
       }
     }
 
@@ -131,8 +139,8 @@ export const datePickerCSS = css`
       li.react-datepicker__time-list-item--selected {
       &,
       &:hover {
-        background-color: ${({ theme }) => theme.colors.secondary};
-        color: ${({ theme }) => theme.colors.darkerGrey};
+        background-color: ${({ theme }) => theme.colors.violet};
+        color: ${({ theme }) => theme.colors.surface};
       }
     }
   }
