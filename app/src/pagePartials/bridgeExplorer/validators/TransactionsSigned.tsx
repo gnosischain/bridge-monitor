@@ -128,6 +128,11 @@ const BaseChart: React.FC<{ timePeriod: number; bridge: string; theme: any }> = 
               type="category"
               width={140}
             />
+            <Tooltip
+              content={<CustomTooltip />}
+              cursor={{ fill: theme.colors.page, stroke: 'none' }}
+              wrapperStyle={{ outline: 'none' }}
+            />
             <Bar barSize={14} dataKey="value" fill={theme.colors.violet} radius={[0, 4, 4, 0]}>
               <LabelList
                 dataKey="value"
@@ -138,11 +143,6 @@ const BaseChart: React.FC<{ timePeriod: number; bridge: string; theme: any }> = 
                 position="right"
               />
             </Bar>
-            <Tooltip
-              content={<CustomTooltip />}
-              cursor={{ fill: theme.colors.page }}
-              wrapperStyle={{ outline: 'none' }}
-            />
           </BarChart>
         </ResponsiveContainer>
       </ChartWrapper>

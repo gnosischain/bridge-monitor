@@ -70,9 +70,27 @@ const Top = styled.div`
   }
 `
 
+const Brand = styled.div`
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  row-gap: calc(var(--theme-common-space) * 2);
+`
+
 const Logo = styled(GnosisChainLogo)`
   height: 26px;
   width: auto;
+`
+
+const Legal = styled.div`
+  align-items: flex-start;
+  color: ${({ theme: { colors } }) => colors.fog};
+  display: flex;
+  flex-direction: column;
+  font-size: 1.3rem;
+  line-height: 1.5;
+  row-gap: calc(var(--theme-common-space) / 2);
 `
 
 const Columns = styled.div`
@@ -127,20 +145,6 @@ const Arrow = styled.span`
   margin-left: 4px;
 `
 
-const Bottom = styled.div`
-  align-items: center;
-  border-top: 1px solid ${({ theme: { colors } }) => colors.line};
-  color: ${({ theme: { colors } }) => colors.fog};
-  display: flex;
-  flex-wrap: wrap;
-  font-size: 1.3rem;
-  gap: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3);
-  justify-content: space-between;
-  line-height: 1.5;
-  margin-top: calc(var(--theme-common-space) * 5);
-  padding-top: calc(var(--theme-common-space) * 3);
-`
-
 export const Footer: React.FC = (props) => {
   const year = new Date().getFullYear()
 
@@ -148,9 +152,15 @@ export const Footer: React.FC = (props) => {
     <Wrapper {...props}>
       <BaseInnerContainer>
         <Top>
-          <NextLink aria-label="Gnosis Bridge home" href="/">
-            <Logo />
-          </NextLink>
+          <Brand>
+            <NextLink aria-label="Gnosis Bridge home" href="/">
+              <Logo />
+            </NextLink>
+            <Legal>
+              <span>Copyright © {year} Gnosis</span>
+              <BuildInfo />
+            </Legal>
+          </Brand>
           <Columns>
             {COLUMNS.map((column) => (
               <div key={column.title}>
@@ -173,10 +183,6 @@ export const Footer: React.FC = (props) => {
             ))}
           </Columns>
         </Top>
-        <Bottom>
-          <span>Copyright © {year} Gnosis</span>
-          <BuildInfo />
-        </Bottom>
       </BaseInnerContainer>
     </Wrapper>
   )
