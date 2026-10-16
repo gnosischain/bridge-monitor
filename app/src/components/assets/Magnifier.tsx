@@ -6,7 +6,7 @@ const Wrapper = styled.svg`
   flex-shrink: 0;
 
   .stroke {
-    stroke: ${({ theme: { colors } }) => colors.primary};
+    stroke: ${({ theme: { colors } }) => colors.ink};
   }
 `
 

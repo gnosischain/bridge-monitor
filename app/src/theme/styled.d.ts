@@ -3,38 +3,39 @@ import 'styled-components'
 declare module 'styled-components' {
   export interface DefaultTheme {
     colors: {
-      black: string
-      cream: string
-      creamDark: string
-      creamDarker: string
-      creamDarkest: string
-      creamLight: string
-      cream_50: string
-      darkGreen: string
-      darkGrey: string
-      darkSecondary: string
-      darkerGrey: string
-      darkestGrey: string
+      emerald: string
+      faint: string
+      fog: string
+      ink: string
+      inkHover: string
+      lilac: string
+      line: string
+      mint: string
+      mist: string
+      page: string
+      surface: string
+      violet: string
+
       error: string
-      primary: string
-      primaryDark: string
-      primaryLight: string
-      primary_50: string
-      primary_60: string
-      secondary: string
+      errorSoft: string
       success: string
-      textColor: string
+      successSoft: string
       warning: string
-      white: string
-      white_50: string
+      warningSoft: string
     }
     body: {
       backgroundColor: string
+    }
+    backdrop: {
+      gradient: string
+      dots: string
+      dotsAccent: string
     }
     common: {
       borderRadius: string
       borderRadiusBig: string
       borderRadiusBigger: string
+      shadow: string
       space: string
     }
     fonts: {
@@ -42,7 +43,6 @@ declare module 'styled-components' {
       family: string
       familyCode: string
       familyHeading: string
-      fontFamily: string
     }
     breakPoints: {
       desktopStart: string
@@ -72,12 +72,6 @@ declare module 'styled-components' {
       horizontalPaddingTabletLandscapeStart: string
       horizontalPaddingTabletPortraitStart: string
       maxWidth: string
-    }
-    card: {
-      backgroundColor: string
-      borderColor: string
-      borderRadius: string
-      padding: string
     }
     buttonDropdown: {
       backgroundColor: string

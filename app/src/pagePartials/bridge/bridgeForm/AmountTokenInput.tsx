@@ -2,61 +2,65 @@ import { NumberFormatValues, NumericFormat } from 'react-number-format'
 import { Textfield } from '@/src/components/form/Textfield'
 import styled from 'styled-components'
 
-const Wrapper = styled.div`
+export const AmountInputWrapper = styled.div`
   flex-grow: 1;
-  height: 100%;
+  min-width: 0;
 `
+
 const TextfieldAmount = styled(Textfield)`
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  color: ${({ theme: { colors } }) => colors.textColor};
-  font-size: 1.5rem;
+  background-color: transparent;
+  border-color: transparent;
+  border-radius: 0;
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-size: 2.6rem;
   font-weight: 500;
-  height: 100%;
-  padding-left: var(--theme-common-space);
-  padding-right: var(--theme-common-space);
-  text-align: right;
+  height: 44px;
+  letter-spacing: -0.02em;
+  padding: 0;
+  text-align: left;
 
   &:active,
   &:focus {
-    background: ${({ theme: { colors } }) => colors.creamLight};
+    background-color: transparent;
+    border-color: transparent;
   }
 
   &::placeholder {
-    color: ${({ theme: { textField } }) => textField.color};
-    font-size: 1.5rem;
+    color: ${({ theme: { colors } }) => colors.faint};
+    font-size: 2.6rem;
     font-weight: 500;
   }
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    font-size: 1.6rem;
-    font-weight: 600;
+    font-size: 3.2rem;
 
     &::placeholder {
-      font-size: 1.6rem;
-      font-weight: 600;
+      font-size: 3.2rem;
     }
   }
 `
 const Max = styled.button`
-  background-color: transparent;
-  border-radius: ${({ theme: { common } }) => common.borderRadius};
-  border: 1px solid ${({ theme: { colors } }) => colors.primary};
-  color: ${({ theme: { colors } }) => colors.primary};
+  background-color: ${({ theme: { colors } }) => colors.lilac};
+  border-radius: 999px;
+  border: none;
+  color: ${({ theme: { colors } }) => colors.violet};
   cursor: pointer;
-  font-size: 1.3rem;
-  padding: 2px var(--theme-common-space);
+  font-family: ${({ theme: { fonts } }) => fonts.family};
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 4px var(--theme-common-space);
 
   &:hover {
-    background-color: ${({ theme: { colors } }) => colors.primary};
-    color: ${({ theme: { colors } }) => colors.white};
+    background-color: ${({ theme: { colors } }) => colors.violet};
+    color: ${({ theme: { colors } }) => colors.surface};
   }
 
   &:disabled {
     &,
     &:hover {
-      background-color: transparent;
-      border: 1px solid ${({ theme: { colors } }) => colors.primary};
-      color: ${({ theme: { colors } }) => colors.primary};
+      background-color: ${({ theme: { colors } }) => colors.lilac};
+      color: ${({ theme: { colors } }) => colors.violet};
       cursor: not-allowed;
       opacity: 0.5;
     }
@@ -108,7 +112,7 @@ export const AmountTokenInput = ({
 
   return (
     <>
-      <Wrapper {...restProps}>
+      <AmountInputWrapper {...restProps}>
         <NumericFormat
           allowNegative={false}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -124,7 +128,7 @@ export const AmountTokenInput = ({
           thousandSeparator={false}
           value={value}
         />
-      </Wrapper>
+      </AmountInputWrapper>
     </>
   )
 }

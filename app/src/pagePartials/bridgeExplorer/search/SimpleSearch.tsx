@@ -15,16 +15,17 @@ interface Props {
 }
 
 const Wrapper = styled.div`
-  --border-radius: 8px;
+  --border-radius: 999px;
 
   border-radius: var(--border-radius);
-  box-shadow:
-    0 2.231px 2.775px 0 rgba(0, 0, 0, 0.01),
-    0 10.2px 7.8px 0 rgba(0, 0, 0, 0.01),
-    0 25.819px 20.925px 0 rgba(0, 0, 0, 0.02),
-    0 51px 48px 0 rgba(0, 0, 0, 0.03);
-  height: 64px;
+  box-shadow: 0 8px 24px -16px rgba(7, 5, 44, 0.25);
+  height: 56px;
   position: relative;
+  text-align: left;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    height: 60px;
+  }
 `
 
 const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
@@ -36,16 +37,14 @@ const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
   --textfield-border-radius: var(--border-radius);
   --textfield-font-weight: 400;
   --textfield-height: 100%;
-  --textfield-padding: 0 36px 0 14px;
-  --textfield-padding: 0 calc(var(--theme-common-space) * 4 + var(--theme-common-space) / 2) 0
-    calc(var(--theme-common-space) + var(--theme-common-space) / 2);
-  --textfield-background-color: ${({ theme: { colors } }) => colors.cream};
-  --textfield-border-color: ${({ theme: { colors } }) => colors.white};
-  --textfield-border-color-error: ${({ theme: { colors } }) => colors.darkerGrey};
-  --textfield-color: ${({ theme: { colors } }) => colors.darkestGrey};
+  --textfield-padding: 0 calc(var(--theme-common-space) * 6) 0 calc(var(--theme-common-space) * 2.5);
+  --textfield-background-color: ${({ theme: { colors } }) => colors.surface};
+  --textfield-border-color: ${({ theme: { colors } }) => colors.line};
+  --textfield-border-color-error: ${({ theme: { colors } }) => colors.error};
+  --textfield-color: ${({ theme: { colors } }) => colors.ink};
 
   background-color: var(--textfield-background-color);
-  border-width: 2px;
+  border-width: 1px;
   border-style: solid;
   border-color: ${({ status }) =>
     status === TextfieldStatus.error
@@ -63,22 +62,20 @@ const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
   z-index: 1;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    --textfield-padding: 0 calc(var(--theme-common-space) * 6) 0 calc(var(--theme-common-space) * 3);
+    --textfield-padding: 0 calc(var(--theme-common-space) * 7) 0 calc(var(--theme-common-space) * 3);
     --texfield-font-size: 1.6rem;
   }
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    --texfield-font-size: 1.8rem;
+    --texfield-font-size: 1.7rem;
   }
 
   &:active,
   &:focus,
   &input:-internal-autofill-selected {
     background-color: var(--textfield-background-color) !important;
-    border-color: ${({ status }) =>
-      status === TextfieldStatus.error
-        ? 'var(--textfield-border-color-error)'
-        : 'var(--textfield-border-color)'};
+    border-color: ${({ status, theme: { colors } }) =>
+      status === TextfieldStatus.error ? 'var(--textfield-border-color-error)' : colors.violet};
     color: var(--textfield-color) !important;
   }
 
@@ -97,11 +94,11 @@ const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
   }
 
   &::placeholder {
-    color: var(--textfield-color);
+    color: ${({ theme: { colors } }) => colors.faint};
     font-size: var(--texfield-font-size);
     font-style: normal;
     font-weight: var(--textfield-font-weight);
-    opacity: 0.6;
+    opacity: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -144,36 +141,34 @@ const Magnifier = styled(BaseMagnifier)`
   z-index: 5;
 
   path {
-    stroke: ${({ theme: { colors } }) => colors.primary};
+    stroke: ${({ theme: { colors } }) => colors.fog};
   }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    right: 22px;
+    right: 24px;
   }
 `
 
 const Info = styled.div.withConfig({
   shouldForwardProp: (prop) => !['show'].includes(prop),
 })<{ show: boolean }>`
-  --y-distance: 6px;
-
   align-items: center;
-  background: ${({ theme: { colors } }) => colors.darkerGrey};
-  border-radius: 0 0 8px 8px;
-  color: ${({ theme: { colors } }) => colors.warning};
-  column-gap: var(--theme-common-space);
+  color: ${({ theme: { colors } }) => colors.error};
+  column-gap: 6px;
   display: flex;
-  font-size: 1.6rem;
-  height: calc(56px + var(--y-distance));
-  left: 0;
+  font-size: 1.3rem;
+  font-weight: 500;
+  left: calc(var(--theme-common-space) * 3);
   line-height: 1.2;
   opacity: ${({ show }) => (show ? 1 : 0)};
-  padding-left: 24px;
-  padding-top: var(--y-distance);
   position: absolute;
-  top: calc(100% - var(--y-distance));
+  top: calc(100% + var(--theme-common-space));
   transition: opacity 0.15s linear;
-  width: 100%;
+
+  svg {
+    height: 16px;
+    width: 16px;
+  }
 `
 
 export const SimpleSearch: React.FC<Props> = ({

@@ -4,8 +4,8 @@ import { AmountTokenInput } from '@/src/pagePartials/bridge/bridgeForm/AmountTok
 import { ButtonPlaceholder, DisabledTransButton, TransButton } from './TransButton'
 import { CardPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/CardPlaceholder'
 import { Header } from './Header'
-import { InnerCard } from './InnerCard'
-import { Switch } from './Switch'
+import { InnerCard } from '@/src/pagePartials/bridge/bridgeForm/InnerCard'
+import { Switch } from '@/src/pagePartials/bridge/bridgeForm/Switch'
 import SafeSuspense from '@/src/components/safeSuspense'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { useDebounce } from 'use-debounce'
@@ -13,36 +13,27 @@ import { UsdcTransFormState } from './types'
 import { TokenInfo } from './TokenInfo'
 import { UserBalance } from './UserBalance'
 import { TransSummary } from './TransSummary'
-import { MainCard } from '@/src/components/card/MainCard'
+import { Wrapper as FormCard } from '@/src/pagePartials/bridge/common/Wrapper'
+import { EyebrowCSS } from '@/src/components/text/Eyebrow'
 import { usdcTokens } from '@/src/constants/usdcTokens'
 import { parseUnits, zeroAddress } from 'viem'
 
-const Title = styled.h2`
-  align-items: center;
-  color: ${({ theme: { colors } }) => colors.primary};
-  display: flex;
-  font-size: 1.4rem;
-  font-weight: 500;
-  justify-content: space-between;
-  line-height: 1.2;
+const PanelLabel = styled.h3`
+  ${EyebrowCSS}
   margin: 0;
-  width: 100%;
 `
 
-export const FormWrapper = styled.div<{ hidden?: boolean }>`
-  display: ${({ hidden }) => (hidden ? 'none' : 'flex')};
+const FormWrapper = styled.div`
+  display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  max-width: 100%;
-  max-width: 644px;
-  row-gap: calc(var(--theme-common-space) * 3);
+  row-gap: calc(var(--theme-common-space) * 2.5);
   width: 100%;
 `
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  row-gap: calc(var(--theme-common-space) * 3);
+  row-gap: calc(var(--theme-common-space) * 2);
   width: 100%;
 `
 
@@ -54,42 +45,43 @@ const FormCards = styled.div`
 `
 
 const InnerCardFrom = styled(InnerCard)`
-  padding-bottom: calc(var(--theme-common-space) * 5);
   position: relative;
 `
 
-const OnChainInfo = styled.div`
+const AmountRow = styled.div`
   align-items: center;
+  column-gap: calc(var(--theme-common-space) * 1.5);
   display: flex;
-  justify-content: space-between;
-  margin-bottom: calc(var(--theme-common-space) * -1);
-  width: 100%;
+  min-height: 44px;
 `
 
-const BridgedToken = styled.div`
-  align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.cream};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  column-gap: var(--theme-common-space);
-  display: flex;
-  height: 54px;
-  padding: var(--theme-common-space) calc(var(--theme-common-space) * 2);
-`
+// The swap is 1:1, so the "To" side shows the same amount.
+const AmountOut = styled.span<{ $empty: boolean }>`
+  color: ${({ $empty, theme: { colors } }) => ($empty ? colors.faint : colors.ink)};
+  flex-grow: 1;
+  font-size: 2.6rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 44px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
-const AmountInput = styled(AmountTokenInput)`
-  margin-right: calc(var(--theme-common-space) * -1);
-`
-
-export const Wrapper = styled(MainCard)`
-  align-items: center;
-  padding-top: calc(var(--theme-common-space) * 5);
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    padding-top: calc(var(--theme-common-space) * 8);
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    font-size: 3.2rem;
   }
+`
 
-  max-width: 644px;
+const PanelFooter = styled.div`
+  align-items: center;
+  display: flex;
+  min-height: 20px;
+`
+
+export const Wrapper = styled(FormCard)`
   align-self: center;
+  max-width: 600px;
 `
 
 const SkeletonCommon: React.FC = () => (
@@ -99,7 +91,7 @@ const SkeletonCommon: React.FC = () => (
       <Form as="div">
         <FormCards>
           <CardPlaceholder />
-          <CardPlaceholder height="266px" />
+          <CardPlaceholder />
         </FormCards>
         <ButtonPlaceholder />
       </Form>
@@ -157,42 +149,45 @@ const Main = () => {
         <Form>
           <FormCards>
             <InnerCardFrom>
-              <Title>From</Title>
-              <OnChainInfo>
-                {formState.token && <TokenInfo token={formState.token} />}
-                <UserBalance
-                  address={address}
-                  onMax={(value) => dispatch({ ...formState, amount: value })}
-                  token={formState.token}
-                />
-              </OnChainInfo>
-              <BridgedToken>
-                <AmountInput
+              <PanelLabel>From</PanelLabel>
+              <AmountRow>
+                <AmountTokenInput
                   decimals={formState.token?.decimals || 18}
                   disabled={false}
                   onChange={(value) => dispatch({ ...formState, amount: value })}
                   placeholder="0.00"
                   value={formState.amount}
                 />
-              </BridgedToken>
+                {formState.token && <TokenInfo token={formState.token} />}
+              </AmountRow>
+              <PanelFooter>
+                <UserBalance
+                  address={address}
+                  onMax={(value) => dispatch({ ...formState, amount: value })}
+                  token={formState.token}
+                />
+              </PanelFooter>
               <Switch onClick={() => handleTokenChange()} />
             </InnerCardFrom>
             <InnerCard>
-              <Title>To</Title>
-              <OnChainInfo>
+              <PanelLabel>To</PanelLabel>
+              <AmountRow>
+                <AmountOut $empty={!formState.amount}>{formState.amount || '0.00'}</AmountOut>
                 {formState.tokenOut && <TokenInfo token={formState.tokenOut} />}
+              </AmountRow>
+              <PanelFooter>
                 <UserBalance address={address} token={formState.tokenOut} />
-              </OnChainInfo>
+              </PanelFooter>
             </InnerCard>
-            {amount > 0n && formState.token && formState.tokenOut && address && (
-              <TransSummary
-                amount={amount}
-                token={formState.token}
-                tokenOut={formState.tokenOut}
-                userAddress={address}
-              />
-            )}
           </FormCards>
+          {amount > 0n && formState.token && formState.tokenOut && address && (
+            <TransSummary
+              amount={amount}
+              token={formState.token}
+              tokenOut={formState.tokenOut}
+              userAddress={address}
+            />
+          )}
           {!formState.token || !address || amount === 0n ? (
             <DisabledTransButton />
           ) : (

@@ -7,7 +7,7 @@ const Wrapper = styled.svg`
   }
 
   .stroke {
-    stroke: ${({ theme: { colors } }) => colors.cream};
+    stroke: ${({ theme: { colors } }) => colors.surface};
   }
 `
 

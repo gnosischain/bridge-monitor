@@ -14,6 +14,7 @@ import { useRef } from 'react'
 import { Header } from '@/src/components/header'
 import { Footer } from '@/src/components/footer'
 import { FcrBanner } from '@/src/components/banner/FcrBanner'
+import { Backdrop } from '@/src/components/backdrop'
 
 import dynamic from 'next/dynamic'
 import { WagmiProvider } from 'wagmi'
@@ -104,10 +105,11 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
+            <Backdrop />
             <Web3ConnectionProvider>
               <SafeSuspense>
-                <Header />
                 <FcrBanner />
+                <Header />
                 <TransactionNotificationProvider>
                   {getLayout(<Component {...pageProps} />)}
                   <Toast />

@@ -25,28 +25,21 @@ const Wrapper = styled.div.withConfig({
   animation-iteration-count: 1;
   animation-name: ${loadingAnimation};
   animation-timing-function: ease-in-out;
-  border-radius: ${({ theme: { common } }) => common.borderRadius};
-  border-style: none;
-  border-width: 0;
+  background-color: ${({ theme: { toast } }) => toast.backgroundColor};
+  border: 1px solid ${({ theme: { toast } }) => toast.borderColor};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   box-shadow: ${({ theme: { toast } }) => toast.boxShadow};
-  max-width: 350px;
-  min-width: ${({ autoWidth }) => (autoWidth ? '0' : '200px')};
-  padding: var(--theme-common-space) calc(var(--theme-common-space) * 3) var(--theme-common-space)
-    var(--theme-common-space);
+  max-width: 360px;
+  min-width: ${({ autoWidth }) => (autoWidth ? '0' : '260px')};
+  padding: calc(var(--theme-common-space) * 1.75) calc(var(--theme-common-space) * 5)
+    calc(var(--theme-common-space) * 1.75) calc(var(--theme-common-space) * 1.75);
   position: relative;
-
-  ${({ type }) =>
-    (type === ToastStates.waiting || type === ToastStates.success) &&
-    css`
-      background-color: ${({ theme: { toast } }) => toast.backgroundColor};
-      border-color: ${({ theme: { toast } }) => toast.borderColor};
-    `}
 
   ${({ type }) =>
     type === ToastStates.failed &&
     css`
-      background-color: ${({ theme: { colors } }) => colors.creamDark};
-      border-color: ${({ theme: { colors } }) => colors.creamDark};
+      background-color: ${({ theme: { colors } }) => colors.errorSoft};
+      border-color: ${({ theme: { colors } }) => colors.errorSoft};
     `}
 `
 
@@ -61,7 +54,7 @@ const Contents = styled.div<{ display: 'grid' | 'flex' }>`
     display === 'grid'
       ? css`
           display: grid;
-          grid-template-columns: 25px 1fr;
+          grid-template-columns: 28px 1fr;
         `
       : css`
           display: flex;
@@ -75,30 +68,32 @@ Contents.defaultProps = {
 const IconContainer = styled.div`
   align-items: flex-start;
   display: flex;
-  height: var(--toast-icon-dimensions);
   justify-content: center;
+
+  svg {
+    height: 24px;
+    width: 24px;
+  }
 `
 
 const TextContainer = styled.div`
+  min-width: 0;
   word-break: break-word;
 `
 
 const Title = styled.h4`
-  font-size: 1.5rem;
-  font-weight: 500;
-  line-height: 1.2;
-  margin: 0 0 3px;
-`
-
-const TextCSS = css`
-  color: ${({ theme: { colors } }) => colors.textColor};
+  color: ${({ theme: { colors } }) => colors.ink};
   font-size: 1.4rem;
+  font-weight: 600;
   line-height: 1.4;
+  margin: 2px 0 2px;
 `
 
 const Text = styled.p`
-  ${TextCSS}
-  margin: 0 0 10px;
+  color: ${({ theme: { colors } }) => colors.fog};
+  font-size: 1.3rem;
+  line-height: 1.5;
+  margin: 0 0 var(--theme-common-space);
 
   &:last-child {
     margin-bottom: 0;
@@ -106,26 +101,30 @@ const Text = styled.p`
 `
 
 const Link = styled.a`
-  ${TextCSS}
-  text-decoration: underline;
+  color: ${({ theme: { colors } }) => colors.violet};
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.5;
+  text-decoration: none;
 
   &:hover {
-    text-decoration: none;
+    text-decoration: underline;
   }
 `
 
 const Code = styled.blockquote`
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: ${({ theme: { colors } }) => colors.surface};
+  border: 1px solid ${({ theme: { colors } }) => colors.line};
   border-radius: ${({ theme: { common } }) => common.borderRadius};
-  color: #222;
+  color: ${({ theme: { colors } }) => colors.fog};
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  font-size: 1.4rem;
-  font-style: italic;
-  line-height: 1.4;
+  font-family: ${({ theme: { fonts } }) => fonts.familyCode};
+  font-size: 1.2rem;
+  line-height: 1.5;
+  margin: var(--theme-common-space) 0 0;
   padding: 6px 10px;
-  margin: 0;
 
   &:active {
     opacity: 0.8;
@@ -134,13 +133,17 @@ const Code = styled.blockquote`
 
 const ClickToCopy = styled.span`
   align-items: center;
+  color: ${({ theme: { colors } }) => colors.violet};
   column-gap: 5px;
   cursor: pointer;
   display: flex;
-  font-weight: 700;
+  font-weight: 600;
   justify-content: flex-end;
   margin-top: 6px;
-  text-decoration: underline;
+
+  &:hover {
+    text-decoration: underline;
+  }
 
   &:active {
     opacity: 0.8;
@@ -148,16 +151,29 @@ const ClickToCopy = styled.span`
 `
 
 const ButtonClose = styled.button`
+  align-items: center;
   background: transparent;
   border: none;
+  border-radius: 50%;
   cursor: pointer;
+  display: flex;
+  height: 28px;
+  justify-content: center;
   margin: 0;
-  outline: none;
   padding: 0;
   position: absolute;
-  right: 7px;
-  top: 5px;
+  right: 8px;
+  top: 8px;
+  width: 28px;
   z-index: 5;
+
+  &:hover {
+    background-color: ${({ theme: { colors } }) => colors.page};
+  }
+
+  .fill {
+    fill: ${({ theme: { colors } }) => colors.fog};
+  }
 `
 
 export const ToastComponent: React.FC<{
@@ -195,7 +211,7 @@ export const ToastComponent: React.FC<{
               </Text>
             </>
           ) : (
-            <Text>{message}</Text>
+            message && <Text>{message}</Text>
           )}
           {link && (
             <Link href={link.url} rel="noreferrer" target="_blank">
@@ -204,7 +220,7 @@ export const ToastComponent: React.FC<{
           )}
         </TextContainer>
       </Contents>
-      <ButtonClose onClick={() => toast.remove(t.id)}>
+      <ButtonClose aria-label="Dismiss" onClick={() => toast.remove(t.id)} type="button">
         <Close />
       </ButtonClose>
     </Wrapper>

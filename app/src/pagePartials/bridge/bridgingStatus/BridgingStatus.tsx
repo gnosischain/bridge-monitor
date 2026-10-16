@@ -5,7 +5,6 @@ import { BlockConfirmations } from '@/src/pagePartials/common/BlockConfirmations
 import { ButtonFull } from '@/src/components/buttons/Button'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { GenericError } from '@/src/components/error/GenericError'
-import { MainTitle } from '@/src/components/text/MainTitle'
 import { Failed } from '@/src/components/assets/Failed'
 import { Ok } from '@/src/components/assets/Ok'
 import { getChainKey, getNetworkConfig } from '@/src/constants/config/chains'
@@ -21,146 +20,89 @@ import { useTokenInfo } from '@/src/hooks/bridge/useTokenInfo'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 
 const InnerWrapper = styled.div`
-  max-width: 644px;
-  width: 100%;
-`
-
-const Header = styled.div`
-  align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.darkGreen};
-  border-radius: 16px 16px 0 0;
-  color: ${({ theme: { colors } }) => colors.cream};
-  display: flex;
-  flex-direction: row;
-  flex-grow: 1;
-  justify-content: space-between;
-  padding: calc(var(--theme-common-space) * 2);
-  row-gap: var(--theme-common-space);
-  width: 100%;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3);
-  }
-`
-
-const Contents = styled.div`
-  background-color: ${({ theme: { colors } }) => colors.white};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
-  padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 1);
-  position: relative;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    padding: calc(var(--theme-common-space) * 4) calc(var(--theme-common-space) * 3)
-      calc(var(--theme-common-space) * 3);
-  }
-`
-
-const Inner = styled.div`
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  border: 1px solid ${({ theme: { colors } }) => colors.cream};
   display: flex;
   flex-direction: column;
-  gap: calc(var(--theme-common-space) * 2);
-  padding: calc(var(--theme-common-space) * 3);
+  row-gap: calc(var(--theme-common-space) * 2.5);
+  width: 100%;
 `
 
 const Message = styled.div`
   align-items: center;
   display: flex;
   flex-direction: column;
-  gap: calc(var(--theme-common-space) * 2);
+  gap: calc(var(--theme-common-space) * 1.5);
   justify-content: center;
-  padding: calc(var(--theme-common-space) * 6) 0 calc(var(--theme-common-space) * 4);
+  padding: calc(var(--theme-common-space) * 3) 0 calc(var(--theme-common-space) * 1);
+  text-align: center;
 `
 
-const Icon = styled.div`
-  --size: 80px;
+const Icon = styled.div<{ $failed: boolean }>`
+  --size: 64px;
 
   align-items: center;
+  background-color: ${({ $failed, theme: { colors } }) =>
+    $failed ? colors.errorSoft : colors.successSoft};
   border-radius: 50%;
-  border: 1px solid ${({ theme: { colors } }) => colors.creamDark};
+  color: ${({ theme: { colors } }) => colors.success};
   display: flex;
   height: var(--size);
   justify-content: center;
+  margin-bottom: var(--theme-common-space);
   width: var(--size);
 `
 
 const StatusTitle = styled.h2`
-  font-size: 2.4rem;
-  font-weight: 700;
-  line-height: 100%;
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-family: ${({ theme: { fonts } }) => fonts.familyHeading};
+  font-size: 3rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.06;
   margin: 0;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    font-size: 2.8rem;
+    font-size: 3.6rem;
   }
 `
 
 const MessageText = styled.p`
-  font-size: 1.6rem;
+  color: ${({ theme: { colors } }) => colors.fog};
+  font-size: 1.5rem;
   font-weight: 400;
-  line-height: 1.2;
+  line-height: 1.5;
   margin: 0;
-  max-width: 418px;
-  text-align: center;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    font-size: 1.8rem;
-  }
+  max-width: 440px;
 `
 
 const BottomInfo = styled.p`
-  font-size: 1.4rem;
-  font-weight: 300;
-  line-height: 1.2;
+  color: ${({ theme: { colors } }) => colors.fog};
+  font-size: 1.3rem;
+  font-weight: 400;
+  line-height: 1.5;
   margin: 0;
   text-align: center;
 `
 
 const WarningInfo = styled(BottomInfo)`
-  color: rgb(221, 113, 67);
+  color: ${({ theme: { colors } }) => colors.warning};
   a {
     color: inherit;
+    font-weight: 500;
   }
 `
 
 export const Loading: React.FC = () => (
-  <>
-    <SkeletonLoading
-      style={{
-        borderRadius: '16px',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '786px',
-        padding: '96px 24px 24px 24px',
-        rowGap: '16px',
-        maxWidth: '644px',
-        width: '100%',
-      }}
-    >
+  <InnerWrapper>
+    <Message>
       <SkeletonLoading
-        $animate={false}
-        style={{
-          borderRadius: '8px',
-          display: 'flex',
-          flexDirection: 'column',
-          height: '666px',
-          padding: '290px 24px 24px 24px',
-          rowGap: '16px',
-        }}
-      >
-        <SkeletonLoading
-          style={{
-            borderRadius: '8px',
-            display: 'flex',
-            flexDirection: 'column',
-            height: '263px',
-          }}
-        />
-        <ButtonFull disabled>Loading...</ButtonFull>
-      </SkeletonLoading>
-    </SkeletonLoading>
-  </>
+        style={{ borderRadius: '50%', height: '64px', minWidth: '0', width: '64px' }}
+      />
+      <SkeletonLoading style={{ borderRadius: '12px', height: '36px', maxWidth: '260px' }} />
+      <SkeletonLoading style={{ borderRadius: '999px', height: '16px', maxWidth: '320px' }} />
+    </Message>
+    <SkeletonLoading style={{ borderRadius: '16px', height: '190px' }} />
+    <ButtonFull disabled>Loading...</ButtonFull>
+  </InnerWrapper>
 )
 
 // The indexer only moves a transfer past COLLECTING once the validators' signatures reach the
@@ -269,54 +211,47 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
         />
       ) : (
         <InnerWrapper>
-          <Header>
-            <MainTitle>Bridge</MainTitle>
-          </Header>
-          <Contents>
-            <Inner>
-              <Message>
-                <Icon>{isBridgeFailed ? <Failed /> : <Ok />}</Icon>
-                <StatusTitle>
-                  Bridge {isBridgeFailed ? 'failed' : isBridgeComplete ? 'completed' : 'initiated'}
-                </StatusTitle>
-                <MessageText>
-                  {isBridgeFailed ? (
+          <Message>
+            <Icon $failed={isBridgeFailed}>{isBridgeFailed ? <Failed /> : <Ok />}</Icon>
+            <StatusTitle>
+              Bridge {isBridgeFailed ? 'failed' : isBridgeComplete ? 'completed' : 'initiated'}
+            </StatusTitle>
+            <MessageText>
+              {isBridgeFailed ? (
+                <>
+                  Sending {formatNumber(formattedAmount)} {tokenBridged?.symbol} to{' '}
+                  {destinationChain} failed: the transfer could not be executed on{' '}
+                  {destinationChain}. Open the transaction for details.
+                </>
+              ) : (
+                <>
+                  {!isBridgeComplete && (
                     <>
-                      Sending {formatNumber(formattedAmount)} {tokenBridged?.symbol} to{' '}
-                      {destinationChain} failed: the transfer could not be executed on{' '}
-                      {destinationChain}. Open the transaction for details.
-                    </>
-                  ) : (
-                    <>
-                      {!isBridgeComplete && (
-                        <>
-                          {!progressData?.isMined
-                            ? 'Waiting for transaction to be mined.'
-                            : !isConfirmed
-                              ? 'Waiting for confirmation.'
-                              : 'Waiting for validator signatures.'}
-                          <br />
-                        </>
-                      )}
-                      {isBridgeComplete ? 'Sent' : 'Sending'} {formatNumber(formattedAmount)}{' '}
-                      {tokenBridged?.symbol} to {destinationChain}.
+                      {!progressData?.isMined
+                        ? 'Waiting for transaction to be mined.'
+                        : !isConfirmed
+                          ? 'Waiting for confirmation.'
+                          : 'Waiting for validator signatures.'}
+                      <br />
                     </>
                   )}
-                </MessageText>
-              </Message>
-              <BlockConfirmations network={initiatorChain} transactionHash={transactionHash} />
-              <ButtonExploreTransaction isLoading={isLoadingTx} tx={tx} />
-              {isSCWallet && (
-                <WarningInfo>
-                  When using a smart contract wallet, if transaction is executed but transaction
-                  link is not loaded, go to <a href={myTxsLink}>My Transactions</a> page.
-                </WarningInfo>
+                  {isBridgeComplete ? 'Sent' : 'Sending'} {formatNumber(formattedAmount)}{' '}
+                  {tokenBridged?.symbol} to {destinationChain}.
+                </>
               )}
-              {isBridgeComplete && toChainId === Chains.mainnet && (
-                <BottomInfo>Claim to unlock your tokens</BottomInfo>
-              )}
-            </Inner>
-          </Contents>
+            </MessageText>
+          </Message>
+          <BlockConfirmations network={initiatorChain} transactionHash={transactionHash} />
+          <ButtonExploreTransaction isLoading={isLoadingTx} tx={tx} />
+          {isSCWallet && (
+            <WarningInfo>
+              When using a smart contract wallet, if transaction is executed but transaction link is
+              not loaded, go to <a href={myTxsLink}>My Transactions</a> page.
+            </WarningInfo>
+          )}
+          {isBridgeComplete && toChainId === Chains.mainnet && (
+            <BottomInfo>Claim to unlock your tokens</BottomInfo>
+          )}
         </InnerWrapper>
       )}
     </Wrapper>
