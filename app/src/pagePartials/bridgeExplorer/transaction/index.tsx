@@ -3,12 +3,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
 import { TokenAddress as BaseAddress } from '@/src/components/token/TokenAddress'
-import { ClaimButton as BaseClaimButton } from '@/src/pagePartials/bridgeExplorer/latestTransactions/ClaimButton'
+import { ClaimButton } from '@/src/pagePartials/bridgeExplorer/latestTransactions/ClaimButton'
 import { StatusDetails } from '@/src/pagePartials/bridgeExplorer/transaction/StatusDetails'
 import { Summary, SummaryPlaceholder } from '@/src/pagePartials/bridgeExplorer/transaction/Summary'
 import { Validations } from '@/src/pagePartials/bridgeExplorer/transaction/Validations'
 import { DelayWarning } from '@/src/pagePartials/bridgeExplorer/transaction/DelayWarning'
-import { DetailsRow } from '@/src/pagePartials/bridgeExplorer/transaction/DetailsRow'
+import { DetailsList, DetailsRow } from '@/src/pagePartials/bridgeExplorer/transaction/DetailsRow'
 import { useFetchTransactions } from '@/src/hooks/useTransactions'
 import { TransactionExecution, getTxScanUrl } from '@/src/utils/transactions'
 import { TransactionStatus } from '@/src/utils/transactions'
@@ -23,71 +23,53 @@ import { ButtonGoBack } from '@/src/pagePartials/bridgeExplorer/transaction/Butt
 import { GenericError } from '@/src/components/error/GenericError'
 import { BlockConfirmations } from '@/src/pagePartials/common/BlockConfirmations'
 import { ChainsKeys } from '@/src/constants/config/types'
+import { PageHeader } from '@/src/components/pageHeader'
+import { TransactionStatus as TransactionStatusPill } from '@/src/pagePartials/bridgeExplorer/common/TransactionStatus'
 
-const Wrapper = styled(MainCard)`
-  padding-top: calc(var(--theme-common-space) * 4);
-
-  @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
-    row-gap: calc(var(--theme-common-space) * 6);
-  }
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: calc(var(--theme-common-space) * 3);
 `
 
-const Head = styled.div`
+const ErrorCard = styled(MainCard)`
+  margin: 0 auto;
+  max-width: 640px;
+`
+
+const HashRow = styled.div`
   align-items: center;
   display: flex;
-  justify-content: space-between;
-`
-
-const TxTitleWrapper = styled.div`
-  max-width: 100%;
-`
-
-const Title = styled.h1`
-  color: ${({ theme: { colors } }) => colors.primary_60};
-  font-size: 1.6rem;
-  font-weight: 400;
-  letter-spacing: 0.16rem;
-  line-height: 1.2;
-  margin: 0 0 calc(var(--theme-common-space) / 2);
+  flex-wrap: wrap;
+  gap: var(--theme-common-space) calc(var(--theme-common-space) * 2);
 `
 
 const TokenAddress = styled(BaseAddress)`
-  color: ${({ theme: { colors } }) => colors.primary};
-  column-gap: calc(var(--theme-common-space) * 2);
-  font-size: 2.4rem;
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-size: 1.6rem;
   font-weight: 500;
-  line-height: 1;
+  line-height: 1.2;
   margin: 0;
-  text-transform: uppercase;
+
+  svg {
+    color: ${({ theme: { colors } }) => colors.faint};
+
+    &:hover {
+      color: ${({ theme: { colors } }) => colors.ink};
+    }
+  }
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
-    font-size: 4rem;
+    font-size: 1.8rem;
   }
 `
 
-const Information = styled.article`
-  display: flex;
-  flex-direction: column;
-  row-gap: calc(var(--theme-common-space) * 2);
-`
+const StatusList = styled(MainCard)`
+  padding: calc(var(--theme-common-space) * 3) calc(var(--theme-common-space) * 2.5);
+  row-gap: 0;
 
-const StatusList = styled.div`
-  background-color: ${({ theme: { colors } }) => colors.cream};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  display: flex;
-  flex-direction: column;
-  padding: calc(var(--theme-common-space) * 3) calc(var(--theme-common-space) * 2)
-    calc(var(--theme-common-space) * 2);
-  row-gap: calc(var(--theme-common-space) * 3);
-
-  @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
-    padding: calc(var(--theme-common-space) * 5) calc(var(--theme-common-space) * 4);
-  }
-`
-
-const ClaimButton = styled(BaseClaimButton)`
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    display: inline-block;
+  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
+    padding: calc(var(--theme-common-space) * 4);
   }
 `
 
@@ -99,16 +81,13 @@ const TxInitiatedWrapper = styled.div`
 
 export const TransactionSkeletonLoading: React.FC = ({ ...restProps }) => (
   <Wrapper {...restProps}>
-    <Head>
-      <TxTitleWrapper>
-        <Title>Transaction</Title>
-        <SkeletonLoading style={{ width: '460px', height: '48px', maxWidth: '100%' }} />
-      </TxTitleWrapper>
-    </Head>
-    <Information>
-      <SummaryPlaceholder />
-      <SkeletonLoading style={{ borderRadius: '4px', height: '300px' }} />
-    </Information>
+    <PageHeader
+      description={<SkeletonLoading style={{ height: '24px', maxWidth: '100%', width: '360px' }} />}
+      eyebrow="Bridge Explorer"
+      title="Transaction details"
+    />
+    <SummaryPlaceholder />
+    <SkeletonLoading style={{ borderRadius: '16px', height: '320px' }} />
   </Wrapper>
 )
 
@@ -138,26 +117,30 @@ export const Transaction: React.FC = ({ ...restProps }) => {
   if ((!currentTx && isLoading) || isLoading) return <TransactionSkeletonLoading />
   if (isError)
     return (
-      <GenericError
-        text="We couldn't load this transaction right now. Please try again in a moment."
-        title="Transaction Unavailable"
-      />
+      <ErrorCard>
+        <GenericError
+          text="We couldn't load this transaction right now. Please try again in a moment."
+          title="Transaction Unavailable"
+        />
+      </ErrorCard>
     )
   if (!currentTx)
     return (
-      <GenericError
-        text={
-          <>
-            Sorry, but the transaction you're looking for doesn't seem to exist. Maybe there's an
-            error in the transaction's hash, or the system is still processing it.
-            <br />
-            <br />
-            Please double-check the URL for any typos or try searching the transaction again from{' '}
-            <Link href="/">the homepage</Link>.
-          </>
-        }
-        title="Transaction Not Found"
-      />
+      <ErrorCard>
+        <GenericError
+          text={
+            <>
+              Sorry, but the transaction you're looking for doesn't seem to exist. Maybe there's an
+              error in the transaction's hash, or the system is still processing it.
+              <br />
+              <br />
+              Please double-check the URL for any typos or try searching the transaction again from{' '}
+              <Link href="/">the homepage</Link>.
+            </>
+          }
+          title="Transaction Not Found"
+        />
+      </ErrorCard>
     )
 
   const hasValidations = (): boolean => {
@@ -191,113 +174,118 @@ export const Transaction: React.FC = ({ ...restProps }) => {
 
   return (
     <Wrapper {...restProps}>
-      <Head>
-        <TxTitleWrapper>
-          <Title>Transaction</Title>
-          <TokenAddress
-            address={currentTx.transactionHash}
-            bigIcons
-            characters={7}
-            copy
-            href={getTxScanUrl(currentTx.transactionHash, currentTx.initiatorNetwork)}
-          />
-        </TxTitleWrapper>
-        {goBackURL && <ButtonGoBack onClick={() => router.replace(goBackURL)} />}
-      </Head>
-      <Information>
-        <Summary
-          $bridgeName={currentTx.bridgeName}
-          $initiator={currentTx.initiator}
-          $initiatorAmount={currentTx.initiatorAmount}
-          $initiatorName={currentTx.initiator}
-          $initiatorNetwork={currentTx.initiatorNetwork}
-          $initiatorNetworkIcon={getChainIconName(currentTx.initiatorNetwork)}
-          $initiatorToken={currentTx.initiatorToken}
-          $receiver={currentTx.receiver}
-          $receiverName={currentTx.receiver}
-          $receiverNetwork={currentTx.receiverNetwork}
-          $receiverNetworkIcon={getChainIconName(currentTx.receiverNetwork)}
-          $receiverToken={currentTx.receiverToken}
-          $timestampExecution={currentTx.execution?.timestamp ?? 0}
-          $timestampStarted={currentTx.timestamp ?? 0}
-          $transaction={currentTx}
-          $transactionStatus={currentTx.transactionStatus}
-        />
-        <StatusList>
-          <StatusDetails
-            description={`The user transferred tokens to the bridge.`}
-            statusIcon="success"
-            title="Bridging initiated"
-            transactionStatus={TransactionStatus.Initiated}
-          >
-            <TxInitiatedWrapper>
+      <PageHeader
+        aside={goBackURL && <ButtonGoBack onClick={() => router.replace(goBackURL)} />}
+        description={
+          <HashRow>
+            <TokenAddress
+              address={currentTx.transactionHash}
+              characters={7}
+              copy
+              href={getTxScanUrl(currentTx.transactionHash, currentTx.initiatorNetwork)}
+            />
+            <TransactionStatusPill status={currentTx.transactionStatus} />
+          </HashRow>
+        }
+        eyebrow="Bridge Explorer"
+        title="Transaction details"
+      />
+      <Summary
+        $bridgeName={currentTx.bridgeName}
+        $initiator={currentTx.initiator}
+        $initiatorAmount={currentTx.initiatorAmount}
+        $initiatorName={currentTx.initiator}
+        $initiatorNetwork={currentTx.initiatorNetwork}
+        $initiatorNetworkIcon={getChainIconName(currentTx.initiatorNetwork)}
+        $initiatorToken={currentTx.initiatorToken}
+        $receiver={currentTx.receiver}
+        $receiverName={currentTx.receiver}
+        $receiverNetwork={currentTx.receiverNetwork}
+        $receiverNetworkIcon={getChainIconName(currentTx.receiverNetwork)}
+        $receiverToken={currentTx.receiverToken}
+        $timestampExecution={currentTx.execution?.timestamp ?? 0}
+        $timestampStarted={currentTx.timestamp ?? 0}
+      />
+      <StatusList>
+        <StatusDetails
+          description={`The user transferred tokens to the bridge.`}
+          statusIcon="success"
+          title="Bridging initiated"
+          transactionStatus={TransactionStatus.Initiated}
+        >
+          <TxInitiatedWrapper>
+            <DetailsList>
               <DetailsRow
                 network={currentTx.initiatorNetwork}
                 title="Initiated by user"
                 transaction={currentTx}
               />
-              {!hasMinimumConsensus && (
-                <>
-                  <DelayWarning
-                    initiatorNetwork={currentTx.initiatorNetwork}
-                    receiverNetwork={currentTx.receiverNetwork}
-                  />
-                  <BlockConfirmations
-                    network={currentTx.initiatorNetwork as ChainsKeys}
-                    transactionHash={currentTx.transactionHash}
-                  />
-                </>
-              )}
-            </TxInitiatedWrapper>
+            </DetailsList>
+            {!hasMinimumConsensus && (
+              <>
+                <DelayWarning
+                  initiatorNetwork={currentTx.initiatorNetwork}
+                  receiverNetwork={currentTx.receiverNetwork}
+                />
+                <BlockConfirmations
+                  network={currentTx.initiatorNetwork as ChainsKeys}
+                  transactionHash={currentTx.transactionHash}
+                />
+              </>
+            )}
+          </TxInitiatedWrapper>
+        </StatusDetails>
+        {hasMinimumConsensus && (
+          <StatusDetails
+            description={`${txValidations.length} of 4 required confirmations.`}
+            statusIcon={consensusAchieved ? 'success' : 'waiting'}
+            title={consensusAchieved ? 'Consensus achieved' : 'Awaiting consensus'}
+            transactionStatus={TransactionStatus.Collecting}
+          >
+            <Validations fetchValidatorName={getValidatorName} validations={txValidations} />
           </StatusDetails>
-          {hasMinimumConsensus && (
-            <StatusDetails
-              description={`${txValidations.length} of 4 required confirmations.`}
-              statusIcon={consensusAchieved ? 'success' : 'waiting'}
-              title={consensusAchieved ? 'Consensus achieved' : 'Awaiting consensus'}
-              transactionStatus={TransactionStatus.Collecting}
-            >
-              <Validations fetchValidatorName={getValidatorName} validations={txValidations} />
-            </StatusDetails>
-          )}
-          {bridgingComplete && (
-            <StatusDetails
-              description="The tokens are in the user's address."
-              statusIcon="success"
-              title="Bridging complete"
-              transactionStatus={TransactionStatus.Completed}
-            >
+        )}
+        {bridgingComplete && (
+          <StatusDetails
+            description="The tokens are in the user's address."
+            statusIcon="success"
+            title="Bridging complete"
+            transactionStatus={TransactionStatus.Completed}
+          >
+            <DetailsList>
               <DetailsRow network="gnosis" title="Tokens received" transaction={txExecution} />
-            </StatusDetails>
-          )}
-          {tokensBridged && (
-            <StatusDetails
-              description="Funds should be available on receiver address."
-              statusIcon="success"
-              title="Tokens bridged"
-              transactionStatus={currentTx.transactionStatus}
-            >
-              {currentTx.execution && (
+            </DetailsList>
+          </StatusDetails>
+        )}
+        {tokensBridged && (
+          <StatusDetails
+            description="Funds should be available on receiver address."
+            statusIcon="success"
+            title="Tokens bridged"
+            transactionStatus={currentTx.transactionStatus}
+          >
+            {currentTx.execution && (
+              <DetailsList>
                 <DetailsRow
                   network={currentTx.receiverNetwork}
                   title="Tokens received"
                   transaction={currentTx.execution}
                 />
-              )}
-            </StatusDetails>
-          )}
-          {readyToClaim && (
-            <StatusDetails
-              description="Claim to unlock your tokens."
-              statusIcon="waiting"
-              title="Ready to claim"
-              transactionStatus={TransactionStatus.Unclaimed}
-            >
-              <ClaimButton claimActions={claimActions} transaction={currentTx} />
-            </StatusDetails>
-          )}
-        </StatusList>
-      </Information>
+              </DetailsList>
+            )}
+          </StatusDetails>
+        )}
+        {readyToClaim && (
+          <StatusDetails
+            description="Claim to unlock your tokens."
+            statusIcon="waiting"
+            title="Ready to claim"
+            transactionStatus={TransactionStatus.Unclaimed}
+          >
+            <ClaimButton claimActions={claimActions} transaction={currentTx} />
+          </StatusDetails>
+        )}
+      </StatusList>
     </Wrapper>
   )
 }

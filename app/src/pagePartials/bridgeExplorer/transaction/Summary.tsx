@@ -1,8 +1,6 @@
-import { TransactionStatus } from '@/src/utils/transactions'
 import styled, { css } from 'styled-components'
 
 import { ChainsInitiatorReceiver } from '@/src/pagePartials/bridgeExplorer/common/ChainsInitiatorReceiver'
-import { Pod } from '@/src/pagePartials/bridgeExplorer/transaction/Pod'
 import { TransactionDate } from '@/src/pagePartials/bridgeExplorer/transaction/TransactionDate'
 import { getAddressScanUrl } from '@/src/utils/transactions'
 import { TokenAddress } from '@/src/components/token/TokenAddress'
@@ -11,71 +9,49 @@ import {
   Receiver as BaseReceiver,
 } from '@/src/pagePartials/bridgeExplorer/common/TokenWithValue'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
-import { Transaction } from '@/src/utils/transactions'
 import { ArrowRight } from '@/src/components/assets/ArrowRight'
+import { MainCard } from '@/src/components/card/MainCard'
+import { EyebrowCSS } from '@/src/components/text/Eyebrow'
 
-const Wrapper = styled.div`
-  column-gap: calc(var(--theme-common-space) * 2);
+const Wrapper = styled(MainCard)`
+  display: grid;
+  gap: calc(var(--theme-common-space) * 2.5) calc(var(--theme-common-space) * 4);
+  grid-template-columns: minmax(0, 1fr);
+  padding: calc(var(--theme-common-space) * 2.5);
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: calc(var(--theme-common-space) * 3) calc(var(--theme-common-space) * 4);
+  }
+`
+
+const Fact = styled.div`
   display: flex;
   flex-direction: column;
-  row-gap: calc(var(--theme-common-space) * 1);
-  width: 100%;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    row-gap: calc(var(--theme-common-space) * 2);
-  }
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
-    grid-template-columns: 0.85fr 0.85fr 0.85fr 1.225fr 1.125fr;
-  }
-`
-const PodBridge = styled(Pod)`
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    grid-column: auto / span 2;
-  }
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    grid-column: auto / span 1;
-  }
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
-    grid-column: auto / span 1;
-  }
+  min-width: 0;
+  row-gap: var(--theme-common-space);
 `
 
-const PodAmount = styled(Pod)`
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    grid-column: auto / span 1;
-  }
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    grid-column: auto / span 2;
-  }
+const Label = styled.span`
+  ${EyebrowCSS}
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
-    grid-column: auto / span 1;
-  }
-
-  .badge {
-    background-color: ${({ theme: { colors } }) => colors.darkestGrey};
-    color: ${({ theme: { colors } }) => colors.creamLight};
-  }
+  letter-spacing: 0.12em;
 `
 
-const PodStatus = styled(Pod).withConfig({
-  shouldForwardProp: (prop) => !['status'].includes(prop),
-})`
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    grid-column: auto / span 1;
-  }
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    grid-column: auto / span 1;
-  }
+const Value = styled.div`
+  align-items: center;
+  color: ${({ theme: { colors } }) => colors.ink};
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 1.5rem;
+  font-weight: 500;
+  gap: var(--theme-common-space);
+  min-height: 26px;
+  min-width: 0;
 `
 
 const CommonCSS = css`
@@ -86,15 +62,9 @@ const CommonCSS = css`
   }
 
   .value {
-    font-size: inherit;
+    font-size: 1.5rem;
     line-height: inherit;
   }
-`
-
-const InitiatorReceiver = styled.div`
-  align-items: center;
-  column-gap: calc(var(--theme-common-space) * 3);
-  display: flex;
 `
 
 const Initiator = styled(BaseInitiator)`
@@ -105,18 +75,25 @@ const Receiver = styled(BaseReceiver)`
   ${CommonCSS}
 `
 
+const Arrow = styled(ArrowRight)`
+  .fill {
+    fill: ${({ theme: { colors } }) => colors.faint};
+  }
+`
+
 const Address = styled(TokenAddress)`
   svg {
-    color: ${({ theme: { colors } }) => colors.primary_50};
+    color: ${({ theme: { colors } }) => colors.faint};
 
     &:hover {
-      color: ${({ theme: { colors } }) => colors.primary};
+      color: ${({ theme: { colors } }) => colors.ink};
     }
   }
 `
 
 const Date = styled(TransactionDate)`
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-size: 1.5rem;
 `
 
 interface Props {
@@ -134,8 +111,6 @@ interface Props {
   $receiverToken?: string
   $timestampExecution: number
   $timestampStarted: number
-  $transaction?: Transaction
-  $transactionStatus: TransactionStatus
 }
 
 export const Summary: React.FC<Props> = ({
@@ -151,41 +126,61 @@ export const Summary: React.FC<Props> = ({
   $receiverToken,
   $timestampExecution,
   $timestampStarted,
-  $transaction,
-  $transactionStatus,
   ...restProps
 }) => {
   return (
     <Wrapper {...restProps}>
-      <PodBridge subTitle={$bridgeName === 'AMB' ? 'Omnibridge' : $bridgeName} title="Bridge">
-        <ChainsInitiatorReceiver
-          $chainIconInitiator={$initiatorNetworkIcon}
-          $chainIconReceiver={$receiverNetworkIcon}
-          $chainInitiator={$initiatorNetwork}
-          $chainReceiver={$receiverNetwork}
-          $showName
-        />
-      </PodBridge>
-      <Pod title="Initiator">
-        <Address
-          address={$initiator}
-          characters={6}
-          copy
-          href={getAddressScanUrl($initiator, $initiatorNetwork)}
-          useDomain
-        />
-      </Pod>
-      <Pod title="Receiver">
-        <Address
-          address={$receiver}
-          characters={6}
-          copy
-          href={getAddressScanUrl($receiver, $receiverNetwork)}
-          useDomain
-        />
-      </Pod>
-      <PodAmount title="Amount">
-        <InitiatorReceiver>
+      <Fact>
+        <Label>Bridge</Label>
+        <Value>{$bridgeName === 'AMB' ? 'Omnibridge' : $bridgeName}</Value>
+      </Fact>
+      <Fact>
+        <Label>Direction</Label>
+        <Value>
+          <ChainsInitiatorReceiver
+            $chainIconInitiator={$initiatorNetworkIcon}
+            $chainIconReceiver={$receiverNetworkIcon}
+            $chainInitiator={$initiatorNetwork}
+            $chainReceiver={$receiverNetwork}
+          />
+        </Value>
+      </Fact>
+      {/* @todo:
+       - if transactionStatus is not completed, completed value must be empty
+      */}
+      <Fact>
+        <Label>Date</Label>
+        <Value>
+          <Date completed={$timestampExecution} started={$timestampStarted} />
+        </Value>
+      </Fact>
+      <Fact>
+        <Label>Initiator</Label>
+        <Value>
+          <Address
+            address={$initiator}
+            characters={6}
+            copy
+            href={getAddressScanUrl($initiator, $initiatorNetwork)}
+            useDomain
+          />
+        </Value>
+      </Fact>
+      <Fact>
+        <Label>Receiver</Label>
+        <Value>
+          <Address
+            address={$receiver}
+            characters={6}
+            copy
+            href={getAddressScanUrl($receiver, $receiverNetwork)}
+            useDomain
+          />
+        </Value>
+      </Fact>
+      <Fact>
+        <Label>Amount</Label>
+        <Value>
           <Initiator
             bridgeName={$bridgeName}
             initiatorNetwork={$initiatorNetwork}
@@ -194,7 +189,7 @@ export const Summary: React.FC<Props> = ({
           />
           {$bridgeName.toLowerCase() === 'xdai' && (
             <>
-              <ArrowRight />
+              <Arrow />
               <Receiver
                 bridgeName={$bridgeName}
                 initiatorNetwork={$initiatorNetwork}
@@ -204,15 +199,8 @@ export const Summary: React.FC<Props> = ({
               />
             </>
           )}
-        </InitiatorReceiver>
-      </PodAmount>
-      {/* @todo - If a signature fails it has to change state */}
-      <PodStatus subTitle={$transactionStatus} title="Status" transaction={$transaction}>
-        {/* @todo:
-         - if transactionStatus is not completed, completed value must be empty
-        */}
-        <Date completed={$timestampExecution} started={$timestampStarted} />
-      </PodStatus>
+        </Value>
+      </Fact>
     </Wrapper>
   )
 }
@@ -220,8 +208,11 @@ export const Summary: React.FC<Props> = ({
 export const SummaryPlaceholder: React.FC = ({ ...restProps }) => {
   return (
     <Wrapper {...restProps}>
-      {Array.from({ length: 5 }).map((item, index) => (
-        <SkeletonLoading key={index} style={{ borderRadius: '4px', height: '112px' }} />
+      {Array.from({ length: 6 }).map((item, index) => (
+        <Fact key={index}>
+          <SkeletonLoading style={{ height: '12px', minHeight: '0', width: '35%' }} />
+          <SkeletonLoading style={{ borderRadius: '8px', height: '24px', width: '70%' }} />
+        </Fact>
       ))}
     </Wrapper>
   )

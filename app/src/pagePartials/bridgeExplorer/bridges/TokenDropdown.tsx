@@ -17,12 +17,13 @@ import { getToChainId } from '@/src/utils/tools'
 import { contracts } from '@/src/constants/config/contracts'
 
 const Wrapper = styled(BaseDropdown)`
-  --inner-padding: calc(var(--theme-common-space) / 2);
+  --inner-padding: calc(var(--theme-common-space) * 1.5);
 
   .dropdownItems {
-    max-height: 300px;
-    max-width: 250px;
+    border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
+    max-height: 340px;
     overflow: auto;
+    width: 280px;
   }
 
   &[disabled] {
@@ -34,7 +35,7 @@ const TextfieldContainer = styled.div.withConfig({
   shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
 })<{ closeOnClick?: boolean }>`
   background-color: ${({ theme: { dropdown } }) => dropdown.background};
-  padding: calc(var(--theme-common-space) / 2) calc(var(--theme-common-space) / 2) 0;
+  padding: var(--inner-padding) var(--inner-padding) 0;
   position: sticky;
   top: 0;
   z-index: 1;
@@ -51,29 +52,28 @@ const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
 
   ${TextfieldCSS};
 
-  border-radius: 4px;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   flex-shrink: 0;
-  height: 42px;
+  height: 40px;
   max-width: 100%;
-  padding: 0 10px 0 38px;
-  width: auto;
+  padding: 0 var(--theme-common-space) 0 calc(var(--theme-common-space) * 4.5);
+  width: 100%;
 `
 
 const Magnifier = styled(BaseMagnifier)`
-  left: 10px;
+  left: 12px;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
 `
 
 const Info = styled.p`
-  color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 1.3rem;
-  font-style: normal;
+  color: ${({ theme: { colors } }) => colors.fog};
+  font-size: 1.2rem;
   font-weight: 400;
-  line-height: 1.3;
+  line-height: 1.4;
   margin: 0;
-  padding: var(--theme-common-space) calc(var(--theme-common-space) / 2);
+  padding: var(--theme-common-space) 2px;
   white-space: normal;
 `
 
@@ -81,22 +81,25 @@ const Items = styled.div.withConfig({
   shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
 })<{ closeOnClick?: boolean }>`
   background-color: ${({ theme: { dropdown } }) => dropdown.background};
-  padding: 0 calc(var(--theme-common-space) / 2) calc(var(--theme-common-space) / 2);
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--theme-common-space) var(--theme-common-space);
+  row-gap: 2px;
 `
 
 const DropdownItem = styled.div`
   align-items: center;
-  border-bottom: 1px solid ${({ theme: { colors } }) => colors.creamDark};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   color: ${({ theme: { dropdown } }) => dropdown.item.color};
-  column-gap: calc(var(--theme-common-space) / 4);
+  column-gap: var(--theme-common-space);
   cursor: pointer;
   display: flex;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 500;
   line-height: 1.4;
-  min-height: 34px;
+  min-height: 40px;
   overflow: hidden;
-  padding: 0 cvar(--inner-padding);
+  padding: 0 calc(var(--theme-common-space) * 1.5);
   text-decoration: none;
   transition: background-color 0.15s linear;
   user-select: none;
@@ -105,23 +108,15 @@ const DropdownItem = styled.div`
   &:hover {
     background-color: ${({ theme: { dropdown } }) => dropdown.item.backgroundColorHover};
   }
-
-  &:first-child {
-    border-top: 1px solid ${({ theme: { colors } }) => colors.creamDark};
-  }
-
-  &:last-child {
-    border-bottom: none;
-  }
 `
 
 const NoResults = styled.div.withConfig({
   shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
 })<{ closeOnClick?: boolean }>`
   align-items: center;
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.fog};
   display: flex;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 500;
   height: 80px;
   justify-content: center;
@@ -131,27 +126,32 @@ const NoResults = styled.div.withConfig({
 
 const Button = styled.button`
   align-items: center;
-  background: ${({ theme: { colors } }) => colors.creamLight};
-  border-radius: 6px;
-  border: none;
-  color: ${({ theme: { colors } }) => colors.primary};
+  background-color: ${({ theme: { colors } }) => colors.surface};
+  border-radius: 999px;
+  border: 1px solid ${({ theme: { colors } }) => colors.line};
+  color: ${({ theme: { colors } }) => colors.ink};
   column-gap: var(--theme-common-space);
   cursor: pointer;
   display: flex;
-  font-size: 1.2rem;
-  height: 34px;
-  justify-content: space-between;
+  font-family: ${({ theme: { fonts } }) => fonts.family};
+  font-size: 1.4rem;
+  font-weight: 600;
+  height: 40px;
   line-height: 1.2;
   margin: 0;
-  padding: 0 8px;
-  text-transform: uppercase;
+  padding: 0 14px 0 6px;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: ${({ theme: { colors } }) => colors.faint};
+  }
 `
 
 const ButtonText = styled.span``
 
 const ChevronDown = styled(BaseChevronDown)`
   .fill {
-    fill: ${({ theme: { colors } }) => colors.primary};
+    fill: ${({ theme: { colors } }) => colors.ink};
   }
 `
 
@@ -259,7 +259,7 @@ const Dropdown: React.FC<Props> = ({
       disabled={disabled}
       dropdownButton={
         <Button type="button">
-          {token && <TokenIcon dimensions={18} iconSource={token.logoURI} symbol={token.symbol} />}
+          {token && <TokenIcon dimensions={26} iconSource={token.logoURI} symbol={token.symbol} />}
           <ButtonText>{token ? token.symbol : 'Select token...'}</ButtonText>
           {!disabled && <ChevronDown />}
         </Button>
@@ -291,7 +291,7 @@ const Dropdown: React.FC<Props> = ({
                 onSelectToken(item)
               }}
             >
-              <TokenIcon dimensions={18} iconSource={item.logoURI} symbol={item.symbol} />
+              <TokenIcon dimensions={22} iconSource={item.logoURI} symbol={item.symbol} />
               {item.symbol}
             </DropdownItem>
           ))}

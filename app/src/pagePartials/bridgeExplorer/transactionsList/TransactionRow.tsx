@@ -13,14 +13,14 @@ import Link from 'next/link'
 import { ClaimActions } from '@/src/hooks/useTransactions'
 import { useMemo } from 'react'
 import { transactionBaseURL } from '@/src/constants/sections'
+import { EyebrowCSS } from '@/src/components/text/Eyebrow'
 
 const MobileLabel = styled.span`
+  ${EyebrowCSS}
+
   display: block;
-  font-size: 1.2rem;
-  font-weight: 600;
-  line-height: 1.2;
-  margin: 0 0 4px;
-  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin: 0 0 6px;
   white-space: nowrap;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
@@ -29,11 +29,26 @@ const MobileLabel = styled.span`
 `
 
 const TokenAddress = styled(BaseAddress)`
-  margin-bottom: 8px;
+  font-size: 1.4rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+
+  svg {
+    color: ${({ theme: { colors } }) => colors.faint};
+
+    &:hover {
+      color: ${({ theme: { colors } }) => colors.ink};
+    }
+  }
 `
 
 const TDArrow = styled(TD)`
+  color: ${({ theme: { colors } }) => colors.faint};
   display: none;
+
+  .fill {
+    fill: currentColor;
+  }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     align-items: center;
@@ -53,7 +68,7 @@ const TDLastMobile = styled(TD)`
 `
 
 const ViewMore = styled.span`
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.violet};
   font-size: 1.2rem;
   font-weight: 600;
   line-height: 22px;
@@ -69,6 +84,7 @@ const RowLink = styled.div`
 
 const StatusWrapper = styled.div`
   > svg {
+    color: ${({ theme: { colors } }) => colors.faint};
     display: none;
   }
 
@@ -201,7 +217,7 @@ export const TransactionRow: React.FC<Props> = ({
             <StatusCell claimActions={claimActions} transaction={transaction} />
             <ChevronRight />
           </StatusWrapper>
-          <ViewMore>View More &gt;</ViewMore>
+          <ViewMore>View more →</ViewMore>
         </TDLastMobile>
       </TR>
     </Link>
