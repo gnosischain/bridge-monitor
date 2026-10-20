@@ -25,7 +25,6 @@ export function isERC677Bridge(address: string): address is ERC677BridgeAddress 
     return address.toLowerCase() in erc677BridgeToTokenMapping;
 }
 
-
 // Safe getter with normalization
 export function getTokenForBridge(bridgeAddress: string): string | undefined {
     const normalized = bridgeAddress.toLowerCase() as ERC677BridgeAddress;
