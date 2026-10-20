@@ -5,22 +5,18 @@ import { ChainToken } from '@/src/pagePartials/bridgeExplorer/validators/ChainTo
 import { BalanceType } from '@/src/constants/types'
 import { getChainIconName, getIcon } from '@/src/utils/icons'
 
-const Chain = styled.div`
+const Wrapper = styled.div`
   align-items: center;
-  column-gap: 6px;
+  column-gap: var(--theme-common-space);
   display: flex;
-`
-const Text = styled.span`
-  font-size: 1.4rem;
-  font-weight: 400;
-  line-height: 1.2;
+  min-width: 0;
 `
 
 const Value = styled.span`
-  font-family: ${({ theme: { fonts } }) => fonts.familyCode};
-  font-size: 1.2rem;
-  font-weight: 400;
-  line-height: 1.2;
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-size: 1.4rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
 `
 
 interface Props {
@@ -31,26 +27,23 @@ export const Balance: React.FC<Props> = ({ balanceType }) => {
   const iconPath = getIcon(getChainIconName(balanceType?.chain))
 
   return (
-    <>
-      <Chain>
+    <Wrapper>
+      {iconPath && (
         <ChainToken name={balanceType?.chain ?? ''}>
-          {iconPath && (
-            <Image
-              alt={balanceType ? balanceType.chain : 'Chain'}
-              height={16}
-              src={iconPath}
-              style={{
-                objectFit: 'cover',
-              }}
-              width={16}
-            />
-          )}
+          <Image
+            alt={balanceType ? balanceType.chain : 'Chain'}
+            height={16}
+            src={iconPath}
+            style={{
+              objectFit: 'cover',
+            }}
+            width={16}
+          />
         </ChainToken>
-        <Text>{balanceType?.chain}</Text>
-      </Chain>
+      )}
       <Value>
         {balanceType?.value} {balanceType?.token}
       </Value>
-    </>
+    </Wrapper>
   )
 }

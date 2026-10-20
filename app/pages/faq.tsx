@@ -4,6 +4,7 @@ import { Questions } from '@/src/pagePartials/faq/Questions'
 import { FAQContents } from '@/src/pagePartials/faq/FAQContents'
 import { ReactElement } from 'react'
 import { SidebarLayout } from '@/src/components/sidebarLayout'
+import { PageHeader } from '@/src/components/pageHeader'
 
 const FAQPage: NextPageWithLayout = () => {
   const title = 'Frequently Asked Questions - Gnosis Bridge Explorer'
@@ -27,6 +28,13 @@ const FAQPage: NextPageWithLayout = () => {
 FAQPage.getLayout = function getLayout(page: ReactElement) {
   return (
     <SidebarLayout
+      $header={
+        <PageHeader
+          description="Bridging, limits, transaction statuses and where to get help."
+          eyebrow="Help"
+          title="Frequently asked questions"
+        />
+      }
       $sidebarContents={
         <>
           <Questions />

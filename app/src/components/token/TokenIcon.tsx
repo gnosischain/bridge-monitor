@@ -18,13 +18,13 @@ const Placeholder = styled.div.withConfig({
   shouldForwardProp: (prop) => !['dimensions'].includes(prop),
 })<{ dimensions: string }>`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.creamDark};
+  background-color: ${({ theme: { colors } }) => colors.line};
   flex-shrink: 0;
   border-radius: 50%;
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.ink};
   display: flex;
   font-size: 80%;
-  font-weight: 700;
+  font-weight: 600;
   height: ${({ dimensions }) => dimensions}px;
   justify-content: center;
   line-height: 1;

@@ -5,22 +5,28 @@ import { TransactionDate } from '@/src/pagePartials/bridgeExplorer/transaction/T
 import { getTxScanUrl } from '@/src/utils/transactions'
 import { IconLink } from '@/src/components/assets/IconLink'
 
+export const DetailsList = styled.div`
+  border: 1px solid ${({ theme: { colors } }) => colors.line};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
+  display: flex;
+  flex-direction: column;
+
+  > * + * {
+    border-top: 1px solid ${({ theme: { colors } }) => colors.line};
+  }
+`
+
 const Wrapper = styled.div`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.cream_50};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.ink};
   display: flex;
   flex-wrap: wrap;
-  padding: var(--theme-common-space) calc(var(--theme-common-space) * 2);
-  row-gap: calc(var(--theme-common-space) * 2);
+  font-size: 1.4rem;
+  padding: calc(var(--theme-common-space) * 1.5) calc(var(--theme-common-space) * 2);
+  row-gap: var(--theme-common-space);
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     column-gap: calc(var(--theme-common-space) * 2);
-  }
-
-  &:nth-child(even) {
-    background: transparent;
   }
 `
 
@@ -41,33 +47,50 @@ const Title = styled.h4`
   ${CommonCSS}
 
   align-items: center;
-  column-gap: calc(var(--theme-common-space) * 1.5);
+  column-gap: var(--theme-common-space);
   display: flex;
+  font-size: 1.4rem;
   font-weight: 500;
   margin: 0;
 `
 
 const Address = styled(TokenAddress)`
   ${CommonCSS}
+
+  svg {
+    color: ${({ theme: { colors } }) => colors.faint};
+
+    &:hover {
+      color: ${({ theme: { colors } }) => colors.ink};
+    }
+  }
 `
 
 const Date = styled(TransactionDate)`
   ${CommonCSS}
+
+  color: ${({ theme: { colors } }) => colors.fog};
+  font-size: 1.3rem;
 `
 
 const Link = styled.a`
   ${CommonCSS}
 
   align-items: center;
-  color: ${({ theme: { colors } }) => colors.success};
-  column-gap: var(--theme-common-space);
+  color: ${({ theme: { colors } }) => colors.violet};
+  column-gap: 6px;
   display: flex;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
+  font-weight: 500;
   line-height: 1.5;
   text-decoration: none;
 
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    justify-content: flex-end;
+  }
+
   &:hover {
-    color: ${({ theme: { colors } }) => colors.primary};
+    text-decoration: underline;
   }
 
   svg {

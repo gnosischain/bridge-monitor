@@ -8,6 +8,7 @@ import { TransactionsList } from '@/src/pagePartials/bridgeExplorer/transactions
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTransactionsWithFilters } from '@/src/hooks/useTransactions'
 import { bridgeExplorerBaseURL } from '@/src/constants/sections'
+import { MainCard } from '@/src/components/card/MainCard'
 
 const Wrapper = styled.div`
   --results-min-height: 273px; // handy to avoid layout shift when loading
@@ -15,15 +16,12 @@ const Wrapper = styled.div`
   align-items: center;
   display: flex;
   flex-direction: column;
-  position: relative; // just to get this over the previous element's shadow
   width: 100%;
 `
 
-const ResultsWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: calc(var(--theme-common-space) * 2);
-  width: 100%;
+const ResultsWrapper = styled(MainCard)`
+  padding: 0;
+  row-gap: 0;
 
   .noResultsMessage {
     min-height: var(--results-min-height);
@@ -36,13 +34,12 @@ const Spinner = styled(Loading)`
 `
 
 const InfoWrapper = styled.div`
-  background-color: ${({ theme: { colors } }) => colors.cream};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
+  border-bottom: 1px solid ${({ theme: { colors } }) => colors.line};
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  row-gap: 20px;
-  padding: calc(var(--theme-common-space) * 3) calc(var(--theme-common-space) * 2);
+  padding: calc(var(--theme-common-space) * 2);
+  row-gap: calc(var(--theme-common-space) * 1.5);
   width: 100%;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
@@ -50,22 +47,35 @@ const InfoWrapper = styled.div`
     flex-direction: row;
     justify-content: space-between;
   }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3);
+  }
 `
 
 const Info = styled.p`
-  color: ${({ theme: { colors } }) => colors.textColor};
+  color: ${({ theme: { colors } }) => colors.fog};
   font-size: 1.4rem;
   font-weight: 400;
-  line-height: 1.2;
+  line-height: 1.4;
   margin: 0;
-  text-align: center;
+
+  b {
+    color: ${({ theme: { colors } }) => colors.ink};
+    font-weight: 600;
+  }
 `
 
-const ShareButton = styled(ShareResults)`
-  margin: 0 auto;
+const TransactionsWrapper = styled.div`
+  padding: calc(var(--theme-common-space) * 2);
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    margin: 0;
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3)
+      calc(var(--theme-common-space) * 3);
+  }
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
+    padding: 0 0 calc(var(--theme-common-space) * 2);
   }
 `
 
@@ -103,15 +113,17 @@ export const Results: React.FC<{ filters: TransactionFilter }> = ({ filters, ...
                     <Info>
                       <b>{transactions.length}</b> transactions found
                     </Info>
-                    <ShareButton value={`${window.location.origin}${searchResultsURL}`} />
+                    <ShareResults value={`${window.location.origin}${searchResultsURL}`} />
                   </InfoWrapper>
                 ) : null}
-                <TransactionsList
-                  claimActions={claimActions}
-                  goBackURL={searchResultsURL}
-                  isError={isError}
-                  transactions={transactions}
-                />
+                <TransactionsWrapper>
+                  <TransactionsList
+                    claimActions={claimActions}
+                    goBackURL={searchResultsURL}
+                    isError={isError}
+                    transactions={transactions}
+                  />
+                </TransactionsWrapper>
               </ResultsWrapper>
             )}
           </AnimatePresence>
