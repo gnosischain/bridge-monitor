@@ -159,7 +159,6 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
 
   const { isLoading: isLoadingTx, transactions } = useFetchTransactions(
     { where: { transactionHash: { _eq: transactionHash.toLowerCase() } } },
-    undefined,
     { pollUntil: (txs) => isSettled(txs[0] ?? null) },
   )
   const tx = transactions[0] ?? null

@@ -8,7 +8,6 @@ import { notify } from '@/src/components/toast'
 import { contracts } from '@/src/constants/config/contracts'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { ToastStates } from '@/src/constants/types'
-import { useIsUsdsEnabled } from '@/src/hooks/contracts/useIsUsdsEnabled'
 import useTransaction from '@/src/hooks/useTransaction'
 import { ClaimActions } from '@/src/hooks/useTransactions'
 import {
@@ -66,7 +65,6 @@ export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimBu
   const { connectWallet, getExplorerUrl, isWalletConnected, pushNetwork, walletChainId } =
     useWeb3Connection()
   const [isWorking, setIsWorking] = useState(false)
-  const isUsdsEnabled = useIsUsdsEnabled()
 
   const sendTx = useTransaction({ skipConnectionCheck: true })
 
@@ -85,32 +83,21 @@ export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimBu
           : transaction.transactionHash
       ) as Hex
 
-      const helperContract = isUsdsEnabled
-        ? {
-            address: contracts.BridgeHelper.address[Chains.gnosis] as Address,
-            abi: contracts.BridgeHelper.abi as Abi,
-          }
-        : {
-            address: contracts.BridgeHelper__beforeUsdsMigration.address[Chains.gnosis] as Address,
-            abi: contracts.BridgeHelper__beforeUsdsMigration.abi as Abi,
-          }
+      const helperContract = {
+        address: contracts.BridgeHelper.address[Chains.gnosis] as Address,
+        abi: contracts.BridgeHelper.abi as Abi,
+      }
 
-      const messageHash = (await (isUsdsEnabled
-        ? gnosisClient.readContract({
-            ...helperContract,
-            functionName: 'getMessageHash',
-            args: [
-              transaction.receiver as Address,
-              BigInt(transaction.receiverAmount),
-              modifiedId,
-              transaction.receiverToken as Address,
-            ],
-          })
-        : gnosisClient.readContract({
-            ...helperContract,
-            functionName: 'getMessageHash',
-            args: [transaction.receiver as Address, BigInt(transaction.receiverAmount), modifiedId],
-          }))) as Hex
+      const messageHash = (await gnosisClient.readContract({
+        ...helperContract,
+        functionName: 'getMessageHash',
+        args: [
+          transaction.receiver as Address,
+          BigInt(transaction.receiverAmount),
+          modifiedId,
+          transaction.receiverToken as Address,
+        ],
+      })) as Hex
 
       const [message, signatures] = (await Promise.all([
         gnosisClient.readContract({

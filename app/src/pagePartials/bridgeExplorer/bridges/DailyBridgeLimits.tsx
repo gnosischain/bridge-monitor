@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { useState } from 'react'
+import { zeroAddress } from 'viem'
 import { BridgeLimit } from '@/src/pagePartials/bridgeExplorer/bridges/BridgeLimit'
 import { Card } from '@/src/pagePartials/bridgeExplorer/bridges/Card'
 import { SectionHeader } from '@/src/components/sectionHeader'
@@ -182,30 +183,26 @@ const Limits: React.FC = () => {
   const { tokensByAddress } = useBridgedTokens()
 
   const onChangeToken = (token: Token) => {
-    // the list of tokens used are those of Mainnet (foreign network)
-    const mainnetToGnosisChain = token
+    // the list of tokens used are those of Mainnet (foreign network). Set even when invalid: the
+    // dropdown shows this token, not its own pick.
+    setMainnetToGnosisChainToken(token)
+
+    // The dropdown's address search finds tokens outside the list: the zero address means nobody
+    // has bridged it yet, otherwise its Gnosis side has the same symbol and decimals.
     const otherSideAddress = token.extensions.bridgeInfo[Chains.gnosis]?.tokenAddress.toLowerCase()
-    if (!otherSideAddress) throw new Error('Token address not found')
-    const gnosisChainToMainnet = tokensByAddress[otherSideAddress] ?? {
-      address: token.extensions.bridgeInfo[Chains.gnosis]?.tokenAddress,
-      chainId: Chains.gnosis,
-      decimals: 18,
-      extensions: token.extensions,
-      logoURI: '',
-      name: 'Safe Token',
-      symbol: 'SAFE',
-    }
-
-    const isSelectedTokenValid = mainnetToGnosisChain && gnosisChainToMainnet
-
-    if (isSelectedTokenValid) {
-      setInvalidToken(false)
-      setMainnetToGnosisChainToken(mainnetToGnosisChain)
-      setGnosisChainToMainnet(gnosisChainToMainnet)
-    } else {
+    if (!otherSideAddress || otherSideAddress === zeroAddress) {
       setInvalidToken(token)
-      console.error('Invalid token selected')
+      return
     }
+
+    setInvalidToken(false)
+    setGnosisChainToMainnet(
+      tokensByAddress[otherSideAddress] ?? {
+        ...token,
+        address: otherSideAddress,
+        chainId: Chains.gnosis,
+      },
+    )
   }
 
   return (

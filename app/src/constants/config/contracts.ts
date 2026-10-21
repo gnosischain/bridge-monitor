@@ -1,7 +1,5 @@
 import XDAI_abi from '@/src/abis/HomeBridgeErcToNative' // TODO: maybe we can unified the names of the ABI files too.
-import ForeignXDAI_abi from '@/src/abis/ForeignBridgeErcToNative'
 import OMNI_abi from '@/src/abis/HomeOmniMediator' // TODO: maybe we can unified the names of the ABI files too.
-import BridgeHelper_beforeUsdsMigration_abi from '@/src/abis/Erc20ToNativeBridgeHelper_beforeUSDSMigration'
 import BridgeHelper_abi from '@/src/abis/Erc20ToNativeBridgeHelper'
 import AMB_abi from '@/src/abis/HomeAMB' // TODO: maybe we can unified the names of the ABI files too.
 import OMNI_FEE_MANAGER_abi from '@/src/abis/OmniBridgeFeeManager'
@@ -17,13 +15,6 @@ export const contracts = {
       [Chains.gnosis]: '0x7301CFA0e1756B71869E93d4e4Dca5c7d0eb0AA6', // homeXdaiBridge
     },
     abi: XDAI_abi,
-  },
-  foreignXDAIBridge: {
-    address: {
-      [Chains.mainnet]: '0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016',
-      [Chains.gnosis]: '',
-    },
-    abi: ForeignXDAI_abi,
   },
   OmniBridge: {
     address: {
@@ -54,13 +45,6 @@ export const contracts = {
       [Chains.gnosis]: '0x5dbc897aef6b18394d845a922bf107fa98e3ac55',
     },
     abi: OMNI_FEE_MANAGER_abi,
-  },
-  BridgeHelper__beforeUsdsMigration: {
-    address: {
-      [Chains.mainnet]: '',
-      [Chains.gnosis]: '0x2D51EAa266eafcb59bB36dD3c7E99C515e58113A',
-    },
-    abi: BridgeHelper_beforeUsdsMigration_abi,
   },
   BridgeHelper: {
     address: {

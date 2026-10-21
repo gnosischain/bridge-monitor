@@ -11,7 +11,6 @@ export enum TransactionStatus {
   Initiated = 'INITIATED',
   Unclaimed = 'UNCLAIMED',
 }
-import { isSameString } from '@/src/utils/tools'
 
 const GNOSIS = 'gnosis'
 const MAINNET = 'mainnet'
@@ -56,8 +55,6 @@ export type Transaction = {
   execution?: TransactionExecution
   isClaiming?: boolean
 }
-
-export type TxsInMemoryFilters = { validator?: string; executor?: string }
 
 export type EnvioQueryArgs = {
   where?: Record<string, unknown>
@@ -167,10 +164,7 @@ type EnvioTx = {
   }>
 }
 
-export const fetchTransactions = async (
-  query: EnvioQueryArgs,
-  inMemoryFilters: TxsInMemoryFilters,
-): Promise<Transaction[]> => {
+export const fetchTransactions = async (query: EnvioQueryArgs): Promise<Transaction[]> => {
   const request = getEnvioGraphqlClient<{ Transaction: Array<EnvioTx> }>()
   const res = await request(ENVIO_TRANSACTIONS_QUERY, {
     where: query.where,
@@ -186,23 +180,5 @@ export const fetchTransactions = async (
         (row?.receiverNetwork !== null && row?.receiverNetwork !== undefined)),
   )
 
-  let transactions = safeRows
-  if (inMemoryFilters.validator) {
-    transactions = transactions
-      .filter((tx) => tx.validations && tx.validations.length > 0)
-      .filter((tx) =>
-        tx.validations?.some((v) =>
-          isSameString(v.validatorAddress, inMemoryFilters.validator ?? ''),
-        ),
-      )
-  }
-  if (inMemoryFilters.executor) {
-    transactions = transactions
-      .filter((tx) => !!tx.execution?.executorAddress)
-      .filter((tx) =>
-        isSameString(tx.execution?.executorAddress ?? '', inMemoryFilters.executor ?? ''),
-      )
-  }
-
-  return transactions.map(prepareTransactionForView)
+  return safeRows.map(prepareTransactionForView)
 }
