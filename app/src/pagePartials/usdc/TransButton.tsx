@@ -21,39 +21,7 @@ const Button = styled(ButtonFull)`
   width: 100%;
 `
 
-const BottomInfo = styled.p`
-  color: ${({ theme: { colors } }) => colors.warning};
-  font-size: 1.3rem;
-  font-weight: 400;
-  line-height: 1.5;
-  margin: 0;
-  text-align: center;
-
-  a {
-    color: inherit;
-    font-weight: 500;
-  }
-`
-
 export const ButtonPlaceholder: React.FC = () => <Button disabled>Loading...</Button>
-
-export const ButtonPlaceholderWithWarning: React.FC<{
-  action: string
-}> = ({ action }) => {
-  const { isSCWallet } = useWeb3Connection()
-
-  return (
-    <>
-      <ButtonPlaceholder />
-      {isSCWallet && (
-        <BottomInfo>
-          When using a smart contract wallet, if transaction is executed but the {action} status
-          remains unchanged, just reload the page.
-        </BottomInfo>
-      )}
-    </>
-  )
-}
 
 export const DisabledTransButton = () => (
   <Button disabled={true} onClick={() => undefined}>
@@ -112,7 +80,7 @@ const ApproveButton: React.FC<{
   }
 
   if (isSending) {
-    return <ButtonPlaceholderWithWarning action="approving" />
+    return <ButtonPlaceholder />
   }
 
   return <Button onClick={handleApprove}>Approve</Button>
@@ -181,7 +149,7 @@ const TriggerTransButton: React.FC<{
   }
 
   if (isSending) {
-    return <ButtonPlaceholderWithWarning action="swapping" />
+    return <ButtonPlaceholder />
   }
 
   if (!transactionData) {

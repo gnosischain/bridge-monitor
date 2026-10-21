@@ -98,8 +98,9 @@ export default function useTransaction({
           toast.remove('waitingForSignature')
           notify({
             type: ToastStates.waiting,
+            title: 'Queued in your wallet',
             message:
-              'Transaction submitted to your wallet. It will execute once confirmed — reload to see its status.',
+              "Don't submit it again. Once it executes, reload to continue, or find the bridge in My Transactions.",
           })
           return null
         }

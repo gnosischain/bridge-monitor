@@ -17,7 +17,6 @@ import { Wrapper } from '@/src/pagePartials/bridge/common/Wrapper'
 import { formatNumber } from '@/src/utils/format'
 import { formatUnits } from 'viem'
 import { useTokenInfo } from '@/src/hooks/bridge/useTokenInfo'
-import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -81,14 +80,6 @@ const BottomInfo = styled.p`
   line-height: 1.5;
   margin: 0;
   text-align: center;
-`
-
-const WarningInfo = styled(BottomInfo)`
-  color: ${({ theme: { colors } }) => colors.warning};
-  a {
-    color: inherit;
-    font-weight: 500;
-  }
 `
 
 export const Loading: React.FC = () => (
@@ -177,9 +168,6 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
   const isBridgeComplete = hasCollectedSignatures(tx)
   const isBridgeFailed = hasFailed(tx)
 
-  const { address, isSCWallet } = useWeb3Connection()
-  const myTxsLink = `/bridge-explorer/my-transactions?hash=${address}`
-
   return (
     <Wrapper {...restProps}>
       {isNotFound ? (
@@ -243,12 +231,6 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
           </Message>
           <BlockConfirmations network={initiatorChain} transactionHash={transactionHash} />
           <ButtonExploreTransaction isLoading={isLoadingTx} tx={tx} />
-          {isSCWallet && (
-            <WarningInfo>
-              When using a smart contract wallet, if transaction is executed but transaction link is
-              not loaded, go to <a href={myTxsLink}>My Transactions</a> page.
-            </WarningInfo>
-          )}
           {isBridgeComplete && toChainId === Chains.mainnet && (
             <BottomInfo>Claim to unlock your tokens</BottomInfo>
           )}
