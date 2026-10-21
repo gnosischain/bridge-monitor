@@ -4,7 +4,7 @@ import { Connect } from '@/src/components/assets/Connect'
 import { Chains } from '@/src/constants/config/types'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { getNetworkConfig } from '@/src/constants/config/chains'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
 import useTransaction from '@/src/hooks/useTransaction'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
@@ -35,15 +35,6 @@ const ApproveButton: React.FC<{
   amount: bigint
 }> = ({ amount, token, userAddress }) => {
   const [isSending, setIsSending] = useState(false)
-  const [isComponentMounted, setIsComponentMounted] = useState(true)
-
-  useEffect(() => {
-    setIsComponentMounted(true)
-
-    return () => {
-      setIsComponentMounted(false)
-    }
-  }, [])
 
   const approve = useApproval()
 
@@ -60,6 +51,7 @@ const ApproveButton: React.FC<{
     try {
       const hash = await approve({
         amount,
+        chainId: Chains.gnosis,
         spenderAddress: TRANSMUTER_ADDRESS,
         tokenAddress: token.address,
       })
@@ -73,9 +65,7 @@ const ApproveButton: React.FC<{
       // button stuck on the "approving" placeholder
       console.error(e)
     } finally {
-      if (isComponentMounted) {
-        setIsSending(false)
-      }
+      setIsSending(false)
     }
   }
 
@@ -93,7 +83,6 @@ const TriggerTransButton: React.FC<{
   clearForm: () => void
 }> = ({ amount, clearForm, token, userAddress }) => {
   const [isSending, setIsSending] = useState(false)
-  const [isComponentMounted, setIsComponentMounted] = useState(true)
 
   const sendTx = useTransaction()
 
@@ -117,14 +106,6 @@ const TriggerTransButton: React.FC<{
 
   const transactionData = useTransmuterTxInfo({ amount, token, userAddress })
 
-  useEffect(() => {
-    setIsComponentMounted(true)
-
-    return () => {
-      setIsComponentMounted(false)
-    }
-  }, [])
-
   const handleTransTx = async () => {
     if (!transactionData || !transactionData.calls) return
 
@@ -142,9 +123,7 @@ const TriggerTransButton: React.FC<{
     } catch (error) {
       console.error(error)
     } finally {
-      if (isComponentMounted) {
-        setIsSending(false)
-      }
+      setIsSending(false)
     }
   }
 

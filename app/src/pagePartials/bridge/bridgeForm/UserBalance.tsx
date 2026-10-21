@@ -5,7 +5,6 @@ import { formatNumber } from '@/src/utils/format'
 import { Token } from '@/types/token'
 import { formatUnits } from 'viem'
 import styled from 'styled-components'
-import { genericSuspense } from '@/src/components/safeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { getBridgeContractConfig } from '@/src/hooks/bridge/useBridgeContracts'
 
@@ -41,58 +40,62 @@ const Value = styled.span`
 
 const BalanceTitle = () => <Title>Balance:</Title>
 
+const BalanceLoading: React.FC<{ $onMax?: (value: string) => void }> = ({
+  $onMax,
+  ...restProps
+}) => (
+  <Wrapper {...restProps}>
+    <BalanceWrapper>
+      <BalanceTitle />
+      <SkeletonLoading style={{ minWidth: 0, minHeight: 0, height: '16px', width: '75px' }} />
+    </BalanceWrapper>
+    {$onMax && (
+      <MaxButton
+        disabled
+        onClick={() => {
+          return false
+        }}
+      />
+    )}
+  </Wrapper>
+)
+
 const Balance: React.FC<{
   $address: string
   $chainId: ChainsValues
   $token: Token
   $allowanceAddress?: string
   $onMax?: (value: string) => void
-}> = genericSuspense(
-  ({ $address, $allowanceAddress, $chainId, $onMax, $token, ...restProps }) => {
-    const { data } = useUserTokenBalances({
-      userAddress: $address,
-      allowanceAddress: $allowanceAddress,
-      chainId: $chainId,
-      tokenAddress: $token.address,
-    })
+}> = ({ $address, $allowanceAddress, $chainId, $onMax, $token, ...restProps }) => {
+  const { data, isLoading } = useUserTokenBalances({
+    userAddress: $address,
+    allowanceAddress: $allowanceAddress,
+    chainId: $chainId,
+    tokenAddress: $token.address,
+  })
 
-    const balance = data?.balance || 0n
-    const value = formatNumber(Number(formatUnits(balance, $token.decimals)))
+  if (isLoading) return <BalanceLoading $onMax={$onMax} {...restProps} />
 
-    return (
-      <Wrapper {...restProps}>
-        <BalanceWrapper>
-          <BalanceTitle />
-          <Value>
-            {!value || value === '0' ? '0.00' : value} {$token?.symbol}
-          </Value>
-        </BalanceWrapper>
-        {$onMax && (
-          <MaxButton
-            disabled={balance === 0n}
-            onClick={() => $onMax(formatUnits(balance, $token.decimals))}
-          />
-        )}
-      </Wrapper>
-    )
-  },
-  ({ $onMax, ...restProps }) => (
+  const balance = data?.balance || 0n
+  const value = formatNumber(Number(formatUnits(balance, $token.decimals)))
+
+  return (
     <Wrapper {...restProps}>
       <BalanceWrapper>
         <BalanceTitle />
-        <SkeletonLoading style={{ minWidth: 0, minHeight: 0, height: '16px', width: '75px' }} />
+        <Value>
+          {!value || value === '0' ? '0.00' : value} {$token?.symbol}
+        </Value>
       </BalanceWrapper>
       {$onMax && (
         <MaxButton
-          disabled
-          onClick={() => {
-            return false
-          }}
+          disabled={balance === 0n}
+          onClick={() => $onMax(formatUnits(balance, $token.decimals))}
         />
       )}
     </Wrapper>
-  ),
-)
+  )
+}
 
 export const UserBalance: React.FC<{
   $fromChainId: ChainsValues

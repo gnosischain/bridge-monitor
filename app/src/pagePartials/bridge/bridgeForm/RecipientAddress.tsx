@@ -5,7 +5,6 @@ import { ChangeEventHandler } from 'react'
 import { AlertMessage } from '@/src/components/error/AlertMessage'
 import { useEffect, useState } from 'react'
 import { SendToDifferentWallet } from '@/src/pagePartials/bridge/bridgeForm/SendToDifferentWallet'
-import { genericSuspense } from '@/src/components/safeSuspense'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Eyebrow } from '@/src/components/text/Eyebrow'
@@ -56,82 +55,69 @@ const Skeleton = () => (
 export const RecipientAddress: React.FC<{
   onChange?: ChangeEventHandler<HTMLInputElement> | undefined
   recipient: string
-}> = genericSuspense(
-  ({ onChange, recipient }) => {
-    const [isLoading, setIsLoading] = useState(true)
-    const { isSCWallet } = useWeb3Connection()
+}> = ({ onChange, recipient }) => {
+  const { isCheckingSCWallet, isSCWallet } = useWeb3Connection()
 
-    const [isDifferentWalletOpen, setIsDifferentWalletOpen] = useState(isSCWallet || false)
+  const [isDifferentWalletOpen, setIsDifferentWalletOpen] = useState(isSCWallet || false)
 
-    useEffect(() => {
-      if (isSCWallet) {
-        setIsDifferentWalletOpen(true)
+  useEffect(() => {
+    if (isSCWallet) {
+      setIsDifferentWalletOpen(true)
+    }
+  }, [isSCWallet])
+
+  const animation = isSCWallet
+    ? {}
+    : {
+        animate: { height: 'auto', y: 0, opacity: 1 },
+        exit: { height: 0, y: '-10%', opacity: 0 },
+        initial: { height: 0, y: '-10%', opacity: 0 },
+        transition: {
+          type: 'tween',
+          duration: 0.15,
+          ease: 'easeInOut',
+        },
       }
-    }, [isSCWallet])
 
-    const animation = isSCWallet
-      ? {}
-      : {
-          animate: { height: 'auto', y: 0, opacity: 1 },
-          exit: { height: 0, y: '-10%', opacity: 0 },
-          initial: { height: 0, y: '-10%', opacity: 0 },
-          transition: {
-            type: 'tween',
-            duration: 0.15,
-            ease: 'easeInOut',
-          },
-        }
-
-    useEffect(() => {
-      // hack, couldn't trigger suspense above
-      const timer = setTimeout(() => {
-        setIsLoading(false)
-      }, 2000)
-
-      return () => clearTimeout(timer)
-    }, [])
-
-    return (
-      <Wrapper>
-        {isLoading ? (
-          <Skeleton />
-        ) : (
-          <>
-            {isSCWallet ? (
-              <Warning
-                mode="warning"
-                text={
-                  'A recipient address is required when using a smart contract wallet. Be sure you control the recipient address on the destination chain.'
-                }
-              />
-            ) : (
-              <SendToDifferentWallet
-                isOpen={isDifferentWalletOpen}
-                onClick={() =>
-                  setIsDifferentWalletOpen((isDifferentWalletOpen) => !isDifferentWalletOpen)
-                }
-              />
+  return (
+    <Wrapper>
+      {isCheckingSCWallet ? (
+        <Skeleton />
+      ) : (
+        <>
+          {isSCWallet ? (
+            <Warning
+              mode="warning"
+              text={
+                'A recipient address is required when using a smart contract wallet. Be sure you control the recipient address on the destination chain.'
+              }
+            />
+          ) : (
+            <SendToDifferentWallet
+              isOpen={isDifferentWalletOpen}
+              onClick={() =>
+                setIsDifferentWalletOpen((isDifferentWalletOpen) => !isDifferentWalletOpen)
+              }
+            />
+          )}
+          <AnimatePresence initial={false}>
+            {isDifferentWalletOpen && (
+              <RecipientAddressWrapper key="recipientAddress" {...animation}>
+                <RecipientAddressHeader as="label" htmlFor="recipientAddress">
+                  Recipient address
+                </RecipientAddressHeader>
+                <Textfield
+                  id="recipientAddress"
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  onChange={onChange as any}
+                  type="text"
+                  value={recipient}
+                />
+              </RecipientAddressWrapper>
             )}
-            <AnimatePresence initial={false}>
-              {isDifferentWalletOpen && (
-                <RecipientAddressWrapper key="recipientAddress" {...animation}>
-                  <RecipientAddressHeader as="label" htmlFor="recipientAddress">
-                    Recipient address
-                  </RecipientAddressHeader>
-                  <Textfield
-                    id="recipientAddress"
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    onChange={onChange as any}
-                    type="text"
-                    value={recipient}
-                  />
-                </RecipientAddressWrapper>
-              )}
-            </AnimatePresence>
-          </>
-        )}
-      </Wrapper>
-    )
-  },
-  () => <Skeleton />,
-)
+          </AnimatePresence>
+        </>
+      )}
+    </Wrapper>
+  )
+}

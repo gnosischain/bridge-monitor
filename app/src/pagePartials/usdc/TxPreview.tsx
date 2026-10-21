@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 import { formatUnits } from 'viem'
 import { Loading } from '@/src/components/loading'
-import { genericSuspense } from '@/src/components/safeSuspense'
 import { TokenUsdc } from './types'
 
 const Wrapper = styled.ul`
@@ -58,18 +57,15 @@ export const TxPreview: React.FC<{
   token: TokenUsdc
   amount: bigint
   tokenOut: TokenUsdc
-}> = genericSuspense(
-  ({ amount, token, tokenOut, ...restProps }) => {
-    const tokenOutAmount = formatUnits(amount, token.decimals)
+}> = ({ amount, token, tokenOut, ...restProps }) => {
+  const tokenOutAmount = formatUnits(amount, token.decimals)
 
-    return (
-      <Wrapper {...restProps}>
-        <Item>
-          You will receive
-          <Value>{`${tokenOutAmount} ${tokenOut?.symbol}`}</Value>
-        </Item>
-      </Wrapper>
-    )
-  },
-  ({ ...restProps }) => <TxPreviewLoading {...restProps} />,
-)
+  return (
+    <Wrapper {...restProps}>
+      <Item>
+        You will receive
+        <Value>{`${tokenOutAmount} ${tokenOut?.symbol}`}</Value>
+      </Item>
+    </Wrapper>
+  )
+}
