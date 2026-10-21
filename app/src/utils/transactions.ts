@@ -73,23 +73,22 @@ const scanURL = (network: string) => {
 }
 
 export const getTxScanUrl = (transactionHash: string, network: string) => {
-  const baseURL = scanURL(network ?? MAINNET)
+  const baseURL = scanURL(network)
   return `${baseURL}tx/${transactionHash}`
 }
 
 export const getAddressScanUrl = (userAddress: string, network: string) => {
-  const baseURL = scanURL(network ?? MAINNET)
+  const baseURL = scanURL(network)
   return userAddress ? `${baseURL}address/${userAddress}` : baseURL
 }
 
-const networkIdToName = (id?: number | null) => {
+const networkIdToName = (id: number) => {
   if (id === 100) return 'gnosis'
   if (id === 1) return 'mainnet'
   return ''
 }
 
-const bridgeTypeToName = (bt?: string | null) => {
-  if (!bt) return ''
+const bridgeTypeToName = (bt: string) => {
   return bt.toUpperCase() === 'XDAI' ? 'xDai' : bt.toUpperCase()
 }
 
@@ -112,15 +111,13 @@ const prepareTransactionForView = (row: EnvioTx): Transaction => {
     receiverNetworkIcon: getNetworkIcon(receiverNetwork),
     receiverToken: row.receiverToken ?? '',
     transactionStatus: (row.transactionStatus as TransactionStatus) ?? TransactionStatus.Initiated,
-    validations: Array.isArray(row.validations)
-      ? row.validations.map((v) => ({
-          id: v.id,
-          timestamp: fromSecondsTimestamp(v.timestamp),
-          transactionHash: v.transactionHash,
-          validatorAddr: v.validatorAddress,
-          scanUrl: getTxScanUrl(v.transactionHash, GNOSIS),
-        }))
-      : [],
+    validations: row.validations.map((v) => ({
+      id: v.id,
+      timestamp: fromSecondsTimestamp(v.timestamp),
+      transactionHash: v.transactionHash,
+      validatorAddr: v.validatorAddress,
+      scanUrl: getTxScanUrl(v.transactionHash, GNOSIS),
+    })),
     execution: row.execution
       ? {
           id: row.execution.id,
@@ -138,17 +135,17 @@ const prepareTransactionForView = (row: EnvioTx): Transaction => {
 
 type EnvioTx = {
   id: string
-  bridgeType?: string | null
+  bridgeType: string
   transactionHash?: string | null
   timestamp?: number | null
   initiator?: string | null
   initiatorAmount?: string | null
-  initiatorNetwork?: number | null
+  initiatorNetwork: number
   initiatorToken?: string | null
   receiver?: string | null
   receiverToken?: string | null
   receiverAmount?: string | null
-  receiverNetwork?: number | null
+  receiverNetwork: number
   transactionStatus?: string | null
   execution?: {
     id: string
@@ -156,7 +153,7 @@ type EnvioTx = {
     transactionHash: string
     executorAddress?: string | null
   } | null
-  validations?: Array<{
+  validations: Array<{
     id: string
     timestamp: number
     transactionHash: string
@@ -173,12 +170,5 @@ export const fetchTransactions = async (query: EnvioQueryArgs): Promise<Transact
     offset: query.offset ?? 0,
   })
 
-  const safeRows = (res.Transaction || []).filter(
-    (row) =>
-      row?.id &&
-      ((row?.initiatorNetwork !== null && row?.initiatorNetwork !== undefined) ||
-        (row?.receiverNetwork !== null && row?.receiverNetwork !== undefined)),
-  )
-
-  return safeRows.map(prepareTransactionForView)
+  return res.Transaction.map(prepareTransactionForView)
 }
