@@ -12,16 +12,13 @@ import { type TxCall, waitForTransactionReceipt } from '@/src/lib/web3/transacti
 import { wagmiConfig } from '@/src/providers/wagmi'
 import { useTransactionNotification } from '@/src/providers/transactionNotificationProvider'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
-import { TransactionError } from '@/src/utils/TransactionError'
 
 // A write to dispatch: one or more low-level calls plus the chain they run on. Callers build the
 // calls with `toCall` (see `@/src/lib/web3/transactions`). Option A always passes a single call.
 export type SendTxParams = { calls: TxCall[]; chainId: ChainsValues }
 
-export default function useTransaction({
-  skipConnectionCheck,
-}: { skipConnectionCheck?: boolean } = {}) {
-  const { canBatch, isAppConnected } = useWeb3Connection()
+export default function useTransaction() {
+  const { canBatch } = useWeb3Connection()
   const {
     notifyRejectSignature,
     notifyTxMined,
@@ -31,12 +28,12 @@ export default function useTransaction({
 
   const waitForTxExecution = useCallback(
     (hash: Hash, chainId: ChainsValues) => {
-      notifyWaitingForTxMined(hash)
+      notifyWaitingForTxMined(hash, chainId)
       waitForTransactionReceipt(hash, chainId)
-        .then((r) => notifyTxMined(r.transactionHash, r.status === 'success'))
+        .then((r) => notifyTxMined(r.transactionHash, chainId, r.status === 'success'))
         .catch((e) => {
           console.error(e)
-          notifyTxMined(hash)
+          notifyTxMined(hash, chainId)
         })
     },
     [notifyTxMined, notifyWaitingForTxMined],
@@ -44,10 +41,6 @@ export default function useTransaction({
 
   return useCallback(
     async function send({ calls, chainId }: SendTxParams): Promise<Hash | null> {
-      if (!skipConnectionCheck && !isAppConnected) {
-        console.error('App is not connected')
-        return null
-      }
       if (calls.length === 0) {
         console.error('No calls to send')
         return null
@@ -111,24 +104,16 @@ export default function useTransaction({
           e.code === 4001 ||
           e.name === 'UserRejectedRequestError' ||
           e.cause?.name === 'UserRejectedRequestError'
-        const error = new TransactionError(
-          e.data?.message || e.shortMessage || e.message || 'Unable to decode revert reason',
-          e.data?.code || e.code,
-          e.data,
-        )
 
-        notifyRejectSignature(isUserRejection ? 'User denied signature' : error.message)
+        notifyRejectSignature(
+          isUserRejection
+            ? 'User denied signature'
+            : e.data?.message || e.shortMessage || e.message || 'Unable to decode revert reason',
+        )
 
         return null
       }
     },
-    [
-      skipConnectionCheck,
-      isAppConnected,
-      canBatch,
-      notifyWaitingForSignature,
-      waitForTxExecution,
-      notifyRejectSignature,
-    ],
+    [canBatch, notifyWaitingForSignature, waitForTxExecution, notifyRejectSignature],
   )
 }
