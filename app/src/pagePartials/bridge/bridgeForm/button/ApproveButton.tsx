@@ -42,6 +42,7 @@ export const ApproveButton: React.FC<ApproveButtonProps> = ({
     try {
       const hash = await approve({
         amount,
+        chainId: fromChainId,
         spenderAddress: bridgeAddress,
         tokenAddress: token.address,
       })

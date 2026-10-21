@@ -66,7 +66,7 @@ export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimBu
     useWeb3Connection()
   const [isWorking, setIsWorking] = useState(false)
 
-  const sendTx = useTransaction({ skipConnectionCheck: true })
+  const sendTx = useTransaction()
 
   const isXDAI = transaction.bridgeName.toUpperCase() === 'XDAI'
 
@@ -140,16 +140,6 @@ export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimBu
         : []
 
       if (!userRequestForSignatureEvent) {
-        notify({
-          type: ToastStates.failed,
-          message: 'Failed to claim - unable to build claim tx',
-          id: 'claim',
-        })
-        console.error(
-          'Unable to build claim tx. Log for UserRequestForSignatures not found',
-          initialTx,
-        )
-        setIsWorking(false)
         throw new Error('Unable to build claim tx. Log for UserRequestForSignatures not found')
       }
 
