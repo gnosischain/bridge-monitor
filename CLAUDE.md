@@ -91,7 +91,7 @@ Copy and fill `.env.example` files:
 - `app/.env.local` — requires RPC URLs, WalletConnect project ID, Envio indexer GraphQL URL
 - `alerts/.env` — requires Slack token/channel, RPC URLs, subgraph URLs
 
-Node version is pinned in `.nvmrc` (v22.11.0). Use `nvm use` before installing.
+Node version is pinned in `.nvmrc` (v22.23.4). Use `nvm use` before installing.
 
 ## Git Workflow
 
