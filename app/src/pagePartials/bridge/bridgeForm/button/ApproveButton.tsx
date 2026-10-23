@@ -6,7 +6,7 @@ import { getBridgeContractConfig } from '@/src/hooks/bridge/useBridgeContracts'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
 import { waitForMinedReceipt } from '@/src/lib/web3/transactions'
 import { Button } from './Button'
-import { ButtonPlaceholderWithWarning } from './ButtonPlaceholderWithWarning'
+import { ButtonPlaceholder } from './ButtonPlaceholder'
 
 interface ApproveButtonProps {
   userAddress: string
@@ -42,6 +42,7 @@ export const ApproveButton: React.FC<ApproveButtonProps> = ({
     try {
       const hash = await approve({
         amount,
+        chainId: fromChainId,
         spenderAddress: bridgeAddress,
         tokenAddress: token.address,
       })
@@ -60,7 +61,7 @@ export const ApproveButton: React.FC<ApproveButtonProps> = ({
   }
 
   if (isSending) {
-    return <ButtonPlaceholderWithWarning action="approving" />
+    return <ButtonPlaceholder />
   }
 
   return <Button onClick={handleApprove}>Approve</Button>

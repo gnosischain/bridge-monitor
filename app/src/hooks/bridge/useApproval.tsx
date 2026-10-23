@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 
 import { type Address, erc20Abi } from 'viem'
 
+import { ChainsValues } from '@/src/constants/config/types'
 import useTransaction from '@/src/hooks/useTransaction'
 import { toCall } from '@/src/lib/web3/transactions'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
@@ -9,15 +10,16 @@ import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 type Approval = {
   tokenAddress: string
   amount: bigint
+  chainId: ChainsValues
   spenderAddress: string | null
 }
 
 export const useApproval = () => {
-  const { address, appChainId } = useWeb3Connection()
+  const { address } = useWeb3Connection()
   const sendTx = useTransaction()
 
   return useCallback(
-    async ({ amount, spenderAddress = address, tokenAddress }: Approval) => {
+    async ({ amount, chainId, spenderAddress = address, tokenAddress }: Approval) => {
       if (!spenderAddress) {
         throw new Error('No spenderAddress found')
       }
@@ -34,9 +36,9 @@ export const useApproval = () => {
             args: [spenderAddress as Address, amount],
           }),
         ],
-        chainId: appChainId,
+        chainId,
       })
     },
-    [address, appChainId, sendTx],
+    [address, sendTx],
   )
 }

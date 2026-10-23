@@ -4,7 +4,7 @@ import { Connect } from '@/src/components/assets/Connect'
 import { Chains } from '@/src/constants/config/types'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { getNetworkConfig } from '@/src/constants/config/chains'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useApproval } from '@/src/hooks/bridge/useApproval'
 import useTransaction from '@/src/hooks/useTransaction'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
@@ -21,39 +21,7 @@ const Button = styled(ButtonFull)`
   width: 100%;
 `
 
-const BottomInfo = styled.p`
-  color: ${({ theme: { colors } }) => colors.warning};
-  font-size: 1.3rem;
-  font-weight: 400;
-  line-height: 1.5;
-  margin: 0;
-  text-align: center;
-
-  a {
-    color: inherit;
-    font-weight: 500;
-  }
-`
-
 export const ButtonPlaceholder: React.FC = () => <Button disabled>Loading...</Button>
-
-export const ButtonPlaceholderWithWarning: React.FC<{
-  action: string
-}> = ({ action }) => {
-  const { isSCWallet } = useWeb3Connection()
-
-  return (
-    <>
-      <ButtonPlaceholder />
-      {isSCWallet && (
-        <BottomInfo>
-          When using a smart contract wallet, if transaction is executed but the {action} status
-          remains unchanged, just reload the page.
-        </BottomInfo>
-      )}
-    </>
-  )
-}
 
 export const DisabledTransButton = () => (
   <Button disabled={true} onClick={() => undefined}>
@@ -67,15 +35,6 @@ const ApproveButton: React.FC<{
   amount: bigint
 }> = ({ amount, token, userAddress }) => {
   const [isSending, setIsSending] = useState(false)
-  const [isComponentMounted, setIsComponentMounted] = useState(true)
-
-  useEffect(() => {
-    setIsComponentMounted(true)
-
-    return () => {
-      setIsComponentMounted(false)
-    }
-  }, [])
 
   const approve = useApproval()
 
@@ -92,6 +51,7 @@ const ApproveButton: React.FC<{
     try {
       const hash = await approve({
         amount,
+        chainId: Chains.gnosis,
         spenderAddress: TRANSMUTER_ADDRESS,
         tokenAddress: token.address,
       })
@@ -105,14 +65,12 @@ const ApproveButton: React.FC<{
       // button stuck on the "approving" placeholder
       console.error(e)
     } finally {
-      if (isComponentMounted) {
-        setIsSending(false)
-      }
+      setIsSending(false)
     }
   }
 
   if (isSending) {
-    return <ButtonPlaceholderWithWarning action="approving" />
+    return <ButtonPlaceholder />
   }
 
   return <Button onClick={handleApprove}>Approve</Button>
@@ -125,7 +83,6 @@ const TriggerTransButton: React.FC<{
   clearForm: () => void
 }> = ({ amount, clearForm, token, userAddress }) => {
   const [isSending, setIsSending] = useState(false)
-  const [isComponentMounted, setIsComponentMounted] = useState(true)
 
   const sendTx = useTransaction()
 
@@ -149,14 +106,6 @@ const TriggerTransButton: React.FC<{
 
   const transactionData = useTransmuterTxInfo({ amount, token, userAddress })
 
-  useEffect(() => {
-    setIsComponentMounted(true)
-
-    return () => {
-      setIsComponentMounted(false)
-    }
-  }, [])
-
   const handleTransTx = async () => {
     if (!transactionData || !transactionData.calls) return
 
@@ -174,14 +123,12 @@ const TriggerTransButton: React.FC<{
     } catch (error) {
       console.error(error)
     } finally {
-      if (isComponentMounted) {
-        setIsSending(false)
-      }
+      setIsSending(false)
     }
   }
 
   if (isSending) {
-    return <ButtonPlaceholderWithWarning action="swapping" />
+    return <ButtonPlaceholder />
   }
 
   if (!transactionData) {

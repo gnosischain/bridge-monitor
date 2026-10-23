@@ -9,8 +9,6 @@ export const ENVIO_VALIDATORS_QUERY = `
       bridgeType
       address
       lastActivity
-      signed(order_by: { timestamp: desc }, limit: 10) { id }
-      executed(order_by: { timestamp: desc }, limit: 10) { id }
     }
   }
 ` as RequestDocument

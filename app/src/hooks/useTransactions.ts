@@ -19,7 +19,6 @@ import {
   Transaction,
   TransactionExecution,
   TransactionStatus,
-  TxsInMemoryFilters,
   fetchTransactions,
   getTxScanUrl,
 } from '@/src/utils/transactions'
@@ -33,7 +32,6 @@ const INDEXER_STALE_TIME = 10_000
 // Shared empty values, so the hook's output keeps a stable identity while the query is idle.
 const NO_TRANSACTIONS: Transaction[] = []
 const NO_LOCAL_CLAIMS: LocalClaims = { claiming: [], claimed: [] }
-const NO_IN_MEMORY_FILTERS: TxsInMemoryFilters = {}
 
 export type ClaimActions = {
   /**
@@ -124,15 +122,14 @@ const withLocalClaims = (
 
 export const useFetchTransactions = (
   query?: EnvioQueryArgs,
-  inMemoryFilters: TxsInMemoryFilters = NO_IN_MEMORY_FILTERS,
   // Keeps polling the indexer until the fetched rows satisfy the predicate.
   { pollUntil }: { pollUntil?: (transactions: Transaction[]) => boolean } = {},
 ) => {
   const { clearClaim, localClaims, markAsClaimed, markAsClaiming } = useClaimingTransactions()
 
   const { data, isLoading, isLoadingError } = useQuery({
-    queryKey: ['useFetchTransactions', query ?? null, inMemoryFilters],
-    queryFn: query ? () => fetchTransactions(query, inMemoryFilters) : skipToken,
+    queryKey: ['useFetchTransactions', query ?? null],
+    queryFn: query ? () => fetchTransactions(query) : skipToken,
     staleTime: INDEXER_STALE_TIME,
     refetchInterval: pollUntil
       ? ({ state }) => (pollUntil(state.data ?? NO_TRANSACTIONS) ? false : INDEXER_POLL_INTERVAL)
@@ -156,15 +153,15 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
     name: isDomainName ? filters.hash : undefined,
   })
 
-  const { inMemoryFilters, query } = buildTransactionsQuery(filters, resolvedAddress)
+  const query = buildTransactionsQuery(filters, resolvedAddress)
 
   const { claimActions, isError, isLoading, transactions } = useFetchTransactions(
     // Hold the query back until the domain lookup settles: querying on the raw name matches
     // nothing and would flash "no results" before the resolved-address query lands.
     isResolvingAddress ? undefined : query,
-    inMemoryFilters,
   )
 
+  // The query already filters by status; this drops the rows a local claim has flipped since.
   const filteredTransactions = useMemo(
     () =>
       !filters.status || filters.status === ALL_STATUS_OPTION

@@ -105,8 +105,6 @@ export const fetchHomeValidators = async () => {
     bridgeType?: string | null
     address: string
     lastActivity?: number | null
-    signed?: Array<{ id: string }>
-    executed?: Array<{ id: string }>
   }
   const request = getEnvioGraphqlClient<{ Validator: EnvioValidatorRow[] }>()
   const res = await request(ENVIO_VALIDATORS_QUERY, {})

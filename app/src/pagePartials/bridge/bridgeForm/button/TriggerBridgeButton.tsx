@@ -9,7 +9,6 @@ import { ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { Button } from './Button'
 import { ButtonPlaceholder } from './ButtonPlaceholder'
-import { ButtonPlaceholderWithWarning } from './ButtonPlaceholderWithWarning'
 import { isSameString } from '@/src/utils/tools'
 import { USDC_ETHEREUM } from '@/src/constants/misc'
 
@@ -98,7 +97,7 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
   }
 
   if (isSending) {
-    return <ButtonPlaceholderWithWarning action="bridging" />
+    return <ButtonPlaceholder />
   }
 
   const isUsdcEth = isSameString(token.address, USDC_ETHEREUM)

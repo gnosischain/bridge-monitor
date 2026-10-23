@@ -11,7 +11,6 @@ export enum TransactionStatus {
   Initiated = 'INITIATED',
   Unclaimed = 'UNCLAIMED',
 }
-import { isSameString } from '@/src/utils/tools'
 
 const GNOSIS = 'gnosis'
 const MAINNET = 'mainnet'
@@ -57,8 +56,6 @@ export type Transaction = {
   isClaiming?: boolean
 }
 
-export type TxsInMemoryFilters = { validator?: string; executor?: string }
-
 export type EnvioQueryArgs = {
   where?: Record<string, unknown>
   order_by?: Array<{ timestamp: 'asc' | 'desc' }>
@@ -76,23 +73,22 @@ const scanURL = (network: string) => {
 }
 
 export const getTxScanUrl = (transactionHash: string, network: string) => {
-  const baseURL = scanURL(network ?? MAINNET)
+  const baseURL = scanURL(network)
   return `${baseURL}tx/${transactionHash}`
 }
 
 export const getAddressScanUrl = (userAddress: string, network: string) => {
-  const baseURL = scanURL(network ?? MAINNET)
+  const baseURL = scanURL(network)
   return userAddress ? `${baseURL}address/${userAddress}` : baseURL
 }
 
-const networkIdToName = (id?: number | null) => {
+const networkIdToName = (id: number) => {
   if (id === 100) return 'gnosis'
   if (id === 1) return 'mainnet'
   return ''
 }
 
-const bridgeTypeToName = (bt?: string | null) => {
-  if (!bt) return ''
+const bridgeTypeToName = (bt: string) => {
   return bt.toUpperCase() === 'XDAI' ? 'xDai' : bt.toUpperCase()
 }
 
@@ -115,15 +111,13 @@ const prepareTransactionForView = (row: EnvioTx): Transaction => {
     receiverNetworkIcon: getNetworkIcon(receiverNetwork),
     receiverToken: row.receiverToken ?? '',
     transactionStatus: (row.transactionStatus as TransactionStatus) ?? TransactionStatus.Initiated,
-    validations: Array.isArray(row.validations)
-      ? row.validations.map((v) => ({
-          id: v.id,
-          timestamp: fromSecondsTimestamp(v.timestamp),
-          transactionHash: v.transactionHash,
-          validatorAddr: v.validatorAddress,
-          scanUrl: getTxScanUrl(v.transactionHash, GNOSIS),
-        }))
-      : [],
+    validations: row.validations.map((v) => ({
+      id: v.id,
+      timestamp: fromSecondsTimestamp(v.timestamp),
+      transactionHash: v.transactionHash,
+      validatorAddr: v.validatorAddress,
+      scanUrl: getTxScanUrl(v.transactionHash, GNOSIS),
+    })),
     execution: row.execution
       ? {
           id: row.execution.id,
@@ -141,17 +135,17 @@ const prepareTransactionForView = (row: EnvioTx): Transaction => {
 
 type EnvioTx = {
   id: string
-  bridgeType?: string | null
+  bridgeType: string
   transactionHash?: string | null
   timestamp?: number | null
   initiator?: string | null
   initiatorAmount?: string | null
-  initiatorNetwork?: number | null
+  initiatorNetwork: number
   initiatorToken?: string | null
   receiver?: string | null
   receiverToken?: string | null
   receiverAmount?: string | null
-  receiverNetwork?: number | null
+  receiverNetwork: number
   transactionStatus?: string | null
   execution?: {
     id: string
@@ -159,7 +153,7 @@ type EnvioTx = {
     transactionHash: string
     executorAddress?: string | null
   } | null
-  validations?: Array<{
+  validations: Array<{
     id: string
     timestamp: number
     transactionHash: string
@@ -167,10 +161,7 @@ type EnvioTx = {
   }>
 }
 
-export const fetchTransactions = async (
-  query: EnvioQueryArgs,
-  inMemoryFilters: TxsInMemoryFilters,
-): Promise<Transaction[]> => {
+export const fetchTransactions = async (query: EnvioQueryArgs): Promise<Transaction[]> => {
   const request = getEnvioGraphqlClient<{ Transaction: Array<EnvioTx> }>()
   const res = await request(ENVIO_TRANSACTIONS_QUERY, {
     where: query.where,
@@ -179,30 +170,5 @@ export const fetchTransactions = async (
     offset: query.offset ?? 0,
   })
 
-  const safeRows = (res.Transaction || []).filter(
-    (row) =>
-      row?.id &&
-      ((row?.initiatorNetwork !== null && row?.initiatorNetwork !== undefined) ||
-        (row?.receiverNetwork !== null && row?.receiverNetwork !== undefined)),
-  )
-
-  let transactions = safeRows
-  if (inMemoryFilters.validator) {
-    transactions = transactions
-      .filter((tx) => tx.validations && tx.validations.length > 0)
-      .filter((tx) =>
-        tx.validations?.some((v) =>
-          isSameString(v.validatorAddress, inMemoryFilters.validator ?? ''),
-        ),
-      )
-  }
-  if (inMemoryFilters.executor) {
-    transactions = transactions
-      .filter((tx) => !!tx.execution?.executorAddress)
-      .filter((tx) =>
-        isSameString(tx.execution?.executorAddress ?? '', inMemoryFilters.executor ?? ''),
-      )
-  }
-
-  return transactions.map(prepareTransactionForView)
+  return res.Transaction.map(prepareTransactionForView)
 }

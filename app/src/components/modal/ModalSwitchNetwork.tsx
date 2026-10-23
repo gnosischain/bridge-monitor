@@ -26,13 +26,12 @@ export const ModalSwitchNetwork: React.FC<{ onClose: () => void }> = ({
   onClose,
   ...restProps
 }) => {
-  const { pushNetwork, setAppChainId } = useWeb3Connection()
+  const { pushNetwork } = useWeb3Connection()
   const chainOptions = getSupportedNetworks()
 
   const handleChangeNetwork = async (chainConfig: ChainConfig) => {
     const isSwitchedSuccess = await pushNetwork(chainConfig.chainId)
     if (isSwitchedSuccess) {
-      setAppChainId(chainConfig.chainId)
       onClose()
     }
   }

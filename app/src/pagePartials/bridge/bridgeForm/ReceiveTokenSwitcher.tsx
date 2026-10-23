@@ -13,7 +13,6 @@ const Wrapper = styled.div`
 `
 
 interface IOption {
-  disabled?: boolean
   icon?: string
   label: string
   name?: string
@@ -36,10 +35,9 @@ export const ReceiveTokenSwitcher = ({
 }: Props) => {
   return (
     <Wrapper {...restProps}>
-      {options.map(({ disabled, icon, label }) => (
+      {options.map(({ icon, label }) => (
         <TokenSelectButton
           checked={value === label}
-          disabled={disabled}
           icon={icon}
           id={`${optionsId}-${label}`}
           key={label}
