@@ -3,8 +3,7 @@ import styled from 'styled-components'
 
 const Wrapper = styled.svg`
   .stroke {
-    stroke: #161d1a;
-    stroke-width: 1.2;
+    stroke: currentColor;
   }
 `
 

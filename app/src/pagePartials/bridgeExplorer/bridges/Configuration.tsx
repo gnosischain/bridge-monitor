@@ -1,84 +1,70 @@
 import styled from 'styled-components'
 
-import { InnerCard } from '@/src/components/card/InnerCard'
-import { BaseSubTitle as Title } from '@/src/components/text/BaseSubTitle'
+import { SectionHeader } from '@/src/components/sectionHeader'
+import { Eyebrow } from '@/src/components/text/Eyebrow'
 import { TokenAddress } from '@/src/components/token/TokenAddress'
+import { Card } from '@/src/pagePartials/bridgeExplorer/bridges/Card'
+import { Fact, Facts } from '@/src/pagePartials/bridgeExplorer/bridges/Fact'
 import { bridgeConfig } from '@/src/constants/bridges'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { Chains } from '@/src/constants/config/chains'
 import { ChainsKeys } from '@/src/constants/config/types'
 
-const RowWrapper = styled.div`
-  align-items: flex-start;
-  color: ${({ theme: { colors } }) => colors.primary};
-  display: flex;
-  flex-direction: column;
-  font-size: 1.4rem;
-  font-weight: 400;
-  justify-content: space-between;
-  line-height: 1.2;
+const Address = styled(TokenAddress)`
+  svg {
+    color: ${({ theme: { colors } }) => colors.faint};
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
-    align-items: center;
-    flex-direction: row;
+    &:hover {
+      color: ${({ theme: { colors } }) => colors.ink};
+    }
   }
 `
-
-const RowTitle = styled.span``
 
 const Row: React.FC<{ address: string; title: string; network?: ChainsKeys }> = ({
   address,
   network,
   title,
-  ...restProps
 }) => {
   const { getExplorerUrl } = useWeb3Connection()
 
   return (
-    <RowWrapper {...restProps}>
-      <RowTitle>{title}</RowTitle>
-      <TokenAddress
+    <Fact label={title}>
+      <Address
         address={address}
         characters={6}
         copy
         href={getExplorerUrl(address, network ?? 'mainnet')}
       />
-    </RowWrapper>
+    </Fact>
   )
 }
 
 const Wrapper = styled.div`
+  align-items: start;
   display: grid;
-  gap: calc(var(--theme-common-space) * 2);
-  grid-template-columns: 1fr;
+  gap: calc(var(--theme-common-space) * 5) calc(var(--theme-common-space) * 2);
+  grid-template-columns: minmax(0, 1fr);
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    grid-template-columns: 1fr 1fr;
+  @media (min-width: ${({ theme }) => theme.breakPoints.desktopStart}) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 `
 
-const Column = styled.div`
+const Section = styled.section`
   display: flex;
   flex-direction: column;
-`
-
-const Card = styled(InnerCard)`
-  background-color: ${({ theme: { colors } }) => colors.creamLight};
-  flex-grow: 1;
+  min-width: 0;
   row-gap: calc(var(--theme-common-space) * 2);
 `
 
-const SubTitle = styled.h3`
-  font-size: 1.4rem;
-  font-weight: 700;
-  line-height: 1.2;
-  margin: 0;
+const AddressesCard = styled(Card)`
+  row-gap: calc(var(--theme-common-space) * 4);
 `
 
-const Rows = styled.div`
+const Group = styled.div`
   display: flex;
   flex-direction: column;
-  row-gap: calc(var(--theme-common-space) * 2);
+  row-gap: calc(var(--theme-common-space) * 1.5);
 `
 
 export const Configuration: React.FC = ({ ...restProps }) => {
@@ -86,59 +72,70 @@ export const Configuration: React.FC = ({ ...restProps }) => {
 
   return (
     <Wrapper {...restProps}>
-      <Column>
-        <Title>xDai bridge configuration</Title>
-        <Card>
-          <SubTitle>Ethereum Addresses</SubTitle>
-          <Rows>
-            <Row address={XDAI.bridgeProxy[Chains.mainnet]} title="xDAI Bridge Contract" />
-            <Row address={XDAI.bridgeRouter[Chains.mainnet]} title="Bridge Router Proxy Contract" />
-            <Row address={XDAI.governorMultisig} title="Governor Multisig" />
-            <Row address={XDAI.tokens.dai} title="DAI Token" />
-            <Row address={XDAI.tokens.usds.usds} title="USDS Token" />
-          </Rows>
-          <SubTitle>Gnosis Chain Addresses</SubTitle>
-          <Rows>
-            <Row
-              address={XDAI.bridgeProxy[Chains.gnosis]}
-              network="gnosis"
-              title="xDAI Bridge Contract"
-            />
-            <Row
-              address={XDAI.tokens.usds.usdsDeposit}
-              network="gnosis"
-              title="USDS Deposit Contract"
-            />
-          </Rows>
-        </Card>
-      </Column>
-      <Column>
-        <Title>Omnibridge bridge configuration</Title>
-        <Card>
-          <SubTitle>Ethereum Addresses</SubTitle>
-          <Rows>
-            <Row address={OMNI.bridgeProxy[Chains.mainnet]} title="Omnibridge Mediator Proxy" />
-            <Row address={OMNI.governorMultisig} title="Governor Multisig" />
-            <Row address={OMNI.tokens.usdc.usdc} title="USDC Token" />
-            <Row address={OMNI.tokens.usdt} title="USDT Token" />
-          </Rows>
-          <SubTitle>Gnosis Chain Addresses</SubTitle>
-          <Rows>
-            <Row
-              address={OMNI.bridgeProxy[Chains.gnosis]}
-              network="gnosis"
-              title="Omnibridge Mediator Proxy"
-            />
-            <Row
-              address={OMNI.tokens.usdc.usdcTransmuter}
-              network="gnosis"
-              title="USDC Transmuter contract"
-            />
-            <Row address={OMNI.tokens.usdc.usdcE} network="gnosis" title="USDC.e" />
-            <Row address={OMNI.tokens.usdc.usdcXdai} network="gnosis" title="USDC on xDAI" />
-          </Rows>
-        </Card>
-      </Column>
+      <Section>
+        <SectionHeader title="xDai bridge" />
+        <AddressesCard>
+          <Group>
+            <Eyebrow>Ethereum addresses</Eyebrow>
+            <Facts>
+              <Row address={XDAI.bridgeProxy[Chains.mainnet]} title="xDAI Bridge Contract" />
+              <Row
+                address={XDAI.bridgeRouter[Chains.mainnet]}
+                title="Bridge Router Proxy Contract"
+              />
+              <Row address={XDAI.governorMultisig} title="Governor Multisig" />
+              <Row address={XDAI.tokens.dai} title="DAI Token" />
+              <Row address={XDAI.tokens.usds.usds} title="USDS Token" />
+            </Facts>
+          </Group>
+          <Group>
+            <Eyebrow>Gnosis Chain addresses</Eyebrow>
+            <Facts>
+              <Row
+                address={XDAI.bridgeProxy[Chains.gnosis]}
+                network="gnosis"
+                title="xDAI Bridge Contract"
+              />
+              <Row
+                address={XDAI.tokens.usds.usdsDeposit}
+                network="gnosis"
+                title="USDS Deposit Contract"
+              />
+            </Facts>
+          </Group>
+        </AddressesCard>
+      </Section>
+      <Section>
+        <SectionHeader title="Omnibridge" />
+        <AddressesCard>
+          <Group>
+            <Eyebrow>Ethereum addresses</Eyebrow>
+            <Facts>
+              <Row address={OMNI.bridgeProxy[Chains.mainnet]} title="Omnibridge Mediator Proxy" />
+              <Row address={OMNI.governorMultisig} title="Governor Multisig" />
+              <Row address={OMNI.tokens.usdc.usdc} title="USDC Token" />
+              <Row address={OMNI.tokens.usdt} title="USDT Token" />
+            </Facts>
+          </Group>
+          <Group>
+            <Eyebrow>Gnosis Chain addresses</Eyebrow>
+            <Facts>
+              <Row
+                address={OMNI.bridgeProxy[Chains.gnosis]}
+                network="gnosis"
+                title="Omnibridge Mediator Proxy"
+              />
+              <Row
+                address={OMNI.tokens.usdc.usdcTransmuter}
+                network="gnosis"
+                title="USDC Transmuter contract"
+              />
+              <Row address={OMNI.tokens.usdc.usdcE} network="gnosis" title="USDC.e" />
+              <Row address={OMNI.tokens.usdc.usdcXdai} network="gnosis" title="USDC on xDAI" />
+            </Facts>
+          </Group>
+        </AddressesCard>
+      </Section>
     </Wrapper>
   )
 }

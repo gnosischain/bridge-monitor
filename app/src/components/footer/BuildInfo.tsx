@@ -11,7 +11,7 @@ const VISIBLE_ENV = 'develop'
 
 const BuildLink = styled.a`
   align-items: center;
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.ink};
   column-gap: calc(var(--theme-common-space) / 2);
   display: inline-flex;
   font-size: 1.2rem;

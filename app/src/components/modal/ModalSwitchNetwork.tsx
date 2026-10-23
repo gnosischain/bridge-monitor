@@ -7,20 +7,18 @@ import { getSupportedNetworks } from '@/src/utils/getSupportedNetworks'
 import { ChainConfig } from '@/src/constants/config/types'
 
 const NetworkButtons = styled.div`
-  align-items: center;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  min-height: 200px;
-  padding: 0 20px;
-  row-gap: 20px;
-  width: 100%;
+  padding: 0 calc(var(--theme-common-space) * 3) calc(var(--theme-common-space) * 3);
+  row-gap: var(--theme-common-space);
 `
 
 const NetworkButton = styled(Button)`
   ${ButtonPrimaryCSS};
 
-  border-radius: 5px;
+  font-size: 1.5rem;
+  height: 48px;
+  padding: 0 calc(var(--theme-common-space) * 3);
   width: 100%;
 `
 

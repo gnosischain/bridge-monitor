@@ -15,18 +15,11 @@ import { isTransactionHash } from '@/src/utils/tools'
 import { isAddress } from 'viem'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
 
-const Wrapper = styled(SidebarCard)`
-  padding-top: calc(var(--theme-common-space) * 5);
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    padding-top: calc(var(--theme-common-space) * 8);
-  }
-`
-
 const SearchWrapper = styled.div`
-  --border-radius: 8px;
+  --border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
 
   border-radius: var(--border-radius);
-  margin: 0 0 calc(var(--theme-common-space) * 3);
+  margin: 0 0 calc(var(--theme-common-space) * 1.5);
   position: relative;
   width: 100%;
 `
@@ -36,18 +29,19 @@ const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
 }))<TextfieldCSSProps>`
   ${TextfieldCSS}
 
-  --texfield-font-size: 1.5rem;
+  --texfield-font-size: 1.4rem;
   --textfield-border-radius: var(--border-radius);
   --textfield-font-weight: 400;
   --textfield-height: 100%;
-  --textfield-padding: 0 calc(20px + var(--theme-common-space) * 3) 0 var(--theme-common-space);
-  --textfield-background-color: ${({ theme: { colors } }) => colors.cream};
-  --textfield-border-color: ${({ theme: { colors } }) => colors.cream};
+  --textfield-padding: 0 calc(20px + var(--theme-common-space) * 3) 0
+    calc(var(--theme-common-space) * 1.5);
+  --textfield-background-color: ${({ theme: { colors } }) => colors.page};
+  --textfield-border-color: ${({ theme: { colors } }) => colors.page};
   --textfield-border-color-error: ${({ theme: { colors } }) => colors.error};
-  --textfield-color: ${({ theme: { colors } }) => colors.darkestGrey};
+  --textfield-color: ${({ theme: { colors } }) => colors.ink};
 
   background-color: var(--textfield-background-color);
-  border-width: 0;
+  border-width: 1px;
   border-style: solid;
   border-color: ${({ status }) =>
     status === TextfieldStatus.error
@@ -56,25 +50,18 @@ const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
   color: var(--textfield-color);
   font-size: var(--texfield-font-size);
   font-weight: 400;
-  height: 64px;
+  height: 52px;
   position: relative;
   transition: border-color 0.15s linear;
   width: 100%;
   z-index: 1;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    --textfield-padding: 0 calc(20px + var(--theme-common-space) * 4) 0
-      calc(var(--theme-common-space) * 2);
-  }
-
   &:active,
   &:focus,
   &input:-internal-autofill-selected {
-    background-color: var(--textfield-background-color) !important;
-    border-color: ${({ status }) =>
-      status === TextfieldStatus.error
-        ? 'var(--textfield-border-color-error)'
-        : 'var(--textfield-border-color)'};
+    background-color: ${({ theme: { colors } }) => colors.surface} !important;
+    border-color: ${({ status, theme: { colors } }) =>
+      status === TextfieldStatus.error ? 'var(--textfield-border-color-error)' : colors.violet};
     color: var(--textfield-color) !important;
   }
 
@@ -93,11 +80,11 @@ const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
   }
 
   &::placeholder {
-    color: var(--textfield-color);
+    color: ${({ theme: { colors } }) => colors.faint};
     font-size: var(--texfield-font-size);
     font-style: normal;
     font-weight: var(--textfield-font-weight);
-    opacity: 0.6;
+    opacity: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -140,7 +127,7 @@ const Magnifier = styled(BaseMagnifier)`
   z-index: 5;
 
   path {
-    stroke: ${({ theme: { colors } }) => colors.darkGreen};
+    stroke: ${({ theme: { colors } }) => colors.fog};
   }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
@@ -149,7 +136,7 @@ const Magnifier = styled(BaseMagnifier)`
 `
 
 const PlaceholderLink = styled(SCLink)`
-  font-size: 1.8rem;
+  font-weight: 500;
 `
 
 PlaceholderLink.defaultProps = {
@@ -158,12 +145,12 @@ PlaceholderLink.defaultProps = {
 }
 
 const NextLink = styled(Link)`
-  font-size: 1.8rem;
+  font-weight: 500;
 `
 
 const Transactions = styled(MyTransactions)`
   .fill {
-    fill: ${({ theme: { colors } }) => colors.primary};
+    fill: ${({ theme: { colors } }) => colors.fog};
   }
 `
 
@@ -191,12 +178,9 @@ export const Search: React.FC = ({ ...restProps }) => {
   }, [value, router])
 
   return (
-    <Wrapper {...restProps}>
+    <SidebarCard {...restProps}>
       <SCTitle>Bridge Explorer</SCTitle>
-      <SCText>
-        Check real time transaction status
-        <br /> and claim your tokens.
-      </SCText>
+      <SCText>Check real time transaction status and claim your tokens.</SCText>
       <SearchWrapper>
         <Textfield
           autoComplete="off"
@@ -229,6 +213,6 @@ export const Search: React.FC = ({ ...restProps }) => {
           My Transactions
         </PlaceholderLink>
       )}
-    </Wrapper>
+    </SidebarCard>
   )
 }

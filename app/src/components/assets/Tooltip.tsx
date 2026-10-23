@@ -7,7 +7,7 @@ const Wrapper = styled.svg`
   outline: none;
 
   .fill {
-    fill: ${({ theme: { colors } }) => colors.primary};
+    fill: ${({ theme: { colors } }) => colors.faint};
   }
 `
 

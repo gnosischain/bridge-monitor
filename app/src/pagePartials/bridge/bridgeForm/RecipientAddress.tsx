@@ -8,45 +8,35 @@ import { SendToDifferentWallet } from '@/src/pagePartials/bridge/bridgeForm/Send
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
+import { Eyebrow } from '@/src/components/text/Eyebrow'
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: calc(var(--theme-common-space) * 2);
+  gap: var(--theme-common-space);
 `
 
 const RecipientAddressWrapper = styled(motion.div)`
   align-items: flex-start;
-  border-radius: var(--theme-common-space);
-  border: 1px solid ${({ theme: { colors } }) => colors.cream};
   display: flex;
   flex-direction: column;
-  gap: ${({ theme: { common } }) => common.borderRadiusBig};
-  padding: calc(var(--theme-common-space) * 2) var(--theme-common-space);
+  gap: var(--theme-common-space);
+  overflow: hidden;
 
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    padding: calc(var(--theme-common-space) * 2);
+  input {
+    background-color: ${({ theme: { colors } }) => colors.surface};
+    border-color: ${({ theme: { colors } }) => colors.line};
+    height: 48px;
   }
 `
 
-const RecipientAddressHeader = styled.div`
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  justify-content: space-between;
+const RecipientAddressHeader = styled(Eyebrow)`
   width: 100%;
 `
 
 const Warning = styled(AlertMessage)`
-  background-color: ${({ theme: { colors } }) => colors.white};
-  margin-bottom: calc(var(--theme-common-space) * -1);
-  margin-top: calc(var(--theme-common-space) * -1);
-  padding: calc(var(--theme-common-space) + var(--theme-common-space) / 2);
-
   .text {
-    color: ${({ theme: { colors } }) => colors.textColor};
-    font-size: 1.4rem;
+    color: ${({ theme: { colors } }) => colors.ink};
   }
 `
 
@@ -59,7 +49,7 @@ const SkeletonWrapper = styled.div`
 
 const Skeleton = () => (
   <SkeletonWrapper>
-    <SkeletonLoading style={{ height: '30px', borderRadius: '4px' }} />
+    <SkeletonLoading style={{ height: '24px', borderRadius: '999px' }} />
   </SkeletonWrapper>
 )
 
@@ -125,8 +115,11 @@ export const RecipientAddress: React.FC<{
             <AnimatePresence initial={false}>
               {isDifferentWalletOpen && (
                 <RecipientAddressWrapper key="recipientAddress" {...animation}>
-                  <RecipientAddressHeader>Recipient Address</RecipientAddressHeader>
+                  <RecipientAddressHeader as="label" htmlFor="recipientAddress">
+                    Recipient address
+                  </RecipientAddressHeader>
                   <Textfield
+                    id="recipientAddress"
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     onChange={onChange as any}
                     type="text"

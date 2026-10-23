@@ -35,46 +35,65 @@ const Wrapper = styled.ul.withConfig({
   recipient?: string
   userAddress?: string
 }>`
-  background: ${({ theme: { colors } }) => colors.white_50};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  border: 1px solid ${({ theme: { colors } }) => colors.cream};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
+  border: 1px solid ${({ theme: { colors } }) => colors.line};
   display: flex;
   flex-direction: column;
+  justify-content: center;
   margin: 0;
-  min-height: 224px;
-  padding: calc(var(--theme-common-space) * 3);
-  row-gap: calc(var(--theme-common-space) * 2);
+  min-height: 210px;
+  padding: calc(var(--theme-common-space) * 0.5) calc(var(--theme-common-space) * 2);
   width: 100%;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    padding: calc(var(--theme-common-space) * 0.5) calc(var(--theme-common-space) * 2.5);
+  }
 `
 
 const Item = styled.li`
   align-items: center;
+  color: ${({ theme: { colors } }) => colors.fog};
   column-gap: var(--theme-common-space);
   display: flex;
   font-size: 1.4rem;
   justify-content: space-between;
-  line-height: 1.2;
+  line-height: 1.3;
   list-style: none;
-  padding: var(--theme-common-space) 0 0;
+  padding: calc(var(--theme-common-space) * 1.5) 0;
 
   &:not(:last-child) {
-    border-bottom: 1px solid ${({ theme: { colors } }) => colors.cream};
-    padding: var(--theme-common-space) 0;
+    border-bottom: 1px solid ${({ theme: { colors } }) => colors.line};
+  }
+
+  &:first-child {
+    color: ${({ theme: { colors } }) => colors.ink};
+    font-weight: 500;
   }
 `
 
 const ItemWarning = styled(Item)`
-  color: ${({ theme: { colors } }) => colors.error};
+  color: ${({ theme: { colors } }) => colors.warning};
 `
 
 const Value = styled.span`
   align-items: center;
+  color: ${({ theme: { colors } }) => colors.ink};
   display: flex;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
   gap: var(--theme-common-space);
+  text-align: right;
+
+  ${ItemWarning} & {
+    color: ${({ theme: { colors } }) => colors.warning};
+  }
 `
 
 const Warning = styled.div`
   color: ${({ theme: { colors } }) => colors.error};
+  font-size: 1.4rem;
+  line-height: 1.5;
+  padding: calc(var(--theme-common-space) * 1.5) 0;
 `
 const ExternalLink = styled.a`
   color: ${({ theme: { colors } }) => colors.error};

@@ -18,9 +18,9 @@ const Wrapper = styled.div`
 `
 const Label = styled.span`
   align-items: center;
-  color: ${({ theme: { colors } }) => colors.primary_50};
+  color: ${({ theme: { colors } }) => colors.fog};
   display: flex;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 400;
   gap: var(--theme-common-space);
 `

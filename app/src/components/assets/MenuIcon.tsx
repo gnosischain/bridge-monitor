@@ -2,7 +2,7 @@ import { HTMLAttributes } from 'react'
 import styled from 'styled-components'
 
 const Wrapper = styled.svg`
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.ink};
   display: block;
   flex-shrink: 0;
 `

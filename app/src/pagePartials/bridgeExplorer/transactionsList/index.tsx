@@ -11,11 +11,14 @@ interface Props {
   transactions: Transaction[]
   claimActions: ClaimActions
   validators?: Validator[] | undefined
+  /** The transactions could not be fetched: says so instead of "no matching entries". */
+  isError?: boolean
 }
 
 export const TransactionsList: React.FC<Props> = ({
   claimActions,
   goBackURL,
+  isError,
   transactions,
   validators,
   ...restProps
@@ -35,6 +38,11 @@ export const TransactionsList: React.FC<Props> = ({
         />
       ))}
     </Table>
+  ) : isError ? (
+    <NoResultsMessage
+      description="This is usually temporary. Please try again in a moment."
+      title="Transactions could not be loaded"
+    />
   ) : (
     <NoResultsMessage
       description={

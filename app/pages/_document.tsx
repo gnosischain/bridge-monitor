@@ -45,21 +45,8 @@ export default class MyDocument extends Document {
           <link href="/favicon/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180" />
           <link href="/favicon/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png" />
           <link href="/favicon/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png" />
-          <link href="/favicon/site.webmanifest" rel="manifest" />
           <link href="/manifest.json" rel="manifest" />
-          <link color="#333" href="/favicon/safari-pinned-tab.svg" rel="mask-icon" />
-          <meta content="#333" name="msapplication-TileColor" />
-          <meta content="#333" name="theme-color"></meta>
-          <link href="https://fonts.googleapis.com" rel="preconnect" />
-          <link crossOrigin="anonymous" href="https://fonts.gstatic.com" rel="preconnect" />
-          <link
-            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&family=Karla:wght@300;400;500;700;800&display=swap"
-            rel="stylesheet"
-          />
-          <link
-            href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
-            rel="stylesheet"
-          />
+          <meta content="#F6F1FA" name="theme-color"></meta>
         </Head>
         <body>
           <Main />

@@ -15,20 +15,36 @@ import React, { useState } from 'react'
 import { useIsUsdsEnabled } from '@/src/hooks/contracts/useIsUsdsEnabled'
 
 const NoTokenSelected = styled.span`
-  font-size: 1.5rem;
-  opacity: 0.8;
+  color: ${({ theme: { colors } }) => colors.fog};
+  font-size: 1.4rem;
 `
 
+// Same size as the amount typed on the other side, so the two panels read alike.
 const TokenOutValue = styled.span<{ disabled?: boolean }>`
-  font-size: 1.5rem;
+  color: ${({ disabled, theme: { colors } }) => (disabled ? colors.faint : colors.ink)};
+  flex-grow: 1;
+  font-size: 2.6rem;
   font-weight: 500;
-  margin-left: auto;
-  opacity: ${({ disabled }) => (disabled ? 0.7 : 1)};
+  letter-spacing: -0.02em;
+  line-height: 44px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    font-size: 1.6rem;
-    font-weight: 600;
+    font-size: 3.2rem;
   }
+`
+
+const TokenLabel = styled.span`
+  align-items: center;
+  color: ${({ theme: { colors } }) => colors.ink};
+  column-gap: var(--theme-common-space);
+  display: flex;
+  flex-shrink: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
 `
 
 const wethOptions = [
@@ -46,21 +62,23 @@ const wethOptions = [
 
 export const NoTokenOut: React.FC<{ loading?: boolean }> = ({ loading }) => (
   <>
-    <SkeletonLoading
-      $animate={!!loading}
-      style={{
-        borderRadius: '50%',
-        height: '24px',
-        width: '24px',
-        minWidth: '0',
-      }}
-    />
-    {loading ? (
-      <SkeletonLoading style={{ height: '20px', minWidth: '0', width: '80px' }} />
-    ) : (
-      <NoTokenSelected>No token selected</NoTokenSelected>
-    )}
     <TokenOutValue disabled>0.00</TokenOutValue>
+    <TokenLabel>
+      <SkeletonLoading
+        $animate={!!loading}
+        style={{
+          borderRadius: '50%',
+          height: '24px',
+          width: '24px',
+          minWidth: '0',
+        }}
+      />
+      {loading ? (
+        <SkeletonLoading style={{ height: '20px', minWidth: '0', width: '80px' }} />
+      ) : (
+        <NoTokenSelected>No token selected</NoTokenSelected>
+      )}
+    </TokenLabel>
   </>
 )
 
@@ -130,6 +148,7 @@ export const TokenOut: React.FC<{
 
     return (
       <>
+        <TokenOutValue>{tokenOutAmount}</TokenOutValue>
         {showNativeTokenSwitcher ? (
           <ReceiveTokenSwitcher
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -148,12 +167,11 @@ export const TokenOut: React.FC<{
             value={selectedXDaiToken}
           />
         ) : (
-          <>
+          <TokenLabel>
             <TokenIcon dimensions={24} iconSource={tokenOut.logoURI} symbol={tokenOut.symbol} />
             {tokenOut.symbol}
-          </>
+          </TokenLabel>
         )}
-        <TokenOutValue>{tokenOutAmount}</TokenOutValue>
       </>
     )
   },

@@ -13,27 +13,30 @@ const Wrapper = styled.div`
   align-items: center;
   column-gap: var(--theme-common-space);
   display: flex;
-  margin-left: auto;
+  min-width: 0;
 `
 
 const BalanceWrapper = styled.div`
   align-items: center;
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.fog};
   display: flex;
-  font-size: 1.6rem;
+  font-size: 1.3rem;
   gap: 4px;
   line-height: 1.2;
+  min-width: 0;
 `
 
 const Title = styled.span`
-  font-weight: 300;
   line-height: 1.2;
-  opacity: 0.7;
 `
 
 const Value = styled.span`
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-weight: 500;
   line-height: 1.2;
-  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `
 
 const BalanceTitle = () => <Title>Balance:</Title>

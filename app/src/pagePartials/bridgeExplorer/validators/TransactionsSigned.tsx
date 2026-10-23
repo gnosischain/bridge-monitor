@@ -1,81 +1,50 @@
 import { useState } from 'react'
 import styled, { withTheme } from 'styled-components'
 
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
+import { Bar, BarChart, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { useFetchValidatorsActivity } from '@/src/hooks/useValidators'
-import { ChevronDown } from '@/src/components/assets/ChevronDown'
-import { Dropdown as BaseDropdown, DropdownItem, DropdownPosition } from '@/src/components/dropdown'
 import { genericSuspense } from '@/src/components/safeSuspense'
-import { InnerCard } from '@/src/components/card/InnerCard'
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { get1DayBeforeInSeconds, get7DaysBeforeInSeconds } from '@/src/utils/date'
 import { Loading } from '@/src/components/loading'
+import { TabHeader } from '@/src/pagePartials/bridgeExplorer/common/TabHeader'
+import { Tabs } from '@/src/pagePartials/bridgeExplorer/common/Tabs'
 
-const Wrapper = styled(InnerCard)`
+const Wrapper = styled.div`
   --chart-min-height: 196px;
 
-  min-height: var(--validator-item-min-height);
-  padding: calc(var(--theme-common-space) * 4)
-    calc(var(--theme-common-space) + var(--theme-common-space) / 2);
-  row-gap: calc(var(--theme-common-space) * 6);
+  background-color: ${({ theme: { colors } }) => colors.surface};
+  border: 1px solid ${({ theme: { colors } }) => colors.line};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: calc(var(--theme-common-space) * 2.5) calc(var(--theme-common-space) * 2);
+  row-gap: calc(var(--theme-common-space) * 3);
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    padding: calc(var(--theme-common-space) * 3);
+  }
 `
 
 const Header = styled.div`
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
+  gap: var(--theme-common-space) calc(var(--theme-common-space) * 2);
   justify-content: space-between;
 `
 
-const Title = styled.h2`
-  color: ${({ theme: { colors } }) => colors.primary};
-  flex-shrink: 0;
+const Title = styled.h3`
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-family: ${({ theme: { fonts } }) => fonts.family};
   font-size: 1.6rem;
-  font-weight: 500;
+  font-weight: 600;
+  line-height: 1.3;
   margin: 0;
-
-  @media (min-width: ${({ theme }) => theme.breakPoints.tabletPortraitStart}) {
-    padding: 0 0 0 calc(var(--theme-common-space) * 3);
-  }
-`
-
-const Dropdown = styled(BaseDropdown)``
-
-const DropdownButton = styled.button`
-  align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.creamLight};
-  border-radius: ${({ theme: { common } }) => common.borderRadius};
-  border: none;
-  color: ${({ theme: { colors } }) => colors.primary};
-  column-gap: 30px;
-  cursor: pointer;
-  display: flex;
-  font-size: 1.4rem;
-  font-weight: 500;
-  height: 42px;
-  justify-content: space-between;
-  padding: 0 calc(var(--theme-common-space) * 2);
-  transition: opacity 0.15s linear;
-
-  &:active {
-    opacity: 0.6;
-  }
-
-  .fill {
-    fill: ${({ theme: { colors } }) => colors.primary};
-  }
 `
 
 const ChartWrapper = styled.div`
-  flex-grow: 1;
   min-height: var(--chart-min-height);
 `
 
@@ -84,27 +53,23 @@ const Spinner = styled(Loading)`
 `
 
 const TooltipWrapper = styled.div`
-  background-color: ${({ theme: { colors } }) => colors.primaryDark};
+  background-color: ${({ theme: { colors } }) => colors.ink};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  border: none;
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.surface};
   font-family: ${({ theme: { fonts } }) => fonts.family};
-  padding: calc(var(--theme-common-space) * 2);
+  padding: calc(var(--theme-common-space) * 1.5) calc(var(--theme-common-space) * 2);
 `
 
 const TooltipLabel = styled.div`
-  font-size: 1.4rem;
-  font-weight: 700;
-  line-height: 1.2;
-  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.4;
 `
 
 const TooltipValue = styled.div`
-  font-size: 1.4rem;
-  font-weight: 400;
-  line-height: 1.2;
-  margin: 0;
-  text-transform: capitalize;
+  font-size: 1.3rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
 `
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -125,70 +90,59 @@ const CustomTooltip: React.FC<{ active?: boolean; label?: string; payload?: any 
   )
 }
 
+const ROW_HEIGHT = 36
+
+// One series, so one colour: the validator's name on the axis says which bar is whose.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const BaseChart: React.FC<{ timePeriod: number; bridge: string; theme: any }> = genericSuspense(
   ({ bridge, theme, timePeriod }) => {
     const signedTXs = useFetchValidatorsActivity(bridge as BridgesValues, timePeriod, 'signed')
 
     const data = signedTXs.data.map((item) => ({
-      validatorName: item.name,
-      signedTxsCount: item.value,
+      name: item.name,
+      value: item.value,
     }))
 
-    const colors = [
-      'rgba(43, 157, 109, 0.6)',
-      'rgba(43, 157, 157, 0.6)',
-      'rgba(43, 95, 157, 0.6)',
-      'rgba(108, 68, 193, 0.6)',
-      'rgba(185, 110, 182, 0.6)',
-      'rgba(69, 104, 194, 0.6)',
-      'rgba(168,58,165,0.6)',
-      'rgba(21,62,171,0.6)',
-      'rgba(21,171,62,0.6)',
-      'rgba(104, 69, 194, 0.6)',
-    ]
-
-    const commonAxesStyles = {
-      axisLine: false,
-      tick: {
-        fontFamily: theme.fonts.family,
-        fontWeight: 400,
-        fontSize: '1.4rem',
-        fill: theme.colors.primary,
-      },
-      tickLine: false,
-      interval: 0,
+    const tickStyle = {
+      fontFamily: theme.fonts.family,
+      fontSize: '1.3rem',
+      fontWeight: 500,
+      fill: theme.colors.ink,
     }
 
     return (
-      <ChartWrapper>
+      <ChartWrapper style={{ height: data.length * ROW_HEIGHT }}>
         <ResponsiveContainer height="100%" width="100%">
           <BarChart
-            data={data.map(({ signedTxsCount, validatorName }) => ({
-              name: validatorName,
-              value: signedTxsCount,
-            }))}
+            data={data}
             layout="vertical"
-            margin={{
-              top: 0,
-              right: 20,
-              left: -15,
-              bottom: 0,
-            }}
+            margin={{ top: 0, right: 48, left: 0, bottom: 0 }}
           >
-            <XAxis dataKey="value" dy={5} type="number" {...commonAxesStyles} />
-            <YAxis dataKey="name" dx={-20} type="category" width={130} {...commonAxesStyles} />
-            <CartesianGrid horizontal={false} stroke={'rgba(62, 105, 87, 0.08)'} />
-            <Bar barSize={12} dataKey="value" fill={theme.colors.white} radius={[6, 6, 6, 6]}>
-              {data.map((entry, index) => (
-                <Cell fill={colors[index % 20]} key={`cell-${index}`} />
-              ))}
-            </Bar>
+            <XAxis dataKey="value" hide type="number" />
+            <YAxis
+              axisLine={false}
+              dataKey="name"
+              interval={0}
+              tick={tickStyle}
+              tickLine={false}
+              type="category"
+              width={140}
+            />
             <Tooltip
               content={<CustomTooltip />}
-              cursor={false}
+              cursor={{ fill: theme.colors.page, stroke: 'none' }}
               wrapperStyle={{ outline: 'none' }}
             />
+            <Bar barSize={14} dataKey="value" fill={theme.colors.violet} radius={[0, 4, 4, 0]}>
+              <LabelList
+                dataKey="value"
+                fill={theme.colors.fog}
+                fontFamily={theme.fonts.family}
+                fontSize="1.2rem"
+                offset={8}
+                position="right"
+              />
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </ChartWrapper>
@@ -205,37 +159,28 @@ const _1WeekBeforeInSeconds = get7DaysBeforeInSeconds()
 export const TransactionsSigned: React.FC<{
   bridge: string
 }> = genericSuspense(({ bridge, ...restProps }) => {
-  const dropdownItems = [
+  const periods = [
     { title: 'Last day', timestampVal: _1DayBeforeInSeconds },
     { title: 'Last week', timestampVal: _1WeekBeforeInSeconds },
   ]
-  const [selectedItem, setSelectedItem] = useState(0)
-  const [timePeriod, setTimePeriod] = useState(_1DayBeforeInSeconds)
-
-  const onDropdownItemSelect = (index: number) => {
-    setTimePeriod(dropdownItems[index].timestampVal)
-    setSelectedItem(index)
-  }
+  const [selectedPeriod, setSelectedPeriod] = useState(0)
 
   return (
     <Wrapper {...restProps}>
       <Header>
-        <Title>Transactions Signed</Title>
-        <Dropdown
-          dropdownButton={
-            <DropdownButton>
-              <span>{dropdownItems[selectedItem].title}</span> <ChevronDown />
-            </DropdownButton>
-          }
-          dropdownPosition={DropdownPosition.right}
-          items={dropdownItems.map((item, index) => (
-            <DropdownItem key={index} onClick={() => onDropdownItemSelect(index)}>
-              {item.title}
-            </DropdownItem>
+        <Title>Transactions signed</Title>
+        <Tabs aria-label="Period" as="div" role="group">
+          {periods.map(({ title }, index) => (
+            <TabHeader
+              $isActive={selectedPeriod === index}
+              key={index}
+              onClick={() => setSelectedPeriod(index)}
+              title={title}
+            />
           ))}
-        />
+        </Tabs>
       </Header>
-      <Chart bridge={bridge} timePeriod={timePeriod} />
+      <Chart bridge={bridge} timePeriod={periods[selectedPeriod].timestampVal} />
     </Wrapper>
   )
 })

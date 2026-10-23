@@ -27,6 +27,9 @@ import { buildTransactionsQuery } from '@/src/utils/transactionsQuery'
 
 const INDEXER_POLL_INTERVAL = 5_000
 
+/** The TTL `/api/graphql` caches transactions for: refetching sooner gets the same answer back. */
+const INDEXER_STALE_TIME = 10_000
+
 // Shared empty values, so the hook's output keeps a stable identity while the query is idle.
 const NO_TRANSACTIONS: Transaction[] = []
 const NO_LOCAL_CLAIMS: LocalClaims = { claiming: [], claimed: [] }
@@ -127,9 +130,10 @@ export const useFetchTransactions = (
 ) => {
   const { clearClaim, localClaims, markAsClaimed, markAsClaiming } = useClaimingTransactions()
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isLoadingError } = useQuery({
     queryKey: ['useFetchTransactions', query ?? null, inMemoryFilters],
     queryFn: query ? () => fetchTransactions(query, inMemoryFilters) : skipToken,
+    staleTime: INDEXER_STALE_TIME,
     refetchInterval: pollUntil
       ? ({ state }) => (pollUntil(state.data ?? NO_TRANSACTIONS) ? false : INDEXER_POLL_INTERVAL)
       : false,
@@ -142,7 +146,8 @@ export const useFetchTransactions = (
     [clearClaim, markAsClaiming, markAsClaimed],
   )
 
-  return { transactions, claimActions, isLoading }
+  // Only a failure with nothing to show: a failed refetch keeps the rows already loaded.
+  return { transactions, claimActions, isError: isLoadingError, isLoading }
 }
 
 export const useTransactionsWithFilters = (filters: TransactionFilter) => {
@@ -153,7 +158,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
 
   const { inMemoryFilters, query } = buildTransactionsQuery(filters, resolvedAddress)
 
-  const { claimActions, isLoading, transactions } = useFetchTransactions(
+  const { claimActions, isError, isLoading, transactions } = useFetchTransactions(
     // Hold the query back until the domain lookup settles: querying on the raw name matches
     // nothing and would flash "no results" before the resolved-address query lands.
     isResolvingAddress ? undefined : query,
@@ -171,6 +176,7 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
   return {
     transactions: filteredTransactions,
     claimActions,
+    isError,
     isLoading: isLoading || isResolvingAddress,
   }
 }
