@@ -1,4 +1,4 @@
-import { AMBForeign, AMBHome } from "generated";
+import { indexer, AMBForeign, AMBHome } from "envio";
 import { BridgeTypeEnum, CHAIN, TransactionStatusEnum } from "../../const";
 import { getValidator } from "../../utils/getValidator";
 import { isOmniBridgeUsage, extractReceiverFromEncodedData, isRouterContract } from "../../utils/omnibridge";
@@ -14,7 +14,9 @@ import { decodeFunctionData, parseAbiItem } from 'viem'
 
 // [Home] Gnosis
 // 1 Init. Bridging started (create Transaction using AMBTransfer side table)
-AMBHome.UserRequestForSignature.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "AMBHome", event: "UserRequestForSignature" },
+  async ({ event, context }) => {
   const transactionHash = event.transaction.hash;
   const timestamp = event.block.timestamp;
   const messageId = event.params.messageId;
@@ -62,11 +64,14 @@ AMBHome.UserRequestForSignature.handler(async ({ event, context }) => {
     };
     context.Transaction.set(newTx);
   }
-});
+}
+);
 
 // [Home] Gnosis
 // 2 Validation. Validators sign transaction (update validator lastActivity)
-AMBHome.SignedForUserRequest.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "AMBHome", event: "SignedForUserRequest" },
+  async ({ event, context }) => {
   const signer = event.params.signer.toLowerCase();
   const validator = await getValidator(context, signer, BridgeTypeEnum.AMB);
   if (!validator) {
@@ -106,11 +111,14 @@ AMBHome.SignedForUserRequest.handler(async ({ event, context }) => {
       }
     }
   }
-});
+}
+);
 
 // [Home] Gnosis
 // 3 Ready to execute on Foreign (threshold reached). Update validator lastActivity
-AMBHome.CollectedSignatures.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "AMBHome", event: "CollectedSignatures" },
+  async ({ event, context }) => {
   const executorAddress = event.params.authorityResponsibleForRelay.toLowerCase();
   const validator = await getValidator(context, executorAddress, BridgeTypeEnum.AMB);
   if (!validator) {
@@ -136,11 +144,14 @@ AMBHome.CollectedSignatures.handler(async ({ event, context }) => {
       context.Transaction.set({ ...tx, transactionStatus: TransactionStatusEnum.UNCLAIMED });
     }
   }
-});
+}
+);
 
 // [Foreign] Ethereum
 // 4 Execution (token claimed) - complete Transaction
-AMBForeign.RelayedMessage.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "AMBForeign", event: "RelayedMessage" },
+  async ({ event, context }) => {
   const transactionHash = event.transaction.hash;
   const timestamp = event.block.timestamp;
   const messageId = event.params.messageId;
@@ -217,4 +228,5 @@ AMBForeign.RelayedMessage.handler(async ({ event, context }) => {
     };
     context.Transaction.set(updated);
   }
-});
+}
+);

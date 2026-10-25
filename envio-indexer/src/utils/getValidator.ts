@@ -1,4 +1,4 @@
-import type { Validator as ValidatorType } from "generated";
+import type { Validator as ValidatorType } from "envio";
 import validators from "../seed/validators.json";
 import { BridgeTypeLiteral } from "../const";
 
