@@ -2,36 +2,32 @@ import styled from 'styled-components'
 
 import { FallbackProps } from 'react-error-boundary'
 
-import { Alert } from '@/src/components/assets/Alert'
 import { ButtonPrimary } from '@/src/components/buttons/Button'
 import { GenericError } from '@/src/components/error/GenericError'
 
 const Button = styled(ButtonPrimary)`
-  margin: 0 auto;
+  display: inline-flex;
   font-size: 1.5rem;
-  padding: 0 16px;
-  height: 50px;
-  width: 100%;
+  height: 44px;
+  padding: 0 calc(var(--theme-common-space) * 3);
 `
 
 const Code = styled.blockquote`
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: ${({ theme: { colors } }) => colors.page};
   border-radius: ${({ theme: { common } }) => common.borderRadius};
-  color: ${({ theme: { colors } }) => colors.textColor};
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  font-size: 1.6rem;
-  font-style: italic;
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-family: ${({ theme: { fonts } }) => fonts.familyCode};
+  font-size: 1.3rem;
   line-height: 1.5;
-  margin: 0 0 16px;
-  padding: 12px 10px;
+  margin: 0 0 calc(var(--theme-common-space) * 2);
+  padding: calc(var(--theme-common-space) * 1.5) calc(var(--theme-common-space) * 2);
+  text-align: left;
+  width: 100%;
 `
 
 export const GeneralError = ({ error, resetErrorBoundary }: FallbackProps) => {
   return (
     <GenericError
-      icon={<Alert />}
       text={
         <>
           <Code>

@@ -1,75 +1,59 @@
 import styled from 'styled-components'
+import { EyebrowCSS } from '@/src/components/text/Eyebrow'
 
 import { IconStatus, Status } from '@/src/pagePartials/bridgeExplorer/transaction/IconStatus'
 
 const Wrapper = styled.div`
-  --line-gap: 24px;
-  --status-height: 64px;
-  --wrapper-width: 155px;
+  --icon-size: 28px;
 
+  column-gap: calc(var(--theme-common-space) * 2);
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: var(--icon-size) minmax(0, 1fr);
   position: relative;
-  row-gap: calc(var(--theme-common-space) * 2);
+
+  &::after {
+    background-color: ${({ theme: { colors } }) => colors.line};
+    bottom: 4px;
+    content: '';
+    left: calc(var(--icon-size) / 2 - 1px);
+    position: absolute;
+    top: calc(var(--icon-size) + 4px);
+    width: 2px;
+  }
 
   &:last-child {
+    &::after {
+      display: none;
+    }
+
     .details {
       padding-bottom: 0;
     }
   }
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    column-gap: 50px;
-    grid-template-columns: var(--wrapper-width) minmax(0, 950px);
-  }
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    &::after {
-      background-color: ${({ theme: { colors } }) => colors.creamDarker};
-      border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-      content: '';
-      height: calc(100% - var(--line-gap) - var(--status-height));
-      left: calc(var(--wrapper-width) / 2);
-      position: absolute;
-      top: calc(var(--status-height) + var(--line-gap));
-      width: 8px;
-    }
-
-    &:last-child::after {
-      display: none;
-    }
-  }
-`
-
-const StatusWrapper = styled.div`
-  align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.creamDarker};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  column-gap: var(--theme-common-space);
-  display: flex;
-  height: var(--status-height);
-  padding: 0 var(--theme-common-space);
 `
 
 const Icon = styled(IconStatus)`
-  --size: 28px;
-
-  background-color: ${({ theme: { colors } }) => colors.cream};
-  height: var(--size);
-  width: var(--size);
+  height: var(--icon-size);
+  width: var(--icon-size);
 `
 
-const TransactionStatus = styled.h2`
-  color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 1.6rem;
-  font-weight: 500;
-  line-height: 1.2;
-  margin: 0;
-  text-transform: uppercase;
+const Head = styled.div`
+  align-items: center;
+  column-gap: calc(var(--theme-common-space) * 1.5);
+  display: flex;
+  flex-wrap: wrap;
+  min-height: var(--icon-size);
+  row-gap: 4px;
+`
+
+const TransactionStatus = styled.span`
+  ${EyebrowCSS}
+
+  font-size: 1rem;
 `
 
 const Details = styled.div`
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  min-width: 0;
   padding-bottom: calc(var(--theme-common-space) * 4);
 `
 
@@ -78,19 +62,19 @@ Details.defaultProps = {
 }
 
 const Title = styled.h3`
-  color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 1.8rem;
-  font-weight: 700;
-  line-height: 1.2;
-  margin: var(--theme-common-space) 0 0;
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-size: 1.7rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0;
 `
 
 const Description = styled.p`
-  color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 1.6rem;
+  color: ${({ theme: { colors } }) => colors.fog};
+  font-size: 1.4rem;
   font-weight: 400;
   line-height: 1.5;
-  margin: 0 0 calc(var(--theme-common-space) * 3);
+  margin: 2px 0 calc(var(--theme-common-space) * 2);
   white-space: pre-wrap;
   word-break: break-word;
 
@@ -117,12 +101,12 @@ export const StatusDetails: React.FC<Props> = ({
 }) => {
   return (
     <Wrapper {...restProps}>
-      <StatusWrapper>
-        <Icon statusIcon={statusIcon} />
-        <TransactionStatus>{transactionStatus}</TransactionStatus>
-      </StatusWrapper>
+      <Icon statusIcon={statusIcon} />
       <Details>
-        <Title>{title}</Title>
+        <Head>
+          <Title>{title}</Title>
+          <TransactionStatus>{transactionStatus}</TransactionStatus>
+        </Head>
         <Description>{description}</Description>
         {children}
       </Details>

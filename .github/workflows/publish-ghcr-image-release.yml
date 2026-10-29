@@ -34,8 +34,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run security audit
+      - name: Run security audit (runtime deps)
         run: pnpm audit --audit-level=high --prod
+
+      # --prod skips devDependencies, but ESLint and tsc still run inside `next build`,
+      # so a critical advisory anywhere in the tree (e.g. a malicious release) still blocks.
+      - name: Run security audit (all deps, critical only)
+        run: pnpm audit --audit-level=critical
 
   Build_and_push_image_to_GHCR:
     needs: security-audit

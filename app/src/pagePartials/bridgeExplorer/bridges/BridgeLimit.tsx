@@ -1,111 +1,85 @@
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
 
+import { ArrowRight } from '@/src/components/assets/ArrowRight'
 import { IconLink } from '@/src/components/assets/IconLink'
-import { InnerCard } from '@/src/components/card/InnerCard'
+import { Card } from '@/src/pagePartials/bridgeExplorer/bridges/Card'
 import { ContractLimit } from '@/src/pagePartials/bridgeExplorer/bridges/ContractLimit'
+import { Fact, Facts } from '@/src/pagePartials/bridgeExplorer/bridges/Fact'
 import { TimeLeft } from '@/src/pagePartials/bridgeExplorer/bridges/TimeLeft'
 import { TokenAddress } from '@/src/pagePartials/bridgeExplorer/bridges/TokenAddress'
-import { TransactionLimit } from '@/src/pagePartials/bridgeExplorer/bridges/TransactionLimit'
-import { ChainsKeys, ChainsValues } from '@/src/constants/config/types'
+import { ChainsKeys } from '@/src/constants/config/types'
 import { formatNumber } from '@/src/utils/format'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { formatUnitsToNumber, percentageNumber } from '@/src/utils/formatNumber'
 import { Token } from '@/types/token'
 import { TokenIcon } from '@/src/components/token/TokenIcon'
 
-const Wrapper = styled(InnerCard)`
-  background-color: ${({ theme: { colors } }) => colors.creamLight};
-  row-gap: calc(var(--theme-common-space) * 2);
-`
-
 const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: 10px;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    align-items: center;
-    column-gap: 10px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-  }
-`
-
-const HeaderInner = styled.div`
   align-items: center;
-  column-gap: 10px;
   display: flex;
+  flex-wrap: wrap;
+  gap: var(--theme-common-space) calc(var(--theme-common-space) * 2);
+  justify-content: space-between;
 `
 
 const Title = styled.h3`
-  font-size: 1.5rem;
-  font-weight: 500;
-  line-height: 1.2;
-  margin: 0;
-  white-space: nowrap;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    font-size: 1.8rem;
-    font-weight: 700;
-  }
-`
-
-const ExternalURL = styled.a`
-  --size: 24px;
-
   align-items: center;
-  background: ${({ theme: { colors } }) => colors.cream};
-  border-radius: 50%;
-  color: ${({ theme: { colors } }) => colors.primary};
-  cursor: pointer;
-  display: flex;
-  height: var(--size);
-  justify-content: center;
-  text-decoration: none;
-  width: var(--size);
-
-  &:active {
-    opacity: 0.5;
-  }
-`
-
-const TokenWrapper = styled.div`
-  align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.cream};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
+  color: ${({ theme: { colors } }) => colors.ink};
   column-gap: var(--theme-common-space);
   display: flex;
-  height: 34px;
-  padding: 0 var(--theme-common-space);
+  font-family: ${({ theme: { fonts } }) => fonts.family};
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0;
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    margin-left: auto;
+  .arrowRight {
+    color: ${({ theme: { colors } }) => colors.faint};
+
+    .fill {
+      fill: currentColor;
+    }
   }
 `
 
-const TokenSymbol = styled.div`
-  color: ${({ theme: { colors } }) => colors.primary};
+const TokenPill = styled.a`
+  align-items: center;
+  background-color: ${({ theme: { colors } }) => colors.page};
+  border-radius: 999px;
+  color: ${({ theme: { colors } }) => colors.ink};
+  column-gap: 6px;
+  display: flex;
   flex-shrink: 0;
   font-size: 1.4rem;
-  line-height: 1.2;
+  font-weight: 600;
+  height: 32px;
+  line-height: 1;
+  padding: 0 12px 0 5px;
+  text-decoration: none;
+
+  svg {
+    color: ${({ theme: { colors } }) => colors.faint};
+  }
+
+  &[href]:hover {
+    background-color: ${({ theme: { colors } }) => colors.lilac};
+
+    svg {
+      color: ${({ theme: { colors } }) => colors.ink};
+    }
+  }
 `
 
-const Grid = styled.div`
-  column-gap: calc(var(--theme-common-space) * 2);
-  display: grid;
-  grid-template-columns: 1fr;
-  row-gap: calc(var(--theme-common-space) * 2);
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    grid-template-columns: 1fr 1fr;
-  }
+const NotRegistered = styled.p`
+  color: ${({ theme: { colors } }) => colors.fog};
+  font-size: 1.4rem;
+  line-height: 1.5;
+  margin: 0;
 `
 
 interface Props {
   bridgeReset?: number
-  chainId: ChainsValues
   dailyLimit: bigint
   executionDailyLimit: bigint
   executionMaxPerTx: bigint
@@ -115,7 +89,6 @@ interface Props {
   maxPerTx: bigint
   minPerTx: bigint
   networkName: ChainsKeys
-  title: string | React.ReactNode
   to: string
   token: Token
   tokenTooltip?: string | undefined
@@ -134,7 +107,6 @@ export const BridgeLimit: React.FC<Props> = ({
   maxPerTx,
   minPerTx,
   networkName,
-  title,
   to,
   token,
   tokenTooltip,
@@ -166,74 +138,88 @@ export const BridgeLimit: React.FC<Props> = ({
     return new Date(TODAY_ZERO_UTC).setDate(TOMORROW)
   }, [bridgeReset])
 
+  const symbol = token?.symbol.toUpperCase()
+  const tokenIcon = <TokenIcon dimensions={22} iconSource={token?.logoURI} symbol={token?.symbol} />
+
   return (
-    <Wrapper {...restProps}>
+    <Card {...restProps}>
       <Header>
-        <HeaderInner>
-          <Title>{title}</Title>
-          {!isNativeToken ? (
-            <ExternalURL
-              href={getExplorerUrl(token.address, networkName)}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <IconLink height={12} width={12} />
-            </ExternalURL>
-          ) : null}
-        </HeaderInner>
-        <TokenWrapper>
-          <TokenIcon dimensions={18} iconSource={token?.logoURI} symbol={token?.symbol} />
-          <TokenSymbol>{token?.symbol.toUpperCase()}</TokenSymbol>
-        </TokenWrapper>
+        <Title>
+          {from}
+          <ArrowRight />
+          {to}
+        </Title>
+        {isNativeToken ? (
+          <TokenPill as="span">
+            {tokenIcon}
+            {symbol}
+          </TokenPill>
+        ) : (
+          <TokenPill
+            href={getExplorerUrl(token.address, networkName)}
+            rel="noopener noreferrer"
+            target="_blank"
+            title={`View ${symbol} on the explorer`}
+          >
+            {tokenIcon}
+            {symbol}
+            <IconLink height={12} width={12} />
+          </TokenPill>
+        )}
       </Header>
       {isTokenRegistered ? (
         <>
           <ContractLimit
-            darkBackground
             funds={dailyLimitValue}
             percentage={percentageNumber(totalSpentPerDayValue, dailyLimitValue)}
-            title={`${token?.symbol.toUpperCase() || 'DAI'} deposits per day`}
-            tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that users can bridge from ${from} to ${to} in a day`}
+            title={`${symbol || 'DAI'} deposits per day`}
+            tooltip={`Maximum amount of ${symbol} that users can bridge from ${from} to ${to} in a day`}
             used={{ value: totalSpentPerDayValue, title: 'Deposited' }}
           />
           <ContractLimit
-            darkBackground
             funds={executionDailyLimitValue}
             percentage={percentageNumber(totalExecutedPerDayValue, executionDailyLimitValue)}
-            title={`${token?.symbol.toUpperCase() || 'DAI'} withdrawals per day`}
-            tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that bridge validators can execute and bridge from ${to} to ${from} in a day`}
+            title={`${symbol || 'DAI'} withdrawals per day`}
+            tooltip={`Maximum amount of ${symbol} that bridge validators can execute and bridge from ${to} to ${from} in a day`}
             used={{ value: totalExecutedPerDayValue, title: 'Withdrawn' }}
           />
-          <Grid>
-            <TransactionLimit
-              title="Min. deposit per transaction"
-              tooltip={`Minimum amount of ${token?.symbol.toUpperCase()} that users can bridge in a single transaction`}
-              value={formatNumber(minPerTxValue)}
-            />
-            <TransactionLimit
-              title="Max. deposit per transaction"
-              tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that users can bridge in a single transaction`}
-              value={formatNumber(maxPerTxValue)}
-            />
-          </Grid>
-          <TransactionLimit
-            title="Max. withdrawal per transaction"
-            tooltip={`Maximum amount of ${token?.symbol.toUpperCase()} that validators can execute in a single transaction`}
-            value={formatNumber(executionMaxPerTxValue)}
-          />
-          <TimeLeft time={bridgeReset} />
         </>
       ) : (
-        <p>Token not registered yet.</p>
+        <NotRegistered>Token not registered yet.</NotRegistered>
       )}
-      {token && (
-        <TokenAddress
-          address={token?.address}
-          isNative={isNativeToken}
-          network={networkName}
-          tooltip={tokenTooltip}
-        />
-      )}
-    </Wrapper>
+      <Facts>
+        {isTokenRegistered && (
+          <>
+            <Fact
+              label="Min. deposit per transaction"
+              tooltip={`Minimum amount of ${symbol} that users can bridge in a single transaction`}
+            >
+              {formatNumber(minPerTxValue)}
+            </Fact>
+            <Fact
+              label="Max. deposit per transaction"
+              tooltip={`Maximum amount of ${symbol} that users can bridge in a single transaction`}
+            >
+              {formatNumber(maxPerTxValue)}
+            </Fact>
+            <Fact
+              label="Max. withdrawal per transaction"
+              tooltip={`Maximum amount of ${symbol} that validators can execute in a single transaction`}
+            >
+              {formatNumber(executionMaxPerTxValue)}
+            </Fact>
+            <TimeLeft time={bridgeReset} />
+          </>
+        )}
+        {token && (
+          <TokenAddress
+            address={token?.address}
+            isNative={isNativeToken}
+            network={networkName}
+            tooltip={tokenTooltip}
+          />
+        )}
+      </Facts>
+    </Card>
   )
 }

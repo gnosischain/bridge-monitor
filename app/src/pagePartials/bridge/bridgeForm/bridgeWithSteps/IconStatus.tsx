@@ -3,7 +3,7 @@ import styled, { keyframes } from 'styled-components'
 
 const Wrapper = styled.div`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.cream};
+  background-color: ${({ theme: { colors } }) => colors.page};
   border-radius: 50%;
   display: flex;
   flex-shrink: 0;
@@ -37,7 +37,7 @@ const pulse = keyframes`
 `
 
 const WrapperBordered = styled(Wrapper)`
-  border: 1px solid #40d194;
+  border: 1px solid ${({ theme: { colors } }) => colors.violet};
   animation: ${pulse} 1.5s linear infinite;
 `
 

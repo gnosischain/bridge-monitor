@@ -1,7 +1,7 @@
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
-import { MaxButton } from './AmountTokenInput'
+import { MaxButton } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
 import { formatNumber } from '@/src/utils/format'
 import { TokenUsdc } from './types'
 import { formatUnits } from 'viem'
@@ -13,30 +13,27 @@ const Wrapper = styled.div`
   align-items: center;
   column-gap: var(--theme-common-space);
   display: flex;
-  margin-left: auto;
+  min-width: 0;
 `
 
 const BalanceWrapper = styled.div`
   align-items: center;
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.fog};
   display: flex;
   flex-wrap: wrap;
-  font-size: 1.6rem;
+  font-size: 1.3rem;
   gap: 4px;
   line-height: 1.2;
-  padding-right: 0.2rem;
-  padding-left: 0.2rem;
 `
 
 const Title = styled.span`
-  font-weight: 300;
   line-height: 1.2;
-  opacity: 0.7;
 `
 
 const Value = styled.span`
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-weight: 500;
   line-height: 1.2;
-  font-weight: 400;
   word-break: break-all;
 `
 

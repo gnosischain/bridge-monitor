@@ -2,27 +2,19 @@ import styled from 'styled-components'
 
 const Wrapper = styled.div`
   align-items: center;
-  color: ${({ theme: { colors } }) => colors.primary};
-  column-gap: 6px;
+  color: ${({ theme: { colors } }) => colors.fog};
+  column-gap: 5px;
   display: flex;
-  font-size: 1.3rem;
-  font-weight: 300;
-  line-height: 1.2;
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
-    font-size: 1.6rem;
-  }
+  flex-wrap: wrap;
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1.4;
 `
 
 const Emphasized = styled.span`
-  align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.creamLight};
-  border-radius: 4px;
-  color: ${({ theme: { colors } }) => colors.primary};
-  display: flex;
-  font-weight: 700;
-  height: 23px;
-  padding: 0 8px;
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
 `
 
 interface Props {

@@ -16,25 +16,33 @@ const ShareIcon: React.FC = ({ ...restProps }) => (
 )
 
 const Icon = styled(ShareIcon)`
-  fill: ${({ theme: { colors } }) => colors.cream};
+  fill: currentColor;
+  height: 16px;
+  width: 16px;
 `
 
 const Wrapper = styled.button`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.primary};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  border: none;
-  color: ${({ theme: { colors } }) => colors.cream};
+  background-color: ${({ theme: { colors } }) => colors.surface};
+  border-radius: 999px;
+  border: 1px solid ${({ theme: { colors } }) => colors.line};
+  color: ${({ theme: { colors } }) => colors.ink};
   cursor: pointer;
   display: flex;
+  flex-shrink: 0;
   font-family: ${({ theme: { fonts } }) => fonts.family};
-  font-size: 1.4rem;
-  gap: calc(var(--theme-common-space) + 2);
-  height: 40px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  gap: var(--theme-common-space);
+  height: 36px;
   justify-content: center;
   max-width: fit-content;
-  padding: 0 calc(var(--theme-common-space) * 2);
-  transition: opacity 0.25s linear;
+  padding: 0 calc(var(--theme-common-space) * 1.75);
+  transition: background-color 0.15s linear;
+
+  &:hover {
+    background-color: ${({ theme: { colors } }) => colors.page};
+  }
 
   &:active {
     opacity: 0.7;

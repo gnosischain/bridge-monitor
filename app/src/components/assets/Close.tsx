@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 const Wrapper = styled.svg`
   .fill {
-    fill: ${({ theme: { colors } }) => colors.textColor};
+    fill: ${({ theme: { colors } }) => colors.ink};
   }
 `
 interface Props {

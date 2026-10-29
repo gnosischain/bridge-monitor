@@ -1,15 +1,6 @@
-import styled from 'styled-components'
-
-import { DetailsRow } from '@/src/pagePartials/bridgeExplorer/transaction/DetailsRow'
+import { DetailsList, DetailsRow } from '@/src/pagePartials/bridgeExplorer/transaction/DetailsRow'
 import { TransactionValidation } from '@/src/utils/transactions'
 import { ValidatorIcon } from '@/src/pagePartials/bridgeExplorer/common/ValidatorIcon'
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin: calc(var(--theme-common-space) * 4) 0 0;
-  row-gap: var(--theme-common-space);
-`
 
 interface Props {
   fetchValidatorName: (validatorAddress: string) => { name: string; shortName: string }
@@ -18,7 +9,7 @@ interface Props {
 
 export const Validations: React.FC<Props> = ({ fetchValidatorName, validations }) => {
   return (
-    <Wrapper>
+    <DetailsList>
       {validations.map((validation: TransactionValidation, index) => {
         const validator = fetchValidatorName(validation.validatorAddr)
 
@@ -34,6 +25,6 @@ export const Validations: React.FC<Props> = ({ fetchValidatorName, validations }
           />
         )
       })}
-    </Wrapper>
+    </DetailsList>
   )
 }

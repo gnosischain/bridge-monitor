@@ -5,21 +5,24 @@ import { ValidatorIcon } from '@/src/pagePartials/bridgeExplorer/common/Validato
 
 const Wrapper = styled.div`
   align-items: center;
+  column-gap: calc(var(--theme-common-space) * 1.5);
   display: flex;
-  justify-content: flex-start;
-  column-gap: var(--theme-common-space);
+  min-width: 0;
 `
 
 const Title = styled.h3`
+  color: ${({ theme: { colors } }) => colors.ink};
   font-family: ${({ theme: { fonts } }) => fonts.family};
-  font-size: 1.6rem;
-  font-weight: 500;
-  line-height: 1;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.3;
   margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
 `
 
 const Dot = styled(LimitDot)`
-  margin-left: auto;
+  flex-shrink: 0;
 `
 
 interface Props {
@@ -36,7 +39,7 @@ export const ValidatorHeader: React.FC<Props> = ({
 }) => {
   return (
     <Wrapper {...restProps}>
-      <ValidatorIcon shortName={shortName} title={title} />
+      <ValidatorIcon shortName={shortName} size="32px" title={title} />
       <Title>{title}</Title>
       <Dot status={validatorHealth} />
     </Wrapper>

@@ -121,7 +121,7 @@ export const TextfieldCSS = css<TextfieldCSSProps>`
         : textField.borderColor};
   border-radius: var(--textfield-border-radius);
   border-style: solid;
-  border-width: 0.5px;
+  border-width: 1px;
   color: ${({ status, theme: { textField } }) =>
     status === TextfieldStatus.error ? textField.errorColor : textField.color};
   font-family: ${({ theme: { fonts } }) => fonts.family};
