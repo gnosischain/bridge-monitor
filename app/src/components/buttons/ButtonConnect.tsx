@@ -2,12 +2,12 @@ import styled from 'styled-components'
 import { ButtonPrimary } from '@/src/components/buttons/Button'
 
 export const ButtonConnect = styled(ButtonPrimary)`
-  column-gap: calc(var(--theme-common-space) * 2);
+  column-gap: var(--theme-common-space);
   display: none;
-  font-size: 1.3rem;
-  font-weight: 500;
-  height: 48px;
-  padding: 0 calc(var(--theme-common-space) * 2);
+  font-size: 1.4rem;
+  font-weight: 600;
+  height: 40px;
+  padding: 0 calc(var(--theme-common-space) * 2.5);
   position: relative;
 
   .isOpen & {
@@ -22,10 +22,5 @@ export const ButtonConnect = styled(ButtonPrimary)`
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     display: flex;
-  }
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    font-size: 1.4rem;
-    height: 48px;
   }
 `

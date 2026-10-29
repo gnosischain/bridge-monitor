@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { EyebrowCSS } from '@/src/components/text/Eyebrow'
 import { Magnifier } from '@/src/components/assets/Magnifier'
 import { shortenAddress } from '@/src/utils/tools'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
@@ -8,57 +9,49 @@ import { txTime } from '@/src/utils/txTime'
 import { getNetworkConfig } from '@/src/constants/config/chains'
 
 const Wrapper = styled.div`
-  background-color: ${({ theme: { colors } }) => colors.creamLight};
+  background-color: ${({ theme: { colors } }) => colors.page};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
-  box-shadow:
-    0 2.231px 2.775px 0px rgba(0, 0, 0, 0.01),
-    0 10.2px 7.8px 0 rgba(0, 0, 0, 0.01),
-    0 25.819px 20.925px 0 rgba(0, 0, 0, 0.02),
-    0 51px 48px 0 rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
-  padding: calc(var(--theme-common-space) * 5) 0 calc(var(--theme-common-space) * 3);
+  padding: calc(var(--theme-common-space) * 2.5) 0 calc(var(--theme-common-space) * 2);
 `
 
 const Title = styled.h3`
-  font-size: 1.8rem;
-  font-weight: 400;
-  margin: 0 0 calc(var(--theme-common-space) * 3);
-  padding: 0 calc(var(--theme-common-space) * 3);
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    font-size: 2.1rem;
-  }
+  ${EyebrowCSS}
+  margin: 0 0 calc(var(--theme-common-space) * 1.5);
+  padding: 0 calc(var(--theme-common-space) * 2.5);
 `
 
 const TopInfo = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 0 calc(var(--theme-common-space) * 3);
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    gap: 16px;
-  }
+  gap: calc(var(--theme-common-space) * 1.5);
+  padding: 0 calc(var(--theme-common-space) * 2.5);
 `
 
 const BlocksInformation = styled.div`
   align-items: end;
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px calc(var(--theme-common-space) * 2);
   justify-content: space-between;
 `
 
 const Completed = styled.h5`
-  font-size: 1.8rem;
-  font-weight: 700;
+  color: ${({ theme: { colors } }) => colors.fog};
+  font-size: 1.5rem;
+  font-weight: 400;
   line-height: 1.2;
   margin: 0;
 `
 
 const Percentage = styled.span`
-  font-size: 2.6rem;
-  font-weight: 900;
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-size: 2.8rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     font-size: 3.2rem;
@@ -66,24 +59,27 @@ const Percentage = styled.span`
 `
 
 const CompletedBlocks = styled.span`
-  font-size: 1.6rem;
+  color: ${({ theme: { colors } }) => colors.fog};
+  font-size: 1.4rem;
+  font-variant-numeric: tabular-nums;
   line-height: 1.2;
 `
 
 const Progress = styled.div`
-  --border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
+  --border-radius: 999px;
 
-  background-color: ${({ theme: { colors } }) => colors.cream};
+  background-color: ${({ theme: { colors } }) => colors.line};
   border-radius: var(--border-radius);
-  height: 16px;
+  height: 8px;
+  overflow: hidden;
 `
 
 const ProgressBar = styled.span.withConfig({
   shouldForwardProp: (prop) => !['percentage'].includes(prop),
 })<{ percentage: number }>`
   background-color: ${(props) =>
-    props.percentage <= 50
-      ? ({ theme }) => theme.colors.secondary
+    props.percentage < 100
+      ? ({ theme }) => theme.colors.violet
       : ({ theme }) => theme.colors.success};
   border-radius: var(--border-radius);
   display: block;
@@ -95,15 +91,16 @@ const ProgressBar = styled.span.withConfig({
 
 const BottomInfo = styled.div`
   align-items: start;
-  border-top: 1px solid ${({ theme: { colors } }) => colors.creamDark};
+  border-top: 1px solid ${({ theme: { colors } }) => colors.line};
+  color: ${({ theme: { colors } }) => colors.fog};
   display: flex;
   flex-direction: column;
-  font-size: 1.4rem;
-  font-weight: 300;
+  font-size: 1.3rem;
+  font-weight: 400;
   gap: calc(var(--theme-common-space) / 2);
   justify-content: space-between;
-  margin-top: calc(var(--theme-common-space) * 5);
-  padding: calc(var(--theme-common-space) * 3) calc(var(--theme-common-space) * 3) 0;
+  margin-top: calc(var(--theme-common-space) * 2.5);
+  padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 2.5) 0;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     align-items: center;
@@ -113,32 +110,27 @@ const BottomInfo = styled.div`
 `
 
 const EstimatedTime = styled.span`
-  color: ${({ theme: { colors } }) => colors.textColor};
+  color: ${({ theme: { colors } }) => colors.fog};
 `
 
 const MonitorBlocksLink = styled.a`
-  color: ${({ theme: { colors } }) => colors.darkGrey};
+  align-items: center;
+  color: ${({ theme: { colors } }) => colors.fog};
   cursor: pointer;
   display: flex;
-  gap: 8px;
+  gap: 6px;
   text-decoration: none;
 
   svg {
     max-width: 14px;
 
     .stroke {
-      stroke: ${({ theme: { colors } }) => colors.darkGrey};
+      stroke: currentColor;
     }
   }
 
   &:hover {
-    color: ${({ theme: { colors } }) => colors.primary};
-
-    svg {
-      .stroke {
-        stroke: ${({ theme: { colors } }) => colors.primary};
-      }
-    }
+    color: ${({ theme: { colors } }) => colors.ink};
   }
 `
 
@@ -159,7 +151,7 @@ export const BlockConfirmations: React.FC<Props> = ({ network, transactionHash, 
 
   return (
     <Wrapper {...restProps}>
-      <Title>Waiting for block confirmation</Title>
+      <Title>Block confirmations</Title>
       <TopInfo>
         <BlocksInformation>
           <Completed>

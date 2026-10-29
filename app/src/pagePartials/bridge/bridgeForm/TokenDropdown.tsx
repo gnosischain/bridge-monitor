@@ -33,23 +33,24 @@ const BaseChevronDown = ({ ...restProps }) => (
   >
     <path
       d="M11.2654 1.26492L6.26541 6.26492C6.1951 6.33515 6.09979 6.37459 6.00041 6.37459C5.90104 6.37459 5.80572 6.33515 5.73541 6.26492L0.735411 1.26492C0.669171 1.19384 0.63311 1.09981 0.634824 1.00266C0.636538 0.905512 0.675894 0.812819 0.744601 0.744113C0.813307 0.675406 0.906 0.63605 1.00315 0.634336C1.1003 0.632622 1.19432 0.668684 1.26541 0.734924L6.00041 5.4693L10.7354 0.734924C10.8065 0.668684 10.9005 0.632622 10.9977 0.634336C11.0948 0.63605 11.1875 0.675406 11.2562 0.744113C11.3249 0.812819 11.3643 0.905512 11.366 1.00266C11.3677 1.09981 11.3317 1.19384 11.2654 1.26492Z"
-      fill="#3E6957"
+      fill="currentColor"
     />
   </svg>
 )
 
 const Wrapper = styled(BaseDropdown)`
-  --inner-padding: calc(var(--theme-common-space) * 2);
+  --inner-padding: calc(var(--theme-common-space) * 1.5);
 
   flex-shrink: 0;
 
   .dropdownItems {
-    max-height: 350px;
+    border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
+    max-height: 380px;
     overflow: auto;
     width: 300px;
 
     @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-      width: 440px;
+      width: 400px;
     }
   }
 
@@ -62,7 +63,7 @@ const TextfieldContainer = styled.div.withConfig({
   shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
 })<{ closeOnClick?: boolean }>`
   background-color: ${({ theme: { dropdown } }) => dropdown.background};
-  padding: calc(var(--theme-common-space) * 2);
+  padding: var(--inner-padding);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -79,22 +80,20 @@ const Textfield = styled(DebounceInput).attrs<TextfieldProps>(() => ({
 
   ${TextfieldCSS};
 
-  border-radius: ${({ theme: { common } }) => common.borderRadius};
-  padding: calc(var(--theme-common-space) * 2) var(--theme-common-space)
-    calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 5);
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
+  padding: 0 var(--theme-common-space) 0 calc(var(--theme-common-space) * 5);
   flex-shrink: 0;
-  height: auto;
+  height: 44px;
   max-width: 100%;
   width: 100%;
 
   @media (min-width: ${({ theme }) => theme.breakPoints.tabletLandscapeStart}) {
-    padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 2)
-      calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 5);
+    padding: 0 calc(var(--theme-common-space) * 2) 0 calc(var(--theme-common-space) * 5);
   }
 `
 
 const Magnifier = styled(BaseMagnifier)`
-  left: 10px;
+  left: 14px;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -104,35 +103,43 @@ const Items = styled.div.withConfig({
   shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
 })<{ closeOnClick?: boolean }>`
   background-color: ${({ theme: { dropdown } }) => dropdown.background};
-  padding: 0 0 calc(var(--theme-common-space) / 2);
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--theme-common-space) / 2) var(--theme-common-space) var(--theme-common-space);
+  row-gap: 2px;
 `
 
 const DropdownBridgeItem = styled(DropdownItem)`
-  --inner-padding: calc(var(--theme-common-space) * 2);
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
+  padding: var(--theme-common-space) calc(var(--theme-common-space) * 1.5);
 
-  &:first-child {
-    border-radius: 0;
+  &:first-child,
+  &:last-child {
+    border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   }
-
-  padding: var(--inner-padding);
 `
 
 const TokenInfo = styled.div`
+  color: ${({ theme: { colors } }) => colors.fog};
   display: flex;
   flex-direction: column;
   font-size: 1.2rem;
   font-weight: 400;
-  line-height: normal;
+  line-height: 1.3;
   flex: 1;
+  min-width: 0;
 
   strong {
-    font-size: 1.8rem;
+    color: ${({ theme: { colors } }) => colors.ink};
+    font-size: 1.5rem;
     font-weight: 500;
   }
 `
 
 const TokenAmount = styled.div`
-  font-size: 1.8rem;
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
   font-weight: 500;
 `
 
@@ -140,9 +147,9 @@ const NoResults = styled.div.withConfig({
   shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
 })<{ closeOnClick?: boolean }>`
   align-items: center;
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.fog};
   display: flex;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 500;
   height: 80px;
   justify-content: center;
@@ -150,23 +157,31 @@ const NoResults = styled.div.withConfig({
   padding: var(--inner-padding);
 `
 
-const Button = styled.button`
+const Button = styled.button<{ $isEmpty: boolean }>`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.white};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  border: none;
-  color: ${({ theme: { colors } }) => colors.primary};
+  background-color: ${({ $isEmpty, theme: { colors } }) =>
+    $isEmpty ? colors.ink : colors.surface};
+  border-radius: 999px;
+  border: 1px solid ${({ $isEmpty, theme: { colors } }) => ($isEmpty ? colors.ink : colors.line)};
+  color: ${({ $isEmpty, theme: { colors } }) => ($isEmpty ? colors.surface : colors.ink)};
   column-gap: var(--theme-common-space);
   cursor: pointer;
   display: flex;
-  font-size: 1.4rem;
-  height: 34px;
-  justify-content: start;
+  font-family: ${({ theme: { fonts } }) => fonts.family};
+  font-size: 1.5rem;
+  font-weight: 600;
+  height: 40px;
   line-height: 1.2;
   margin: 0;
-  min-height: 100%;
-  min-width: 130px;
-  padding: 0 var(--theme-common-space);
+  padding: ${({ $isEmpty }) => ($isEmpty ? '0 14px' : '0 12px 0 6px')};
+  white-space: nowrap;
+
+  &:hover {
+    background-color: ${({ $isEmpty, theme: { colors } }) =>
+      $isEmpty ? colors.inkHover : colors.surface};
+    border-color: ${({ $isEmpty, theme: { colors } }) =>
+      $isEmpty ? colors.inkHover : colors.faint};
+  }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     font-size: 1.6rem;
@@ -176,43 +191,39 @@ const Button = styled.button`
 const ButtonText = styled.span``
 
 const ChevronDown = styled(BaseChevronDown)`
-  margin-left: auto;
-
-  .fill {
-    fill: ${({ theme: { colors } }) => colors.primary};
-  }
+  margin-left: 2px;
 `
 
 const TopTokens = styled.div.withConfig({
   shouldForwardProp: (prop) => !['closeOnClick'].includes(prop),
 })<{ closeOnClick?: boolean }>`
   align-items: center;
-  border-bottom: 1px solid ${({ theme: { colors } }) => colors.cream};
-  column-gap: calc(var(--theme-common-space) / 2);
+  border-bottom: 1px solid ${({ theme: { colors } }) => colors.line};
+  column-gap: 6px;
   display: flex;
   flex-wrap: wrap;
   padding: 0 var(--inner-padding) var(--inner-padding) var(--inner-padding);
-  row-gap: var(--theme-common-space);
+  row-gap: 6px;
 `
 
 const TopToken = styled.button`
   --top-token-height: 32px;
 
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.cream};
-  border-radius: calc(var(--top-token-height) - 10px);
+  background-color: ${({ theme: { colors } }) => colors.page};
+  border-radius: 999px;
   border: none;
   column-gap: calc(var(--theme-common-space) / 2);
   cursor: pointer;
   display: flex;
   flex-shrink: 0;
-  font-family: ${({ theme: { fonts } }) => fonts.fontFamily};
+  font-family: ${({ theme: { fonts } }) => fonts.family};
   height: var(--top-token-height);
   padding: 0 var(--theme-common-space) 0 calc(var(--theme-common-space) / 2);
   transition: none;
 
   &:hover {
-    background-color: ${({ theme: { colors } }) => colors.creamDarker};
+    background-color: ${({ theme: { colors } }) => colors.lilac};
   }
 
   &:active {
@@ -225,9 +236,9 @@ TopToken.defaultProps = {
 }
 
 const TopTokenName = styled.span`
-  color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 1.4rem;
-  font-weight: 500;
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-size: 1.3rem;
+  font-weight: 600;
   line-height: 1;
   overflow: hidden;
   overflow: hidden;
@@ -452,7 +463,7 @@ const Dropdown: React.FC<Props> = ({
     <Wrapper
       disabled={disabled}
       dropdownButton={
-        <Button onClick={() => setIsOpened(!isOpened)} type="button">
+        <Button $isEmpty={!defaultToken} onClick={() => setIsOpened(!isOpened)} type="button">
           {defaultToken && (
             <TokenIcon
               dimensions={24}
@@ -464,7 +475,7 @@ const Dropdown: React.FC<Props> = ({
           {!disabled && <ChevronDown />}
         </Button>
       }
-      dropdownPosition={DropdownPosition.left}
+      dropdownPosition={DropdownPosition.right}
       items={[
         <TextfieldContainer closeOnClick={false} key="tokenSearchInput">
           <TextFieldWrapper>

@@ -12,170 +12,164 @@ import { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { TokenAddress } from '@/src/components/token/TokenAddress'
 import { MyTransactions } from '@/src/components/assets/MyTransactions'
+import { GnosisChainLogo } from '@/src/components/assets/GnosisChainLogo'
+import { Eyebrow } from '@/src/components/text/Eyebrow'
 
 const Wrapper = styled.div`
-  height: 100%;
-  left: 0;
+  inset: 0;
   overflow: hidden;
-  position: absolute;
-  top: 0;
-  width: 100vw;
+  position: fixed;
+  z-index: 100;
 `
 
 const MenuBackground = styled.div`
   background-color: ${({ theme: { modal } }) => modal.overlayColor};
   cursor: pointer;
-  height: 100%;
-  left: 0;
+  inset: 0;
   position: absolute;
-  top: 0;
-  width: 100%;
   z-index: 10;
 `
 
 const MenuWrapper = styled.div`
-  background-color: ${({ theme: { colors } }) => colors.creamLight};
-  box-shadow: -10px 0 30px 5px rgba(0, 0, 0, 0.07);
+  background-color: ${({ theme: { colors } }) => colors.mist};
+  border-left: 1px solid ${({ theme: { colors } }) => colors.line};
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow-y: auto;
-  padding: calc(var(--theme-common-space) * 4) calc(var(--theme-common-space) * 3);
-  max-width: 94%;
+  overscroll-behavior: contain;
+  padding: 0 calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 2);
   position: absolute;
   right: 0;
   top: 0;
-  width: 660px;
+  width: min(88vw, 380px);
   z-index: 20;
 `
 
 const MenuHeader = styled.div`
   align-items: center;
-  border-bottom: 1px solid ${({ theme: { colors } }) => colors.primary_50};
+  border-bottom: 1px solid ${({ theme: { colors } }) => colors.line};
   display: flex;
+  flex-shrink: 0;
+  height: 64px;
   justify-content: space-between;
-  margin-bottom: calc(var(--theme-common-space) * 4);
-  padding-bottom: calc(var(--theme-common-space) * 2);
+  margin-bottom: var(--theme-common-space);
   width: 100%;
 `
 
-const Title = styled.h2`
-  font-weight: 400;
-  margin: 0;
+const Logo = styled(GnosisChainLogo)`
+  height: 22px;
+  width: auto;
 `
 
 const CloseButton = styled.button`
+  align-items: center;
   background-color: transparent;
   border: none;
-  color: ${({ theme: { colors } }) => colors.primary};
+  border-radius: 50%;
+  color: ${({ theme: { colors } }) => colors.ink};
   cursor: pointer;
-  display: block;
+  display: flex;
+  height: 40px;
+  justify-content: center;
   padding: 0;
-  position: relative;
-  width: 24px;
+  width: 40px;
+
+  &:hover {
+    background-color: ${({ theme: { colors } }) => colors.lilac};
+  }
 `
 
 const Nav = styled.nav`
   display: flex;
   flex-direction: column;
-  row-gap: var(--theme-common-space);
+  row-gap: 2px;
   width: 100%;
 `
 
 const ButtonCSS = css`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.cream};
-  border-radius: ${({ theme: { common } }) => common.borderRadius};
-  color: ${({ theme: { colors } }) => colors.primary};
+  background-color: transparent;
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
+  color: ${({ theme: { colors } }) => colors.fog};
   display: flex;
-  min-height: 40px;
-  padding: var(--theme-common-space) calc(var(--theme-common-space) * 2);
+  font-size: 1.6rem;
+  min-height: 44px;
+  padding: var(--theme-common-space) calc(var(--theme-common-space) * 1.5);
   text-decoration: none;
 
   svg {
     .fill,
     path {
-      fill: ${({ theme: { colors } }) => colors.primary};
+      fill: currentColor;
     }
   }
 
   &.active {
-    background-color: ${({ theme: { colors } }) => colors.creamDark};
+    background-color: ${({ theme: { colors } }) => colors.surface};
+    color: ${({ theme: { colors } }) => colors.ink};
+    font-weight: 500;
   }
 
   &:hover {
-    background-color: ${({ theme: { colors } }) => colors.creamDark};
-    color: ${({ theme: { colors } }) => colors.white};
-
-    svg {
-      .fill,
-      path {
-        fill: ${({ theme: { colors } }) => colors.white};
-      }
-    }
+    background-color: ${({ theme: { colors } }) => colors.surface};
+    color: ${({ theme: { colors } }) => colors.ink};
   }
 `
 
 const NavLink = styled(BaseNavLink)`
   ${ButtonCSS}
-
-  background-color: ${({ theme: { colors } }) => colors.cream};
-  font-size: 1.6rem;
-  font-weight: 500;
 `
 
 const UserMenu = styled.div`
-  background: linear-gradient(
-    180deg,
-    ${({ theme: { colors } }) => colors.cream} 0%,
-    ${({ theme: { colors } }) => colors.creamDark} 100%
-  );
-  border-radius: ${({ theme: { common } }) => common.borderRadius};
+  background-color: ${({ theme: { colors } }) => colors.surface};
+  border: 1px solid ${({ theme: { colors } }) => colors.line};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
   display: flex;
   flex-direction: column;
   margin-top: auto;
-  padding: calc(var(--theme-common-space) * 2);
-  row-gap: var(--theme-common-space);
+  padding: calc(var(--theme-common-space) * 2) var(--theme-common-space) var(--theme-common-space);
+  row-gap: 2px;
 `
 
 const Connected = styled.div`
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.ink};
   display: flex;
   flex-direction: column;
-  padding-bottom: 10px;
-  row-gap: 5px;
-`
-
-const ConnectedTitle = styled.div`
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.2;
+  padding: 0 calc(var(--theme-common-space) * 1.5) calc(var(--theme-common-space) * 1.5);
+  row-gap: 6px;
 `
 
 const ConnectedText = styled.div`
   align-items: center;
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.ink};
   column-gap: 10px;
   display: flex;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
+  font-weight: 500;
   line-height: 1.2;
 `
 
 const UserButton = styled.button`
   ${ButtonCSS}
 
-  align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.cream};
   border: none;
   column-gap: 6px;
+  cursor: pointer;
   font-size: 1.5rem;
   justify-content: space-between;
+
+  &:hover {
+    background-color: ${({ theme: { colors } }) => colors.page};
+  }
 `
 
 const ButtonConnect = styled(ButtonPrimary)`
+  flex-shrink: 0;
   font-size: 1.5rem;
+  height: 48px;
   margin-top: auto;
-  padding: 10px 16px;
+  padding: 0 calc(var(--theme-common-space) * 2);
 `
 
 const Status = styled.div`
@@ -240,8 +234,8 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
           transition={{ duration: 0.1, type: 'spring', stiffness: 1000, damping: 100 }}
         >
           <MenuHeader>
-            <Title>Menu</Title>
-            <CloseButton onClick={() => closeMenu()}>
+            <Logo />
+            <CloseButton aria-label="Close menu" onClick={() => closeMenu()}>
               <svg
                 fill="none"
                 height="24"
@@ -271,7 +265,7 @@ export const MobileMenu: React.FC<Props> = ({ closeMenu, ...restProps }) => {
           {isWalletConnected ? (
             <UserMenu>
               <Connected>
-                <ConnectedTitle>Connected wallet</ConnectedTitle>
+                <Eyebrow>Connected wallet</Eyebrow>
                 <ConnectedText>
                   {address && (
                     <TokenAddress

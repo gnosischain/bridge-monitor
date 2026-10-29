@@ -16,7 +16,7 @@ export const ActiveButtonCSS = css`
 
 export const ButtonCSS = css`
   align-items: center;
-  border-radius: 30px;
+  border-radius: 999px;
   border-style: solid;
   border-width: 1px;
   column-gap: 16px;
@@ -24,7 +24,7 @@ export const ButtonCSS = css`
   display: flex;
   font-family: ${({ theme: { fonts } }) => fonts.family};
   font-size: 1.8rem;
-  font-weight: 500;
+  font-weight: 600;
   justify-content: center;
   line-height: 1;
   outline: none;
@@ -73,14 +73,21 @@ export const ButtonPrimaryCSS = css`
 `
 export const ButtonFullPrimaryCSS = css`
   ${ButtonPrimaryCSS}
-  height: 70px;
-  font-size: 1.8rem;
-  font-weight: 700;
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
+  height: 56px;
+  font-size: 1.6rem;
+  font-weight: 600;
   width: 100%;
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    font-size: 2.1rem;
-    height: 80px;
+    font-size: 1.7rem;
+    height: 60px;
+  }
+
+  &[disabled],
+  &[disabled]:hover {
+    background-color: ${({ theme: { colors } }) => colors.lilac};
+    border-color: ${({ theme: { colors } }) => colors.lilac};
+    color: ${({ theme: { colors } }) => colors.faint};
+    opacity: 1;
   }
 `
 

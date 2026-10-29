@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { ErrorBoundary } from 'react-error-boundary'
 
 import { BridgesValues } from '@/src/constants/config/bridges'
 import { fetchHomeValidators, getBalance, getValidatorByAddress } from '@/src/utils/validators'
@@ -15,7 +16,6 @@ import {
 
 type ValidatorsContextType = {
   validators: Record<BridgesValues, Validator[]>
-  refetch: () => void
 }
 
 const defaultValidators: Record<BridgesValues, Validator[]> = {
@@ -30,7 +30,6 @@ const ValidatorsContext = createContext<ValidatorsContextType>({
     AMB: [],
     OMNIBRIDGE: [],
   },
-  refetch: () => undefined,
 })
 
 const fetcher = async () => {
@@ -88,18 +87,30 @@ const fetcher = async () => {
 
 export const ValidatorsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Suspends until the validators resolve, so `data` is always defined here.
-  const { data: validators, refetch } = useSuspenseQuery({
+  const { data: validators } = useSuspenseQuery({
     queryKey: ['validators'],
     queryFn: fetcher,
     staleTime: 60_000,
   })
 
   return (
-    <ValidatorsContext.Provider value={{ validators: validators, refetch }}>
+    <ValidatorsContext.Provider value={{ validators: validators }}>
       {children}
     </ValidatorsContext.Provider>
   )
 }
+
+/**
+ * For pages where validators are secondary: if they fail to load, the page renders without them
+ * (unknown names, no validator filter) instead of failing as a whole.
+ */
+export const OptionalValidatorsProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => (
+  <ErrorBoundary fallback={<>{children}</>}>
+    <ValidatorsProvider>{children}</ValidatorsProvider>
+  </ErrorBoundary>
+)
 
 export const useValidators = (bridge?: BridgesValues) => {
   const context = useContext(ValidatorsContext)
@@ -108,7 +119,6 @@ export const useValidators = (bridge?: BridgesValues) => {
   }
 
   return {
-    refetch: context.refetch,
     validators: bridge ? context.validators[bridge.toUpperCase() as BridgesValues] : [],
   }
 }

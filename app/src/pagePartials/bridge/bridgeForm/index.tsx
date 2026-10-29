@@ -6,6 +6,7 @@ import { RecipientAddress } from '@/src/pagePartials/bridge/bridgeForm/Recipient
 import { CardPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/CardPlaceholder'
 import { Chains } from '@/src/constants/config/types'
 import { Header } from '@/src/pagePartials/bridge/bridgeForm/Header'
+import { EyebrowCSS } from '@/src/components/text/Eyebrow'
 import { InnerCard } from '@/src/pagePartials/bridge/bridgeForm/InnerCard'
 import { UnwrapFirst } from '@/src/pagePartials/bridge/bridgeForm/warnings/UnwrapFirst'
 import { Switch } from '@/src/pagePartials/bridge/bridgeForm/Switch'
@@ -50,32 +51,22 @@ import { getChainKey } from '@/src/constants/config/chains'
 import { ShowTokenAddress } from './ShowTokenAddress'
 import { parseUnits, zeroAddress } from 'viem'
 
-const Title = styled.h2`
-  align-items: center;
-  color: ${({ theme: { colors } }) => colors.primary};
-  display: flex;
-  font-size: 1.4rem;
-  font-weight: 500;
-  justify-content: space-between;
-  line-height: 1.2;
+const PanelLabel = styled.h3`
+  ${EyebrowCSS}
   margin: 0;
-  width: 100%;
 `
 
-export const FormWrapper = styled.div<{ hidden?: boolean }>`
-  display: ${({ hidden }) => (hidden ? 'none' : 'flex')};
+const FormWrapper = styled.div`
+  display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  max-width: 100%;
-  max-width: 644px;
-  row-gap: calc(var(--theme-common-space) * 3);
+  row-gap: calc(var(--theme-common-space) * 2.5);
   width: 100%;
 `
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  row-gap: calc(var(--theme-common-space) * 3);
+  row-gap: calc(var(--theme-common-space) * 2);
   width: 100%;
 `
 
@@ -87,39 +78,31 @@ const FormCards = styled.div`
 `
 
 const InnerCardFrom = styled(InnerCard)`
-  padding-bottom: calc(var(--theme-common-space) * 5);
   position: relative;
 `
 
-const OnChainInfo = styled.div`
+const PanelHeader = styled.div`
   align-items: center;
   display: flex;
   justify-content: space-between;
-  margin-bottom: calc(var(--theme-common-space) * -1);
-  width: 100%;
+  min-height: 20px;
 `
 
-const BridgedToken = styled.div`
+const AmountRow = styled.div`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.cream};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  column-gap: var(--theme-common-space);
+  column-gap: calc(var(--theme-common-space) * 1.5);
   display: flex;
-  height: 54px;
-  padding: var(--theme-common-space) calc(var(--theme-common-space) * 2);
+  min-height: 44px;
 `
 
-const FromTokenDropdown = styled(TokenDropdown)`
-  height: 100%;
-  margin-left: calc(var(--theme-common-space) * -1);
-
-  .dropdownButton {
-    height: 100%;
-  }
-`
-
-const AmountInput = styled(AmountTokenInput)`
-  margin-right: calc(var(--theme-common-space) * -1);
+const PanelFooter = styled.div`
+  align-items: center;
+  column-gap: calc(var(--theme-common-space) * 2);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  min-height: 20px;
+  row-gap: 4px;
 `
 
 const SkeletonCommon: React.FC = () => (
@@ -129,7 +112,7 @@ const SkeletonCommon: React.FC = () => (
       <Form as="div">
         <FormCards>
           <CardPlaceholder />
-          <CardPlaceholder height="266px" />
+          <CardPlaceholder />
         </FormCards>
         <ButtonPlaceholder />
       </Form>
@@ -255,19 +238,19 @@ const Main = () => {
         <Form>
           <FormCards>
             <InnerCardFrom>
-              <Title>Transfer from</Title>
-              <OnChainInfo>
+              <PanelHeader>
+                <PanelLabel>From</PanelLabel>
                 <Chain chainId={formState.fromChainId} />
-                <UserBalance
-                  $address={address}
-                  $fromChainId={formState.fromChainId}
-                  $onMax={(value) => dispatch({ ...formState, amount: value })}
-                  $toChainId={formState.toChainId}
-                  $token={formState.token}
+              </PanelHeader>
+              <AmountRow>
+                <AmountTokenInput
+                  decimals={formState.token?.decimals || 18}
+                  disabled={isNotBridgedErc20}
+                  onChange={(value) => dispatch({ ...formState, amount: value })}
+                  placeholder="0.00"
+                  value={formState.amount}
                 />
-              </OnChainInfo>
-              <BridgedToken>
-                <FromTokenDropdown
+                <TokenDropdown
                   defaultToken={formState.token}
                   fromChainId={formState.fromChainId}
                   key={'tokenIn'}
@@ -276,27 +259,31 @@ const Main = () => {
                   }}
                   toChainId={formState.toChainId}
                 />
-                <AmountInput
-                  decimals={formState.token?.decimals || 18}
-                  disabled={isNotBridgedErc20}
-                  onChange={(value) => dispatch({ ...formState, amount: value })}
-                  placeholder="0.00"
-                  value={formState.amount}
+              </AmountRow>
+              <PanelFooter>
+                <UserBalance
+                  $address={address}
+                  $fromChainId={formState.fromChainId}
+                  $onMax={(value) => dispatch({ ...formState, amount: value })}
+                  $toChainId={formState.toChainId}
+                  $token={formState.token}
                 />
-              </BridgedToken>
-
-              <ShowTokenAddress
-                address={formState.token?.address || ''}
-                explorerUrl={getExplorerUrl(
-                  formState.token?.address || '',
-                  getChainKey(formState.fromChainId),
-                )}
-              />
+                <ShowTokenAddress
+                  address={formState.token?.address || ''}
+                  explorerUrl={getExplorerUrl(
+                    formState.token?.address || '',
+                    getChainKey(formState.fromChainId),
+                  )}
+                />
+              </PanelFooter>
 
               <Switch onClick={() => handleFromChainIdChange()} />
             </InnerCardFrom>
             <InnerCard>
-              <Title>Transfer to</Title>
+              <PanelHeader>
+                <PanelLabel>To</PanelLabel>
+                <Chain chainId={formState.toChainId} />
+              </PanelHeader>
               {isUsdcEth && <UsdcEthWarning />}
               {isUsdceGC && <UsdcEGcWarning />}
               {unwrapFirst && <UnwrapFirst symbol={formState.token?.symbol} />}
@@ -309,17 +296,7 @@ const Main = () => {
 
               {!unwrapFirst && !sendToExternalBridge && !isNotBridgedErc20 && (
                 <>
-                  <OnChainInfo>
-                    <Chain chainId={formState.toChainId} />
-                    <UserBalance
-                      $address={address}
-                      /* Inverted values as we need to get the values from the other side of the chain */
-                      $fromChainId={formState.toChainId}
-                      $toChainId={formState.fromChainId}
-                      $token={tokenOut}
-                    />
-                  </OnChainInfo>
-                  <BridgedToken>
+                  <AmountRow>
                     <ReceivedTokenInfo
                       amount={amount}
                       fromChainId={formState.fromChainId}
@@ -333,14 +310,23 @@ const Main = () => {
                       token={formState.token}
                       tokenOut={tokenOut}
                     />
-                  </BridgedToken>
-                  <ShowTokenAddress
-                    address={tokenOut?.address || ''}
-                    explorerUrl={getExplorerUrl(
-                      tokenOut?.address || '',
-                      getChainKey(formState.toChainId),
-                    )}
-                  />
+                  </AmountRow>
+                  <PanelFooter>
+                    <UserBalance
+                      $address={address}
+                      /* Inverted values as we need to get the values from the other side of the chain */
+                      $fromChainId={formState.toChainId}
+                      $toChainId={formState.fromChainId}
+                      $token={tokenOut}
+                    />
+                    <ShowTokenAddress
+                      address={tokenOut?.address || ''}
+                      explorerUrl={getExplorerUrl(
+                        tokenOut?.address || '',
+                        getChainKey(formState.toChainId),
+                      )}
+                    />
+                  </PanelFooter>
                   <RecipientAddress
                     onChange={(event) => dispatch({ ...formState, recipient: event.target.value })}
                     recipient={formState.recipient}
@@ -348,23 +334,23 @@ const Main = () => {
                 </>
               )}
             </InnerCard>
-            {amount > 0n &&
-              formState.token &&
-              tokenOut &&
-              address &&
-              walletChainId == formState.fromChainId && (
-                <BridgeSummary
-                  amount={amount}
-                  fromChainId={formState.fromChainId}
-                  receiveNativeToken={formState.receiveNativeToken}
-                  recipient={formState.recipient}
-                  toChainId={formState.toChainId}
-                  token={formState.token}
-                  tokenOut={tokenOut}
-                  userAddress={address}
-                />
-              )}
           </FormCards>
+          {amount > 0n &&
+            formState.token &&
+            tokenOut &&
+            address &&
+            walletChainId == formState.fromChainId && (
+              <BridgeSummary
+                amount={amount}
+                fromChainId={formState.fromChainId}
+                receiveNativeToken={formState.receiveNativeToken}
+                recipient={formState.recipient}
+                toChainId={formState.toChainId}
+                token={formState.token}
+                tokenOut={tokenOut}
+                userAddress={address}
+              />
+            )}
           <UnifiedBridgeButton
             amount={amount}
             fromChainId={formState.fromChainId}

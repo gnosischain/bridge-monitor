@@ -3,7 +3,8 @@ import { Wrapper as BaseWrapper, SCText, SCTitle } from '@/src/components/card/S
 
 const Wrapper = styled(BaseWrapper)`
   position: sticky;
-  top: calc(var(--theme-common-space) * 3);
+  /* Below the sticky header pill. */
+  top: 88px;
 `
 
 const Title = styled(SCTitle)`

@@ -3,9 +3,19 @@ import { TokenAddress } from '@/src/components/token/TokenAddress'
 import { isNativeToken } from '@/src/utils/tools'
 
 const TokenAddressWrapper = styled.div`
-  padding: 0 var(--theme-common-space);
-  font-size: 1.4rem;
-  height: 1.4rem;
+  color: ${({ theme: { colors } }) => colors.fog};
+  font-size: 1.3rem;
+  margin-left: auto;
+
+  button,
+  svg {
+    color: ${({ theme: { colors } }) => colors.fog};
+  }
+
+  button:hover,
+  svg:hover {
+    color: ${({ theme: { colors } }) => colors.ink};
+  }
 `
 
 export const ShowTokenAddress: React.FC<{ address: string; explorerUrl: string }> = ({

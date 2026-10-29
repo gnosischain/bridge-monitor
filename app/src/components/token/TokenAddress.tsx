@@ -11,7 +11,7 @@ const CommonCSS = css`
   transition: color 0.15s ease-in-out;
 
   &:hover {
-    color: ${({ theme: { colors } }) => colors.primaryDark};
+    color: ${({ theme: { colors } }) => colors.inkHover};
   }
 
   &:active {
@@ -32,19 +32,12 @@ const AddressText = styled.span`
   white-space: nowrap;
 `
 
-const CopyButton = styled.button`
+const IconButton = styled.button`
   background-color: transparent;
   border: none;
-  color: ${({ theme: { colors } }) => colors.primary};
+  color: ${({ theme: { colors } }) => colors.ink};
   cursor: pointer;
   padding: 0;
-
-  ${CommonCSS}
-`
-
-const Link = styled(IconLink)`
-  color: ${({ theme: { colors } }) => colors.primary};
-  cursor: pointer;
 
   ${CommonCSS}
 `
@@ -56,7 +49,6 @@ const Error = styled.span`
 
 interface Props {
   address: string
-  bigIcons?: boolean
   characters?: number
   copy?: boolean
   href?: string
@@ -65,7 +57,6 @@ interface Props {
 
 export const TokenAddress: React.FC<Props> = ({
   address,
-  bigIcons = false,
   characters = 4,
   copy = false,
   href,
@@ -100,20 +91,24 @@ export const TokenAddress: React.FC<Props> = ({
         )}
       </AddressText>
       {address && copy && (
-        <CopyButton
+        <IconButton
+          aria-label="Copy address"
           className="copyButton"
           onClick={(e: React.MouseEvent) => copyToClipboard(e, address)}
+          type="button"
         >
-          <IconCopy height={bigIcons ? 21 : 14} width={bigIcons ? 21 : 14} />
-        </CopyButton>
+          <IconCopy height={14} width={14} />
+        </IconButton>
       )}
       {address && href && (
-        <Link
+        <IconButton
+          aria-label="Open in explorer"
           className="externalLink"
-          height={bigIcons ? 21 : 14}
           onClick={(e: React.MouseEvent) => openLink(e, href)}
-          width={bigIcons ? 21 : 14}
-        />
+          type="button"
+        >
+          <IconLink height={14} width={14} />
+        </IconButton>
       )}
     </Wrapper>
   )
