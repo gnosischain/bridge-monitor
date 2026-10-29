@@ -6,36 +6,41 @@ import { genericSuspense } from '@/src/components/safeSuspense'
 import { TokenUsdc } from './types'
 
 const Wrapper = styled.ul`
-  background: ${({ theme: { colors } }) => colors.white_50};
-  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
-  border: 1px solid ${({ theme: { colors } }) => colors.cream};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBigger};
+  border: 1px solid ${({ theme: { colors } }) => colors.line};
   display: flex;
   flex-direction: column;
+  justify-content: center;
   margin: 0;
-  padding: calc(var(--theme-common-space) * 3);
-  row-gap: calc(var(--theme-common-space) * 2);
+  padding: calc(var(--theme-common-space) * 0.5) calc(var(--theme-common-space) * 2);
   width: 100%;
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    padding: calc(var(--theme-common-space) * 0.5) calc(var(--theme-common-space) * 2.5);
+  }
 `
 
 const Item = styled.li`
   align-items: center;
+  color: ${({ theme: { colors } }) => colors.ink};
   column-gap: var(--theme-common-space);
   display: flex;
   font-size: 1.4rem;
+  font-weight: 500;
   justify-content: space-between;
-  line-height: 1.2;
+  line-height: 1.3;
   list-style: none;
-  padding: var(--theme-common-space) 0 0;
+  padding: calc(var(--theme-common-space) * 1.5) 0;
 
   &:not(:last-child) {
-    border-bottom: 1px solid ${({ theme: { colors } }) => colors.cream};
-    padding: var(--theme-common-space) 0;
+    border-bottom: 1px solid ${({ theme: { colors } }) => colors.line};
   }
 `
 
 const Value = styled.span`
   align-items: center;
   display: flex;
+  font-variant-numeric: tabular-nums;
   gap: var(--theme-common-space);
 `
 

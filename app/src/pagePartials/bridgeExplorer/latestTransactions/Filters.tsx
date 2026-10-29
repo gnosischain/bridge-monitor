@@ -17,18 +17,17 @@ import {
 } from '@/src/constants/filters'
 import { DateTimePicker } from '@/src/pagePartials/bridgeExplorer/latestTransactions/DateTimePicker'
 import { useTransactionsFilters } from '@/src/hooks/useTransactionsFilters'
+import { EyebrowCSS } from '@/src/components/text/Eyebrow'
 
 const Wrapper = styled.div`
-  --filter-border-radius: 4px;
-  --filter-common-padding: calc(var(--theme-common-space) * 2);
+  border-bottom: 1px solid ${({ theme: { colors } }) => colors.line};
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--theme-common-space) * 2);
+  row-gap: calc(var(--theme-common-space) * 2);
 
-  background-color: ${({ theme: { colors } }) => colors.creamDarker};
-  border-radius: var(--filter-border-radius) var(--filter-border-radius) 0 0;
-  margin: calc(var(--theme-common-space) * 2) var(--theme-common-space);
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    margin: calc(var(--theme-common-space) * 3) calc(var(--theme-common-space) * 2)
-      calc(var(--theme-common-space) * 2);
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    padding: calc(var(--theme-common-space) * 3);
   }
 `
 
@@ -44,15 +43,10 @@ const CommonGridCSS = css`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   }
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-  }
 `
 
 const MainFields = styled.div`
   grid-template-columns: 1fr;
-  padding: calc(var(--theme-common-space) * 3) var(--filter-common-padding);
 
   ${CommonGridCSS};
 `
@@ -60,19 +54,17 @@ const MainFields = styled.div`
 const Field = styled.div`
   display: flex;
   flex-direction: column;
+  min-width: 0;
 `
 
 const Label = styled.label`
-  color: ${({ theme: { colors } }) => colors.primary};
-  font-size: 1.4rem;
-  line-height: 1.2;
-  margin-bottom: var(--theme-common-space);
+  ${EyebrowCSS}
+
+  margin-bottom: 6px;
 `
 
 const SearchWrapper = styled.div`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.creamDarkest};
-  padding: var(--filter-common-padding);
 
   ${CommonGridCSS};
 `
@@ -80,10 +72,6 @@ const SearchWrapper = styled.div`
 const SearchCommonCSS = css`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletPortraitStart}) {
     grid-column: auto / span 2;
-
-    .textfield {
-      --texfield-font-size: 1.6rem;
-    }
   }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
@@ -98,21 +86,20 @@ const SearchCommonCSS = css`
 const Search = styled(SearchDebounceInput)`
   .textfield {
     --texfield-font-size: 1.4rem;
-    --textfield-height: calc(${({ theme: { textField } }) => textField.height} + 2px);
   }
 
   ${SearchCommonCSS};
 `
 
 const SearchSkeleton = styled(SkeletonLoading)`
-  height: 44px;
+  height: 48px;
 
   ${SearchCommonCSS};
 `
 
 const Buttons = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     justify-content: flex-end;
@@ -125,22 +112,20 @@ const Buttons = styled.div`
 `
 
 const Reset = styled.button`
-  background-color: transparent;
-  border-radius: 8px;
-  border: 1px solid ${({ theme: { colors } }) => colors.primary_60};
-  color: ${({ theme: { colors } }) => colors.primary};
+  background-color: ${({ theme: { colors } }) => colors.surface};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
+  border: 1px solid ${({ theme: { colors } }) => colors.line};
+  color: ${({ theme: { colors } }) => colors.ink};
   cursor: pointer;
   font-family: ${({ theme: { fonts } }) => fonts.family};
   font-size: 1.4rem;
-  font-weight: 400;
-  height: 42px;
+  font-weight: 500;
+  height: ${({ theme: { textField } }) => textField.height};
   padding: 0 calc(var(--theme-common-space) * 2);
   text-align: center;
 
   &:hover {
-    background-color: ${({ theme: { colors } }) => colors.primary};
-    border-color: ${({ theme: { colors } }) => colors.primary};
-    color: ${({ theme: { colors } }) => colors.cream};
+    background-color: ${({ theme: { colors } }) => colors.page};
   }
 
   &:active {
@@ -154,16 +139,16 @@ export const FiltersSkeleton: React.FC = ({ ...restProps }) => (
       {Array.from({ length: 5 }).map((item, index) => (
         <Field key={index}>
           <SkeletonLoading
-            style={{ height: '16.8px', minHeight: '0', width: '40%', marginBottom: '8px' }}
+            style={{ height: '12px', minHeight: '0', width: '40%', marginBottom: '6px' }}
           />
-          <SkeletonLoading style={{ height: '42px' }} />
+          <SkeletonLoading style={{ borderRadius: '12px', height: '48px' }} />
         </Field>
       ))}
     </MainFields>
     <SearchWrapper>
       <SearchSkeleton />
       <Buttons>
-        <SkeletonLoading style={{ height: '36px', width: '90px' }} />
+        <SkeletonLoading style={{ borderRadius: '12px', height: '48px', width: '110px' }} />
       </Buttons>
     </SearchWrapper>
   </Wrapper>

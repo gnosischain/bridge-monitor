@@ -3,24 +3,32 @@ import { Warning } from '@/src/components/assets/Warning'
 import React from 'react'
 
 const Contents = styled.div`
+  align-items: flex-start;
+  background-color: ${({ theme: { colors } }) => colors.warningSoft};
+  border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   display: flex;
-  align-items: center;
-  gap: calc(var(--theme-common-space) * 2);
-  min-height: 80px;
+  gap: calc(var(--theme-common-space) * 1.5);
+  padding: calc(var(--theme-common-space) * 1.5) calc(var(--theme-common-space) * 2);
 
   .warning {
     color: ${({ theme: { colors } }) => colors.warning};
+    height: 20px;
+    margin-top: 1px;
+    width: 20px;
   }
 `
 
 const Text = styled.span`
-  color: ${({ theme: { colors } }) => colors.textColor};
-  font-size: 1.6rem;
-  line-height: 1.4;
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-size: 1.4rem;
+  line-height: 1.5;
+  min-width: 0;
 `
 
 const Link = styled.a`
-  color: ${({ theme: { colors } }) => colors.textColor};
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-weight: 500;
+  word-break: break-all;
 `
 
 export const UsdcEthWarning: React.FC = () => {

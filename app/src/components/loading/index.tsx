@@ -13,7 +13,7 @@ const Wrapper = styled.div`
 `
 
 const Text = styled.p`
-  color: ${({ theme: { colors } }) => colors.textColor};
+  color: ${({ theme: { colors } }) => colors.fog};
   font-size: 1.4rem;
   line-height: 1.2;
   margin: 0;

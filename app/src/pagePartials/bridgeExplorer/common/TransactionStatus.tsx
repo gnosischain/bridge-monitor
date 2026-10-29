@@ -1,24 +1,33 @@
 import styled, { css } from 'styled-components'
 
-import { StatusColors } from '@/src/pagePartials/bridgeExplorer/common/StatusColors'
+import {
+  StatusBackgrounds,
+  StatusColors,
+} from '@/src/pagePartials/bridgeExplorer/common/StatusColors'
 import { TransactionStatus as TxStatusEnum } from '@/src/utils/transactions'
 
 type WrapperProps = { status: TxStatusEnum }
 
+// Initiated transfers get no dot: the list shows a warning icon with the expected delay next to them
+// (see StatusCell).
 const Wrapper = styled.div.withConfig({
   shouldForwardProp: (prop) => !['status'].includes(prop),
 })<WrapperProps>`
   align-items: center;
-  column-gap: var(--theme-common-space);
-  display: flex;
+  border-radius: 999px;
+  column-gap: 6px;
+  display: inline-flex;
   font-size: 1.2rem;
-  font-weight: 700;
-  height: 22px;
-  justify-content: center;
-  line-height: 1.2rem;
+  font-weight: 600;
+  height: 24px;
+  line-height: 1;
+  padding: 0 10px;
   text-transform: capitalize;
+  white-space: nowrap;
+  width: fit-content;
 
   ${({ status }: WrapperProps) => css`
+    background-color: ${StatusBackgrounds[status] ?? StatusBackgrounds.DEFAULT};
     color: ${StatusColors[status] ?? StatusColors.DEFAULT};
   `};
 
@@ -26,20 +35,17 @@ const Wrapper = styled.div.withConfig({
     status !== TxStatusEnum.Initiated &&
     css`
       &:before {
-        --before-size: 7px;
+        --before-size: 6px;
 
         background-color: ${StatusColors[status] ?? StatusColors.DEFAULT};
         border-radius: 50%;
         content: '';
         display: block;
+        flex-shrink: 0;
         height: var(--before-size);
         width: var(--before-size);
       }
     `};
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    display: flex;
-  }
 `
 
 export interface Props {

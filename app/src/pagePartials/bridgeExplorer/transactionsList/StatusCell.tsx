@@ -32,7 +32,7 @@ const Network = styled.span`
 `
 
 const Emphasize = styled.span`
-  font-weight: 700;
+  font-weight: 600;
 `
 
 type Props = {

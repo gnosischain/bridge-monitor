@@ -145,17 +145,22 @@ type EnvioValidatorActivityRow = {
 
 export type ValidatorActivity = 'signed' | 'executed'
 
-/** Validator activity for `bridge` since `afterDate`, counted by `activity`. */
-export const fetchValidatorsActivity = async (
+/** Every validator's activity since `afterDate`, all bridges at once. */
+export const fetchValidatorsActivity = async (afterDate: number) => {
+  const request = getEnvioGraphqlClient<{ Validator: EnvioValidatorActivityRow[] }>()
+  const res = await request(ENVIO_VALIDATORS_ACTIVITY_QUERY, { after: String(afterDate) })
+  return res.Validator || []
+}
+
+/** Validator activity for `bridge`, counted by `activity`, out of `fetchValidatorsActivity` rows. */
+export const countValidatorsActivity = (
+  validators: EnvioValidatorActivityRow[],
   bridge: BridgesValues,
-  afterDate: number,
   activity: ValidatorActivity,
 ) => {
   const bridgeValue = bridge.toUpperCase() as BridgesValues
 
-  const request = getEnvioGraphqlClient<{ Validator: EnvioValidatorActivityRow[] }>()
-  const res = await request(ENVIO_VALIDATORS_ACTIVITY_QUERY, { after: String(afterDate) })
-  const rows = (res.Validator || []).filter(
+  const rows = validators.filter(
     (v: EnvioValidatorActivityRow) => String(v.bridgeType || '').toUpperCase() === bridgeValue,
   )
 

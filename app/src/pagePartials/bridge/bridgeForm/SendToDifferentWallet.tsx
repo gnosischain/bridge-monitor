@@ -7,16 +7,21 @@ const Wrapper = styled.button.withConfig({
   align-items: center;
   background-color: transparent;
   border: none;
-  color: ${({ theme: { colors } }) => colors.primary};
+  border-radius: 999px;
+  color: ${({ theme: { colors } }) => colors.fog};
   cursor: pointer;
   display: flex;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 500;
-  gap: var(--theme-common-space);
+  gap: 6px;
   line-height: 1;
   margin-left: auto;
-  padding: var(--theme-common-space);
+  padding: 6px 0;
   text-align: right;
+
+  &:hover {
+    color: ${({ theme: { colors } }) => colors.ink};
+  }
 
   svg {
     width: 12px;

@@ -2,7 +2,6 @@ import styled from 'styled-components'
 
 import { FCR_DOCS_URL } from '@/src/components/banner/FcrBanner'
 import { MainCard } from '@/src/components/card/MainCard'
-import { MainTitle } from '@/src/components/text/MainTitle'
 import { BaseParagraph as Paragraph } from '@/src/components/text/BaseParagraph'
 import { BaseSubTitle, EmphasizedTitle } from '@/src/components/text/BaseSubTitle'
 import { EXTERNAL_BRIDGES } from '@/src/constants/externalBridges'
@@ -10,27 +9,15 @@ import { EXTERNAL_BRIDGES } from '@/src/constants/externalBridges'
 const Wrapper = styled(MainCard)`
   row-gap: 0;
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    margin-bottom: calc(var(--theme-common-space) * 13);
-  }
-`
-
-const Title = styled(MainTitle)`
-  margin-bottom: calc(var(--theme-common-space) * 4);
-`
-
-const Subtitle = styled(BaseSubTitle)`
-  &:not(:first-of-type) {
-    margin-top: calc(var(--theme-common-space) * 6);
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+    padding: calc(var(--theme-common-space) * 5);
   }
 `
 
 export const FAQContents: React.FC = () => {
   return (
     <Wrapper>
-      <Title>Frequently Asked Questions</Title>
-
-      <Subtitle>Bridging Operations</Subtitle>
+      <BaseSubTitle>Bridging Operations</BaseSubTitle>
       <EmphasizedTitle id="q_1a">
         How do I bridge ERC20 tokens from Ethereum to Gnosis Chain?
       </EmphasizedTitle>
@@ -74,7 +61,7 @@ export const FAQContents: React.FC = () => {
         Bridge Explorer and clicking "Claim".
       </Paragraph>
 
-      <Subtitle>Monitoring and Limits</Subtitle>
+      <BaseSubTitle>Monitoring and Limits</BaseSubTitle>
       <EmphasizedTitle id="q_2a">How can I monitor my bridge transactions?</EmphasizedTitle>
       <Paragraph>
         You can view and monitor your transactions by clicking on the "Search" tab. You can then
@@ -99,7 +86,7 @@ export const FAQContents: React.FC = () => {
         delayed until the next bridge limits reset (every 24 hours).
       </Paragraph>
 
-      <Subtitle>Troubleshooting and Additional Resources</Subtitle>
+      <BaseSubTitle>Troubleshooting and Additional Resources</BaseSubTitle>
       <EmphasizedTitle id="q_3a"> What does each bridge transaction status mean?</EmphasizedTitle>
       <Paragraph>
         <ul>

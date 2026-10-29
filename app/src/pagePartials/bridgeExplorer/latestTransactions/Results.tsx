@@ -13,14 +13,17 @@ const InfoWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 0 var(--theme-common-space) calc(var(--theme-common-space) * 3);
-  row-gap: calc(var(--theme-common-space) * 2);
+  padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 2) 0;
+  row-gap: calc(var(--theme-common-space) * 1.5);
+
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+    padding: calc(var(--theme-common-space) * 2.5) calc(var(--theme-common-space) * 3) 0;
+  }
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
-    padding: 0 calc(var(--theme-common-space) * 4) calc(var(--theme-common-space) * 3);
   }
 `
 
@@ -29,19 +32,15 @@ export const ResultsLoading = styled(Loading)`
 `
 
 const TransactionsWrapper = styled.div`
-  background-color: ${({ theme: { colors } }) => colors.creamLight};
-  border-radius: 16px;
-  margin: 0 2px 2px 2px;
-  padding: calc(var(--theme-common-space) / 2);
+  padding: calc(var(--theme-common-space) * 2);
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    padding: calc(var(--theme-common-space) * 1);
+    padding: calc(var(--theme-common-space) * 2) calc(var(--theme-common-space) * 3)
+      calc(var(--theme-common-space) * 3);
   }
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    padding: calc(var(--theme-common-space) * 2);
-  }
+
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
-    padding: var(--theme-common-space) 0 calc(var(--theme-common-space) * 5);
+    padding: var(--theme-common-space) 0 calc(var(--theme-common-space) * 2);
   }
 `
 
@@ -51,24 +50,28 @@ type TransactionsTableProps = {
 }
 
 export const Results: React.FC<TransactionsTableProps> = ({ bridge, filters }) => {
-  const { claimActions, isLoading, transactions } = useTransactionsWithFilters(filters)
+  const { claimActions, isError, isLoading, transactions } = useTransactionsWithFilters(filters)
   const { validators } = useValidators(bridge as BridgesValues)
 
   return isLoading ? (
     <ResultsLoading />
   ) : (
     <>
-      <InfoWrapper>
-        <Info
-          date={filters.endTimestamp?.toLocaleDateString()}
-          transactionsNumber={transactions.length}
-        />
-        <Legend />
-      </InfoWrapper>
+      {/* Without a fetched list, "0 transactions were made" would be false. */}
+      {!isError && (
+        <InfoWrapper>
+          <Info
+            date={filters.endTimestamp?.toLocaleDateString()}
+            transactionsNumber={transactions.length}
+          />
+          <Legend />
+        </InfoWrapper>
+      )}
       <TransactionsWrapper>
         <TransactionsList
           claimActions={claimActions}
           goBackURL={latestTransactionsBaseURL}
+          isError={isError}
           transactions={transactions}
           validators={validators}
         />

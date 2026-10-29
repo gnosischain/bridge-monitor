@@ -24,23 +24,27 @@ import { Transaction } from '@/src/utils/transactions'
 
 const Wrapper = styled.button`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.primary};
-  border-radius: ${({ theme: { common } }) => common.borderRadius};
+  background-color: ${({ theme: { colors } }) => colors.ink};
+  border-radius: 999px;
   border: none;
-  color: ${({ theme: { colors } }) => colors.cream};
+  color: ${({ theme: { colors } }) => colors.surface};
   column-gap: 6px;
   cursor: pointer;
   display: flex;
-  font-size: 1.4rem;
-  font-weight: 500;
-  height: 28px;
+  font-family: ${({ theme: { fonts } }) => fonts.family};
+  font-size: 1.3rem;
+  font-weight: 600;
+  height: 30px;
   justify-content: center;
-  line-height: 1.2rem;
-  min-width: 90px;
-  padding: 0;
-  text-transform: uppercase;
-  transition: none;
+  line-height: 1;
+  min-width: 80px;
+  padding: 0 calc(var(--theme-common-space) * 1.75);
+  transition: background-color 0.15s linear;
   width: fit-content;
+
+  &:hover {
+    background-color: ${({ theme: { colors } }) => colors.inkHover};
+  }
 
   &:active {
     opacity: 0.6;

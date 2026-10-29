@@ -10,7 +10,6 @@ import {
 import styled, { css } from 'styled-components'
 
 export enum DropdownPosition {
-  center,
   left,
   right,
 }
@@ -61,11 +60,6 @@ const PositionRightCSS = css`
   right: 0;
 `
 
-const PositionCenterCSS = css`
-  left: 50%;
-  transform: translateX(-50%);
-`
-
 interface ItemProps {
   $dropdownPosition?: DropdownPosition
   $isOpen: boolean
@@ -75,11 +69,7 @@ const Items = styled.div<ItemProps>`
   background: ${({ theme: { dropdown } }) => dropdown.background};
   border-radius: ${({ theme: { dropdown } }) => dropdown.borderRadius};
   border: 1px solid ${({ theme: { dropdown } }) => dropdown.borderColor};
-  box-shadow:
-    0 63px 80px rgba(0, 0, 0, 0.07),
-    0 31.8937px 34.875px rgba(0, 0, 0, 0.04725),
-    0 12.6px 13px rgba(0, 0, 0, 0.035),
-    0 2.75625px 4.625px rgba(0, 0, 0, 0.02275);
+  box-shadow: ${({ theme: { dropdown } }) => dropdown.boxShadow};
   display: ${(props) => (props.$isOpen ? 'block' : 'none')};
   min-width: 150px;
   max-height: 260px;
@@ -90,7 +80,6 @@ const Items = styled.div<ItemProps>`
 
   ${(props) => (props.$dropdownPosition === DropdownPosition.left ? PositionLeftCSS : '')}
   ${(props) => (props.$dropdownPosition === DropdownPosition.right ? PositionRightCSS : '')}
-  ${(props) => (props.$dropdownPosition === DropdownPosition.center ? PositionCenterCSS : '')}
 
   /* width */
   ::-webkit-scrollbar {
@@ -99,19 +88,19 @@ const Items = styled.div<ItemProps>`
 
   /* Track */
   ::-webkit-scrollbar-track {
-    background-color: ${({ theme: { colors } }) => colors.cream};
+    background-color: ${({ theme: { colors } }) => colors.page};
     border-radius: ${({ theme: { dropdown } }) => dropdown.borderRadius};
   }
 
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background-color: ${({ theme: { colors } }) => colors.creamDark};
+    background-color: ${({ theme: { colors } }) => colors.line};
     border-radius: ${({ theme: { dropdown } }) => dropdown.borderRadius};
   }
 
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
-    background-color: ${({ theme: { colors } }) => colors.primary};
+    background-color: ${({ theme: { colors } }) => colors.ink};
   }
 `
 
