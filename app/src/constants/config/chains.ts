@@ -2,11 +2,6 @@ import nullthrows from 'nullthrows'
 
 import { ChainConfig, Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 
-// Default chain id from env var
-export const INITIAL_APP_CHAIN_ID = Number(
-  process.env.NEXT_PUBLIC_DEFAULT_CHAIN_ID || '1',
-) as ChainsValues
-
 export const chainsConfig: Record<ChainsValues, ChainConfig> = {
   [Chains.mainnet]: {
     id: Chains.mainnet,

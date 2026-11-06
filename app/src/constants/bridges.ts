@@ -37,8 +37,5 @@ export const bridgeConfig = Object.freeze({
       },
       usdt: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
     },
-    protocol: {
-      address: '0x87D48c565D0D85770406D248efd7dc3cbd41e729',
-    },
   },
 })

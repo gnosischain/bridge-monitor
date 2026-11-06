@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { useState } from 'react'
+import { zeroAddress } from 'viem'
 import { BridgeLimit } from '@/src/pagePartials/bridgeExplorer/bridges/BridgeLimit'
 import { Card } from '@/src/pagePartials/bridgeExplorer/bridges/Card'
 import { SectionHeader } from '@/src/components/sectionHeader'
@@ -15,7 +16,6 @@ import {
 } from '@/src/hooks/contracts/useXDAIContractCalls'
 import { useGnoToken } from '@/src/hooks/useGnoToken'
 import { useDaiToken } from '@/src/hooks/useDaiToken'
-import { useDayNumber } from '@/src/hooks/useDayNumber'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { TokenDropdown } from '@/src/pagePartials/bridgeExplorer/bridges/TokenDropdown'
@@ -85,10 +85,9 @@ const Placeholder: React.FC = () => (
   </Card>
 )
 
-export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericSuspense(
-  ({ dayNumber }) => {
-    const { foreignXdaiInformation, isLoading } = useForeignXDAIBridgeLimits(dayNumber)
-    // const { mainnetDaiToken } = useDaiToken()
+export const XDAIEthToGC: React.FC = genericSuspense(
+  () => {
+    const { foreignXdaiInformation, isLoading } = useForeignXDAIBridgeLimits()
 
     if (isLoading) return <Placeholder />
 
@@ -97,7 +96,6 @@ export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericS
         from="Ethereum"
         networkName="mainnet"
         to="Gnosis Chain"
-        // token={mainnetDaiToken}
         token={usdsToken}
         {...foreignXdaiInformation}
       />
@@ -106,9 +104,9 @@ export const XDAIEthToGC: React.FC<{ dayNumber: string | undefined }> = genericS
   () => <Placeholder />,
 )
 
-export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericSuspense(
-  ({ dayNumber }) => {
-    const { homeXdaiInformation, isLoading } = useHomeXDAIBridgeLimits(dayNumber)
+export const XDAIGCToEth: React.FC = genericSuspense(
+  () => {
+    const { homeXdaiInformation, isLoading } = useHomeXDAIBridgeLimits()
     const { gnosisXdaiToken } = useDaiToken()
 
     if (isLoading) return <Placeholder />
@@ -128,45 +126,43 @@ export const XDAIGCToEth: React.FC<{ dayNumber: string | undefined }> = genericS
   () => <Placeholder />,
 )
 
-const OmnibridgeMainnetToGnosisChain: React.FC<{ token: Token; dayNumber: string | undefined }> =
-  genericSuspense(
-    ({ dayNumber, token }) => {
-      const { foreignOmniInformation, isLoading } = useForeignOMNIBridgeLimits(token, dayNumber)
+const OmnibridgeMainnetToGnosisChain: React.FC<{ token: Token }> = genericSuspense(
+  ({ token }) => {
+    const { foreignOmniInformation, isLoading } = useForeignOMNIBridgeLimits(token)
 
-      if (isLoading) return <Placeholder />
+    if (isLoading) return <Placeholder />
 
-      return (
-        <BridgeLimit
-          from="Ethereum"
-          networkName="mainnet"
-          to="Gnosis Chain"
-          token={token}
-          {...foreignOmniInformation}
-        />
-      )
-    },
-    () => <Placeholder />,
-  )
+    return (
+      <BridgeLimit
+        from="Ethereum"
+        networkName="mainnet"
+        to="Gnosis Chain"
+        token={token}
+        {...foreignOmniInformation}
+      />
+    )
+  },
+  () => <Placeholder />,
+)
 
-const OmnibridgeGnosisChainToMainnet: React.FC<{ token: Token; dayNumber: string | undefined }> =
-  genericSuspense(
-    ({ dayNumber, token }) => {
-      const { homeOmniInformation, isLoading } = useHomeOMNIBridgeLimits(token, dayNumber)
+const OmnibridgeGnosisChainToMainnet: React.FC<{ token: Token }> = genericSuspense(
+  ({ token }) => {
+    const { homeOmniInformation, isLoading } = useHomeOMNIBridgeLimits(token)
 
-      if (isLoading) return <Placeholder />
+    if (isLoading) return <Placeholder />
 
-      return (
-        <BridgeLimit
-          from="Gnosis Chain"
-          networkName="gnosis"
-          to="Ethereum"
-          token={token}
-          {...homeOmniInformation}
-        />
-      )
-    },
-    () => <Placeholder />,
-  )
+    return (
+      <BridgeLimit
+        from="Gnosis Chain"
+        networkName="gnosis"
+        to="Ethereum"
+        token={token}
+        {...homeOmniInformation}
+      />
+    )
+  },
+  () => <Placeholder />,
+)
 
 const XDAIHeader: React.FC = () => <SectionHeader title="xDai bridge" />
 const OmnibridgeHeader: React.FC<{ aside?: React.ReactNode }> = ({ aside }) => (
@@ -174,7 +170,6 @@ const OmnibridgeHeader: React.FC<{ aside?: React.ReactNode }> = ({ aside }) => (
 )
 
 const Limits: React.FC = () => {
-  const dayNumber = useDayNumber()
   const { gnosisGnoToken, mainnetGnoToken } = useGnoToken()
   const [mainnetToGnosisChainToken, setMainnetToGnosisChainToken] = useState<Token>(mainnetGnoToken)
   const [gnosisChainToMainnet, setGnosisChainToMainnet] = useState<Token>(gnosisGnoToken)
@@ -182,30 +177,26 @@ const Limits: React.FC = () => {
   const { tokensByAddress } = useBridgedTokens()
 
   const onChangeToken = (token: Token) => {
-    // the list of tokens used are those of Mainnet (foreign network)
-    const mainnetToGnosisChain = token
+    // the list of tokens used are those of Mainnet (foreign network). Set even when invalid: the
+    // dropdown shows this token, not its own pick.
+    setMainnetToGnosisChainToken(token)
+
+    // The dropdown's address search finds tokens outside the list: the zero address means nobody
+    // has bridged it yet, otherwise its Gnosis side has the same symbol and decimals.
     const otherSideAddress = token.extensions.bridgeInfo[Chains.gnosis]?.tokenAddress.toLowerCase()
-    if (!otherSideAddress) throw new Error('Token address not found')
-    const gnosisChainToMainnet = tokensByAddress[otherSideAddress] ?? {
-      address: token.extensions.bridgeInfo[Chains.gnosis]?.tokenAddress,
-      chainId: Chains.gnosis,
-      decimals: 18,
-      extensions: token.extensions,
-      logoURI: '',
-      name: 'Safe Token',
-      symbol: 'SAFE',
-    }
-
-    const isSelectedTokenValid = mainnetToGnosisChain && gnosisChainToMainnet
-
-    if (isSelectedTokenValid) {
-      setInvalidToken(false)
-      setMainnetToGnosisChainToken(mainnetToGnosisChain)
-      setGnosisChainToMainnet(gnosisChainToMainnet)
-    } else {
+    if (!otherSideAddress || otherSideAddress === zeroAddress) {
       setInvalidToken(token)
-      console.error('Invalid token selected')
+      return
     }
+
+    setInvalidToken(false)
+    setGnosisChainToMainnet(
+      tokensByAddress[otherSideAddress] ?? {
+        ...token,
+        address: otherSideAddress,
+        chainId: Chains.gnosis,
+      },
+    )
   }
 
   return (
@@ -213,8 +204,8 @@ const Limits: React.FC = () => {
       <Section>
         <XDAIHeader />
         <Columns>
-          <XDAIEthToGC dayNumber={dayNumber} />
-          <XDAIGCToEth dayNumber={dayNumber} />
+          <XDAIEthToGC />
+          <XDAIGCToEth />
         </Columns>
       </Section>
       <Section>
@@ -246,11 +237,8 @@ const Limits: React.FC = () => {
             </InvalidToken>
           ) : (
             <>
-              <OmnibridgeMainnetToGnosisChain
-                dayNumber={dayNumber}
-                token={mainnetToGnosisChainToken}
-              />
-              <OmnibridgeGnosisChainToMainnet dayNumber={dayNumber} token={gnosisChainToMainnet} />
+              <OmnibridgeMainnetToGnosisChain token={mainnetToGnosisChainToken} />
+              <OmnibridgeGnosisChainToMainnet token={gnosisChainToMainnet} />
             </>
           )}
         </Columns>

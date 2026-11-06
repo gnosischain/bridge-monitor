@@ -9,10 +9,6 @@ import { fromSecondsTimestamp } from '@/src/utils/date'
 import { Chains, chainsConfig } from '@/src/constants/config/chains'
 import cloneDeep from 'lodash/cloneDeep'
 import { ValidatorStatusTypes } from '@/src/constants/types'
-import {
-  TELEPATHY_VALIDATOR_ADDRESS,
-  TELEPATHY_VALIDATOR_ADDRESS_REPLACED,
-} from '@/src/constants/misc'
 
 type ValidatorsContextType = {
   validators: Record<BridgesValues, Validator[]>
@@ -40,12 +36,7 @@ const fetcher = async () => {
       ? getValidatorByAddress(v.address, v.bridgeType as BridgesValues)
       : undefined
 
-    // Telepathy replacement only for balance call
-    const balanceAddr =
-      v.address.toLowerCase() === TELEPATHY_VALIDATOR_ADDRESS.toLowerCase()
-        ? TELEPATHY_VALIDATOR_ADDRESS_REPLACED
-        : v.address
-    const balanceHomeValue = await getBalance(balanceAddr, Chains.gnosis)
+    const balanceHomeValue = await getBalance(v.address, Chains.gnosis)
 
     const name = v.name || staticVal?.name || v.address
     const shortName = staticVal?.shortName || name
@@ -58,8 +49,6 @@ const fetcher = async () => {
       shortName,
       status: ValidatorStatusTypes.default,
       lastSeen: fromSecondsTimestamp(v.lastActivity ?? 0),
-      signed: Array.isArray(v.signed) ? v.signed.length : 0,
-      executed: Array.isArray(v.executed) ? v.executed.length : 0,
       balanceHome: {
         token: chainsConfig[Chains.gnosis].token,
         chain: chainsConfig[Chains.gnosis].name,

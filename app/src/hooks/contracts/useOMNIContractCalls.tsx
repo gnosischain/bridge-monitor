@@ -9,7 +9,7 @@ import { Address } from 'viem'
 // ABI encodes the reads for both sides (the address differs per chain).
 const OMNI_ABI = contracts.OmniBridge.abi
 
-const useOMNIBridgeLimits = (token: Token, chainId: ChainsValues, currentDay: string = '0') => {
+const useOMNIBridgeLimits = (token: Token, chainId: ChainsValues) => {
   const tokenAddress = token.address as Address
 
   const omni = {
@@ -42,10 +42,8 @@ const useOMNIBridgeLimits = (token: Token, chainId: ChainsValues, currentDay: st
     executionMaxPerTx,
   ] = base ?? []
 
-  // the on-chain current day wins; the passed value is only a fallback (e.g. `?d=` history)
-  const day = onChainCurrentDay ?? (currentDay ? BigInt(currentDay) : 0n)
-
-  // totals depend on the resolved current day, so they run once `base` is loaded
+  // totals depend on the on-chain current day, so they run once `base` is loaded
+  const day = onChainCurrentDay ?? 0n
   const { data: totals, isLoading: isLoadingTotals } = useReadContracts({
     allowFailure: false,
     contracts: [
@@ -73,12 +71,12 @@ const useOMNIBridgeLimits = (token: Token, chainId: ChainsValues, currentDay: st
   }
 }
 
-export const useHomeOMNIBridgeLimits = (token: Token, currentDay: string = '0') => {
-  const { information, isLoading } = useOMNIBridgeLimits(token, Chains.gnosis, currentDay)
+export const useHomeOMNIBridgeLimits = (token: Token) => {
+  const { information, isLoading } = useOMNIBridgeLimits(token, Chains.gnosis)
   return { homeOmniInformation: information, isLoading }
 }
 
-export const useForeignOMNIBridgeLimits = (token: Token, currentDay: string = '0') => {
-  const { information, isLoading } = useOMNIBridgeLimits(token, Chains.mainnet, currentDay)
+export const useForeignOMNIBridgeLimits = (token: Token) => {
+  const { information, isLoading } = useOMNIBridgeLimits(token, Chains.mainnet)
   return { foreignOmniInformation: information, isLoading }
 }

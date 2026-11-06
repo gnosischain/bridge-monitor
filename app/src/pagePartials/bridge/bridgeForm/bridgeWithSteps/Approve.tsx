@@ -59,6 +59,7 @@ export const Approve = ({
       try {
         const hash = await approve({
           amount,
+          chainId: Chains.gnosis,
           spenderAddress: TRANSMUTER_ADDRESS,
           tokenAddress: USDCe_GNOSIS,
         })

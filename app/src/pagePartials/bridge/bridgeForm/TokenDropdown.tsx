@@ -288,11 +288,7 @@ const Dropdown: React.FC<Props> = ({
   const allTokens = useMemo(
     () =>
       ambTokensByNetwork[fromChainId]
-        .filter((item) => {
-          if (isSameString(item.address, zeroAddress)) return false
-          if (fromChainId === Chains.gnosis && isSameString(item.symbol, 'USDS')) return false
-          return true
-        })
+        .filter((item) => !isSameString(item.address, zeroAddress))
         .concat(
           fromChainId === Chains.gnosis
             ? [

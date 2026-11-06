@@ -8,10 +8,6 @@ import { HealthStatusTypes } from '@/src/constants/types'
 import { useDate } from '@/src/hooks/useDate'
 import { Validator as ValidatorType } from '@/src/utils/validators'
 import { getAddressScanUrl } from '@/src/utils/transactions'
-import {
-  TELEPATHY_VALIDATOR_ADDRESS,
-  TELEPATHY_VALIDATOR_ADDRESS_REPLACED,
-} from '@/src/constants/misc'
 
 const Wrapper = styled.div`
   display: grid;
@@ -71,11 +67,6 @@ export const Validator: React.FC<Props> = ({ bridgeValidator, ...restProps }) =>
   const dateLastSeen = useDate(new Date(lastSeen))
   const lastSeenTime = `${dateLastSeen.duration?.interval} ${dateLastSeen.duration?.epoch}${dateLastSeen.getSuffix}`
 
-  const validatorAddress =
-    bridgeValidator.address?.toLowerCase() === TELEPATHY_VALIDATOR_ADDRESS.toLowerCase()
-      ? TELEPATHY_VALIDATOR_ADDRESS_REPLACED
-      : bridgeValidator.address
-
   // @todo adds validator label
   const validatorHealth = () => {
     return HealthStatusTypes.success
@@ -109,10 +100,10 @@ export const Validator: React.FC<Props> = ({ bridgeValidator, ...restProps }) =>
       <WideCell>
         <CellLabel>Address</CellLabel>
         <Address
-          address={validatorAddress}
+          address={bridgeValidator.address}
           characters={6}
           copy
-          href={getAddressScanUrl(validatorAddress, bridgeValidator.scanUrl ?? 'gnosis')}
+          href={getAddressScanUrl(bridgeValidator.address, bridgeValidator.scanUrl ?? 'gnosis')}
         />
       </WideCell>
     </Wrapper>

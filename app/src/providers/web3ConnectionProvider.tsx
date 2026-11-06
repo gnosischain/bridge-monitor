@@ -1,9 +1,7 @@
 'use client'
 
 import {
-  Dispatch,
   ReactNode,
-  SetStateAction,
   createContext,
   useCallback,
   useContext,
@@ -11,7 +9,6 @@ import {
   useMemo,
   useState,
 } from 'react'
-import nullthrows from 'nullthrows'
 import {
   useCapabilities,
   useConnection,
@@ -22,7 +19,7 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { BaseError, UserRejectedRequestError } from 'viem'
 
-import { INITIAL_APP_CHAIN_ID, chainsConfig } from '@/src/constants/config/chains'
+import { chainsConfig } from '@/src/constants/config/chains'
 import { Chains, ChainsKeys, ChainsValues } from '@/src/constants/config/types'
 import { getSupportedNetworks } from '@/src/utils/getSupportedNetworks'
 import { isValidChain } from '@/src/utils/tools'
@@ -31,26 +28,18 @@ import { SelectWallet } from '@/src/components/wallet/SelectWallet'
 import { notify } from '@/src/components/toast'
 import { ToastStates } from '@/src/constants/types'
 
-// Default chain id from env var
-nullthrows(
-  Object.values(Chains).includes(INITIAL_APP_CHAIN_ID) ? INITIAL_APP_CHAIN_ID : null,
-  'No default chain ID is defined or is not supported',
-)
-
 export type Web3Context = {
   address: `0x${string}` | null
-  appChainId: ChainsValues
   connectWallet: () => void
   connectingWallet: boolean
   disconnectWallet: () => void
   getExplorerUrl: (hash: string, network?: ChainsKeys) => string
-  isAppConnected: boolean
   isWalletConnected: boolean
   isWalletNetworkSupported: boolean
+  isCheckingSCWallet: boolean
   isSCWallet: boolean | undefined
   canBatch: boolean
   pushNetwork: (chainId: number) => Promise<boolean>
-  setAppChainId: Dispatch<SetStateAction<ChainsValues>>
   walletChainId: number | null
   walletLabel: string | null
   isOnboardChangingChain: boolean
@@ -69,11 +58,10 @@ export default function Web3ConnectionProvider({ children }: Props) {
     mutation: { onError: (error) => console.error('Failed to disconnect wallet:', error) },
   })
 
-  const [appChainId, setAppChainId] = useState(INITIAL_APP_CHAIN_ID)
   const [showWalletModal, setShowWalletModal] = useState(false)
 
   const walletPublicClient = usePublicClient({ chainId })
-  const { data: isSCWallet } = useQuery({
+  const { data: isSCWallet, isLoading: isCheckingSCWallet } = useQuery({
     queryKey: ['isSCWallet', wagmiAddress, chainId],
     queryFn: async () => {
       if (!walletPublicClient || !wagmiAddress) return false
@@ -104,17 +92,9 @@ export default function Web3ConnectionProvider({ children }: Props) {
   const walletChainId = chainId ?? null
 
   const isWalletConnected = isConnected && address != null
-  const isAppConnected = isWalletConnected && walletChainId === appChainId
   const isWalletNetworkSupported = getSupportedNetworks().some(({ id }) => {
     return id === walletChainId
   })
-
-  // Sync app chain with wallet chain when on supported network
-  useEffect(() => {
-    if (isWalletNetworkSupported && walletChainId) {
-      setAppChainId(walletChainId as SetStateAction<ChainsValues>)
-    }
-  }, [walletChainId, isWalletNetworkSupported])
 
   // Auto-close wallet modal on successful connection
   useEffect(() => {
@@ -186,19 +166,17 @@ export default function Web3ConnectionProvider({ children }: Props) {
 
   const value: Web3Context = {
     address,
-    appChainId,
     canBatch,
     connectWallet: handleConnectWallet,
     connectingWallet: isConnecting,
     disconnectWallet: handleDisconnectWallet,
     getExplorerUrl,
-    isAppConnected,
+    isCheckingSCWallet,
     isOnboardChangingChain: isSwitchingChain,
     isSCWallet,
     isWalletConnected,
     isWalletNetworkSupported,
     pushNetwork,
-    setAppChainId,
     walletChainId,
     walletLabel: connector?.name ?? null,
   }

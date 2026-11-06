@@ -11,7 +11,7 @@ import { isSameString } from '@/src/utils/tools'
 import { Address, erc20Abi, formatUnits, zeroAddress } from 'viem'
 
 /**
- * Returns a pair of tokens (initiator and destination), along with the value bridged and bridge information
+ * Returns the initiator token, along with the value bridged and bridge information
  *
  * @dev It will first search for the token info in the list of tokens provided by TokenListProvider, if no data is found,
  * it looks for the info in the blockchain by querying the ERC20 tokens
@@ -27,7 +27,7 @@ export const useLookupBridgedToken = ({
   tokenAddress: string
   tokenValue: string
 }) => {
-  const { gnosisXdaiToken, mainnetDaiToken } = useDaiToken()
+  const { gnosisXdaiToken } = useDaiToken()
   const { tokenList, tokensByAddress } = useBridgedTokens()
 
   const isMainnetToken = initiatorNetwork === 'mainnet'
@@ -36,7 +36,6 @@ export const useLookupBridgedToken = ({
   const isNativeAddress =
     normalizedAddress === zeroAddress || isSameString(normalizedAddress, NATIVE_TOKEN_ADDRESS)
   const isNativeInXdaiBridge = isXdaiBridge && isNativeAddress
-  const xDaiBridgedToken = isNativeInXdaiBridge ? mainnetDaiToken : gnosisXdaiToken
 
   const tokenFromList =
     tokensByAddress[normalizedAddress] ??
@@ -109,7 +108,6 @@ export const useLookupBridgedToken = ({
 
   return {
     initiatorToken,
-    destinationToken: xDaiBridgedToken,
     isXdaiBridge,
     value,
     isLoading: !initiatorToken || !value,

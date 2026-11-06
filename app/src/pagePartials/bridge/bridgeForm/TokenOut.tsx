@@ -8,11 +8,9 @@ import { useBridgeFee } from '@/src/hooks/bridge/useBridgeFee'
 import { formatUnits } from 'viem'
 import { ReceiveTokenSwitcher } from '@/src/pagePartials/bridge/bridgeForm/ReceiveTokenSwitcher'
 import { chainsConfig } from '@/src/constants/config/chains'
-import { genericSuspense } from '@/src/components/safeSuspense'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
 import { isSameString } from '@/src/utils/tools'
 import React, { useState } from 'react'
-import { useIsUsdsEnabled } from '@/src/hooks/contracts/useIsUsdsEnabled'
 
 const NoTokenSelected = styled.span`
   color: ${({ theme: { colors } }) => colors.fog};
@@ -60,6 +58,19 @@ const wethOptions = [
   },
 ]
 
+const xdaiOptions = [
+  {
+    icon: '/images/icons/dai.svg',
+    label: 'DAI',
+    name: 'xdai-types',
+  },
+  {
+    icon: '/images/icons/usds.webp',
+    label: 'USDS',
+    name: 'xdai-types',
+  },
+]
+
 export const NoTokenOut: React.FC<{ loading?: boolean }> = ({ loading }) => (
   <>
     <TokenOutValue disabled>0.00</TokenOutValue>
@@ -90,90 +101,72 @@ export const TokenOut: React.FC<{
   toChainId: ChainsValues
   token: Token
   tokenOut: Token
-}> = genericSuspense(
-  ({
+}> = ({
+  amount,
+  fromChainId,
+  setReceiveNativeToken: onReceiveNativeChange,
+  setReceiveUsds: onReceiveUsdsChange,
+  toChainId,
+  token,
+  tokenOut,
+}) => {
+  const { isFromHome, isNativeBridge } = getBridgeCommonInfo({
+    fromChainId: fromChainId,
+    toChainId: toChainId,
+    tokenAddress: token.address,
+  })
+
+  const { data: feeInfo } = useBridgeFee({
     amount,
-    fromChainId,
-    setReceiveNativeToken: onReceiveNativeChange,
-    setReceiveUsds: onReceiveUsdsChange,
-    toChainId,
+    isFromHome,
+    isNativeBridge,
     token,
-    tokenOut,
-  }) => {
-    const { isFromHome, isNativeBridge } = getBridgeCommonInfo({
-      fromChainId: fromChainId,
-      toChainId: toChainId,
-      tokenAddress: token.address,
-    })
+  })
 
-    const { data: feeInfo } = useBridgeFee({
-      amount,
-      isFromHome,
-      isNativeBridge,
-      token,
-    })
+  const showNativeTokenSwitcher =
+    fromChainId == Chains.gnosis &&
+    token.address == chainsConfig[Chains.gnosis].bridge.wForeignNative
 
-    const isUsdsEnabled = useIsUsdsEnabled()
-    const xdaiOptions = [
-      {
-        icon: '/images/icons/dai.svg',
-        label: 'DAI',
-        name: 'xdai-types',
-      },
-      {
-        icon: '/images/icons/usds.webp',
-        label: 'USDS',
-        name: 'xdai-types',
-        disabled: !isUsdsEnabled,
-      },
-    ]
+  const showXDaiSwitcher =
+    fromChainId === Chains.gnosis && isSameString(token.address, NATIVE_TOKEN_ADDRESS)
 
-    const showNativeTokenSwitcher =
-      fromChainId == Chains.gnosis &&
-      token.address == chainsConfig[Chains.gnosis].bridge.wForeignNative
+  // Add state for selected option
+  const [selectedNativeToken, setSelectedNativeToken] = useState(wethOptions[0].label)
+  const [selectedXDaiToken, setSelectedXDaiToken] = useState(xdaiOptions[0].label)
 
-    const showXDaiSwitcher =
-      fromChainId === Chains.gnosis && isSameString(token.address, NATIVE_TOKEN_ADDRESS)
+  const tokenOutAmount = formatUnits(amount - (feeInfo ?? 0n), tokenOut?.decimals ?? 18)
 
-    // Add state for selected option
-    const [selectedNativeToken, setSelectedNativeToken] = useState(wethOptions[0].label)
-    const [selectedXDaiToken, setSelectedXDaiToken] = useState(xdaiOptions[0].label)
+  const handleSwitchDaiUsds = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedXDaiToken(event.target.value)
+    onReceiveUsdsChange(event.target.value === 'USDS')
+  }
 
-    const tokenOutAmount = formatUnits(amount - (feeInfo ?? 0n), tokenOut?.decimals ?? 18)
-
-    const handleSwitchDaiUsds = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setSelectedXDaiToken(event.target.value)
-      onReceiveUsdsChange(event.target.value === 'USDS')
-    }
-
-    return (
-      <>
-        <TokenOutValue>{tokenOutAmount}</TokenOutValue>
-        {showNativeTokenSwitcher ? (
-          <ReceiveTokenSwitcher
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              setSelectedNativeToken(event.target.value)
-              onReceiveNativeChange(event.target.value === 'ETH')
-            }}
-            options={wethOptions}
-            optionsId="ethOptions"
-            value={selectedNativeToken}
-          />
-        ) : showXDaiSwitcher ? (
-          <ReceiveTokenSwitcher
-            onChange={handleSwitchDaiUsds}
-            options={xdaiOptions}
-            optionsId="xdaiOptions"
-            value={selectedXDaiToken}
-          />
-        ) : (
-          <TokenLabel>
-            <TokenIcon dimensions={24} iconSource={tokenOut.logoURI} symbol={tokenOut.symbol} />
-            {tokenOut.symbol}
-          </TokenLabel>
-        )}
-      </>
-    )
-  },
-  () => <NoTokenOut loading />,
-)
+  return (
+    <>
+      <TokenOutValue>{tokenOutAmount}</TokenOutValue>
+      {showNativeTokenSwitcher ? (
+        <ReceiveTokenSwitcher
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setSelectedNativeToken(event.target.value)
+            onReceiveNativeChange(event.target.value === 'ETH')
+          }}
+          options={wethOptions}
+          optionsId="ethOptions"
+          value={selectedNativeToken}
+        />
+      ) : showXDaiSwitcher ? (
+        <ReceiveTokenSwitcher
+          onChange={handleSwitchDaiUsds}
+          options={xdaiOptions}
+          optionsId="xdaiOptions"
+          value={selectedXDaiToken}
+        />
+      ) : (
+        <TokenLabel>
+          <TokenIcon dimensions={24} iconSource={tokenOut.logoURI} symbol={tokenOut.symbol} />
+          {tokenOut.symbol}
+        </TokenLabel>
+      )}
+    </>
+  )
+}

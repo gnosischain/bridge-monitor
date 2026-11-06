@@ -7,7 +7,7 @@ import { Chains, ChainsValues } from '@/src/constants/config/types'
 // ABI encodes the reads for both sides (the address differs per chain).
 const XDAI_ABI = contracts.XDAIBridge.abi
 
-const useXDAIBridgeLimits = (chainId: ChainsValues, currentDay: string = '0') => {
+const useXDAIBridgeLimits = (chainId: ChainsValues) => {
   const xdai = {
     address: contracts.XDAIBridge.address[chainId],
     abi: XDAI_ABI,
@@ -36,10 +36,8 @@ const useXDAIBridgeLimits = (chainId: ChainsValues, currentDay: string = '0') =>
     executionMaxPerTx,
   ] = base ?? []
 
-  // the on-chain current day wins; the passed value is only a fallback (e.g. `?d=` history)
-  const day = onChainCurrentDay ?? (currentDay ? BigInt(currentDay) : 0n)
-
-  // totals depend on the resolved current day, so they run once `base` is loaded
+  // totals depend on the on-chain current day, so they run once `base` is loaded
+  const day = onChainCurrentDay ?? 0n
   const { data: totals, isLoading: isLoadingTotals } = useReadContracts({
     allowFailure: false,
     contracts: [
@@ -66,12 +64,12 @@ const useXDAIBridgeLimits = (chainId: ChainsValues, currentDay: string = '0') =>
   }
 }
 
-export const useHomeXDAIBridgeLimits = (currentDay: string = '0') => {
-  const { information, isLoading } = useXDAIBridgeLimits(Chains.gnosis, currentDay)
+export const useHomeXDAIBridgeLimits = () => {
+  const { information, isLoading } = useXDAIBridgeLimits(Chains.gnosis)
   return { homeXdaiInformation: information, isLoading }
 }
 
-export const useForeignXDAIBridgeLimits = (currentDay: string = '0') => {
-  const { information, isLoading } = useXDAIBridgeLimits(Chains.mainnet, currentDay)
+export const useForeignXDAIBridgeLimits = () => {
+  const { information, isLoading } = useXDAIBridgeLimits(Chains.mainnet)
   return { foreignXdaiInformation: information, isLoading }
 }

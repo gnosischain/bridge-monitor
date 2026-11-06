@@ -46,7 +46,6 @@ const buildProgressData = (
 
 type ProgressState = {
   progressData: BridgeProgressData | undefined
-  isWaitingForPropagation: boolean
   isNotFound: boolean
   isError: boolean
 }
@@ -70,7 +69,6 @@ export const deriveProgressState = ({
   if (rawConfirmations !== undefined) {
     return {
       progressData: buildProgressData(requiredBlocks, rawConfirmations),
-      isWaitingForPropagation: false,
       isNotFound: false,
       isError: false,
     }
@@ -81,7 +79,6 @@ export const deriveProgressState = ({
   if (error && !isTransactionNotFoundError(error)) {
     return {
       progressData: undefined,
-      isWaitingForPropagation: false,
       isNotFound: false,
       isError: true,
     }
@@ -92,7 +89,6 @@ export const deriveProgressState = ({
   if (!isSubmitted && isPastGrace && isTransactionNotFoundError(error)) {
     return {
       progressData: undefined,
-      isWaitingForPropagation: false,
       isNotFound: true,
       isError: false,
     }
@@ -107,7 +103,6 @@ export const deriveProgressState = ({
       confirmations: 0,
       requiredBlocks,
     },
-    isWaitingForPropagation: true,
     isNotFound: false,
     isError: false,
   }
@@ -148,7 +143,7 @@ export const useBridgeProgress = (
     propagationStartedAt.current !== null &&
     Date.now() - propagationStartedAt.current > PROPAGATION_GRACE_MS
 
-  const { isError, isNotFound, isWaitingForPropagation, progressData } = useMemo(
+  const { isError, isNotFound, progressData } = useMemo(
     () =>
       deriveProgressState({ error, isPastGrace, isSubmitted, rawConfirmations, requiredBlocks }),
     [error, isPastGrace, isSubmitted, rawConfirmations, requiredBlocks],
@@ -162,7 +157,6 @@ export const useBridgeProgress = (
   }, [progressData?.progress])
 
   return {
-    isWaitingForPropagation,
     isNotFound,
     isError,
     progressData,

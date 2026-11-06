@@ -1,12 +1,10 @@
 import { useReducer } from 'react'
 import styled from 'styled-components'
 import { AmountTokenInput } from '@/src/pagePartials/bridge/bridgeForm/AmountTokenInput'
-import { ButtonPlaceholder, DisabledTransButton, TransButton } from './TransButton'
-import { CardPlaceholder } from '@/src/pagePartials/bridge/bridgeForm/CardPlaceholder'
+import { DisabledTransButton, TransButton } from './TransButton'
 import { Header } from './Header'
 import { InnerCard } from '@/src/pagePartials/bridge/bridgeForm/InnerCard'
 import { Switch } from '@/src/pagePartials/bridge/bridgeForm/Switch'
-import SafeSuspense from '@/src/components/safeSuspense'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { useDebounce } from 'use-debounce'
 import { UsdcTransFormState } from './types'
@@ -84,21 +82,6 @@ export const Wrapper = styled(FormCard)`
   max-width: 600px;
 `
 
-const SkeletonCommon: React.FC = () => (
-  <Wrapper>
-    <FormWrapper>
-      <Header />
-      <Form as="div">
-        <FormCards>
-          <CardPlaceholder />
-          <CardPlaceholder />
-        </FormCards>
-        <ButtonPlaceholder />
-      </Form>
-    </FormWrapper>
-  </Wrapper>
-)
-
 const initialState: UsdcTransFormState = {
   account: '',
   amount: '',
@@ -106,7 +89,7 @@ const initialState: UsdcTransFormState = {
   tokenOut: usdcTokens.usdceGnosis,
 }
 
-const Main = () => {
+export const UsdcTransmutationFormIndex: React.FC = () => {
   const { address } = useWeb3Connection()
   const [formState, dispatch] = useReducer(
     (data: UsdcTransFormState, partial: Partial<UsdcTransFormState>): UsdcTransFormState => ({
@@ -191,23 +174,15 @@ const Main = () => {
           {!formState.token || !address || amount === 0n ? (
             <DisabledTransButton />
           ) : (
-            <SafeSuspense fallback={<ButtonPlaceholder />}>
-              <TransButton
-                amount={amount}
-                clearForm={clearForm}
-                fromToken={formState.token}
-                userAddress={address}
-              />
-            </SafeSuspense>
+            <TransButton
+              amount={amount}
+              clearForm={clearForm}
+              fromToken={formState.token}
+              userAddress={address}
+            />
           )}
         </Form>
       </FormWrapper>
     </Wrapper>
   )
 }
-
-export const UsdcTransmutationFormIndex: React.FC = () => (
-  <SafeSuspense fallback={<SkeletonCommon />}>
-    <Main />
-  </SafeSuspense>
-)
