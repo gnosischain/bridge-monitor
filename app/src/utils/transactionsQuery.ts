@@ -2,7 +2,7 @@ import differenceInDays from 'date-fns/differenceInDays'
 import { isAddress } from 'viem'
 
 import { BridgeDirection, BridgesValues } from '@/src/constants/config/bridges'
-import { ALL_STATUS_OPTION, ALL_VALIDATORS_OPTION } from '@/src/constants/filters'
+import { ALL_VALIDATORS_OPTION } from '@/src/constants/filters'
 import { MAX_DAYS_TO_FILTER } from '@/src/constants/misc'
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import { msToSeconds } from '@/src/utils/date'
@@ -82,10 +82,6 @@ export const buildTransactionsQuery = (
   const executor = validatorAddress(filters.executedBy, bridge)
   if (executor) {
     where.push({ execution: { executorAddress: { _eq: executor } } })
-  }
-
-  if (filters.status && filters.status !== ALL_STATUS_OPTION) {
-    where.push({ transactionStatus: { _eq: filters.status.toUpperCase() } })
   }
 
   if (filters.startTimestamp) {

@@ -161,7 +161,8 @@ export const useTransactionsWithFilters = (filters: TransactionFilter) => {
     isResolvingAddress ? undefined : query,
   )
 
-  // The query already filters by status; this drops the rows a local claim has flipped since.
+  // Status is filtered here rather than in the query, so a withdrawal this browser just claimed
+  // shows under Completed before the indexer records the claim.
   const filteredTransactions = useMemo(
     () =>
       !filters.status || filters.status === ALL_STATUS_OPTION
