@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback } from 'react'
 
-import { type Hash, isHash } from 'viem'
+import { type Hash, formatTransactionRequest, isHash, numberToHex } from 'viem'
 import toast from 'react-hot-toast'
-import { sendCalls, sendTransaction, waitForCallsStatus } from 'wagmi/actions'
+import { getConnectorClient, sendCalls, waitForCallsStatus } from 'wagmi/actions'
 
 import { notify } from '@/src/components/toast'
+import { chainsConfig } from '@/src/constants/config/chains'
 import { ChainsValues } from '@/src/constants/config/types'
 import { ToastStates } from '@/src/constants/types'
 import { type TxCall, waitForTransactionReceipt } from '@/src/lib/web3/transactions'
@@ -49,6 +50,10 @@ export default function useTransaction() {
       try {
         notifyWaitingForSignature()
 
+        // A wallet signs on its current chain, not the one the calls were built for. This throws
+        // `ConnectorChainMismatchError` when the wallet reports another chain, on both paths below.
+        const client = await getConnectorClient(wagmiConfig, { chainId })
+
         let hash: Hash | undefined
         if (canBatch) {
           // Smart account (EIP-5792): `wallet_sendCalls` returns an opaque bundle id, not a tx
@@ -62,13 +67,15 @@ export default function useTransaction() {
           hash = receipts?.at(-1)?.transactionHash
         } else {
           // EOA: a single plain transaction resolves to a 32-byte on-chain hash synchronously.
+          // viem's `sendTransaction` builds this same request but drops `chainId`. Over WalletConnect
+          // the check above is answered by the dapp side, so `chainId` in the params is what lets the
+          // wallet (MetaMask checks it) refuse instead of signing on another chain.
           const [call] = calls
-          hash = await sendTransaction(wagmiConfig, {
-            to: call.to,
-            data: call.data,
-            value: call.value,
-            chainId,
-          })
+          const request = {
+            ...formatTransactionRequest({ ...call, account: client.account }),
+            chainId: numberToHex(chainId),
+          }
+          hash = await client.request({ method: 'eth_sendTransaction', params: [request] })
         }
 
         // Safety net: never let a missing/non-hash value reach the explorer route /
@@ -84,6 +91,13 @@ export default function useTransaction() {
         return hash
       } catch (e: any) {
         console.error(e)
+
+        if (e?.name === 'ConnectorChainMismatchError') {
+          notifyRejectSignature(
+            `Switch your wallet to ${chainsConfig[chainId].name} and try again.`,
+          )
+          return null
+        }
 
         // Multisig / non-instant Safe: the bundle was accepted but did not execute within the wait
         // window, so there is no on-chain hash yet. Not a failure — inform the user and bail.
