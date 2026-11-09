@@ -14,6 +14,7 @@ import { ClaimActions } from '@/src/hooks/useTransactions'
 import { useMemo } from 'react'
 import { transactionBaseURL } from '@/src/constants/sections'
 import { EyebrowCSS } from '@/src/components/text/Eyebrow'
+import { Validator } from '@/src/utils/validators'
 
 const MobileLabel = styled.span`
   ${EyebrowCSS}
@@ -103,16 +104,17 @@ const StatusWrapper = styled.div`
 type Props = {
   goBackURL?: string
   searchResultsURL?: string
-  showValidations?: boolean
   transaction: Transaction
   claimActions: ClaimActions
+  /** The list's validator columns; without them, the row is compact. */
+  validators?: Validator[]
 }
 
 export const TransactionRow: React.FC<Props> = ({
   claimActions,
   goBackURL,
-  showValidations,
   transaction,
+  validators,
   ...restProps
 }) => {
   const addressCharacters = 6
@@ -146,7 +148,7 @@ export const TransactionRow: React.FC<Props> = ({
   return (
     // Link's `as` prop is used to show the URL in the browser's address bar without the query params
     <Link as={txURL} href={href} passHref {...restProps} style={{ textDecoration: 'none' }}>
-      <TR $compact={!showValidations} as={RowLink}>
+      <TR $compact={!validators} as={RowLink}>
         <TD>
           <MobileLabel>Transaction Hash</MobileLabel>
           <TokenAddress
@@ -204,10 +206,10 @@ export const TransactionRow: React.FC<Props> = ({
             />
           )}
         </TD>
-        {showValidations && (
+        {validators && (
           <TD>
             <MobileLabel>Validators</MobileLabel>
-            <Validators transaction={transaction} />
+            <Validators columns={validators} transaction={transaction} />
           </TD>
         )}
         <TDLastMobile>

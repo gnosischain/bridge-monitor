@@ -1,7 +1,7 @@
 import differenceInDays from 'date-fns/differenceInDays'
 import { isAddress } from 'viem'
 
-import { BridgeDirection, BridgesValues } from '@/src/constants/config/bridges'
+import { BridgeDirection, Bridges, BridgesValues } from '@/src/constants/config/bridges'
 import { ALL_VALIDATORS_OPTION } from '@/src/constants/filters'
 import { MAX_DAYS_TO_FILTER } from '@/src/constants/misc'
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
@@ -15,10 +15,13 @@ import { getValidatorByName } from '@/src/utils/validators'
 // @todo revisit if the cap ever truncates a result set users care about.
 const PAGE_SIZE = 500
 
-const validatorAddress = (validatorName: string, bridge: BridgesValues) => {
-  if (!validatorName || validatorName === ALL_VALIDATORS_OPTION) return undefined
+/** With no bridge selected, the validator's address on each bridge: the same operators run both. */
+const validatorAddresses = (validatorName: string, bridge: BridgesValues | '') => {
+  if (!validatorName || validatorName === ALL_VALIDATORS_OPTION) return []
 
-  return getValidatorByName(validatorName, bridge)?.address.toLowerCase()
+  return (bridge ? [bridge] : [Bridges.xdai, Bridges.amb])
+    .map((bridgeValue) => getValidatorByName(validatorName, bridgeValue)?.address.toLowerCase())
+    .filter((address): address is string => !!address)
 }
 
 /**
@@ -74,14 +77,14 @@ export const buildTransactionsQuery = (
     where.push({ initiatorNetwork: { _eq: 1 } })
   }
 
-  const validator = validatorAddress(filters.signedBy, bridge)
-  if (validator) {
-    where.push({ validations: { validatorAddress: { _eq: validator } } })
+  const signers = validatorAddresses(filters.signedBy, bridge)
+  if (signers.length) {
+    where.push({ validations: { validatorAddress: { _in: signers } } })
   }
 
-  const executor = validatorAddress(filters.executedBy, bridge)
-  if (executor) {
-    where.push({ execution: { executorAddress: { _eq: executor } } })
+  const executors = validatorAddresses(filters.executedBy, bridge)
+  if (executors.length) {
+    where.push({ execution: { executorAddress: { _in: executors } } })
   }
 
   if (filters.startTimestamp) {

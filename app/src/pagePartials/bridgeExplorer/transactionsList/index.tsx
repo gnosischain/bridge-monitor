@@ -33,8 +33,8 @@ export const TransactionsList: React.FC<Props> = ({
           claimActions={claimActions}
           goBackURL={goBackURL}
           key={`transaction_${transaction.id}`}
-          showValidations={validators ? true : false}
           transaction={transaction}
+          validators={validators}
         />
       ))}
     </Table>

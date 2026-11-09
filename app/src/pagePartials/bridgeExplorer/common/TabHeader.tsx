@@ -52,8 +52,7 @@ export const TabHeader: React.FC<Props> = ({ $isActive, disabled, onClick, title
 
   return (
     <Wrapper $isActive={$isActive} disabled={disabled} onClick={handleActive}>
-      {/* TODO: Get title from a non-hardcoded way */}
-      <Title>{title === 'AMB' ? 'Omnibridge' : title}</Title>
+      <Title>{title}</Title>
     </Wrapper>
   )
 }

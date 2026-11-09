@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react'
 
 import styled from 'styled-components'
-import { TabHeader } from '@/src/pagePartials/bridgeExplorer/common/TabHeader'
-import { Tabs } from '@/src/pagePartials/bridgeExplorer/common/Tabs'
 import { PageHeader } from '@/src/components/pageHeader'
 import {
   Filters,
@@ -19,7 +17,7 @@ import { useRouter } from 'next/router'
 import { isSameString } from '@/src/utils/tools'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { OptionalValidatorsProvider } from '@/src/providers/validatorsProvider'
-import { latestTransactionsBaseURL } from '@/src/constants/sections'
+import { Bridges } from '@/src/constants/config/bridges'
 
 const Wrapper = styled.div`
   display: flex;
@@ -33,72 +31,42 @@ const Card = styled(MainCard)`
   row-gap: 0;
 `
 
-const latestTransactions: Array<{ title: string }> = [
-  {
-    title: 'xDai',
-  },
-  {
-    title: 'AMB',
-  },
-]
-
 export const LatestTransactions: React.FC = genericSuspense(
   ({ ...restProps }) => {
     const router = useRouter()
-    const activeTab = (router.query.bridge as string) || 'xDai'
+    // Every bridge by default; `?bridge=` (links to the former per-bridge tabs) preselects one.
+    const queryBridge =
+      [Bridges.xdai, Bridges.amb].find((bridge) =>
+        isSameString(bridge, String(router.query.bridge ?? '')),
+      ) ?? ''
 
     const listFilters = useTransactionsFilters({
-      bridge: activeTab,
+      bridge: queryBridge,
       startTimestamp: getStartOfDay(),
       endTimestamp: getEndOfDay(),
     })
-    const { filters, resetFilters, setBridge } = listFilters
+    const { filters, resetFilters } = listFilters
 
     useEffect(() => {
-      setBridge(activeTab)
       resetFilters({
-        bridge: activeTab,
+        bridge: queryBridge,
         startTimestamp: getStartOfDay(),
         endTimestamp: getEndOfDay(),
       })
-    }, [activeTab, setBridge, resetFilters])
+    }, [queryBridge, resetFilters])
 
     return (
       <Wrapper {...restProps}>
-        <PageHeader
-          aside={
-            <Tabs aria-label="Bridge">
-              {latestTransactions.map(({ title }, index) => (
-                <TabHeader
-                  $isActive={isSameString(activeTab, title)}
-                  key={index}
-                  onClick={() => router.push(`${latestTransactionsBaseURL}?bridge=${title}`)}
-                  title={title}
-                />
-              ))}
-            </Tabs>
-          }
-          eyebrow="Bridge Explorer"
-          title="Latest transactions"
-        />
+        <PageHeader eyebrow="Bridge Explorer" title="Latest transactions" />
         <Card>
           <OptionalValidatorsProvider>
             <Filters
-              bridge={activeTab}
               filters={listFilters}
               onResetFilters={() =>
-                resetFilters({
-                  bridge: activeTab,
-                  startTimestamp: getStartOfDay(),
-                  endTimestamp: getEndOfDay(),
-                })
+                resetFilters({ startTimestamp: getStartOfDay(), endTimestamp: getEndOfDay() })
               }
             />
-            {latestTransactions.map(({ title }, index) => {
-              return isSameString(activeTab, title) ? (
-                <Results bridge={title} filters={filters} key={`${title}_transactions_${index}`} />
-              ) : null
-            })}
+            <Results filters={filters} />
           </OptionalValidatorsProvider>
         </Card>
       </Wrapper>
@@ -106,24 +74,7 @@ export const LatestTransactions: React.FC = genericSuspense(
   },
   ({ ...restProps }) => (
     <Wrapper {...restProps}>
-      <PageHeader
-        aside={
-          <Tabs aria-label="Bridge">
-            {latestTransactions.map(({ title }, index) => (
-              <TabHeader
-                $isActive={index === 0}
-                key={index}
-                onClick={() => {
-                  return false
-                }}
-                title={title}
-              />
-            ))}
-          </Tabs>
-        }
-        eyebrow="Bridge Explorer"
-        title="Latest transactions"
-      />
+      <PageHeader eyebrow="Bridge Explorer" title="Latest transactions" />
       <Card>
         <FiltersSkeleton />
         <ResultsLoading />

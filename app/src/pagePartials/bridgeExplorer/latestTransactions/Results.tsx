@@ -4,8 +4,7 @@ import { TransactionsList } from '@/src/pagePartials/bridgeExplorer/transactions
 import { useTransactionsWithFilters } from '@/src/hooks/useTransactions'
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import { Loading } from '@/src/components/loading'
-import { useValidators } from '@/src/providers/validatorsProvider'
-import { BridgesValues } from '@/src/constants/config/bridges'
+import { useActiveValidators } from '@/src/pagePartials/bridgeExplorer/latestTransactions/useActiveValidators'
 import { Legend } from '@/src/pagePartials/bridgeExplorer/latestTransactions/Legend'
 import { latestTransactionsBaseURL } from '@/src/constants/sections'
 
@@ -45,13 +44,12 @@ const TransactionsWrapper = styled.div`
 `
 
 type TransactionsTableProps = {
-  bridge: string
   filters: TransactionFilter
 }
 
-export const Results: React.FC<TransactionsTableProps> = ({ bridge, filters }) => {
+export const Results: React.FC<TransactionsTableProps> = ({ filters }) => {
   const { claimActions, isError, isLoading, transactions } = useTransactionsWithFilters(filters)
-  const { validators } = useValidators(bridge as BridgesValues)
+  const validators = useActiveValidators(filters.bridge)
 
   return isLoading ? (
     <ResultsLoading />

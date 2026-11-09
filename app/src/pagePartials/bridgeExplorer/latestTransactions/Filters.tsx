@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, useCallback, useEffect, useState } from 'react'
+import React, { HTMLAttributes, useCallback, useState } from 'react'
 import styled, { css } from 'styled-components'
 
 import { isAddress } from 'viem'
@@ -8,9 +8,10 @@ import { FilterDropdown } from '@/src/pagePartials/bridgeExplorer/latestTransact
 import { TransactionStatus } from '@/src/utils/transactions'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { isTransactionHash } from '@/src/utils/tools'
-import { useValidators } from '@/src/providers/validatorsProvider'
-import { BridgeDirection, BridgesValues } from '@/src/constants/config/bridges'
+import { useActiveValidators } from '@/src/pagePartials/bridgeExplorer/latestTransactions/useActiveValidators'
+import { BridgeDirection, Bridges } from '@/src/constants/config/bridges'
 import {
+  ALL_BRIDGES_OPTION,
   ALL_DIRECTIONS_OPTION,
   ALL_STATUS_OPTION,
   ALL_VALIDATORS_OPTION,
@@ -40,8 +41,8 @@ const CommonGridCSS = css`
     grid-template-columns: 1fr 1fr 1fr;
   }
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
+    grid-template-columns: repeat(6, 1fr);
   }
 `
 
@@ -74,12 +75,8 @@ const SearchCommonCSS = css`
     grid-column: auto / span 2;
   }
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     grid-column: auto / span 3;
-  }
-
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
-    grid-column: auto / span 2;
   }
 `
 
@@ -103,10 +100,9 @@ const Buttons = styled.div`
 
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     justify-content: flex-end;
-    grid-column: auto / span 2;
   }
 
-  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopStart}) {
+  @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.desktopWideStart}) {
     grid-column: auto / span 3;
   }
 `
@@ -136,7 +132,7 @@ const Reset = styled.button`
 export const FiltersSkeleton: React.FC = ({ ...restProps }) => (
   <Wrapper {...restProps}>
     <MainFields>
-      {Array.from({ length: 5 }).map((item, index) => (
+      {Array.from({ length: 6 }).map((item, index) => (
         <Field key={index}>
           <SkeletonLoading
             style={{ height: '12px', minHeight: '0', width: '40%', marginBottom: '6px' }}
@@ -155,10 +151,15 @@ export const FiltersSkeleton: React.FC = ({ ...restProps }) => (
 )
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
-  bridge: string
   filters: ReturnType<typeof useTransactionsFilters>
   onResetFilters: () => void
 }
+
+const bridgeOptions = [
+  { label: ALL_BRIDGES_OPTION, value: '' },
+  { label: 'xDai bridge', value: Bridges.xdai },
+  { label: 'Omnibridge', value: Bridges.amb },
+]
 
 const txStatus = [
   TransactionStatus.Initiated,
@@ -168,11 +169,10 @@ const txStatus = [
   TransactionStatus.Error,
 ]
 
-export const Filters: React.FC<Props> = ({ bridge, filters, onResetFilters, ...restProps }) => {
-  const { validators } = useValidators(bridge as BridgesValues)
+export const Filters: React.FC<Props> = ({ filters, onResetFilters, ...restProps }) => {
   const [resetFields, setResetFields] = useState<boolean>(false)
 
-  const validatorNames = validators.filter((val) => !val.removed).map((val) => val.name)
+  const validatorNames = useActiveValidators(filters.filters.bridge).map((val) => val.name)
 
   const statusNames = txStatus.map(
     (status) => status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(),
@@ -194,7 +194,16 @@ export const Filters: React.FC<Props> = ({ bridge, filters, onResetFilters, ...r
   const [error, setError] = useState<string>('')
 
   const {
-    filters: { bridgeDirection, endTimestamp, executedBy, signedBy, startTimestamp, status },
+    filters: {
+      bridge,
+      bridgeDirection,
+      endTimestamp,
+      executedBy,
+      signedBy,
+      startTimestamp,
+      status,
+    },
+    setBridge,
     setBridgeDirection,
     setEndTimestamp,
     setExecutedBy,
@@ -216,10 +225,6 @@ export const Filters: React.FC<Props> = ({ bridge, filters, onResetFilters, ...r
     }
   }
 
-  useEffect(() => {
-    setResetFields(true)
-  }, [bridge])
-
   return (
     <Wrapper {...restProps}>
       <MainFields>
@@ -233,6 +238,16 @@ export const Filters: React.FC<Props> = ({ bridge, filters, onResetFilters, ...r
               startDate={startTimestamp}
             />
           )}
+        </Field>
+        <Field>
+          <Label>Bridge</Label>
+          <FilterDropdown
+            onChange={(label) =>
+              setBridge(bridgeOptions.find((option) => option.label === label)?.value ?? '')
+            }
+            options={bridgeOptions.map(({ label }) => label)}
+            value={bridgeOptions.find(({ value }) => value === bridge)?.label ?? ALL_BRIDGES_OPTION}
+          />
         </Field>
         <Field>
           <Label>Status</Label>
