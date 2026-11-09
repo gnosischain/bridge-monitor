@@ -10,6 +10,7 @@ import {
 } from '@/src/components/form/Textfield'
 import startOfDay from 'date-fns/startOfDay'
 import endOfDay from 'date-fns/endOfDay'
+import { DAY_FORMAT } from '@/src/utils/date'
 
 const Wrapper = styled(DatePicker).attrs<TextfieldProps>(() => ({
   element: 'input',
@@ -47,6 +48,7 @@ export const DateTimePicker: React.FC<Props> = ({
 
   return (
     <Wrapper
+      dateFormat={DAY_FORMAT}
       maxDate={new Date()}
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore

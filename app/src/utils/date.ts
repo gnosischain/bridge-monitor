@@ -21,6 +21,9 @@ export const DateFormated = (date: Date) => {
   return hours + ':' + minutes + ' on ' + day + ' ' + month + ', ' + year
 }
 
+/** The day as `DateFormated` writes it ("8 Nov, 2026"), for the date picker and its result count. */
+export const DAY_FORMAT = 'd MMM, yyyy'
+
 export const getStartOfDay = () => startOfDay(new Date())
 export const getEndOfDay = () => endOfDay(new Date())
 

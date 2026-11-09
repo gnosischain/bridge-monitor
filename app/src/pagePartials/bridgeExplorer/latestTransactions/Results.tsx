@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import format from 'date-fns/format'
 import { Info } from '@/src/pagePartials/bridgeExplorer/latestTransactions/Info'
 import { TransactionsList } from '@/src/pagePartials/bridgeExplorer/transactionsList'
 import { useTransactionsWithFilters } from '@/src/hooks/useTransactions'
@@ -7,6 +8,7 @@ import { Loading } from '@/src/components/loading'
 import { useActiveValidators } from '@/src/pagePartials/bridgeExplorer/latestTransactions/useActiveValidators'
 import { Legend } from '@/src/pagePartials/bridgeExplorer/latestTransactions/Legend'
 import { latestTransactionsBaseURL } from '@/src/constants/sections'
+import { DAY_FORMAT } from '@/src/utils/date'
 
 const InfoWrapper = styled.div`
   display: flex;
@@ -59,7 +61,7 @@ export const Results: React.FC<TransactionsTableProps> = ({ filters }) => {
       {!isError && (
         <InfoWrapper>
           <Info
-            date={filters.endTimestamp?.toLocaleDateString()}
+            date={filters.endTimestamp && format(filters.endTimestamp, DAY_FORMAT)}
             transactionsNumber={transactions.length}
           />
           <Legend />
