@@ -40,7 +40,6 @@ const Row: React.FC<{ address: string; title: string; network?: ChainsKeys }> = 
 }
 
 const Wrapper = styled.div`
-  align-items: start;
   display: grid;
   gap: calc(var(--theme-common-space) * 5) calc(var(--theme-common-space) * 2);
   grid-template-columns: minmax(0, 1fr);
@@ -58,6 +57,7 @@ const Section = styled.section`
 `
 
 const AddressesCard = styled(Card)`
+  flex-grow: 1;
   row-gap: calc(var(--theme-common-space) * 4);
 `
 

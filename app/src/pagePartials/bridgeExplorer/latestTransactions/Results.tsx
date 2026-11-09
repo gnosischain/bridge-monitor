@@ -1,13 +1,14 @@
 import styled from 'styled-components'
+import format from 'date-fns/format'
 import { Info } from '@/src/pagePartials/bridgeExplorer/latestTransactions/Info'
 import { TransactionsList } from '@/src/pagePartials/bridgeExplorer/transactionsList'
 import { useTransactionsWithFilters } from '@/src/hooks/useTransactions'
 import { TransactionFilter } from '@/src/hooks/useTransactionsFilters'
 import { Loading } from '@/src/components/loading'
-import { useValidators } from '@/src/providers/validatorsProvider'
-import { BridgesValues } from '@/src/constants/config/bridges'
+import { useActiveValidators } from '@/src/pagePartials/bridgeExplorer/latestTransactions/useActiveValidators'
 import { Legend } from '@/src/pagePartials/bridgeExplorer/latestTransactions/Legend'
 import { latestTransactionsBaseURL } from '@/src/constants/sections'
+import { DAY_FORMAT } from '@/src/utils/date'
 
 const InfoWrapper = styled.div`
   display: flex;
@@ -45,13 +46,12 @@ const TransactionsWrapper = styled.div`
 `
 
 type TransactionsTableProps = {
-  bridge: string
   filters: TransactionFilter
 }
 
-export const Results: React.FC<TransactionsTableProps> = ({ bridge, filters }) => {
+export const Results: React.FC<TransactionsTableProps> = ({ filters }) => {
   const { claimActions, isError, isLoading, transactions } = useTransactionsWithFilters(filters)
-  const { validators } = useValidators(bridge as BridgesValues)
+  const validators = useActiveValidators(filters.bridge)
 
   return isLoading ? (
     <ResultsLoading />
@@ -61,7 +61,7 @@ export const Results: React.FC<TransactionsTableProps> = ({ bridge, filters }) =
       {!isError && (
         <InfoWrapper>
           <Info
-            date={filters.endTimestamp?.toLocaleDateString()}
+            date={filters.endTimestamp && format(filters.endTimestamp, DAY_FORMAT)}
             transactionsNumber={transactions.length}
           />
           <Legend />

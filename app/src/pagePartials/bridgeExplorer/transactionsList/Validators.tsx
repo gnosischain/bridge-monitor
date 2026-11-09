@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { ValidatorStatus } from '@/src/components/assets/ValidatorStatus'
 import { Tooltip } from '@/src/components/tooltip'
 import { Transaction } from '@/src/utils/transactions'
-import { getValidationsStatus } from '@/src/utils/validators'
+import { Validator, getValidationsStatus } from '@/src/utils/validators'
 import { useValidators } from '@/src/providers/validatorsProvider'
 import { BridgesValues } from '@/src/constants/config/bridges'
 
@@ -21,19 +21,25 @@ const Wrapper = styled.div`
 `
 
 interface Props {
+  /** The list's columns, which can hold both bridges' validators. */
+  columns: Validator[]
   transaction: Transaction
 }
 
-export const Validators: React.FC<Props> = ({ transaction, ...restProps }) => {
+export const Validators: React.FC<Props> = ({ columns, transaction, ...restProps }) => {
   const { validators } = useValidators(transaction.bridgeName as BridgesValues)
-  const validationsStatus = useMemo(
-    () =>
-      getValidationsStatus(
-        transaction,
-        validators.filter((validator) => !validator.removed),
-      ),
-    [transaction, validators],
-  )
+  // Matched by name: every row shares the columns, while its statuses come from its own bridge's
+  // validators, in that bridge's order. A validator this bridge lacks keeps its column's default.
+  const validationsStatus = useMemo(() => {
+    const statuses = getValidationsStatus(
+      transaction,
+      validators.filter((validator) => !validator.removed),
+    )
+
+    return columns
+      .filter((column) => !column.removed)
+      .map((column) => statuses.find(({ name }) => name === column.name) ?? column)
+  }, [columns, transaction, validators])
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const openLink = (e: any, link: string | undefined) => {
