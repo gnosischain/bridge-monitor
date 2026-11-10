@@ -39,10 +39,6 @@ import { ReceivedTokenInfo } from '@/src/pagePartials/bridge/bridgeForm/Received
 import { useBridgeTokenOutInfo } from '@/src/hooks/bridge/useBridgeTokenOutInfo'
 import { NotBridgedERC20Warning } from './warnings/NotBridgedERC20Warning'
 import { ExternalBridgeWarning } from './warnings/ExternalBridgeWarning'
-import {
-  UsdcEGcWarning,
-  UsdcEthWarning,
-} from '@/src/pagePartials/bridge/bridgeForm/warnings/UsdcWarnings'
 import { UnifiedBridgeButton } from './button/UnifiedBridgeButton'
 import { useRouter } from 'next/router'
 import { useSanitizedQuery } from '@/src/hooks/useSanitizedQuery'
@@ -214,7 +210,6 @@ const Main = () => {
     isSameString(formState.token?.address || '', AURA_ETHEREUM) ||
     isSameString(formState.token?.address || '', AURA_GNOSIS_CANONICAL)
 
-  const isUsdcEth = isSameString(formState.token?.address || '', USDC_ETHEREUM)
   const isUsdceGC = isSameString(formState.token?.address || '', USDCe_GNOSIS)
 
   const tokenOut = useBridgeTokenOutInfo({
@@ -284,8 +279,6 @@ const Main = () => {
                 <PanelLabel>To</PanelLabel>
                 <Chain chainId={formState.toChainId} />
               </PanelHeader>
-              {isUsdcEth && <UsdcEthWarning />}
-              {isUsdceGC && <UsdcEGcWarning />}
               {unwrapFirst && <UnwrapFirst symbol={formState.token?.symbol} />}
               {sendToExternalBridge && formState.token && (
                 <ExternalBridgeWarning token={formState.token} />

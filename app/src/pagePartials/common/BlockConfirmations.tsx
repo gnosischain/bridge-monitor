@@ -172,7 +172,7 @@ export const BlockConfirmations: React.FC<Props> = ({ network, transactionHash, 
           rel="noopener noreferrer"
           target="_blank"
         >
-          <Magnifier /> Monitor at {blockExplorerName} {shortenAddress(transactionHash)}
+          <Magnifier /> Your transaction {shortenAddress(transactionHash)}
         </MonitorBlocksLink>
       </BottomInfo>
     </Wrapper>
