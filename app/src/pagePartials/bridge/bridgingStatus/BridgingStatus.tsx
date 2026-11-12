@@ -8,7 +8,7 @@ import { GenericError } from '@/src/components/error/GenericError'
 import { Failed } from '@/src/components/assets/Failed'
 import { Ok } from '@/src/components/assets/Ok'
 import { getChainKey, getNetworkConfig } from '@/src/constants/config/chains'
-import { transactionBaseURL } from '@/src/constants/sections'
+import { bridgeBaseURL, transactionBaseURL } from '@/src/constants/sections'
 import { ClaimActions, useFetchTransactions } from '@/src/hooks/useTransactions'
 import { useClaim, useIsClaimedOnChain } from '@/src/hooks/bridge/useClaim'
 import { Transaction, TransactionStatus } from '@/src/utils/transactions'
@@ -116,26 +116,6 @@ const ButtonClaim = ({ claimActions, tx }: { claimActions: ClaimActions; tx: Tra
   )
 }
 
-const ButtonExploreTransaction = ({
-  isLoading,
-  tx,
-}: {
-  isLoading: boolean
-  tx: Transaction | null
-}) => {
-  const router = useRouter()
-  const isWaitingForIndexing = !tx || isLoading
-
-  return (
-    <ButtonFull
-      disabled={!tx || isLoading}
-      onClick={() => router.push(`${transactionBaseURL}/${tx?.id}`)}
-    >
-      {isWaitingForIndexing ? 'Loading transaction link...' : 'Explore transaction'}
-    </ButtonFull>
-  )
-}
-
 export const BridgingStatus: React.FC = ({ ...restProps }) => {
   const router = useRouter()
 
@@ -163,11 +143,7 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
 
   const formattedAmount = Number(formatUnits(BigInt(amount), tokenBridged?.decimals ?? 18))
 
-  const {
-    claimActions,
-    isLoading: isLoadingTx,
-    transactions,
-  } = useFetchTransactions(
+  const { claimActions, transactions } = useFetchTransactions(
     { where: { transactionHash: { _eq: transactionHash.toLowerCase() } } },
     { pollUntil: (txs) => isSettled(txs[0] ?? null) },
   )
@@ -255,10 +231,16 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
           <BlockConfirmations network={initiatorChain} transactionHash={transactionHash} />
           {isReadyToClaim ? (
             <ButtonClaim claimActions={claimActions} tx={tx} />
-          ) : toChainId === Chains.mainnet && !isBridgeComplete && !isBridgeFailed ? (
+          ) : isBridgeFailed ? (
+            <ButtonFull onClick={() => router.push(`${transactionBaseURL}/${tx?.id}`)}>
+              Explore transaction
+            </ButtonFull>
+          ) : toChainId === Chains.mainnet && !isBridgeComplete ? (
             <ButtonFull disabled>Claim your token</ButtonFull>
           ) : (
-            <ButtonExploreTransaction isLoading={isLoadingTx} tx={tx} />
+            <ButtonFull disabled={!isBridgeComplete} onClick={() => router.push(bridgeBaseURL)}>
+              Bridge again
+            </ButtonFull>
           )}
         </InnerWrapper>
       )}

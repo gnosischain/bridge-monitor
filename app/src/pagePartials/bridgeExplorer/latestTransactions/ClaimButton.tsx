@@ -40,11 +40,17 @@ const Wrapper = styled.button`
 `
 
 type ClaimButtonProps = {
+  children?: string
   claimActions: ClaimActions
   transaction: Transaction
 }
 
-export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimButtonProps) => {
+export const ClaimButton = ({
+  children = 'Claim',
+  claimActions,
+  transaction,
+  ...restProps
+}: ClaimButtonProps) => {
   const { claim, isWorking } = useClaim(transaction, claimActions)
 
   const handleClaim = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -55,8 +61,7 @@ export const ClaimButton = ({ claimActions, transaction, ...restProps }: ClaimBu
 
   return (
     <Wrapper disabled={isWorking || transaction.isClaiming} onClick={handleClaim} {...restProps}>
-      Claim
-      {transaction.isClaiming && 'ing...'}
+      {transaction.isClaiming ? 'Claiming...' : children}
     </Wrapper>
   )
 }
