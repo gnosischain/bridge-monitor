@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import styled from 'styled-components'
 import { useRouter } from 'next/router'
 import useTransaction from '@/src/hooks/useTransaction'
 import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactionInfo'
@@ -9,21 +8,6 @@ import { ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
 import { Button } from './Button'
 import { ButtonPlaceholder } from './ButtonPlaceholder'
-import { isSameString } from '@/src/utils/tools'
-import { USDC_ETHEREUM } from '@/src/constants/misc'
-
-const UsdcNote = styled.div`
-  color: ${({ theme: { colors } }) => colors.warning};
-  font-size: 1.3rem;
-  font-weight: 400;
-  line-height: 1.5;
-  text-align: center;
-
-  a {
-    color: inherit;
-    font-weight: 500;
-  }
-`
 
 interface TriggerBridgeButtonProps {
   userAddress: string
@@ -100,22 +84,5 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
     return <ButtonPlaceholder />
   }
 
-  const isUsdcEth = isSameString(token.address, USDC_ETHEREUM)
-
-  return (
-    <>
-      <Button onClick={handleBridgeTx}>Bridge</Button>
-      {isUsdcEth && (
-        <UsdcNote>
-          When bridging USDC from Ethereum the receiver is the <b>USDC.e swapping contract</b>,
-          after bridging it sends funds to your recipient address
-          <br />
-          You can track this transaction by its hash or by the sender address on the{' '}
-          <a href={`/bridge-explorer?hash=${userAddress}`} rel="noreferrer" target="_blank">
-            Search page
-          </a>
-        </UsdcNote>
-      )}
-    </>
-  )
+  return <Button onClick={handleBridgeTx}>Bridge</Button>
 }
