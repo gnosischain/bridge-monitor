@@ -6,7 +6,6 @@ import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { Chains, ChainsKeys } from '@/src/constants/config/types'
 import useBridgeProgress from '@/src/hooks/bridge/useBridgeProgress'
 import { txTime } from '@/src/utils/txTime'
-import { getNetworkConfig } from '@/src/constants/config/chains'
 
 const Wrapper = styled.div`
   background-color: ${({ theme: { colors } }) => colors.page};
@@ -147,7 +146,6 @@ export const BlockConfirmations: React.FC<Props> = ({ network, transactionHash, 
   const sanitizedPercentage = percentage < 0 ? 0 : percentage > 100 ? 100 : percentage || 0
   const requiredBlocks = progressData?.requiredBlocks || 0
   const confirmations = progressData?.confirmations || 0
-  const { blockExplorerName } = getNetworkConfig(chainId)
 
   return (
     <Wrapper {...restProps}>
