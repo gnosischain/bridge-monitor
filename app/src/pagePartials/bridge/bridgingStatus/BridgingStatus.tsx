@@ -8,8 +8,9 @@ import { GenericError } from '@/src/components/error/GenericError'
 import { Failed } from '@/src/components/assets/Failed'
 import { Ok } from '@/src/components/assets/Ok'
 import { getChainKey, getNetworkConfig } from '@/src/constants/config/chains'
-import { transactionBaseURL } from '@/src/constants/sections'
-import { useFetchTransactions } from '@/src/hooks/useTransactions'
+import { bridgeBaseURL, transactionBaseURL } from '@/src/constants/sections'
+import { ClaimActions, useFetchTransactions } from '@/src/hooks/useTransactions'
+import { useClaim, useIsClaimedOnChain } from '@/src/hooks/bridge/useClaim'
 import { Transaction, TransactionStatus } from '@/src/utils/transactions'
 import { useRouter } from 'next/router'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
@@ -73,15 +74,6 @@ const MessageText = styled.p`
   max-width: 440px;
 `
 
-const BottomInfo = styled.p`
-  color: ${({ theme: { colors } }) => colors.fog};
-  font-size: 1.3rem;
-  font-weight: 400;
-  line-height: 1.5;
-  margin: 0;
-  text-align: center;
-`
-
 export const Loading: React.FC = () => (
   <InnerWrapper>
     <Message>
@@ -110,22 +102,16 @@ const hasFailed = (tx: Transaction | null): boolean =>
 
 const isSettled = (tx: Transaction | null): boolean => hasCollectedSignatures(tx) || hasFailed(tx)
 
-const ButtonExploreTransaction = ({
-  isLoading,
-  tx,
-}: {
-  isLoading: boolean
-  tx: Transaction | null
-}) => {
-  const router = useRouter()
-  const isWaitingForIndexing = !tx || isLoading
+// Signed towards Ethereum and not claimed yet: the tokens only arrive once the user claims them.
+const isClaimable = (tx: Transaction | null): tx is Transaction =>
+  tx?.transactionStatus === TransactionStatus.Unclaimed && !tx.execution
+
+const ButtonClaim = ({ claimActions, tx }: { claimActions: ClaimActions; tx: Transaction }) => {
+  const { claim, isWorking } = useClaim(tx, claimActions)
 
   return (
-    <ButtonFull
-      disabled={!tx || isLoading}
-      onClick={() => router.push(`${transactionBaseURL}/${tx?.id}`)}
-    >
-      {isWaitingForIndexing ? 'Loading transaction link...' : 'Explore transaction'}
+    <ButtonFull disabled={isWorking || tx.isClaiming} onClick={claim}>
+      {tx.isClaiming ? 'Claiming...' : 'Claim your token'}
     </ButtonFull>
   )
 }
@@ -157,14 +143,17 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
 
   const formattedAmount = Number(formatUnits(BigInt(amount), tokenBridged?.decimals ?? 18))
 
-  const { isLoading: isLoadingTx, transactions } = useFetchTransactions(
+  const { claimActions, transactions } = useFetchTransactions(
     { where: { transactionHash: { _eq: transactionHash.toLowerCase() } } },
     { pollUntil: (txs) => isSettled(txs[0] ?? null) },
   )
   const tx = transactions[0] ?? null
 
   const isConfirmed = progressData?.progress === 100
-  const isBridgeComplete = hasCollectedSignatures(tx)
+  const isUnclaimed = isClaimable(tx)
+  const isClaimedOnChain = useIsClaimedOnChain(isUnclaimed ? tx : null)
+  const isReadyToClaim = isUnclaimed && !isClaimedOnChain
+  const isBridgeComplete = hasCollectedSignatures(tx) && !isReadyToClaim
   const isBridgeFailed = hasFailed(tx)
 
   return (
@@ -201,7 +190,13 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
           <Message>
             <Icon $failed={isBridgeFailed}>{isBridgeFailed ? <Failed /> : <Ok />}</Icon>
             <StatusTitle>
-              Bridge {isBridgeFailed ? 'failed' : isBridgeComplete ? 'completed' : 'initiated'}
+              {isBridgeFailed
+                ? 'Bridge failed'
+                : isReadyToClaim
+                  ? 'Ready to claim'
+                  : isBridgeComplete
+                    ? 'Bridge completed'
+                    : 'Bridge initiated'}
             </StatusTitle>
             <MessageText>
               {isBridgeFailed ? (
@@ -209,6 +204,11 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
                   Sending {formatNumber(formattedAmount)} {tokenBridged?.symbol} to{' '}
                   {destinationChain} failed: the transfer could not be executed on{' '}
                   {destinationChain}. Open the transaction for details.
+                </>
+              ) : isReadyToClaim ? (
+                <>
+                  {formatNumber(formattedAmount)} {tokenBridged?.symbol} ready to claim on{' '}
+                  {destinationChain}.
                 </>
               ) : (
                 <>
@@ -229,9 +229,18 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
             </MessageText>
           </Message>
           <BlockConfirmations network={initiatorChain} transactionHash={transactionHash} />
-          <ButtonExploreTransaction isLoading={isLoadingTx} tx={tx} />
-          {isBridgeComplete && toChainId === Chains.mainnet && (
-            <BottomInfo>Claim to unlock your tokens</BottomInfo>
+          {isReadyToClaim ? (
+            <ButtonClaim claimActions={claimActions} tx={tx} />
+          ) : isBridgeFailed ? (
+            <ButtonFull onClick={() => router.push(`${transactionBaseURL}/${tx?.id}`)}>
+              Explore transaction
+            </ButtonFull>
+          ) : toChainId === Chains.mainnet && !isBridgeComplete ? (
+            <ButtonFull disabled>Claim your token</ButtonFull>
+          ) : (
+            <ButtonFull disabled={!isBridgeComplete} onClick={() => router.push(bridgeBaseURL)}>
+              Bridge again
+            </ButtonFull>
           )}
         </InnerWrapper>
       )}

@@ -62,7 +62,10 @@ Details.defaultProps = {
 }
 
 const Title = styled.h3`
+  align-items: center;
   color: ${({ theme: { colors } }) => colors.ink};
+  column-gap: 6px;
+  display: flex;
   font-size: 1.7rem;
   font-weight: 600;
   line-height: 1.3;
@@ -85,8 +88,8 @@ const Description = styled.p`
 
 interface Props {
   children?: React.ReactNode
-  description: string
-  title: string
+  description?: string
+  title: React.ReactNode
   transactionStatus: string
   statusIcon: Status
 }
@@ -107,7 +110,7 @@ export const StatusDetails: React.FC<Props> = ({
           <Title>{title}</Title>
           <TransactionStatus>{transactionStatus}</TransactionStatus>
         </Head>
-        <Description>{description}</Description>
+        {description && <Description>{description}</Description>}
         {children}
       </Details>
     </Wrapper>

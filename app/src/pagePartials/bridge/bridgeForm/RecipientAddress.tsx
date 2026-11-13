@@ -2,12 +2,12 @@ import styled from 'styled-components'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Textfield } from '@/src/components/form/Textfield'
 import { ChangeEventHandler } from 'react'
-import { AlertMessage } from '@/src/components/error/AlertMessage'
 import { useEffect, useState } from 'react'
 import { SendToDifferentWallet } from '@/src/pagePartials/bridge/bridgeForm/SendToDifferentWallet'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Eyebrow } from '@/src/components/text/Eyebrow'
+import { Tooltip } from '@/src/components/tooltip'
 
 const Wrapper = styled.div`
   display: flex;
@@ -30,13 +30,10 @@ const RecipientAddressWrapper = styled(motion.div)`
 `
 
 const RecipientAddressHeader = styled(Eyebrow)`
+  align-items: center;
+  column-gap: 6px;
+  display: flex;
   width: 100%;
-`
-
-const Warning = styled(AlertMessage)`
-  .text {
-    color: ${({ theme: { colors } }) => colors.ink};
-  }
 `
 
 const SkeletonWrapper = styled.div`
@@ -85,14 +82,7 @@ export const RecipientAddress: React.FC<{
         <Skeleton />
       ) : (
         <>
-          {isSCWallet ? (
-            <Warning
-              mode="warning"
-              text={
-                'A recipient address is required when using a smart contract wallet. Be sure you control the recipient address on the destination chain.'
-              }
-            />
-          ) : (
+          {!isSCWallet && (
             <SendToDifferentWallet
               isOpen={isDifferentWalletOpen}
               onClick={() =>
@@ -105,6 +95,9 @@ export const RecipientAddress: React.FC<{
               <RecipientAddressWrapper key="recipientAddress" {...animation}>
                 <RecipientAddressHeader as="label" htmlFor="recipientAddress">
                   Recipient address
+                  {isSCWallet && (
+                    <Tooltip content="A recipient address is required when using a smart contract wallet. Be sure you control the recipient address on the destination chain." />
+                  )}
                 </RecipientAddressHeader>
                 <Textfield
                   id="recipientAddress"

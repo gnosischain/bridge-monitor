@@ -4,7 +4,7 @@ import { txTime } from '@/src/utils/txTime'
 
 const Wrapper = styled.div`
   align-items: center;
-  background-color: ${({ theme: { colors } }) => colors.warningSoft};
+  background-color: ${({ theme: { colors } }) => colors.lilac};
   border-radius: ${({ theme: { common } }) => common.borderRadiusBig};
   color: ${({ theme: { colors } }) => colors.ink};
   column-gap: calc(var(--theme-common-space) * 1.5);
@@ -21,7 +21,7 @@ const Icon = styled(Alert)`
   width: 20px;
 
   .fill {
-    fill: ${({ theme: { colors } }) => colors.warning};
+    fill: ${({ theme: { colors } }) => colors.violet};
   }
 `
 

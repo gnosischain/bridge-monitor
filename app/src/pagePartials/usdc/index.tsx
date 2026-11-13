@@ -14,6 +14,7 @@ import { TransSummary } from './TransSummary'
 import { Wrapper as FormCard } from '@/src/pagePartials/bridge/common/Wrapper'
 import { EyebrowCSS } from '@/src/components/text/Eyebrow'
 import { usdcTokens } from '@/src/constants/usdcTokens'
+import { ShowTokenAddress } from '@/src/pagePartials/bridge/bridgeForm/ShowTokenAddress'
 import { parseUnits, zeroAddress } from 'viem'
 
 const PanelLabel = styled.h3`
@@ -73,8 +74,12 @@ const AmountOut = styled.span<{ $empty: boolean }>`
 
 const PanelFooter = styled.div`
   align-items: center;
+  column-gap: calc(var(--theme-common-space) * 2);
   display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
   min-height: 20px;
+  row-gap: 4px;
 `
 
 export const Wrapper = styled(FormCard)`
@@ -90,7 +95,7 @@ const initialState: UsdcTransFormState = {
 }
 
 export const UsdcTransmutationFormIndex: React.FC = () => {
-  const { address } = useWeb3Connection()
+  const { address, getExplorerUrl } = useWeb3Connection()
   const [formState, dispatch] = useReducer(
     (data: UsdcTransFormState, partial: Partial<UsdcTransFormState>): UsdcTransFormState => ({
       ...data,
@@ -149,6 +154,10 @@ export const UsdcTransmutationFormIndex: React.FC = () => {
                   onMax={(value) => dispatch({ ...formState, amount: value })}
                   token={formState.token}
                 />
+                <ShowTokenAddress
+                  address={formState.token?.address || ''}
+                  explorerUrl={getExplorerUrl(formState.token?.address || '', 'gnosis')}
+                />
               </PanelFooter>
               <Switch onClick={() => handleTokenChange()} />
             </InnerCardFrom>
@@ -160,6 +169,10 @@ export const UsdcTransmutationFormIndex: React.FC = () => {
               </AmountRow>
               <PanelFooter>
                 <UserBalance address={address} token={formState.tokenOut} />
+                <ShowTokenAddress
+                  address={formState.tokenOut?.address || ''}
+                  explorerUrl={getExplorerUrl(formState.tokenOut?.address || '', 'gnosis')}
+                />
               </PanelFooter>
             </InnerCard>
           </FormCards>

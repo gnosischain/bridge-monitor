@@ -1,9 +1,11 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
 import { TokenAddress as BaseAddress } from '@/src/components/token/TokenAddress'
-import { ClaimButton } from '@/src/pagePartials/bridgeExplorer/latestTransactions/ClaimButton'
+import { ClaimButton as BaseClaimButton } from '@/src/pagePartials/bridgeExplorer/latestTransactions/ClaimButton'
+import { ChevronDown } from '@/src/components/assets/ChevronDown'
+import { Tooltip } from '@/src/components/tooltip'
 import { StatusDetails } from '@/src/pagePartials/bridgeExplorer/transaction/StatusDetails'
 import { Summary, SummaryPlaceholder } from '@/src/pagePartials/bridgeExplorer/transaction/Summary'
 import { Validations } from '@/src/pagePartials/bridgeExplorer/transaction/Validations'
@@ -79,6 +81,38 @@ const TxInitiatedWrapper = styled.div`
   row-gap: calc(var(--theme-common-space) * 2);
 `
 
+const ConsensusToggle = styled.button`
+  align-items: center;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  gap: 6px;
+  padding: 0;
+
+  svg {
+    color: ${({ theme: { colors } }) => colors.fog};
+    width: 12px;
+  }
+
+  &[aria-expanded='true'] svg {
+    transform: rotate(180deg);
+  }
+`
+
+const ValidatorsList = styled.div`
+  margin-top: calc(var(--theme-common-space) * 2);
+`
+
+const ClaimButton = styled(BaseClaimButton)`
+  font-size: 1.4rem;
+  height: 40px;
+  margin-top: calc(var(--theme-common-space) * 2);
+  padding: 0 calc(var(--theme-common-space) * 2.5);
+`
+
 export const TransactionSkeletonLoading: React.FC = ({ ...restProps }) => (
   <Wrapper {...restProps}>
     <PageHeader
@@ -113,6 +147,7 @@ export const Transaction: React.FC = ({ ...restProps }) => {
   const txValidations = currentTx?.validations ?? []
   const txExecution = currentTx?.execution ?? ({} as TransactionExecution)
   const { validators: bridgeValidators } = useValidators(currentTx?.bridgeName as BridgesValues)
+  const [showValidators, setShowValidators] = useState(false)
 
   if ((!currentTx && isLoading) || isLoading) return <TransactionSkeletonLoading />
   if (isError)
@@ -170,7 +205,7 @@ export const Transaction: React.FC = ({ ...restProps }) => {
     currentTx.transactionStatus === TransactionStatus.Unclaimed &&
     !currentTx.execution
   const hasMinimumConsensus = hasValidations()
-  const consensusAchieved = txValidations.length === 4
+  const consensusAchieved = txValidations.length >= 4
 
   return (
     <Wrapper {...restProps}>
@@ -237,12 +272,29 @@ export const Transaction: React.FC = ({ ...restProps }) => {
         </StatusDetails>
         {hasMinimumConsensus && (
           <StatusDetails
-            description={`${txValidations.length} of 4 required confirmations.`}
             statusIcon={consensusAchieved ? 'success' : 'waiting'}
-            title={consensusAchieved ? 'Consensus achieved' : 'Awaiting consensus'}
+            title={
+              <>
+                <ConsensusToggle
+                  aria-expanded={showValidators}
+                  onClick={() => setShowValidators(!showValidators)}
+                  type="button"
+                >
+                  {consensusAchieved
+                    ? 'Consensus achieved'
+                    : `Waiting for consensus: ${txValidations.length}/4`}
+                  <ChevronDown />
+                </ConsensusToggle>
+                <Tooltip content="The bridge requires 4/7 signatures from bridge validators to reach consensus." />
+              </>
+            }
             transactionStatus={TransactionStatus.Collecting}
           >
-            <Validations fetchValidatorName={getValidatorName} validations={txValidations} />
+            {showValidators && (
+              <ValidatorsList>
+                <Validations fetchValidatorName={getValidatorName} validations={txValidations} />
+              </ValidatorsList>
+            )}
           </StatusDetails>
         )}
         {bridgingComplete && (
@@ -277,12 +329,13 @@ export const Transaction: React.FC = ({ ...restProps }) => {
         )}
         {readyToClaim && (
           <StatusDetails
-            description="Claim to unlock your tokens."
             statusIcon="waiting"
             title="Ready to claim"
             transactionStatus={TransactionStatus.Unclaimed}
           >
-            <ClaimButton claimActions={claimActions} transaction={currentTx} />
+            <ClaimButton claimActions={claimActions} transaction={currentTx}>
+              Claim your token
+            </ClaimButton>
           </StatusDetails>
         )}
       </StatusList>

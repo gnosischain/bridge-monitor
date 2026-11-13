@@ -9,6 +9,8 @@ import { formatUnits } from 'viem'
 import { ReceiveTokenSwitcher } from '@/src/pagePartials/bridge/bridgeForm/ReceiveTokenSwitcher'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { NATIVE_TOKEN_ADDRESS } from '@/src/constants/config/common'
+import { USDCe_GNOSIS } from '@/src/constants/misc'
+import { Tooltip } from '@/src/components/tooltip'
 import { isSameString } from '@/src/utils/tools'
 import React, { useState } from 'react'
 
@@ -44,6 +46,25 @@ const TokenLabel = styled.span`
   font-size: 1.6rem;
   font-weight: 600;
 `
+
+const usdceHint = (
+  <>
+    By bridging <b>USDC</b> from Ethereum, you will get <b>USDC.e</b> by default. If you want to get{' '}
+    <b>old USDC (USDC on xDAI)</b>, please swap your <b>USDC.e</b> after bridging to Gnosis Chain on
+    the{' '}
+    <a href="/usdc" rel="noreferrer" target="_blank">
+      USDC swap
+    </a>{' '}
+    page.
+  </>
+)
+
+const usdceToUsdcHint = (
+  <>
+    This operation will swap <b>USDC.e</b> to <b>USDC</b> on Gnosis Chain and bridge it to{' '}
+    <b>USDC</b> on Ethereum.
+  </>
+)
 
 const wethOptions = [
   {
@@ -165,6 +186,8 @@ export const TokenOut: React.FC<{
         <TokenLabel>
           <TokenIcon dimensions={24} iconSource={tokenOut.logoURI} symbol={tokenOut.symbol} />
           {tokenOut.symbol}
+          {isSameString(tokenOut.address, USDCe_GNOSIS) && <Tooltip content={usdceHint} />}
+          {isSameString(token.address, USDCe_GNOSIS) && <Tooltip content={usdceToUsdcHint} />}
         </TokenLabel>
       )}
     </>

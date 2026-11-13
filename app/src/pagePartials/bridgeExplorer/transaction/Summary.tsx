@@ -12,6 +12,9 @@ import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { ArrowRight } from '@/src/components/assets/ArrowRight'
 import { MainCard } from '@/src/components/card/MainCard'
 import { EyebrowCSS } from '@/src/components/text/Eyebrow'
+import { Tooltip } from '@/src/components/tooltip'
+import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
+import { isSameString } from '@/src/utils/tools'
 
 const Wrapper = styled(MainCard)`
   display: grid;
@@ -38,6 +41,9 @@ const Fact = styled.div`
 
 const Label = styled.span`
   ${EyebrowCSS}
+  align-items: center;
+  column-gap: 6px;
+  display: flex;
 `
 
 const Value = styled.div`
@@ -93,6 +99,13 @@ const Date = styled(TransactionDate)`
   color: ${({ theme: { colors } }) => colors.ink};
   font-size: 1.5rem;
 `
+
+const transmuterHint = (
+  <>
+    When bridging USDC from Ethereum, the receiver is the <b>USDC.e swapping contract</b>. After
+    bridging, it sends the funds to your recipient address.
+  </>
+)
 
 interface Props {
   $bridgeName: string
@@ -165,7 +178,10 @@ export const Summary: React.FC<Props> = ({
         </Value>
       </Fact>
       <Fact>
-        <Label>Receiver</Label>
+        <Label>
+          Receiver
+          {isSameString($receiver, TRANSMUTER_ADDRESS) && <Tooltip content={transmuterHint} />}
+        </Label>
         <Value>
           <Address
             address={$receiver}
