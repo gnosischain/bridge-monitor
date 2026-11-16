@@ -93,7 +93,9 @@ const TokenInfo: React.FC<{
       <TokenIcon name={name}>
         <Img alt={symbol} className="iconImage" src={logoURI ?? '/images/icons/empty-token.png'} />
       </TokenIcon>
-      <Value className="value">{value}</Value>
+      <Value className="value">
+        {value} {symbol}
+      </Value>
     </Wrapper>
   )
 }

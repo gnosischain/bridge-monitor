@@ -117,6 +117,7 @@ const MonitorBlocksLink = styled.a`
   color: ${({ theme: { colors } }) => colors.fog};
   cursor: pointer;
   display: flex;
+  font-size: 1.3rem;
   gap: 6px;
   text-decoration: none;
 
@@ -138,8 +139,22 @@ interface Props {
   transactionHash: string
 }
 
-export const BlockConfirmations: React.FC<Props> = ({ network, transactionHash, ...restProps }) => {
+export const TransactionLink: React.FC<Props> = ({ network, transactionHash, ...restProps }) => {
   const { getExplorerUrl } = useWeb3Connection()
+
+  return (
+    <MonitorBlocksLink
+      href={getExplorerUrl(transactionHash, network)}
+      rel="noopener noreferrer"
+      target="_blank"
+      {...restProps}
+    >
+      <Magnifier /> Your transaction {shortenAddress(transactionHash)}
+    </MonitorBlocksLink>
+  )
+}
+
+export const BlockConfirmations: React.FC<Props> = ({ network, transactionHash, ...restProps }) => {
   const chainId = Chains[network]
   const { progressData } = useBridgeProgress(chainId, transactionHash)
   const percentage = progressData?.progress || 0
@@ -165,13 +180,7 @@ export const BlockConfirmations: React.FC<Props> = ({ network, transactionHash, 
       </TopInfo>
       <BottomInfo>
         <EstimatedTime>Estimated time {txTime(network)}</EstimatedTime>
-        <MonitorBlocksLink
-          href={getExplorerUrl(transactionHash, network)}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          <Magnifier /> Your transaction {shortenAddress(transactionHash)}
-        </MonitorBlocksLink>
+        <TransactionLink network={network} transactionHash={transactionHash} />
       </BottomInfo>
     </Wrapper>
   )

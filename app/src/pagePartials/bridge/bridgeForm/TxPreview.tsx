@@ -12,6 +12,7 @@ import { getChainKey, getNetworkConfig } from '@/src/constants/config/chains'
 import { Loading } from '@/src/components/loading'
 import { genericSuspense } from '@/src/components/safeSuspense'
 import { useClaimFee } from '@/src/hooks/bridge/useClaimFee'
+import { formatNumber } from '@/src/utils/format'
 
 const Wrapper = styled.ul.withConfig({
   shouldForwardProp: (prop) =>
@@ -71,10 +72,6 @@ const Item = styled.li`
   }
 `
 
-const ItemWarning = styled(Item)`
-  color: ${({ theme: { colors } }) => colors.warning};
-`
-
 const Value = styled.span`
   align-items: center;
   color: ${({ theme: { colors } }) => colors.ink};
@@ -83,10 +80,6 @@ const Value = styled.span`
   font-weight: 500;
   gap: var(--theme-common-space);
   text-align: right;
-
-  ${ItemWarning} & {
-    color: ${({ theme: { colors } }) => colors.warning};
-  }
 `
 
 const Warning = styled.div`
@@ -182,8 +175,10 @@ export const TxPreview: React.FC<{
     }
 
     const tokenOutAmount = formatUnits(amount - (feeInfo || 0n), tokenOut?.decimals)
-    const estimatedTotalGas = `${formatUnits((transactionData.gasLimit as bigint) * (transactionData.gasPrice as bigint), appChainConfig.tokenDecimals)} ${appChainConfig.token}`
-    const estimatedTotalFee = `${formatUnits(feeInfo ?? 0n, appChainConfig.tokenDecimals)} ${appChainConfig.token}`
+    const formatNative = (wei: bigint, decimals: number) =>
+      formatNumber(Number(formatUnits(wei, decimals)))
+    const estimatedTotalGas = `${formatNative((transactionData.gasLimit as bigint) * (transactionData.gasPrice as bigint), appChainConfig.tokenDecimals)} ${appChainConfig.token}`
+    const estimatedTotalFee = `${formatNative(feeInfo ?? 0n, appChainConfig.tokenDecimals)} ${appChainConfig.token}`
 
     return (
       <Wrapper {...restProps}>
@@ -216,13 +211,13 @@ export const TxPreview: React.FC<{
           </Value>
         </Item>
         {claimFee && (
-          <ItemWarning>
-            Estimated claim fee on Ethereum
+          <Item>
+            Claim on Ethereum
             <Value>
-              {`${formatUnits(claimFee, 18)} ETH`}
-              <Tooltip content="You'll need to claim your token on Ethereum" />
+              {`${formatNative(claimFee, 18)} ETH`}
+              <Tooltip content="Once the bridge is done, you claim your tokens on Ethereum in a second transaction. This is its estimated gas cost, paid in ETH." />
             </Value>
-          </ItemWarning>
+          </Item>
         )}
       </Wrapper>
     )

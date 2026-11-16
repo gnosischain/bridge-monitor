@@ -106,10 +106,32 @@ const ValidatorsList = styled.div`
   margin-top: calc(var(--theme-common-space) * 2);
 `
 
+const ClaimCard = styled(MainCard)`
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: calc(var(--theme-common-space) * 2);
+  justify-content: space-between;
+  padding: calc(var(--theme-common-space) * 2.5) calc(var(--theme-common-space) * 3);
+`
+
+const ClaimTitle = styled.h2`
+  color: ${({ theme: { colors } }) => colors.ink};
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+`
+
+const ClaimText = styled.p`
+  color: ${({ theme: { colors } }) => colors.fog};
+  font-size: 1.4rem;
+  line-height: 1.5;
+  margin: 0;
+`
+
 const ClaimButton = styled(BaseClaimButton)`
   font-size: 1.4rem;
   height: 40px;
-  margin-top: calc(var(--theme-common-space) * 2);
   padding: 0 calc(var(--theme-common-space) * 2.5);
 `
 
@@ -225,6 +247,19 @@ export const Transaction: React.FC = ({ ...restProps }) => {
         eyebrow="Bridge Explorer"
         title="Transaction details"
       />
+      {readyToClaim && (
+        <ClaimCard>
+          <div>
+            <ClaimTitle>Ready to claim</ClaimTitle>
+            <ClaimText>
+              The validators signed this transfer. Claim it to receive the tokens on Ethereum.
+            </ClaimText>
+          </div>
+          <ClaimButton claimActions={claimActions} transaction={currentTx}>
+            Claim your token
+          </ClaimButton>
+        </ClaimCard>
+      )}
       <Summary
         $bridgeName={currentTx.bridgeName}
         $initiator={currentTx.initiator}
@@ -246,7 +281,6 @@ export const Transaction: React.FC = ({ ...restProps }) => {
           description={`The user transferred tokens to the bridge.`}
           statusIcon="success"
           title="Bridging initiated"
-          transactionStatus={TransactionStatus.Initiated}
         >
           <TxInitiatedWrapper>
             <DetailsList>
@@ -288,7 +322,6 @@ export const Transaction: React.FC = ({ ...restProps }) => {
                 <Tooltip content="The bridge requires 4/7 signatures from bridge validators to reach consensus." />
               </>
             }
-            transactionStatus={TransactionStatus.Collecting}
           >
             {showValidators && (
               <ValidatorsList>
@@ -302,7 +335,6 @@ export const Transaction: React.FC = ({ ...restProps }) => {
             description="The tokens are in the user's address."
             statusIcon="success"
             title="Bridging complete"
-            transactionStatus={TransactionStatus.Completed}
           >
             <DetailsList>
               <DetailsRow network="gnosis" title="Tokens received" transaction={txExecution} />
@@ -314,7 +346,6 @@ export const Transaction: React.FC = ({ ...restProps }) => {
             description="Funds should be available on receiver address."
             statusIcon="success"
             title="Tokens bridged"
-            transactionStatus={currentTx.transactionStatus}
           >
             {currentTx.execution && (
               <DetailsList>
@@ -329,14 +360,10 @@ export const Transaction: React.FC = ({ ...restProps }) => {
         )}
         {readyToClaim && (
           <StatusDetails
+            description="Waiting for the claim on Ethereum."
             statusIcon="waiting"
             title="Ready to claim"
-            transactionStatus={TransactionStatus.Unclaimed}
-          >
-            <ClaimButton claimActions={claimActions} transaction={currentTx}>
-              Claim your token
-            </ClaimButton>
-          </StatusDetails>
+          />
         )}
       </StatusList>
     </Wrapper>

@@ -1,5 +1,4 @@
 import styled from 'styled-components'
-import { EyebrowCSS } from '@/src/components/text/Eyebrow'
 
 import { IconStatus, Status } from '@/src/pagePartials/bridgeExplorer/transaction/IconStatus'
 
@@ -46,12 +45,6 @@ const Head = styled.div`
   row-gap: 4px;
 `
 
-const TransactionStatus = styled.span`
-  ${EyebrowCSS}
-
-  font-size: 1rem;
-`
-
 const Details = styled.div`
   min-width: 0;
   padding-bottom: calc(var(--theme-common-space) * 4);
@@ -90,7 +83,6 @@ interface Props {
   children?: React.ReactNode
   description?: string
   title: React.ReactNode
-  transactionStatus: string
   statusIcon: Status
 }
 
@@ -99,7 +91,6 @@ export const StatusDetails: React.FC<Props> = ({
   description,
   statusIcon,
   title,
-  transactionStatus,
   ...restProps
 }) => {
   return (
@@ -108,7 +99,6 @@ export const StatusDetails: React.FC<Props> = ({
       <Details>
         <Head>
           <Title>{title}</Title>
-          <TransactionStatus>{transactionStatus}</TransactionStatus>
         </Head>
         {description && <Description>{description}</Description>}
         {children}

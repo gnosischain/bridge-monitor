@@ -54,19 +54,24 @@ const ToastTypes: ToastTypes = {
 }
 
 const notify = ({
+  duration,
   explorerUrl,
   id,
   message,
   title,
   type,
 }: {
+  duration?: number
   explorerUrl?: string
   id?: string | undefined
   message?: string
   title?: string
   type: ToastStates
 }) => {
-  toast.custom((t: ToastType) => ToastTypes[type]({ title, t, explorerUrl, message }), { id })
+  toast.custom((t: ToastType) => ToastTypes[type]({ title, t, explorerUrl, message }), {
+    duration,
+    id,
+  })
 }
 
 const Toast = () => (

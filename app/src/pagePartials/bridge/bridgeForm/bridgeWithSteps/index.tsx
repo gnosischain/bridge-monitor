@@ -41,7 +41,7 @@ export const BridgeWithSteps: React.FC<BridgeWithStepsProps> = ({
     <Modal
       onClose={onClose}
       size="md"
-      title={`Bridge ${formattedAmount} ${tokenIn.symbol} from Gnosis Chain to ${tokenOut.symbol} Ethereum`}
+      title={`Bridge ${formattedAmount} ${tokenIn.symbol} from Gnosis Chain to ${tokenOut.symbol} on Ethereum`}
       {...restProps}
     >
       <StatusList>

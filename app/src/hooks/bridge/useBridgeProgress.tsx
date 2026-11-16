@@ -39,7 +39,8 @@ const buildProgressData = (
   return {
     isMined,
     progress,
-    confirmations: blocksSinceMined, // legacy field name kept for consumers
+    // capped: an old tx would otherwise read "2047 of 32 blocks"
+    confirmations: Math.min(blocksSinceMined, requiredBlocks),
     requiredBlocks,
   }
 }

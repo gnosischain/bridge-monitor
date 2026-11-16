@@ -8,7 +8,7 @@ import { TransactionStatus as TxStatusEnum } from '@/src/utils/transactions'
 
 type WrapperProps = { status: TxStatusEnum }
 
-// Initiated transfers get no dot: the list shows a warning icon with the expected delay next to them
+// Initiated transfers get no dot: the list shows a clock icon with the expected delay next to them
 // (see StatusCell).
 const Wrapper = styled.div.withConfig({
   shouldForwardProp: (prop) => !['status'].includes(prop),
