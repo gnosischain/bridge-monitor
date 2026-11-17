@@ -2,7 +2,7 @@ import { Token } from '@/types/token'
 import { formatUnits, isAddress } from 'viem'
 import { useMemo } from 'react'
 import { useTokenMode } from '@/src/hooks/bridge/useTokenMode'
-import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+import { useSameSafe } from '@/src/hooks/bridge/useSameSafe'
 import { ChainsValues } from '@/src/constants/config/types'
 import useBridgeLimits from '@/src/hooks/bridge/useBridgeLimits'
 import { EURCe_GNOSIS, USDCe_GNOSIS } from '@/src/constants/misc'
@@ -30,7 +30,7 @@ export const useBridgeValidations = ({
   toToken: Token | undefined
   recipient?: string
 }) => {
-  const { isSCWallet } = useWeb3Connection()
+  const walletSafe = useSameSafe(fromChainId, toChainId)
   const { data: bridgeLimits, isLoading } = useBridgeLimits(
     fromChainId,
     toChainId,
@@ -146,12 +146,12 @@ export const useBridgeValidations = ({
     isResolvingAddress,
   ])
 
-  // a smart contract wallet may not exist at the same address on the other chain; the bridge
-  // button asks for it instead of an error box
-  const needsRecipient = isSCWallet && !recipient
+  // the bridge button asks for the recipient instead of an error box
+  const needsRecipient = walletSafe === 'notSameSafe' && !recipient
 
   const isValidToSend =
     bridgeLimits !== undefined &&
+    walletSafe !== 'loading' &&
     !needsRecipient &&
     !errorMessage &&
     !isResolvingAddress &&

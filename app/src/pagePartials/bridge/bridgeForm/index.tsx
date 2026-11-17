@@ -321,8 +321,10 @@ const Main = () => {
                     />
                   </PanelFooter>
                   <RecipientAddress
+                    fromChainId={formState.fromChainId}
                     onChange={(event) => dispatch({ ...formState, recipient: event.target.value })}
                     recipient={formState.recipient}
+                    toChainId={formState.toChainId}
                   />
                 </>
               )}
