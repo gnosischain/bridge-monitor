@@ -35,7 +35,6 @@ const BridgeActive: React.FC<BridgeProps> = ({
 
   const fromChainId = Chains.gnosis
   const toChainId = Chains.mainnet
-  const isNativeBridge = false
   const disabled = bridgeStatus !== 'now' && bridgeStatus !== 'pending'
 
   const { data: transactionData } = useBridgeTransactionInfo({
@@ -60,11 +59,16 @@ const BridgeActive: React.FC<BridgeProps> = ({
         const txHash = await sendTx({ calls: transactionData.calls, chainId: fromChainId })
         if (txHash) {
           setStatus(steps.completed)
-          router.push(
-            `${bridgePagesBaseURL}/${txHash}?fromChainId=${fromChainId}&isNativeBridge=${
-              isNativeBridge ? 1 : 0
-            }&tokenAddress=${token?.address}&amount=${amount}&toChainId=${toChainId}&submitted=1`,
-          )
+          router.push({
+            pathname: `${bridgePagesBaseURL}/${txHash}`,
+            query: {
+              fromChainId,
+              tokenAddress: token?.address,
+              amount: amount.toString(),
+              toChainId,
+              submitted: 1,
+            },
+          })
         } else {
           throw new Error('Failed to bridge')
         }
@@ -76,16 +80,7 @@ const BridgeActive: React.FC<BridgeProps> = ({
         setIsWorking(false)
       }
     },
-    [
-      amount,
-      fromChainId,
-      isNativeBridge,
-      sendTx,
-      setStatus,
-      toChainId,
-      token?.address,
-      transactionData,
-    ],
+    [amount, fromChainId, sendTx, setStatus, toChainId, token?.address, transactionData],
   )
 
   useEffect(() => {

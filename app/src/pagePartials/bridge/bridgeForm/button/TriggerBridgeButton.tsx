@@ -2,7 +2,6 @@ import React from 'react'
 import { useRouter } from 'next/router'
 import { formatUnits } from 'viem'
 import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactionInfo'
-import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { bridgePagesBaseURL } from '@/src/constants/sections'
 import { chainsConfig } from '@/src/constants/config/chains'
 import { ChainsValues } from '@/src/constants/config/types'
@@ -50,12 +49,6 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
 
   if (!transactionData) throw new Error('Transaction data is not available')
 
-  const { isNativeBridge } = getBridgeCommonInfo({
-    fromChainId,
-    toChainId,
-    tokenAddress: token.address,
-  })
-
   const handleBridgeTx = () => {
     if (!transactionData.calls) {
       console.error('No transactionData.calls')
@@ -67,11 +60,16 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
       chainId: fromChainId,
       title: `Bridge ${formatUnits(amount, token.decimals)} ${token.symbol} to ${chainsConfig[toChainId].name}`,
       onDone: (txHash) =>
-        router.push(
-          `${bridgePagesBaseURL}/${txHash}?fromChainId=${fromChainId}&isNativeBridge=${
-            isNativeBridge ? 1 : 0
-          }&tokenAddress=${token.address}&amount=${amount}&toChainId=${toChainId}&submitted=1`,
-        ),
+        router.push({
+          pathname: `${bridgePagesBaseURL}/${txHash}`,
+          query: {
+            fromChainId,
+            tokenAddress: token.address,
+            amount: amount.toString(),
+            toChainId,
+            submitted: 1,
+          },
+        }),
     })
   }
 
