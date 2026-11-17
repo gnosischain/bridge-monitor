@@ -114,9 +114,8 @@ export const BridgeButton: React.FC<BridgeButtonProps> = ({
     return (
       <SwapAndBridge
         amount={amount}
-        recipient={recipient}
+        recipient={recipientAddress}
         tokenIn={fromToken}
-        tokenOut={toToken}
         userAddress={userAddress}
       />
     )
