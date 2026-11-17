@@ -162,7 +162,6 @@ export const useBridgeValidations = ({
 
   return {
     errorMessage,
-    shouldApprove: tokenMode !== 'ERC677' && amount > 0n && approvalNeeded,
     isValidToSend,
     needsRecipient,
     isValidAmount,

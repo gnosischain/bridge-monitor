@@ -17,9 +17,10 @@ import { wagmiConfig } from '@/src/providers/wagmi'
 /**
  * A single low-level call — the common shape both an EOA `sendTransaction` and a smart-account
  * `sendCalls` (EIP-5792) can dispatch. Producers build these instead of pre-baked `writeContract`
- * thunks so the send layer (see `useTransaction`) can choose the right path per wallet.
+ * thunks so the send layer (see `useTransaction`) can choose the right path per wallet. `label` is
+ * the step name the transaction card shows.
  */
-export type TxCall = { to: Address; data?: Hex; value?: bigint }
+export type TxCall = { to: Address; data?: Hex; value?: bigint; label?: string }
 
 /**
  * Encodes a contract write into a `TxCall`. The `writeContract`-style `{ address, abi, functionName,

@@ -202,7 +202,6 @@ const handleERC20TokenFromForeign = async ({
   //
   // TODO: If an approval is needed, "gasLimit" will be set with the value the approval operation will take.
   // But "tx" will have the bridge operation. It would be good to solve this inconsistency.
-  // And then remove the useApproval hook and call the approve using the tx function returned by this function.
 
   const client = getPublicClient(bridgeConfig.chainId)
   const account = userAddress as Address
@@ -317,10 +316,8 @@ const handleERC20TokenFromForeign = async ({
 
 /**
  * Relays an ERC20 from the home chain to the foreign chain through the OmniBridge mediator.
- * ERC677 tokens use `transferAndCall` and skip the approval; other tokens approve the mediator
- * when the allowance is short and otherwise `relayTokens`. Returns a gas estimate and a function
- * that submits the transaction — note that when an approval is still required, that function
- * performs the approval rather than the relay.
+ * ERC677 tokens use `transferAndCall` and skip the approval; other tokens use `relayTokens`, after
+ * the approve getBridgeTx stacks when the allowance is short. Returns a gas estimate and the call.
  */
 const handleERC20TokenFromHome = async ({
   allowance,
@@ -341,7 +338,7 @@ const handleERC20TokenFromHome = async ({
   toChainId: ChainsValues
   recipient?: string
   receiveNativeToken?: boolean
-  allowance?: bigint
+  allowance: bigint
 }): Promise<{ gasLimit: bigint; calls: TxCall[] }> => {
   // Here we have two cases. If the token is compatible with ERC677/ERC827 we should use transferAndCall method and avoid the approve step.
   const client = getPublicClient(bridgeConfig.chainId)
@@ -399,31 +396,26 @@ const handleERC20TokenFromHome = async ({
     }
   }
 
-  // ERC20 — when the allowance is insufficient the returned call IS the approve (this home
-  // handler differs from the foreign ones, whose tx always performs the bridge send).
-  if (allowance && amount > allowance) {
-    const args = [bridgeAddress, amount] as const
-    return {
-      gasLimit: await client.estimateContractGas({
-        address: token,
-        abi: erc20Abi,
-        functionName: 'approve',
-        args,
-        account,
-      }),
-      calls: [toCall({ address: token, abi: erc20Abi, functionName: 'approve', args })],
-    }
-  }
-
+  // ERC20: with a short allowance the relay estimate would revert, so gas is estimated for the
+  // approve getBridgeTx stacks in front of it
   const relayArgs = [token, (recipient || walletAddress) as Address, amount] as const
   return {
-    gasLimit: await client.estimateContractGas({
-      address: bridgeAddress,
-      abi: bridgeConfig.abi,
-      functionName: 'relayTokens',
-      args: relayArgs,
-      account,
-    }),
+    gasLimit:
+      amount > allowance
+        ? await client.estimateContractGas({
+            address: token,
+            abi: erc20Abi,
+            functionName: 'approve',
+            args: [bridgeAddress, amount],
+            account,
+          })
+        : await client.estimateContractGas({
+            address: bridgeAddress,
+            abi: bridgeConfig.abi,
+            functionName: 'relayTokens',
+            args: relayArgs,
+            account,
+          }),
     calls: [
       toCall({
         address: bridgeAddress,
@@ -464,7 +456,6 @@ const handleUsdceFromHome = async ({
   //
   // TODO: If an approval is needed, "gasLimit" will be set with the value the approval operation will take.
   // But "tx" will have the bridge operation. It would be good to solve this inconsistency.
-  // And then remove the useApproval hook and call the approve using the tx function returned by this function.
 
   const client = getPublicClient(bridgeConfig.chainId)
   const account = userAddress as Address
@@ -535,7 +526,6 @@ const handleUsdcFromForeign = async ({
   //
   // TODO: If an approval is needed, "gasLimit" will be set with the value the approval operation will take.
   // But "tx" will have the bridge operation. It would be good to solve this inconsistency.
-  // And then remove the useApproval hook and call the approve using the tx function returned by this function.
 
   const client = getPublicClient(bridgeConfig.chainId)
   const account = userAddress as Address
@@ -637,9 +627,9 @@ const handleUsdsOrDaiFromForeign = async ({
   }
 }
 
-// A gas estimate for the bridge transaction plus the call(s) that perform it. `calls` is `null`
-// when there is nothing to send (zero amount or no connected account). The send layer
-// (`useTransaction`) dispatches these via EOA `sendTransaction` or smart-account `sendCalls`.
+// A gas estimate for the bridge transaction plus the calls that perform it, the approve first when
+// one is needed. `calls` is `null` when there is nothing to send (zero amount or no connected
+// account). The transaction card sends them (`useTransactionCard`).
 type BridgeTxInfo = {
   gasLimit: bigint
   gasPrice: bigint
@@ -657,6 +647,7 @@ export const getBridgeTx = async ({
   toTokenAddress,
   tokenAddress,
   tokenMode,
+  tokenSymbol,
 }: {
   account: string
   amount: bigint
@@ -665,6 +656,7 @@ export const getBridgeTx = async ({
   toChainId: ChainsValues
   tokenAddress: string
   tokenMode: TOKEN_MODE
+  tokenSymbol: string
   receiveNativeToken?: boolean
   recipient?: string
   toTokenAddress?: string
@@ -758,10 +750,32 @@ export const getBridgeTx = async ({
                   isDAI: isNativeBridge, // use nativeBridge for DAI
                 })
 
+  // the bridge pulls the token, so a short allowance is approved first, in the same stack
+  const approval =
+    tokenMode !== 'ERC677' && amount > allowance
+      ? [
+          {
+            ...toCall({
+              address: tokenAddress as Address,
+              abi: erc20Abi,
+              functionName: 'approve',
+              args: [
+                getBridgeContractConfig(fromChainId, toChainId, tokenAddress).address as Address,
+                amount,
+              ],
+            }),
+            label: `Approve ${tokenSymbol}`,
+          },
+        ]
+      : []
+
   return {
     gasLimit,
     gasPrice,
-    calls,
+    calls: [
+      ...approval,
+      ...calls.map((call) => ({ ...call, label: `Bridge to ${chainsConfig[toChainId].name}` })),
+    ],
   }
 }
 
@@ -787,7 +801,11 @@ export const useBridgeTransactionInfo = ({
   const { isWalletConnected, walletChainId } = useWeb3Connection()
   const isReady = isWalletConnected && walletChainId === fromChainId
 
-  const { data: tokenMode } = useTokenMode(fromChainId, toChainId, token)
+  const { data: tokenMode, isLoading: isLoadingTokenMode } = useTokenMode(
+    fromChainId,
+    toChainId,
+    token,
+  )
   const { data: userBalancesData } = useUserTokenBalances({
     userAddress: userAddress,
     allowanceAddress: getBridgeContractConfig(fromChainId, toChainId, token.address).address,
@@ -812,8 +830,9 @@ export const useBridgeTransactionInfo = ({
       tokenMode,
       receiveNativeToken,
     ],
+    // an ERC677 token reads as ERC20 until its mode loads, which would stack a needless approve
     queryFn:
-      isReady && allowance !== undefined
+      isReady && allowance !== undefined && !isLoadingTokenMode
         ? () =>
             getBridgeTx({
               account: userAddress,
@@ -823,6 +842,7 @@ export const useBridgeTransactionInfo = ({
               tokenAddress: token.address,
               recipient,
               tokenMode,
+              tokenSymbol: token.symbol,
               receiveNativeToken,
               allowance,
               toTokenAddress,

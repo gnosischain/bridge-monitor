@@ -6,9 +6,9 @@ import { Token } from '@/types/token'
 import router from 'next/router'
 import { useEffect, useMemo, useState } from 'react'
 import { Step, statuses, steps } from './const'
-import { StatusDetails } from './StatusDetails'
-import { StepButton } from './StepButton'
-import { Status } from './IconStatus'
+import { StatusDetails } from '@/src/components/transactionCard/StatusDetails'
+import { StepButton } from '@/src/components/transactionCard/StepButton'
+import { Status } from '@/src/components/transactionCard/IconStatus'
 import { usdcTokens } from '@/src/constants/usdcTokens'
 
 type BridgeProps = {

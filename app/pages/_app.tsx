@@ -7,6 +7,7 @@ import SafeSuspense from '@/src/components/safeSuspense'
 import { SingleColumnLayout } from '@/src/components/singleColumnLayout'
 import Toast from '@/src/components/toast'
 import { Head } from '@/src/pagePartials/common/Head'
+import { TransactionCardProvider } from '@/src/providers/transactionCardProvider'
 import { TransactionNotificationProvider } from '@/src/providers/transactionNotificationProvider'
 import ThemeProvider from '@/src/providers/themeProvider'
 import TooltipConfig from '@/src/components/tooltip/TooltipConfig'
@@ -111,7 +112,9 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                 <FcrBanner />
                 <Header />
                 <TransactionNotificationProvider>
-                  {getLayout(<Component {...pageProps} />)}
+                  <TransactionCardProvider>
+                    {getLayout(<Component {...pageProps} />)}
+                  </TransactionCardProvider>
                   <Toast />
                 </TransactionNotificationProvider>
               </SafeSuspense>
