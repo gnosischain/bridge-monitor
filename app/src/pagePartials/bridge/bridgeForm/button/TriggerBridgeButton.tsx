@@ -59,6 +59,7 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
       calls: transactionData.calls,
       chainId: fromChainId,
       title: `Bridge ${formatUnits(amount, token.decimals)} ${token.symbol} to ${chainsConfig[toChainId].name}`,
+      queuedHint: 'Once your wallet executes it, find the bridge in My Transactions.',
       onDone: (txHash) =>
         router.push({
           pathname: `${bridgePagesBaseURL}/${txHash}`,

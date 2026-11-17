@@ -79,6 +79,7 @@ export const SwapAndBridge: React.FC<Props> = ({ amount, recipient, tokenIn, use
       ],
       chainId: Chains.gnosis,
       title: `Bridge ${formatUnits(amount, tokenIn.decimals)} ${tokenIn.symbol} to ${chainsConfig[Chains.mainnet].name}`,
+      queuedHint: 'Once your wallet executes it, find the bridge in My Transactions.',
       onDone: (txHash) =>
         router.push({
           pathname: `${bridgePagesBaseURL}/${txHash}`,

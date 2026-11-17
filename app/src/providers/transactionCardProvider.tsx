@@ -3,8 +3,10 @@ import { ReactNode, createContext, useContext, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import styled from 'styled-components'
 import {
+  type Address,
   BaseError,
   ChainMismatchError,
+  ContractFunctionRevertedError,
   type Hash,
   UserRejectedRequestError,
   WaitForCallsStatusTimeoutError,
@@ -22,6 +24,7 @@ import { ChainsValues } from '@/src/constants/config/types'
 import {
   TransactionRevertedError,
   type TxCall,
+  getPublicClient,
   waitForTransactionReceipt,
 } from '@/src/lib/web3/transactions'
 import { useTransactionNotification } from '@/src/providers/transactionNotificationProvider'
@@ -32,14 +35,17 @@ export type TxRequest = {
   title: string
   chainId: ChainsValues
   calls: TxCall[]
+  // where to find the result once a wallet that queues it (a multisig) executes it
+  queuedHint: string
   // gets the last call's hash once it is sent, after the card closes
   onDone: (hash: Hash) => void
 }
 
-type StepState = 'idle' | 'signing' | 'confirming' | 'done' | 'failed' | 'queued'
+type StepState = 'idle' | 'checking' | 'signing' | 'confirming' | 'done' | 'failed' | 'queued'
 
 const icons: Record<StepState, Status> = {
   idle: 'none',
+  checking: 'waiting',
   signing: 'waiting',
   confirming: 'pending',
   done: 'success',
@@ -47,8 +53,7 @@ const icons: Record<StepState, Status> = {
   queued: 'warning',
 }
 
-const QUEUED_MESSAGE =
-  "Not executed after 60s. Don't submit it again. Once your wallet executes it, find the bridge in My Transactions or reload to continue."
+const QUEUED_MESSAGE = "Not executed after 60s. Don't submit it again."
 const NO_HASH_MESSAGE =
   "Your wallet didn't return a transaction hash. Don't submit it again: track it from your wallet instead."
 
@@ -68,6 +73,33 @@ const errorMessage = (e: unknown, chainName: string) => {
   return e.shortMessage
 }
 
+/**
+ * Simulates the calls in order, each on the state the previous ones leave (`eth_simulateV1`), and
+ * returns the first one that would revert. A node that can't simulate lets the stack through: the
+ * wallet still simulates before signing.
+ */
+const findRevert = async (chainId: ChainsValues, account: Address, calls: TxCall[]) => {
+  try {
+    const { results } = await getPublicClient(chainId).simulateCalls({
+      account,
+      calls: calls.map(({ data, to, value }) => ({ data, to, value })),
+    })
+    const index = results.findIndex(({ status }) => status === 'failure')
+    if (index === -1) return null
+    const { error } = results[index]
+    const reverted =
+      error instanceof BaseError
+        ? (error.walk(
+            (x) => x instanceof ContractFunctionRevertedError,
+          ) as ContractFunctionRevertedError | null)
+        : null
+    return { index, reason: reverted?.reason }
+  } catch (e) {
+    console.error(e)
+    return null
+  }
+}
+
 const TransactionCardContext = createContext<((request: TxRequest) => void) | undefined>(undefined)
 
 /**
@@ -77,7 +109,7 @@ const TransactionCardContext = createContext<((request: TxRequest) => void) | un
  * these transactions change.
  */
 export const TransactionCardProvider = ({ children }: { children: ReactNode }) => {
-  const { canBatch } = useWeb3Connection()
+  const { address, canBatch } = useWeb3Connection()
   const { mutateAsync: sendTransactionAsync } = useSendTransaction()
   const { mutateAsync: sendCallsAsync } = useSendCalls()
   const { notifyTxMined, notifyWaitingForTxMined } = useTransactionNotification()
@@ -94,7 +126,7 @@ export const TransactionCardProvider = ({ children }: { children: ReactNode }) =
   }
 
   const run = async (req: TxRequest, from: number) => {
-    const { calls, chainId, onDone } = req
+    const { calls, chainId, onDone, queuedHint } = req
     const isLive = () => sending.current === req
     const mark = (start: number, end: number, state: StepState) => {
       if (isLive()) setStates((s) => s.map((x, i) => (i >= start && i < end ? state : x)))
@@ -104,7 +136,11 @@ export const TransactionCardProvider = ({ children }: { children: ReactNode }) =
       notifyWaitingForTxMined(hash, chainId)
       const receipt = waitForTransactionReceipt(hash, chainId)
       receipt.then(
-        (r) => notifyTxMined(hash, chainId, r.status === 'success'),
+        (r) => {
+          notifyTxMined(hash, chainId, r.status === 'success')
+          // fresh balances and allowances for the page behind the card
+          queryClient.invalidateQueries({ queryKey: ['readContract'] })
+        },
         () => notifyTxMined(hash, chainId),
       )
       return receipt
@@ -123,6 +159,19 @@ export const TransactionCardProvider = ({ children }: { children: ReactNode }) =
     let step = from
     setMessage('')
     try {
+      // a revert shows here, before any wallet opens, rather than as a wallet warning
+      mark(from, from + 1, 'checking')
+      const revert = address ? await findRevert(chainId, address, calls.slice(from)) : null
+      if (revert) {
+        const { label = 'A step' } = calls[from + revert.index]
+        mark(from, from + 1, 'failed')
+        if (isLive()) {
+          setMessage(`Not sent: ${label} would fail${revert.reason ? ` (${revert.reason})` : ''}.`)
+        }
+        return
+      }
+      if (!isLive()) return
+
       if (canBatch) {
         // one signature, executed all-or-nothing
         mark(from, calls.length, 'signing')
@@ -156,12 +205,12 @@ export const TransactionCardProvider = ({ children }: { children: ReactNode }) =
         const mined = await receipt
         if (mined.status !== 'success') throw new TransactionRevertedError(mined)
         mark(step, step + 1, 'done')
-        // fresh allowance for the form, should the user close the card and start over
-        queryClient.invalidateQueries({ queryKey: ['readContract'] })
       }
     } catch (e) {
       console.error(e)
-      if (e instanceof WaitForCallsStatusTimeoutError) return stop(from, QUEUED_MESSAGE)
+      if (e instanceof WaitForCallsStatusTimeoutError) {
+        return stop(from, `${QUEUED_MESSAGE} ${queuedHint}`)
+      }
       mark(step, canBatch ? calls.length : step + 1, 'failed')
       if (isLive()) setMessage(errorMessage(e, chainsConfig[chainId].name))
     }
@@ -175,6 +224,9 @@ export const TransactionCardProvider = ({ children }: { children: ReactNode }) =
   }
 
   const describe = ({ chainId }: TxRequest, state: StepState, remaining: number) => {
+    if (state === 'checking') {
+      return remaining > 1 ? 'Checking the transactions' : 'Checking the transaction'
+    }
     if (state === 'signing') {
       return canBatch && remaining > 1
         ? 'Confirm in your wallet, one signature for all steps'
