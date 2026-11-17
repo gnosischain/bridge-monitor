@@ -60,7 +60,12 @@ export const BridgeButton: React.FC<BridgeButtonProps> = ({
   })
   const recipientAddress = resolvedAddress ?? recipient
 
-  const { isValidToSend: canBridge, shouldApprove } = useBridgeValidations({
+  const {
+    errorMessage,
+    isValidToSend: canBridge,
+    needsRecipient,
+    shouldApprove,
+  } = useBridgeValidations({
     fromChainId,
     toChainId,
     userAddress,
@@ -100,7 +105,11 @@ export const BridgeButton: React.FC<BridgeButtonProps> = ({
   }
 
   if (!canBridge) {
-    return <DisabledBridgeButton />
+    return (
+      <DisabledBridgeButton
+        label={needsRecipient && !errorMessage ? 'Enter a recipient address' : undefined}
+      />
+    )
   }
 
   if (isUsdceGC) {

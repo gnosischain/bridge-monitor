@@ -3,8 +3,7 @@ import { TransactionStatus } from '@/src/pagePartials/bridgeExplorer/common/Tran
 import { ClaimButton } from '@/src/pagePartials/bridgeExplorer/latestTransactions/ClaimButton'
 import { Transaction } from '@/src/utils/transactions'
 import { TransactionStatus as TxStatusEnum } from '@/src/utils/transactions'
-import { Warning } from '@/src/components/assets/Warning'
-import { StatusColors } from '@/src/pagePartials/bridgeExplorer/common/StatusColors'
+import { IconClock } from '@/src/components/assets/IconClock'
 import { Tooltip } from '@/src/components/tooltip'
 import { txTime } from '@/src/utils/txTime'
 import { ClaimActions } from '@/src/hooks/useTransactions'
@@ -14,17 +13,6 @@ const Wrapper = styled.div`
   column-gap: var(--theme-common-space);
   display: flex;
   flex-direction: row;
-`
-
-const WarningIcon = styled(Warning)`
-  --size: 18px;
-
-  height: var(--size);
-  width: var(--size);
-
-  path {
-    fill: ${StatusColors['INITIATED']};
-  }
 `
 
 const Network = styled.span`
@@ -57,7 +45,7 @@ export const StatusCell: React.FC<Props> = ({ claimActions, transaction }) => {
             </>
           }
         >
-          <WarningIcon />
+          <IconClock />
         </Tooltip>
       )}
       <TransactionStatus status={transactionStatus} />

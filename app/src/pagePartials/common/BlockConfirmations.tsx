@@ -6,7 +6,6 @@ import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { Chains, ChainsKeys } from '@/src/constants/config/types'
 import useBridgeProgress from '@/src/hooks/bridge/useBridgeProgress'
 import { txTime } from '@/src/utils/txTime'
-import { getNetworkConfig } from '@/src/constants/config/chains'
 
 const Wrapper = styled.div`
   background-color: ${({ theme: { colors } }) => colors.page};
@@ -118,6 +117,7 @@ const MonitorBlocksLink = styled.a`
   color: ${({ theme: { colors } }) => colors.fog};
   cursor: pointer;
   display: flex;
+  font-size: 1.3rem;
   gap: 6px;
   text-decoration: none;
 
@@ -139,15 +139,28 @@ interface Props {
   transactionHash: string
 }
 
-export const BlockConfirmations: React.FC<Props> = ({ network, transactionHash, ...restProps }) => {
+export const TransactionLink: React.FC<Props> = ({ network, transactionHash, ...restProps }) => {
   const { getExplorerUrl } = useWeb3Connection()
+
+  return (
+    <MonitorBlocksLink
+      href={getExplorerUrl(transactionHash, network)}
+      rel="noopener noreferrer"
+      target="_blank"
+      {...restProps}
+    >
+      <Magnifier /> Your transaction {shortenAddress(transactionHash)}
+    </MonitorBlocksLink>
+  )
+}
+
+export const BlockConfirmations: React.FC<Props> = ({ network, transactionHash, ...restProps }) => {
   const chainId = Chains[network]
   const { progressData } = useBridgeProgress(chainId, transactionHash)
   const percentage = progressData?.progress || 0
   const sanitizedPercentage = percentage < 0 ? 0 : percentage > 100 ? 100 : percentage || 0
   const requiredBlocks = progressData?.requiredBlocks || 0
   const confirmations = progressData?.confirmations || 0
-  const { blockExplorerName } = getNetworkConfig(chainId)
 
   return (
     <Wrapper {...restProps}>
@@ -167,13 +180,7 @@ export const BlockConfirmations: React.FC<Props> = ({ network, transactionHash, 
       </TopInfo>
       <BottomInfo>
         <EstimatedTime>Estimated time {txTime(network)}</EstimatedTime>
-        <MonitorBlocksLink
-          href={getExplorerUrl(transactionHash, network)}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          <Magnifier /> Your transaction {shortenAddress(transactionHash)}
-        </MonitorBlocksLink>
+        <TransactionLink network={network} transactionHash={transactionHash} />
       </BottomInfo>
     </Wrapper>
   )

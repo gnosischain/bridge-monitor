@@ -14,7 +14,6 @@ export type ChainConfig = {
   blockExplorerUrls: string[]
   token: string
   tokenDecimals: number
-  blockExplorerName: string
   requiredBlockConfirmations: number
   bridge: {
     DAI: string

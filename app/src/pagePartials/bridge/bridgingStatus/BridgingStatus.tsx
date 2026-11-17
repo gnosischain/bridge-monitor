@@ -1,7 +1,8 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import styled from 'styled-components'
 import useBridgeProgress from '@/src/hooks/bridge/useBridgeProgress'
-import { BlockConfirmations } from '@/src/pagePartials/common/BlockConfirmations'
+import { BlockConfirmations, TransactionLink } from '@/src/pagePartials/common/BlockConfirmations'
 import { ButtonFull } from '@/src/components/buttons/Button'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { GenericError } from '@/src/components/error/GenericError'
@@ -36,12 +37,12 @@ const Message = styled.div`
   text-align: center;
 `
 
-const Icon = styled.div<{ $failed: boolean }>`
+const Icon = styled.div<{ $failed: boolean; $waiting: boolean }>`
   --size: 64px;
 
   align-items: center;
-  background-color: ${({ $failed, theme: { colors } }) =>
-    $failed ? colors.errorSoft : colors.successSoft};
+  background-color: ${({ $failed, $waiting, theme: { colors } }) =>
+    $failed ? colors.errorSoft : $waiting ? colors.lilac : colors.successSoft};
   border-radius: 50%;
   color: ${({ theme: { colors } }) => colors.success};
   display: flex;
@@ -63,6 +64,10 @@ const StatusTitle = styled.h2`
   @media (min-width: ${({ theme: { breakPoints } }) => breakPoints.tabletLandscapeStart}) {
     font-size: 3.6rem;
   }
+`
+
+const TxLink = styled(TransactionLink)`
+  align-self: center;
 `
 
 const MessageText = styled.p`
@@ -188,7 +193,15 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
       ) : (
         <InnerWrapper>
           <Message>
-            <Icon $failed={isBridgeFailed}>{isBridgeFailed ? <Failed /> : <Ok />}</Icon>
+            <Icon $failed={isBridgeFailed} $waiting={!isBridgeFailed && !isBridgeComplete}>
+              {isBridgeFailed ? (
+                <Failed />
+              ) : isBridgeComplete ? (
+                <Ok />
+              ) : (
+                <Image alt="" height={32} src="/images/icon-waiting.svg" width={32} />
+              )}
+            </Icon>
             <StatusTitle>
               {isBridgeFailed
                 ? 'Bridge failed'
@@ -228,7 +241,9 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
               )}
             </MessageText>
           </Message>
-          <BlockConfirmations network={initiatorChain} transactionHash={transactionHash} />
+          {!isConfirmed && (
+            <BlockConfirmations network={initiatorChain} transactionHash={transactionHash} />
+          )}
           {isReadyToClaim ? (
             <ButtonClaim claimActions={claimActions} tx={tx} />
           ) : isBridgeFailed ? (
@@ -242,6 +257,7 @@ export const BridgingStatus: React.FC = ({ ...restProps }) => {
               Bridge again
             </ButtonFull>
           )}
+          {isConfirmed && <TxLink network={initiatorChain} transactionHash={transactionHash} />}
         </InnerWrapper>
       )}
     </Wrapper>

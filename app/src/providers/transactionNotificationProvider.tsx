@@ -55,7 +55,8 @@ export const TransactionNotificationProvider: React.FC<{ children: React.ReactNo
   const notifyWaitingForSignature = useCallback(() => {
     notify({
       type: ToastStates.waiting,
-      message: 'Waiting for signature',
+      title: 'Waiting for signature',
+      message: 'Confirm the transaction in your wallet.',
       id: 'waitingForSignature',
     })
   }, [])

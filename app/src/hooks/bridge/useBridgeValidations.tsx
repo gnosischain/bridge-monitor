@@ -89,10 +89,6 @@ export const useBridgeValidations = ({
         throw Error('This token currently is not supported on the Gnosis Bridge')
       }
 
-      // is the wallet is a smart contract wallet, we need to request a recipient
-      if (isSCWallet && !recipient) {
-        throw Error('Please specify a recipient address')
-      }
       if (!isValidAmount) {
         throw Error('Please specify amount')
       }
@@ -136,7 +132,6 @@ export const useBridgeValidations = ({
     isValidAmount,
     isValidToken,
     isCustomERC20Home,
-    isSCWallet,
     recipient,
     minAmountError,
     maxAmountError,
@@ -151,8 +146,13 @@ export const useBridgeValidations = ({
     isResolvingAddress,
   ])
 
+  // a smart contract wallet may not exist at the same address on the other chain; the bridge
+  // button asks for it instead of an error box
+  const needsRecipient = isSCWallet && !recipient
+
   const isValidToSend =
     bridgeLimits !== undefined &&
+    !needsRecipient &&
     !errorMessage &&
     !isResolvingAddress &&
     isValidAmount &&
@@ -164,6 +164,7 @@ export const useBridgeValidations = ({
     errorMessage,
     shouldApprove: tokenMode !== 'ERC677' && amount > 0n && approvalNeeded,
     isValidToSend,
+    needsRecipient,
     isValidAmount,
     isValidToken,
     amountIsGreaterThanBalance: approvalNeeded,

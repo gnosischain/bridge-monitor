@@ -60,7 +60,11 @@ export default function useTransaction() {
           // hash. Poll `wallet_getCallsStatus` for the executed bundle and read the real on-chain
           // hash off its receipt, so downstream (explorer route, receipt waits) gets a valid hash.
           const { id } = await sendCalls(wagmiConfig, { calls, chainId })
-          const { receipts, status } = await waitForCallsStatus(wagmiConfig, { id })
+          // 60s: the timeout toast below says so
+          const { receipts, status } = await waitForCallsStatus(wagmiConfig, {
+            id,
+            timeout: 60_000,
+          })
           if (status !== 'success') {
             throw new Error('Transaction batch failed')
           }
@@ -105,9 +109,10 @@ export default function useTransaction() {
           toast.remove('waitingForSignature')
           notify({
             type: ToastStates.waiting,
-            title: 'Queued in your wallet',
+            title: 'Not executed after 60s',
             message:
-              "Don't submit it again. Once it executes, reload to continue, or find the bridge in My Transactions.",
+              "Don't submit it again. Once your wallet executes it, find the bridge in My Transactions or reload to continue.",
+            duration: Infinity,
           })
           return null
         }
