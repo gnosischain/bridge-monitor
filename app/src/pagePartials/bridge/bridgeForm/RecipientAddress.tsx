@@ -4,15 +4,33 @@ import { Textfield } from '@/src/components/form/Textfield'
 import { ChangeEventHandler } from 'react'
 import { useEffect, useState } from 'react'
 import { SendToDifferentWallet } from '@/src/pagePartials/bridge/bridgeForm/SendToDifferentWallet'
-import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { SkeletonLoading } from '@/src/components/loading/SkeletonLoading'
 import { Eyebrow } from '@/src/components/text/Eyebrow'
 import { Tooltip } from '@/src/components/tooltip'
+import { IconCheck } from '@/src/components/assets/IconCheck'
+import { useSameSafe } from '@/src/hooks/bridge/useSameSafe'
+import { getNetworkConfig } from '@/src/constants/config/chains'
+import { ChainsValues } from '@/src/constants/config/types'
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--theme-common-space);
+`
+
+const ToggleRow = styled.div`
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--theme-common-space);
+`
+
+const SameSafe = styled.span`
+  align-items: center;
+  color: ${({ theme: { colors } }) => colors.fog};
+  display: flex;
+  font-size: 1.3rem;
+  gap: 6px;
 `
 
 const RecipientAddressWrapper = styled(motion.div)`
@@ -50,20 +68,24 @@ const Skeleton = () => (
 )
 
 export const RecipientAddress: React.FC<{
+  fromChainId: ChainsValues
   onChange?: ChangeEventHandler<HTMLInputElement> | undefined
   recipient: string
-}> = ({ onChange, recipient }) => {
-  const { isCheckingSCWallet, isSCWallet } = useWeb3Connection()
+  toChainId: ChainsValues
+}> = ({ fromChainId, onChange, recipient, toChainId }) => {
+  const walletSafe = useSameSafe(fromChainId, toChainId)
+  const isRequired = walletSafe === 'notSameSafe'
+  const toChainName = getNetworkConfig(toChainId).name
 
-  const [isDifferentWalletOpen, setIsDifferentWalletOpen] = useState(isSCWallet || false)
+  const [isDifferentWalletOpen, setIsDifferentWalletOpen] = useState(isRequired)
 
   useEffect(() => {
-    if (isSCWallet) {
+    if (isRequired) {
       setIsDifferentWalletOpen(true)
     }
-  }, [isSCWallet])
+  }, [isRequired])
 
-  const animation = isSCWallet
+  const animation = isRequired
     ? {}
     : {
         animate: { height: 'auto', y: 0, opacity: 1 },
@@ -78,25 +100,34 @@ export const RecipientAddress: React.FC<{
 
   return (
     <Wrapper>
-      {isCheckingSCWallet ? (
+      {walletSafe === 'loading' ? (
         <Skeleton />
       ) : (
         <>
-          {!isSCWallet && (
-            <SendToDifferentWallet
-              isOpen={isDifferentWalletOpen}
-              onClick={() =>
-                setIsDifferentWalletOpen((isDifferentWalletOpen) => !isDifferentWalletOpen)
-              }
-            />
+          {!isRequired && (
+            <ToggleRow>
+              {walletSafe === 'sameSafe' && !recipient && (
+                <SameSafe>
+                  <IconCheck /> Same Safe on {toChainName}
+                </SameSafe>
+              )}
+              <SendToDifferentWallet
+                isOpen={isDifferentWalletOpen}
+                onClick={() =>
+                  setIsDifferentWalletOpen((isDifferentWalletOpen) => !isDifferentWalletOpen)
+                }
+              />
+            </ToggleRow>
           )}
           <AnimatePresence initial={false}>
             {isDifferentWalletOpen && (
               <RecipientAddressWrapper key="recipientAddress" {...animation}>
                 <RecipientAddressHeader as="label" htmlFor="recipientAddress">
                   Recipient address
-                  {isSCWallet && (
-                    <Tooltip content="A recipient address is required when using a smart contract wallet. Be sure you control the recipient address on the destination chain." />
+                  {isRequired && (
+                    <Tooltip
+                      content={`Your wallet isn't the same Safe on ${toChainName}. Enter an address you control there.`}
+                    />
                   )}
                 </RecipientAddressHeader>
                 <Textfield

@@ -9,14 +9,7 @@ import {
   useMemo,
   useState,
 } from 'react'
-import {
-  useCapabilities,
-  useConnection,
-  useDisconnect,
-  usePublicClient,
-  useSwitchChain,
-} from 'wagmi'
-import { useQuery } from '@tanstack/react-query'
+import { useCapabilities, useConnection, useDisconnect, useSwitchChain } from 'wagmi'
 import { BaseError, UserRejectedRequestError } from 'viem'
 
 import { chainsConfig } from '@/src/constants/config/chains'
@@ -36,8 +29,6 @@ export type Web3Context = {
   getExplorerUrl: (hash: string, network?: ChainsKeys) => string
   isWalletConnected: boolean
   isWalletNetworkSupported: boolean
-  isCheckingSCWallet: boolean
-  isSCWallet: boolean | undefined
   canBatch: boolean
   pushNetwork: (chainId: number) => Promise<boolean>
   walletChainId: number | null
@@ -59,20 +50,6 @@ export default function Web3ConnectionProvider({ children }: Props) {
   })
 
   const [showWalletModal, setShowWalletModal] = useState(false)
-
-  const walletPublicClient = usePublicClient({ chainId })
-  const { data: isSCWallet, isLoading: isCheckingSCWallet } = useQuery({
-    queryKey: ['isSCWallet', wagmiAddress, chainId],
-    queryFn: async () => {
-      if (!walletPublicClient || !wagmiAddress) return false
-      const code = await walletPublicClient.getCode({ address: wagmiAddress })
-      if (!code) return false
-      // EIP-7702: an EOA with a delegation has code `0xef0100 || delegate` — still an EOA
-      if (code.toLowerCase().startsWith('0xef0100')) return false
-      return true
-    },
-    enabled: !!wagmiAddress && !!walletPublicClient,
-  })
 
   // EIP-5792 capability probe. Drives whether writes are dispatched via `wallet_sendCalls`
   // (smart accounts) vs a plain `sendTransaction` (EOAs) — see `useTransaction`. Two shapes are
@@ -171,9 +148,7 @@ export default function Web3ConnectionProvider({ children }: Props) {
     connectingWallet: isConnecting,
     disconnectWallet: handleDisconnectWallet,
     getExplorerUrl,
-    isCheckingSCWallet,
     isOnboardChangingChain: isSwitchingChain,
-    isSCWallet,
     isWalletConnected,
     isWalletNetworkSupported,
     pushNetwork,
