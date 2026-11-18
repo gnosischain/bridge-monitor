@@ -5,15 +5,17 @@ import styled from 'styled-components'
 import {
   type Address,
   BaseError,
-  ChainMismatchError,
   ContractFunctionRevertedError,
   type Hash,
+  InvalidParamsRpcError,
   UserRejectedRequestError,
   WaitForCallsStatusTimeoutError,
+  formatTransactionRequest,
   isHash,
+  numberToHex,
 } from 'viem'
-import { useSendCalls, useSendTransaction } from 'wagmi'
-import { waitForCallsStatus } from 'wagmi/actions'
+import { ConnectorChainMismatchError, useSendCalls } from 'wagmi'
+import { getConnectorClient, waitForCallsStatus } from 'wagmi/actions'
 
 import { Modal } from '@/src/components/modal'
 import { type Status } from '@/src/components/transactionCard/IconStatus'
@@ -65,10 +67,15 @@ const Steps = styled.div`
 `
 
 const errorMessage = (e: unknown, chainName: string) => {
+  // wagmi's own error, not a viem BaseError
+  if (e instanceof ConnectorChainMismatchError) {
+    return `Switch your wallet to ${chainName} and try again.`
+  }
   if (!(e instanceof BaseError)) return e instanceof Error ? e.message : 'Something went wrong.'
   if (e.walk((x) => x instanceof UserRejectedRequestError)) return 'Rejected in your wallet.'
-  if (e.walk((x) => x instanceof ChainMismatchError)) {
-    return `Switch your wallet to ${chainName} and try again.`
+  // how a wallet on another chain refuses the `chainId` we send (MetaMask)
+  if (e.walk((x) => x instanceof InvalidParamsRpcError)) {
+    return `Your wallet refused it. Make sure it is on ${chainName} and try again.`
   }
   return e.shortMessage
 }
@@ -110,7 +117,6 @@ const TransactionCardContext = createContext<((request: TxRequest) => void) | un
  */
 export const TransactionCardProvider = ({ children }: { children: ReactNode }) => {
   const { address, canBatch } = useWeb3Connection()
-  const { mutateAsync: sendTransactionAsync } = useSendTransaction()
   const { mutateAsync: sendCallsAsync } = useSendCalls()
   const { notifyTxMined, notifyWaitingForTxMined } = useTransactionNotification()
   const queryClient = useQueryClient()
@@ -171,6 +177,9 @@ export const TransactionCardProvider = ({ children }: { children: ReactNode }) =
         return
       }
       if (!isLive()) return
+      // throws when the wallet reports another chain. Over WalletConnect the dapp side answers, so
+      // the `chainId` sent with each transaction below is what lets the wallet itself refuse
+      const client = await getConnectorClient(wagmiConfig, { chainId })
 
       if (canBatch) {
         // one signature, executed all-or-nothing
@@ -194,9 +203,16 @@ export const TransactionCardProvider = ({ children }: { children: ReactNode }) =
         if (!isLive()) return
         mark(step, step + 1, 'signing')
         const { data, to, value } = calls[step]
-        // shortcut: wagmi drops `chainId` from eth_sendTransaction, so a WalletConnect wallet on
-        // another chain can sign anyway (#514); send it again once that case is handled
-        const hash = await sendTransactionAsync({ chainId, data, to, value })
+        // viem's sendTransaction drops `chainId` from this request (#514)
+        const hash = await client.request({
+          method: 'eth_sendTransaction',
+          params: [
+            {
+              ...formatTransactionRequest({ account: client.account, data, to, value }),
+              chainId: numberToHex(chainId),
+            },
+          ],
+        })
         if (!isHash(hash)) return stop(step, NO_HASH_MESSAGE)
         const receipt = track(hash)
         if (step === calls.length - 1) return finish(hash)
