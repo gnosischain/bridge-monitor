@@ -6,7 +6,6 @@ import { isValidDomainName } from '@/src/utils/isValidDomainName'
 import { useBridgeValidations } from '@/src/hooks/bridge/useBridgeValidations'
 import { ChainsValues } from '@/src/constants/config/types'
 import { Token } from '@/types/token'
-import { ApproveButton } from './ApproveButton'
 import { TriggerBridgeButton } from './TriggerBridgeButton'
 import { DisabledBridgeButton } from './DisabledBridgeButton'
 import { Connect } from '@/src/components/assets/Connect'
@@ -64,7 +63,6 @@ export const BridgeButton: React.FC<BridgeButtonProps> = ({
     errorMessage,
     isValidToSend: canBridge,
     needsRecipient,
-    shouldApprove,
   } = useBridgeValidations({
     fromChainId,
     toChainId,
@@ -116,21 +114,8 @@ export const BridgeButton: React.FC<BridgeButtonProps> = ({
     return (
       <SwapAndBridge
         amount={amount}
-        recipient={recipient}
+        recipient={recipientAddress}
         tokenIn={fromToken}
-        tokenOut={toToken}
-        userAddress={userAddress}
-      />
-    )
-  }
-
-  if (shouldApprove) {
-    return (
-      <ApproveButton
-        amount={amount}
-        fromChainId={fromChainId}
-        toChainId={toChainId}
-        token={fromToken}
         userAddress={userAddress}
       />
     )

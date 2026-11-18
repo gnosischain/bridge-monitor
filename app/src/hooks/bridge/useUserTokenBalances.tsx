@@ -21,30 +21,18 @@ export const useUserTokenBalances = ({
   const isNative = !!tokenAddress && isNativeToken(tokenAddress)
   const isErc20 = !!tokenAddress && !isNative
 
-  const {
-    data: nativeBalance,
-    isLoading: isLoadingNativeBalance,
-    refetch: refetchNativeBalance,
-  } = useBalance({
+  const { data: nativeBalance, isLoading: isLoadingNativeBalance } = useBalance({
     address: userAddress as Address,
     chainId,
     query: { enabled: isNative && !!userAddress, placeholderData: keepPreviousData },
   })
 
-  const {
-    data: gasPrice,
-    isLoading: isLoadingGasPrice,
-    refetch: refetchGasPrice,
-  } = useGasPrice({
+  const { data: gasPrice, isLoading: isLoadingGasPrice } = useGasPrice({
     chainId,
     query: { enabled: isNative, placeholderData: keepPreviousData },
   })
 
-  const {
-    data: erc20Balance,
-    isLoading: isLoadingErc20Balance,
-    refetch: refetchErc20Balance,
-  } = useReadContract({
+  const { data: erc20Balance, isLoading: isLoadingErc20Balance } = useReadContract({
     address: tokenAddress as Address,
     abi: erc20Abi,
     functionName: 'balanceOf',
@@ -53,11 +41,7 @@ export const useUserTokenBalances = ({
     query: { enabled: isErc20 && !!userAddress, placeholderData: keepPreviousData },
   })
 
-  const {
-    data: erc20Allowance,
-    isLoading: isLoadingErc20Allowance,
-    refetch: refetchErc20Allowance,
-  } = useReadContract({
+  const { data: erc20Allowance, isLoading: isLoadingErc20Allowance } = useReadContract({
     address: tokenAddress as Address,
     abi: erc20Abi,
     functionName: 'allowance',
@@ -100,20 +84,8 @@ export const useUserTokenBalances = ({
     allowanceAddress,
   ])
 
-  // TODO: drop `refetch` once the approval flow uses `useWaitForTransactionReceipt`
-  // (wagmi auto-invalidates queries on block, making manual refetch unnecessary).
-  // Currently kept because `ApproveButton` calls it after the approval is mined to refresh allowance.
-  const refetch = async () => {
-    if (isNative) {
-      await refetchNativeBalance()
-      await refetchGasPrice()
-    } else {
-      await Promise.all([refetchErc20Balance(), refetchErc20Allowance()])
-    }
-  }
-
   const isLoading =
     isLoadingNativeBalance || isLoadingGasPrice || isLoadingErc20Balance || isLoadingErc20Allowance
 
-  return { data, refetch, isLoading }
+  return { data, isLoading }
 }

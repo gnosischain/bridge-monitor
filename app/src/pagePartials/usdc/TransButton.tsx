@@ -1,19 +1,18 @@
 import styled from 'styled-components'
+import { type Address, erc20Abi, formatUnits } from 'viem'
+import TransmuterAbi from '@/src/abis/TransmuterEurc'
 import { ButtonFull } from '@/src/components/buttons/Button'
 import { Connect } from '@/src/components/assets/Connect'
 import { Chains } from '@/src/constants/config/types'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { getNetworkConfig } from '@/src/constants/config/chains'
-import { useState } from 'react'
-import { useApproval } from '@/src/hooks/bridge/useApproval'
-import useTransaction from '@/src/hooks/useTransaction'
 import { useUserTokenBalances } from '@/src/hooks/bridge/useUserTokenBalances'
-import { waitForMinedReceipt } from '@/src/lib/web3/transactions'
+import { toCall } from '@/src/lib/web3/transactions'
+import { useTransactionCard } from '@/src/providers/transactionCardProvider'
 import useWeb3Name from '@/src/hooks/useWeb3Name'
 import { isValidDomainName } from '@/src/utils/isValidDomainName'
 import { TokenUsdc } from './types'
-import { TRANSMUTER_ADDRESS } from '@/src/constants/misc'
-import { useTransmuterTxInfo } from '@/src/hooks/usdcTransmuter/useTransmuterTxInfo'
+import { TRANSMUTER_ADDRESS, USDC_XDAI_OLD } from '@/src/constants/misc'
 import { usdcTokens } from '@/src/constants/usdcTokens'
 
 const Button = styled(ButtonFull)`
@@ -29,121 +28,13 @@ export const DisabledTransButton = () => (
   </Button>
 )
 
-const ApproveButton: React.FC<{
-  userAddress: string
-  token: TokenUsdc
-  amount: bigint
-}> = ({ amount, token, userAddress }) => {
-  const [isSending, setIsSending] = useState(false)
-
-  const approve = useApproval()
-
-  const { refetch: refreshBalanceToken } = useUserTokenBalances({
-    userAddress,
-    chainId: Chains.gnosis,
-    allowanceAddress: TRANSMUTER_ADDRESS,
-    tokenAddress: token.address,
-  })
-
-  const handleApprove = async () => {
-    setIsSending(true)
-
-    try {
-      const hash = await approve({
-        amount,
-        chainId: Chains.gnosis,
-        spenderAddress: TRANSMUTER_ADDRESS,
-        tokenAddress: token.address,
-      })
-
-      if (hash) {
-        await waitForMinedReceipt(hash, Chains.gnosis)
-        await refreshBalanceToken()
-      }
-    } catch (e) {
-      // waitForMinedReceipt rejects on revert or on the receipt-poll timeout — don't leave the
-      // button stuck on the "approving" placeholder
-      console.error(e)
-    } finally {
-      setIsSending(false)
-    }
-  }
-
-  if (isSending) {
-    return <ButtonPlaceholder />
-  }
-
-  return <Button onClick={handleApprove}>Approve</Button>
-}
-
-const TriggerTransButton: React.FC<{
-  amount: bigint
-  token: TokenUsdc
-  userAddress: string
-  clearForm: () => void
-}> = ({ amount, clearForm, token, userAddress }) => {
-  const [isSending, setIsSending] = useState(false)
-
-  const sendTx = useTransaction()
-
-  const { refetch: refreshBalanceToken } = useUserTokenBalances({
-    userAddress,
-    chainId: Chains.gnosis,
-    allowanceAddress: TRANSMUTER_ADDRESS,
-    tokenAddress: token.address,
-  })
-
-  const tokenOutAddress =
-    token.address === usdcTokens.usdcXdaiOld.address
-      ? usdcTokens.usdceGnosis.address
-      : usdcTokens.usdcXdaiOld.address
-  const { refetch: refreshBalanceTokenOut } = useUserTokenBalances({
-    userAddress,
-    chainId: Chains.gnosis,
-    allowanceAddress: TRANSMUTER_ADDRESS,
-    tokenAddress: tokenOutAddress,
-  })
-
-  const transactionData = useTransmuterTxInfo({ amount, token, userAddress })
-
-  const handleTransTx = async () => {
-    if (!transactionData || !transactionData.calls) return
-
-    setIsSending(true)
-
-    try {
-      const hash = await sendTx({ calls: transactionData.calls, chainId: Chains.gnosis })
-      if (hash) {
-        await waitForMinedReceipt(hash, Chains.gnosis)
-        clearForm()
-        Promise.all([refreshBalanceToken(), refreshBalanceTokenOut()])
-      } else {
-        throw new Error('Failed to swap')
-      }
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setIsSending(false)
-    }
-  }
-
-  if (isSending) {
-    return <ButtonPlaceholder />
-  }
-
-  if (!transactionData) {
-    return <DisabledTransButton />
-  }
-
-  return <Button onClick={handleTransTx}>Swap</Button>
-}
-
 export const TransButton: React.FC<{
   amount: bigint
   fromToken: TokenUsdc
   userAddress: string
   clearForm: () => void
 }> = ({ amount, clearForm, fromToken, userAddress }) => {
+  const sendTransactions = useTransactionCard()
   const {
     connectWallet,
     connectingWallet,
@@ -173,7 +64,6 @@ export const TransButton: React.FC<{
   }
 
   const isValidToSend = amount > 0n && amount <= userBalanceData.balance
-  const shouldApprove = amount > userBalanceData.allowance && amount <= userBalanceData.balance
 
   if (!isValidToSend) {
     return <DisabledTransButton />
@@ -208,16 +98,44 @@ export const TransButton: React.FC<{
     )
   }
 
-  if (shouldApprove) {
-    return <ApproveButton amount={amount} token={fromToken} userAddress={userAddress} />
+  const handleSwap = () => {
+    const isDeposit = fromToken.address === USDC_XDAI_OLD
+    const toToken = isDeposit ? usdcTokens.usdceGnosis : usdcTokens.usdcXdaiOld
+    // the transmuter pulls the token, so a short allowance is approved first, in the same stack
+    const approval =
+      amount > userBalanceData.allowance
+        ? [
+            {
+              ...toCall({
+                address: fromToken.address as Address,
+                abi: erc20Abi,
+                functionName: 'approve',
+                args: [TRANSMUTER_ADDRESS, amount],
+              }),
+              label: `Approve ${fromToken.symbol}`,
+            },
+          ]
+        : []
+
+    sendTransactions({
+      calls: [
+        ...approval,
+        {
+          ...toCall({
+            address: TRANSMUTER_ADDRESS,
+            abi: TransmuterAbi,
+            functionName: isDeposit ? 'deposit' : 'withdraw',
+            args: [amount],
+          }),
+          label: `Swap ${fromToken.symbol} to ${toToken.symbol}`,
+        },
+      ],
+      chainId: Chains.gnosis,
+      title: `Swap ${formatUnits(amount, fromToken.decimals)} ${fromToken.symbol} to ${toToken.symbol}`,
+      queuedHint: 'Once your wallet executes it, reload to see your new balances.',
+      onDone: clearForm,
+    })
   }
 
-  return (
-    <TriggerTransButton
-      amount={amount}
-      clearForm={clearForm}
-      token={fromToken}
-      userAddress={userAddress}
-    />
-  )
+  return <Button onClick={handleSwap}>Swap</Button>
 }

@@ -255,7 +255,7 @@ export const Transaction: React.FC = ({ ...restProps }) => {
               The validators signed this transfer. Claim it to receive the tokens on Ethereum.
             </ClaimText>
           </div>
-          <ClaimButton claimActions={claimActions} transaction={currentTx}>
+          <ClaimButton claimActions={claimActions} transactions={[currentTx]}>
             Claim your token
           </ClaimButton>
         </ClaimCard>

@@ -9,6 +9,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useTransactionsWithFilters } from '@/src/hooks/useTransactions'
 import { bridgeExplorerBaseURL } from '@/src/constants/sections'
 import { MainCard } from '@/src/components/card/MainCard'
+import { ClaimButton } from '@/src/pagePartials/bridgeExplorer/latestTransactions/ClaimButton'
+import { TransactionStatus } from '@/src/utils/transactions'
 
 const Wrapper = styled.div`
   --results-min-height: 273px; // handy to avoid layout shift when loading
@@ -66,6 +68,17 @@ const Info = styled.p`
   }
 `
 
+const Actions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--theme-common-space);
+`
+
+// the height of ShareResults, which it sits next to
+const ClaimAllButton = styled(ClaimButton)`
+  height: 36px;
+`
+
 const TransactionsWrapper = styled.div`
   padding: calc(var(--theme-common-space) * 2);
 
@@ -84,6 +97,10 @@ export const Results: React.FC<{ filters: TransactionFilter }> = ({ filters, ...
   const searchResultsURL = useMemo(
     () => `${bridgeExplorerBaseURL}?hash=${filters.hash}`,
     [filters.hash],
+  )
+  const claimable = transactions.filter(
+    ({ isClaiming, transactionStatus }) =>
+      transactionStatus === TransactionStatus.Unclaimed && !isClaiming,
   )
 
   return (
@@ -113,7 +130,14 @@ export const Results: React.FC<{ filters: TransactionFilter }> = ({ filters, ...
                     <Info>
                       <b>{transactions.length}</b> transactions found
                     </Info>
-                    <ShareResults value={`${window.location.origin}${searchResultsURL}`} />
+                    <Actions>
+                      <ShareResults value={`${window.location.origin}${searchResultsURL}`} />
+                      {claimable.length > 1 && (
+                        <ClaimAllButton claimActions={claimActions} transactions={claimable}>
+                          {`Claim all (${claimable.length})`}
+                        </ClaimAllButton>
+                      )}
+                    </Actions>
                   </InfoWrapper>
                 ) : null}
                 <TransactionsWrapper>

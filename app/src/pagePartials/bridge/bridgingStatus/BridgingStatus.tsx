@@ -112,7 +112,7 @@ const isClaimable = (tx: Transaction | null): tx is Transaction =>
   tx?.transactionStatus === TransactionStatus.Unclaimed && !tx.execution
 
 const ButtonClaim = ({ claimActions, tx }: { claimActions: ClaimActions; tx: Transaction }) => {
-  const { claim, isWorking } = useClaim(tx, claimActions)
+  const { claim, isWorking } = useClaim([tx], claimActions)
 
   return (
     <ButtonFull disabled={isWorking || tx.isClaiming} onClick={claim}>

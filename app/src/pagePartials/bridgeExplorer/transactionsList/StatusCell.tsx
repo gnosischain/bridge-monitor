@@ -32,7 +32,7 @@ export const StatusCell: React.FC<Props> = ({ claimActions, transaction }) => {
   const { initiatorNetwork, receiverNetwork, transactionStatus } = transaction
 
   return transactionStatus === TxStatusEnum.Unclaimed ? (
-    <ClaimButton claimActions={claimActions} transaction={transaction} />
+    <ClaimButton claimActions={claimActions} transactions={[transaction]} />
   ) : (
     <Wrapper>
       {transactionStatus === 'INITIATED' && (

@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useRouter } from 'next/router'
-import useTransaction from '@/src/hooks/useTransaction'
+import { formatUnits } from 'viem'
 import { useBridgeTransactionInfo } from '@/src/hooks/bridge/useBridgeTransactionInfo'
-import { getBridgeCommonInfo } from '@/src/hooks/bridge/utils/getBridgeCommonInfo'
 import { bridgePagesBaseURL } from '@/src/constants/sections'
+import { chainsConfig } from '@/src/constants/config/chains'
 import { ChainsValues } from '@/src/constants/config/types'
+import { useTransactionCard } from '@/src/providers/transactionCardProvider'
 import { Token } from '@/types/token'
 import { Button } from './Button'
 import { ButtonPlaceholder } from './ButtonPlaceholder'
@@ -30,8 +31,7 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
   token,
   userAddress,
 }) => {
-  const [isSending, setIsSending] = useState(false)
-  const sendTx = useTransaction()
+  const sendTransactions = useTransactionCard()
   const router = useRouter()
 
   const { data: transactionData, isPending } = useBridgeTransactionInfo({
@@ -49,39 +49,29 @@ export const TriggerBridgeButton: React.FC<TriggerBridgeButtonProps> = ({
 
   if (!transactionData) throw new Error('Transaction data is not available')
 
-  const { isNativeBridge } = getBridgeCommonInfo({
-    fromChainId,
-    toChainId,
-    tokenAddress: token.address,
-  })
-
-  const handleBridgeTx = async () => {
-    setIsSending(true)
-
+  const handleBridgeTx = () => {
     if (!transactionData.calls) {
       console.error('No transactionData.calls')
       return
     }
 
-    try {
-      const txHash = await sendTx({ calls: transactionData.calls, chainId: fromChainId })
-      if (txHash) {
-        router.push(
-          `${bridgePagesBaseURL}/${txHash}?fromChainId=${fromChainId}&isNativeBridge=${
-            isNativeBridge ? 1 : 0
-          }&tokenAddress=${token.address}&amount=${amount}&toChainId=${toChainId}&submitted=1`,
-        )
-      } else {
-        throw new Error('Failed to bridge')
-      }
-    } catch (error) {
-      console.error(error)
-      setIsSending(false)
-    }
-  }
-
-  if (isSending) {
-    return <ButtonPlaceholder />
+    sendTransactions({
+      calls: transactionData.calls,
+      chainId: fromChainId,
+      title: `Bridge ${formatUnits(amount, token.decimals)} ${token.symbol} to ${chainsConfig[toChainId].name}`,
+      queuedHint: 'Once your wallet executes it, find the bridge in My Transactions.',
+      onDone: (txHash) =>
+        router.push({
+          pathname: `${bridgePagesBaseURL}/${txHash}`,
+          query: {
+            fromChainId,
+            tokenAddress: token.address,
+            amount: amount.toString(),
+            toChainId,
+            submitted: 1,
+          },
+        }),
+    })
   }
 
   return <Button onClick={handleBridgeTx}>Bridge</Button>

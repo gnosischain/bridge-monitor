@@ -1,14 +1,15 @@
 import { useState } from 'react'
 
+import toast from 'react-hot-toast'
 import { type Abi, type Address, type Hash, type Hex, parseAbi, parseEventLogs } from 'viem'
 import { useReadContract } from 'wagmi'
 
 import ForeignBridgeRouter_abi from '@/src/abis/ForeignBridgeRouter'
 import { notify } from '@/src/components/toast'
+import { chainsConfig } from '@/src/constants/config/chains'
 import { contracts } from '@/src/constants/config/contracts'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { ToastStates } from '@/src/constants/types'
-import useTransaction from '@/src/hooks/useTransaction'
 import { ClaimActions } from '@/src/hooks/useTransactions'
 import {
   TransactionRevertedError,
@@ -18,7 +19,9 @@ import {
   toCall,
   waitForMinedReceipt,
 } from '@/src/lib/web3/transactions'
+import { useTransactionCard } from '@/src/providers/transactionCardProvider'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
+import { shortenAddress } from '@/src/utils/tools'
 import { Transaction } from '@/src/utils/transactions'
 
 const ETHEREUM_BLOCK_TIME = 12_000
@@ -35,6 +38,14 @@ const getRelayId = (transaction: Transaction): Hex =>
       ? '0x00000000' + transaction.id.substring(10)
       : transaction.transactionHash
     : transaction.id) as Hex
+
+const isClaimedOnChain = (transaction: Transaction) =>
+  getPublicClient(Chains.mainnet).readContract({
+    address: (isXDAI(transaction) ? contracts.XDAIBridge : contracts.AMB).address[Chains.mainnet],
+    abi: relayedMessagesAbi,
+    functionName: 'relayedMessages',
+    args: [getRelayId(transaction)],
+  })
 
 const getClaimTx = async (
   transaction: Transaction,
@@ -130,15 +141,59 @@ const getClaimTx = async (
 }
 
 /**
- * Claims a Gnosis Chain → Ethereum withdrawal on Ethereum: connects the wallet or switches it to
- * Ethereum first when needed, then sends the claim and records it through `claimActions`.
+ * Claims Gnosis Chain → Ethereum withdrawals on Ethereum, all from one transaction card: connects
+ * the wallet or switches it to Ethereum first when needed, then sends the claims and records them
+ * through `claimActions`.
  */
-export const useClaim = (transaction: Transaction, claimActions: ClaimActions) => {
+export const useClaim = (transactions: Transaction[], claimActions: ClaimActions) => {
   const { connectWallet, getExplorerUrl, isWalletConnected, pushNetwork, walletChainId } =
     useWeb3Connection()
+  const sendTransactions = useTransactionCard()
   const [isWorking, setIsWorking] = useState(false)
 
-  const sendTx = useTransaction()
+  // shows the withdrawals as claiming, then claimed, before the indexer catches up
+  const recordClaim = async (claimed: Transaction[], claimHash: Hash) => {
+    claimed.forEach((transaction) => claimActions.markAsClaiming(transaction))
+
+    try {
+      // Rejects with a TransactionRevertedError on a revert, so getting past it means the
+      // withdrawals really are completed (the card checked the earlier claims an EOA sent).
+      const receipt = await waitForMinedReceipt(claimHash, Chains.mainnet)
+      // shortcut: an EOA sends one transaction per claim, yet all record the last one's hash until
+      // the indexer has theirs; pass every hash to `onDone` if that ever matters.
+      claimed.forEach((transaction) =>
+        claimActions.markAsClaimed(transaction, {
+          transactionHash: receipt.transactionHash,
+          // The receipt carries no block timestamp, and the client clock is close enough for a
+          // value the indexer overwrites on its next refetch.
+          timestamp: Date.now(),
+          executor: receipt.from,
+        }),
+      )
+    } catch (e) {
+      console.error('Claim failed', e)
+
+      if (e instanceof TransactionRevertedError) {
+        claimed.forEach((transaction) => claimActions.clearClaim(transaction))
+        notify({
+          type: ToastStates.failed,
+          explorerUrl: getExplorerUrl(e.receipt.transactionHash),
+          message: 'Failed to claim - it might have already been claimed',
+          id: 'claim',
+        })
+      } else {
+        // The claim is broadcast but its receipt never arrived: the poll gives up after 180s, and
+        // an RPC failure rejects the same way.
+        notify({
+          title: 'Claim still pending',
+          type: ToastStates.waiting,
+          explorerUrl: getExplorerUrl(claimHash),
+          message: 'Taking longer than usual to confirm, it will complete on its own.',
+          id: 'claim',
+        })
+      }
+    }
+  }
 
   const claim = async (): Promise<void> => {
     setIsWorking(true)
@@ -172,55 +227,50 @@ export const useClaim = (transaction: Transaction, claimActions: ClaimActions) =
       id: 'claim',
     })
 
-    let claimHash: Hash | null = null
-
     try {
-      const claimTx = await getClaimTx(transaction)
+      // The indexer lags behind claims sent from elsewhere, and in a batch one of those would fail
+      // all the others.
+      const claimedOnChain = await Promise.all(transactions.map(isClaimedOnChain))
+      const unclaimed = transactions.filter((_, i) => !claimedOnChain[i])
+      if (!unclaimed.length) {
+        notify({
+          title: 'Already claimed',
+          type: ToastStates.success,
+          message: 'It shows as completed once the explorer catches up.',
+          id: 'claim',
+        })
+        return
+      }
 
-      claimHash = await sendTx(claimTx)
-      if (!claimHash) throw new Error('No receipt')
+      const claims = await Promise.all(unclaimed.map(getClaimTx))
+      const { chainId } = claims[0]
+      const chainName = chainsConfig[chainId].name
+      // the card takes over from the gathering toast
+      toast.dismiss('claim')
 
-      // update tx to reflect claiming in progress
-      claimActions.markAsClaiming(transaction)
-
-      // Rejects with a TransactionRevertedError on a revert, so getting past it means the
-      // withdrawal really is completed.
-      const receipt = await waitForMinedReceipt(claimHash, Chains.mainnet)
-      claimActions.markAsClaimed(transaction, {
-        transactionHash: receipt.transactionHash,
-        // The receipt carries no block timestamp, and the client clock is close enough for a value
-        // the indexer overwrites on its next refetch.
-        timestamp: Date.now(),
-        executor: receipt.from,
+      sendTransactions({
+        // several claims are told apart by the hash the explorer list shows for each
+        calls: claims.flatMap(({ calls }, i) =>
+          calls.map((call) => ({
+            ...call,
+            label:
+              unclaimed.length > 1
+                ? `Claim ${shortenAddress(unclaimed[i].transactionHash, 8, 6)}`
+                : `Claim on ${chainName}`,
+          })),
+        ),
+        chainId,
+        title: `Claim your tokens on ${chainName}`,
+        queuedHint: 'Once your wallet executes it, reload to see it claimed.',
+        onDone: (hash) => recordClaim(unclaimed, hash),
       })
     } catch (e) {
       console.error('Claim failed', e)
-
-      if (e instanceof TransactionRevertedError) {
-        claimActions.clearClaim(transaction)
-        notify({
-          type: ToastStates.failed,
-          explorerUrl: getExplorerUrl(e.receipt.transactionHash),
-          message: 'Failed to claim - it might have already been claimed',
-          id: 'claim',
-        })
-      } else if (claimHash) {
-        // The claim is broadcast but its receipt never arrived: the poll gives up after 180s, and
-        // an RPC failure rejects the same way.
-        notify({
-          title: 'Claim still pending',
-          type: ToastStates.waiting,
-          explorerUrl: getExplorerUrl(claimHash),
-          message: 'Taking longer than usual to confirm, it will complete on its own.',
-          id: 'claim',
-        })
-      } else {
-        notify({
-          type: ToastStates.failed,
-          message: 'Failed to claim',
-          id: 'claim',
-        })
-      }
+      notify({
+        type: ToastStates.failed,
+        message: 'Failed to claim',
+        id: 'claim',
+      })
     } finally {
       setIsWorking(false)
     }
