@@ -1,14 +1,15 @@
 import { useState } from 'react'
 
+import toast from 'react-hot-toast'
 import { type Abi, type Address, type Hash, type Hex, parseAbi, parseEventLogs } from 'viem'
 import { useReadContract } from 'wagmi'
 
 import ForeignBridgeRouter_abi from '@/src/abis/ForeignBridgeRouter'
 import { notify } from '@/src/components/toast'
+import { chainsConfig } from '@/src/constants/config/chains'
 import { contracts } from '@/src/constants/config/contracts'
 import { Chains, ChainsValues } from '@/src/constants/config/types'
 import { ToastStates } from '@/src/constants/types'
-import useTransaction from '@/src/hooks/useTransaction'
 import { ClaimActions } from '@/src/hooks/useTransactions'
 import {
   TransactionRevertedError,
@@ -18,6 +19,7 @@ import {
   toCall,
   waitForMinedReceipt,
 } from '@/src/lib/web3/transactions'
+import { useTransactionCard } from '@/src/providers/transactionCardProvider'
 import { useWeb3Connection } from '@/src/providers/web3ConnectionProvider'
 import { Transaction } from '@/src/utils/transactions'
 
@@ -131,14 +133,54 @@ const getClaimTx = async (
 
 /**
  * Claims a Gnosis Chain → Ethereum withdrawal on Ethereum: connects the wallet or switches it to
- * Ethereum first when needed, then sends the claim and records it through `claimActions`.
+ * Ethereum first when needed, then sends the claim from the transaction card and records it
+ * through `claimActions`.
  */
 export const useClaim = (transaction: Transaction, claimActions: ClaimActions) => {
   const { connectWallet, getExplorerUrl, isWalletConnected, pushNetwork, walletChainId } =
     useWeb3Connection()
+  const sendTransactions = useTransactionCard()
   const [isWorking, setIsWorking] = useState(false)
 
-  const sendTx = useTransaction()
+  // shows the withdrawal as claiming, then claimed, before the indexer catches up
+  const recordClaim = async (claimHash: Hash) => {
+    claimActions.markAsClaiming(transaction)
+
+    try {
+      // Rejects with a TransactionRevertedError on a revert, so getting past it means the
+      // withdrawal really is completed.
+      const receipt = await waitForMinedReceipt(claimHash, Chains.mainnet)
+      claimActions.markAsClaimed(transaction, {
+        transactionHash: receipt.transactionHash,
+        // The receipt carries no block timestamp, and the client clock is close enough for a value
+        // the indexer overwrites on its next refetch.
+        timestamp: Date.now(),
+        executor: receipt.from,
+      })
+    } catch (e) {
+      console.error('Claim failed', e)
+
+      if (e instanceof TransactionRevertedError) {
+        claimActions.clearClaim(transaction)
+        notify({
+          type: ToastStates.failed,
+          explorerUrl: getExplorerUrl(e.receipt.transactionHash),
+          message: 'Failed to claim - it might have already been claimed',
+          id: 'claim',
+        })
+      } else {
+        // The claim is broadcast but its receipt never arrived: the poll gives up after 180s, and
+        // an RPC failure rejects the same way.
+        notify({
+          title: 'Claim still pending',
+          type: ToastStates.waiting,
+          explorerUrl: getExplorerUrl(claimHash),
+          message: 'Taking longer than usual to confirm, it will complete on its own.',
+          id: 'claim',
+        })
+      }
+    }
+  }
 
   const claim = async (): Promise<void> => {
     setIsWorking(true)
@@ -172,55 +214,25 @@ export const useClaim = (transaction: Transaction, claimActions: ClaimActions) =
       id: 'claim',
     })
 
-    let claimHash: Hash | null = null
-
     try {
-      const claimTx = await getClaimTx(transaction)
+      const { calls, chainId } = await getClaimTx(transaction)
+      // the card takes over from the gathering toast
+      toast.dismiss('claim')
 
-      claimHash = await sendTx(claimTx)
-      if (!claimHash) throw new Error('No receipt')
-
-      // update tx to reflect claiming in progress
-      claimActions.markAsClaiming(transaction)
-
-      // Rejects with a TransactionRevertedError on a revert, so getting past it means the
-      // withdrawal really is completed.
-      const receipt = await waitForMinedReceipt(claimHash, Chains.mainnet)
-      claimActions.markAsClaimed(transaction, {
-        transactionHash: receipt.transactionHash,
-        // The receipt carries no block timestamp, and the client clock is close enough for a value
-        // the indexer overwrites on its next refetch.
-        timestamp: Date.now(),
-        executor: receipt.from,
+      sendTransactions({
+        calls: calls.map((call) => ({ ...call, label: `Claim on ${chainsConfig[chainId].name}` })),
+        chainId,
+        title: `Claim your tokens on ${chainsConfig[chainId].name}`,
+        queuedHint: 'Once your wallet executes it, reload to see it claimed.',
+        onDone: recordClaim,
       })
     } catch (e) {
       console.error('Claim failed', e)
-
-      if (e instanceof TransactionRevertedError) {
-        claimActions.clearClaim(transaction)
-        notify({
-          type: ToastStates.failed,
-          explorerUrl: getExplorerUrl(e.receipt.transactionHash),
-          message: 'Failed to claim - it might have already been claimed',
-          id: 'claim',
-        })
-      } else if (claimHash) {
-        // The claim is broadcast but its receipt never arrived: the poll gives up after 180s, and
-        // an RPC failure rejects the same way.
-        notify({
-          title: 'Claim still pending',
-          type: ToastStates.waiting,
-          explorerUrl: getExplorerUrl(claimHash),
-          message: 'Taking longer than usual to confirm, it will complete on its own.',
-          id: 'claim',
-        })
-      } else {
-        notify({
-          type: ToastStates.failed,
-          message: 'Failed to claim',
-          id: 'claim',
-        })
-      }
+      notify({
+        type: ToastStates.failed,
+        message: 'Failed to claim',
+        id: 'claim',
+      })
     } finally {
       setIsWorking(false)
     }

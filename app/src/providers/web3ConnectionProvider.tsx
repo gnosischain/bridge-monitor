@@ -52,7 +52,7 @@ export default function Web3ConnectionProvider({ children }: Props) {
   const [showWalletModal, setShowWalletModal] = useState(false)
 
   // EIP-5792 capability probe. Drives whether writes are dispatched via `wallet_sendCalls`
-  // (smart accounts) vs a plain `sendTransaction` (EOAs) — see `useTransaction`. Two shapes are
+  // (smart accounts) vs a plain `sendTransaction` (EOAs) — see `TransactionCardProvider`. Two shapes are
   // checked: the standard `atomic.status` and the non-standard `atomicBatch.supported` still emitted
   // by the Safe Apps provider.
   const { data: capabilities } = useCapabilities({

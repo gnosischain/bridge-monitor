@@ -1,7 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 import { type Hash } from 'viem'
-import toast from 'react-hot-toast'
 
 import { notify } from '@/src/components/toast'
 import { ChainsValues } from '@/src/constants/config/types'
@@ -19,9 +18,7 @@ type TransactionStorageItem = {
 
 type TransactionContextValue = {
   notifyTxMined: (txHash: string, chainId: ChainsValues, isSuccess?: boolean) => void
-  notifyWaitingForSignature: () => void
   notifyWaitingForTxMined: (txHash: string, chainId: ChainsValues) => void
-  notifyRejectSignature: (msg: string) => void
   state: TransactionStorageItem[]
 }
 
@@ -52,23 +49,8 @@ export const TransactionNotificationProvider: React.FC<{ children: React.ReactNo
     [setTransactionStore, transactionStore],
   )
 
-  const notifyWaitingForSignature = useCallback(() => {
-    notify({
-      type: ToastStates.waiting,
-      title: 'Waiting for signature',
-      message: 'Confirm the transaction in your wallet.',
-      id: 'waitingForSignature',
-    })
-  }, [])
-
-  const notifyRejectSignature = useCallback((msg: string) => {
-    toast.remove('waitingForSignature')
-    notify({ type: ToastStates.failed, message: msg })
-  }, [])
-
   const notifyWaitingForTxMined = useCallback(
     (txHash: string, chainId: ChainsValues) => {
-      toast.remove('waitingForSignature')
       if (!transactionStore || !address) return
       setTransactionStore([...transactionStore, { chainId, address, txHash }])
 
@@ -151,17 +133,9 @@ export const TransactionNotificationProvider: React.FC<{ children: React.ReactNo
     () => ({
       state: transactionStore as TransactionStorageItem[],
       notifyTxMined,
-      notifyWaitingForSignature,
       notifyWaitingForTxMined,
-      notifyRejectSignature,
     }),
-    [
-      transactionStore,
-      notifyTxMined,
-      notifyWaitingForSignature,
-      notifyWaitingForTxMined,
-      notifyRejectSignature,
-    ],
+    [transactionStore, notifyTxMined, notifyWaitingForTxMined],
   )
 
   return <TransactionContext.Provider value={values}>{children}</TransactionContext.Provider>
